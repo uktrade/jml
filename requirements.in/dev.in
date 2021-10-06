@@ -2,15 +2,9 @@
 
 Faker
 factory-boy
-selenium
-beautifulsoup4
 black
 pytest
 pytest-cov
 pytest-django
 pytest-xdist
-behave-django
-pyperclip
-webdriver-manager
-freezegun
 pip-tools>=6.0.1

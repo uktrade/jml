@@ -6,32 +6,12 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 from django_log_formatter_ecs import ECSFormatter
 
-MIDDLEWARE += [
-    "authbroker_client.middleware.ProtectAllViewsMiddleware",
-    "django_audit_log_middleware.AuditLogMiddleware",
-]
-
-# AUTHENTICATION_BACKENDS += [
-#     "user.backends.CustomAuthbrokerBackend",
-# ]
-
-INSTALLED_APPS += [
-    "django_audit_log_middleware",
-]
-
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "front_end/build/static"),
-    os.path.join(BASE_DIR, "node_modules/govuk-frontend"),
-)
-
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # X_ROBOTS_TAG (https://man.uktrade.io/docs/procedures/1st-go-live.html)
 X_ROBOTS_TAG = [
     'noindex',
     'nofollow',
 ]
-
 
 LOGGING = {
     "version": 1,

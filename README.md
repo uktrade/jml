@@ -1,19 +1,13 @@
-# jml
-Joiners Movers Leavers
+# Joiners Movers Leavers prototype
 
+## Setup
 
+1. `cp .env.example .env`
+2. Configure env vars (talk to SRE for values)
+3. `npm install`
+4. `make build`
+5. `make up`
 
-## Local set up -> with out docker  
- pipenv install -r requirements.txt
+## Update requirements files
 
-## Added some exports for local set up
-
-export SECRET_KEY=test_key-praveen
-export ALLOWED_HOSTS=localhost,localhost:8000
-export DATABASE_URL=psql://postgres:postgres@localhost:5432/EmployeeDB
-
-chcked more env. variables from  'local.env.example'
-
-## Start app using command below 
-
-python manage.py runserver
+`make requirements`

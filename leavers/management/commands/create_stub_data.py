@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
 
-from employee_register.models import Position
+from leavers.models import Position
 
-import employee_register
+import leavers
 
 class PositionStub:
     name = "Cost Centre Hierarchy"
@@ -48,10 +48,10 @@ class Command(BaseCommand):
         # The modified save writes the current user to the log, but
         # the user is not available while we are running a command.
         # So set  the test flag to stop writing to the log
-        employee_register._called_from_test = True
+        leavers._called_from_test = True
         p = what()
         p.create()
-        del employee_register._called_from_test
+        del leavers._called_from_test
         self.stdout.write(
             self.style.SUCCESS(
                 "Successfully completed stub data creation for {}.".format(
@@ -61,10 +61,10 @@ class Command(BaseCommand):
         )
 
     def clear(self, what):
-        employee_register._called_from_test = True
+        leavers._called_from_test = True
         p = what()
         p.clear()
-        del employee_register._called_from_test
+        del leavers._called_from_test
         self.stdout.write(
             self.style.SUCCESS(
                 "Successfully cleared stub data for {}.".format(
