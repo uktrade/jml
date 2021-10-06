@@ -1,0 +1,143 @@
+# Created by https://www.gitignore.io
+
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+.env
+.envrc
+.environ
+.environ_backup
+
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
+*.mo
+*.pot
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+
+db.sqlite3
+
+.vscode/
+
+my_project_visualized.png
+
+
+.direnv/
+.idea/
+.pytest_cache/
+bin/
+.environ
+
+include/
+pip-selfcheck.json
+venv/
+
+myignore/
+
+prod_dump_clean.sql
+prod_dump_clean_backup.sql
+
+# Docker compose
+.env
+
+# Local src dir
+src/
+!/front_end/src/
+
+# Front end static dir
+fido/staticfiles/*
+staticfiles/*
+
+# Node module dir
+node_modules
+
+!bin/
+
+backup.sql
+backup.backup
+backup.dump
+
+#CSS
+core/static/core/css/styles.css
+
+# Fixture data
+fixtures/*
+
+# Test files
+test.txt
+test_*.txt

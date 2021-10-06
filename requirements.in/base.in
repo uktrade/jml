@@ -1,0 +1,11 @@
+django>=3.1.9
+django-environ
+django-log-formatter-ecs
+django-sass-processor>=1.0.1
+django-settings-export
+django-staff-sso-client
+libsass==0.20.0
+psycopg2>=2.8.5,<3
+whitenoise==5.2
+django-staff-sso-client
+sentry-sdk>=1.1.0

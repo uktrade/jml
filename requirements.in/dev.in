@@ -1,0 +1,10 @@
+-r base.in
+
+Faker
+factory-boy
+black
+pytest
+pytest-cov
+pytest-django
+pytest-xdist
+pip-tools>=6.0.1
