@@ -28,7 +28,7 @@ django-settings-export==1.2.1
     # via -r requirements.in/base.in
 django-staff-sso-client==2.2.1
     # via -r requirements.in/base.in
-django==3.2.4
+django==3.2.5
     # via
     #   -r requirements.in/base.in
     #   django-audit-log-middleware
