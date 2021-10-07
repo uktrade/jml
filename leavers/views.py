@@ -4,6 +4,13 @@ from django.shortcuts import (
     reverse,
 )
 
+from django_workflow_engine.views import (
+    FlowListView,
+    FlowCreateView,
+    FlowContinueView,
+    FlowView,
+)
+
 from leavers.forms import LeaversForm
 from leavers.models import LeavingRequest
 
@@ -28,3 +35,20 @@ def leavers_form(request):
     }
 
     return render(request, 'leaver_form.html', context)
+
+
+class LeaversFlowListView(FlowListView):
+    template_name = "flow_list.html"
+
+
+class LeaversFlowCreateView(FlowCreateView):
+    template_name = "flow_form.html"
+
+
+class LeaversFlowContinueView(FlowContinueView):
+    # TODO: Can't override template like this for the continue view.
+    template_name = "flow_continue.html"
+
+
+class LeaversFlowView(FlowView):
+    template_name = "flow_detail.html"

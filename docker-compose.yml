@@ -1,4 +1,5 @@
 version: '3'
+# Network section required to avoid staff SSO IP collision
 networks:
   default:
     ipam:

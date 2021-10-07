@@ -37,6 +37,6 @@ class LeaversForm(forms.ModelForm):
             raise ValidationError(
                 "If you are leaving the DIT, please check the 'I am "
                 "leaving DIT' checkbox. If you are filling this form "
-                "out for someone else please provide their email "
+                "out for someone else, please provide their email "
                 "address"
             )
