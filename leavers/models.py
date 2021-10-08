@@ -13,3 +13,4 @@ class LeavingRequest(models.Model):
     for_self = models.BooleanField(default=False)
     leaver_email_address = models.EmailField(null=True, blank=True)
     last_day = models.DateTimeField(null=True, blank=True)
+    hardware_received = models.BooleanField(default=False)

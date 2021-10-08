@@ -11,7 +11,7 @@ from leavers.views import (
 
 urlpatterns = [
     path(
-        "workflow/",
+        "",
         workflow_urls(
             view=LeaversFlowView,
             list_view=LeaversFlowListView,

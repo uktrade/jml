@@ -132,13 +132,11 @@ MIDDLEWARE = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    #"django.contrib.auth.backends.ModelBackend",
+    "django.contrib.auth.backends.ModelBackend",
     "user.backends.CustomAuthbrokerBackend",
 ]
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
-
-AUTHBROKER_ANONYMOUS_PATHS = []
 
 CACHES = {
     'default': {

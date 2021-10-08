@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django_workflow_engine.views import (
     FlowListView,
     FlowCreateView,
@@ -14,10 +15,14 @@ class LeaversFlowCreateView(FlowCreateView):
     template_name = "flow_form.html"
 
 
-class LeaversFlowContinueView(FlowContinueView):
+class LeaversFlowContinueView(
+    FlowContinueView,
+):
     # TODO: Can't override template like this for the continue view.
     template_name = "flow_continue.html"
 
 
-class LeaversFlowView(FlowView):
+class LeaversFlowView(
+    FlowView,
+):
     template_name = "flow_detail.html"
