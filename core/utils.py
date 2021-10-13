@@ -4,7 +4,7 @@ from django.conf import settings
 
 
 def send_slack_message(message_content):
-    url = settings.SLACK_WEB_HOOK
+    url = settings.SLACK_WEBHOOK_URL
     webhook = WebhookClient(url)
 
     response = webhook.send(text=message_content)

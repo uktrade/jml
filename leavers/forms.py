@@ -1,4 +1,5 @@
-from django import forms
+import datetime
+
 from django.core.exceptions import ValidationError
 from django import forms
 from django.forms.widgets import (
@@ -43,28 +44,21 @@ class GovFormattedForm(forms.Form):
                 widget.attrs.update({"class": "govuk-input"})
 
 
-class LeaversForm(GovFormattedModelForm):
-    class Meta:
-        model = LeavingRequest
-        fields = (
-            "for_self",
-            "leaver_email_address",
-            "last_day",
-        )
-        labels = {
-            "for_self": 'I am leaving the DIT (leave blank if filling in for someone else)',
-            "leaver_email_address": 'Email address of leaver (if not you)',
-            "last_day": "When is the leavers last day?",
-        }
-        widgets = {
-            'last_day': DateSelectorWidget(),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # self.fields['for_self'].widget.attrs.update({'class': "govuk-checkboxes__input"})
-        # self.fields['leaver_email_address'].widget.attrs.update({'class': "govuk-textarea"})
-        # self.fields['last_day'].widget.attrs.update({'class': "govuk-textarea"})
+class LeaversForm(GovFormattedForm):
+    for_self = forms.BooleanField(
+        label='I am leaving the DIT (leave blank if filling in for someone else)',
+        required=False,
+    )
+    leaver_email_address = forms.EmailField(
+        label="Email address of leaver (if not you)",
+        required=False,
+    )
+    last_day = forms.DateField(
+        label="When is the leavers last day?",
+        initial=datetime.date.today,
+        widget=DateSelectorWidget(),
+        required=True,
+    )
 
     def clean(self):
         cleaned_data = super().clean()

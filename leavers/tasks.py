@@ -5,6 +5,8 @@ from django_workflow_engine import (
     TaskError,
 )
 
+from core.utils import send_slack_message
+
 from leavers.forms import (
     LeaversForm,
     HardwareReceivedForm,
@@ -27,17 +29,22 @@ class CreateLeavingRequest(Task, input="create_leaving_request"):  # type: ignor
     template = "flow_continue.html"
 
     def execute(self, task_info):
-        form = self.form_class(instance=self.flow.leaving_request, data=task_info)
+        form = self.form_class(data=task_info)
 
         if form.is_valid():
-            form.save()
+            self.flow.leaving_request.last_day = form.cleaned_data["last_day"]
+            if form.cleaned_data["for_self"]:
+                self.flow.leaving_request.leaver_user = self.user
+            else:
+                self.flow.leaving_request.requester_user = self.user
+            self.flow.leaving_request.save()
         else:
             raise TaskError("Form is not valid", {"form": form})
 
         return None, form.cleaned_data
 
     def context(self):
-        return {"form": self.form_class(instance=self.flow.leaving_request)}
+        return {"form": self.form_class()}
 
 
 class FindGroupRecipients(Task, input="find_group_recipients"):
@@ -70,3 +77,19 @@ class ConfirmHardwareReceived(Task, input="confirm_hardware_received"):
 
     def context(self):
         return {"form": self.form_class(instance=self.flow.leaving_request)}
+
+
+class SendSRESlackMessage(Task, input="send_sre_slack_message"):
+    auto = True
+
+    def execute(self, task_info):
+        user = self.flow.leaving_request.leaver_user
+
+        print("Leaver user...")
+        print(self.flow.leaving_request.leaver_user.first_name)
+
+        send_slack_message(
+            f"Please carry out leaving tasks for {user.first_name} {user.last_name}"
+        )
+
+        return None, {}
