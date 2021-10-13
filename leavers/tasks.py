@@ -79,6 +79,25 @@ class ConfirmHardwareReceived(Task, input="confirm_hardware_received"):
         return {"form": self.form_class(instance=self.flow.leaving_request)}
 
 
+class SREEConfirmTasksComplete(Task, input="sre_confirm_tasks_complete"):
+    auto = False
+    form_class = ""  # TODO own form
+    template = ""  # TODO own template
+
+    def execute(self, task_info):
+        form = self.form_class(instance=self.flow.leaving_request, data=task_info)
+
+        if not form.is_valid():
+            raise TaskError("Form is not valid", {"form": form})
+
+        target = "sre_tasks_complete"
+
+        return target, form.cleaned_data
+
+    def context(self):
+        return {"form": self.form_class(instance=self.flow.leaving_request)}
+
+
 class SendSRESlackMessage(Task, input="send_sre_slack_message"):
     auto = True
 
