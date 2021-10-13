@@ -85,9 +85,6 @@ class SendSRESlackMessage(Task, input="send_sre_slack_message"):
     def execute(self, task_info):
         user = self.flow.leaving_request.leaver_user
 
-        print("Leaver user...")
-        print(self.flow.leaving_request.leaver_user.first_name)
-
         send_slack_message(
             f"Please carry out leaving tasks for {user.first_name} {user.last_name}"
         )
