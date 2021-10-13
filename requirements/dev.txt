@@ -40,11 +40,14 @@ django-settings-export==1.2.1
     # via -r requirements.in/base.in
 django-staff-sso-client==2.2.1
     # via -r requirements.in/base.in
+django-workflow-engine==0.0.14
+    # via -r requirements.in/base.in
 django==3.2.4
     # via
     #   -r requirements.in/base.in
     #   django-settings-export
     #   django-staff-sso-client
+    #   django-workflow-engine
 execnet==1.7.1
     # via pytest-xdist
 factory-boy==2.12.0

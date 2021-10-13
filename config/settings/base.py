@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "leavers",
     "user",
     "authbroker_client",
+    "django_workflow_engine",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -105,7 +106,7 @@ STATICFILES_FINDERS = [
 ]
 
 STATICFILES_DIRS = [
-    BASE_DIR / "node_modules/govuk-frontend/",
+    BASE_DIR / "node_modules/",
 ]
 
 SASS_PROCESSOR_INCLUDE_DIRS = [
@@ -131,13 +132,11 @@ MIDDLEWARE = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    #"django.contrib.auth.backends.ModelBackend",
+    "django.contrib.auth.backends.ModelBackend",
     "user.backends.CustomAuthbrokerBackend",
 ]
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
-
-AUTHBROKER_ANONYMOUS_PATHS = []
 
 CACHES = {
     'default': {
@@ -145,3 +144,8 @@ CACHES = {
         'LOCATION': 'django_cache_table',
     }
 }
+
+# django-workflow-engine
+DJANGO_WORKFLOWS = [
+    "leavers.workflow.LeaversWorkflow",
+]

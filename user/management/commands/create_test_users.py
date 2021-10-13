@@ -1,17 +1,18 @@
 from typing import List, Tuple
 
 from django.core.management.base import BaseCommand
+from django.contrib.auth.models import Group
 
 from user.models import User
 
 # first name, last name
 USERS: List[Tuple[str, str]] = [
-    ("John", "Smith"),
-    ("Jane", "Doe"),
-    ("Elon", "Musk"),
-    ("Bill", "Gates"),
-    ("Ada", "Lovelace"),
-    ("Grace", "Hopper"),
+    ("John", "Smith", "Hardware Team"),
+    # ("Jane", "Doe"),
+    # ("Elon", "Musk"),
+    # ("Bill", "Gates"),
+    # ("Ada", "Lovelace"),
+    # ("Grace", "Hopper"),
 ]
 
 
@@ -22,8 +23,8 @@ class Command(BaseCommand):
         self.exists = 0
         self.created = 0
 
-        for first_name, last_name in USERS:
-            self.create_user(first_name, last_name)
+        for first_name, last_name, group in USERS:
+            self.create_user(first_name, last_name, group)
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -33,11 +34,19 @@ class Command(BaseCommand):
             )
         )
 
-    def create_user(self, first_name: str, last_name: str) -> User:
+    def create_user(self, first_name: str, last_name: str, group_name: str) -> User:
         username = f"{first_name.lower()}.{last_name.lower()}@example.com"
 
         try:
+            group = Group.objects.get(name=group_name)
+        except Group.DoesNotExist:
+            group = Group.objects.create(
+                name=group_name,
+            )
+
+        try:
             user = User.objects.get(username=username)
+
             self.stdout.write(f"{username} already exists")
             self.exists += 1
         except User.DoesNotExist:
@@ -46,8 +55,15 @@ class Command(BaseCommand):
                 email=username,
                 first_name=first_name,
                 last_name=last_name,
+                is_staff=True,
+                is_superuser=True,
             )
+            user.set_password("password")
+            user.save()
             self.stdout.write(f"{username} created")
             self.created += 1
+
+        group.user_set.add(user)
+        self.stdout.write(f"{username} added to {group.name}")
 
         return user

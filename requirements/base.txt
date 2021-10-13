@@ -24,11 +24,14 @@ django-settings-export==1.2.1
     # via -r requirements.in/base.in
 django-staff-sso-client==2.2.1
     # via -r requirements.in/base.in
+django-workflow-engine==0.0.14
+    # via -r requirements.in/base.in
 django==3.2.4
     # via
     #   -r requirements.in/base.in
     #   django-settings-export
     #   django-staff-sso-client
+    #   django-workflow-engine
 idna==2.7
     # via requests
 kubi-ecs-logger==0.0.6

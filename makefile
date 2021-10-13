@@ -34,14 +34,9 @@ down:
 
 first-use:
 	docker-compose down
+	docker-compose up -d db
 	docker-compose run --rm leavers python manage.py migrate
-	docker-compose run --rm leavers python manage.py create_stub_data All
-	docker-compose run --rm leavers python manage.py create_stub_forecast_data
-	docker-compose run --rm leavers python manage.py create_data_lake_stub_data
-	docker-compose run --rm leavers python manage.py populate_gift_hospitality_table
-	docker-compose run --rm leavers python manage.py create_test_user --password=password
-	docker-compose run --rm leavers python manage.py create_test_user --email=finance-admin@test.com --group="Finance Administrator" --password=password
-	docker-compose run --rm leavers python manage.py create_test_user --email=finance-bp@test.com --group="Finance Business Partner/BSCE" --password=password
+	docker-compose run --rm leavers python manage.py create_test_users
 	docker-compose up
 
 migrations:

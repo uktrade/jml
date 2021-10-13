@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "cytoscape": "^3.19.1",
     "govuk-frontend": "^3.13.1"
   }
 }
