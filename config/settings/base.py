@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     "sass_processor",
     "leavers",
     "user",
+    "core",
     "authbroker_client",
     "django_workflow_engine",
 ]
@@ -149,3 +150,5 @@ CACHES = {
 DJANGO_WORKFLOWS = [
     "leavers.workflow.LeaversWorkflow",
 ]
+
+SLACK_WEBHOOK_URL = env("SLACK_WEBHOOK_URL")

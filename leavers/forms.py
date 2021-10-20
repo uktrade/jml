@@ -1,4 +1,5 @@
-from django import forms
+import datetime
+
 from django.core.exceptions import ValidationError
 from django import forms
 from django.forms.widgets import (
@@ -43,28 +44,21 @@ class GovFormattedForm(forms.Form):
                 widget.attrs.update({"class": "govuk-input"})
 
 
-class LeaversForm(GovFormattedModelForm):
-    class Meta:
-        model = LeavingRequest
-        fields = (
-            "for_self",
-            "leaver_email_address",
-            "last_day",
-        )
-        labels = {
-            "for_self": 'I am leaving the DIT (leave blank if filling in for someone else)',
-            "leaver_email_address": 'Email address of leaver (if not you)',
-            "last_day": "When is the leavers last day?",
-        }
-        widgets = {
-            'last_day': DateSelectorWidget(),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # self.fields['for_self'].widget.attrs.update({'class': "govuk-checkboxes__input"})
-        # self.fields['leaver_email_address'].widget.attrs.update({'class': "govuk-textarea"})
-        # self.fields['last_day'].widget.attrs.update({'class': "govuk-textarea"})
+class LeaversForm(GovFormattedForm):
+    for_self = forms.BooleanField(
+        label='I am leaving the DIT (leave blank if filling in for someone else)',
+        required=False,
+    )
+    leaver_email_address = forms.EmailField(
+        label="Email address of leaver (if not you)",
+        required=False,
+    )
+    last_day = forms.DateField(
+        label="When is the leavers last day?",
+        initial=datetime.date.today,
+        widget=DateSelectorWidget(),
+        required=True,
+    )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -86,3 +80,37 @@ class HardwareReceivedForm(GovFormattedModelForm):
         fields = (
             "hardware_received",
         )
+
+
+class SREConfirmCompleteForm(GovFormattedForm):
+    vpn_access = forms.BooleanField(
+        label="VPN access removed?",
+        required=True,
+    )
+    govuk_paas = forms.BooleanField(
+        label="GOVUK PAAS access removed?",
+        required=True,
+    )
+    github = forms.BooleanField(
+        label="Github user removed from teams and repos?",
+        required=False,
+    )
+    # slack = forms.BooleanField(
+    #     required=False,
+    # )
+    sso = forms.BooleanField(
+        label="SSO access removed?",
+        required=True,
+    )
+    aws = forms.BooleanField(
+        label="AWS access removed?",
+        required=True,
+    )
+    jira = forms.BooleanField(
+        label="Jira access removed?",
+        required=True,
+    )
+
+
+class LeaverOrLineManagerForm(GovFormattedForm):
+    pass
