@@ -21,20 +21,20 @@ LeaversWorkflow = Workflow(
         Step(
             step_id="create_leaving_request",
             task_name="create_leaving_request",
-            target="send_sre_slack_message",
-        ),
-        Step(
-            step_id="send_sre_slack_message",
-            task_name="send_sre_slack_message",
             target="sre_confirm_tasks_complete",
         ),
+        # Step(
+        #     step_id="send_sre_slack_message",
+        #     task_name="send_sre_slack_message",
+        #     target="sre_confirm_tasks_complete",
+        # ),
         Step(
             step_id="sre_confirm_tasks_complete",
             task_name="sre_confirm_tasks_complete",
             target=None,
-            groups=[
-                "SRE",
-            ]
+            # groups=[
+            #     "SRE",
+            # ]
         ),
         # Step(
         #     step_id="find_group_recipients",

@@ -27,3 +27,21 @@ class LeavingRequest(models.Model):
         null=True,
         blank=True,
     )
+    vpn_access_removed = models.BooleanField(
+        default=False,
+    )
+    sentry_access_removed = models.BooleanField(
+        default=False,
+    )
+    github_user_access_removed = models.BooleanField(
+        default=False,
+    )
+    sso_access_removed = models.BooleanField(
+        default=False,
+    )
+    aws_access_removed = models.BooleanField(
+        default=False,
+    )
+    jira_access_removed = models.BooleanField(
+        default=False,
+    )

@@ -80,3 +80,37 @@ class HardwareReceivedForm(GovFormattedModelForm):
         fields = (
             "hardware_received",
         )
+
+
+class SREConfirmCompleteForm(GovFormattedForm):
+    vpn_access = forms.BooleanField(
+        label="VPN access removed?",
+        required=True,
+    )
+    govuk_paas = forms.BooleanField(
+        label="GOVUK PAAS access removed?",
+        required=True,
+    )
+    github = forms.BooleanField(
+        label="Github user removed from teams and repos?",
+        required=False,
+    )
+    # slack = forms.BooleanField(
+    #     required=False,
+    # )
+    sso = forms.BooleanField(
+        label="SSO access removed?",
+        required=True,
+    )
+    aws = forms.BooleanField(
+        label="AWS access removed?",
+        required=True,
+    )
+    jira = forms.BooleanField(
+        label="Jira access removed?",
+        required=True,
+    )
+
+
+class LeaverOrLineManagerForm(GovFormattedForm):
+    pass
