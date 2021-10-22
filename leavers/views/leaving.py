@@ -1,10 +1,8 @@
 from django.views.generic import TemplateView
-
+from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 
-from django.core.exceptions import ValidationError
-
-from leavers.forms import DetailsForm
+from leavers.forms import WhoIsLeavingForm, WhenAreTheyLeavingForm
 
 
 class LeaversStartView(TemplateView):
@@ -14,32 +12,22 @@ class LeaversStartView(TemplateView):
 class LeaverOrLineManagerView(TemplateView):
     template_name = "leaving_details/leaver_or_line_manager.html"
 
+
 class LeavingSearchView(TemplateView):
     template_name = "leaving_details/search.html"
-
-# class LeavingDetailsView(DetailsForm):
-#     template_name = "leaving_details/details.html"
 
 
 class LeavingDetailsView(FormView):
     template_name = "leaving_details/details.html"
-    form_class = DetailsForm
-    success_url = '/start/'
+    form_class = WhoIsLeavingForm
+    success_url = reverse_lazy("search")
 
-    def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
-        if form.is_valid():
-            self.flow.leaving_request.last_day = form.cleaned_data["last_day"]
-            if form.cleaned_data["for_self"]:
-                self.flow.leaving_request.leaver_user = self.user
-            else:
-                self.flow.leaving_request.requester_user = self.user
-            self.flow.leaving_request.save()
-        else:
-            raise ValidationError("Form is not valid", {"form": form})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['who_is_leaving_form'] = self.form_class
+        context['when_are_they_leaving_form'] = WhenAreTheyLeavingForm()
+        return context
 
-        return None, form.cleaned_data
 
 class LeavingSearchResultView(TemplateView):
     template_name = "leaving_details/search-result.html"

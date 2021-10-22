@@ -125,29 +125,38 @@ class ContactForm(forms.Form):
         pass
 
 
+class WhoIsLeavingForm(GovFormattedForm):
+    CHOICES = [
+        ("me", 'Me'),
+        ("someone_else", 'Someone Else'),
+    ]
+
+    who_for = forms.ChoiceField(
+        choices=CHOICES,
+        widget=forms.RadioSelect(
+            attrs={"class": "govuk-radios__input"}
+        )
+    )
+    #
+    #
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #     for_self = cleaned_data.get("for_self")
+    #     leaver_email_address = cleaned_data.get("leaver_email_address")
+    #
+    #     if not for_self:
+    #         raise ValidationError(
+    #             "If you are leaving the DIT, please select the 'me'"
+    #             "checkbox. If you are filling this form out"
+    #             "for someone else, please select 'Some One Else'"
+    #         )
 
 
-class DetailsForm(GovFormattedForm):
-    CHOICES=[('Ture','Me'),
-         ('False','Some One Else')]
-
-    for_self = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(attrs={'class':'govuk-radios__input'}))
-
+class WhenAreTheyLeavingForm(GovFormattedForm):
     last_day = forms.DateField(
-        label="The leaving Date if know",
+        label="",
         initial=datetime.date.today,
-        widget=DateSelectorWidget(),
+        widget=DateSelectorWidget(hint="For example, 27 3 2007"),
         required=True,
     )
 
-    def clean(self):
-        cleaned_data = super().clean()
-        for_self = cleaned_data.get("for_self")
-        leaver_email_address = cleaned_data.get("leaver_email_address")
-
-        if not for_self:
-            raise ValidationError(
-                "If you are leaving the DIT, please select the 'me'"
-                "checkbox. If you are filling this form out"
-                "for someone else, please select 'Some One Else'"
-            )

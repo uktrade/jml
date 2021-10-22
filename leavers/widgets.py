@@ -4,6 +4,7 @@ from django import forms
 
 class DateSelectorWidget(forms.MultiWidget):
     input_type = "date_multi_field"
+    hint = ""
 
     @property
     def test(self):
@@ -13,7 +14,8 @@ class DateSelectorWidget(forms.MultiWidget):
     def day(self):
         return self.widgets[0]
 
-    def __init__(self, attrs=None):
+    def __init__(self, hint="", attrs=None):
+        self.hint = hint
         widgets = [
             forms.NumberInput(),
             forms.NumberInput(),

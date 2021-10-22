@@ -2,10 +2,23 @@
 
 {% block content %}
     <form novalidate method='post'>
+        {% csrf_token %}
         <fieldset class="govuk-fieldset">
-            {% csrf_token %}
-            {% include "includes/govt_uk_form.html" with form=form %}
-            <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                <h1 class="govuk-fieldset__heading">
+                    Who is leaving?
+                </h1>
+            </legend>
         </fieldset>
+        {% include "includes/govt_uk_form.html" with form=who_is_leaving_form %}
+        <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                <h1 class="govuk-fieldset__heading">
+                    When are they leaving (if known)?
+                </h1>
+            </legend>
+        </fieldset>
+        {% include "includes/govt_uk_form.html" with form=when_are_they_leaving_form %}
+        <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
     </form>
 {% endblock %}
