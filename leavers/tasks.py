@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-
+from django.views.generic.edit import FormView
 from django_workflow_engine import (
     Task,
     TaskError,
@@ -130,3 +130,15 @@ class SendSRESlackMessage(Task, input="send_sre_slack_message"):
         )
 
         return None, {}
+
+class ContactFormView(FormView):
+    template_name = 'leaving_details/leaver_or_line_manager.html'
+    form_class = LeaversForm
+    success_url = '/start/'
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        form.send_email()
+        return super().form_valid(form)
+        

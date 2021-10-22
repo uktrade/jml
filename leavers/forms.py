@@ -114,3 +114,40 @@ class SREConfirmCompleteForm(GovFormattedForm):
 
 class LeaverOrLineManagerForm(GovFormattedForm):
     pass
+
+
+class ContactForm(forms.Form):
+    name = forms.CharField()
+    message = forms.CharField(widget=forms.Textarea)
+
+    def send_email(self):
+        # send email using the self.cleaned_data dictionary
+        pass
+
+
+
+
+class DetailsForm(GovFormattedForm):
+    CHOICES=[('Ture','Me'),
+         ('False','Some One Else')]
+
+    for_self = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect(attrs={'class':'govuk-radios__input'}))
+
+    last_day = forms.DateField(
+        label="The leaving Date if know",
+        initial=datetime.date.today,
+        widget=DateSelectorWidget(),
+        required=True,
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        for_self = cleaned_data.get("for_self")
+        leaver_email_address = cleaned_data.get("leaver_email_address")
+
+        if not for_self:
+            raise ValidationError(
+                "If you are leaving the DIT, please select the 'me'"
+                "checkbox. If you are filling this form out"
+                "for someone else, please select 'Some One Else'"
+            )

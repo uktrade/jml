@@ -1,0 +1,74 @@
+{% extends "leavers_base.html" %}
+
+{% block content %}
+<a href="/start/" class="govuk-back-link">Back</a>
+</br>
+</br>
+<form action="/search/" method="post">
+    {% csrf_token %}
+    <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+            <h1 class="govuk-fieldset__heading">
+                Who Is Leaving?
+            </h1>
+          </legend>
+          <div class="govuk-radios">
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="who-is-leaving" name="who-is-leaving" type="radio" value="false">
+              <label class="govuk-label govuk-radios__label" for="who-is-leaving">
+                Me
+              </label>
+            </div>
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="who-is-leaving-not-me" name="who-is-leaving" type="radio" value="true">
+              <label class="govuk-label govuk-radios__label" for="who-is-leaving-not-me">
+                Some One Else
+              </label>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="govuk-form-group">
+        <fieldset class="govuk-fieldset" role="group" aria-describedby="leaving-hint">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+            <h1 class="govuk-fieldset__heading">
+              The leaving Date if know
+            </h1>
+          </legend>
+          <div id="leaving-hint" class="govuk-hint">
+            For example, 27 3 2022
+          </div>
+          <div class="govuk-date-input" id="leaving">
+            <div class="govuk-date-input__item">
+              <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label" for="leaving-day">
+                  Day
+                </label>
+                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="leaving-day" name="leaving-day" type="text" pattern="[0-9]*" inputmode="numeric"></div>
+            </div>
+            <div class="govuk-date-input__item">
+              <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label" for="leaving-month">
+                  Month
+                </label>
+                <input class="govuk-input govuk-date-input__input govuk-input--width-2" id="leaving-month" name="leaving-month" type="text" pattern="[0-9]*" inputmode="numeric"></div>
+            </div>
+            <div class="govuk-date-input__item">
+              <div class="govuk-form-group">
+                <label class="govuk-label govuk-date-input__label" for="leaving-year">
+                  Year
+                </label>
+                <input class="govuk-input govuk-date-input__input govuk-input--width-4" id="leaving-year" name="leaving-year" type="text" pattern="[0-9]*" inputmode="numeric"></div>
+            </div>
+          </div>
+      
+        </fieldset>
+      </div>
+
+      <a href="/search/" role="button" draggable="false" class="govuk-button govuk-button--start" data-module="govuk-button">
+        Next
+    </a>
+</form>
+{% endblock %}

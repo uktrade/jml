@@ -1,0 +1,21 @@
+{% extends "leavers_base.html" %}
+
+{% block content %}
+
+<a href="/search/" class="govuk-back-link">Back</a>
+</br>
+</br>
+<form action="/search-result/" method="post">
+    {% csrf_token %}
+    <div class="govuk-form-group">
+        <div id="email-hint" class="govuk-hint">
+          Person not found? Enter there email
+        </div>
+        <input class="govuk-input" id="email" name="email" type="email" spellcheck="false" aria-describedby="email-hint" autocomplete="email">
+      </div>
+
+      <a href="/saved-result/" role="button" draggable="false" class="govuk-button govuk-button--start" data-module="govuk-button">
+        Submit
+    </a>
+</form>
+{% endblock %}
