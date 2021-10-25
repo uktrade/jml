@@ -2,7 +2,7 @@ from django.views.generic import TemplateView
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 
-from leavers.forms import WhoIsLeavingForm, WhenAreTheyLeavingForm
+from leavers.forms import WhoIsLeavingForm
 
 
 class LeaversStartView(TemplateView):
@@ -22,11 +22,10 @@ class LeavingDetailsView(FormView):
     form_class = WhoIsLeavingForm
     success_url = reverse_lazy("search")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['who_is_leaving_form'] = self.form_class
-        context['when_are_they_leaving_form'] = WhenAreTheyLeavingForm()
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['who_is_leaving_form'] = self.form_class
+    #     return context
 
 
 class LeavingSearchResultView(TemplateView):

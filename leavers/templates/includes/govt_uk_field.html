@@ -1,0 +1,87 @@
+{% for field in form_fields %}
+    {{ field.field }}
+    {% if field.field.widget.input_type == 'hidden' %}
+        {{ field }}
+    {% else %}
+        <div class="govuk-form-group{% if field.errors %} govuk-form-group--error{% endif %}">
+            {% if field.field.widget.input_type != "checkbox" and field.field.widget.input_type != "radio" %}
+                {% if field.label %}
+                    <label class="govuk-label" for="{{ field.name }}">
+                        {{ field.label }}{% if field.field.required == False %} (optional){% endif %}
+                    </label>
+                {% endif %}
+            {% endif %}
+            {% if field.errors %}
+                {% for error in field.errors %}
+                    <span id="{{ field.name }}-issued-error" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error:</span>
+                        {{ error|escape }}
+                    </span>
+                {% endfor %}
+            {% endif %}
+
+            {% if field.field.widget.input_type == 'radio' %}
+                <div class="govuk-radios">
+                    {% for radio in field %}
+                        <div class="govuk-radios__item">
+                            {{ radio.tag }}
+                            <label class="govuk-label govuk-radios__label" for="{{ radio.id_for_label }}">
+                                {{ radio.choice_label }}{% if radio.required == False %} (optional){% endif %}
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% elif field.field.widget.input_type == 'checkbox' %}
+                <div class="govuk-checkboxes">
+                    <div class="govuk-checkboxes__item">
+                        {{ field }}
+                        <label class="govuk-label govuk-checkboxes__label" for="{{ field.name }}">
+                            {{ field.label }}{% if field.field.required == False %} (optional){% endif %}
+                        </label>
+                    </div>
+                </div>
+            {% elif field.field.widget.input_type == 'date_multi_field' %}
+                <div id="leaving-hint" class="govuk-hint">
+                    {{ field.field.widget.hint }}
+                </div>
+                <div class="govuk-date-input">
+                    <div class="govuk-date-input__item">
+                        <div class="govuk-form-group">
+                            <label class="govuk-label govuk-date-input__label" for="{{ field.name }}-day">
+                                Day
+                            </label>
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" type="text"
+                                   name="{{ field.name }}_0"
+                                    {% if field.field.widget.widgets.0.value != None %}
+                                   value="{{ field.field.widget.widgets.0.value }}" {% endif %}>
+                        </div>
+                    </div>
+                    <div class="govuk-date-input__item">
+                        <div class="govuk-form-group">
+                            <label class="govuk-label govuk-date-input__label" for="{{ field.name }}-month">
+                                Month
+                            </label>
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-2" type="text"
+                                   name="{{ field.name }}_1"
+                                    {% if field.field.widget.widgets.1.value != None %}
+                                   value="{{ field.field.widget.widgets.1.value }}" {% endif %}>
+                        </div>
+                    </div>
+                    <div class="govuk-date-input__item">
+                        <div class="govuk-form-group">
+                            <label class="govuk-label govuk-date-input__label" for="{{ field.name }}-year">
+                                Year
+                            </label>
+                            <input class="govuk-input govuk-date-input__input govuk-input--width-4" type="text"
+                                   name="{{ field.name }}_2"
+                                    {% if field.field.widget.widgets.2.value != None %}
+                                   value="{{ field.field.widget.widgets.2.value }}" {% endif %}>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                {{ field.field }}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endfor %}

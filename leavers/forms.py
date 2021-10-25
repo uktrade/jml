@@ -126,6 +126,19 @@ class ContactForm(forms.Form):
 
 
 class WhoIsLeavingForm(GovFormattedForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if hasattr(self, "field_sets"):
+            for index, field_set in enumerate(self.field_sets):
+                print("Hier...")
+                for name_index, field_name in enumerate(field_set["fields"]):
+                    print(field_name)
+                    for name in self.fields:
+                        print(name)
+                        if field_name == name:
+                            print("match...")
+                            self.field_sets[index]["fields"][name_index] = self.fields[name]
+
     CHOICES = [
         ("me", 'Me'),
         ("someone_else", 'Someone Else'),
@@ -137,6 +150,28 @@ class WhoIsLeavingForm(GovFormattedForm):
             attrs={"class": "govuk-radios__input"}
         )
     )
+
+    last_day = forms.DateField(
+        label="",
+        initial=datetime.date.today,
+        widget=DateSelectorWidget(hint="For example, 27 3 2007"),
+        required=True,
+    )
+
+    field_sets = [{
+            "legend": "Who is leaving?",
+            "fields": [
+                "who_for",
+            ]
+        },
+        {
+            "legend": "Wen is their last day (if known)?",
+            "fields": [
+                "last_day",
+            ]
+        }
+    ]
+
     #
     #
     # def clean(self):
@@ -150,13 +185,4 @@ class WhoIsLeavingForm(GovFormattedForm):
     #             "checkbox. If you are filling this form out"
     #             "for someone else, please select 'Some One Else'"
     #         )
-
-
-class WhenAreTheyLeavingForm(GovFormattedForm):
-    last_day = forms.DateField(
-        label="",
-        initial=datetime.date.today,
-        widget=DateSelectorWidget(hint="For example, 27 3 2007"),
-        required=True,
-    )
 
