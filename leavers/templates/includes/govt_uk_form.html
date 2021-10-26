@@ -15,17 +15,6 @@
         </div>
     </div>
 {% endif %}
-{% if form.field_sets %}
-    {% for field_set in form.field_sets %}
-        <fieldset class="govuk-fieldset">
-            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-                <h1 class="govuk-fieldset__heading">
-                    {{ field_set.legend }}
-                </h1>
-            </legend>
-            {% include "includes/govt_uk_field.html" with form_fields=field_set.fields %}
-        </fieldset>
-    {% endfor %}
-{% else %}
-    {% include "includes/govt_uk_field.html" with form_fields=form %}
-{% endif %}
+{% for field in form %}
+    {% include "includes/govt_uk_field.html" with field=field %}
+{% endfor %}

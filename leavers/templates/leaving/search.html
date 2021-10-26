@@ -1,6 +1,7 @@
 {% extends "leavers_base.html" %}
 
 {% block content %}
+    <h2 class="govuk-heading-m">Search for the person leaving</h2>
     <form novalidate method='post'>
         {% csrf_token %}
         {% include "includes/govt_uk_form.html" with form=form %}

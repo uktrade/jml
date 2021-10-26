@@ -7,14 +7,11 @@ class DateSelectorWidget(forms.MultiWidget):
     hint = ""
 
     @property
-    def test(self):
-        return "test"
-
-    @property
     def day(self):
         return self.widgets[0]
 
     def __init__(self, hint="", attrs=None):
+        print(attrs)
         self.hint = hint
         widgets = [
             forms.NumberInput(),
@@ -33,4 +30,7 @@ class DateSelectorWidget(forms.MultiWidget):
 
     def value_from_datadict(self, data, files, name):
         day, month, year = super().value_from_datadict(data, files, name)
-        return '{}-{}-{}'.format(year, month, day)
+        if day or month or year:
+            return '{}-{}-{}'.format(year, month, day)
+
+        return None

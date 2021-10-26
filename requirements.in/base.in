@@ -13,3 +13,4 @@ django-workflow-engine==0.0.14
 slack_sdk
 whitenoise==5.2.0
 waitress==2.0.0
+django-compressor

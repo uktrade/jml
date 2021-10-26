@@ -109,6 +109,7 @@ STATICFILES_FINDERS = [
 ]
 
 STATICFILES_DIRS = [
+    BASE_DIR / "assets/",
     BASE_DIR / "node_modules/",
 ]
 

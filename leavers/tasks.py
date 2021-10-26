@@ -63,7 +63,7 @@ class FindGroupRecipients(Task, input="find_group_recipients"):
 class ConfirmHardwareReceived(Task, input="confirm_hardware_received"):
     auto = False
     form_class = HardwareReceivedForm
-    template = "basic_form.html"
+    template = "flow/basic_form.html"
 
     def execute(self, task_info):
         form = self.form_class(instance=self.flow.leaving_request, data=task_info)
@@ -83,7 +83,7 @@ class ConfirmHardwareReceived(Task, input="confirm_hardware_received"):
 class SREEConfirmTasksComplete(Task, input="sre_confirm_tasks_complete"):
     auto = False
     form_class = SREConfirmCompleteForm
-    template = "basic_form.html"
+    template = "flow/basic_form.html"
 
     def execute(self, task_info):
         form = self.form_class(data=task_info)
@@ -132,7 +132,7 @@ class SendSRESlackMessage(Task, input="send_sre_slack_message"):
         return None, {}
 
 class ContactFormView(FormView):
-    template_name = 'leaving_details/leaver_or_line_manager.html'
+    template_name = 'leaving/leaver_or_line_manager.html'
     form_class = LeaversForm
     success_url = '/start/'
 
@@ -141,4 +141,3 @@ class ContactFormView(FormView):
         # It should return an HttpResponse.
         form.send_email()
         return super().form_valid(form)
-        

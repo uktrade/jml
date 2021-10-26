@@ -126,19 +126,6 @@ class ContactForm(forms.Form):
 
 
 class WhoIsLeavingForm(GovFormattedForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if hasattr(self, "field_sets"):
-            for index, field_set in enumerate(self.field_sets):
-                print("Hier...")
-                for name_index, field_name in enumerate(field_set["fields"]):
-                    print(field_name)
-                    for name in self.fields:
-                        print(name)
-                        if field_name == name:
-                            print("match...")
-                            self.field_sets[index]["fields"][name_index] = self.fields[name]
-
     CHOICES = [
         ("me", 'Me'),
         ("someone_else", 'Someone Else'),
@@ -153,36 +140,18 @@ class WhoIsLeavingForm(GovFormattedForm):
 
     last_day = forms.DateField(
         label="",
-        initial=datetime.date.today,
         widget=DateSelectorWidget(hint="For example, 27 3 2007"),
-        required=True,
+        required=False,
     )
 
-    field_sets = [{
-            "legend": "Who is leaving?",
-            "fields": [
-                "who_for",
-            ]
-        },
-        {
-            "legend": "Wen is their last day (if known)?",
-            "fields": [
-                "last_day",
-            ]
-        }
-    ]
 
-    #
-    #
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     for_self = cleaned_data.get("for_self")
-    #     leaver_email_address = cleaned_data.get("leaver_email_address")
-    #
-    #     if not for_self:
-    #         raise ValidationError(
-    #             "If you are leaving the DIT, please select the 'me'"
-    #             "checkbox. If you are filling this form out"
-    #             "for someone else, please select 'Some One Else'"
-    #         )
+class SearchForm(GovFormattedForm):
+    search_term = forms.CharField(
+        label="Find the leaver using their name or email"
+    )
 
+
+class PersonNotFoundForm(GovFormattedForm):
+    email = forms.EmailField(
+        label="Can't see the person you're looking for? Enter their email:"
+    )
