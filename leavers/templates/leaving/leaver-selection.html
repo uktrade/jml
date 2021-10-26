@@ -1,14 +1,17 @@
-{% extends "leavers_base.html" %}
+{% extends "base.html" %}
 {% load static %}
 
+{% block main_class_names %}back-link-format{% endblock %}
+
 {% block content %}
+    <a href="{% url 'search' %}" class="govuk-back-link">Back</a>
     <h2 class="govuk-heading-m">Select the leaver</h2>
     {% for person in people_list %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-one-third">
-                        <img class="leaver-image" src="{% static person.image %}" alt="Picture of Sarah Philips" />
+                        <img class="leaver-image" src="{% static person.image %}" alt="Picture of Sarah Philips"/>
                     </div>
                     <div class="govuk-grid-column-two-thirds">
                         <dl class="govuk-summary-list">
@@ -51,9 +54,13 @@
         </div>
         <a href="{% url "confirmation" %}" class="govuk-button" data-module="govuk-button">Select</a>
     {% endfor %}
-    <form novalidate method='post'>
-        {% csrf_token %}
-        {% include "includes/govt_uk_form.html" with form=form %}
-        <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
-    </form>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method='post'>
+                {% csrf_token %}
+                {% include "includes/govt_uk_form.html" with form=form %}
+                <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
+            </form>
+        </div>
+    </div>
 {% endblock %}

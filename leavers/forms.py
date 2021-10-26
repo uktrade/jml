@@ -155,3 +155,15 @@ class PersonNotFoundForm(GovFormattedForm):
     email = forms.EmailField(
         label="Can't see the person you're looking for? Enter their email:"
     )
+
+
+class LeaverConfirmationForm(GovFormattedForm):
+    last_day = forms.DateField(
+        label="",
+        widget=DateSelectorWidget(hint="For example, 27 3 2007"),
+        required=False,
+    )
+
+    declaration = forms.BooleanField(
+        label="I confirm that all information is up to date and correct"
+    )

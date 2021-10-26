@@ -1,11 +1,13 @@
 from django.views.generic import TemplateView
 from django.urls import reverse_lazy
+from django.shortcuts import reverse, redirect
 from django.views.generic.edit import FormView
 
 from leavers.forms import (
     PersonNotFoundForm,
     SearchForm,
     WhoIsLeavingForm,
+    LeaverConfirmationForm,
 )
 
 
@@ -18,16 +20,22 @@ class LeavingDetailsView(FormView):
     form_class = WhoIsLeavingForm
     success_url = reverse_lazy("search")
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['who_is_leaving_form'] = self.form_class
-    #     return context
+    def form_valid(self, form):
+        """If the form is valid, redirect to the supplied URL."""
+        self.who_for = form.cleaned_data['who_for']
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        if self.who_for == "me":
+            return reverse("leaver-confirmation")
+        else:
+            return reverse("search")
 
 
 class LeavingSearchView(FormView):
     template_name = "leaving/search.html"
     form_class = SearchForm
-    success_url = reverse_lazy("search-result")
+    success_url = reverse_lazy("leaver-selection")
 
 
 class LeaverSelectionView(FormView):
@@ -58,3 +66,25 @@ class LeaverSelectionView(FormView):
 
 class ConfirmationSummaryView(TemplateView):
     template_name = "leaving/confirmation.html"
+
+
+class LeaverConfirmationView(FormView):
+    template_name = "leaving/leaver-confirmation.html"
+    form_class = LeaverConfirmationForm
+    success_url = reverse_lazy("leaver-confirmed")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['person'] = {
+            "image": "images/ai_person_2.jpg",
+            "name": "Sarah Philips",
+            "job_title": "Django developer",
+            "email": "test@test.com",
+            "phone": "07000000000",
+        }
+
+        return context
+
+
+class LeaverConfirmedView(TemplateView):
+    template_name = "leaving/leaver-confirmed.html"
