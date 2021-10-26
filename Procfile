@@ -1,1 +1,1 @@
-web: python manage.py migrate && waitress-serve --port=$PORT jml.config.wsgi:application
+web: python manage.py migrate && waitress-serve --port=$PORT config.wsgi:application
