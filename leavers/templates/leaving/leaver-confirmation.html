@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "leaving/leaving_base.html" %}
 {% load static %}
 
 {% block content %}
@@ -7,7 +7,7 @@
             <h2 class="govuk-heading-m">Your details</h2>
             <p class="govuk-body">Lorum ipsum...</p>
             <h2 class="govuk-heading-m">Personal information</h2>
-            <img class="leaver-image" src="{% static person.image %}" alt="Picture of Sarah Philips"/>
+            <img src="{% static person.image %}" alt="Picture of Sarah Philips"/>
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">

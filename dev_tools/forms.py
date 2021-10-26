@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
+from leavers.forms import GovFormattedForm
 
 User = get_user_model()
 
@@ -12,5 +13,9 @@ def get_user_choices():
     ]
 
 
-class ChangeUserForm(forms.Form):
-    user = forms.ChoiceField(choices=get_user_choices, required=False)
+class ChangeUserForm(GovFormattedForm):
+    user = forms.ChoiceField(
+        label="Choose a user to impersonate",
+        choices=get_user_choices,
+        required=True,
+    )
