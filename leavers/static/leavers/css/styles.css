@@ -4737,7 +4737,7 @@
 .leaver-image {
   margin-bottom: 26px; }
 
-@media only screen and (max-width: 640px) {
+@media only screen and (max-width: 1200px) {
   .leaver-image {
     width: 100%; } }
 
