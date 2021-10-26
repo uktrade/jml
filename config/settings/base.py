@@ -103,7 +103,7 @@ STATIC_URL = "/static/"
 CAN_ELEVATE_SSO_USER_PERMISSIONS = False
 CAN_CREATE_TEST_USER = False
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
