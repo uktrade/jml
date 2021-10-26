@@ -4,16 +4,15 @@ from django import forms
 
 class DateSelectorWidget(forms.MultiWidget):
     input_type = "date_multi_field"
-
-    @property
-    def test(self):
-        return "test"
+    hint = ""
 
     @property
     def day(self):
         return self.widgets[0]
 
-    def __init__(self, attrs=None):
+    def __init__(self, hint="", attrs=None):
+        print(attrs)
+        self.hint = hint
         widgets = [
             forms.NumberInput(),
             forms.NumberInput(),
@@ -31,4 +30,7 @@ class DateSelectorWidget(forms.MultiWidget):
 
     def value_from_datadict(self, data, files, name):
         day, month, year = super().value_from_datadict(data, files, name)
-        return '{}-{}-{}'.format(year, month, day)
+        if day or month or year:
+            return '{}-{}-{}'.format(year, month, day)
+
+        return None

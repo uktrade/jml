@@ -100,6 +100,8 @@ STATIC_URL = "/static/"
 CAN_ELEVATE_SSO_USER_PERMISSIONS = False
 CAN_CREATE_TEST_USER = False
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
@@ -107,6 +109,7 @@ STATICFILES_FINDERS = [
 ]
 
 STATICFILES_DIRS = [
+    BASE_DIR / "assets/",
     BASE_DIR / "node_modules/",
 ]
 
@@ -130,6 +133,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'authbroker_client.middleware.ProtectAllViewsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = [

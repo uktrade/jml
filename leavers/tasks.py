@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-
+from django.views.generic.edit import FormView
 from django_workflow_engine import (
     Task,
     TaskError,
@@ -63,7 +63,7 @@ class FindGroupRecipients(Task, input="find_group_recipients"):
 class ConfirmHardwareReceived(Task, input="confirm_hardware_received"):
     auto = False
     form_class = HardwareReceivedForm
-    template = "basic_form.html"
+    template = "flow/basic_form.html"
 
     def execute(self, task_info):
         form = self.form_class(instance=self.flow.leaving_request, data=task_info)
@@ -83,7 +83,7 @@ class ConfirmHardwareReceived(Task, input="confirm_hardware_received"):
 class SREEConfirmTasksComplete(Task, input="sre_confirm_tasks_complete"):
     auto = False
     form_class = SREConfirmCompleteForm
-    template = "basic_form.html"
+    template = "flow/basic_form.html"
 
     def execute(self, task_info):
         form = self.form_class(data=task_info)
@@ -130,3 +130,14 @@ class SendSRESlackMessage(Task, input="send_sre_slack_message"):
         )
 
         return None, {}
+
+class ContactFormView(FormView):
+    template_name = 'leaving/leaver_or_line_manager.html'
+    form_class = LeaversForm
+    success_url = '/start/'
+
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        form.send_email()
+        return super().form_valid(form)

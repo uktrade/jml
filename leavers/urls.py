@@ -4,10 +4,9 @@ from django_workflow_engine import workflow_urls
 
 from leavers.views.leaving import (
     LeaversStartView,
-    LeaverOrLineManagerView,
     LeavingDetailsView,
-    PersonalInfoView,
-    ProfessionalInfoView,
+    LeavingSearchView,
+    LeaverSelectionView,
     ConfirmationSummaryView,
 )
 from leavers.views.flow import (
@@ -18,19 +17,20 @@ from leavers.views.flow import (
 )
 
 urlpatterns = [
-    path("start/", LeaversStartView, name="start"),
-    path("leaver-or-line-manager/", LeaverOrLineManagerView, name="leaver_or_line_manager"),
-    path("details/", LeaverOrLineManagerView, name="details"),
-    path("personal/", LeaverOrLineManagerView, name="personal"),
-    path("professional/", LeaverOrLineManagerView, name="professional"),
-    path("confirmation/", ConfirmationSummaryView, name="confirmation"),
-    path(
-        "",
-        workflow_urls(
-            view=LeaversFlowView,
-            list_view=LeaversFlowListView,
-            create_view=LeaversFlowCreateView,
-            continue_view=LeaversFlowContinueView,
-        ),
-    ),
+    # TODO - tidy up
+    path("", LeaversStartView.as_view(), name="start"),
+    path("start/", LeaversStartView.as_view(), name="start"),
+    path("details/", LeavingDetailsView.as_view(), name="details"),
+    path("search/", LeavingSearchView.as_view(), name="search"),
+    path("leaver-selection/", LeaverSelectionView.as_view(), name="leaver-selectio "),
+    path("confirmation/", ConfirmationSummaryView.as_view(), name="confirmation"),
+    # path(
+    #     "",
+    #     workflow_urls(
+    #         view=LeaversFlowView,
+    #         list_view=LeaversFlowListView,
+    #         create_view=LeaversFlowCreateView,
+    #         continue_view=LeaversFlowContinueView,
+    #     ),
+    # ),
 ]
