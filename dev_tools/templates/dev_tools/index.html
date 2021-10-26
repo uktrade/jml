@@ -1,0 +1,15 @@
+{% extends 'leavers_base.html' %}
+
+{% block content %}
+<h1 class="govuk-heading-l">Dev tools</h1>
+
+<h2 class="govuk-heading-m">Change user</h2>
+<div class="govuk">
+
+<form action="{% url 'dev_tools:change-user' %}" method="post">
+    {% csrf_token %}
+    {% include 'includes/govt_uk_form.html' with form=change_user_form %}
+    <button class="govuk-button">Submit</button>
+</form>
+
+{% endblock %}
