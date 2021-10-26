@@ -100,6 +100,8 @@ STATIC_URL = "/static/"
 CAN_ELEVATE_SSO_USER_PERMISSIONS = False
 CAN_CREATE_TEST_USER = False
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
@@ -146,11 +148,6 @@ CACHES = {
         'LOCATION': 'django_cache_table',
     }
 }
-
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATIC_URL = '/static/'
 
 # django-workflow-engine
 DJANGO_WORKFLOWS = [
