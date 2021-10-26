@@ -3,3 +3,4 @@ applications:
   memory: 512M
   buildpacks:
   - python_buildpack
+  - nodejs_buildpack
