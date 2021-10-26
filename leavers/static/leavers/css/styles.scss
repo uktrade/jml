@@ -5,10 +5,8 @@ $govuk-page-width: 1800px;
   margin-bottom: 26px;
 }
 
-@media only screen and (max-width: 1200px) {
-  .leaver-image {
-    width:100%;
-  }
+.leaver-image {
+  width:100%;
 }
 
 .back-link-format {
