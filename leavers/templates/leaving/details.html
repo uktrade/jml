@@ -1,12 +1,15 @@
-{% extends "leavers_base.html" %}
+{% extends "leaving/leaving_base.html" %}
+
+{% block main_class_names %}back-link-format{% endblock %}
 
 {% block content %}
+    <a href="{% url 'start' %}" class="govuk-back-link">Back</a>
     <form novalidate method='post'>
         {% csrf_token %}
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                 <h1 class="govuk-fieldset__heading">
-                    Me
+                    Who is leaving DIT?
                 </h1>
             </legend>
             {% for field in form %}
@@ -18,7 +21,7 @@
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                 <h1 class="govuk-fieldset__heading">
-                    Someone else
+                    The leaving date (if known)
                 </h1>
             </legend>
             {% for field in form %}

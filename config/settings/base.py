@@ -1,11 +1,13 @@
 import os
 from pathlib import Path
 import environ
-
+from django.urls import reverse_lazy
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env = environ.Env()
 env.read_env()
+
+APP_ENV = env("APP_ENV")
 
 DEBUG = env.bool("DEBUG", default=False)
 
@@ -43,6 +45,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django_settings_export.settings_export",
+                "dev_tools.views.dev_tools_context",
             ]
         },
     }
@@ -100,7 +103,7 @@ STATIC_URL = "/static/"
 CAN_ELEVATE_SSO_USER_PERMISSIONS = False
 CAN_CREATE_TEST_USER = False
 
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -141,6 +144,8 @@ AUTHENTICATION_BACKENDS = [
     "user.backends.CustomAuthbrokerBackend",
 ]
 
+DEV_TOOLS_ENABLED = APP_ENV in ("local", "dev")
+
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 CACHES = {
@@ -156,3 +161,5 @@ DJANGO_WORKFLOWS = [
 ]
 
 SLACK_WEBHOOK_URL = env("SLACK_WEBHOOK_URL")
+
+LOGIN_URL = reverse_lazy("dev_tools:index")

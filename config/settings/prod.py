@@ -6,7 +6,6 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 from django_log_formatter_ecs import ECSFormatter
 
-
 # X_ROBOTS_TAG (https://man.uktrade.io/docs/procedures/1st-go-live.html)
 X_ROBOTS_TAG = [
     'noindex',
@@ -43,26 +42,8 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'forecast.import_csv': {
-            'handlers': ['stdout', ],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'forecast.views.upload_file': {
-            'handlers': ['stdout', ],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'forecast.tasks': {
-            'handlers': ['stdout', ],
-            'level': 'INFO',
-            'propagate': True,
-        }
     },
 }
-
-# Set async file uploading
-ASYNC_FILE_UPLOAD = True
 
 sentry_sdk.init(
     os.environ.get("SENTRY_DSN"),
