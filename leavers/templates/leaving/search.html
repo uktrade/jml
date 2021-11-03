@@ -3,15 +3,69 @@
 {% block main_class_names %}back-link-format{% endblock %}
 
 {% block content %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <a href="{% url 'details' %}" class="govuk-back-link">Back</a>
-            <h2 class="govuk-heading-m">Search for the person leaving</h2>
-            <form novalidate method='post'>
-                {% csrf_token %}
-                {% include "includes/govt_uk_form.html" with form=form %}
-                <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
-            </form>
-        </div>
-    </div>
+    <h2 class="govuk-heading-m">Search for the person leaving</h2>
+    <form novalidate method='post'>
+        {% csrf_token %}
+        {% include "includes/govt_uk_form.html" with form=form %}
+        <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
+    </form>
+    {% if people_list %}
+        <h2 class="govuk-heading-m">Select the leaver</h2>
+        {% for person in people_list %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <div class="govuk-grid-row">
+                        <div class="govuk-grid-column-one-third">
+                            <img class="leaver-image" src="{{ person.photo }}" alt="Picture of {{ person.first_name }} {{ person.last_name }}" />
+                        </div>
+                        <div class="govuk-grid-column-two-thirds">
+                            <dl class="govuk-summary-list">
+                                <div class="govuk-summary-list__row">
+                                    <dt class="govuk-summary-list__key">
+                                        Name
+                                    </dt>
+                                    <dd class="govuk-summary-list__value">
+                                        {{ person.first_name }} {{ person.last_name }}
+                                    </dd>
+                                </div>
+                                <div class="govuk-summary-list__row">
+                                    <dt class="govuk-summary-list__key">
+                                        Grade
+                                    </dt>
+                                    <dd class="govuk-summary-list__value">
+                                        {{ person.grade }}
+                                    </dd>
+                                </div>
+                                <div class="govuk-summary-list__row">
+                                    <dt class="govuk-summary-list__key">
+                                        Job Title
+                                    </dt>
+                                    <dd class="govuk-summary-list__value">
+                                        {{ person.job_title }}
+                                    </dd>
+                                </div>
+                                <div class="govuk-summary-list__row">
+                                    <dt class="govuk-summary-list__key">
+                                        Email
+                                    </dt>
+                                    <dd class="govuk-summary-list__value">
+                                        {{ person.email }}
+                                    </dd>
+                                </div>
+                                <div class="govuk-summary-list__row">
+                                    <dt class="govuk-summary-list__key">
+                                        Phone
+                                    </dt>
+                                    <dd class="govuk-summary-list__value">
+                                        {{ person.phone }}
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url "confirmation" %}" class="govuk-button" data-module="govuk-button">Select</a>
+        {% endfor %}
+    {% endif %}
 {% endblock %}

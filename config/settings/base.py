@@ -135,7 +135,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'authbroker_client.middleware.ProtectAllViewsMiddleware',
+    #'authbroker_client.middleware.ProtectAllViewsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
@@ -160,6 +160,16 @@ DJANGO_WORKFLOWS = [
     "leavers.workflow.LeaversWorkflow",
 ]
 
-SLACK_WEBHOOK_URL = env("SLACK_WEBHOOK_URL")
-
+# Dev tools
 LOGIN_URL = reverse_lazy("dev_tools:index")
+
+# Slack
+SLACK_WEBHOOK_URL = env("SLACK_WEBHOOK_URL")
+SLACK_API_TOKEN = env("SLACK_API_TOKEN")
+
+# Hawk
+HAWK_ACCESS_ID = env("HAWK_ACCESS_ID")
+HAWK_SECRET_KEY = env("HAWK_SECRET_KEY")
+
+# People Finder
+PEOPLE_FINDER_URL = env("PEOPLE_FINDER_URL")

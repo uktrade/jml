@@ -4,12 +4,20 @@
 #
 #    pip-compile --output-file=requirements/prod.txt requirements.in/prod.in
 #
+aiohttp==3.7.4.post0
+    # via slackclient
 asgiref==3.4.1
     # via django
+async-timeout==3.0.1
+    # via aiohttp
+attrs==21.2.0
+    # via aiohttp
 certifi==2021.10.8
     # via
     #   requests
     #   sentry-sdk
+chardet==4.0.0
+    # via aiohttp
 charset-normalizer==2.0.7
     # via requests
 django==3.2.8
@@ -47,13 +55,21 @@ gevent==20.6.2
 greenlet==1.1.2
     # via gevent
 idna==3.3
-    # via requests
+    # via
+    #   requests
+    #   yarl
 kubi-ecs-logger==0.1.0
     # via django-log-formatter-ecs
 libsass==0.20.0
     # via -r requirements.in/base.in
 marshmallow==3.6.1
     # via kubi-ecs-logger
+mohawk==1.1.0
+    # via -r requirements.in/base.in
+multidict==5.2.0
+    # via
+    #   aiohttp
+    #   yarl
 oauthlib==3.1.1
     # via requests-oauthlib
 psycogreen==1.0.2
@@ -76,18 +92,25 @@ six==1.16.0
     # via
     #   django-compressor
     #   libsass
+    #   mohawk
 slack-sdk==3.11.2
+    # via -r requirements.in/base.in
+slackclient==2.9.3
     # via -r requirements.in/base.in
 sqlparse==0.4.2
     # via django
+typing-extensions==3.10.0.2
+    # via aiohttp
 urllib3==1.26.7
     # via
     #   requests
     #   sentry-sdk
 waitress==2.0.0
     # via -r requirements.in/base.in
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
+yarl==1.7.0
+    # via aiohttp
 zope.event==4.5.0
     # via gevent
 zope.interface==5.4.0

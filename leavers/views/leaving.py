@@ -2,6 +2,15 @@ from django.views.generic import TemplateView
 from django.urls import reverse_lazy
 from django.shortcuts import reverse, redirect
 from django.views.generic.edit import FormView
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.views import View
+from django.shortcuts import render
+
+from core.utils.sso import get_sso_user_details
+from core.utils.people_finder import search_people_finder
+
+from leavers.models import LeavingRequest
 
 from leavers.forms import (
     PersonNotFoundForm,
@@ -32,39 +41,78 @@ class LeavingDetailsView(FormView):
             return reverse("search")
 
 
-class LeavingSearchView(FormView):
-    template_name = "leaving/search.html"
+class LeavingSearchView(View):
     form_class = SearchForm
-    success_url = reverse_lazy("leaver-selection")
+    template_name = "leaving/search.html"
 
+    def process_search(self, search_terms):
+        emails = []
+        names = []
 
-class LeaverSelectionView(FormView):
-    template_name = "leaving/leaver-selection.html"
-    form_class = PersonNotFoundForm
-    success_url = reverse_lazy("confirmation")
+        # Do we split the string and do something smart, do we create an index?
+        parts = search_terms.split()
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['people_list'] = [
-            {
-                "image": "images/ai_person_1.jpg",
-                "name": "Barry Scott",
-                "job_title": "Delivery manager",
-                "email": "test@test.com",
-                "phone": "07000000000",
-            },
-            {
-                "image": "images/ai_person_2.jpg",
-                "name": "Sarah Philips",
-                "job_title": "Django developer",
-                "email": "test@test.com",
-                "phone": "07000000000",
-            }
-        ]
-        return context
+        for part in parts:
+            try:
+                validate_email(part)
+            except ValidationError as e:
+                # It's not an email address
+                names.append(part)
+            else:
+                emails.append(part)
+
+        sso_results = []
+
+        # # Do we get anything back from SSO for this email address?
+        # for email in emails:
+        #     # Search for user in SSO using email
+        #     sso_result = get_sso_user_details(
+        #         email=email,
+        #     )
+        #     if sso_result:
+        #         sso_results.append(sso_result)
+
+        # Do we get anything back from PF?
+        return search_people_finder(
+            search_term=search_terms,
+        )
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        people_list = []
+
+        if form.is_valid():
+            search_terms = form.cleaned_data["search_terms"]
+            people_list = self.process_search(
+                search_terms,
+            )
+
+            # In HR queries use email as key
+
+            # SSO
+
+            # SSO PF
+
+            # SSO PF HR
+
+            # SSO HR
+
+            # PF
+
+            # HR
+
+        return render(request, self.template_name, {
+            'form': form,
+            'people_list': people_list,
+        })
 
 
 class ConfirmationSummaryView(TemplateView):
+
     template_name = "leaving/confirmation.html"
 
 
