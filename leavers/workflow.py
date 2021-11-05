@@ -5,7 +5,7 @@ from leavers.models import LeavingRequest
 
 from leavers.tasks import (
     SetupLeaving,
-    CreateLeavingRequest,
+    # CreateLeavingRequest,
 )
 
 
@@ -16,13 +16,13 @@ LeaversWorkflow = Workflow(
             step_id="setup_leaving",
             task_name="setup_leaving",
             start=True,
-            target="create_leaving_request",
-        ),
-        Step(
-            step_id="create_leaving_request",
-            task_name="create_leaving_request",
             target="sre_confirm_tasks_complete",
         ),
+        # Step(
+        #     step_id="create_leaving_request",
+        #     task_name="create_leaving_request",
+        #     target="sre_confirm_tasks_complete",
+        # ),
         # Step(
         #     step_id="send_sre_slack_message",
         #     task_name="send_sre_slack_message",

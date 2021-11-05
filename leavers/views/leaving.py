@@ -1,16 +1,27 @@
+import uuid
+
+from django.conf import settings
 from django.views.generic import TemplateView
 from django.urls import reverse_lazy
 from django.shortcuts import reverse, redirect
 from django.views.generic.edit import FormView
 from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.views import View
 from django.shortcuts import render
+
+from django_workflow_engine.exceptions import WorkflowNotAuthError
+from django_workflow_engine.executor import WorkflowExecutor
+from django_workflow_engine.models import Flow, TaskRecord
+from django_workflow_engine.tasks import TaskError
+from django_workflow_engine.utils import build_workflow_choices
 
 from core.utils.sso import get_sso_user_details
 from core.utils.people_finder import search_people_finder
 
 from leavers.models import LeavingRequest
+
+from core.utils.hr import get_hr_people_data
 
 from leavers.forms import (
     PersonNotFoundForm,
@@ -18,6 +29,10 @@ from leavers.forms import (
     WhoIsLeavingForm,
     LeaverConfirmationForm,
 )
+
+
+class CannotFindLeaverException(Exception):
+    pass
 
 
 class LeaversStartView(TemplateView):
@@ -45,37 +60,94 @@ class LeavingSearchView(View):
     form_class = SearchForm
     template_name = "leaving/search.html"
 
+    def get_records_from_sso_and_hr_data(self, emails):
+        sso_results = []
+        person_results = []
+
+        # Do we get anything back from SSO for this email address?
+        for email in emails:
+            # Search for user in SSO using email
+            sso_result = get_sso_user_details(
+                email=email,
+            )
+            if sso_result:
+                sso_results.append(sso_result)
+
+            for sso_result in sso_results:
+                hr_data = get_hr_people_data(sso_result["sso_id"])
+                if hr_data:
+                    hr_data["uuid"] = str(uuid.uuid4())
+                    hr_data["first_name"] = sso_result["first_name"]
+                    hr_data["last_name"] = sso_result["last_name"]
+                    hr_data["sso_id"] = sso_result["sso_id"]
+                    person_results.append(
+                        hr_data,
+                    )
+
+        return person_results
+
+    def get_pf_results_with_sso_id(self, search_terms):
+        people_finder_results = search_people_finder(
+            search_term=search_terms,
+        )
+
+        # Look for SSO id
+        results_found_in_sso = []
+
+        for pf_result in people_finder_results:
+            # TODO make SSO logic return user for ANY of their
+            # TODO email addresses
+            # TODO use all email addresses associated with PF result
+            sso_result = get_sso_user_details(
+                email=pf_result["email"],
+            )
+
+            if sso_result:
+                pf_result["sso_id"] = sso_result["sso_id"]
+                pf_result["uuid"] = str(uuid.uuid4())
+
+                # Add relevant HR data
+                hr_data = get_hr_people_data(sso_result["sso_id"])
+                if hr_data:
+                    pf_result["staff_number"] = hr_data["staff_number"]
+
+                results_found_in_sso.append(
+                    pf_result,
+                )
+
+        return results_found_in_sso
+
     def process_search(self, search_terms):
         emails = []
-        names = []
-
-        # Do we split the string and do something smart, do we create an index?
         parts = search_terms.split()
 
+        # Create list of emails used in search query
         for part in parts:
             try:
                 validate_email(part)
             except ValidationError as e:
                 # It's not an email address
-                names.append(part)
+                pass
             else:
                 emails.append(part)
 
-        sso_results = []
+        # We do not present a result unless
+        # we have been able to establish SSO id
+        # Results are either from PF
+        # or constructed from SSO and HR data
 
-        # # Do we get anything back from SSO for this email address?
-        # for email in emails:
-        #     # Search for user in SSO using email
-        #     sso_result = get_sso_user_details(
-        #         email=email,
-        #     )
-        #     if sso_result:
-        #         sso_results.append(sso_result)
+        person_results = self.get_pf_results_with_sso_id(
+            search_terms,
+        )
 
         # Do we get anything back from PF?
-        return search_people_finder(
-            search_term=search_terms,
-        )
+        if len(person_results) == 0:
+            # We need to construct results from SSO id and HR data
+            person_results = self.get_records_from_sso_and_hr_data(
+                emails=emails,
+            )
+
+        return person_results
 
     def get(self, request, *args, **kwargs):
         form = self.form_class()
@@ -91,19 +163,7 @@ class LeavingSearchView(View):
                 search_terms,
             )
 
-            # In HR queries use email as key
-
-            # SSO
-
-            # SSO PF
-
-            # SSO PF HR
-
-            # SSO HR
-
-            # PF
-
-            # HR
+            request.session['people_list'] = people_list
 
         return render(request, self.template_name, {
             'form': form,
@@ -111,27 +171,63 @@ class LeavingSearchView(View):
         })
 
 
-class ConfirmationSummaryView(TemplateView):
-
-    template_name = "leaving/confirmation.html"
-
-
-class LeaverConfirmationView(FormView):
-    template_name = "leaving/leaver-confirmation.html"
+class LineManagerConfirmationView(FormView):
+    template_name = "leaving/line-manager-confirm-user.html"
     form_class = LeaverConfirmationForm
     success_url = reverse_lazy("leaver-confirmed")
 
+    def dispatch(self, request, *args, **kwargs):
+        # UUID created when we created people list
+        person_id = request.GET.get("person_id", None)
+        if not person_id:
+            redirect("search")
+
+        for person in self.request.session['people_list']:
+            if person["uuid"] == person_id:
+                self.person = person
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def create_workflow(self):
+        flow = Flow.objects.create(
+            workflow_name="leaving",
+            flow_name=f"{self.person['first_name']} {self.person['last_name']} is leaving",
+            executed_by=self.request.user
+        )
+        flow.save()
+
+        LeavingRequest.objects.create(
+            leaver_sso_id=self.person["sso_id"],
+            user_requesting=self.request.user,
+            flow=flow,
+        )
+
+        executor = WorkflowExecutor(flow)
+
+        try:
+            executor.run_flow(user=self.request.user)
+        except WorkflowNotAuthError as e:
+            raise PermissionDenied(f"{e}")
+
+    def form_valid(self, form):
+        # Need to find out SSO id here
+        self.create_workflow()
+
+        # Need to validate user is correct record here
+
+
+
+        return super().form_valid(form)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['person'] = {
-            "image": "images/ai_person_2.jpg",
-            "name": "Sarah Philips",
-            "job_title": "Django developer",
-            "email": "test@test.com",
-            "phone": "07000000000",
-        }
+        context['person'] = self.person
 
         return context
+
+
+class ConfirmationSummaryView(TemplateView):
+    template_name = "leaving/confirmation.html"
 
 
 class LeaverConfirmedView(TemplateView):

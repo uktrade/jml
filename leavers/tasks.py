@@ -5,7 +5,7 @@ from django_workflow_engine import (
     TaskError,
 )
 
-from core.utils import send_slack_message
+from core.utils.slack import send_slack_message
 
 from leavers.forms import (
     LeaversForm,
@@ -19,33 +19,33 @@ class SetupLeaving(Task, input="setup_leaving"):  # type: ignore
     auto = True
 
     def execute(self, task_info):
-        LeavingRequest.objects.create(flow=self.flow)
+
 
         return None, {}
-
-
-class CreateLeavingRequest(Task, input="create_leaving_request"):  # type: ignore
-    auto = False
-    form_class = LeaversForm
-    template = "flow/flow_continue.html"
-
-    def execute(self, task_info):
-        form = self.form_class(data=task_info)
-
-        if form.is_valid():
-            self.flow.leaving_request.last_day = form.cleaned_data["last_day"]
-            if form.cleaned_data["for_self"]:
-                self.flow.leaving_request.leaver_user = self.user
-            else:
-                self.flow.leaving_request.requester_user = self.user
-            self.flow.leaving_request.save()
-        else:
-            raise TaskError("Form is not valid", {"form": form})
-
-        return None, form.cleaned_data
-
-    def context(self):
-        return {"form": self.form_class()}
+#
+#
+# class CreateLeavingRequest(Task, input="create_leaving_request"):  # type: ignore
+#     auto = False
+#     form_class = LeaversForm
+#     template = "flow/flow_continue.html"
+#
+#     def execute(self, task_info):
+#         form = self.form_class(data=task_info)
+#
+#         if form.is_valid():
+#             self.flow.leaving_request.last_day = form.cleaned_data["last_day"]
+#             if form.cleaned_data["for_self"]:
+#                 self.flow.leaving_request.leaver_user = self.user
+#             else:
+#                 self.flow.leaving_request.requester_user = self.user
+#             self.flow.leaving_request.save()
+#         else:
+#             raise TaskError("Form is not valid", {"form": form})
+#
+#         return None, form.cleaned_data
+#
+#     def context(self):
+#         return {"form": self.form_class()}
 
 
 class FindGroupRecipients(Task, input="find_group_recipients"):
@@ -130,6 +130,7 @@ class SendSRESlackMessage(Task, input="send_sre_slack_message"):
         )
 
         return None, {}
+
 
 class ContactFormView(FormView):
     template_name = 'leaving/leaver_or_line_manager.html'

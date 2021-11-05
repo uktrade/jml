@@ -131,7 +131,7 @@ class LeaverConfirmationForm(GovFormattedForm):
         widget=DateSelectorWidget(hint="For example, 27 3 2007"),
         required=False,
     )
-
-    declaration = forms.BooleanField(
-        label="I confirm that all information is up to date and correct"
-    )
+    #
+    # declaration = forms.BooleanField(
+    #     label="I confirm that all information is up to date and correct"
+    # )

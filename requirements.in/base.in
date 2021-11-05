@@ -16,4 +16,4 @@ whitenoise==5.2.0
 waitress==2.0.0
 django-compressor
 mohawk
-
+pycrypto

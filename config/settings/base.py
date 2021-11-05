@@ -135,7 +135,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #'authbroker_client.middleware.ProtectAllViewsMiddleware',
+    'authbroker_client.middleware.ProtectAllViewsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 

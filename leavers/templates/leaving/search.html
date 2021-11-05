@@ -12,60 +12,8 @@
     {% if people_list %}
         <h2 class="govuk-heading-m">Select the leaver</h2>
         {% for person in people_list %}
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-two-thirds">
-                    <div class="govuk-grid-row">
-                        <div class="govuk-grid-column-one-third">
-                            <img class="leaver-image" src="{{ person.photo }}" alt="Picture of {{ person.first_name }} {{ person.last_name }}" />
-                        </div>
-                        <div class="govuk-grid-column-two-thirds">
-                            <dl class="govuk-summary-list">
-                                <div class="govuk-summary-list__row">
-                                    <dt class="govuk-summary-list__key">
-                                        Name
-                                    </dt>
-                                    <dd class="govuk-summary-list__value">
-                                        {{ person.first_name }} {{ person.last_name }}
-                                    </dd>
-                                </div>
-                                <div class="govuk-summary-list__row">
-                                    <dt class="govuk-summary-list__key">
-                                        Grade
-                                    </dt>
-                                    <dd class="govuk-summary-list__value">
-                                        {{ person.grade }}
-                                    </dd>
-                                </div>
-                                <div class="govuk-summary-list__row">
-                                    <dt class="govuk-summary-list__key">
-                                        Job Title
-                                    </dt>
-                                    <dd class="govuk-summary-list__value">
-                                        {{ person.job_title }}
-                                    </dd>
-                                </div>
-                                <div class="govuk-summary-list__row">
-                                    <dt class="govuk-summary-list__key">
-                                        Email
-                                    </dt>
-                                    <dd class="govuk-summary-list__value">
-                                        {{ person.email }}
-                                    </dd>
-                                </div>
-                                <div class="govuk-summary-list__row">
-                                    <dt class="govuk-summary-list__key">
-                                        Phone
-                                    </dt>
-                                    <dd class="govuk-summary-list__value">
-                                        {{ person.phone }}
-                                    </dd>
-                                </div>
-                            </dl>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <a href="{% url "confirmation" %}" class="govuk-button" data-module="govuk-button">Select</a>
+            {% include "includes/leaver_details.html" with person=person %}
+            <a href="{% url "line-manager-confirmation" %}?person_id={{ person.uuid }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Select</a>
         {% endfor %}
     {% endif %}
 {% endblock %}

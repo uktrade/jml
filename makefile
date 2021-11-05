@@ -73,3 +73,6 @@ black:
 
 superuser:
 	docker-compose run --rm leavers python manage.py createsuperuser
+
+test-users:
+	docker-compose run --rm leavers python manage.py create_test_users

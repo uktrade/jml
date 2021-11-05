@@ -8,7 +8,7 @@ from leavers.views.leaving import (
     LeavingSearchView,
     # LeaverSelectionView,
     ConfirmationSummaryView,
-    LeaverConfirmationView,
+    LineManagerConfirmationView,
     LeaverConfirmedView,
 )
 from leavers.views.flow import (
@@ -24,17 +24,17 @@ urlpatterns = [
     path("start/", LeaversStartView.as_view(), name="start"),
     path("details/", LeavingDetailsView.as_view(), name="details"),
     path("search/", LeavingSearchView.as_view(), name="search"),
-    # path("leaver-selection/", LeaverSelectionView.as_view(), name="leaver-selectio "),
     path("confirmation/", ConfirmationSummaryView.as_view(), name="confirmation"),
-    path("leaver-confirmation/", LeaverConfirmationView.as_view(), name="leaver-confirmation"),
+    path("line-manager-confirmation/", LineManagerConfirmationView.as_view(), name="line-manager-confirmation"),
+    # path("leaver-confirmation/", LeaverConfirmationView.as_view(), name="leaver-confirmation"),
     path("leaver-confirmed/", LeaverConfirmedView.as_view(), name="leaver-confirmed"),
-    # path(
-    #     "",
-    #     workflow_urls(
-    #         view=LeaversFlowView,
-    #         list_view=LeaversFlowListView,
-    #         create_view=LeaversFlowCreateView,
-    #         continue_view=LeaversFlowContinueView,
-    #     ),
-    # ),
+    path(
+        "leaving-workflow/",
+        workflow_urls(
+            view=LeaversFlowView,
+            list_view=LeaversFlowListView,
+            create_view=LeaversFlowCreateView,
+            continue_view=LeaversFlowContinueView,
+        ),
+    ),
 ]

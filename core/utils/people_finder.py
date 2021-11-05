@@ -1,4 +1,6 @@
 import requests
+import urllib.parse
+
 from mohawk import Sender
 
 from django.conf import settings
@@ -8,7 +10,8 @@ CONTENT_TYPE = "application/json"
 
 
 def search_people_finder(search_term):
-    url = f"{settings.PEOPLE_FINDER_URL}/api/people-search/?search_query={search_term}"
+    safe_search_term = urllib.parse.quote_plus(search_term)
+    url = f"{settings.PEOPLE_FINDER_URL}/api/people-search/?search_query={safe_search_term}"
     sender = Sender(
         {
             'id': settings.HAWK_ACCESS_ID,

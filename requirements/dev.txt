@@ -103,6 +103,8 @@ py==1.10.0
     # via
     #   pytest
     #   pytest-forked
+pycrypto==2.6.1
+    # via -r requirements.in/base.in
 pyparsing==2.4.7
     # via packaging
 pytest==6.2.5

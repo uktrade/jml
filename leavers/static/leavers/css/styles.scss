@@ -2,11 +2,9 @@ $govuk-page-width: 1800px;
 @import "./node_modules/govuk-frontend/govuk/all";
 
 .leaver-image {
-  margin-bottom: 26px;
-}
-
-.leaver-image {
   width:100%;
+  margin-bottom: 26px;
+  border:1px solid black;
 }
 
 .back-link-format {
