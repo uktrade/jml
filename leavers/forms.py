@@ -115,7 +115,7 @@ class WhoIsLeavingForm(GovFormattedForm):
 
 class SearchForm(GovFormattedForm):
     search_terms = forms.CharField(
-        label="Find the leaver using their name or email"
+        label="Search for the leaver. You can use terms like their name, email address or role."
     )
 
 
