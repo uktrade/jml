@@ -1,4 +1,5 @@
 from django_workflow_engine import Workflow, Step
+# from celery.schedules import crontab
 
 from leavers.workflow.util import (
     is_leaving_date,
@@ -51,7 +52,7 @@ LeaversWorkflow = Workflow(
             # groups=[
             #     "HR",
             # ]
-            reminder=True,
+            reminder=crontab(hour=0, minute=0,),
             #     reminder_info={
             #         "subject": "This is a gentle reminder to confirm leaving tasks for x",
             #         "message": "Please confirm that you have carried out leaving tasks for x here http://localhost:8000/{{ flow.continue_url }}",
@@ -73,7 +74,7 @@ LeaversWorkflow = Workflow(
             step_id="sre_confirm_tasks_complete",
             task_name="sre_confirm_tasks_complete",
             target=None,
-            reminder=True,
+            reminder=crontab(hour=0, minute=0,),
             # groups=[
             #     "SRE",
             # ]
