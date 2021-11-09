@@ -135,3 +135,18 @@ class LeaverConfirmationForm(GovFormattedForm):
     # declaration = forms.BooleanField(
     #     label="I confirm that all information is up to date and correct"
     # )
+
+
+class PersonalDetailsForm(GovFormattedForm):
+    personal_email_address = forms.EmailField()
+    address = forms.CharField(
+        label="Find the leaver using their name or email",
+        widget=forms.Textarea,
+    )
+    phone_number = forms.CharField(max_length=16)
+
+
+class ProfessionalDetailsForm(GovFormattedForm):
+    staff_number = forms.CharField(max_length=22)  # TODO check length
+    github_username = forms.CharField(max_length=22)  # TODO check length
+    

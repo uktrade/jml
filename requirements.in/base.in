@@ -17,3 +17,7 @@ waitress==2.0.0
 django-compressor
 mohawk
 pycrypto
+Celery
+django-celery-beat
+django-celery-results
+redis

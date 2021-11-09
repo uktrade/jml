@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     "core",
     "authbroker_client",
     "django_workflow_engine",
+    "django_celery_beat",
+    "django_celery_results",
 ]
 
 ROOT_URLCONF = "config.urls"
