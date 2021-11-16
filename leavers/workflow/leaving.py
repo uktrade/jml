@@ -1,10 +1,4 @@
 from django_workflow_engine import Workflow, Step
-# from celery.schedules import crontab
-
-from leavers.workflow.util import (
-    is_leaving_date,
-    is_x_days_before_payroll,
-)
 
 
 LeaversWorkflow = Workflow(
@@ -14,101 +8,120 @@ LeaversWorkflow = Workflow(
             step_id="setup_leaving",
             task_name="setup_leaving",
             start=True,
-            target="sre_confirm_tasks_complete",
+            targets=["notify_leaver", ],
         ),
         Step(
-            step_id="find_group_recipients",
-            task_name="find_group_recipients",
-            target="alert_hardware_team",
+            step_id="notify_leaver",
+            task_name="notification_email",
+            targets=["notify_line_manager", ],
             task_info={
-                "group_name": "HR",
-            },
-        ),
-        Step(
-            step_id="email_hr",
-            task_name="send_email",
-            target="hr_confirmation_email",
-            task_info={
-                "subject": "A member of staff is leaving DIT",
+                "subject": "Thank you for registering ",
                 "message": "TODO - details of the leaver",
                 "from_email": "noreply@jml.uktrade.com",
             },
         ),
         Step(
-            step_id="hr_confirmation_email",
-            task_name="send_email",
-            target="hr_confirm_leaving_tasks",
-            condition=is_x_days_before_payroll,
+            step_id="notify_line_manager",
+            task_name="notification_email",
+            targets=["notify_hr_of_leaving", ],
             task_info={
+                "subject": "Thank you for registering ",
+                "message": "TODO - details of the leaver",
+                "from_email": "noreply@jml.uktrade.com",
+            },
+        ),
+        Step(
+            step_id="notify_hr_of_leaving",
+            task_name="notification_email",
+            targets=["hr_confirmation_email", ],
+            task_info={
+                "groups": [
+                    "HR",
+                ],
+                "subject": "A member of staff is leaving DIT",
+                "message": "TODO - details of the leaver",
+                "from_email": "noreply@jml.uktrade.com",
+            },
+        ),
+        # Split flow
+        Step(
+            step_id="setup_scheduled_tasks",
+            task_name="basic_task",
+            targets=[
+                "is_it_leaving_date_plus_x",
+                "is_it_x_days_before_payroll",
+            ],
+        ),
+        # SRE
+        Step(
+            step_id="is_it_leaving_date_plus_x",
+            task_name="is_it_leaving_date_plus_x",
+            targets=["send_sre_slack_message", "is_it_leaving_date_plus_x", ],
+            no_log=True,
+        ),
+        Step(
+            step_id="send_sre_slack_message",
+            task_name="send_sre_slack_message",
+            targets=["sre_confirm_tasks_complete", ],
+        ),
+        Step(
+            step_id="have_SRE_carried_out_leaving_tasks",
+            task_name="have_SRE_carried_out_leaving_tasks",
+            targets=["find_sre_team", None],
+        ),
+        Step(
+            step_id="send_sre_reminder",
+            task_name="notification_email",
+            targets=["have_SRE_carried_out_leaving_tasks", ],
+            task_info={
+                "groups": [
+                     "SRE",
+                 ],
+                "subject": "Test",
+                "message": "Please review the hardware required http://localhost:8000/{{ flow.continue_url }}.",
+                "from_email": "system@example.com",
+            },
+        ),
+        # HR
+        Step(
+            step_id="is_it_x_days_before_payroll",
+            task_name="is_it_x_days_before_payroll",
+            targets=[
+                "ask_hr_to_confirm_leaving_tasks",
+                "is_it_x_days_before_payroll",
+            ],
+            no_log=True,
+        ),
+        Step(
+            step_id="ask_hr_to_confirm_leaving_tasks",
+            task_name="notification_email",
+            targets=["hr_confirm_leaving_tasks", ],
+            task_info={
+                "groups": [
+                     "HR",
+                 ],
                 "subject": "Please confirm leaving tasks have been carried out",
                 "message": "Please confirm you have carried out leaving tasks for {} here http://localhost:8000/{{ flow.continue_url }}.",
                 "from_email": "noreply@jml.uktrade.com",
             },
         ),
         Step(
-            step_id="hr_confirm_leaving_tasks",
-            task_name="hr_confirm_leaving_tasks",
-            target="hr_confirm_tasks_carried_out_email",
-            # groups=[
-            #     "HR",
-            # ]
-            reminder=crontab(hour=0, minute=0,),
-            #     reminder_info={
-            #         "subject": "This is a gentle reminder to confirm leaving tasks for x",
-            #         "message": "Please confirm that you have carried out leaving tasks for x here http://localhost:8000/{{ flow.continue_url }}",
-            #         "from_email": "noreply@jml.uktrade.com",
-            #     },
-        ),
-        Step(  # Record that HR leaving tasks have been carried out
-            step_id="hr_confirm_tasks_carried_out",
-            target="send_sre_slack_message",
-            condition=is_x_days_before_payroll,
+            step_id="have_hr_carried_out_leaving_tasks",
+            task_name="have_hr_carried_out_leaving_tasks",
+            targets=["send_hr_reminder", None],
         ),
         Step(
-            step_id="send_sre_slack_message",
-            task_name="send_sre_slack_message",
-            target="sre_confirm_tasks_complete",
-            condition=is_leaving_date,
+            step_id="send_hr_reminder",
+            task_name="notification_email",
+            targets=["have_SRE_carried_out_leaving_tasks", ],
+            task_info={
+                "groups": [
+                    "SRE",
+                ],
+                "subject": "Test",
+                "message": "Please review the hardware required http://localhost:8000/{{ flow.continue_url }}.",
+                "from_email": "system@example.com",
+            },
         ),
-        Step(
-            step_id="sre_confirm_tasks_complete",
-            task_name="sre_confirm_tasks_complete",
-            target=None,
-            reminder=crontab(hour=0, minute=0,),
-            # groups=[
-            #     "SRE",
-            # ]
-            #     reminder_info={
-            #         "subject": "Test",
-            #         "message": "Please review the hardware required http://localhost:8000/{{ flow.continue_url }}.",
-            #         "from_email": "system@example.com",
-            #     },
-        ),
-        # Step(
-        #     step_id="find_group_recipients",
-        #     task_name="find_group_recipients",
-        #     target="alert_hardware_team",
-        #     task_info={
-        #         "group_name": "Hardware Team",
-        #     },
-        # ),
-        # Step(
-        #     step_id="alert_hardware_team",
-        #     task_name="send_email",
-        #     target="confirm_hardware_received",
-        #     task_info={
-        #         "subject": "Test",
-        #         "message": "Please review the hardware required http://localhost:8000/{{ flow.continue_url }}.",
-        #         "from_email": "system@example.com",
-        #     },
-        # ),
-        # Step(
-        #     step_id="confirm_hardware_received",
-        #     task_name="confirm_hardware_received",
-        #     target=None,
-        #     groups=[
-        #         "Hardware Team",
-        #     ]
-        # ),
     ],
 )

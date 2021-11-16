@@ -159,7 +159,7 @@ CACHES = {
 
 # django-workflow-engine
 DJANGO_WORKFLOWS = [
-    "leavers.workflow.LeaversWorkflow",
+    "leavers.workflow.leaving.LeaversWorkflow",
 ]
 
 # Dev tools

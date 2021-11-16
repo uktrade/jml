@@ -32,18 +32,21 @@ services:
    depends_on:
      - db
    restart: always
- redis:
-   image: redis:buster
-   ports:
-     - "6379:6379"
- celery:
-   build:
-      context: .
-   command: celery -A config worker -l info
-   volumes:
-     - ./:/app/
-   depends_on:
-     - db
-     - redis
    environment:
      - DJANGO_SETTINGS_MODULE=config.settings.local
+# redis:
+#   image: redis:buster
+#   ports:
+#     - "6379:6379"
+# celery:
+#   build:
+#      context: .
+#      dockerfile: "docker/Dockerfile.dev"
+#   command: celery -A config worker -l info
+#   volumes:
+#     - ./:/app/
+#   depends_on:
+#     - db
+#     - redis
+#   environment:
+#     - DJANGO_SETTINGS_MODULE=config.settings.local
