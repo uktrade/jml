@@ -96,6 +96,8 @@ idna==3.3
     #   yarl
 iniconfig==1.1.1
     # via pytest
+isort==5.10.1
+    # via -r requirements.in/dev.in
 kombu==5.2.1
     # via celery
 kubi-ecs-logger==0.1.0
@@ -219,7 +221,7 @@ wcwidth==0.2.5
     # via prompt-toolkit
 wheel==0.37.0
     # via pip-tools
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 yarl==1.7.0
     # via aiohttp

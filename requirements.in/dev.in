@@ -3,6 +3,7 @@
 Faker
 factory-boy
 black
+isort
 pytest
 pytest-cov
 pytest-django
