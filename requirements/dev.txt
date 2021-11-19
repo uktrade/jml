@@ -28,6 +28,8 @@ django==3.2.8
     #   django-appconf
     #   django-settings-export
     #   django-staff-sso-client
+    #   django-stubs
+    #   django-stubs-ext
     #   django-workflow-engine
 django-appconf==1.0.5
     # via django-compressor
@@ -45,6 +47,10 @@ django-settings-export==1.2.1
     # via -r requirements.in/base.in
 django-staff-sso-client==3.1.1
     # via -r requirements.in/base.in
+django-stubs==1.9.0
+    # via -r requirements.in/dev.in
+django-stubs-ext==0.3.1
+    # via django-stubs
 django-workflow-engine==0.0.14
     # via -r requirements.in/base.in
 execnet==1.9.0
@@ -72,7 +78,9 @@ marshmallow==3.6.1
 mccabe==0.6.1
     # via flake8
 mypy==0.910
-    # via -r requirements.in/dev.in
+    # via
+    #   -r requirements.in/dev.in
+    #   django-stubs
 mypy-extensions==0.4.3
     # via
     #   black
@@ -147,6 +155,7 @@ text-unidecode==1.3
     # via faker
 toml==0.10.2
     # via
+    #   django-stubs
     #   mypy
     #   pytest
 tomli==1.2.1
@@ -154,9 +163,17 @@ tomli==1.2.1
     #   black
     #   coverage
     #   pep517
+types-certifi==2021.10.8.0
+    # via -r requirements.in/dev.in
+types-pytz==2021.3.0
+    # via django-stubs
+types-pyyaml==6.0.1
+    # via django-stubs
 typing-extensions==3.10.0.2
     # via
     #   black
+    #   django-stubs
+    #   django-stubs-ext
     #   mypy
 urllib3==1.26.7
     # via
