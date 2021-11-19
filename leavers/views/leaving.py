@@ -67,9 +67,7 @@ class LeavingSearchView(View):
         # Do we get anything back from SSO for this email address?
         for email in emails:
             # Search for user in SSO using email
-            sso_result = get_sso_user_details(
-                email=email,
-            )
+            sso_result = get_sso_user_details(email=email)
             if sso_result:
                 sso_results.append(sso_result)
 
@@ -98,9 +96,7 @@ class LeavingSearchView(View):
             # TODO make SSO logic return user for ANY of their
             # TODO email addresses
             # TODO use all email addresses associated with PF result
-            sso_result = get_sso_user_details(
-                email=pf_result["email"],
-            )
+            sso_result = get_sso_user_details(email=pf_result["email"])
 
             if sso_result:
                 pf_result["sso_id"] = sso_result["sso_id"]
