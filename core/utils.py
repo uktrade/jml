@@ -1,6 +1,5 @@
-from slack_sdk.webhook import WebhookClient
-
 from django.conf import settings
+from slack_sdk.webhook import WebhookClient
 
 
 def send_slack_message(message_content):

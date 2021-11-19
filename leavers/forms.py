@@ -1,14 +1,8 @@
 import datetime
 
-from django.core.exceptions import ValidationError
 from django import forms
-from django.forms.widgets import (
-    Textarea,
-    Select,
-    CheckboxInput,
-    TextInput,
-    EmailInput,
-)
+from django.core.exceptions import ValidationError
+from django.forms.widgets import CheckboxInput, EmailInput, Select, Textarea, TextInput
 
 from leavers.models import LeavingRequest
 from leavers.widgets import DateSelectorWidget

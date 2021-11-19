@@ -1,21 +1,20 @@
 from django.urls import path
-
 from django_workflow_engine import workflow_urls
 
+from leavers.views.flow import (
+    LeaversFlowContinueView,
+    LeaversFlowCreateView,
+    LeaversFlowListView,
+    LeaversFlowView,
+)
 from leavers.views.leaving import (
-    LeaversStartView,
-    LeavingDetailsView,
-    LeavingSearchView,
-    LeaverSelectionView,
     ConfirmationSummaryView,
     LeaverConfirmationView,
     LeaverConfirmedView,
-)
-from leavers.views.flow import (
-    LeaversFlowView,
-    LeaversFlowListView,
-    LeaversFlowCreateView,
-    LeaversFlowContinueView,
+    LeaverSelectionView,
+    LeaversStartView,
+    LeavingDetailsView,
+    LeavingSearchView,
 )
 
 urlpatterns = [

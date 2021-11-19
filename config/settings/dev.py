@@ -1,7 +1,9 @@
 import sys
-from .base import *  # noqa
+
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+
+from .base import *  # noqa
 
 # TODO - add Sentry
 # sentry_sdk.init(

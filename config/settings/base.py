@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 import environ
 from django.urls import reverse_lazy
 

@@ -1,13 +1,8 @@
-from django_workflow_engine import Workflow, Step
 from django import forms
+from django_workflow_engine import Step, Workflow
 
 from leavers.models import LeavingRequest
-
-from leavers.tasks import (
-    SetupLeaving,
-    CreateLeavingRequest,
-)
-
+from leavers.tasks import CreateLeavingRequest, SetupLeaving
 
 LeaversWorkflow = Workflow(
     name="leaving",

@@ -1,17 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.views.generic.edit import FormView
-from django_workflow_engine import (
-    Task,
-    TaskError,
-)
+from django_workflow_engine import Task, TaskError
 
 from core.utils import send_slack_message
-
-from leavers.forms import (
-    LeaversForm,
-    HardwareReceivedForm,
-    SREConfirmCompleteForm,
-)
+from leavers.forms import HardwareReceivedForm, LeaversForm, SREConfirmCompleteForm
 from leavers.models import LeavingRequest
 
 

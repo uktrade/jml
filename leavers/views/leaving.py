@@ -1,13 +1,13 @@
-from django.views.generic import TemplateView
+from django.shortcuts import redirect, reverse
 from django.urls import reverse_lazy
-from django.shortcuts import reverse, redirect
+from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
 from leavers.forms import (
+    LeaverConfirmationForm,
     PersonNotFoundForm,
     SearchForm,
     WhoIsLeavingForm,
-    LeaverConfirmationForm,
 )
 
 
