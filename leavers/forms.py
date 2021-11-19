@@ -46,7 +46,7 @@ class GovFormattedForm(forms.Form):
 
 class LeaversForm(GovFormattedForm):
     for_self = forms.BooleanField(
-        label='I am leaving the DIT (leave blank if filling in for someone else)',
+        label="I am leaving the DIT (leave blank if filling in for someone else)",
         required=False,
     )
     leaver_email_address = forms.EmailField(
@@ -77,9 +77,7 @@ class LeaversForm(GovFormattedForm):
 class HardwareReceivedForm(GovFormattedModelForm):
     class Meta:
         model = LeavingRequest
-        fields = (
-            "hardware_received",
-        )
+        fields = ("hardware_received",)
 
 
 class SREConfirmCompleteForm(GovFormattedForm):
@@ -127,15 +125,13 @@ class ContactForm(forms.Form):
 
 class WhoIsLeavingForm(GovFormattedForm):
     CHOICES = [
-        ("me", 'Me'),
-        ("someone_else", 'Someone Else'),
+        ("me", "Me"),
+        ("someone_else", "Someone Else"),
     ]
 
     who_for = forms.ChoiceField(
         choices=CHOICES,
-        widget=forms.RadioSelect(
-            attrs={"class": "govuk-radios__input"}
-        )
+        widget=forms.RadioSelect(attrs={"class": "govuk-radios__input"}),
     )
 
     last_day = forms.DateField(
@@ -146,9 +142,7 @@ class WhoIsLeavingForm(GovFormattedForm):
 
 
 class SearchForm(GovFormattedForm):
-    search_term = forms.CharField(
-        label="Find the leaver using their name or email"
-    )
+    search_term = forms.CharField(label="Find the leaver using their name or email")
 
 
 class PersonNotFoundForm(GovFormattedForm):

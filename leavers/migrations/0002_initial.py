@@ -11,18 +11,30 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('leavers', '0001_initial'),
+        ("leavers", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='leavingrequest',
-            name='leaver_user',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='leaving_users', to=settings.AUTH_USER_MODEL),
+            model_name="leavingrequest",
+            name="leaver_user",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="leaving_users",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='leavingrequest',
-            name='requesting_user',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='requesting_users', to=settings.AUTH_USER_MODEL),
+            model_name="leavingrequest",
+            name="requesting_user",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="requesting_users",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

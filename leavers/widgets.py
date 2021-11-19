@@ -24,13 +24,13 @@ class DateSelectorWidget(forms.MultiWidget):
         if isinstance(value, date):
             return [value.day, value.month, value.year]
         elif isinstance(value, str):
-            year, month, day = value.split('-')
+            year, month, day = value.split("-")
             return [day, month, year]
         return [None, None, None]
 
     def value_from_datadict(self, data, files, name):
         day, month, year = super().value_from_datadict(data, files, name)
         if day or month or year:
-            return '{}-{}-{}'.format(year, month, day)
+            return "{}-{}-{}".format(year, month, day)
 
         return None

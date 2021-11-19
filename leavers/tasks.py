@@ -98,6 +98,7 @@ class SREEConfirmTasksComplete(Task, input="sre_confirm_tasks_complete"):
     def context(self):
         return {"form": self.form_class()}
 
+
 #
 # class SREEConfirmTasksComplete(Task, input="sre_confirm_tasks_complete"):
 #     auto = False
@@ -131,10 +132,11 @@ class SendSRESlackMessage(Task, input="send_sre_slack_message"):
 
         return None, {}
 
+
 class ContactFormView(FormView):
-    template_name = 'leaving/leaver_or_line_manager.html'
+    template_name = "leaving/leaver_or_line_manager.html"
     form_class = LeaversForm
-    success_url = '/start/'
+    success_url = "/start/"
 
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.

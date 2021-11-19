@@ -9,19 +9,34 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('django_workflow_engine', '0002_alter_flow_workflow_name'),
+        ("django_workflow_engine", "0002_alter_flow_workflow_name"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LeavingRequest',
+            name="LeavingRequest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('requested_at', models.DateTimeField(auto_now_add=True)),
-                ('requested_by', models.CharField(max_length=255)),
-                ('last_day', models.DateTimeField(blank=True, null=True)),
-                ('hardware_received', models.BooleanField(default=False)),
-                ('flow', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='leaving_request', to='django_workflow_engine.flow')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("requested_at", models.DateTimeField(auto_now_add=True)),
+                ("requested_by", models.CharField(max_length=255)),
+                ("last_day", models.DateTimeField(blank=True, null=True)),
+                ("hardware_received", models.BooleanField(default=False)),
+                (
+                    "flow",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="leaving_request",
+                        to="django_workflow_engine.flow",
+                    ),
+                ),
             ],
         ),
     ]

@@ -8,8 +8,8 @@ from django_log_formatter_ecs import ECSFormatter
 
 # X_ROBOTS_TAG (https://man.uktrade.io/docs/procedures/1st-go-live.html)
 X_ROBOTS_TAG = [
-    'noindex',
-    'nofollow',
+    "noindex",
+    "nofollow",
 ]
 
 LOGGING = {
@@ -19,28 +19,28 @@ LOGGING = {
         "ecs_formatter": {
             "()": ECSFormatter,
         },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
+        "simple": {"format": "%(levelname)s %(message)s"},
+    },
+    "handlers": {
+        "ecs": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+            "formatter": "ecs_formatter",
+        },
+        "stdout": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+            "formatter": "simple",
+            "level": "INFO",
         },
     },
-    'handlers': {
-        'ecs': {
-            'class': 'logging.StreamHandler',
-            'stream': sys.stdout,
-            'formatter': 'ecs_formatter',
-        },
-        'stdout': {
-            'class': 'logging.StreamHandler',
-            'stream': sys.stdout,
-            'formatter': 'simple',
-            'level': 'INFO',
-        },
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['ecs', ],
-            'level': 'INFO',
-            'propagate': True,
+    "loggers": {
+        "django.request": {
+            "handlers": [
+                "ecs",
+            ],
+            "level": "INFO",
+            "propagate": True,
         },
     },
 }
@@ -51,7 +51,7 @@ sentry_sdk.init(
     integrations=[DjangoIntegration()],
 )
 
-# Django staff SSO user migration process requries the following
+# Django staff SSO user migration process requries the following
 MIGRATE_EMAIL_USER_ON_LOGIN = True
 
 # HSTS (https://man.uktrade.io/docs/procedures/1st-go-live.html)
@@ -82,7 +82,7 @@ SESSION_COOKIE_HTTPONLY = True
 # Set content to no sniff
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-# Set anti XSS header
+# Set anti XSS header
 SECURE_BROWSER_XSS_FILTER = True
 
 # Audit log middleware user field

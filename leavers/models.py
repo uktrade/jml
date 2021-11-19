@@ -10,7 +10,9 @@ class LeavingRequest(models.Model):
     )
 
     requested_at = models.DateTimeField(auto_now_add=True)
-    requested_by = models.CharField(max_length=255,)  # SSO id
+    requested_by = models.CharField(
+        max_length=255,
+    )  # SSO id
     last_day = models.DateTimeField(null=True, blank=True)
     hardware_received = models.BooleanField(default=False)
     requesting_user = models.ForeignKey(

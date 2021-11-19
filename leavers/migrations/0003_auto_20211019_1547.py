@@ -6,38 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('leavers', '0002_initial'),
+        ("leavers", "0002_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='leavingrequest',
-            name='aws_access_removed',
+            model_name="leavingrequest",
+            name="aws_access_removed",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='leavingrequest',
-            name='github_user_access_removed',
+            model_name="leavingrequest",
+            name="github_user_access_removed",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='leavingrequest',
-            name='jira_access_removed',
+            model_name="leavingrequest",
+            name="jira_access_removed",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='leavingrequest',
-            name='sentry_access_removed',
+            model_name="leavingrequest",
+            name="sentry_access_removed",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='leavingrequest',
-            name='sso_access_removed',
+            model_name="leavingrequest",
+            name="sso_access_removed",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='leavingrequest',
-            name='vpn_access_removed',
+            model_name="leavingrequest",
+            name="vpn_access_removed",
             field=models.BooleanField(default=False),
         ),
     ]

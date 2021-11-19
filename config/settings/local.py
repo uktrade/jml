@@ -1,6 +1,6 @@
 from .dev import *  # noqa
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 AUTHBROKER_ANONYMOUS_PATHS = [
     "/admin/",

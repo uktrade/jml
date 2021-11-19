@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 import environ
 from django.urls import reverse_lazy
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env = environ.Env()
@@ -15,15 +16,15 @@ SECRET_KEY = env("SECRET_KEY")
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
 
-VCAP_SERVICES = env.json('VCAP_SERVICES', {})
+VCAP_SERVICES = env.json("VCAP_SERVICES", {})
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
     "sass_processor",
     "leavers",
     "user",
@@ -53,24 +54,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-VCAP_SERVICES = env.json('VCAP_SERVICES', default={})
+VCAP_SERVICES = env.json("VCAP_SERVICES", default={})
 
-if 'postgres' in VCAP_SERVICES:
-    DATABASE_URL = VCAP_SERVICES['postgres'][0]['credentials']['uri']
+if "postgres" in VCAP_SERVICES:
+    DATABASE_URL = VCAP_SERVICES["postgres"][0]["credentials"]["uri"]
 else:
-    DATABASE_URL = os.getenv('DATABASE_URL')
+    DATABASE_URL = os.getenv("DATABASE_URL")
 
-DATABASES = {
-    "default": env.db()
-}
+DATABASES = {"default": env.db()}
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},  # noqa
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },  # noqa
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -93,7 +94,7 @@ AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET", default=None)
 AUTHBROKER_SCOPES = "read write"
 
 LOGIN_URL = "/auth/login"
-LOGIN_REDIRECT_URL = "/" #"leavers:leavers_form"
+LOGIN_REDIRECT_URL = "/"  # "leavers:leavers_form"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
@@ -117,26 +118,26 @@ STATICFILES_DIRS = [
 ]
 
 SASS_PROCESSOR_INCLUDE_DIRS = [
-    str(BASE_DIR / 'node_modules'),
+    str(BASE_DIR / "node_modules"),
 ]
 
 GTM_CODE = env("GTM_CODE", default=None)
 
 SETTINGS_EXPORT = [
-    'DEBUG',
-    'GTM_CODE',
+    "DEBUG",
+    "GTM_CODE",
 ]
 
 MIDDLEWARE = [
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'authbroker_client.middleware.ProtectAllViewsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "authbroker_client.middleware.ProtectAllViewsMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -146,12 +147,12 @@ AUTHENTICATION_BACKENDS = [
 
 DEV_TOOLS_ENABLED = APP_ENV in ("local", "dev")
 
-MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'django_cache_table',
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "django_cache_table",
     }
 }
 

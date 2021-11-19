@@ -22,7 +22,7 @@ class LeavingDetailsView(FormView):
 
     def form_valid(self, form):
         """If the form is valid, redirect to the supplied URL."""
-        self.who_for = form.cleaned_data['who_for']
+        self.who_for = form.cleaned_data["who_for"]
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -45,7 +45,7 @@ class LeaverSelectionView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['people_list'] = [
+        context["people_list"] = [
             {
                 "image": "images/ai_person_1.jpg",
                 "name": "Barry Scott",
@@ -59,7 +59,7 @@ class LeaverSelectionView(FormView):
                 "job_title": "Django developer",
                 "email": "test@test.com",
                 "phone": "07000000000",
-            }
+            },
         ]
         return context
 
@@ -75,7 +75,7 @@ class LeaverConfirmationView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['person'] = {
+        context["person"] = {
             "image": "images/ai_person_2.jpg",
             "name": "Sarah Philips",
             "job_title": "Django developer",
