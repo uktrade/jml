@@ -1,10 +1,11 @@
 import sys
+import os
 
 import sentry_sdk
 from django_log_formatter_ecs import ECSFormatter
 from sentry_sdk.integrations.django import DjangoIntegration
 
-from .base import *  # noqa
+from config.settings.base import *  # type: ignore # noqa
 
 # X_ROBOTS_TAG (https://man.uktrade.io/docs/procedures/1st-go-live.html)
 X_ROBOTS_TAG = [

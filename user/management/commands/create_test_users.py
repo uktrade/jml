@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand
 from user.models import User
 
 # first name, last name
-USERS: List[Tuple[str, str]] = [
+USERS: List[Tuple[str, str, str]] = [
     ("John", "Smith", "Hardware Team"),
     # ("Jane", "Doe"),
     # ("Elon", "Musk"),

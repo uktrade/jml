@@ -1,4 +1,4 @@
-from .dev import *  # noqa
+from config.settings.dev import *  # type: ignore # noqa
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 

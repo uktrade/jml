@@ -1,32 +1,12 @@
+from typing import Dict
+
 from django.core.management.base import BaseCommand
 
 import leavers
-from leavers.models import Position
-
-
-class PositionStub:
-    name = "Cost Centre Hierarchy"
-    counter = 0
-
-    def clear(self):
-        Position.objects.all().delete()
-
-    def create(self):
-        """Clear the Position tables, and create the stub data"""
-        self.clear()
-        Position.objects.create(title="Software Developer")
-        Position.objects.create(title="Software Tester")
-        Position.objects.create(title="Lead Developer")
-        Position.objects.create(title="Delivery Manager")
-        Position.objects.create(title="Program Manager")
-        Position.objects.create(title="UX Developer")
-        Position.objects.create(title="Product Manager")
 
 
 class Command(BaseCommand):
-    TEST_TYPE = {
-        "Position": PositionStub,
-    }
+    TEST_TYPE: Dict = {}
 
     help = "Create stub data. Allowed types are - All - {}".format(
         " - ".join(TEST_TYPE.keys())

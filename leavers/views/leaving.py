@@ -1,5 +1,4 @@
-from django.shortcuts import redirect, reverse
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 

@@ -40,7 +40,7 @@ class CreateLeavingRequest(Task, input="create_leaving_request"):  # type: ignor
         return {"form": self.form_class()}
 
 
-class FindGroupRecipients(Task, input="find_group_recipients"):
+class FindGroupRecipients(Task, input="find_group_recipients"):  # type: ignore
     auto = True
 
     def execute(self, task_info):
@@ -52,7 +52,7 @@ class FindGroupRecipients(Task, input="find_group_recipients"):
         return None, {"recipient_list": list(users.values_list("email"))}
 
 
-class ConfirmHardwareReceived(Task, input="confirm_hardware_received"):
+class ConfirmHardwareReceived(Task, input="confirm_hardware_received"):  # type: ignore
     auto = False
     form_class = HardwareReceivedForm
     template = "flow/basic_form.html"
@@ -72,7 +72,7 @@ class ConfirmHardwareReceived(Task, input="confirm_hardware_received"):
         return {"form": self.form_class(instance=self.flow.leaving_request)}
 
 
-class SREEConfirmTasksComplete(Task, input="sre_confirm_tasks_complete"):
+class SREEConfirmTasksComplete(Task, input="sre_confirm_tasks_complete"):  # type: ignore
     auto = False
     form_class = SREConfirmCompleteForm
     template = "flow/basic_form.html"
@@ -92,7 +92,7 @@ class SREEConfirmTasksComplete(Task, input="sre_confirm_tasks_complete"):
 
 
 #
-# class SREEConfirmTasksComplete(Task, input="sre_confirm_tasks_complete"):
+# class SREEConfirmTasksComplete(Task, input="sre_confirm_tasks_complete"):  # type: ignore
 #     auto = False
 #     form_class = ""  # TODO own form
 #     template = ""  # TODO own template
@@ -112,7 +112,7 @@ class SREEConfirmTasksComplete(Task, input="sre_confirm_tasks_complete"):
 #
 
 
-class SendSRESlackMessage(Task, input="send_sre_slack_message"):
+class SendSRESlackMessage(Task, input="send_sre_slack_message"):  # type: ignore
     auto = True
 
     def execute(self, task_info):
