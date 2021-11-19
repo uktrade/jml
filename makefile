@@ -63,6 +63,9 @@ black:
 isort:
 	docker-compose run --rm leavers isort .
 
+mypy:
+	docker-compose run --rm leavers mypy .
+
 collectstatic:
 	docker-compose run --rm leavers python manage.py collectstatic
 
