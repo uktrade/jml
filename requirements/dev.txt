@@ -90,6 +90,8 @@ faker==9.3.1
     # via
     #   -r requirements.in/dev.in
     #   factory-boy
+flake8==4.0.1
+    # via -r requirements.in/dev.in
 idna==3.3
     # via
     #   requests
@@ -106,6 +108,8 @@ libsass==0.20.0
     # via -r requirements.in/base.in
 marshmallow==3.6.1
     # via kubi-ecs-logger
+mccabe==0.6.1
+    # via flake8
 mohawk==1.1.0
     # via -r requirements.in/base.in
 multidict==5.2.0
@@ -136,8 +140,12 @@ py==1.10.0
     # via
     #   pytest
     #   pytest-forked
+pycodestyle==2.8.0
+    # via flake8
 pycrypto==2.6.1
     # via -r requirements.in/base.in
+pyflakes==2.4.0
+    # via flake8
 pyparsing==2.4.7
     # via packaging
 pytest==6.2.5
