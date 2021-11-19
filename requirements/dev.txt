@@ -59,6 +59,8 @@ idna==3.3
     # via requests
 iniconfig==1.1.1
     # via pytest
+isort==5.10.1
+    # via -r requirements.in/dev.in
 kubi-ecs-logger==0.1.0
     # via django-log-formatter-ecs
 libsass==0.20.0
@@ -148,7 +150,7 @@ waitress==2.0.0
     # via -r requirements.in/base.in
 wheel==0.37.0
     # via pip-tools
-whitenoise==5.2.0
+whitenoise==5.2
     # via -r requirements.in/base.in
 
 # The following packages are considered to be unsafe in a requirements file:

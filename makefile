@@ -71,5 +71,8 @@ pytest:
 black:
 	docker-compose run --rm leavers black .
 
+isort:
+	docker-compose run --rm leavers isort .
+
 superuser:
 	docker-compose run --rm leavers python manage.py createsuperuser
