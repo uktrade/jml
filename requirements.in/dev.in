@@ -5,6 +5,8 @@ factory-boy
 black
 flake8
 isort
+mypy
+django-stubs
 pytest
 pytest-cov
 pytest-django
