@@ -55,6 +55,8 @@ faker==9.3.1
     # via
     #   -r requirements.in/dev.in
     #   factory-boy
+flake8==4.0.1
+    # via -r requirements.in/dev.in
 idna==3.3
     # via requests
 iniconfig==1.1.1
@@ -67,6 +69,8 @@ libsass==0.20.0
     # via -r requirements.in/base.in
 marshmallow==3.6.1
     # via kubi-ecs-logger
+mccabe==0.6.1
+    # via flake8
 mypy-extensions==0.4.3
     # via black
 oauthlib==3.1.1
@@ -89,6 +93,10 @@ py==1.10.0
     # via
     #   pytest
     #   pytest-forked
+pycodestyle==2.8.0
+    # via flake8
+pyflakes==2.4.0
+    # via flake8
 pyparsing==2.4.7
     # via packaging
 pytest==6.2.5
