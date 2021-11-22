@@ -40,6 +40,4 @@ class SSOUserAdmin(UserAdmin):
         ),
     )
 
-
-# admin.site.register(Group)
 admin.site.register(User, SSOUserAdmin)
