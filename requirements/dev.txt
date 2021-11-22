@@ -98,6 +98,8 @@ faker==9.3.1
     #   factory-boy
 flake8==4.0.1
     # via -r requirements.in/dev.in
+freezegun==1.1.0
+    # via -r requirements.in/dev.in
 idna==3.3
     # via
     #   requests
@@ -180,6 +182,7 @@ python-crontab==2.6.0
 python-dateutil==2.8.2
     # via
     #   faker
+    #   freezegun
     #   python-crontab
 pytz==2021.3
     # via
@@ -255,7 +258,7 @@ wcwidth==0.2.5
     # via prompt-toolkit
 wheel==0.37.0
     # via pip-tools
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 yarl==1.7.0
     # via aiohttp
