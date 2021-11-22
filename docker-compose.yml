@@ -1,6 +1,9 @@
 version: '3'
 # Network section required to avoid staff SSO IP collision
 networks:
+  inside:
+    external: false
+    internal: true
   default:
     ipam:
       driver: default
@@ -19,6 +22,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+   networks:
+      - inside
  leavers:
    build:
       context: .
@@ -32,3 +37,6 @@ services:
    depends_on:
      - db
    restart: always
+   networks:
+      - default
+      - inside
