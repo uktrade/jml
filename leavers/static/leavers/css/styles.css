@@ -4735,10 +4735,9 @@
     .govuk-\!-width-one-quarter {
       width: 25% !important; } }
 .leaver-image {
-  margin-bottom: 26px; }
-
-.leaver-image {
-  width: 100%; }
+  width: 100%;
+  margin-bottom: 26px;
+  border: 1px solid black; }
 
 .back-link-format {
   padding-top: 10px !important; }

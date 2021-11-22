@@ -11,6 +11,13 @@ django-staff-sso-client
 sentry-sdk>=1.1.0
 django-workflow-engine==0.0.14
 slack_sdk
+slackclient
 whitenoise==5.2.0
 waitress==2.0.0
 django-compressor
+mohawk
+pycrypto
+Celery
+django-celery-beat
+django-celery-results
+redis

@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     "core",
     "authbroker_client",
     "django_workflow_engine",
+    "django_celery_beat",
+    "django_celery_results",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -155,11 +157,21 @@ CACHES = {
     }
 }
 
-# django-workflow-engine
-DJANGO_WORKFLOWS = [
-    "leavers.workflow.LeaversWorkflow",
-]
-
-SLACK_WEBHOOK_URL = env("SLACK_WEBHOOK_URL")
-
+# Dev tools
 LOGIN_URL = reverse_lazy("dev_tools:index")
+
+# Slack
+SLACK_WEBHOOK_URL = env("SLACK_WEBHOOK_URL")
+SLACK_API_TOKEN = env("SLACK_API_TOKEN")
+
+# Hawk
+HAWK_ACCESS_ID = env("HAWK_ACCESS_ID")
+HAWK_SECRET_KEY = env("HAWK_SECRET_KEY")
+
+# People Finder
+PEOPLE_FINDER_URL = env("PEOPLE_FINDER_URL")
+
+# django-workflow-engine
+DJANGO_WORKFLOWS = {
+    "leaving": "leavers.workflow.leaving.LeaversWorkflow",
+}

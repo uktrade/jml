@@ -1,0 +1,23 @@
+{% extends "leaving/leaving_base.html" %}
+{% load static %}
+
+{% block content %}
+    <h2 class="govuk-heading-l">Leaver details confirmation</h2>
+    {% include "includes/leaver_details.html" with person=person %}
+    <form novalidate method='post'>
+        {% csrf_token %}
+        <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                <h1 class="govuk-fieldset__heading">
+                    Proposed leaving date (if known)
+                </h1>
+            </legend>
+            {% for field in form %}
+                {% if field.name == "last_day" %}
+                    {% include "includes/govt_uk_field.html" with field=field %}
+                {% endif %}
+            {% endfor %}
+        </fieldset>
+        <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
+    </form>
+{% endblock %}
