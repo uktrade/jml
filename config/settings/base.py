@@ -174,3 +174,5 @@ PEOPLE_FINDER_URL = env("PEOPLE_FINDER_URL")
 DJANGO_WORKFLOWS = {
     "leaving": "leavers.workflow.leaving.LeaversWorkflow",
 }
+
+SITE_URL = env("SITE_URL")

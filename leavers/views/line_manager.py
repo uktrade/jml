@@ -1,9 +1,8 @@
 import uuid
 
-from django.conf import settings
 from django.views.generic import TemplateView
 from django.urls import reverse_lazy
-from django.shortcuts import reverse, redirect
+from django.shortcuts import redirect
 from django.views.generic.edit import FormView
 from django.core.validators import validate_email
 from django.core.exceptions import PermissionDenied, ValidationError
@@ -22,9 +21,7 @@ from leavers.models import LeavingRequest
 from core.utils.hr import get_hr_people_data
 
 from leavers.forms import (
-    PersonNotFoundForm,
     SearchForm,
-    WhoIsLeavingForm,
     LeaverConfirmationForm,
 )
 
