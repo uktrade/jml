@@ -1,6 +1,9 @@
 version: '3'
 # Network section required to avoid staff SSO IP collision
 networks:
+  inside:
+    external: false
+    internal: true
   default:
     ipam:
       driver: default
@@ -8,6 +11,8 @@ networks:
       -  subnet: 192.168.3.0/24
 services:
  db:
+   networks:
+      - inside
    image: postgres:11
    environment:
      - POSTGRES_DB=leavers
@@ -20,6 +25,9 @@ services:
       timeout: 5s
       retries: 5
  leavers:
+   networks:
+      - default
+      - inside
    build:
       context: .
       dockerfile: "docker/Dockerfile.dev"
@@ -35,6 +43,8 @@ services:
    environment:
      - DJANGO_SETTINGS_MODULE=config.settings.local
 # redis:
+#   networks:
+#     - inside
 #   image: redis:buster
 #   ports:
 #     - "6379:6379"
