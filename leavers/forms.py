@@ -149,4 +149,35 @@ class PersonalDetailsForm(GovFormattedForm):
 class ProfessionalDetailsForm(GovFormattedForm):
     staff_number = forms.CharField(max_length=22)  # TODO check length
     github_username = forms.CharField(max_length=22)  # TODO check length
-    
+
+
+class AddAssetForm(GovFormattedForm):
+    asset_name = forms.CharField(
+        label="Add asset"
+    )
+
+
+class CorrectionForm(GovFormattedForm):
+    CHOICES = [
+        ("yes", 'Yes'),
+        ("no", 'No'),
+    ]
+
+    is_correct = forms.ChoiceField(
+        label="I confirm that all information is up to date and correct",
+        choices=CHOICES,
+        widget=forms.RadioSelect(
+            attrs={"class": "govuk-radios__input"}
+        )
+    )
+
+    # is_correct = forms.BooleanField(
+    #     label="I confirm that all information is up to date and correct",
+    #     widget=forms.RadioSelect(
+    #         attrs={"class": "govuk-radios__input"}
+    #     )
+    # )
+    whats_incorrect = forms.CharField(
+        label="Please tell us what's wrong",
+        widget=forms.Textarea(),
+    )

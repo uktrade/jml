@@ -157,11 +157,6 @@ CACHES = {
     }
 }
 
-# django-workflow-engine
-DJANGO_WORKFLOWS = [
-    "leavers.workflow.leaving.LeaversWorkflow",
-]
-
 # Dev tools
 LOGIN_URL = reverse_lazy("dev_tools:index")
 
@@ -175,3 +170,8 @@ HAWK_SECRET_KEY = env("HAWK_SECRET_KEY")
 
 # People Finder
 PEOPLE_FINDER_URL = env("PEOPLE_FINDER_URL")
+
+# django-workflow-engine
+DJANGO_WORKFLOWS = {
+    "leaving": "leavers.workflow.leaving.LeaversWorkflow",
+}

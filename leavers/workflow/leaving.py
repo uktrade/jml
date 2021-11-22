@@ -1,12 +1,14 @@
 from django_workflow_engine import Workflow, Step
 
+from leavers.workflow.tasks import BasicTask
+
 
 LeaversWorkflow = Workflow(
     name="leaving",
     steps=[
         Step(
             step_id="setup_leaving",
-            task_name="setup_leaving",
+            task_name="basic_task",
             start=True,
             targets=["notify_leaver", ],
         ),
@@ -56,7 +58,7 @@ LeaversWorkflow = Workflow(
         Step(
             step_id="is_it_leaving_date_plus_x",
             task_name="is_it_leaving_date_plus_x",
-            targets=["send_sre_slack_message", "is_it_leaving_date_plus_x", ],
+            targets=["send_sre_slack_message", ],
             no_log=True,
         ),
         Step(
@@ -67,7 +69,7 @@ LeaversWorkflow = Workflow(
         Step(
             step_id="have_SRE_carried_out_leaving_tasks",
             task_name="have_SRE_carried_out_leaving_tasks",
-            targets=["find_sre_team", None],
+            targets=["send_sre_reminder", None],
         ),
         Step(
             step_id="send_sre_reminder",
@@ -81,6 +83,7 @@ LeaversWorkflow = Workflow(
                 "message": "Please review the hardware required http://localhost:8000/{{ flow.continue_url }}.",
                 "from_email": "system@example.com",
             },
+            break_flow=True,
         ),
         # HR
         Step(
@@ -122,6 +125,7 @@ LeaversWorkflow = Workflow(
                 "message": "Please review the hardware required http://localhost:8000/{{ flow.continue_url }}.",
                 "from_email": "system@example.com",
             },
+            break_flow=True,
         ),
     ],
 )
