@@ -160,9 +160,8 @@ CACHES = {
 # Dev tools
 LOGIN_URL = reverse_lazy("dev_tools:index")
 
-# Slack
-SLACK_WEBHOOK_URL = env("SLACK_WEBHOOK_URL")
-SLACK_API_TOKEN = env("SLACK_API_TOKEN")
+SLACK_API_TOKEN = env("SLACK_API_TOKEN", default=None)
+SLACK_SRE_CHANNEL_ID = env("SLACK_SRE_CHANNEL_ID", default=None)
 
 # Hawk
 HAWK_ACCESS_ID = env("HAWK_ACCESS_ID")
