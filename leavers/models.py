@@ -33,14 +33,18 @@ class LeavingRequest(models.Model):
         on_delete=models.CASCADE,
         related_name="requesting_users",
     )
-    # user_leaving = models.ForeignKey(
-    #     get_user_model(),
-    #     on_delete=models.CASCADE,
-    #     related_name="leaving_users",
-    #     null=True,
-    #     blank=True,
-    # )
+    # We won't necessary have an app user
     leaver_sso_id = models.CharField(max_length=155)
+    leaver_first_name = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+    leaver_last_name = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
 
     hardware_received = models.OneToOneField(
         TaskLog,

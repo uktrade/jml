@@ -170,6 +170,8 @@ class ConfirmationView(FormView):
             leaver_sso_id=self.person["sso_id"],
             user_requesting=self.request.user,
             flow=flow,
+            leaver_first_name=self.person["first_name"],
+            leaver_last_name=self.person["last_name"],
         )
 
         executor = WorkflowExecutor(flow)

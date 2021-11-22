@@ -35,7 +35,7 @@ LeaversWorkflow = Workflow(
         Step(
             step_id="notify_hr_of_leaving",
             task_name="notification_email",
-            targets=["hr_confirmation_email", ],
+            targets=["setup_scheduled_tasks", ],
             task_info={
                 "groups": [
                     "HR",
@@ -59,12 +59,12 @@ LeaversWorkflow = Workflow(
             step_id="is_it_leaving_date_plus_x",
             task_name="is_it_leaving_date_plus_x",
             targets=["send_sre_slack_message", ],
-            no_log=True,
+            #break_flow=True,
         ),
         Step(
             step_id="send_sre_slack_message",
             task_name="send_sre_slack_message",
-            targets=["sre_confirm_tasks_complete", ],
+            targets=["have_SRE_carried_out_leaving_tasks", ],
         ),
         Step(
             step_id="have_SRE_carried_out_leaving_tasks",
@@ -91,14 +91,13 @@ LeaversWorkflow = Workflow(
             task_name="is_it_x_days_before_payroll",
             targets=[
                 "ask_hr_to_confirm_leaving_tasks",
-                "is_it_x_days_before_payroll",
             ],
-            no_log=True,
+            break_flow=True,
         ),
         Step(
             step_id="ask_hr_to_confirm_leaving_tasks",
             task_name="notification_email",
-            targets=["hr_confirm_leaving_tasks", ],
+            targets=["have_hr_carried_out_leaving_tasks", ],
             task_info={
                 "groups": [
                      "HR",
@@ -116,7 +115,7 @@ LeaversWorkflow = Workflow(
         Step(
             step_id="send_hr_reminder",
             task_name="notification_email",
-            targets=["have_SRE_carried_out_leaving_tasks", ],
+            targets=["have_hr_carried_out_leaving_tasks", ],
             task_info={
                 "groups": [
                     "SRE",

@@ -10,7 +10,7 @@ class FailedToSendSREAlertMessage(Exception):
     pass
 
 
-def send_sre_alert_message(*, first_name: str, last_name: str, leaving_request: object) -> SlackResponse:
+def send_sre_alert_message(*, leaving_request: object) -> SlackResponse:
     if not settings.SLACK_SRE_CHANNEL_ID:
         raise FailedToSendSREAlertMessage("SLACK_SRE_CHANNEL_ID is not set")
 
@@ -21,7 +21,9 @@ def send_sre_alert_message(*, first_name: str, last_name: str, leaving_request: 
         )
 
         message_content = (
-            f"Please carry out leaving tasks for {first_name} {last_name}. "
+            f"Please carry out leaving tasks for "
+            f"{leaving_request.leaver_first_name} "
+            f"{leaving_request.leaver_last_name}. "
             f"Please visit {settings.SITE_URL}{leaving_request_path} to update "
             "the status of these tasks."
         )
