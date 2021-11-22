@@ -51,7 +51,7 @@ class HardwareReceivedForm(GovFormattedModelForm):
 
 
 class SREConfirmCompleteForm(GovFormattedForm):
-    vpn_access = forms.BooleanField(
+    vpn = forms.BooleanField(
         label="VPN access removed?",
         required=True,
     )
@@ -63,9 +63,12 @@ class SREConfirmCompleteForm(GovFormattedForm):
         label="Github user removed from teams and repos?",
         required=False,
     )
-    # slack = forms.BooleanField(
-    #     required=False,
-    # )
+    sentry = forms.BooleanField(
+        required=False,
+    )
+    slack = forms.BooleanField(
+        required=False,
+    )
     sso = forms.BooleanField(
         label="SSO access removed?",
         required=True,

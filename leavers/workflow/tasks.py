@@ -1,17 +1,14 @@
-from django.contrib.auth import get_user_model
-from django.views.generic.edit import FormView
 from django_workflow_engine import (
     Task,
-    TaskError,
+)
+from django.conf import settings
+
+from core.utils.sre_messages import (
+    FailedToSendSREAlertMessage,
+    send_sre_alert_message,
 )
 
-from core.utils.slack import send_slack_message
-
-from leavers.forms import (
-    LeaversForm,
-    HardwareReceivedForm,
-    SREConfirmCompleteForm,
-)
+from leavers.models import SlackMessage
 
 
 class BasicTask(Task):
@@ -31,7 +28,7 @@ class NotificationEmail(Task):
         return None, {}
 
 
-class IsItXDaysBeforeLeavingDate(Task):
+class IsItLeavingDatePlusXdays(Task):
     task_name = "is_it_leaving_date_plus_x"
     auto = True
 
@@ -40,38 +37,38 @@ class IsItXDaysBeforeLeavingDate(Task):
         return None, {}
 
 
+class IsItXDaysBeforePayroll(Task):
+    task_name = "is_it_x_days_before_payroll"
+    auto = True
+
+    def execute(self, task_info):
+        print("is it x days before payroll date task executed")
+        return None, {}
+
+
+class HaveSRECarriedOutLeavingTasks(Task):
+    task_name = "have_SRE_carried_out_leaving_tasks"
+    auto = True
+
+    def execute(self, task_info):
+        return None, {}
+
+
 class SendSRESlackMessage(Task):
     auto = True
     task_name = "send_sre_slack_message"
 
     def execute(self, task_info):
-        user = self.flow.leaving_request.leaver_user
-
-        send_slack_message(
-            f"Please carry out leaving tasks for {user.first_name} {user.last_name}"
-        )
+        try:
+            alert_response = send_sre_alert_message(
+                leaving_request=self.flow.leaving_request,
+            )
+            SlackMessage.objects.create(
+                slack_timestamp=alert_response.data["ts"],
+                leaving_request=self.flow.leaving_request,
+                channel_id=settings.SLACK_SRE_CHANNEL_ID,
+            )
+        except FailedToSendSREAlertMessage:
+            print("Failed to send SRE alert message")
 
         return None, {}
-
-
-class SREEConfirmTasksComplete(Task):
-    auto = False
-    form_class = SREConfirmCompleteForm
-    template = "flow/basic_form.html"
-    task_name = "sre_confirm_tasks_complete"
-
-    def execute(self, task_info):
-        form = self.form_class(data=task_info)
-
-        if not form.is_valid():
-            raise TaskError("Form is not valid", {"form": form})
-
-        target = "sre_tasks_complete"
-
-        return target, form.cleaned_data
-
-    def context(self):
-        return {"form": self.form_class()}
-
-
-

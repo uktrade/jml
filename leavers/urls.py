@@ -25,6 +25,11 @@ from leavers.views.flow import (
     LeaversFlowContinueView,
 )
 
+from leavers.views.sre import (
+    TaskConfirmationView as SRETaskConfirmationView,
+    ThankYouView as SREThankYouView,
+)
+
 urlpatterns = [
     path("", LeaversStartView.as_view(), name="start"),
     path("start/", LeaversStartView.as_view(), name="start"),
@@ -38,6 +43,9 @@ urlpatterns = [
     path("leaver/update-details/", UpdateDetailsView.as_view(), name="leaver-update-details"),
     path("leaver/kit/", KitView.as_view(), name="leaver-kit"),
     path("leaver/request-received/", LeaverRequestReceivedView.as_view(), name="leaver-request-received"),
+    # SRE
+    path("leaver/sre/<uuid:leaving_request_id>/", SRETaskConfirmationView.as_view(), name="sre-confirmation"),
+    path("leaver/sre/thank-you/", SREThankYouView.as_view(), name="sre-thank-you"),
     # Django workflow
     path(
         "leaving-workflow/",
