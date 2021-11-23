@@ -45,6 +45,7 @@ class LeaverSearchView(View):
     #     for email in emails:
     #         # Search for user in SSO using email
     #         sso_result = get_sso_user_details(
+    #             request=self.request,
     #             email=email,
     #         )
     #         if sso_result:
@@ -76,6 +77,7 @@ class LeaverSearchView(View):
             # TODO email addresses
             # TODO use all email addresses associated with PF result
             sso_result = get_sso_user_details(
+                request=self.request,
                 email=pf_result["email"],
             )
 
@@ -110,7 +112,7 @@ class LeaverSearchView(View):
         person_results: List[PersonResult] = []
 
         for email in emails:
-            sso_result = get_sso_user_details(email=email)
+            sso_result = get_sso_user_details(request=self.request, email=email)
             if sso_result:
                 person_results.append({
                     "uuid": str(uuid.uuid4()),
