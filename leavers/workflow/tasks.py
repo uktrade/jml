@@ -71,4 +71,10 @@ class SendSRESlackMessage(Task):
         except FailedToSendSREAlertMessage:
             print("Failed to send SRE alert message")
 
+
+class HaveHRCarriedOutLeavingTasks(Task):
+    task_name = "have_hr_carried_out_leaving_tasks"
+    auto = True
+
+    def execute(self, task_info):
         return None, {}
