@@ -1,4 +1,5 @@
 import uuid
+from typing import List, TypedDict, Optional
 
 from django.views.generic import TemplateView
 from django.urls import reverse_lazy
@@ -25,6 +26,12 @@ from leavers.forms import (
     LeaverConfirmationForm,
 )
 
+
+class PersonResult(TypedDict):
+    uuid: str
+    sso_id: str
+    email: str
+    staff_number: Optional[str]
 
 class LeaverSearchView(View):
     form_class = SearchForm
@@ -88,11 +95,10 @@ class LeaverSearchView(View):
         return results_found_in_sso
 
     def process_search(self, search_terms):
-        emails = []
-        parts = search_terms.split()
+        emails: List[str] = []
 
         # Create list of emails used in search query
-        for part in parts:
+        for part in search_terms.split():
             try:
                 validate_email(part)
             except ValidationError as e:
@@ -100,6 +106,18 @@ class LeaverSearchView(View):
                 pass
             else:
                 emails.append(part)
+
+        person_results: List[PersonResult] = []
+
+        for email in emails:
+            sso_result = get_sso_user_details(email=email)
+            if sso_result:
+                person_results.append({
+                    "uuid": str(uuid.uuid4()),
+                    "sso_id": sso_result["sso_id"],
+                    "email": email,
+                    "staff_number": None,
+                })
 
         # We do not present a result unless
         # we have been able to establish SSO id
