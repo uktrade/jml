@@ -33,7 +33,7 @@ class UpdateDetailsView(FormView):
     template_name = "leaving/leaver/update_details.html"
 
 
-class KitView(FormView):
+class KitView(TemplateView):
     asset_form_class = AddAssetForm
     correction_form_class = CorrectionForm
     template_name = "leaving/leaver/kit.html"
