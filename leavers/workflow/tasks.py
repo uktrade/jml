@@ -28,7 +28,7 @@ class NotificationEmail(Task):
         return None, {}
 
 
-class IsItLeavingDatePlusXdays(Task):
+class IsItLeavingDatePlusXDays(Task):
     task_name = "is_it_leaving_date_plus_x"
     auto = True
 
@@ -47,7 +47,7 @@ class IsItXDaysBeforePayroll(Task):
 
 
 class HaveSRECarriedOutLeavingTasks(Task):
-    task_name = "have_SRE_carried_out_leaving_tasks"
+    task_name = "have_sre_carried_out_leaving_tasks"
     auto = True
 
     def execute(self, task_info):
@@ -70,6 +70,8 @@ class SendSRESlackMessage(Task):
             )
         except FailedToSendSREAlertMessage:
             print("Failed to send SRE alert message")
+
+        return None, {}
 
 
 class HaveHRCarriedOutLeavingTasks(Task):

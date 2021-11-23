@@ -43,17 +43,13 @@
             {% endif %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
-                    Started at
+                    Actions
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    <form action="{% url "flow-delete" flow.pk %}" method="POST">
-                        {% csrf_token %}
-                        {% if flow.on_manual_step or not flow.is_complete %}
-                            <a class="govuk-link" href="{% url "flow-continue" flow.pk %}">Progress leaving</a>
-                        {% else %}
-                            <a class="govuk-link" href="{% url "flow" flow.pk %}">View leaving request</a>
-                        {% endif %}
-                    </form>
+                    <p><a class="govuk-link" href="{% url "flow" flow.pk %}">View leaving request</a></p>
+                    {% if flow.on_manual_step or not flow.is_complete %}
+                        <p><a class="govuk-link" href="{% url "flow-continue" flow.pk %}">Progress leaving</a></p>
+                    {% endif %}
                 </dd>
             </div>
         </dl>

@@ -9,7 +9,7 @@ User = get_user_model()
 def get_user_choices():
     return [
         (None, "AnonymousUser"),
-        *[(x.id, str(x)) for x in User.objects.all()],
+        *[(x.id, f"{str(x)} ({x.groups.first()})") for x in User.objects.all()],
     ]
 
 

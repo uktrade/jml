@@ -59,22 +59,22 @@ LeaversWorkflow = Workflow(
             step_id="is_it_leaving_date_plus_x",
             task_name="is_it_leaving_date_plus_x",
             targets=["send_sre_slack_message", ],
-            #break_flow=True,
+            break_flow=True,
         ),
         Step(
             step_id="send_sre_slack_message",
             task_name="send_sre_slack_message",
-            targets=["have_SRE_carried_out_leaving_tasks", ],
+            targets=["have_sre_carried_out_leaving_tasks", ],
         ),
         Step(
-            step_id="have_SRE_carried_out_leaving_tasks",
-            task_name="have_SRE_carried_out_leaving_tasks",
-            targets=["send_sre_reminder", None],
+            step_id="have_sre_carried_out_leaving_tasks",
+            task_name="have_sre_carried_out_leaving_tasks",
+            targets=["send_sre_reminder", "are_all_tasks_complete", ],
         ),
         Step(
             step_id="send_sre_reminder",
             task_name="notification_email",
-            targets=["have_SRE_carried_out_leaving_tasks", ],
+            targets=["have_sre_carried_out_leaving_tasks", ],
             task_info={
                 "groups": [
                      "SRE",
@@ -110,7 +110,7 @@ LeaversWorkflow = Workflow(
         Step(
             step_id="have_hr_carried_out_leaving_tasks",
             task_name="have_hr_carried_out_leaving_tasks",
-            targets=["send_hr_reminder", None],
+            targets=["send_hr_reminder", "are_all_tasks_complete", ],
         ),
         Step(
             step_id="send_hr_reminder",
@@ -125,6 +125,11 @@ LeaversWorkflow = Workflow(
                 "from_email": "system@example.com",
             },
             break_flow=True,
+        ),
+        Step(
+            step_id="are_all_tasks_complete",
+            task_name="basic_task",
+            targets=[],
         ),
     ],
 )
