@@ -44,7 +44,7 @@
             <a class="govuk-link" href="{% url 'flow-continue' object.pk %}">Continue</a>
         </p>
     {% endif %}
-    <div id="cy" style="height: 340px;"></div>
+    <div id="cy" style="height: 800px;"></div>
 {% endblock %} {% block scripts %}
     <script>
         fetch("{% url 'flow-diagram' object.pk %}")
@@ -118,13 +118,13 @@
                         }
                     ],
                     layout: {
-                        name: 'breadthfirst',
+                        name: 'dagre',
                         directed: true,
                         roots: ["create_requirement"],
-                        // fit: false,
+                        fit: true,
                         spacingFactor: 1,
                         padding: 0,
-                        // nodeDimensionsIncludeLabels: true,
+                        nodeDimensionsIncludeLabels: true,
                     },
                 });
             });

@@ -6,13 +6,10 @@ from django.contrib.auth.models import Group
 from user.models import User
 
 # first name, last name
-USERS: List[Tuple[str, str]] = [
+USERS: List[Tuple[str, str, str]] = [
     ("John", "Smith", "Hardware Team"),
-    # ("Jane", "Doe"),
-    # ("Elon", "Musk"),
-    # ("Bill", "Gates"),
-    # ("Ada", "Lovelace"),
-    # ("Grace", "Hopper"),
+    ("Jane", "Doe", "SRE"),
+    ("Miss", "Marple", "HR"),
 ]
 
 

@@ -2,6 +2,10 @@ from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+)
 
 from leavers.forms import SREConfirmCompleteForm
 from leavers.models import LeavingRequest, TaskLog
@@ -11,11 +15,20 @@ from core.utils.sre_messages import (
 )
 
 
-class TaskConfirmationView(FormView):
+class TaskConfirmationView(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    FormView,
+):
     template_name = "leaving/task_form.html"
     form_class = SREConfirmCompleteForm
     success_url = reverse_lazy("sre-thank-you")
     leaving_request = None
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="SRE",
+        ).first()
 
     def form_valid(self, form):
         self.leaving_request = get_object_or_404(
