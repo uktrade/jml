@@ -12,11 +12,14 @@ help:
 	@echo -e "$(COLOUR_GREEN)|--- $(APPLICATION_NAME) ---|$(COLOUR_NONE)"
 	@echo -e "$(COLOUR_YELLOW)make build$(COLOUR_NONE) : Run docker-compose build"
 	@echo -e "$(COLOUR_YELLOW)make up$(COLOUR_NONE) : Run docker-compose up"
-	@echo -e "$(COLOUR_YELLOW)make down$(COLOUR_NONE) : Run docker-compose down"	@echo -e "$(COLOUR_YELLOW)make migrations$(COLOUR_NONE) : Run Django makemigrations"
+	@echo -e "$(COLOUR_YELLOW)make down$(COLOUR_NONE) : Run docker-compose down"
+	@echo -e "$(COLOUR_YELLOW)make migrations$(COLOUR_NONE) : Run Django makemigrations"
 	@echo -e "$(COLOUR_YELLOW)make migrate$(COLOUR_NONE) : Run Django migrate"
 	@echo -e "$(COLOUR_YELLOW)make compilescss$(COLOUR_NONE) : Compile SCSS into CSS"
 	@echo -e "$(COLOUR_YELLOW)make shell$(COLOUR_NONE) : Run a Django shell"
 	@echo -e "$(COLOUR_YELLOW)make flake8$(COLOUR_NONE) : Run flake8 checks"
+	@echo -e "$(COLOUR_YELLOW)make black$(COLOUR_NONE) : Run black"
+	@echo -e "$(COLOUR_YELLOW)make isort$(COLOUR_NONE) : Run isort"
 	@echo -e "$(COLOUR_YELLOW)make collectstatic$(COLOUR_NONE) : Run Django BDD tests"
 	@echo -e "$(COLOUR_YELLOW)make bash$(COLOUR_NONE) : Start a bash session on the application container"
 	@echo -e "$(COLOUR_YELLOW)make all-requirements$(COLOUR_NONE) : Generate pip requirements files"
@@ -54,6 +57,15 @@ shell:
 flake8:
 	docker-compose run --rm leavers flake8 $(file)
 
+black:
+	docker-compose run --rm leavers black .
+
+isort:
+	docker-compose run --rm leavers isort .
+
+mypy:
+	docker-compose run --rm leavers mypy .
+
 collectstatic:
 	docker-compose run --rm leavers python manage.py collectstatic
 
@@ -67,9 +79,6 @@ all-requirements:
 
 pytest:
 	docker-compose run --rm leavers pytest -raP --capture=sys --ignore=node_modules --ignore=front_end --ignore=features --ignore=staticfiles -n 4
-
-black:
-	docker-compose run --rm leavers black .
 
 superuser:
 	docker-compose run --rm leavers python manage.py createsuperuser

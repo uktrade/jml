@@ -3,6 +3,12 @@
 Faker
 factory-boy
 black
+flake8
+isort
+mypy
+django-stubs
+types-certifi
+types-requests
 pytest
 pytest-cov
 pytest-django

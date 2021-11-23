@@ -1,5 +1,6 @@
+import os
 import sys
-from .base import *  # noqa
+from config.settings.base import *  # type: ignore # noqa
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -10,13 +11,13 @@ from sentry_sdk.integrations.django import DjangoIntegration
 #     integrations=[DjangoIntegration()],
 # )
 
-INSTALLED_APPS += [
+INSTALLED_APPS += [  # type: ignore
     "dev_tools.apps.DevToolsConfig",
 ]
 
-MIDDLEWARE.append("dev_tools.middleware.DevToolsLoginRequiredMiddleware")
-MIDDLEWARE.remove("authbroker_client.middleware.ProtectAllViewsMiddleware")
-AUTHENTICATION_BACKENDS.remove("user.backends.CustomAuthbrokerBackend")
+MIDDLEWARE.append("dev_tools.middleware.DevToolsLoginRequiredMiddleware")  # type: ignore
+MIDDLEWARE.remove("authbroker_client.middleware.ProtectAllViewsMiddleware")  # type: ignore
+AUTHENTICATION_BACKENDS.remove("user.backends.CustomAuthbrokerBackend")  # type: ignore
 
 LOGGING = {
     "version": 1,

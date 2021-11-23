@@ -35,15 +35,10 @@ def send_slack_message(
     except FailedToInitializeSlackClient:
         raise FailedToSendSlackMessage("Failed to initialize Slack client")
 
-    extra_kwargs = {}
-    # Only add the thread_ts if it is set
-    if thread_ts:
-        extra_kwargs["thread_ts"] = thread_ts
-
     # Post a message to the Channel
     try:
         thread_response = client.chat_postMessage(
-            channel=channel_id, text=message_content, **extra_kwargs
+            channel=channel_id, text=message_content, thread_ts=thread_ts,
         )
     except SlackApiError:
         raise FailedToSendSlackMessage("Unexpected error communicating with Slack API")
