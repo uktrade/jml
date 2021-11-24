@@ -1,17 +1,16 @@
-import requests
-from django.conf import settings
+from typing import Optional
+
+from django.http.request import HttpRequest
+
+from core.staff_sso import get_staff_sso_interface
+from core.staff_sso.interfaces import SSOUserDetail
 
 
-def get_sso_user_details(email):
-    # response = requests.get(
-    #     f"{settings.SSO_API_URL}/user/introspect/?TODO=query_params"
-    # )
-    #
-    # response.json()
-
-    return {
-        # TODO - should return all SSO details
-        "first_name": "Test",
-        "last_name": "Test",
-        "sso_id": f"{email}._fake_sso_id",
-    }
+def get_sso_user_details(
+    *, request: HttpRequest, email: str
+) -> Optional[SSOUserDetail]:
+    """
+    Get user details from Staff SSO for a given email address
+    """
+    interface = get_staff_sso_interface(request=request)
+    return interface.get_user_details(email=email)

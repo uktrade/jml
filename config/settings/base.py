@@ -170,6 +170,9 @@ HAWK_SECRET_KEY = env("HAWK_SECRET_KEY")
 # People Finder
 PEOPLE_FINDER_URL = env("PEOPLE_FINDER_URL")
 
+# Staff SSO
+STAFF_SSO_INTERFACE = env("STAFF_SSO_INTERFACE", default=None)
+
 # django-workflow-engine
 DJANGO_WORKFLOWS = {
     "leaving": "leavers.workflow.leaving.LeaversWorkflow",
