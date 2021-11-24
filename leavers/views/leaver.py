@@ -1,5 +1,7 @@
+from typing import Any, List, cast
+
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -9,33 +11,128 @@ from django.views.generic.edit import FormView
 from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
 from core.utils.people_finder import search_people_finder
-from leavers.forms import AddAssetForm, CorrectionForm, LeaverConfirmationForm
+from leavers import forms, types
 
 
-class ConfirmDetailsView(FormView):
-    form_class = LeaverConfirmationForm
+class LeaverDetailsMixin:
+    def get_leaver_detail_updates(self, email: str) -> types.LeaverDetailUpdates:
+        """
+        Get the stored updates for the Leaver.
+        Return an empty dict if there are no updates.
+        """
+        # TODO: Get the stored updates.
+        leaver_updates: types.LeaverDetailUpdates = {}
+        return leaver_updates
+
+    def get_leaver_details(self, email: str) -> types.LeaverDetails:
+        """
+        Get the Leaver details from People Finder
+        Raises an exception People Finder doesn't return a result.
+        """
+
+        people_finder_results = search_people_finder(search_term=email)
+        if len(people_finder_results) > 0:
+            person = people_finder_results[0]
+
+            job_title = ""
+            team_name = ""
+            if "roles" in person and len(person["roles"]) > 0:
+                job_title = person["roles"][0]["job_title"]
+                team_name = person["roles"][0]["team"]["name"]
+
+            # TODO: Map values to the blank leaver details
+            leaver_details: types.LeaverDetails = {
+                # Personal details
+                "first_name": person["first_name"],
+                "last_name": person["last_name"],
+                "date_of_birth": timezone.now().date(),
+                "personal_email": "",
+                "personal_phone": person["primary_phone_number"],
+                "personal_address": "",
+                # Professional details
+                "grade": person["grade"],
+                "job_title": job_title,
+                "directorate": "",
+                "department": "",
+                "team_name": team_name,
+                "work_email": person["email"],
+                "manager": "",
+                # Misc.
+                "photo": person["photo"],
+            }
+            return leaver_details
+        raise Exception("Issue finding user in People Finder")
+
+    def get_leaver_details_with_updates(self, email: str) -> types.LeaverDetails:
+        leaver_details = self.get_leaver_details(email=email)
+        leaver_details.update(**self.get_leaver_detail_updates(email=email))
+        return leaver_details
+    
+    def has_required_leaver_details(self, leaver_details: types.LeaverDetails) -> bool:
+        """
+        Check if the leaver details are complete.
+        """
+        # TODO: Define a list of required keys
+        required_keys: List[str] = []
+
+        for key in required_keys:
+            if key not in leaver_details:
+                return False
+            if not leaver_details.get(key):
+                return False
+        return True
+
+
+class ConfirmDetailsView(LeaverDetailsMixin, FormView):
+    template_name = "leaving/leaver/confirm_details.html"
+    form_class = forms.LeaverConfirmationForm
     success_url = reverse_lazy("leaver-request-received")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        people_finder_results = search_people_finder(
-            search_term=self.request.user.email,
-        )
-
-        context["person"] = people_finder_results[0]
-
+        if self.request.user.is_authenticated:
+            user_email = cast(str, self.request.user.email)
+            # Add the Leaver details to the context
+            context.update(
+                leaver_details=self.get_leaver_details_with_updates(email=user_email),
+            )
         return context
 
-    template_name = "leaving/leaver/confirm_details.html"
+    def form_valid(self, form) -> HttpResponse:
+        """
+        Check we have all the required information before we continue.
+        """
+        user_email = cast(str, self.request.user.email)
+        # Get the person details with the updates.
+        leaver_details = self.get_leaver_details_with_updates(email=user_email)
+        if not self.has_required_leaver_details(leaver_details):
+            # TODO: Add an error message to inform the user.
+            return self.form_invalid(form)
+        return super().form_valid(form)
 
 
-class UpdateDetailsView(FormView):
+class UpdateDetailsView(LeaverDetailsMixin, FormView):
     template_name = "leaving/leaver/update_details.html"
+    form_class = forms.LeaverUpdateForm
+    success_url = reverse_lazy("leaver-confirm-details")
+
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        if self.request.user.is_authenticated:
+            user_email = cast(str, self.request.user.email)
+            self.initial = dict(self.get_leaver_details_with_updates(email=user_email))
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form) -> HttpResponse:
+        # TODO: Work out what information is "new" and consider these as "updates"
+        # TODO: Store the updates (JSONField?)
+        return super().form_valid(form)
 
 
 class KitView(TemplateView):
-    asset_form_class = AddAssetForm
-    correction_form_class = CorrectionForm
+    asset_form_class = forms.AddAssetForm
+    correction_form_class = forms.CorrectionForm
     template_name = "leaving/leaver/kit.html"
 
     def post(self, request, *args, **kwargs):

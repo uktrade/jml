@@ -2,16 +2,16 @@
 {% load static %}
 
 {% block content %}
-    <h2 class="govuk-heading-l">Leaver details confirmation</h2>
-    <h2>Need edit button</h2>
-    {% include "includes/leaver_details.html" with person=person %}
+    <h1 class="govuk-heading-l">Leaver details confirmation</h1>
+    <a href="{% url 'leaver-update-details' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit</a>
+    {% include "includes/leaver_details.html" with leaver_details=leaver_details %}
     <form novalidate method='post'>
         {% csrf_token %}
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                <h1 class="govuk-fieldset__heading">
+                <h2 class="govuk-fieldset__heading">
                     Proposed leaving date (if known)
-                </h1>
+                </h2>
             </legend>
             {% for field in form %}
                 {% if field.name == "last_day" %}

@@ -1,1 +1,34 @@
-<h1>Update details...</h1>
+{% extends "leaving/leaving_base.html" %}
+{% load static %}
+
+{% block content %}
+    <h1 class="govuk-heading-l">Edit leaver details</h2>
+    <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <form novalidate method='post'>
+                    {% csrf_token %}
+                    <h2 class="govuk-heading-m">Personal Information</h3>
+                    {% include "includes/govt_uk_field.html" with field=form.first_name %}
+                    {% include "includes/govt_uk_field.html" with field=form.last_name %}
+                    {% include "includes/govt_uk_field.html" with field=form.personal_email %}
+                    {% include "includes/govt_uk_field.html" with field=form.personal_phone %}
+                    {% include "includes/govt_uk_field.html" with field=form.personal_address %}
+                    
+                    <h2 class="govuk-heading-m">Professional Information</h3>
+                    {% include "includes/govt_uk_field.html" with field=form.grade %}
+                    {% include "includes/govt_uk_field.html" with field=form.job_title %}
+                    {% include "includes/govt_uk_field.html" with field=form.directorate %}
+                    {% include "includes/govt_uk_field.html" with field=form.department %}
+                    {% include "includes/govt_uk_field.html" with field=form.team_name %}
+                    {% include "includes/govt_uk_field.html" with field=form.work_email %}
+                    {% include "includes/govt_uk_field.html" with field=form.manager %}
+
+                    <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
+                    <a href="{% url 'leaver-confirm-details' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
