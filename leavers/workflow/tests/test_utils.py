@@ -72,6 +72,16 @@ class LeavingDatePlusXDays(TestCase):
             last_day=datetime(2021, 12, 1),
         )
 
+    def test_leaving_date_not_set(self):
+        # Remove the last day value
+        self.leaving_date.last_day = None
+        self.leaving_date.save()
+
+        self.assertFalse(is_it_leaving_date_plus_x_days(
+            leaving_request=self.leaving_date,
+            days_after_leaving_date=1,
+        ))
+
     @freeze_time("2021-11-30")
     def test_leaving_date_tomorrow(self):
         self.assertFalse(is_it_leaving_date_plus_x_days(
