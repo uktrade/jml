@@ -7,12 +7,13 @@ logger = logging.getLogger(__name__)
 
 
 class AssetDetails(TypedDict):
-    # TODO: Define AssetDetails
-    pass
+    # TODO: Alter this based on the data the Service Now API expects.
+    asset_id: Optional[str]
+    asset_name: str
 
 
 class LineManagerDetails(TypedDict):
-    # TODO: Define LineManagerDetails
+    # TODO: Define LineManagerDetails based on Service Now API response.
     pass
 
 
