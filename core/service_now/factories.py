@@ -1,3 +1,5 @@
+from typing import List
+
 import factory
 from factory import fuzzy
 
@@ -8,8 +10,8 @@ class AssetDetails(factory.Factory):
     class Meta:
         model = types.AssetDetails
 
-    asset_id = factory.Sequence(lambda n: n)
-    asset_name = factory.Sequence(lambda n: f"Asset {n}")
+    tag = factory.Sequence(lambda n: n)
+    name = factory.Sequence(lambda n: f"Asset {n}")
 
 
 class LineManagerDetails(factory.Factory):
@@ -30,7 +32,7 @@ class Address(factory.Factory):
 class LeaverRequestData(factory.Factory):
     class Meta:
         model = types.LeaverRequestData
-    
+
     collection_address = factory.SubFactory(Address)
     collection_telephone = factory.Sequence(lambda n: f"0123456789{n}")
     collection_email = factory.Sequence(lambda n: f"collection{n}@example.com")
@@ -42,6 +44,6 @@ class LeaverRequestData(factory.Factory):
     employee_directorate = fuzzy.FuzzyText(length=20)
     employee_staff_id = fuzzy.FuzzyText(length=20)
     manager_name = fuzzy.FuzzyText(length=20)
-    assets = []
+    assets: List[types.AssetDetails] = []
     assets_confirmation = True
     assets_information = ""

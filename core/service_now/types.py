@@ -1,12 +1,11 @@
-
 from datetime import date
 from typing import List, Optional, TypedDict
 
 
 class AssetDetails(TypedDict):
     # TODO: Alter this based on the data the Service Now API expects.
-    asset_id: Optional[str]
-    asset_name: str
+    tag: Optional[str]
+    name: str
 
 
 class LineManagerDetails(TypedDict):
@@ -15,7 +14,7 @@ class LineManagerDetails(TypedDict):
 
 
 class Address(TypedDict):
-    # Note: This is based on https://design-system.service.gov.uk/patterns/addresses/multiple/index.html
+    # See: https://design-system.service.gov.uk/patterns/addresses/multiple/index.html
     # We can alter this based on what data we take from the form and how
     # Service Now expects the data.
     building_and_street: str
