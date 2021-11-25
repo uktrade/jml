@@ -86,7 +86,7 @@ django-stubs-ext==0.3.1
     # via django-stubs
 django-timezone-field==4.2.1
     # via django-celery-beat
-django-workflow-engine==0.0.14
+django-workflow-engine==0.0.18
     # via -r requirements.in/base.in
 execnet==1.9.0
     # via pytest-xdist

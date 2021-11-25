@@ -77,7 +77,7 @@ django-staff-sso-client==3.1.1
     # via -r requirements.in/base.in
 django-timezone-field==4.2.1
     # via django-celery-beat
-django-workflow-engine==0.0.14
+django-workflow-engine==0.0.18
     # via -r requirements.in/base.in
 gevent==20.6.2
     # via -r requirements.in/prod.in
@@ -160,7 +160,7 @@ waitress==2.0.0
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 yarl==1.7.0
     # via aiohttp
