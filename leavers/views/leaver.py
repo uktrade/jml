@@ -49,7 +49,7 @@ class LeaverDetailsMixin:
         new_data: types.LeaverDetailUpdates = {}
         for key, value in updates.items():
             if key not in existing_data or existing_data.get(key) != value:
-                new_data[key] = value
+                new_data[key] = value  # type: ignore
 
         # Store the updates
         leaver_updates.updates = new_data
@@ -96,7 +96,8 @@ class LeaverDetailsMixin:
 
     def get_leaver_details_with_updates(self, email: str) -> types.LeaverDetails:
         leaver_details = self.get_leaver_details(email=email)
-        leaver_details.update(**self.get_leaver_detail_updates(email=email))
+        leaver_details_updates = self.get_leaver_detail_updates(email=email)
+        leaver_details.update(**leaver_details_updates)  # type: ignore
         return leaver_details
 
     def has_required_leaver_details(self, leaver_details: types.LeaverDetails) -> bool:
@@ -121,6 +122,7 @@ class ConfirmDetailsView(LeaverDetailsMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # TODO: restrict view to only allow authenticated users.
         if self.request.user.is_authenticated:
             user_email = cast(str, self.request.user.email)
             # Add the Leaver details to the context
@@ -133,12 +135,14 @@ class ConfirmDetailsView(LeaverDetailsMixin, FormView):
         """
         Check we have all the required information before we continue.
         """
-        user_email = cast(str, self.request.user.email)
-        # Get the person details with the updates.
-        leaver_details = self.get_leaver_details_with_updates(email=user_email)
-        if not self.has_required_leaver_details(leaver_details):
-            # TODO: Add an error message to inform the user.
-            return self.form_invalid(form)
+        # TODO: restrict view to only allow authenticated users.
+        if self.request.user.is_authenticated:
+            user_email = cast(str, self.request.user.email)
+            # Get the person details with the updates.
+            leaver_details = self.get_leaver_details_with_updates(email=user_email)
+            if not self.has_required_leaver_details(leaver_details):
+                # TODO: Add an error message to inform the user.
+                return self.form_invalid(form)
         return super().form_valid(form)
 
 
@@ -150,14 +154,19 @@ class UpdateDetailsView(LeaverDetailsMixin, FormView):
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
+        # TODO: restrict view to only allow authenticated users.
         if self.request.user.is_authenticated:
             user_email = cast(str, self.request.user.email)
             self.initial = dict(self.get_leaver_details_with_updates(email=user_email))
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form) -> HttpResponse:
-        user_email = cast(str, self.request.user.email)
-        self.store_leaver_detail_updates(email=user_email, updates=form.cleaned_data)
+        # TODO: restrict view to only allow authenticated users.
+        if self.request.user.is_authenticated:
+            user_email = cast(str, self.request.user.email)
+            self.store_leaver_detail_updates(
+                email=user_email, updates=form.cleaned_data
+            )
         return super().form_valid(form)
 
 
