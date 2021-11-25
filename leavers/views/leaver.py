@@ -1,7 +1,8 @@
 from typing import Any, List, cast
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse, HttpResponseBase
+from django.http.response import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -13,6 +14,7 @@ from core.service_now import types as service_now_types
 from core.utils.people_finder import search_people_finder
 from leavers import forms, types
 from leavers.models import LeaverUpdates
+from user.models import User
 
 
 class LeaverDetailsMixin:
@@ -115,58 +117,50 @@ class LeaverDetailsMixin:
         return True
 
 
-class ConfirmDetailsView(LeaverDetailsMixin, FormView):
+class ConfirmDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
     template_name = "leaving/leaver/confirm_details.html"
     form_class = forms.LeaverConfirmationForm
     success_url = reverse_lazy("leaver-request-received")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # TODO: restrict view to only allow authenticated users.
-        if self.request.user.is_authenticated:
-            user_email = cast(str, self.request.user.email)
-            # Add the Leaver details to the context
-            context.update(
-                leaver_details=self.get_leaver_details_with_updates(email=user_email),
-            )
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+        # Add the Leaver details to the context
+        context.update(
+            leaver_details=self.get_leaver_details_with_updates(email=user_email),
+        )
         return context
 
     def form_valid(self, form) -> HttpResponse:
         """
         Check we have all the required information before we continue.
         """
-        # TODO: restrict view to only allow authenticated users.
-        if self.request.user.is_authenticated:
-            user_email = cast(str, self.request.user.email)
-            # Get the person details with the updates.
-            leaver_details = self.get_leaver_details_with_updates(email=user_email)
-            if not self.has_required_leaver_details(leaver_details):
-                # TODO: Add an error message to inform the user.
-                return self.form_invalid(form)
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+        # Get the person details with the updates.
+        leaver_details = self.get_leaver_details_with_updates(email=user_email)
+        if not self.has_required_leaver_details(leaver_details):
+            # TODO: Add an error message to inform the user.
+            return self.form_invalid(form)
         return super().form_valid(form)
 
 
-class UpdateDetailsView(LeaverDetailsMixin, FormView):
+class UpdateDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
     template_name = "leaving/leaver/update_details.html"
     form_class = forms.LeaverUpdateForm
     success_url = reverse_lazy("leaver-confirm-details")
 
-    def dispatch(
-        self, request: HttpRequest, *args: Any, **kwargs: Any
-    ) -> HttpResponseBase:
-        # TODO: restrict view to only allow authenticated users.
-        if self.request.user.is_authenticated:
-            user_email = cast(str, self.request.user.email)
-            self.initial = dict(self.get_leaver_details_with_updates(email=user_email))
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+        self.initial = dict(self.get_leaver_details_with_updates(email=user_email))
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form) -> HttpResponse:
-        # TODO: restrict view to only allow authenticated users.
-        if self.request.user.is_authenticated:
-            user_email = cast(str, self.request.user.email)
-            self.store_leaver_detail_updates(
-                email=user_email, updates=form.cleaned_data
-            )
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+        self.store_leaver_detail_updates(email=user_email, updates=form.cleaned_data)
         return super().form_valid(form)
 
 
