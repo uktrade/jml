@@ -12,6 +12,7 @@ from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
 from core.utils.people_finder import search_people_finder
 from leavers import forms, types
+from leavers.models import LeaverUpdates
 
 
 class LeaverDetailsMixin:
@@ -20,9 +21,39 @@ class LeaverDetailsMixin:
         Get the stored updates for the Leaver.
         Return an empty dict if there are no updates.
         """
-        # TODO: Get the stored updates.
-        leaver_updates: types.LeaverDetailUpdates = {}
-        return leaver_updates
+        # Get any stored updates from the DB
+        try:
+            leaver_updates = LeaverUpdates.objects.get(leaver_email=email)
+        except LeaverUpdates.DoesNotExist:
+            return {}
+
+        updates: types.LeaverDetailUpdates = leaver_updates.updates
+        return updates
+
+    def store_leaver_detail_updates(
+        self, email: str, updates: types.LeaverDetailUpdates
+    ):
+        """
+        Store updates for the Leaver.
+        """
+        # Get any stored updates from the DB
+        try:
+            leaver_updates = LeaverUpdates.objects.get(leaver_email=email)
+        except LeaverUpdates.DoesNotExist:
+            leaver_updates = LeaverUpdates.objects.create(
+                leaver_email=email, updates={}
+            )
+
+        # Work out what information is new and only store that.
+        existing_data = self.get_leaver_details(email=email)
+        new_data: types.LeaverDetailUpdates = {}
+        for key, value in updates.items():
+            if key not in existing_data or existing_data.get(key) != value:
+                new_data[key] = value
+
+        # Store the updates
+        leaver_updates.updates = new_data
+        leaver_updates.save()
 
     def get_leaver_details(self, email: str) -> types.LeaverDetails:
         """
@@ -67,7 +98,7 @@ class LeaverDetailsMixin:
         leaver_details = self.get_leaver_details(email=email)
         leaver_details.update(**self.get_leaver_detail_updates(email=email))
         return leaver_details
-    
+
     def has_required_leaver_details(self, leaver_details: types.LeaverDetails) -> bool:
         """
         Check if the leaver details are complete.
@@ -125,8 +156,8 @@ class UpdateDetailsView(LeaverDetailsMixin, FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form) -> HttpResponse:
-        # TODO: Work out what information is "new" and consider these as "updates"
-        # TODO: Store the updates (JSONField?)
+        user_email = cast(str, self.request.user.email)
+        self.store_leaver_detail_updates(email=user_email, updates=form.cleaned_data)
         return super().form_valid(form)
 
 

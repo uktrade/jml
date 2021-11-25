@@ -1,7 +1,7 @@
 import uuid
 
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
 
 
 class TaskLog(models.Model):
@@ -25,7 +25,9 @@ class LeavingRequest(models.Model):
     )
 
     requested_at = models.DateTimeField(auto_now_add=True)
-    requested_by = models.CharField(max_length=255,)  # SSO id
+    requested_by = models.CharField(
+        max_length=255,
+    )  # SSO id
     last_day = models.DateTimeField(null=True, blank=True)
 
     user_requesting = models.ForeignKey(
@@ -33,7 +35,7 @@ class LeavingRequest(models.Model):
         on_delete=models.CASCADE,
         related_name="requesting_users",
     )
-    # We won't necessary have an app user
+    # We won't necessary have an app user
     leaver_sso_id = models.CharField(max_length=155)
     leaver_first_name = models.CharField(
         max_length=100,
@@ -49,7 +51,7 @@ class LeavingRequest(models.Model):
     hardware_received = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
-        related_name='hardware_task_log',
+        related_name="hardware_task_log",
         null=True,
         blank=True,
     )
@@ -57,7 +59,7 @@ class LeavingRequest(models.Model):
     vpn_access_removed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
-        related_name='vpn_access_task_log',
+        related_name="vpn_access_task_log",
         null=True,
         blank=True,
     )
@@ -65,7 +67,7 @@ class LeavingRequest(models.Model):
     govuk_paas_access_removed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
-        related_name='govuk_paas_access_task_log',
+        related_name="govuk_paas_access_task_log",
         null=True,
         blank=True,
     )
@@ -73,7 +75,7 @@ class LeavingRequest(models.Model):
     github_user_access_removed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
-        related_name='github_user_task_log',
+        related_name="github_user_task_log",
         null=True,
         blank=True,
     )
@@ -81,7 +83,7 @@ class LeavingRequest(models.Model):
     sentry_access_removed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
-        related_name='sentry_access_task_log',
+        related_name="sentry_access_task_log",
         null=True,
         blank=True,
     )
@@ -89,7 +91,7 @@ class LeavingRequest(models.Model):
     slack_removed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
-        related_name='slack_access_task_log',
+        related_name="slack_access_task_log",
         null=True,
         blank=True,
     )
@@ -97,7 +99,7 @@ class LeavingRequest(models.Model):
     sso_access_removed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
-        related_name='sso_access_task_log',
+        related_name="sso_access_task_log",
         null=True,
         blank=True,
     )
@@ -105,7 +107,7 @@ class LeavingRequest(models.Model):
     aws_access_removed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
-        related_name='aws_access_task_log',
+        related_name="aws_access_task_log",
         null=True,
         blank=True,
     )
@@ -113,7 +115,7 @@ class LeavingRequest(models.Model):
     jira_access_removed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
-        related_name='jira_access_task_log',
+        related_name="jira_access_task_log",
         null=True,
         blank=True,
     )
@@ -128,3 +130,9 @@ class SlackMessage(models.Model):
         on_delete=models.CASCADE,
         related_name="slack_messages",
     )
+
+
+class LeaverUpdates(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    leaver_email = models.EmailField(unique=True)
+    updates = models.JSONField()
