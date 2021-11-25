@@ -1,5 +1,6 @@
 from datetime import date
 from unittest import mock
+from unittest.case import skip
 
 from django.test import TestCase
 
@@ -16,25 +17,6 @@ class TestLeaverDetailsMixin(TestCase):
         "email": "joe.bloggs@example.com",
         "photo": "",
         "roles": [{"job_title": "Example Job Title", "team": {"name": "Example Team"}}],
-    }
-    leaver_details: types.LeaverDetails = {
-        # Personal details
-        "first_name": "Joe",
-        "last_name": "Bloggs",
-        "date_of_birth": date(1990, 1, 1),
-        "personal_email": "",
-        "personal_phone": "",
-        "personal_address": "",
-        # Professional details
-        "grade": "Example Grade",
-        "job_title": "",
-        "directorate": "",
-        "department": "",
-        "team_name": "",
-        "work_email": "joe.bloggs@example.com",
-        "manager": "",
-        # Misc.
-        "photo": "",
     }
 
     """
@@ -140,6 +122,50 @@ class TestLeaverDetailsMixin(TestCase):
     Tests for `get_leaver_details_with_updates`
     """
 
+    @mock.patch(
+        "leavers.views.leaver.search_people_finder", return_value=[people_finder_result]
+    )
+    def test_get_leaver_details_with_updates_no_updates(
+        self, mock_search_people_finder
+    ):
+        leaver_details = LeaverDetailsMixin().get_leaver_details_with_updates(
+            email="joe.bloggs@example.com"
+        )
+        self.assertEqual(leaver_details["first_name"], "Joe")
+
+    @mock.patch(
+        "leavers.views.leaver.search_people_finder", return_value=[people_finder_result]
+    )
+    def test_get_leaver_details_with_updates_some_updates(
+        self, mock_search_people_finder
+    ):
+        factories.LeaverUpdatesFactory(
+            leaver_email="joe.bloggs@example.com", updates={"first_name": "Joey"}
+        )
+        leaver_details = LeaverDetailsMixin().get_leaver_details_with_updates(
+            email="joe.bloggs@example.com"
+        )
+        self.assertEqual(leaver_details["first_name"], "Joey")
+
     """
     Tests for `has_required_leaver_details`
     """
+
+    # TODO: Remove skip when required_keys is defined
+    @skip
+    @mock.patch(
+        "leavers.views.leaver.search_people_finder", return_value=[people_finder_result]
+    )
+    def test_has_required_leaver_details(self, mock_search_people_finder):
+        # No details
+        self.assertFalse(
+            LeaverDetailsMixin().has_required_leaver_details(leaver_details={})
+        )
+        # Some of the required details are missing
+        self.assertFalse(
+            LeaverDetailsMixin().has_required_leaver_details(leaver_details={})
+        )
+        # All of the required details are present
+        self.assertTrue(
+            LeaverDetailsMixin().has_required_leaver_details(leaver_details={})
+        )
