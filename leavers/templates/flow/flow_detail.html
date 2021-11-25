@@ -44,7 +44,7 @@
             <a class="govuk-link" href="{% url 'flow-continue' object.pk %}">Continue</a>
         </p>
     {% endif %}
-    <div id="cy" style="height: 800px;"></div>
+    <div id="cy" style="height: 1200px;"></div>
 {% endblock %} {% block scripts %}
     <script>
         fetch("{% url 'flow-diagram' object.pk %}")
@@ -122,7 +122,7 @@
                         directed: true,
                         roots: ["create_requirement"],
                         fit: true,
-                        spacingFactor: 1,
+                        spacingFactor: 1.4,
                         padding: 0,
                         nodeDimensionsIncludeLabels: true,
                     },
