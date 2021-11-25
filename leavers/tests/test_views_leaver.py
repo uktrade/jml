@@ -250,6 +250,8 @@ class TestConfirmDetailsView(TestCase):
             },
         )
 
+    # TODO: Test POST
+
 
 @mock.patch(
     "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
@@ -331,3 +333,5 @@ class TestUpdateDetailsView(TestCase):
                 "work_email": updates["work_email"],
             },
         )
+
+    # TODO: Test POST
