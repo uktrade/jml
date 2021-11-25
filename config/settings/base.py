@@ -178,4 +178,7 @@ DJANGO_WORKFLOWS = {
     "leaving": "leavers.workflow.leaving.LeaversWorkflow",
 }
 
+# Service Now
+SERVICE_NOW_INTERFACE = env("SERVICE_NOW_INTERFACE", default=None)
+
 SITE_URL = env("SITE_URL")
