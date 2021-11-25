@@ -4,4 +4,3 @@ WORKDIR /app
 
 RUN pip install --upgrade pip
 RUN pip install -r requirements/dev.txt
-RUN pip install git+https://github.com/uktrade/django-workflow-engine.git@feature/WE-27-add-group-check-to-views
