@@ -13,7 +13,7 @@ def get_staff_sso_interface(*, request: HttpRequest) -> StaffSSOBase:
         return StaffSSOStubbed(request=request)
 
     interface_class = import_string(settings.STAFF_SSO_INTERFACE)
-    if not issubclass(StaffSSOBase, interface_class):
+    if not issubclass(interface_class, StaffSSOBase):
         raise ValueError("STAFF_SSO_INTERFACE must inherit from StaffSSOBase")
 
     return interface_class(request=request)

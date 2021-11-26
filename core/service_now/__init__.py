@@ -12,7 +12,7 @@ def get_service_now_interface() -> ServiceNowBase:
         return ServiceNowStubbed()
 
     interface_class = import_string(settings.SERVICE_NOW_INTERFACE)
-    if not issubclass(ServiceNowBase, interface_class):
+    if not issubclass(interface_class, ServiceNowBase):
         raise ValueError("SERVICE_NOW_INTERFACE must inherit from ServiceNowBase")
 
     return interface_class()
