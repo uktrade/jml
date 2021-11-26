@@ -1,11 +1,13 @@
+import uuid
 from datetime import date
 from typing import Any, List, cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.html import mark_safe
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
@@ -170,67 +172,95 @@ class UpdateDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
         return super().form_valid(form)
 
 
+def delete_kit(request: HttpRequest, kit_uuid: uuid.UUID):
+    if "assets" in request.session:
+        for asset in request.session["assets"]:
+            if asset["uuid"] == str(kit_uuid):
+                request.session["assets"].remove(asset)
+                request.session.save()
+                break
+    return redirect("leaver-kit")
+
+
 class KitView(TemplateView):
-    asset_form_class = forms.AddAssetForm
-    correction_form_class = forms.CorrectionForm
+    add_asset_form_class = AddAssetForm
+    correction_form_class = CorrectionForm
     template_name = "leaving/leaver/kit.html"
+
+    def post_add_asset_form(self, request, *args, **kwargs):
+        context = {}
+        form = self.add_asset_form_class(request.POST)
+
+        if form.is_valid():
+            asset = {
+                "uuid": str(uuid.uuid4()),
+                "tag": None,
+                "name": form.cleaned_data["asset_name"],
+            }
+            request.session["assets"].append(asset)
+            request.session.save()
+        else:
+            context["asset_form"] = form
+        return context
+
+    def post_correction_form(self, request, *args, **kwargs):
+        context = {}
+        form = self.correction_form_class(request.POST)
+        if form.is_valid():
+            service_now_interface = get_service_now_interface()
+            # TODO: Map form data to the expected format to submit to Service Now.
+            leaving_request_data: service_now_types.LeaverRequestData = {
+                "collection_address": {
+                    "building_and_street": "",
+                    "city": "",
+                    "county": "",
+                    "postcode": "",
+                },
+                "collection_telephone": "0123456789",
+                "collection_email": "someone@example.com",
+                "reason_for_leaving": "",
+                "leaving_date": timezone.now().date(),
+                "employee_email": "someone@example.com",
+                "employee_name": "Joe Bloggs",
+                "employee_department": "Example Department",
+                "employee_directorate": "Example Directorate",
+                "employee_staff_id": "Staff ID",
+                "manager_name": "Jane Doe",
+                "assets": [],
+                "assets_confirmation": True,
+                "assets_information": "",
+            }
+            service_now_interface.submit_leaver_request(
+                request_data=leaving_request_data
+            )
+        else:
+            context["correction_form"] = form
+        return context
 
     def post(self, request, *args, **kwargs):
         context = {}
-        if "asset_name" in request.POST:
-            form = self.asset_form_class(request.POST)
-
-            if form.is_valid():
-                asset: service_now_types.AssetDetails = {
-                    "tag": None,
-                    "name": form.cleaned_data["asset_name"],
-                }
-                request.session["assets"].append(asset)
-                request.session.save()
-            else:
-                context["asset_form"] = form
-        else:
-            form = self.correction_form_class(request.POST)
-
-            if form.is_valid():
-                service_now_interface = get_service_now_interface()
-                # TODO: Map form data to the expected format to submit to Service Now.
-                leaving_request_data: service_now_types.LeaverRequestData = {
-                    "collection_address": {
-                        "building_and_street": "",
-                        "city": "",
-                        "county": "",
-                        "postcode": "",
-                    },
-                    "collection_telephone": "0123456789",
-                    "collection_email": "someone@example.com",
-                    "reason_for_leaving": "",
-                    "leaving_date": date(2021, 11, 25),
-                    "employee_email": "someone@example.com",
-                    "employee_name": "Joe Bloggs",
-                    "employee_department": "Example Department",
-                    "employee_directorate": "Example Directorate",
-                    "employee_staff_id": "Staff ID",
-                    "manager_name": "Jane Doe",
-                    "assets": [],
-                    "assets_confirmation": True,
-                    "assets_information": "",
-                }
-                service_now_interface.submit_leaver_request(
-                    request_data=leaving_request_data
-                )
-            else:
-                context["correction_form"] = form
+        if "form_name" in request.POST:
+            form_name = request.POST["form_name"]
+            # Call the "post_{form_name}" method to handle the form POST logic.
+            getattr(self, f"post_{form_name}")(request, *args, **kwargs)
         return self.render_to_response(self.get_context_data(**context))
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        service_now_interface = get_service_now_interface()
-        request.session["assets"] = service_now_interface.get_assets_for_user()
+        if "assets" not in request.session:
+            service_now_interface = get_service_now_interface()
+            request.session["assets"] = [
+                {
+                    "uuid": str(uuid.uuid4()),
+                    "tag": asset["tag"],
+                    "name": asset["name"],
+                }
+                for asset in service_now_interface.get_assets_for_user()
+            ]
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["asset_form"] = self.asset_form_class()
+        context["add_asset_form"] = self.add_asset_form_class()
         context["correction_form"] = self.correction_form_class()
         context["assets"] = self.request.session["assets"]
 

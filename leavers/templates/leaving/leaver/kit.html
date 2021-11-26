@@ -23,26 +23,28 @@
                         </dd>
                     </div>
                 </dl>
-                <button class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                <a href="{% url 'leaver-kit-delete' asset.uuid %} " class="govuk-button govuk-button--secondary" data-module="govuk-button">
                     Delete
-                </button>
+                </a>
             </div>
         </div>
         {% endfor %}
 
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <form novalidate method='post' name="asset_form">
+                <form novalidate method='post'>
                     {% csrf_token %}
-                    {% include "includes/govt_uk_form.html" with form=asset_form %}
+                    <input type="hidden" name="form_name" value="add_asset_form">
+                    {% include "includes/govt_uk_form.html" with form=add_asset_form %}
                     <input type="submit" value="Add" class="govuk-button govuk-button" data-module="govuk-button"/>
                 </form>
             </div>
         </div>
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <form novalidate method='post' name="correction_form">
+                <form novalidate method='post'>
                     {% csrf_token %}
+                    <input type="hidden" name="form_name" value="correction_form">
                     {% include "includes/govt_uk_form.html" with form=correction_form %}
                     <input type="submit" value="Add" class="govuk-button govuk-button" data-module="govuk-button"/>
                 </form>
