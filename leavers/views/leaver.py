@@ -1,12 +1,12 @@
 from datetime import date
 from typing import Any, List, cast
 
-from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
+from django.utils.html import mark_safe
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
@@ -121,10 +121,22 @@ class ConfirmDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
         context = super().get_context_data(**kwargs)
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
-        # Add the Leaver details to the context
-        context.update(
-            leaver_details=self.get_leaver_details_with_updates(email=user_email),
-        )
+        # Get the Leaver details
+        leaver_details = self.get_leaver_details_with_updates(email=user_email)
+        context.update(leaver_details=leaver_details),
+        # Build a list of errors to present to the user.
+        errors: List[str] = []
+        # Add an error message if the required details are missing
+        if not self.has_required_leaver_details(leaver_details=leaver_details):
+            edit_path = reverse("leaver-update-details")
+            errors.append(
+                mark_safe(
+                    f"<a href='{edit_path}'>There is missing information that is required to continue, please "
+                    "edit the details on this page.</a>"
+                )
+            )
+        context.update(errors=errors)
+
         return context
 
     def form_valid(self, form) -> HttpResponse:
@@ -136,10 +148,6 @@ class ConfirmDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
         # Get the person details with the updates.
         leaver_details = self.get_leaver_details_with_updates(email=user_email)
         if not self.has_required_leaver_details(leaver_details):
-            messages.error(
-                self.request,
-                "There is missing information that is required to continue, please edit the details on this page.",
-            )
             return self.form_invalid(form)
         return super().form_valid(form)
 

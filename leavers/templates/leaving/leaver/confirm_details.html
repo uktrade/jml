@@ -3,6 +3,7 @@
 
 {% block content %}
     <h1 class="govuk-heading-l">Leaver details confirmation</h1>
+    {% include "includes/govt_error_summary.html" with errors=errors %}
     <a href="{% url 'leaver-update-details' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit</a>
     {% include "includes/leaver_details.html" with leaver_details=leaver_details %}
     <form novalidate method='post'>
