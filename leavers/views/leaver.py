@@ -221,8 +221,7 @@ class KitView(TemplateView):
                 )
             else:
                 context["correction_form"] = form
-
-        return render(request, self.template_name, self.get_context_data(**context))
+        return self.render_to_response(self.get_context_data(**context))
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         service_now_interface = get_service_now_interface()
