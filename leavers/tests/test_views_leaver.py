@@ -4,6 +4,7 @@ from unittest.case import skip
 
 from django.test import TestCase
 from django.urls import reverse
+from django.urls.base import resolve
 
 from leavers import factories, models, types
 from leavers.views.leaver import LeaverDetailsMixin
@@ -250,7 +251,37 @@ class TestConfirmDetailsView(TestCase):
             },
         )
 
-    # TODO: Test POST
+    def test_submit_missing_required_data(self, mock_search_people_finder):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.post(reverse(self.view_name), {})
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_submit_contains_required_data(self, mock_search_people_finder):
+        user = UserFactory()
+        updates: types.LeaverDetailUpdates = {
+            "department": "Updated Department",
+            "directorate": "Updated Directorate",
+            "first_name": "UpdatedFirstName",
+            "grade": "Updated Grade",
+            "job_title": "Updated Job Title",
+            "last_name": "UpdatedLastName",
+            "manager": "Updated Manager",
+            "staff_id": "Updated Staff ID",
+            "personal_address": "Updated Address",
+            "personal_email": "new.personal.email@example.com",
+            "personal_phone": "Updated Number",
+            "work_email": "new.work.email@example.com",
+        }
+        factories.LeaverUpdatesFactory(leaver_email=user.email, updates=updates)
+        self.client.force_login(user)
+
+        response = self.client.post(reverse(self.view_name), {})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-request-received"))
 
 
 @mock.patch(
@@ -261,11 +292,13 @@ class TestUpdateDetailsView(TestCase):
 
     def test_unauthenticated_user(self, mock_search_people_finder):
         response = self.client.get(reverse(self.view_name))
+
         self.assertEqual(response.status_code, 302)
 
     def test_authenticated_user(self, mock_search_people_finder):
         user = UserFactory()
         self.client.force_login(user)
+
         response = self.client.get(reverse(self.view_name))
 
         self.assertEqual(response.status_code, 200)
@@ -309,6 +342,7 @@ class TestUpdateDetailsView(TestCase):
         }
         factories.LeaverUpdatesFactory(leaver_email=user.email, updates=updates)
         self.client.force_login(user)
+
         response = self.client.get(reverse(self.view_name))
 
         self.assertEqual(response.status_code, 200)
@@ -334,4 +368,81 @@ class TestUpdateDetailsView(TestCase):
             },
         )
 
-    # TODO: Test POST
+    def test_submit_missing_required_data(self, mock_search_people_finder):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse(self.view_name),
+            {
+                "department": "",
+                "directorate": "",
+                "first_name": "",
+                "grade": "",
+                "job_title": "",
+                "last_name": "",
+                "manager": "",
+                "staff_id": "",
+                "personal_address": "",
+                "personal_email": "",
+                "personal_phone": "",
+                "work_email": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, "form", "department", "This field is required.")
+        self.assertFormError(response, "form", "directorate", "This field is required.")
+        self.assertFormError(response, "form", "first_name", "This field is required.")
+        self.assertFormError(response, "form", "grade", "This field is required.")
+        self.assertFormError(response, "form", "job_title", "This field is required.")
+        self.assertFormError(response, "form", "last_name", "This field is required.")
+        self.assertFormError(response, "form", "manager", "This field is required.")
+        self.assertFormError(response, "form", "staff_id", "This field is required.")
+        self.assertFormError(
+            response, "form", "personal_address", "This field is required."
+        )
+        self.assertFormError(
+            response, "form", "personal_email", "This field is required."
+        )
+
+    def test_submit_contains_required_data(self, mock_search_people_finder):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse(self.view_name),
+            {
+                "department": "Test Department",
+                "directorate": "Test Directorate",
+                "first_name": "FirstName",
+                "grade": "Grade",
+                "job_title": "Job Title",
+                "last_name": "LastName",
+                "manager": "Manager Name",
+                "staff_id": "Staff ID",
+                "personal_address": "Personal Address",
+                "personal_email": "someone@example.com",
+                "personal_phone": "0123456789",
+                "work_email": user.email,
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-confirm-details"))
+
+        leaver_updates_obj = models.LeaverUpdates.objects.get(leaver_email=user.email)
+        leaver_updates: types.LeaverDetailUpdates = leaver_updates_obj.updates
+
+        self.assertEqual(leaver_updates["department"], "Test Department")
+        self.assertEqual(leaver_updates["directorate"], "Test Directorate")
+        self.assertEqual(leaver_updates["first_name"], "FirstName")
+        self.assertEqual(leaver_updates["grade"], "Grade")
+        self.assertEqual(leaver_updates["job_title"], "Job Title")
+        self.assertEqual(leaver_updates["last_name"], "LastName")
+        self.assertEqual(leaver_updates["manager"], "Manager Name")
+        self.assertEqual(leaver_updates["staff_id"], "Staff ID")
+        self.assertEqual(leaver_updates["personal_address"], "Personal Address")
+        self.assertEqual(leaver_updates["personal_email"], "someone@example.com")
+        self.assertEqual(leaver_updates["personal_phone"], "0123456789")
+        self.assertEqual(leaver_updates["work_email"], user.email)
