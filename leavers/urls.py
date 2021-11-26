@@ -1,38 +1,30 @@
 from django.urls import path
 from django_workflow_engine import workflow_urls
-from requests.api import delete
 
+from leavers.views import flow as flow_views
 from leavers.views import leaver as leaver_views
-from leavers.views.flow import (
-    LeaversFlowContinueView,
-    LeaversFlowCreateView,
-    LeaversFlowListView,
-    LeaversFlowView,
-)
-from leavers.views.leaving import LeaversStartView, WhoIsLeavingView
-from leavers.views.line_manager import ConfirmationView, LeaverSearchView
-from leavers.views.line_manager import (
-    RequestReceivedView as LineManagerRequestReceivedView,
-)
-from leavers.views.sre import TaskConfirmationView as SRETaskConfirmationView
-from leavers.views.sre import ThankYouView as SREThankYouView
+from leavers.views import leaving as leaving_views
+from leavers.views import line_manager as line_manager_views
+from leavers.views import sre as sre_views
 
 urlpatterns = [
-    path("", LeaversStartView.as_view(), name="start"),
-    path("start/", LeaversStartView.as_view(), name="start"),
-    path("who/", WhoIsLeavingView.as_view(), name="who"),
+    path("", leaving_views.LeaversStartView.as_view(), name="start"),
+    path("start/", leaving_views.LeaversStartView.as_view(), name="start"),
+    path("who/", leaving_views.WhoIsLeavingView.as_view(), name="who"),
     # Line manager
     path(
-        "line-manager/search/", LeaverSearchView.as_view(), name="line-manager-search"
+        "line-manager/search/",
+        line_manager_views.LeaverSearchView.as_view(),
+        name="line-manager-search",
     ),
     path(
         "line-manager/confirmation/",
-        ConfirmationView.as_view(),
+        line_manager_views.ConfirmationView.as_view(),
         name="line-manager-confirmation",
     ),
     path(
         "line-manager/request-received/",
-        LineManagerRequestReceivedView.as_view(),
+        line_manager_views.RequestReceivedView.as_view(),
         name="line-manager-request-received",
     ),
     # Leaver
@@ -60,18 +52,22 @@ urlpatterns = [
     # SRE
     path(
         "leaver/sre/<uuid:leaving_request_id>/",
-        SRETaskConfirmationView.as_view(),
+        sre_views.TaskConfirmationView.as_view(),
         name="sre-confirmation",
     ),
-    path("leaver/sre/thank-you/", SREThankYouView.as_view(), name="sre-thank-you"),
+    path(
+        "leaver/sre/thank-you/",
+        sre_views.ThankYouView.as_view(),
+        name="sre-thank-you",
+    ),
     # Django workflow
     path(
         "leaving-workflow/",
         workflow_urls(
-            view=LeaversFlowView,
-            list_view=LeaversFlowListView,
-            create_view=LeaversFlowCreateView,
-            continue_view=LeaversFlowContinueView,
+            view=flow_views.LeaversFlowView,
+            list_view=flow_views.LeaversFlowListView,
+            create_view=flow_views.LeaversFlowCreateView,
+            continue_view=flow_views.LeaversFlowContinueView,
         ),
     ),
 ]
