@@ -1,6 +1,7 @@
 from datetime import date
 from typing import Any, List, cast
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
@@ -106,15 +107,9 @@ class LeaverDetailsMixin:
         """
         Check if the leaver details are complete.
         """
-        # TODO: Define a list of required keys
-        required_keys: List[str] = []
 
-        for key in required_keys:
-            if key not in leaver_details:
-                return False
-            if not leaver_details.get(key):
-                return False
-        return True
+        leaver_update_form = forms.LeaverUpdateForm(data=leaver_details)
+        return leaver_update_form.is_valid()
 
 
 class ConfirmDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
@@ -141,7 +136,10 @@ class ConfirmDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
         # Get the person details with the updates.
         leaver_details = self.get_leaver_details_with_updates(email=user_email)
         if not self.has_required_leaver_details(leaver_details):
-            # TODO: Add an error message to inform the user.
+            messages.error(
+                self.request,
+                "There is missing information that is required to continue, please edit the details on this page.",
+            )
             return self.form_invalid(form)
         return super().form_valid(form)
 
