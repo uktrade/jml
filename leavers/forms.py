@@ -146,22 +146,6 @@ class LeaverUpdateForm(GovFormattedForm):
     staff_id = forms.CharField(label="Staff ID")
 
 
-# TODO: Delete this form?
-class PersonalDetailsForm(GovFormattedForm):
-    personal_email_address = forms.EmailField()
-    address = forms.CharField(
-        label="Find the leaver using their name or email",
-        widget=forms.Textarea,
-    )
-    phone_number = forms.CharField(max_length=16)
-
-
-# TODO: Delete this form?
-class ProfessionalDetailsForm(GovFormattedForm):
-    staff_number = forms.CharField(max_length=22)  # TODO check length
-    github_username = forms.CharField(max_length=22)  # TODO check length
-
-
 class AddAssetForm(GovFormattedForm):
     asset_name = forms.CharField(label="Add asset")
 
