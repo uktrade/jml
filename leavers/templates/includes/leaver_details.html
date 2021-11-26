@@ -92,18 +92,18 @@
                     </div>
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key">
-                            Team name
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {% firstof leaver_details.team_name "Not provided" %}
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
                             Job Title
                         </dt>
                         <dd class="govuk-summary-list__value">
                             {% firstof leaver_details.job_title "Not provided" %}
+                        </dd>
+                    </div>
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Staff ID
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {% firstof leaver_details.staff_id "Not provided" %}
                         </dd>
                     </div>
                     <div class="govuk-summary-list__row">

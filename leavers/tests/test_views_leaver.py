@@ -51,7 +51,7 @@ class TestLeaverDetailsMixin(TestCase):
             PEOPLE_FINDER_RESULT["roles"][0]["job_title"],
         )
         self.assertEqual(
-            leaver_details["team_name"],
+            leaver_details["directorate"],
             PEOPLE_FINDER_RESULT["roles"][0]["team"]["name"],
         )
 
@@ -193,17 +193,17 @@ class TestConfirmDetailsView(TestCase):
             {
                 "date_of_birth": date(2021, 11, 25),
                 "department": "",
-                "directorate": "",
+                "directorate": "Example Team",
                 "first_name": "Joe",
                 "grade": "Example Grade",
                 "job_title": "Example Job Title",
                 "last_name": "Bloggs",
                 "manager": "",
+                "staff_id": "",
                 "personal_address": "",
                 "personal_email": "",
                 "personal_phone": "0987654321",
                 "photo": "",
-                "team_name": "Example Team",
                 "work_email": "joe.bloggs@example.com",
             },
         )
@@ -218,10 +218,10 @@ class TestConfirmDetailsView(TestCase):
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",
             "manager": "Updated Manager",
+            "staff_id": "Updated Staff ID",
             "personal_address": "Updated Address",
             "personal_email": "Updated Personal Email",
             "personal_phone": "Updated Number",
-            "team_name": "Updated Team",
             "work_email": "Updated Work Email",
         }
         factories.LeaverUpdatesFactory(leaver_email=user.email, updates=updates)
@@ -242,10 +242,10 @@ class TestConfirmDetailsView(TestCase):
                 "job_title": updates["job_title"],
                 "last_name": updates["last_name"],
                 "manager": updates["manager"],
+                "staff_id": updates["staff_id"],
                 "personal_address": updates["personal_address"],
                 "personal_email": updates["personal_email"],
                 "personal_phone": updates["personal_phone"],
-                "team_name": updates["team_name"],
                 "work_email": updates["work_email"],
             },
         )
@@ -276,17 +276,17 @@ class TestUpdateDetailsView(TestCase):
             {
                 "date_of_birth": date(2021, 11, 25),
                 "department": "",
-                "directorate": "",
+                "directorate": "Example Team",
                 "first_name": "Joe",
                 "grade": "Example Grade",
                 "job_title": "Example Job Title",
                 "last_name": "Bloggs",
                 "manager": "",
+                "staff_id": "",
                 "personal_address": "",
                 "personal_email": "",
                 "personal_phone": "0987654321",
                 "photo": "",
-                "team_name": "Example Team",
                 "work_email": "joe.bloggs@example.com",
             },
         )
@@ -301,10 +301,10 @@ class TestUpdateDetailsView(TestCase):
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",
             "manager": "Updated Manager",
+            "staff_id": "Updated Staff ID",
             "personal_address": "Updated Address",
             "personal_email": "Updated Personal Email",
             "personal_phone": "Updated Number",
-            "team_name": "Updated Team",
             "work_email": "Updated Work Email",
         }
         factories.LeaverUpdatesFactory(leaver_email=user.email, updates=updates)
@@ -326,10 +326,10 @@ class TestUpdateDetailsView(TestCase):
                 "job_title": updates["job_title"],
                 "last_name": updates["last_name"],
                 "manager": updates["manager"],
+                "staff_id": updates["staff_id"],
                 "personal_address": updates["personal_address"],
                 "personal_email": updates["personal_email"],
                 "personal_phone": updates["personal_phone"],
-                "team_name": updates["team_name"],
                 "work_email": updates["work_email"],
             },
         )

@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Any, List, cast
 
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -5,7 +6,6 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
@@ -68,28 +68,28 @@ class LeaverDetailsMixin:
             person = people_finder_results[0]
 
             job_title = ""
-            team_name = ""
+            directorate = ""
             if "roles" in person and len(person["roles"]) > 0:
                 job_title = person["roles"][0]["job_title"]
-                team_name = person["roles"][0]["team"]["name"]
+                directorate = person["roles"][0]["team"]["name"]
 
             # TODO: Map values to the blank leaver details
             leaver_details: types.LeaverDetails = {
                 # Personal details
                 "first_name": person["first_name"],
                 "last_name": person["last_name"],
-                "date_of_birth": timezone.now().date(),
+                "date_of_birth": date(2021, 11, 25),
                 "personal_email": "",
                 "personal_phone": person["primary_phone_number"],
                 "personal_address": "",
                 # Professional details
                 "grade": person["grade"],
                 "job_title": job_title,
-                "directorate": "",
                 "department": "",
-                "team_name": team_name,
+                "directorate": directorate,
                 "work_email": person["email"],
                 "manager": "",
+                "staff_id": "",
                 # Misc.
                 "photo": person["photo"],
             }
@@ -199,7 +199,7 @@ class KitView(TemplateView):
                     "collection_telephone": "0123456789",
                     "collection_email": "someone@example.com",
                     "reason_for_leaving": "",
-                    "leaving_date": timezone.now().date(),
+                    "leaving_date": date(2021, 11, 25),
                     "employee_email": "someone@example.com",
                     "employee_name": "Joe Bloggs",
                     "employee_department": "Example Department",

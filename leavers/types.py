@@ -13,11 +13,11 @@ class LeaverDetails(TypedDict):
     # Professional details
     grade: str
     job_title: str
-    directorate: str
     department: str
-    team_name: str
+    directorate: str
     work_email: str
     manager: str
+    staff_id: str
     # Misc.
     photo: str
 
@@ -33,10 +33,10 @@ class LeaverDetailUpdates(TypedDict, total=False):
     # Professional details
     grade: str
     job_title: str
-    directorate: str
     department: str
-    team_name: str
+    directorate: str
     work_email: str
     manager: str
+    staff_id: str
     # Misc.
     photo: str

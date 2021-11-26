@@ -141,9 +141,9 @@ class LeaverUpdateForm(GovFormattedForm):
     job_title = forms.CharField(label="Job title")
     directorate = forms.CharField(label="Directorate")
     department = forms.CharField(label="Department")
-    team_name = forms.CharField(label="Team name")
     work_email = forms.EmailField(label="Email")
     manager = forms.CharField(label="Manager")
+    staff_id = forms.CharField(label="Staff ID")
 
 
 # TODO: Delete this form?
@@ -156,6 +156,7 @@ class PersonalDetailsForm(GovFormattedForm):
     phone_number = forms.CharField(max_length=16)
 
 
+# TODO: Delete this form?
 class ProfessionalDetailsForm(GovFormattedForm):
     staff_number = forms.CharField(max_length=22)  # TODO check length
     github_username = forms.CharField(max_length=22)  # TODO check length
