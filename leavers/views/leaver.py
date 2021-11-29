@@ -118,7 +118,7 @@ class LeaverDetailsMixin:
 class ConfirmDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
     template_name = "leaving/leaver/confirm_details.html"
     form_class = forms.LeaverConfirmationForm
-    success_url = reverse_lazy("leaver-request-received")
+    success_url = reverse_lazy("leaver-kit")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -190,6 +190,7 @@ class KitView(TemplateView):
         "correction_form": forms.CorrectionForm,
     }
     template_name = "leaving/leaver/kit.html"
+    success_url = reverse_lazy("leaver-request-received")
 
     def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         asset = {
@@ -199,6 +200,8 @@ class KitView(TemplateView):
         }
         request.session["assets"].append(asset)
         request.session.save()
+        # Redirect to the GET method
+        return redirect("leaver-kit")
 
     def post_correction_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         service_now_interface = get_service_now_interface()
@@ -225,19 +228,22 @@ class KitView(TemplateView):
             "assets_information": "",
         }
         service_now_interface.submit_leaver_request(request_data=leaving_request_data)
+        return redirect(self.success_url)
 
     def post(self, request, *args, **kwargs):
-        context = {}
+        context = self.get_context_data(**kwargs)
         if "form_name" in request.POST:
             form_name = request.POST["form_name"]
             if form_name in self.forms:
                 form = self.forms[form_name](request.POST)
                 if form.is_valid():
                     # Call the "post_{form_name}" method to handle the form POST logic.
-                    getattr(self, f"post_{form_name}")(request, form, *args, **kwargs)
+                    return getattr(self, f"post_{form_name}")(
+                        request, form, *args, **kwargs
+                    )
                 else:
                     context[form_name] = form
-        return self.render_to_response(self.get_context_data(**context))
+        return self.render_to_response(context)
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         if "assets" not in request.session:
