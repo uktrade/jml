@@ -1,20 +1,16 @@
 import datetime
 
-from django.core.exceptions import ValidationError
 from django import forms
+from django.core.exceptions import ValidationError
 
-from core.forms import (
-    GovFormattedForm,
-    GovFormattedModelForm,
-)
-
+from core.forms import GovFormattedForm, GovFormattedModelForm
 from leavers.models import LeavingRequest
 from leavers.widgets import DateSelectorWidget
 
 
 class LeaversForm(GovFormattedForm):
     for_self = forms.BooleanField(
-        label='I am leaving the DIT (leave blank if filling in for someone else)',
+        label="I am leaving the DIT (leave blank if filling in for someone else)",
         required=False,
     )
     leaver_email_address = forms.EmailField(
@@ -45,9 +41,7 @@ class LeaversForm(GovFormattedForm):
 class HardwareReceivedForm(GovFormattedModelForm):
     class Meta:
         model = LeavingRequest
-        fields = (
-            "hardware_received",
-        )
+        fields = ("hardware_received",)
 
 
 class SREConfirmCompleteForm(GovFormattedForm):
@@ -98,15 +92,13 @@ class ContactForm(forms.Form):
 
 class WhoIsLeavingForm(GovFormattedForm):
     CHOICES = [
-        ("me", 'Me'),
-        ("someone_else", 'Someone Else'),
+        ("me", "Me"),
+        ("someone_else", "Someone Else"),
     ]
 
     who_for = forms.ChoiceField(
         choices=CHOICES,
-        widget=forms.RadioSelect(
-            attrs={"class": "govuk-radios__input"}
-        )
+        widget=forms.RadioSelect(attrs={"class": "govuk-radios__input"}),
     )
 
     last_day = forms.DateField(
@@ -117,9 +109,7 @@ class WhoIsLeavingForm(GovFormattedForm):
 
 
 class SearchForm(GovFormattedForm):
-    search_terms = forms.CharField(
-        label="Find the leaver using their name or email"
-    )
+    search_terms = forms.CharField(label="Find the leaver using their name or email")
 
 
 class PersonNotFoundForm(GovFormattedForm):
@@ -134,44 +124,42 @@ class LeaverConfirmationForm(GovFormattedForm):
         widget=DateSelectorWidget(hint="For example, 27 3 2007"),
         required=False,
     )
-    #
-    # declaration = forms.BooleanField(
-    #     label="I confirm that all information is up to date and correct"
-    # )
 
 
-class PersonalDetailsForm(GovFormattedForm):
-    personal_email_address = forms.EmailField()
-    address = forms.CharField(
-        label="Find the leaver using their name or email",
+class LeaverUpdateForm(GovFormattedForm):
+    # Personal details
+    first_name = forms.CharField(label="First name")
+    last_name = forms.CharField(label="Last name")
+    personal_email = forms.EmailField(label="Email")
+    personal_phone = forms.CharField(label="Phone", max_length=16)
+    personal_address = forms.CharField(
+        label="Address",
         widget=forms.Textarea,
     )
-    phone_number = forms.CharField(max_length=16)
-
-
-class ProfessionalDetailsForm(GovFormattedForm):
-    staff_number = forms.CharField(max_length=22)  # TODO check length
-    github_username = forms.CharField(max_length=22)  # TODO check length
+    # Professional details
+    grade = forms.CharField(label="Grade")
+    job_title = forms.CharField(label="Job title")
+    directorate = forms.CharField(label="Directorate")
+    department = forms.CharField(label="Department")
+    work_email = forms.EmailField(label="Email")
+    manager = forms.CharField(label="Manager")
+    staff_id = forms.CharField(label="Staff ID")
 
 
 class AddAssetForm(GovFormattedForm):
-    asset_name = forms.CharField(
-        label="Add asset"
-    )
+    asset_name = forms.CharField(label="Add asset")
 
 
 class CorrectionForm(GovFormattedForm):
     CHOICES = [
-        ("yes", 'Yes'),
-        ("no", 'No'),
+        ("yes", "Yes"),
+        ("no", "No"),
     ]
 
     is_correct = forms.ChoiceField(
         label="I confirm that all information is up to date and correct",
         choices=CHOICES,
-        widget=forms.RadioSelect(
-            attrs={"class": "govuk-radios__input"}
-        )
+        widget=forms.RadioSelect(attrs={"class": "govuk-radios__input"}),
     )
 
     # is_correct = forms.BooleanField(
