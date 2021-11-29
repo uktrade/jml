@@ -60,7 +60,7 @@ class TestLeaverDetailsMixin(TestCase):
         "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
     )
     def test_get_leaver_details_existing_updates(self, mock_search_people_finder):
-        factories.LeaverUpdatesFactory(
+        factories.LeaverInformationFactory(
             leaver_email="joe.bloggs@example.com", updates={"first_name": "Joey"}
         )
         leaver_details = LeaverDetailsMixin().get_leaver_details(
@@ -79,7 +79,7 @@ class TestLeaverDetailsMixin(TestCase):
         self.assertEqual(leaver_detail_updates, {})
 
     def test_get_leaver_detail_updates_some_updates(self):
-        factories.LeaverUpdatesFactory(
+        factories.LeaverInformationFactory(
             leaver_email="joe.bloggs@example.com", updates={"first_name": "Joey"}
         )
         leaver_detail_updates = LeaverDetailsMixin().get_leaver_detail_updates(
@@ -99,7 +99,7 @@ class TestLeaverDetailsMixin(TestCase):
             email="joe.bloggs@example.com", updates={}
         )
         self.assertEqual(
-            models.LeaverUpdates.objects.filter(
+            models.LeaverInformation.objects.filter(
                 leaver_email="joe.bloggs@example.com"
             ).count(),
             1,
@@ -113,7 +113,7 @@ class TestLeaverDetailsMixin(TestCase):
             email="joe.bloggs@example.com", updates={"first_name": "Joey"}
         )
 
-        leaver_updates = models.LeaverUpdates.objects.get(
+        leaver_updates = models.LeaverInformation.objects.get(
             leaver_email="joe.bloggs@example.com",
         )
         self.assertEqual(leaver_updates.updates, {"first_name": "Joey"})
@@ -139,7 +139,7 @@ class TestLeaverDetailsMixin(TestCase):
     def test_get_leaver_details_with_updates_some_updates(
         self, mock_search_people_finder
     ):
-        factories.LeaverUpdatesFactory(
+        factories.LeaverInformationFactory(
             leaver_email="joe.bloggs@example.com", updates={"first_name": "Joey"}
         )
         leaver_details = LeaverDetailsMixin().get_leaver_details_with_updates(
@@ -225,7 +225,7 @@ class TestConfirmDetailsView(TestCase):
             "personal_phone": "Updated Number",
             "work_email": "Updated Work Email",
         }
-        factories.LeaverUpdatesFactory(leaver_email=user.email, updates=updates)
+        factories.LeaverInformationFactory(leaver_email=user.email, updates=updates)
         self.client.force_login(user)
         response = self.client.get(reverse(self.view_name))
 
@@ -275,13 +275,13 @@ class TestConfirmDetailsView(TestCase):
             "personal_phone": "Updated Number",
             "work_email": "new.work.email@example.com",
         }
-        factories.LeaverUpdatesFactory(leaver_email=user.email, updates=updates)
+        factories.LeaverInformationFactory(leaver_email=user.email, updates=updates)
         self.client.force_login(user)
 
         response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-request-received"))
+        self.assertEqual(response.url, reverse("leaver-kit"))
 
 
 @mock.patch(
@@ -340,7 +340,7 @@ class TestUpdateDetailsView(TestCase):
             "personal_phone": "Updated Number",
             "work_email": "Updated Work Email",
         }
-        factories.LeaverUpdatesFactory(leaver_email=user.email, updates=updates)
+        factories.LeaverInformationFactory(leaver_email=user.email, updates=updates)
         self.client.force_login(user)
 
         response = self.client.get(reverse(self.view_name))
@@ -431,7 +431,9 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("leaver-confirm-details"))
 
-        leaver_updates_obj = models.LeaverUpdates.objects.get(leaver_email=user.email)
+        leaver_updates_obj = models.LeaverInformation.objects.get(
+            leaver_email=user.email
+        )
         leaver_updates: types.LeaverDetailUpdates = leaver_updates_obj.updates
 
         self.assertEqual(leaver_updates["department"], "Test Department")

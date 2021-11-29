@@ -15,9 +15,9 @@ class LeavingRequestFactory(DjangoModelFactory):
     user_requesting = factory.SubFactory(UserFactory)
 
 
-class LeaverUpdatesFactory(DjangoModelFactory):
+class LeaverInformationFactory(DjangoModelFactory):
     class Meta:
-        model = models.LeaverUpdates
+        model = models.LeaverInformation
 
     leaver_email = factory.Faker("email")
     updates = {}

@@ -20,7 +20,6 @@ class LeaverDetails(TypedDict):
     staff_id: str
     # Misc.
     photo: str
-    leaving_date: Optional[date]
 
 
 class LeaverDetailUpdates(TypedDict, total=False):
@@ -41,4 +40,3 @@ class LeaverDetailUpdates(TypedDict, total=False):
     staff_id: str
     # Misc.
     photo: str
-    leaving_date: Optional[date]

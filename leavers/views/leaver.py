@@ -17,7 +17,7 @@ from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
 from core.utils.people_finder import search_people_finder
 from leavers import forms, types
-from leavers.models import LeaverUpdates
+from leavers.models import LeaverInformation
 from user.models import User
 
 
@@ -29,11 +29,11 @@ class LeaverDetailsMixin:
         """
         # Get any stored updates from the DB
         try:
-            leaver_updates = LeaverUpdates.objects.get(leaver_email=email)
-        except LeaverUpdates.DoesNotExist:
+            leaver_info = LeaverInformation.objects.get(leaver_email=email)
+        except LeaverInformation.DoesNotExist:
             return {}
 
-        updates: types.LeaverDetailUpdates = leaver_updates.updates
+        updates: types.LeaverDetailUpdates = leaver_info.updates
         return updates
 
     def store_leaver_detail_updates(
@@ -44,9 +44,9 @@ class LeaverDetailsMixin:
         """
         # Get any stored updates from the DB
         try:
-            leaver_updates = LeaverUpdates.objects.get(leaver_email=email)
-        except LeaverUpdates.DoesNotExist:
-            leaver_updates = LeaverUpdates.objects.create(
+            leaver_info = LeaverInformation.objects.get(leaver_email=email)
+        except LeaverInformation.DoesNotExist:
+            leaver_info = LeaverInformation.objects.create(
                 leaver_email=email, updates={}
             )
 
@@ -58,26 +58,46 @@ class LeaverDetailsMixin:
                 new_data[key] = value  # type: ignore
 
         # Store the updates
-        leaver_updates.updates = new_data
-        leaver_updates.save()
+        leaver_info.updates = new_data
+        leaver_info.save()
 
     def store_leaving_date(self, email: str, leaving_date: date):
         """
         Store the leaving date in the session.
         """
         try:
-            leaver_updates = LeaverUpdates.objects.get(leaver_email=email)
-        except LeaverUpdates.DoesNotExist:
-            leaver_updates = LeaverUpdates.objects.create(
+            leaver_info = LeaverInformation.objects.get(leaver_email=email)
+        except LeaverInformation.DoesNotExist:
+            leaver_info = LeaverInformation.objects.create(
                 leaver_email=email, updates={}
             )
         # Get the currently stored updates
-        updates = leaver_updates.updates
+        updates = leaver_info.updates
         # Add the leaving date
         updates["leaving_date"] = str(leaving_date)
         # Store the updates
-        leaver_updates.updates = updates
-        leaver_updates.save()
+        leaver_info.updates = updates
+        leaver_info.save()
+
+    def store_correction_information(
+        self,
+        email: str,
+        information_is_correct: bool,
+        additional_information: str,
+    ):
+        """
+        Store the Correction informatin
+        """
+        try:
+            leaver_info = LeaverInformation.objects.get(leaver_email=email)
+        except LeaverInformation.DoesNotExist:
+            leaver_info = LeaverInformation.objects.create(
+                leaver_email=email, updates={}
+            )
+
+        leaver_info.information_is_correct = information_is_correct
+        leaver_info.additional_information = additional_information
+        leaver_info.save()
 
     def get_leaver_details(self, email: str) -> types.LeaverDetails:
         """
@@ -114,7 +134,6 @@ class LeaverDetailsMixin:
                 "staff_id": "",
                 # Misc.
                 "photo": person["photo"],
-                "leaving_date": None,
             }
             return leaver_details
         raise Exception("Issue finding user in People Finder")
@@ -132,6 +151,32 @@ class LeaverDetailsMixin:
 
         leaver_update_form = forms.LeaverUpdateForm(data=leaver_details)
         return leaver_update_form.is_valid()
+
+    def submit_to_service_now(self):
+        service_now_interface = get_service_now_interface()
+        # TODO: Map form data to the expected format to submit to Service Now.
+        leaving_request_data: service_now_types.LeaverRequestData = {
+            "collection_address": {
+                "building_and_street": "",
+                "city": "",
+                "county": "",
+                "postcode": "",
+            },
+            "collection_telephone": "0123456789",
+            "collection_email": "someone@example.com",
+            "reason_for_leaving": "",
+            "leaving_date": timezone.now().date(),
+            "employee_email": "someone@example.com",
+            "employee_name": "Joe Bloggs",
+            "employee_department": "Example Department",
+            "employee_directorate": "Example Directorate",
+            "employee_staff_id": "Staff ID",
+            "manager_name": "Jane Doe",
+            "assets": [],
+            "assets_confirmation": True,
+            "assets_information": "",
+        }
+        service_now_interface.submit_leaver_request(request_data=leaving_request_data)
 
 
 class ConfirmDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
@@ -209,7 +254,7 @@ def delete_kit(request: HttpRequest, kit_uuid: uuid.UUID):
     return redirect("leaver-kit")
 
 
-class KitView(TemplateView):
+class KitView(LoginRequiredMixin, LeaverDetailsMixin, TemplateView):
     forms: Dict[str, Type[Form]] = {
         "add_asset_form": forms.AddAssetForm,
         "correction_form": forms.CorrectionForm,
@@ -229,30 +274,17 @@ class KitView(TemplateView):
         return redirect("leaver-kit")
 
     def post_correction_form(self, request: HttpRequest, form: Form, *args, **kwargs):
-        service_now_interface = get_service_now_interface()
-        # TODO: Map form data to the expected format to submit to Service Now.
-        leaving_request_data: service_now_types.LeaverRequestData = {
-            "collection_address": {
-                "building_and_street": "",
-                "city": "",
-                "county": "",
-                "postcode": "",
-            },
-            "collection_telephone": "0123456789",
-            "collection_email": "someone@example.com",
-            "reason_for_leaving": "",
-            "leaving_date": timezone.now().date(),
-            "employee_email": "someone@example.com",
-            "employee_name": "Joe Bloggs",
-            "employee_department": "Example Department",
-            "employee_directorate": "Example Directorate",
-            "employee_staff_id": "Staff ID",
-            "manager_name": "Jane Doe",
-            "assets": [],
-            "assets_confirmation": True,
-            "assets_information": "",
-        }
-        service_now_interface.submit_leaver_request(request_data=leaving_request_data)
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
+        form_data = form.cleaned_data
+
+        # Store correction info and assets into the leaver details
+        self.store_correction_information(
+            email=user_email,
+            information_is_correct=bool(form_data["is_correct"] == "yes"),
+            additional_information=form_data["whats_incorrect"],
+        )
         return redirect(self.success_url)
 
     def post(self, request, *args, **kwargs):

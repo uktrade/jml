@@ -132,7 +132,10 @@ class SlackMessage(models.Model):
     )
 
 
-class LeaverUpdates(models.Model):
+class LeaverInformation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     leaver_email = models.EmailField(unique=True)
     updates = models.JSONField()
+    leaving_date = models.DateTimeField(null=True, blank=True)
+    information_is_correct = models.BooleanField(null=True)
+    additional_information = models.CharField(max_length=1000)

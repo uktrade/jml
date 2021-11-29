@@ -164,4 +164,5 @@ class CorrectionForm(GovFormattedForm):
         required=False,
         label="Please tell us what's wrong",
         widget=forms.Textarea(),
+        max_length=1000,
     )

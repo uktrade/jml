@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="LeaverUpdates",
+            name="LeaverInformation",
             fields=[
                 (
                     "id",
@@ -25,6 +25,9 @@ class Migration(migrations.Migration):
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("leaver_email", models.EmailField(max_length=254, unique=True)),
                 ("updates", models.JSONField()),
+                ("leaving_date", models.DateTimeField(blank=True, null=True)),
+                ("information_is_correct", models.BooleanField(null=True)),
+                ("additional_information", models.CharField(max_length=1000)),
             ],
         ),
     ]
