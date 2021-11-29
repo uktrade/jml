@@ -1,33 +1,35 @@
 {% extends "leaving/leaving_base.html" %}
+{% load static %}
 
 {% block content %}
     <div class="govuk-width-container">
+        <h1 class="govuk-heading-l">IT Equipment currently in your possesion</h2>
         {% for asset in assets %}
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <dl class="govuk-summary-list">
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Asset name
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {{ asset.name }}
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Asset tag
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {{ asset.tag }}
-                        </dd>
-                    </div>
-                </dl>
-                <a href="{% url 'leaver-kit-delete' asset.uuid %} " class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                    Delete
-                </a>
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <dl class="govuk-summary-list">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Asset name
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ asset.name }}
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Asset tag
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ asset.tag }}
+                            </dd>
+                        </div>
+                    </dl>
+                    <a href="{% url 'leaver-kit-delete' asset.uuid %} " class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                        Delete
+                    </a>
+                </div>
             </div>
-        </div>
         {% endfor %}
 
         <div class="govuk-grid-row">
