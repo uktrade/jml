@@ -1,5 +1,5 @@
 from datetime import date
-from typing import TypedDict
+from typing import Optional, TypedDict
 
 
 class LeaverDetails(TypedDict):
@@ -20,6 +20,7 @@ class LeaverDetails(TypedDict):
     staff_id: str
     # Misc.
     photo: str
+    leaving_date: Optional[date]
 
 
 class LeaverDetailUpdates(TypedDict, total=False):
@@ -40,3 +41,4 @@ class LeaverDetailUpdates(TypedDict, total=False):
     staff_id: str
     # Misc.
     photo: str
+    leaving_date: Optional[date]

@@ -61,6 +61,24 @@ class LeaverDetailsMixin:
         leaver_updates.updates = new_data
         leaver_updates.save()
 
+    def store_leaving_date(self, email: str, leaving_date: date):
+        """
+        Store the leaving date in the session.
+        """
+        try:
+            leaver_updates = LeaverUpdates.objects.get(leaver_email=email)
+        except LeaverUpdates.DoesNotExist:
+            leaver_updates = LeaverUpdates.objects.create(
+                leaver_email=email, updates={}
+            )
+        # Get the currently stored updates
+        updates = leaver_updates.updates
+        # Add the leaving date
+        updates["leaving_date"] = str(leaving_date)
+        # Store the updates
+        leaver_updates.updates = updates
+        leaver_updates.save()
+
     def get_leaver_details(self, email: str) -> types.LeaverDetails:
         """
         Get the Leaver details from People Finder
@@ -96,6 +114,7 @@ class LeaverDetailsMixin:
                 "staff_id": "",
                 # Misc.
                 "photo": person["photo"],
+                "leaving_date": None,
             }
             return leaver_details
         raise Exception("Issue finding user in People Finder")
@@ -140,7 +159,6 @@ class ConfirmDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
                 )
             )
         context.update(errors=errors)
-
         return context
 
     def form_valid(self, form) -> HttpResponse:
@@ -149,11 +167,18 @@ class ConfirmDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
         """
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
+
+        # Store the leaving date
+        self.store_leaving_date(
+            email=user_email,
+            leaving_date=form.cleaned_data["last_day"],
+        )
+
         # Get the person details with the updates.
         leaver_details = self.get_leaver_details_with_updates(email=user_email)
-        if not self.has_required_leaver_details(leaver_details):
-            return self.form_invalid(form)
-        return super().form_valid(form)
+        if self.has_required_leaver_details(leaver_details):
+            return super().form_valid(form)
+        return self.form_invalid(form)
 
 
 class UpdateDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
