@@ -9,7 +9,7 @@ def get_staff_sso_interface(*, request: HttpRequest) -> StaffSSOBase:
     """
     Get the SSO interface from the STAFF_SSO_INTERFACE setting
     """
-    if not settings.STAFF_SSO_INTERFACE:
+    if not getattr(settings, "STAFF_SSO_INTERFACE", None):
         return StaffSSOStubbed(request=request)
 
     interface_class = import_string(settings.STAFF_SSO_INTERFACE)

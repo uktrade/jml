@@ -15,7 +15,7 @@ from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
 
 from core.utils.sso import get_sso_user_details
-from core.utils.people_finder import search_people_finder
+from core.people_finder import get_people_finder_interface
 
 from leavers.models import LeavingRequest
 
@@ -33,9 +33,11 @@ class PersonResult(TypedDict):
     email: str
     staff_number: Optional[str]
 
+
 class LeaverSearchView(View):
     form_class = SearchForm
     template_name = "leaving/line_manager/search.html"
+    people_finder_search = get_people_finder_interface()
 
     # def get_records_from_sso_and_hr_data(self, emails):
     #     sso_results = []
@@ -65,7 +67,7 @@ class LeaverSearchView(View):
     #     return person_results
 
     def get_pf_results_with_sso_id(self, search_terms):
-        people_finder_results = search_people_finder(
+        people_finder_results = self.people_finder_search.get_search_results(
             search_term=search_terms,
         )
 
