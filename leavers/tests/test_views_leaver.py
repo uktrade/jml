@@ -572,3 +572,11 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(leaver_updates["personal_email"], "someone@example.com")
         self.assertEqual(leaver_updates["personal_phone"], "0123456789")
         self.assertEqual(leaver_updates["work_email"], user.email)
+
+
+# TODO: Add tests for the following:
+# - KitView
+# - delete_kit
+# - EquipmentReturnOptions
+# - EquipmentReturnInformation
+# - RequestReceivedView
