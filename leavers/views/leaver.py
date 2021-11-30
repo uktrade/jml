@@ -342,7 +342,7 @@ class KitView(LoginRequiredMixin, LeaverDetailsMixin, TemplateView):
         return context
 
 
-class EquipmentReturnOption(LoginRequiredMixin, LeaverDetailsMixin, FormView):
+class EquipmentReturnOptions(LoginRequiredMixin, LeaverDetailsMixin, FormView):
     template_name = "leaving/leaver/equipment_options.html"
     form_class = forms.ReturnOptionForm
     success_url = reverse_lazy("leaver-return-informaation")
