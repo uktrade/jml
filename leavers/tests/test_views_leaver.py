@@ -1,3 +1,4 @@
+import uuid
 from datetime import date, datetime
 from unittest import mock
 
@@ -576,7 +577,72 @@ class TestUpdateDetailsView(TestCase):
 
 # TODO: Add tests for the following:
 # - KitView
-# - delete_kit
 # - EquipmentReturnOptions
 # - EquipmentReturnInformation
 # - RequestReceivedView
+
+
+class TestDeleteKitView(TestCase):
+    view_name = "leaver-kit-delete"
+
+    def test_unauthenticated_user(self):
+        response = self.client.get(reverse(self.view_name, args=[str(uuid.uuid4())]))
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_authenticated_user(self):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse(self.view_name, args=[str(uuid.uuid4())]))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-kit"))
+
+    def add_kit_to_session(self, asset_name: str, asset_tag: str) -> uuid.UUID:
+        user = UserFactory()
+        self.client.force_login(user)
+
+        session = self.client.session
+        if "assets" not in self.client.session:
+            session["assets"] = []
+
+        asset_uuid = uuid.uuid4()
+        session["assets"].append(
+            {
+                "uuid": str(asset_uuid),
+                "asset_tag": asset_tag,
+                "asset_name": asset_name,
+            }
+        )
+        session.save()
+        return asset_uuid
+
+    def test_existing_uuid(self):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        asset_uuid = self.add_kit_to_session("Test Asset 1", "Test Tag 1")
+
+        response = self.client.get(reverse(self.view_name, args=[str(asset_uuid)]))
+        session = self.client.session
+        session_assets = session["assets"]
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-kit"))
+        self.assertEqual(len(session_assets), 0)
+
+    def test_invalid_uuid(self):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        asset_uuid = self.add_kit_to_session("Test Asset 1", "Test Tag 1")
+
+        response = self.client.get(reverse(self.view_name, args=[str(uuid.uuid4())]))
+        session = self.client.session
+        session_assets = session["assets"]
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-kit"))
+        self.assertEqual(len(session_assets), 1)
+        self.assertEqual(session_assets[0]["uuid"], str(asset_uuid))
