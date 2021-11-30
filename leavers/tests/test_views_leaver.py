@@ -1,13 +1,12 @@
-from datetime import date
+from datetime import date, datetime
 from unittest import mock
-from unittest.case import skip
 
 from django.test import TestCase
 from django.urls import reverse
-from django.urls.base import resolve
+from django.utils import timezone
 
 from leavers import factories, models, types
-from leavers.views.leaver import LeaverDetailsMixin
+from leavers.views.leaver import LeaverInformationMixin
 from user.test.factories import UserFactory
 
 PEOPLE_FINDER_RESULT = {
@@ -21,7 +20,42 @@ PEOPLE_FINDER_RESULT = {
 }
 
 
-class TestLeaverDetailsMixin(TestCase):
+class TestLeaverInformationMixin(TestCase):
+
+    """
+    Tests for `get_leaver_information`
+    """
+
+    def test_get_leaver_information_new(self):
+        LeaverInformationMixin().get_leaver_information(email="joe.bloggs@example.com")
+
+        self.assertEqual(models.LeaverInformation.objects.count(), 1)
+        leaver_info = models.LeaverInformation.objects.first()
+        self.assertEqual(leaver_info.leaver_email, "joe.bloggs@example.com")
+
+    def test_get_leaver_information_existing(self):
+        leaver_info = factories.LeaverInformationFactory(
+            leaver_email="joe.bloggs@example.com",
+        )
+
+        LeaverInformationMixin().get_leaver_information(email=leaver_info.leaver_email)
+
+        self.assertEqual(models.LeaverInformation.objects.count(), 1)
+        leaver_info = models.LeaverInformation.objects.first()
+        self.assertEqual(leaver_info.leaver_email, "joe.bloggs@example.com")
+
+    def test_get_leaver_information_other_information(self):
+        factories.LeaverInformationFactory.create_batch(5)
+
+        LeaverInformationMixin().get_leaver_information(email="joe.bloggs@example.com")
+
+        self.assertEqual(models.LeaverInformation.objects.count(), 6)
+        self.assertEqual(
+            models.LeaverInformation.objects.filter(
+                leaver_email="joe.bloggs@example.com"
+            ).count(),
+            1,
+        )
 
     """
     Tests for `get_leaver_details`
@@ -30,13 +64,13 @@ class TestLeaverDetailsMixin(TestCase):
     @mock.patch("leavers.views.leaver.search_people_finder", return_value=[])
     def test_get_leaver_details_no_results(self, mock_search_people_finder):
         with self.assertRaisesMessage(Exception, "Issue finding user in People Finder"):
-            LeaverDetailsMixin().get_leaver_details(email="")
+            LeaverInformationMixin().get_leaver_details(email="")
 
     @mock.patch(
         "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
     )
     def test_get_leaver_details_with_result(self, mock_search_people_finder):
-        leaver_details = LeaverDetailsMixin().get_leaver_details(email="")
+        leaver_details = LeaverInformationMixin().get_leaver_details(email="")
         self.assertEqual(
             leaver_details["first_name"], PEOPLE_FINDER_RESULT["first_name"]
         )
@@ -63,7 +97,7 @@ class TestLeaverDetailsMixin(TestCase):
         factories.LeaverInformationFactory(
             leaver_email="joe.bloggs@example.com", updates={"first_name": "Joey"}
         )
-        leaver_details = LeaverDetailsMixin().get_leaver_details(
+        leaver_details = LeaverInformationMixin().get_leaver_details(
             email="joe.bloggs@example.com"
         )
         self.assertNotEqual(leaver_details["first_name"], "Joey")
@@ -73,7 +107,7 @@ class TestLeaverDetailsMixin(TestCase):
     """
 
     def test_get_leaver_detail_updates_no_updates(self):
-        leaver_detail_updates = LeaverDetailsMixin().get_leaver_detail_updates(
+        leaver_detail_updates = LeaverInformationMixin().get_leaver_detail_updates(
             email="joe.bloggs@example.com"
         )
         self.assertEqual(leaver_detail_updates, {})
@@ -82,7 +116,7 @@ class TestLeaverDetailsMixin(TestCase):
         factories.LeaverInformationFactory(
             leaver_email="joe.bloggs@example.com", updates={"first_name": "Joey"}
         )
-        leaver_detail_updates = LeaverDetailsMixin().get_leaver_detail_updates(
+        leaver_detail_updates = LeaverInformationMixin().get_leaver_detail_updates(
             email="joe.bloggs@example.com"
         )
         self.assertEqual(leaver_detail_updates, {"first_name": "Joey"})
@@ -95,7 +129,7 @@ class TestLeaverDetailsMixin(TestCase):
         "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
     )
     def store_leaver_detail_updates_no_changes(self, mock_search_people_finder):
-        LeaverDetailsMixin().store_leaver_detail_updates(
+        LeaverInformationMixin().store_leaver_detail_updates(
             email="joe.bloggs@example.com", updates={}
         )
         self.assertEqual(
@@ -109,7 +143,7 @@ class TestLeaverDetailsMixin(TestCase):
         "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
     )
     def store_leaver_detail_updates_some_changes(self, mock_search_people_finder):
-        LeaverDetailsMixin().store_leaver_detail_updates(
+        LeaverInformationMixin().store_leaver_detail_updates(
             email="joe.bloggs@example.com", updates={"first_name": "Joey"}
         )
 
@@ -128,7 +162,7 @@ class TestLeaverDetailsMixin(TestCase):
     def test_get_leaver_details_with_updates_no_updates(
         self, mock_search_people_finder
     ):
-        leaver_details = LeaverDetailsMixin().get_leaver_details_with_updates(
+        leaver_details = LeaverInformationMixin().get_leaver_details_with_updates(
             email="joe.bloggs@example.com"
         )
         self.assertEqual(leaver_details["first_name"], "Joe")
@@ -142,33 +176,123 @@ class TestLeaverDetailsMixin(TestCase):
         factories.LeaverInformationFactory(
             leaver_email="joe.bloggs@example.com", updates={"first_name": "Joey"}
         )
-        leaver_details = LeaverDetailsMixin().get_leaver_details_with_updates(
+        leaver_details = LeaverInformationMixin().get_leaver_details_with_updates(
             email="joe.bloggs@example.com"
         )
         self.assertEqual(leaver_details["first_name"], "Joey")
 
     """
-    Tests for `has_required_leaver_details`
+    Tests for `store_leaving_date`
     """
 
-    # TODO: Remove skip when required_keys is defined
-    @skip
-    @mock.patch(
-        "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
-    )
-    def test_has_required_leaver_details(self, mock_search_people_finder):
-        # No details
-        self.assertFalse(
-            LeaverDetailsMixin().has_required_leaver_details(leaver_details={})
+    def test_store_leaving_date(self):
+        leaver_info = factories.LeaverInformationFactory(
+            leaver_email="joe.bloggs@example.com",
         )
-        # Some of the required details are missing
-        self.assertFalse(
-            LeaverDetailsMixin().has_required_leaver_details(leaver_details={})
+        LeaverInformationMixin().store_leaving_date(
+            email="joe.bloggs@example.com",
+            leaving_date=date(2021, 11, 30),
         )
-        # All of the required details are present
-        self.assertTrue(
-            LeaverDetailsMixin().has_required_leaver_details(leaver_details={})
+        leaver_info.refresh_from_db()
+        self.assertEqual(
+            leaver_info.leaving_date,
+            timezone.make_aware(datetime(2021, 11, 30)),
         )
+
+    """
+    Tests for `store_correction_information`
+    """
+
+    def test_store_correction_information(self):
+        leaver_info = factories.LeaverInformationFactory(
+            leaver_email="joe.bloggs@example.com"
+        )
+        LeaverInformationMixin().store_correction_information(
+            email="joe.bloggs@example.com",
+            information_is_correct=False,
+            additional_information="Test additional information",
+        )
+
+        leaver_info.refresh_from_db()
+        self.assertFalse(leaver_info.information_is_correct)
+        self.assertEqual(
+            leaver_info.additional_information, "Test additional information"
+        )
+
+        LeaverInformationMixin().store_correction_information(
+            email="joe.bloggs@example.com",
+            information_is_correct=True,
+            additional_information="",
+        )
+
+        leaver_info.refresh_from_db()
+        self.assertTrue(leaver_info.information_is_correct)
+        self.assertEqual(leaver_info.additional_information, "")
+
+    """
+    Tests for `store_return_option`
+    """
+
+    def test_store_return_option_home(self):
+        leaver_info = factories.LeaverInformationFactory(
+            leaver_email="joe.bloggs@example.com"
+        )
+        LeaverInformationMixin().store_return_option(
+            email="joe.bloggs@example.com", return_option=models.ReturnOption.HOME
+        )
+
+        leaver_info.refresh_from_db()
+        self.assertEqual(leaver_info.return_option, models.ReturnOption.HOME)
+
+    def test_store_return_option_office(self):
+        leaver_info = factories.LeaverInformationFactory(
+            leaver_email="joe.bloggs@example.com"
+        )
+        LeaverInformationMixin().store_return_option(
+            email="joe.bloggs@example.com", return_option=models.ReturnOption.OFFICE
+        )
+
+        leaver_info.refresh_from_db()
+        self.assertEqual(leaver_info.return_option, models.ReturnOption.OFFICE)
+
+    """
+    Tests for `store_return_information`
+    """
+
+    def test_store_return_information_no_address(self):
+        leaver_info = factories.LeaverInformationFactory(
+            leaver_email="joe.bloggs@example.com"
+        )
+        LeaverInformationMixin().store_return_information(
+            email="joe.bloggs@example.com",
+            personal_phone="0123451234",
+            contact_email="joe.bloggs.contact@example.com",
+            address=None,
+        )
+
+        leaver_info.refresh_from_db()
+        self.assertEqual(leaver_info.return_personal_phone, "0123451234")
+        self.assertEqual(
+            leaver_info.return_contact_email, "joe.bloggs.contact@example.com"
+        )
+
+    def test_store_return_information_with_address(self):
+        leaver_info = factories.LeaverInformationFactory(
+            leaver_email="joe.bloggs@example.com"
+        )
+        LeaverInformationMixin().store_return_information(
+            email="joe.bloggs@example.com",
+            personal_phone="0123451234",
+            contact_email="joe.bloggs.contact@example.com",
+            address="Test address",
+        )
+
+        leaver_info.refresh_from_db()
+        self.assertEqual(leaver_info.return_personal_phone, "0123451234")
+        self.assertEqual(
+            leaver_info.return_contact_email, "joe.bloggs.contact@example.com"
+        )
+        self.assertEqual(leaver_info.return_address, "Test address")
 
 
 @mock.patch(

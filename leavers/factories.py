@@ -3,7 +3,7 @@ import uuid
 import factory
 from factory.django import DjangoModelFactory
 
-from leavers import models
+from leavers import models, types
 from user.test.factories import UserFactory
 
 
@@ -20,4 +20,4 @@ class LeaverInformationFactory(DjangoModelFactory):
         model = models.LeaverInformation
 
     leaver_email = factory.Faker("email")
-    updates = {}
+    updates: types.LeaverDetailUpdates = {}

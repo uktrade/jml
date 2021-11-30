@@ -150,13 +150,13 @@ class LeaverInformationMixin:
     ):
         leaver_info = self.get_leaver_information(email=email)
         leaver_info.return_personal_phone = personal_phone
-        leaver_info.retrun_contact_email = contact_email
+        leaver_info.return_contact_email = contact_email
         if address:
             leaver_info.return_address = address
         leaver_info.save(
             update_fields=[
                 "return_personal_phone",
-                "retrun_contact_email",
+                "return_contact_email",
                 "return_address",
             ]
         )

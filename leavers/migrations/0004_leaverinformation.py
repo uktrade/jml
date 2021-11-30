@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                     models.CharField(blank=True, max_length=16, null=True),
                 ),
                 (
-                    "retrun_contact_email",
+                    "return_contact_email",
                     models.EmailField(blank=True, max_length=254, null=True),
                 ),
                 (
