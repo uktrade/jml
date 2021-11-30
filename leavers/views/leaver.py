@@ -113,18 +113,12 @@ class LeaverDetailsMixin:
 
     def store_leaving_date(self, email: str, leaving_date: date):
         """
-        Store the leaving date in the session.
+        Store the leaving date
         """
 
-        # Get the currently stored updates
         leaver_info = self.get_leaver_information(email=email)
-        updates = leaver_info.updates
-
-        # Add the leaving date
-        updates["leaving_date"] = str(leaving_date)
-        # Store the updates
-        leaver_info.updates = updates
-        leaver_info.save(update_fields=["updates"])
+        leaver_info.leaving_date = leaving_date
+        leaver_info.save(update_fields=["leaving_date"])
 
     def store_correction_information(
         self,
@@ -133,7 +127,7 @@ class LeaverDetailsMixin:
         additional_information: str,
     ):
         """
-        Store the Correction informatin
+        Store the Correction information
         """
 
         leaver_info = self.get_leaver_information(email=email)

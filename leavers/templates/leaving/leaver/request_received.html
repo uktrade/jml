@@ -3,4 +3,14 @@
 
 {% block content %}
     <h2 class="govuk-heading-m">Thank you, your requested will now be processed</h2>
+    <h2 class="govuk-heading-s">Debug stuff</h2>
+    <p>Email: {{ leaver_info.leaver_email }}</p>
+    <p>Updates: {{ leaver_info.updates }}</p>
+    <p>Leaving date: {{ leaver_info.leaving_date }}</p>
+    <p>Information is correct?: {{ leaver_info.information_is_correct }}</p>
+    <p>Additional information: {{ leaver_info.additional_information }}</p>
+    <p>Return option: {{ leaver_info.return_option }}</p>
+    <p>Return Phone: {{ leaver_info.return_personal_phone }}</p>
+    <p>Return email: {{ leaver_info.return_contact_email }}</p>
+    <p>Return address: {{ leaver_info.return_contact_address }}</p>
 {% endblock %}

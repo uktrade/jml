@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 
 class LeaverDetails(TypedDict):
