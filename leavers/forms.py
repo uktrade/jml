@@ -4,7 +4,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from core.forms import GovFormattedForm, GovFormattedModelForm
-from leavers.models import LeavingRequest
+from leavers.models import LeavingRequest, ReturnOptions
 from leavers.widgets import DateSelectorWidget
 
 
@@ -166,3 +166,26 @@ class CorrectionForm(GovFormattedForm):
         widget=forms.Textarea(),
         max_length=1000,
     )
+
+
+class ReturnOptionForm(GovFormattedForm):
+    return_option = forms.ChoiceField(
+        label="",
+        choices=ReturnOptions.choices,
+        widget=forms.RadioSelect(attrs={"class": "govuk-radios__input"}),
+    )
+
+
+class ReturnInformationForm(GovFormattedForm):
+    personal_phone = forms.CharField(label="Personal phone", max_length=16)
+    contact_email = forms.EmailField(label="Contact email for collection")
+    address = forms.CharField(
+        label="Collection Address",
+        widget=forms.Textarea,
+    )
+
+    def __init__(self, *args, hide_address: bool = False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if hide_address:
+            self.fields["address"].required = False
+            self.fields["address"].widget = forms.HiddenInput()

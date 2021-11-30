@@ -2,6 +2,7 @@ import uuid
 from datetime import date
 from typing import Any, Dict, List, Type, cast
 
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import Form
 from django.http.request import HttpRequest
@@ -17,7 +18,7 @@ from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
 from core.utils.people_finder import search_people_finder
 from leavers import forms, types
-from leavers.models import LeaverInformation
+from leavers.models import LeaverInformation, ReturnOptions
 from user.models import User
 
 
@@ -59,7 +60,7 @@ class LeaverDetailsMixin:
 
         # Store the updates
         leaver_info.updates = new_data
-        leaver_info.save()
+        leaver_info.save(update_fields=["updates"])
 
     def store_leaving_date(self, email: str, leaving_date: date):
         """
@@ -77,7 +78,7 @@ class LeaverDetailsMixin:
         updates["leaving_date"] = str(leaving_date)
         # Store the updates
         leaver_info.updates = updates
-        leaver_info.save()
+        leaver_info.save(update_fields=["updates"])
 
     def store_correction_information(
         self,
@@ -97,7 +98,12 @@ class LeaverDetailsMixin:
 
         leaver_info.information_is_correct = information_is_correct
         leaver_info.additional_information = additional_information
-        leaver_info.save()
+        leaver_info.save(
+            update_fields=[
+                "information_is_correct",
+                "additional_information",
+            ]
+        )
 
     def get_leaver_details(self, email: str) -> types.LeaverDetails:
         """
@@ -244,6 +250,7 @@ class UpdateDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
         return super().form_valid(form)
 
 
+@login_required
 def delete_kit(request: HttpRequest, kit_uuid: uuid.UUID):
     if "assets" in request.session:
         for asset in request.session["assets"]:
@@ -260,7 +267,7 @@ class KitView(LoginRequiredMixin, LeaverDetailsMixin, TemplateView):
         "correction_form": forms.CorrectionForm,
     }
     template_name = "leaving/leaver/kit.html"
-    success_url = reverse_lazy("leaver-request-received")
+    success_url = reverse_lazy("leaver-return-options")
 
     def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         asset = {
@@ -326,5 +333,57 @@ class KitView(LoginRequiredMixin, LeaverDetailsMixin, TemplateView):
         return context
 
 
-class RequestReceivedView(TemplateView):
+class EquipmentReturnOptions(LoginRequiredMixin, LeaverDetailsMixin, FormView):
+    template_name = "leaving/leaver/equipment_options.html"
+    form_class = forms.ReturnOptionForm
+    success_url = reverse_lazy("leaver-return-informaation")
+
+    def form_valid(self, form):
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
+        leaver_info = LeaverInformation.objects.get(leaver_email=user_email)
+        leaver_info.return_option = form.cleaned_data["return_option"]
+        leaver_info.save(update_fields=["return_option"])
+
+        return super().form_valid(form)
+
+
+class EquipmentReturnInformation(LoginRequiredMixin, LeaverDetailsMixin, FormView):
+    template_name = "leaving/leaver/equipment_information.html"
+    form_class = forms.ReturnInformationForm
+    success_url = reverse_lazy("leaver-request-received")
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
+        leaver_info = LeaverInformation.objects.get(leaver_email=user_email)
+        if leaver_info.return_option == ReturnOptions.OFFICE:
+            kwargs.update(hide_address=True)
+
+        return kwargs
+
+    def form_valid(self, form):
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
+        leaver_info = LeaverInformation.objects.get(leaver_email=user_email)
+        leaver_info.return_personal_phone = form.cleaned_data["personal_phone"]
+        leaver_info.retrun_contact_email = form.cleaned_data["contact_email"]
+        leaver_info.return_address = form.cleaned_data["address"]
+        leaver_info.save(
+            update_fields=[
+                "return_personal_phone",
+                "retrun_contact_email",
+                "return_address",
+            ]
+        )
+
+        return super().form_valid(form)
+
+
+class RequestReceivedView(LoginRequiredMixin, TemplateView):
     template_name = "leaving/leaver/request_received.html"

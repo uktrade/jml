@@ -1,0 +1,12 @@
+{% extends "leaving/leaving_base.html" %}
+{% load static %}
+
+{% block content %}
+    <h1 class="govuk-heading-l">Please provide contact information</h1>
+    {% include "includes/govt_error_summary.html" with errors=errors %}
+    <form novalidate method='post'>
+        {% csrf_token %}
+        {% include "includes/govt_uk_form.html" with form=form %}
+        <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
+    </form>
+{% endblock %}
