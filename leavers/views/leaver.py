@@ -23,87 +23,19 @@ from user.models import User
 
 
 class LeaverDetailsMixin:
-    def get_leaver_detail_updates(self, email: str) -> types.LeaverDetailUpdates:
+    def get_leaver_information(self, email: str) -> LeaverInformation:
         """
-        Get the stored updates for the Leaver.
-        Return an empty dict if there are no updates.
+        Get the Leaver information stored in the DB
+        Creates a new model if one doesn't exist.
         """
-        # Get any stored updates from the DB
-        try:
-            leaver_info = LeaverInformation.objects.get(leaver_email=email)
-        except LeaverInformation.DoesNotExist:
-            return {}
 
-        updates: types.LeaverDetailUpdates = leaver_info.updates
-        return updates
-
-    def store_leaver_detail_updates(
-        self, email: str, updates: types.LeaverDetailUpdates
-    ):
-        """
-        Store updates for the Leaver.
-        """
-        # Get any stored updates from the DB
         try:
             leaver_info = LeaverInformation.objects.get(leaver_email=email)
         except LeaverInformation.DoesNotExist:
             leaver_info = LeaverInformation.objects.create(
                 leaver_email=email, updates={}
             )
-
-        # Work out what information is new and only store that.
-        existing_data = self.get_leaver_details(email=email)
-        new_data: types.LeaverDetailUpdates = {}
-        for key, value in updates.items():
-            if key not in existing_data or existing_data.get(key) != value:
-                new_data[key] = value  # type: ignore
-
-        # Store the updates
-        leaver_info.updates = new_data
-        leaver_info.save(update_fields=["updates"])
-
-    def store_leaving_date(self, email: str, leaving_date: date):
-        """
-        Store the leaving date in the session.
-        """
-        try:
-            leaver_info = LeaverInformation.objects.get(leaver_email=email)
-        except LeaverInformation.DoesNotExist:
-            leaver_info = LeaverInformation.objects.create(
-                leaver_email=email, updates={}
-            )
-        # Get the currently stored updates
-        updates = leaver_info.updates
-        # Add the leaving date
-        updates["leaving_date"] = str(leaving_date)
-        # Store the updates
-        leaver_info.updates = updates
-        leaver_info.save(update_fields=["updates"])
-
-    def store_correction_information(
-        self,
-        email: str,
-        information_is_correct: bool,
-        additional_information: str,
-    ):
-        """
-        Store the Correction informatin
-        """
-        try:
-            leaver_info = LeaverInformation.objects.get(leaver_email=email)
-        except LeaverInformation.DoesNotExist:
-            leaver_info = LeaverInformation.objects.create(
-                leaver_email=email, updates={}
-            )
-
-        leaver_info.information_is_correct = information_is_correct
-        leaver_info.additional_information = additional_information
-        leaver_info.save(
-            update_fields=[
-                "information_is_correct",
-                "additional_information",
-            ]
-        )
+        return leaver_info
 
     def get_leaver_details(self, email: str) -> types.LeaverDetails:
         """
@@ -144,19 +76,75 @@ class LeaverDetailsMixin:
             return leaver_details
         raise Exception("Issue finding user in People Finder")
 
+    def get_leaver_detail_updates(self, email: str) -> types.LeaverDetailUpdates:
+        """
+        Get the stored updates for the Leaver.
+        """
+
+        leaver_info = self.get_leaver_information(email=email)
+        updates: types.LeaverDetailUpdates = leaver_info.updates
+        return updates
+
+    def store_leaver_detail_updates(
+        self, email: str, updates: types.LeaverDetailUpdates
+    ):
+        """
+        Store updates for the Leaver.
+        """
+
+        leaver_info = self.get_leaver_information(email=email)
+
+        # Work out what information is new and only store that.
+        existing_data = self.get_leaver_details(email=email)
+        new_data: types.LeaverDetailUpdates = {}
+        for key, value in updates.items():
+            if key not in existing_data or existing_data.get(key) != value:
+                new_data[key] = value  # type: ignore
+
+        # Store the updates
+        leaver_info.updates = new_data
+        leaver_info.save(update_fields=["updates"])
+
     def get_leaver_details_with_updates(self, email: str) -> types.LeaverDetails:
         leaver_details = self.get_leaver_details(email=email)
         leaver_details_updates = self.get_leaver_detail_updates(email=email)
         leaver_details.update(**leaver_details_updates)  # type: ignore
         return leaver_details
 
-    def has_required_leaver_details(self, leaver_details: types.LeaverDetails) -> bool:
+    def store_leaving_date(self, email: str, leaving_date: date):
         """
-        Check if the leaver details are complete.
+        Store the leaving date in the session.
         """
 
-        leaver_update_form = forms.LeaverUpdateForm(data=leaver_details)
-        return leaver_update_form.is_valid()
+        # Get the currently stored updates
+        leaver_info = self.get_leaver_information(email=email)
+        updates = leaver_info.updates
+
+        # Add the leaving date
+        updates["leaving_date"] = str(leaving_date)
+        # Store the updates
+        leaver_info.updates = updates
+        leaver_info.save(update_fields=["updates"])
+
+    def store_correction_information(
+        self,
+        email: str,
+        information_is_correct: bool,
+        additional_information: str,
+    ):
+        """
+        Store the Correction informatin
+        """
+
+        leaver_info = self.get_leaver_information(email=email)
+        leaver_info.information_is_correct = information_is_correct
+        leaver_info.additional_information = additional_information
+        leaver_info.save(
+            update_fields=[
+                "information_is_correct",
+                "additional_information",
+            ]
+        )
 
     def submit_to_service_now(self):
         service_now_interface = get_service_now_interface()
@@ -200,7 +188,7 @@ class ConfirmDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
         # Build a list of errors to present to the user.
         errors: List[str] = []
         # Add an error message if the required details are missing
-        if not self.has_required_leaver_details(leaver_details=leaver_details):
+        if not forms.LeaverUpdateForm(data=leaver_details).is_valid():
             edit_path = reverse("leaver-update-details")
             errors.append(
                 mark_safe(
@@ -227,7 +215,7 @@ class ConfirmDetailsView(LoginRequiredMixin, LeaverDetailsMixin, FormView):
 
         # Get the person details with the updates.
         leaver_details = self.get_leaver_details_with_updates(email=user_email)
-        if self.has_required_leaver_details(leaver_details):
+        if forms.LeaverUpdateForm(data=leaver_details).is_valid():
             return super().form_valid(form)
         return self.form_invalid(form)
 
@@ -385,5 +373,10 @@ class EquipmentReturnInformation(LoginRequiredMixin, LeaverDetailsMixin, FormVie
         return super().form_valid(form)
 
 
-class RequestReceivedView(LoginRequiredMixin, TemplateView):
+class RequestReceivedView(LoginRequiredMixin, LeaverDetailsMixin, TemplateView):
     template_name = "leaving/leaver/request_received.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update("leaver_info", self.get_leaver_info())")
+        return context
