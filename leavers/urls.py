@@ -46,7 +46,7 @@ urlpatterns = [
     ),
     path(
         "leaver/return/",
-        leaver_views.EquipmentReturnOptions.as_view(),
+        leaver_views.EquipmentReturnOption.as_view(),
         name="leaver-return-options",
     ),
     path(

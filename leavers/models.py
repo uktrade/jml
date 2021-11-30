@@ -133,7 +133,7 @@ class SlackMessage(models.Model):
     )
 
 
-class ReturnOptions(TextChoices):
+class ReturnOption(TextChoices):
     OFFICE = "office", "Return at the office"
     HOME = "home", "Collection from home"
 
@@ -145,7 +145,7 @@ class LeaverInformation(models.Model):
     leaving_date = models.DateTimeField(null=True, blank=True)
     information_is_correct = models.BooleanField(null=True)
     additional_information = models.CharField(max_length=1000)
-    return_option = models.CharField(max_length=10, choices=ReturnOptions.choices)
+    return_option = models.CharField(max_length=10, choices=ReturnOption.choices)
     return_personal_phone = models.CharField(max_length=16, null=True, blank=True)
     retrun_contact_email = models.EmailField(null=True, blank=True)
     return_address = models.CharField(max_length=1000, null=True, blank=True)

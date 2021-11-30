@@ -1,6 +1,6 @@
 import uuid
 from datetime import date
-from typing import Any, Dict, List, Type, cast
+from typing import Any, Dict, List, Optional, Type, cast
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -18,7 +18,7 @@ from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
 from core.utils.people_finder import search_people_finder
 from leavers import forms, types
-from leavers.models import LeaverInformation, ReturnOptions
+from leavers.models import LeaverInformation, ReturnOption
 from user.models import User
 
 
@@ -143,6 +143,27 @@ class LeaverDetailsMixin:
             update_fields=[
                 "information_is_correct",
                 "additional_information",
+            ]
+        )
+
+    def store_return_option(self, email: str, return_option: ReturnOption):
+        leaver_info = self.get_leaver_information(email=email)
+        leaver_info.return_option = return_option
+        leaver_info.save(update_fields=["return_option"])
+
+    def store_return_information(
+        self, email, personal_phone: str, contact_email: str, address: Optional[str]
+    ):
+        leaver_info = self.get_leaver_information(email=email)
+        leaver_info.return_personal_phone = personal_phone
+        leaver_info.retrun_contact_email = contact_email
+        if address:
+            leaver_info.return_address = address
+        leaver_info.save(
+            update_fields=[
+                "return_personal_phone",
+                "retrun_contact_email",
+                "return_address",
             ]
         )
 
@@ -321,7 +342,7 @@ class KitView(LoginRequiredMixin, LeaverDetailsMixin, TemplateView):
         return context
 
 
-class EquipmentReturnOptions(LoginRequiredMixin, LeaverDetailsMixin, FormView):
+class EquipmentReturnOption(LoginRequiredMixin, LeaverDetailsMixin, FormView):
     template_name = "leaving/leaver/equipment_options.html"
     form_class = forms.ReturnOptionForm
     success_url = reverse_lazy("leaver-return-informaation")
@@ -330,9 +351,10 @@ class EquipmentReturnOptions(LoginRequiredMixin, LeaverDetailsMixin, FormView):
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
 
-        leaver_info = LeaverInformation.objects.get(leaver_email=user_email)
-        leaver_info.return_option = form.cleaned_data["return_option"]
-        leaver_info.save(update_fields=["return_option"])
+        self.store_return_option(
+            email=user_email,
+            return_option=form.cleaned_data["return_option"],
+        )
 
         return super().form_valid(form)
 
@@ -348,8 +370,8 @@ class EquipmentReturnInformation(LoginRequiredMixin, LeaverDetailsMixin, FormVie
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
 
-        leaver_info = LeaverInformation.objects.get(leaver_email=user_email)
-        if leaver_info.return_option == ReturnOptions.OFFICE:
+        leaver_info = self.get_leaver_information(email=user_email)
+        if leaver_info.return_option == ReturnOption.OFFICE:
             kwargs.update(hide_address=True)
 
         return kwargs
@@ -358,16 +380,11 @@ class EquipmentReturnInformation(LoginRequiredMixin, LeaverDetailsMixin, FormVie
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
 
-        leaver_info = LeaverInformation.objects.get(leaver_email=user_email)
-        leaver_info.return_personal_phone = form.cleaned_data["personal_phone"]
-        leaver_info.retrun_contact_email = form.cleaned_data["contact_email"]
-        leaver_info.return_address = form.cleaned_data["address"]
-        leaver_info.save(
-            update_fields=[
-                "return_personal_phone",
-                "retrun_contact_email",
-                "return_address",
-            ]
+        self.store_return_information(
+            email=user_email,
+            personal_phone=form.cleaned_data["personal_phone"],
+            contact_email=form.cleaned_data["contact_email"],
+            address=form.cleaned_data["address"],
         )
 
         return super().form_valid(form)
@@ -377,6 +394,9 @@ class RequestReceivedView(LoginRequiredMixin, LeaverDetailsMixin, TemplateView):
     template_name = "leaving/leaver/request_received.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
         context = super().get_context_data(**kwargs)
-        context.update("leaver_info", self.get_leaver_info())")
+        context.update(leaver_info=self.get_leaver_information(email=user_email))
         return context

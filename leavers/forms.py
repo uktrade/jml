@@ -4,7 +4,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 from core.forms import GovFormattedForm, GovFormattedModelForm
-from leavers.models import LeavingRequest, ReturnOptions
+from leavers.models import LeavingRequest, ReturnOption
 from leavers.widgets import DateSelectorWidget
 
 
@@ -171,7 +171,7 @@ class CorrectionForm(GovFormattedForm):
 class ReturnOptionForm(GovFormattedForm):
     return_option = forms.ChoiceField(
         label="",
-        choices=ReturnOptions.choices,
+        choices=ReturnOption.choices,
         widget=forms.RadioSelect(attrs={"class": "govuk-radios__input"}),
     )
 
