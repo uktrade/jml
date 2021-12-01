@@ -1,6 +1,8 @@
 {% extends "leaving/leaving_base.html" %}
 
 {% block content %}
+    <h1 class="govuk-heading-l">Please remove access from the following tools and services for {{ leaver_name }}{% if leaving_date %} on {{ leaving_date }}{% endif %}.</h1>
+    <p class="govuk-body">Check the box to confirm removal from:</p>
     <form novalidate method='post'>
         <fieldset class="govuk-fieldset">
             {% csrf_token %}
