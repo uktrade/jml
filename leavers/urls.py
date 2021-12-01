@@ -46,13 +46,13 @@ urlpatterns = [
     ),
     path(
         "leaver/return/",
-        leaver_views.EquipmentReturnOptions.as_view(),
+        leaver_views.EquipmentReturnOptionsView.as_view(),
         name="leaver-return-options",
     ),
     path(
         "leaver/return-information/",
-        leaver_views.EquipmentReturnInformation.as_view(),
-        name="leaver-return-informaation",
+        leaver_views.EquipmentReturnInformationView.as_view(),
+        name="leaver-return-information",
     ),
     path(
         "leaver/request-received/",

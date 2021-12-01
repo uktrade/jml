@@ -273,13 +273,19 @@ class KitView(LoginRequiredMixin, LeaverInformationMixin, TemplateView):
     success_url = reverse_lazy("leaver-return-options")
 
     def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
+        session = request.session
+        if "assets" not in session:
+            session["assets"] = []
+
+        # Add asset to session
         asset = {
             "uuid": str(uuid.uuid4()),
             "tag": None,
             "name": form.cleaned_data["asset_name"],
         }
-        request.session["assets"].append(asset)
-        request.session.save()
+        session["assets"].append(asset)
+        session.save()
+
         # Redirect to the GET method
         return redirect("leaver-kit")
 
@@ -331,15 +337,15 @@ class KitView(LoginRequiredMixin, LeaverInformationMixin, TemplateView):
         # Add form instances to the context.
         for form_name, form_class in self.forms.items():
             context[form_name] = form_class()
-        context["assets"] = self.request.session["assets"]
-
+        if "assets" in self.request.session:
+            context["assets"] = self.request.session["assets"]
         return context
 
 
-class EquipmentReturnOptions(LoginRequiredMixin, LeaverInformationMixin, FormView):
+class EquipmentReturnOptionsView(LoginRequiredMixin, LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/equipment_options.html"
     form_class = forms.ReturnOptionForm
-    success_url = reverse_lazy("leaver-return-informaation")
+    success_url = reverse_lazy("leaver-return-information")
 
     def form_valid(self, form):
         user = cast(User, self.request.user)
@@ -353,7 +359,9 @@ class EquipmentReturnOptions(LoginRequiredMixin, LeaverInformationMixin, FormVie
         return super().form_valid(form)
 
 
-class EquipmentReturnInformation(LoginRequiredMixin, LeaverInformationMixin, FormView):
+class EquipmentReturnInformationView(
+    LoginRequiredMixin, LeaverInformationMixin, FormView
+):
     template_name = "leaving/leaver/equipment_information.html"
     form_class = forms.ReturnInformationForm
     success_url = reverse_lazy("leaver-request-received")

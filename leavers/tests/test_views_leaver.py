@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from core.service_now.interfaces import ServiceNowStubbed
 from leavers import factories, models, types
 from leavers.views.leaver import LeaverInformationMixin
 from user.test.factories import UserFactory
@@ -575,11 +576,129 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(leaver_updates["work_email"], user.email)
 
 
-# TODO: Add tests for the following:
-# - KitView
-# - EquipmentReturnOptions
-# - EquipmentReturnInformation
-# - RequestReceivedView
+class TestKitView(TestCase):
+    view_name = "leaver-kit"
+
+    def test_unauthenticated_user(self):
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_authenticated_user(self):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 200)
+
+    def initiate_session(self):
+        session = self.client.session
+        if "assets" not in self.client.session:
+            session["assets"] = []
+            session.save()
+        return session
+
+    def add_kit_to_session(self, asset_name: str, asset_tag: str) -> uuid.UUID:
+        session = self.initiate_session()
+
+        asset_uuid = uuid.uuid4()
+        session["assets"].append(
+            {
+                "uuid": str(asset_uuid),
+                "tag": asset_tag,
+                "name": asset_name,
+            }
+        )
+        session.save()
+        return asset_uuid
+
+    @mock.patch("leavers.views.leaver.get_service_now_interface")
+    def test_with_assets_in_session(self, mock_get_service_now_interface):
+        mock_get_service_now_interface.get_assets_for_user.return_value = []
+
+        user = UserFactory()
+        self.client.force_login(user)
+
+        self.add_kit_to_session("Test Asset 1", "Test Tag 1")
+        self.add_kit_to_session("Test Asset 2", "Test Tag 2")
+        self.add_kit_to_session("Test Asset 3", "Test Tag 3")
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Test Asset 1")
+        self.assertContains(response, "Test Tag 1")
+        self.assertContains(response, "Test Asset 2")
+        self.assertContains(response, "Test Tag 2")
+        self.assertContains(response, "Test Asset 3")
+        self.assertContains(response, "Test Tag 3")
+
+    @mock.patch(
+        "leavers.views.leaver.get_service_now_interface",
+        return_value=ServiceNowStubbed(),
+    )
+    def test_with_assets_from_service_now(self, mock_get_service_now_interface):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["assets"][0]["name"], "Asset 1")
+        self.assertEqual(response.context["assets"][0]["tag"], "1")
+
+    def test_post_no_form_name(self):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        with self.assertNumQueries(3):
+            response = self.client.post(reverse(self.view_name), {})
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_add_asset_form(self):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse(self.view_name),
+            {
+                "form_name": "add_asset_form",
+                "asset_name": "Test Asset",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse(self.view_name))
+
+        session_assets = response.client.session["assets"]
+        self.assertEqual(len(session_assets), 1)
+
+    @mock.patch(
+        "leavers.views.leaver.LeaverInformationMixin.store_correction_information"
+    )
+    def test_post_correction_form(self, mock_store_correction_information):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse(self.view_name),
+            {
+                "form_name": "correction_form",
+                "is_correct": "yes",
+                "whats_incorrect": "Some additional information",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-return-options"))
+
+        mock_store_correction_information.assert_called_once_with(
+            email=user.email,
+            information_is_correct=True,
+            additional_information="Some additional information",
+        )
 
 
 class TestDeleteKitView(TestCase):
@@ -599,20 +718,22 @@ class TestDeleteKitView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("leaver-kit"))
 
-    def add_kit_to_session(self, asset_name: str, asset_tag: str) -> uuid.UUID:
-        user = UserFactory()
-        self.client.force_login(user)
-
+    def initiate_session(self):
         session = self.client.session
         if "assets" not in self.client.session:
             session["assets"] = []
+            session.save()
+        return session
+
+    def add_kit_to_session(self, asset_name: str, asset_tag: str) -> uuid.UUID:
+        session = self.initiate_session()
 
         asset_uuid = uuid.uuid4()
         session["assets"].append(
             {
                 "uuid": str(asset_uuid),
-                "asset_tag": asset_tag,
-                "asset_name": asset_name,
+                "tag": asset_tag,
+                "name": asset_name,
             }
         )
         session.save()
@@ -625,7 +746,7 @@ class TestDeleteKitView(TestCase):
         asset_uuid = self.add_kit_to_session("Test Asset 1", "Test Tag 1")
 
         response = self.client.get(reverse(self.view_name, args=[str(asset_uuid)]))
-        session = self.client.session
+        session = response.client.session
         session_assets = session["assets"]
 
         self.assertEqual(response.status_code, 302)
@@ -639,10 +760,147 @@ class TestDeleteKitView(TestCase):
         asset_uuid = self.add_kit_to_session("Test Asset 1", "Test Tag 1")
 
         response = self.client.get(reverse(self.view_name, args=[str(uuid.uuid4())]))
-        session = self.client.session
+        session = response.client.session
         session_assets = session["assets"]
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("leaver-kit"))
         self.assertEqual(len(session_assets), 1)
         self.assertEqual(session_assets[0]["uuid"], str(asset_uuid))
+
+
+class TestEquipmentReturnOptionsView(TestCase):
+    view_name = "leaver-return-options"
+
+    def test_unauthenticated_user(self):
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_authenticated_user(self):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_option")
+    def test_post_home(self, mock_store_return_option):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse(self.view_name),
+            {
+                "return_option": models.ReturnOption.HOME,
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-return-information"))
+        mock_store_return_option.assert_called_once_with(
+            email=user.email,
+            return_option=models.ReturnOption.HOME,
+        )
+
+    @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_option")
+    def test_post_office(self, mock_store_return_option):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse(self.view_name),
+            {
+                "return_option": models.ReturnOption.OFFICE,
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-return-information"))
+        mock_store_return_option.assert_called_once_with(
+            email=user.email,
+            return_option=models.ReturnOption.OFFICE,
+        )
+
+    @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_option")
+    def test_post_empty(self, mock_store_return_option):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.post(reverse(self.view_name), {})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["form"].errors,
+            {"return_option": ["This field is required."]},
+        )
+
+
+class TestEquipmentReturnInformationView(TestCase):
+    view_name = "leaver-return-information"
+
+    def test_unauthenticated_user(self):
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_authenticated_user(self):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_home(self):
+        user = UserFactory()
+        self.client.force_login(user)
+        factories.LeaverInformationFactory(
+            leaver_email=user.email,
+            return_option=models.ReturnOption.HOME,
+        )
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 200)
+        context_form = response.context["form"]
+        self.assertTrue(context_form.fields["address"].required)
+
+    def test_office(self):
+        user = UserFactory()
+        self.client.force_login(user)
+        factories.LeaverInformationFactory(
+            leaver_email=user.email,
+            return_option=models.ReturnOption.OFFICE,
+        )
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 200)
+        context_form = response.context["form"]
+        self.assertFalse(context_form.fields["address"].required)
+
+    @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_information")
+    def test_post(self, mock_store_return_information):
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse(self.view_name),
+            {
+                "personal_phone": "0123123123",
+                "contact_email": "joe.bloggs@example.com",
+                "address": "Test Address",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-request-received"))
+
+        mock_store_return_information.assert_called_once_with(
+            email=user.email,
+            personal_phone="0123123123",
+            contact_email="joe.bloggs@example.com",
+            address="Test Address",
+        )
