@@ -2,6 +2,7 @@ import uuid
 
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models.enums import TextChoices
 
 
 class TaskLog(models.Model):
@@ -132,7 +133,19 @@ class SlackMessage(models.Model):
     )
 
 
-class LeaverUpdates(models.Model):
+class ReturnOption(TextChoices):
+    OFFICE = "office", "Return at the office"
+    HOME = "home", "Collection from home"
+
+
+class LeaverInformation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     leaver_email = models.EmailField(unique=True)
     updates = models.JSONField()
+    leaving_date = models.DateTimeField(null=True, blank=True)
+    information_is_correct = models.BooleanField(null=True)
+    additional_information = models.CharField(max_length=1000)
+    return_option = models.CharField(max_length=10, choices=ReturnOption.choices)
+    return_personal_phone = models.CharField(max_length=16, null=True, blank=True)
+    return_contact_email = models.EmailField(null=True, blank=True)
+    return_address = models.CharField(max_length=1000, null=True, blank=True)

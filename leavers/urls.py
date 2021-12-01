@@ -45,6 +45,16 @@ urlpatterns = [
         name="leaver-kit-delete",
     ),
     path(
+        "leaver/return/",
+        leaver_views.EquipmentReturnOptionsView.as_view(),
+        name="leaver-return-options",
+    ),
+    path(
+        "leaver/return-information/",
+        leaver_views.EquipmentReturnInformationView.as_view(),
+        name="leaver-return-information",
+    ),
+    path(
         "leaver/request-received/",
         leaver_views.RequestReceivedView.as_view(),
         name="leaver-request-received",
