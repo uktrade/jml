@@ -51,6 +51,7 @@ django==3.2.8
     #   django-staff-sso-client
     #   django-timezone-field
     #   django-workflow-engine
+    #   djangorestframework
 django-appconf==1.0.5
     # via django-compressor
 django-audit-log-middleware==0.0.4
@@ -78,6 +79,8 @@ django-staff-sso-client==3.1.1
 django-timezone-field==4.2.1
     # via django-celery-beat
 django-workflow-engine==0.0.18
+    # via -r requirements.in/base.in
+djangorestframework==3.12.4
     # via -r requirements.in/base.in
 gevent==20.6.2
     # via -r requirements.in/prod.in
@@ -160,7 +163,7 @@ waitress==2.0.0
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2.0
+whitenoise==5.2
     # via -r requirements.in/base.in
 yarl==1.7.0
     # via aiohttp

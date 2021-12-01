@@ -25,13 +25,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "sass_processor",
-    "leavers",
-    "user",
-    "core",
-    "authbroker_client",
     "django_workflow_engine",
     "django_celery_beat",
     "django_celery_results",
+    "authbroker_client",
+    "rest_framework",
+    "leavers",
+    "user",
+    "core",
+    "api",
 ]
 
 ROOT_URLCONF = "config.urls"
