@@ -1,32 +1,43 @@
 from django.conf import settings
 from django.shortcuts import reverse
-
 from slack_sdk.web.slack_response import SlackResponse
 
 from core.utils.slack import FailedToSendSlackMessage, send_slack_message
+from leavers.models import LeavingRequest
 
 
 class FailedToSendSREAlertMessage(Exception):
     pass
 
 
-def send_sre_alert_message(*, leaving_request: object) -> SlackResponse:
+def send_sre_alert_message(*, leaving_request: LeavingRequest) -> SlackResponse:
     if not settings.SLACK_SRE_CHANNEL_ID:
         raise FailedToSendSREAlertMessage("SLACK_SRE_CHANNEL_ID is not set")
 
     try:
         leaving_request_path = reverse(
-            "sre-confirmation",
-            kwargs={"leaving_request_id": leaving_request.uuid}
+            "sre-confirmation", kwargs={"leaving_request_id": leaving_request.uuid}
         )
 
-        message_content = (
-            f"Please carry out leaving tasks for "
-            f"{leaving_request.leaver_first_name} "
-            f"{leaving_request.leaver_last_name}. "
-            f"Please visit {settings.SITE_URL}{leaving_request_path} to update "
-            "the status of these tasks."
+        leaver_name = (
+            f"{leaving_request.leaver.first_name} {leaving_request.leaver.last_name}"
         )
+
+        if leaving_request.leaving_date:
+            leaving_date = leaving_request.leaving_date.strftime("%d/%m/%Y")
+
+            message_content = (
+                f"{leaver_name} is leaving DIT on the {leaving_date}, please remove their "
+                "access from tools and services. Confirm removal on "
+                f"{settings.SITE_URL}{leaving_request_path}."
+            )
+        else:
+            # TODO: Discuss this messaging?
+            message_content = (
+                f"{leaver_name} is leaving DIT, please remove their "
+                "access from tools and services. Confirm removal on "
+                f"{settings.SITE_URL}{leaving_request_path}."
+            )
 
         return send_slack_message(
             channel_id=settings.SLACK_SRE_CHANNEL_ID,
@@ -40,14 +51,20 @@ class FailedToSendSRECompleteMessage(Exception):
     pass
 
 
-def send_sre_complete_message(*, thread_ts: str) -> SlackResponse:
+def send_sre_complete_message(
+    *, thread_ts: str, leaving_request: LeavingRequest
+) -> SlackResponse:
     if not settings.SLACK_SRE_CHANNEL_ID:
         raise FailedToSendSRECompleteMessage("SLACK_SRE_CHANNEL_ID is not set")
+
+    leaver_name = (
+        f"{leaving_request.leaver.first_name} {leaving_request.leaver.last_name}"
+    )
 
     try:
         return send_slack_message(
             channel_id=settings.SLACK_SRE_CHANNEL_ID,
-            message_content="SRE Complete message",
+            message_content=f"Thank you for completing the SRE leaving process for {leaver_name}",
             thread_ts=thread_ts,
         )
     except FailedToSendSlackMessage:
