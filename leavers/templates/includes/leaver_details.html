@@ -12,7 +12,7 @@
                             Name
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            {{ leaver_details.first_name }} {{ leaver_details.last_name }}
+                            {{ leaver_details.name }}
                         </dd>
                     </div>
                     <div class="govuk-summary-list__row">
@@ -28,7 +28,7 @@
                             Email
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            {% firstof leaver_details.personal_email "Not provided" %}
+                            {% firstof leaver_details.email "Not provided" %}
                         </dd>
                     </div>
                     <div class="govuk-summary-list__row">
@@ -36,7 +36,7 @@
                             Phone
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            {% firstof leaver_details.personal_phone "Not provided" %}
+                            {% firstof leaver_details.phone "Not provided" %}
                         </dd>
                     </div>
                     <div class="govuk-summary-list__row">

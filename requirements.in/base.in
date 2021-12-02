@@ -21,3 +21,7 @@ django-celery-beat
 django-celery-results
 redis
 djangorestframework
+# Elastic Search
+elasticsearch
+elasticsearch-dsl
+django-elasticsearch-dsl

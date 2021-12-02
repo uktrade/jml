@@ -9,7 +9,7 @@ from django.conf import settings
 CONTENT_TYPE = "application/json"
 
 
-def search_people_finder(search_term):
+def get_search_results(search_term):
     safe_search_term = urllib.parse.quote_plus(search_term)
     url = f"{settings.PEOPLE_FINDER_URL}/api/people-search/?search_query={safe_search_term}"
     sender = Sender(

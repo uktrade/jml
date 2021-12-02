@@ -16,13 +16,16 @@ from django.views.generic.edit import FormView
 
 from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
-from core.utils.people_finder import search_people_finder
+from core.people_finder import get_people_finder_interface
+
 from leavers import forms, types
 from leavers.models import LeaverInformation, ReturnOption
 from user.models import User
 
 
 class LeaverInformationMixin:
+    people_finder_search = get_people_finder_interface()
+
     def get_leaver_information(self, email: str) -> LeaverInformation:
         """
         Get the Leaver information stored in the DB
@@ -42,8 +45,9 @@ class LeaverInformationMixin:
         Get the Leaver details from People Finder
         Raises an exception People Finder doesn't return a result.
         """
-
-        people_finder_results = search_people_finder(search_term=email)
+        people_finder_results = self.people_finder_search.get_search_results(
+            search_term=email,
+        )
         if len(people_finder_results) > 0:
             person = people_finder_results[0]
 
