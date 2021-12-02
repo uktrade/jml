@@ -2,7 +2,7 @@
     {{ field }}
 {% else %}
     <div class="govuk-form-group{% if field.errors %} govuk-form-group--error{% endif %}">
-        {% if field.label %}
+        {% if field.label and field.field.widget.input_type != "checkbox" %}
             <label class="govuk-label" for="{{ field.name }}">
                 {{ field.label }}{% if field.field.required == False %} (optional){% endif %}
             </label>

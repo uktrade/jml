@@ -38,7 +38,9 @@ def send_slack_message(
     # Post a message to the Channel
     try:
         thread_response = client.chat_postMessage(
-            channel=channel_id, text=message_content, thread_ts=thread_ts,
+            channel=channel_id,
+            text=message_content,
+            thread_ts=thread_ts,
         )
     except SlackApiError:
         raise FailedToSendSlackMessage("Unexpected error communicating with Slack API")

@@ -20,11 +20,11 @@ def send_sre_alert_message(*, leaving_request: LeavingRequest) -> SlackResponse:
         )
 
         leaver_name = (
-            f"{leaving_request.leaver.first_name} {leaving_request.leaver.last_name}"
+            f"{leaving_request.leaver_first_name} {leaving_request.leaver_last_name}"
         )
 
-        if leaving_request.leaving_date:
-            leaving_date = leaving_request.leaving_date.strftime("%d/%m/%Y")
+        if leaving_request.last_day:
+            leaving_date = leaving_request.last_day.strftime("%d/%m/%Y")
 
             message_content = (
                 f"{leaver_name} is leaving DIT on the {leaving_date}, please remove their "
@@ -58,7 +58,7 @@ def send_sre_complete_message(
         raise FailedToSendSRECompleteMessage("SLACK_SRE_CHANNEL_ID is not set")
 
     leaver_name = (
-        f"{leaving_request.leaver.first_name} {leaving_request.leaver.last_name}"
+        f"{leaving_request.leaver_first_name} {leaving_request.leaver_last_name}"
     )
 
     try:
