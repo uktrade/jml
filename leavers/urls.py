@@ -66,7 +66,7 @@ urlpatterns = [
         name="sre-confirmation",
     ),
     path(
-        "leaver/sre/thank-you/",
+        "leaver/sre/thank-you/<uuid:leaving_request_id>/",
         sre_views.ThankYouView.as_view(),
         name="sre-thank-you",
     ),
