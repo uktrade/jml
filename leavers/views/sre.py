@@ -18,7 +18,6 @@ class TaskConfirmationView(
 ):
     template_name = "leaving/task_form.html"
     form_class = SREConfirmCompleteForm
-    success_url = reverse_lazy("sre-thank-you")
     leaving_request = None
 
     def test_func(self):
@@ -32,6 +31,9 @@ class TaskConfirmationView(
             uuid=self.kwargs.get("leaving_request_id", None),
         )
         return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self) -> str:
+        return reverse_lazy("sre-thank-you", args=[self.leaving_request.uuid])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -80,8 +82,16 @@ class TaskConfirmationView(
 class ThankYouView(TemplateView):
     template_name = "leaving/sre_thank_you.html"
 
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest,
+            uuid=self.kwargs.get("leaving_request_id", None),
+        )
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # TODO: get the Leaver's name
-        context.update(leaver_name="[Leaver Name]")
+        leaver_first_name = self.leaving_request.leaver_first_name
+        leaver_last_name = self.leaving_request.leaver_last_name
+        context.update(leaver_name=f"{leaver_first_name} {leaver_last_name}")
         return context
