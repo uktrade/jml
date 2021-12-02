@@ -7,6 +7,9 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 from django_log_formatter_ecs import ECSFormatter
 
+# SSO requirement
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # X_ROBOTS_TAG (https://man.uktrade.io/docs/procedures/1st-go-live.html)
 X_ROBOTS_TAG = [
     'noindex',
