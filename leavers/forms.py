@@ -1,10 +1,11 @@
 import datetime
-from typing import Dict
+from typing import Dict, List
 
 from django import forms
 from django.core.exceptions import ValidationError
 
 from core.forms import GovFormattedForm, GovFormattedModelForm
+from core.service_now import get_service_now_interface
 from leavers.models import LeavingRequest, ReturnOption
 from leavers.widgets import DateSelectorWidget
 
@@ -156,11 +157,36 @@ class LeaverUpdateForm(GovFormattedForm):
     # Professional details
     grade = forms.CharField(label="Grade")
     job_title = forms.CharField(label="Job title")
-    directorate = forms.CharField(label="Directorate")
-    department = forms.CharField(label="Department")
+    directorate = forms.ChoiceField(label="Directorate", choices=[])
+    department = forms.ChoiceField(label="Department", choices=[])
     work_email = forms.EmailField(label="Email")
-    manager = forms.CharField(label="Manager")
+    manager = forms.ChoiceField(label="Manager", choices=[])
     staff_id = forms.CharField(label="Staff ID")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        service_now_interface = get_service_now_interface()
+        service_now_directorates = service_now_interface.get_directorates()
+        if not service_now_directorates:
+            raise Exception("No directorates returned from Service Now")
+        service_now_departments = service_now_interface.get_departments()
+        if not service_now_departments:
+            raise Exception("No departments returned from Service Now")
+        service_now_managers = service_now_interface.get_active_line_managers()
+        if not service_now_managers:
+            raise Exception("No line managers returned from Service Now")
+
+        self.fields["directorate"].choices = [
+            (directorate["sys_id"], directorate["name"])
+            for directorate in service_now_directorates
+        ]
+        self.fields["department"].choices = [
+            (department["sys_id"], department["name"])
+            for department in service_now_departments
+        ]
+        self.fields["manager"].choices = [
+            (manager["sys_id"], manager["name"]) for manager in service_now_managers
+        ]
 
 
 class AddAssetForm(GovFormattedForm):
@@ -196,13 +222,28 @@ class ReturnOptionForm(GovFormattedForm):
 class ReturnInformationForm(GovFormattedForm):
     personal_phone = forms.CharField(label="Personal phone", max_length=16)
     contact_email = forms.EmailField(label="Contact email for collection")
-    address = forms.CharField(
-        label="Collection Address",
-        widget=forms.Textarea,
+    address_building = forms.CharField(
+        label="Building and street",
+    )
+    address_city = forms.CharField(
+        label="Town or city",
+    )
+    address_county = forms.CharField(
+        label="County",
+    )
+    address_postcode = forms.CharField(
+        label="Postcode",
     )
 
     def __init__(self, *args, hide_address: bool = False, **kwargs):
         super().__init__(*args, **kwargs)
+        address_fields: List[str] = [
+            "address_building",
+            "address_city",
+            "address_county",
+            "address_postcode",
+        ]
         if hide_address:
-            self.fields["address"].required = False
-            self.fields["address"].widget = forms.HiddenInput()
+            for field_name in address_fields:
+                self.fields[field_name].required = False
+                self.fields[field_name].widget = forms.HiddenInput()

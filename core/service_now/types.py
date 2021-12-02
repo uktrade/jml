@@ -3,14 +3,28 @@ from typing import List, Optional, TypedDict
 
 
 class AssetDetails(TypedDict):
-    # TODO: Alter this based on the data the Service Now API expects.
+    """
+    The Asset's details stored in the application and reported back to Service Now
+    """
+
+    sys_id: Optional[str]
     tag: Optional[str]
     name: str
 
 
+class ServiceNowAsset(TypedDict):
+    """
+    The Service Now API Asset response
+    """
+
+    sys_id: str
+    asset_tag: str
+    display_name: str
+
+
 class LineManagerDetails(TypedDict):
-    # TODO: Define LineManagerDetails based on Service Now API response.
-    pass
+    sys_id: str
+    name: str
 
 
 class Address(TypedDict):
@@ -23,18 +37,11 @@ class Address(TypedDict):
     postcode: str
 
 
-class LeaverRequestData(TypedDict):
-    collection_address: Optional[Address]
-    collection_telephone: Optional[str]
-    collection_email: str
-    reason_for_leaving: str
-    leaving_date: date
-    employee_email: str
-    employee_name: str
-    employee_department: str
-    employee_directorate: str
-    employee_staff_id: str
-    manager_name: str
-    assets: List[AssetDetails]
-    assets_confirmation: bool
-    assets_information: str
+class DepartmentDetails(TypedDict):
+    sys_id: str
+    name: str
+
+
+class DirectorateDetails(TypedDict):
+    sys_id: str
+    name: str
