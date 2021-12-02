@@ -25,13 +25,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "sass_processor",
-    "leavers",
-    "user",
-    "core",
-    "authbroker_client",
     "django_workflow_engine",
     "django_celery_beat",
     "django_celery_results",
+    "authbroker_client",
+    "rest_framework",
+    "leavers",
+    "user",
+    "core",
+    "api",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -99,7 +101,7 @@ LOGIN_REDIRECT_URL = "/" #"leavers:leavers_form"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATIC_URL = "/static/"
 
 CAN_ELEVATE_SSO_USER_PERMISSIONS = False
@@ -133,12 +135,12 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'authbroker_client.middleware.ProtectAllViewsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = [

@@ -7,6 +7,9 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 from django_log_formatter_ecs import ECSFormatter
 
+# SSO requirement
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # X_ROBOTS_TAG (https://man.uktrade.io/docs/procedures/1st-go-live.html)
 X_ROBOTS_TAG = [
     'noindex',
@@ -20,37 +23,61 @@ LOGGING = {
         "ecs_formatter": {
             "()": ECSFormatter,
         },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
+        "simple": {
+            "format": "{asctime} {levelname} {message}",
+            "style": "{",
         },
     },
-    'handlers': {
-        'ecs': {
-            'class': 'logging.StreamHandler',
-            'stream': sys.stdout,
-            'formatter': 'ecs_formatter',
+    "handlers": {
+        "ecs": {
+            "class": "logging.StreamHandler",
+            "formatter": "ecs_formatter",
         },
-        'stdout': {
-            'class': 'logging.StreamHandler',
-            'stream': sys.stdout,
-            'formatter': 'simple',
-            'level': 'INFO',
+        "simple": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
         },
     },
-    'loggers': {
-        'django.request': {
-            'handlers': ['ecs', ],
-            'level': 'INFO',
-            'propagate': True,
+    "root": {
+        "handlers": [
+            "ecs",
+            "simple",
+        ],
+        "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),  # noqa F405
+    },
+    "loggers": {
+        "django": {
+            "handlers": [
+                "ecs",
+                "simple",
+            ],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),  # noqa F405
+            "propagate": False,
+        },
+        "django.server": {
+            "handlers": [
+                "ecs",
+                "simple",
+            ],
+            "level": os.getenv("DJANGO_SERVER_LOG_LEVEL", "ERROR"),  # noqa F405
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": [
+                "ecs",
+                "simple",
+            ],
+            "level": os.getenv("DJANGO_DB_LOG_LEVEL", "ERROR"),  # noqa F405
+            "propagate": False,
         },
     },
 }
 
-sentry_sdk.init(
-    os.environ.get("SENTRY_DSN"),
-    environment=os.environ.get("SENTRY_ENVIRONMENT"),
-    integrations=[DjangoIntegration()],
-)
+# sentry_sdk.init(
+#     os.environ.get("SENTRY_DSN"),
+#     environment=os.environ.get("SENTRY_ENVIRONMENT"),
+#     integrations=[DjangoIntegration()],
+# )
 
 # Django staff SSO user migration process requries the following
 MIGRATE_EMAIL_USER_ON_LOGIN = True
