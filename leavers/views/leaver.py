@@ -51,12 +51,6 @@ class LeaverInformationMixin:
         if len(people_finder_results) > 0:
             person = people_finder_results[0]
 
-            job_title = ""
-            directorate = ""
-            if "roles" in person and len(person["roles"]) > 0:
-                job_title = person["roles"][0]["job_title"]
-                directorate = person["roles"][0]["team"]["name"]
-
             # TODO: Map values to the blank leaver details
             leaver_details: types.LeaverDetails = {
                 # Personal details
@@ -64,18 +58,18 @@ class LeaverInformationMixin:
                 "last_name": person["last_name"],
                 "date_of_birth": date(2021, 11, 25),
                 "personal_email": "",
-                "personal_phone": person["primary_phone_number"],
+                "personal_phone": person["phone"],
                 "personal_address": "",
                 # Professional details
                 "grade": person["grade"],
-                "job_title": job_title,
+                "job_title": person["job_title"],
                 "department": "",
-                "directorate": directorate,
+                "directorate": person["directorate"],
                 "work_email": person["email"],
                 "manager": "",
                 "staff_id": "",
                 # Misc.
-                "photo": person["photo"],
+                "photo": person["image"],
             }
             return leaver_details
         raise Exception("Issue finding user in People Finder")
