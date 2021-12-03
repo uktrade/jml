@@ -33,4 +33,7 @@ def get_search_results(search_term):
         }
     )
 
+    print("Hier...")
+    print(response.content)
+
     return response.json()
