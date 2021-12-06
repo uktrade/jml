@@ -1,9 +1,13 @@
+import logging
 import requests
 import urllib.parse
 
 from mohawk import Sender
 
 from django.conf import settings
+
+
+logger = logging.getLogger(__name__)
 
 
 CONTENT_TYPE = "application/json"
@@ -33,7 +37,6 @@ def get_search_results(search_term):
         }
     )
 
-    print("Hier...")
-    print(response.content)
+    logger.warning(f"People Finder API response: {response.content}")
 
     return response.json()

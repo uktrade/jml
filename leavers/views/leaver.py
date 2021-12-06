@@ -48,8 +48,16 @@ class LeaverInformationMixin:
         people_finder_results = self.people_finder_search.get_search_results(
             search_term=email,
         )
+
         if len(people_finder_results) > 0:
-            person = people_finder_results[0]
+            # Hack for multiple result
+            if len(people_finder_results) > 1:
+                for people_finder_result in people_finder_results:
+                    if people_finder_result["email"] == email:
+                        person = people_finder_result
+                        break
+            else:
+                person = people_finder_results[0]
 
             job_title = ""
             directorate = ""
