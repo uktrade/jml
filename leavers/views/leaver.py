@@ -50,7 +50,7 @@ class LeaverInformationMixin:
         )
 
         if len(people_finder_results) > 0:
-            # Hack for multiple result
+            # Hack for multiple results
             if len(people_finder_results) > 1:
                 for people_finder_result in people_finder_results:
                     if people_finder_result["email"] == email:
