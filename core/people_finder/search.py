@@ -1,25 +1,35 @@
-import requests
 import urllib.parse
+from typing import Any, List, Optional, TypedDict
 
-from mohawk import Sender
-
+import requests
 from django.conf import settings
-
+from mohawk import Sender
 
 CONTENT_TYPE = "application/json"
 
 
-def get_search_results(search_term):
+class SearchResult(TypedDict):
+    first_name: str
+    last_name: str
+    photo: Optional[str]
+    email: str
+    grade: str
+    primary_phone_number: str
+    roles: List[Any]
+    manager: str
+
+
+def get_search_results(search_term) -> List[SearchResult]:
     safe_search_term = urllib.parse.quote_plus(search_term)
     url = f"{settings.PEOPLE_FINDER_URL}/api/people-search/?search_query={safe_search_term}"
     sender = Sender(
         {
-            'id': settings.HAWK_ACCESS_ID,
-            'key': settings.HAWK_SECRET_KEY,
-            'algorithm': 'sha256'
+            "id": settings.HAWK_ACCESS_ID,
+            "key": settings.HAWK_SECRET_KEY,
+            "algorithm": "sha256",
         },
         url,
-        'GET',
+        "GET",
         content="",
         content_type=CONTENT_TYPE,
     )
@@ -27,10 +37,7 @@ def get_search_results(search_term):
     response = requests.get(
         url,
         data="",
-        headers={
-            'Authorization': sender.request_header,
-            'Content-Type': CONTENT_TYPE
-        }
+        headers={"Authorization": sender.request_header, "Content-Type": CONTENT_TYPE},
     )
 
     return response.json()
