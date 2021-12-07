@@ -1,11 +1,9 @@
-FROM python:3.9.5
-WORKDIR /app
+FROM debian:bullseye
+RUN apt-get update
+RUN apt-get install -y wget gnupg2
 
-RUN pip install --upgrade pip
-
-ADD requirements/dev.txt /app/requirements/dev.txt
-RUN pip install -r requirements/dev.txt
 ADD . /app
+WORKDIR /app
 
 # Install Cloudfoundry CLI
 RUN wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add -

@@ -29,6 +29,9 @@ help:
 build:
 	docker-compose build
 
+utils-build:
+	docker-compose -f docker-compose.yml -f docker-compose.utils.yml build utils
+
 up:
 	docker-compose up
 
@@ -53,6 +56,9 @@ compilescss:
 
 shell:
 	docker-compose run --rm leavers python manage.py shell
+
+utils-shell:
+	docker-compose -f docker-compose.yml -f docker-compose.utils.yml run --rm utils /bin/bash
 
 flake8:
 	docker-compose run --rm leavers flake8 $(file)
