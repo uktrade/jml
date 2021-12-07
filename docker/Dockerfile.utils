@@ -1,0 +1,14 @@
+FROM python:3.9.5
+ADD . /app
+WORKDIR /app
+
+RUN pip install --upgrade pip
+RUN pip install -r requirements/dev.txt
+
+# Install Cloudfoundry CLI
+RUN wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | apt-key add -
+RUN echo "deb https://packages.cloudfoundry.org/debian stable main" | tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+RUN apt-get update
+RUN apt-get install cf8-cli -y
+
+# Add any other tools that can't be run on ARM
