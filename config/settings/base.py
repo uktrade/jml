@@ -33,8 +33,8 @@ INSTALLED_APPS = [
     "leavers",
     "user",
     "core",
-    "core.staff_sso",
     "api",
+    "activity_stream",
 ]
 
 ROOT_URLCONF = "config.urls"

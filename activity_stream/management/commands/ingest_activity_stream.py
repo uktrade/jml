@@ -1,8 +1,7 @@
 from typing import List
 
+from activity_stream import models, staff_sso
 from django.core.management.base import BaseCommand
-
-from core.staff_sso import activity_stream, models
 
 
 class Command(BaseCommand):
@@ -12,7 +11,7 @@ class Command(BaseCommand):
         created_updated_ids: List[int] = []
 
         # Create and Update Activity Stream SSO objects
-        activity_stream_objects = activity_stream.get_activity_stream()
+        activity_stream_objects = staff_sso.get_activity_stream()
         for activity_stream_object in activity_stream_objects:
             # Only create objects with type of "dit:StaffSSO:User"
             if activity_stream_object["object"]["type"] != "dit:StaffSSO:User":
