@@ -1,10 +1,10 @@
-{% if not seen_cookie_banner %}
-    <div class="govuk-cookie-banner" data-nosnippet role="region" aria-label="Cookies on [name of service]">
+{% if not COOKIE_RESPONSE %}
+    <div class="govuk-cookie-banner" data-nosnippet role="region" aria-label="Cookies on Joiners, Movers and Leavers">
         <div class="govuk-cookie-banner__message govuk-width-container">
 
             <div class="govuk-grid-row">
                 <div class="govuk-grid-column-two-thirds">
-                    <h2 class="govuk-cookie-banner__heading govuk-heading-m">Cookies on [name of service]</h2>
+                    <h2 class="govuk-cookie-banner__heading govuk-heading-m">Cookies on Joiners, Movers and Leavers</h2>
 
                     <div class="govuk-cookie-banner__content">
                         <p class="govuk-body">We use some essential cookies to make this service work.</p>
@@ -14,13 +14,13 @@
             </div>
 
             <div class="govuk-button-group">
-                <button value="accept" type="button" name="cookies" class="govuk-button" data-module="govuk-button">
+                <a href="{% url 'cookie-response' 'accept' %}?next={{ request.path }}" class="govuk-button" data-module="govuk-button">
                     Accept analytics cookies
                 </button>
-                <button value="reject" type="button" name="cookies" class="govuk-button" data-module="govuk-button">
+                <a href="{% url 'cookie-response' 'reject' %}?next={{ request.path }}" class="govuk-button" data-module="govuk-button">
                     Reject analytics cookies
                 </button>
-                <a class="govuk-link" href="#">View cookies</a>
+                <a class="govuk-link" href="{% url 'cookie-notice' %}">View cookies</a>
             </div>
         </div>
     </div>

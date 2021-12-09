@@ -1,4 +1,4 @@
-{% load cookie_banner sass_tags %}
+{% load sass_tags %}
 <!DOCTYPE html>
 <html lang="en" class="govuk-template app-html-class">
 
@@ -33,7 +33,7 @@
             document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
         </script>
 
-        {% cookie_banner %}
+        {% include "cookies/banner.html" %}
 
         <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
         <header class="govuk-header " role="banner" data-module="govuk-header">
@@ -100,7 +100,7 @@
                                 </a>
                             </li>
                             <li class="govuk-footer__inline-list-item">
-                                <a class="govuk-footer__link" href="#2">
+                                <a class="govuk-footer__link" href="{% url 'cookie-notice' %}">
                                     Cookies
                                 </a>
                             </li>
@@ -140,6 +140,9 @@
         <script src="/static/cytoscape/dist/cytoscape.min.js"></script>
         <script src="https://unpkg.com/dagre@0.7.4/dist/dagre.js"></script>
         <script src="/static/cytoscape-dagre/cytoscape-dagre.js"></script>
+        {% if COOKIE_RESPONSE == "accept" %}
+            {# Add GA script #}
+        {% endif %}
         {% block scripts %}{% endblock %}
     </body>
 </html>
