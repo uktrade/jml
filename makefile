@@ -55,7 +55,7 @@ migrate:
 	docker-compose run --rm leavers python manage.py migrate
 
 checkmigrations:
-	docker-compose run --rm --no-deps wagtail python manage.py makemigrations --check
+	docker-compose run --rm --no-deps leavers python manage.py makemigrations --check
 
 compilescss:
 	docker-compose run --rm leavers python manage.py compilescss
