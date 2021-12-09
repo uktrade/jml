@@ -46,13 +46,16 @@ first-use:
 	docker-compose up
 
 check-fixme:
-	! git --no-pager grep -rni fixme -- ':!./Makefile' ':!./.circleci/config.yml'
+	! git --no-pager grep -rni fixme -- ':!./makefile' ':!./.circleci/config.yml'
 
 migrations:
 	docker-compose run --rm leavers python manage.py makemigrations
 
 migrate:
 	docker-compose run --rm leavers python manage.py migrate
+
+checkmigrations:
+	docker-compose run --rm --no-deps leavers python manage.py makemigrations --check
 
 compilescss:
 	docker-compose run --rm leavers python manage.py compilescss
