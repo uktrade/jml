@@ -24,8 +24,8 @@ def get_search_results(search_term) -> List[SearchResult]:
     url = f"{settings.PEOPLE_FINDER_URL}/api/people-search/?search_query={safe_search_term}"
     sender = Sender(
         {
-            "id": settings.HAWK_ACCESS_ID,
-            "key": settings.HAWK_SECRET_KEY,
+            "id": settings.PEOPLE_FINDER_HAWK_ACCESS_ID,
+            "key": settings.PEOPLE_FINDER_HAWK_SECRET_KEY,
             "algorithm": "sha256",
         },
         url,
