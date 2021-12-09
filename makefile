@@ -45,6 +45,9 @@ first-use:
 	docker-compose run --rm leavers python manage.py create_test_users
 	docker-compose up
 
+check-fixme:
+	! git --no-pager grep -rni fixme -- ':!./Makefile' ':!./.circleci/config.yml'
+
 migrations:
 	docker-compose run --rm leavers python manage.py makemigrations
 
