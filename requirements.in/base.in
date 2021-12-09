@@ -25,3 +25,5 @@ djangorestframework
 elasticsearch
 elasticsearch-dsl
 django-elasticsearch-dsl
+# GovUK Notify
+notifications-python-client

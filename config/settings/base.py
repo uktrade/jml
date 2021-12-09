@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "django_workflow_engine",
     "django_celery_beat",
     "django_celery_results",
+    "notifications_python_client",
     "authbroker_client",
     "rest_framework",
     "leavers",
@@ -185,11 +186,15 @@ DJANGO_WORKFLOWS = {
     "leaving": "leavers.workflow.leaving.LeaversWorkflow",
 }
 
+# Site's own URL
+SITE_URL = env("SITE_URL")
+
 # Service Now
 SERVICE_NOW_INTERFACE = env("SERVICE_NOW_INTERFACE", default=None)
 
-SITE_URL = env("SITE_URL")
-
 # Legacy People Finder
-LEGACY_PEOPLE_FINDER_ES_INDEX = env("LEGACY_PEOPLE_FINDER_ES_INDEX")
-LEGACY_PEOPLE_FINDER_ES_URL = env("LEGACY_PEOPLE_FINDER_ES_URL")
+LEGACY_PEOPLE_FINDER_ES_INDEX = env("LEGACY_PEOPLE_FINDER_ES_INDEX", default=None)
+LEGACY_PEOPLE_FINDER_ES_URL = env("LEGACY_PEOPLE_FINDER_ES_URL", default=None)
+
+# GOV.UK Notify
+GOVUK_NOTIFY_API_KEY = env("GOVUK_NOTIFY_API_KEY")
