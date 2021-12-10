@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
+
 from django.utils import timezone
 
 from leavers.models import LeavingRequest
-
 
 # Payroll is always the 10th of the month.
 PAYROLL_DAY_OF_MONTH = 10

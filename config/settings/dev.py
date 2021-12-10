@@ -1,8 +1,10 @@
 import os
 import sys
-from config.settings.base import *  # type: ignore # noqa
+
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+
+from config.settings.base import *  # type: ignore # noqa
 
 # TODO - add Sentry
 # sentry_sdk.init(

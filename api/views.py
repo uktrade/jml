@@ -1,10 +1,5 @@
-from api.hawk import (
-    HawkAuthentication,
-    HawkResponseMiddleware,
-)
-
+from api.hawk import HawkAuthentication, HawkResponseMiddleware
 from django.utils.decorators import decorator_from_middleware
-
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 

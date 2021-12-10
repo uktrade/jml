@@ -155,7 +155,7 @@ class LeaverInformationMixin:
             leaver_info.return_address_building_and_street = address[
                 "building_and_street"
             ]
-            leaver_info.return_address_city = address["building_and_citystreet"]
+            leaver_info.return_address_city = address["building_and_street"]
             leaver_info.return_address_county = address["county"]
             leaver_info.return_address_postcode = address["postcode"]
         leaver_info.save(

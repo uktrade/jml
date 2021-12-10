@@ -1,12 +1,8 @@
+from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
-from django.urls import reverse_lazy
-from django.shortcuts import reverse
 from django.views.generic.edit import FormView
 
-
-from leavers.forms import (
-    WhoIsLeavingForm,
-)
+from leavers.forms import WhoIsLeavingForm  # /PS-IGNORE
 
 
 class CannotFindLeaverException(Exception):

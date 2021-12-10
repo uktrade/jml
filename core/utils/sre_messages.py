@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.shortcuts import reverse
+from django.urls import reverse
 from slack_sdk.web.slack_response import SlackResponse
 
 from core.utils.slack import FailedToSendSlackMessage, send_slack_message

@@ -1,8 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from leavers.models import Position
-
 import leavers
+from leavers.models import Position
 
 
 class PositionStub:

@@ -4,7 +4,6 @@ import requests
 from django.conf import settings
 from mohawk import Sender
 
-
 URL = settings.STAFF_SSO_ACTIVITY_STREAM_URL
 CONTENT_TYPE = "application/json"
 

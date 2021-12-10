@@ -1,30 +1,22 @@
 import uuid
-from typing import List, TypedDict, Optional
+from typing import List, Optional, TypedDict
 
-from django.views.generic import TemplateView
-from django.urls import reverse_lazy
-from django.shortcuts import redirect
-from django.views.generic.edit import FormView
-from django.core.validators import validate_email
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.validators import validate_email
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 from django.views import View
-from django.shortcuts import render
-
+from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
 from django_workflow_engine.exceptions import WorkflowNotAuthError
 from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
 
-from core.utils.sso import get_sso_user_details
 from core.people_finder import get_people_finder_interface
-
-from leavers.models import LeavingRequest
-
 from core.utils.hr import get_hr_people_data
-
-from leavers.forms import (
-    SearchForm,
-    LeaverConfirmationForm,
-)
+from core.utils.sso import get_sso_user_details
+from leavers.forms import LeaverConfirmationForm, SearchForm
+from leavers.models import LeavingRequest
 
 
 class PersonResult(TypedDict):

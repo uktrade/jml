@@ -1,7 +1,6 @@
+from django.conf import settings
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import Search
-
-from django.conf import settings
 
 ES_MAX_RESULTS = 100
 ES_MIN_SCORE = 0.02

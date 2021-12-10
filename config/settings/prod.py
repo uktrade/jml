@@ -1,11 +1,11 @@
 import os
 import sys
 
-from .base import *  # type: ignore # noqa
 import sentry_sdk
+from django_log_formatter_ecs import ECSFormatter
 from sentry_sdk.integrations.django import DjangoIntegration
 
-from django_log_formatter_ecs import ECSFormatter
+from .base import *  # type: ignore # noqa
 
 # SSO requirement
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

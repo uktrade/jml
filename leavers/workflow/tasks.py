@@ -1,13 +1,7 @@
-from django_workflow_engine import (
-    Task,
-)
 from django.conf import settings
+from django_workflow_engine import Task
 
-from core.utils.sre_messages import (
-    FailedToSendSREAlertMessage,
-    send_sre_alert_message,
-)
-
+from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_message
 from leavers.models import SlackMessage
 
 

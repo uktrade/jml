@@ -1,11 +1,6 @@
 from authbroker_client.backends import AuthbrokerBackend
-from authbroker_client.utils import (
-    get_client,
-    get_profile,
-    has_valid_token,
-)
+from authbroker_client.utils import get_client, get_profile, has_valid_token
 from django.contrib.auth import get_user_model
-
 
 User = get_user_model()
 

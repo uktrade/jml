@@ -1,7 +1,6 @@
 from typing import Literal
 
 from django.http.request import HttpRequest
-from django.http.response import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 
@@ -11,7 +10,7 @@ def cookie_notice(request):
 
 
 def cookie_response(request: HttpRequest, response: Literal["accept", "reject"]):
-    redirect_response: HttpResponseRedirect = redirect(request.GET.get("next", "/"))
+    redirect_response = redirect(request.GET.get("next", "/"))
     redirect_response.set_cookie(
         "cookie_banner_response",
         response,

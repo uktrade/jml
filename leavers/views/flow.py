@@ -1,11 +1,8 @@
-from django.contrib.auth.mixins import (
-    LoginRequiredMixin,
-    UserPassesTestMixin,
-)
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django_workflow_engine.views import (
-    FlowListView,
-    FlowCreateView,
     FlowContinueView,
+    FlowCreateView,
+    FlowListView,
     FlowView,
 )
 

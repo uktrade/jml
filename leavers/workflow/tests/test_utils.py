@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from django.test import TestCase
 from django.utils.timezone import make_aware
 from freezegun import freeze_time
@@ -6,8 +7,8 @@ from freezegun import freeze_time
 from leavers.factories import LeavingRequestFactory
 from leavers.workflow.utils import (
     get_payroll_date,
-    is_x_days_before_payroll,
     is_it_leaving_date_plus_x_days,
+    is_x_days_before_payroll,
 )
 
 
