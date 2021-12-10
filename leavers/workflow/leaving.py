@@ -19,7 +19,7 @@ LeaversWorkflow = Workflow(
             task_info={
                 "subject": "Thank you for registering ",
                 "message": "TODO - details of the leaver",
-                "from_email": "noreply@jml.uktrade.com",
+                "from_email": "noreply@jml.uktrade.com",  # /PS-IGNORE
             },
         ),
         Step(
@@ -29,7 +29,7 @@ LeaversWorkflow = Workflow(
             task_info={
                 "subject": "Thank you for registering ",
                 "message": "TODO - details of the leaver",
-                "from_email": "noreply@jml.uktrade.com",
+                "from_email": "noreply@jml.uktrade.com",  # /PS-IGNORE
             },
         ),
         Step(
@@ -42,7 +42,7 @@ LeaversWorkflow = Workflow(
                 ],
                 "subject": "A member of staff is leaving DIT",
                 "message": "TODO - details of the leaver",
-                "from_email": "noreply@jml.uktrade.com",
+                "from_email": "noreply@jml.uktrade.com",  # /PS-IGNORE
             },
         ),
         # Split flow
@@ -81,7 +81,7 @@ LeaversWorkflow = Workflow(
                  ],
                 "subject": "Test",
                 "message": "Please review the hardware required http://localhost:8000/{{ flow.continue_url }}.",
-                "from_email": "system@example.com",
+                "from_email": "system@example.com",  # /PS-IGNORE
             },
             break_flow=True,
         ),
@@ -104,7 +104,7 @@ LeaversWorkflow = Workflow(
                  ],
                 "subject": "Please confirm leaving tasks have been carried out",
                 "message": "Please confirm you have carried out leaving tasks for {} here http://localhost:8000/{{ flow.continue_url }}.",
-                "from_email": "noreply@jml.uktrade.com",
+                "from_email": "noreply@jml.uktrade.com",  # /PS-IGNORE
             },
         ),
         Step(
@@ -122,7 +122,7 @@ LeaversWorkflow = Workflow(
                 ],
                 "subject": "Test",
                 "message": "Please review the hardware required http://localhost:8000/{{ flow.continue_url }}.",
-                "from_email": "system@example.com",
+                "from_email": "system@example.com",  # /PS-IGNORE
             },
             break_flow=True,
         ),

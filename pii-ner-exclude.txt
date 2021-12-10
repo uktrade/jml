@@ -1,0 +1,352 @@
+# Staff
+STAFF_SSO_INTERFACE
+SERVICE_NOW_INTERFACE
+Base
+# People finder
+PEOPLE_FINDER_INTERFACE=core.people_finder.interfaces
+Group
+List[Tuple[str
+Hardware Team
+User
+API Asset
+FormView
+LeaverInformation
+ReturnOption
+DB
+updates=
+People Finder
+Map
+person["first_name
+date_of_birth
+job_title
+get_leaver_details_with_updates(self
+cast(str
+Build
+UpdateDetailsView(LoginRequiredMixin, LeaverInformationMixin, FormView
+UUID
+self.forms[form_name](request
+EquipmentReturnInformationView
+LoginRequiredMixin, LeaverInformationMixin, FormView
+RequestReceivedView(LoginRequiredMixin
+CheckboxInput
+Textarea
+elif isinstance(widget
+isinstance(widget
+EmailInput
+issubclass(interface_class
+raise ValueError("STAFF_SSO_INTERFACE
+class="govuk-button__start
+COLOUR_GREEN=\033[32;01
+COLOUR_YELLOW=\033[33;01
+migrate$(COLOUR_NONE
+Compile SCSS
+object.current_task_record
+234px
+100px
+APIConfig(AppConfig
+ImportError
+Python 2
+PYTHONPATH
+Joiners, Movers and Leavers
+Joiners
+Movers
+Leavers</h2
+>View cookies</a>
+ServiceNowBase
+DevToolsConfig(AppConfig
+UserAdmin
+django.contrib import
+self.readonly_fields
+is_superuser
+Requests</h1
+yet.</p
+TemplateResponse
+TemplateResponse(request
+redirect_response.set_cookie
+Job Title
+CustomAuthbrokerBackend(AuthbrokerBackend
+@staticmethod
+User.objects.filter
+# Set email_user_id
+SlackResponse
+LeavingRequest
+FailedToSendSREAlertMessage("SLACK_SRE_CHANNEL_ID
+DIT
+channel_id
+f"Thank
+SRE
+MIT License
+Department for International Trade
+Software
+IMPLIED
+DAMAGES
+LIABILITY
+LeaverInformation(models
+JSONField
+CharField(max_length=10
+BasicTask
+Split
+NumberInput
+Celery
+Alert SRE
+OPTIONS
+default=
+https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
+NAME
+env("AUTHBROKER_CLIENT_ID
+BASE_DIR
+Dev
+env("SLACK_SRE_CHANNEL_ID
+Hawk
+PEOPLE_FINDER_HAWK_ACCESS_ID =
+PEOPLE_FINDER_INTERFACE = env("PEOPLE_FINDER_INTERFACE
+LeaversWorkflow
+ner_output_file.txt
+WebClient
+str
+Slack
+# Post
+Slack API
+label="When
+HardwareReceivedForm(GovFormattedModelForm
+SREConfirmCompleteForm(GovFormattedForm
+PAAS
+GOVUK PAAS
+Someone Else
+label="Can't
+LeaverUpdateForm(GovFormattedForm
+CharField(label="First
+raise Exception("No directorates
+Exception("No departments
+ReturnOptionForm(GovFormattedForm
+django_log_formatter_ecs
+SSO
+ECSFormatter
+StreamHandler
+#     integrations=[DjangoIntegration
+# Set
+# Set cookie
+JS
+CRSF
+Audit
+AUDIT_LOG_USER_FIELD
+amqp==5.0.6
+asgiref==3.4.1
+django-compressor==2.4.1
+docopt==0.6.2
+elasticsearch==7.15.2
+pyjwt==2.3.0
+rjsmin==1.1.0
+#   amqp
+View
+WorkflowExecutor
+#     #
+#         # Search
+#
+self.get_pf_results_with_sso_id
+request.session['people_list
+PermissionDenied(f"{e
+RequestReceivedView(TemplateView
+CharField(max_length=255
+Elastic
+role="alert
+get_response
+assert settings
+assert hasattr(request
+form.cleaned_data["user
+new_user
+the Leaving DIT
+to:</p
+Google Analytics
+visit</li>
+Google
+Digital Workspace
+before.</td>
+Digital
+ends.</td
+session.</p
+users.</td
+CreateModel
+AutoField
+Information</h3
+TaskLog
+Github
+Jira
+thread_ts=first_slack_message.slack_timestamp
+leaving_request=self.leaving_request
+ThankYouView(TemplateView
+Sequence(lambda
+f"user{n
+Cost Centre Hierarchy
+"Clear the Position
+Bloggs
+Example Grade
+return_value=
+LeaverInformationMixin().get_leaver_details
+leaver_info.refresh_from_db
+TestConfirmDetailsView(TestCase
+self.assertEqual(response.status_code
+Updated Personal Email
+Updated Work Email
+staff_id": updates["staff_id
+FirstName
+Grade
+Personal Address
+Test Directorate
+self.add_kit_to_session("Test Asset 1
+self.add_kit_to_session("Test Asset 2
+self.add_kit_to_session("Test Asset 3
+mock_store_correction_information.assert_called_once_with
+TestEquipmentReturnOptionsView(TestCase
+Test Address
+mock_store_return_information.assert_called_once_with
+LeaversStartView(TemplateView
+WhoIsLeavingView(FormView
+CustomAuthbrokerBackend
+User.objects.get(email="sso.test@example.com
+abc
+ABC
+@abstractmethod
+search_result["photo
+name=
+3.13.1
+# Created
+Files
+AFP
+DLL
+env/
+var/
+PyInstaller
+# Installer
+pip-delete-this-directory.txt
+Sphinx
+PyBuilder
+local_settings.py
+Docker
+# Local
+dir
+Front
+Node
+test_*.txt
+SlackMessage
+views.cookie_response
+Dockerfile.dev
+related_name='govuk_paas_access_task_log
+related_name='slack_access_task_log
+name='user
+related_name='task_logs
+namespace="authbroker
+admin.site.urls
+line_manager_views
+leaving_views.
+# Leaver
+EquipmentReturnInformationView.as_view
+TaskConfirmationView.as_view
+Install Cloudfoundry
+CLI
+python manage.py compilescss &&
+python manage.py migrate &&
+return PeopleFinderStubbed()
+raise ValueError("PEOPLE_FINDER_INTERFACE
+Elasticsearch
+class="ws
+def get_search_results(search_terms
+location^4
+minimum_should_match
+formatted_additional_responsibilities
+# Joiners Movers Leavers
+BasicTask(Task
+HaveSRECarriedOutLeavingTasks(Task
+SlackMessage.objects.create
+-O codecov.sh https://codecov.io/bash
+Payroll
+Sequence(lambda n: n
+f"Asset
+LineManagerDetails(factory
+Ingest Staff SSO Activity Stream
+as_staff_sso_user
+Activity
+is_x_days_before_payroll
+LeavingDatePlusXDays(TestCase
+days_after_leaving_date=1
+sizes="152x152
+IE
+height="30" width="36">
+7.7-.2
+aria-label="Show
+viewBox="0 0 483.2
+height="17
+8.7 39.7 21.8l42.7-27.2A97.63
+href="https://www.nationalarchives.gov.uk
+Crown
+x.groups.first
+FlowView
+LeaverBaseView(UserPassesTestMixin
+LeaversFlowListView
+LeaversFlowCreateView
+BigAutoField
+max_length=10
+max_length=254
+max_length=1000
+W503
+end_of_month
+treasurySS
+Union
+HawkFail
+Sender
+FailedToGetActivityStream(Exception
+OrderedItem
+api.views
+EmailField
+django.core.cache
+django.utils.crypto import
+constant_time_compare
+BaseAuthentication
+AuthenticationFailed
+Raises
+HAWK_INCOMING_ACCESS_KEY
+access_key_id=access_key_id
+seen_nonce(access_key_id
+access_key_id
+WWW
+DRF
+META
+hawk_receiver = authorise(request
+response['Server-Authorization'
+api.hawk
+HawkAuthentication
+django.utils.decorators
+decorator_from_middleware
+Response
+ViewSet
+DetailCorrectionViewSet(ViewSet
+information</h1
+WSGI
+core.staff_sso
+get_staff_sso_interface
+RemoveField
+max_length=15
+name='LeavingRequest
+related_name='github_user_task_log
+submit_leaver_request
+SERVICE_NOW_GET_ASSET_PATH
+Convert
+AssetDetails
+Convert Request Data
+API
+leaver_info.return_address_county
+leaver_info.leaver_email
+name='User
+verbose_name='superuser
+help_text='Required
+verbose_name='staff
+managers=
+model_name='user
+personal_email
+black==21.11b1
+coverage[toml]==6.2
+faker==9.9.0
+freezegun==1.1.0
+py==1.11.0
+pycodestyle==2.8.0
+wheel==0.37.0

@@ -56,13 +56,13 @@ class LeaverSearchView(View):
     #         for sso_result in sso_results:
     #             hr_data = get_hr_people_data(sso_result["sso_id"])
     #             if hr_data:
-    #                 hr_data["uuid"] = str(uuid.uuid4())
-    #                 hr_data["first_name"] = sso_result["first_name"]
-    #                 hr_data["last_name"] = sso_result["last_name"]
+    #                 hr_data["uuid"] = str(uuid.uuid4())  # /PS-IGNORE
+    #                 hr_data["first_name"] = sso_result["first_name"]  # /PS-IGNORE
+    #                 hr_data["last_name"] = sso_result["last_name"]  # /PS-IGNORE
     #                 hr_data["sso_id"] = sso_result["sso_id"]
-    #                 person_results.append(
+    #                 person_results.append(  # /PS-IGNORE
     #                     hr_data,
-    #                 )
+    #                 )  # /PS-IGNORE
     #
     #     return person_results
 

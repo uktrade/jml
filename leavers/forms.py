@@ -146,8 +146,8 @@ class LeaverConfirmationForm(GovFormattedForm):
 
 class LeaverUpdateForm(GovFormattedForm):
     # Personal details
-    first_name = forms.CharField(label="First name")
-    last_name = forms.CharField(label="Last name")
+    first_name = forms.CharField(label="First name")  # /PS-IGNORE
+    last_name = forms.CharField(label="Last name")  # /PS-IGNORE
     personal_email = forms.EmailField(label="Email")
     personal_phone = forms.CharField(label="Phone", max_length=16)
     personal_address = forms.CharField(
