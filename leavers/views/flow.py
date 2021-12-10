@@ -13,7 +13,10 @@ from django_workflow_engine.views import (
 class LeaverBaseView(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.groups.filter(
-            name__in=("SRE", "HR",),
+            name__in=(
+                "SRE",
+                "HR",
+            ),
         ).first()
 
 

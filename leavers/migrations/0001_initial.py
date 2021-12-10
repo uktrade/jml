@@ -11,35 +11,130 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('django_workflow_engine', '0002_alter_flow_workflow_name'),
+        ("django_workflow_engine", "0002_alter_flow_workflow_name"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='TaskLog',
+            name="TaskLog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('task_name', models.CharField(max_length=155)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("task_name", models.CharField(max_length=155)),
             ],
         ),
         migrations.CreateModel(
-            name='LeavingRequest',
+            name="LeavingRequest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('requested_at', models.DateTimeField(auto_now_add=True)),
-                ('requested_by', models.CharField(max_length=255)),
-                ('last_day', models.DateTimeField(blank=True, null=True)),
-                ('leaver_sso_id', models.CharField(max_length=155)),
-                ('aws_access_removed', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='aws_access_task_log', to='leavers.tasklog')),
-                ('flow', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='leaving_request', to='django_workflow_engine.flow')),
-                ('github_user_access_removed', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='github_user_task_log', to='leavers.tasklog')),
-                ('hardware_received', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='hardware_task_log', to='leavers.tasklog')),
-                ('jira_access_removed', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='jira_access_task_log', to='leavers.tasklog')),
-                ('sentry_access_removed', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sentry_access_task_log', to='leavers.tasklog')),
-                ('sso_access_removed', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='sso_access_task_log', to='leavers.tasklog')),
-                ('user_requesting', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='requesting_users', to=settings.AUTH_USER_MODEL)),
-                ('vpn_access_removed', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='vpn_access_task_log', to='leavers.tasklog')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("requested_at", models.DateTimeField(auto_now_add=True)),
+                ("requested_by", models.CharField(max_length=255)),
+                ("last_day", models.DateTimeField(blank=True, null=True)),
+                ("leaver_sso_id", models.CharField(max_length=155)),
+                (
+                    "aws_access_removed",
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="aws_access_task_log",
+                        to="leavers.tasklog",
+                    ),
+                ),
+                (
+                    "flow",
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="leaving_request",
+                        to="django_workflow_engine.flow",
+                    ),
+                ),
+                (
+                    "github_user_access_removed",
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="github_user_task_log",
+                        to="leavers.tasklog",
+                    ),
+                ),
+                (
+                    "hardware_received",
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="hardware_task_log",
+                        to="leavers.tasklog",
+                    ),
+                ),
+                (
+                    "jira_access_removed",
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="jira_access_task_log",
+                        to="leavers.tasklog",
+                    ),
+                ),
+                (
+                    "sentry_access_removed",
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sentry_access_task_log",
+                        to="leavers.tasklog",
+                    ),
+                ),
+                (
+                    "sso_access_removed",
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sso_access_task_log",
+                        to="leavers.tasklog",
+                    ),
+                ),
+                (
+                    "user_requesting",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="requesting_users",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "vpn_access_removed",
+                    models.OneToOneField(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="vpn_access_task_log",
+                        to="leavers.tasklog",
+                    ),
+                ),
             ],
         ),
     ]

@@ -32,7 +32,7 @@ class Command(BaseCommand):
         )
 
     def create_user(self, first_name: str, last_name: str, group_name: str) -> User:
-        username = f"{first_name.lower()}.{last_name.lower()}@example.com" # /PS-IGNORE
+        username = f"{first_name.lower()}.{last_name.lower()}@example.com"  # /PS-IGNORE
 
         try:
             group = Group.objects.get(name=group_name)

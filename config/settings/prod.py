@@ -12,8 +12,8 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # X_ROBOTS_TAG (https://man.uktrade.io/docs/procedures/1st-go-live.html)
 X_ROBOTS_TAG = [
-    'noindex',
-    'nofollow',
+    "noindex",
+    "nofollow",
 ]
 
 LOGGING = {
@@ -79,7 +79,7 @@ LOGGING = {
 #     integrations=[DjangoIntegration()],
 # )
 
-# Django staff SSO user migration process requries the following
+# Django staff SSO user migration process requries the following
 MIGRATE_EMAIL_USER_ON_LOGIN = True
 
 # HSTS (https://man.uktrade.io/docs/procedures/1st-go-live.html)
@@ -110,7 +110,7 @@ SESSION_COOKIE_HTTPONLY = True
 # Set content to no sniff
 SECURE_CONTENT_TYPE_NOSNIFF = True
 
-# Set anti XSS header
+# Set anti XSS header
 SECURE_BROWSER_XSS_FILTER = True
 
 # Audit log middleware user field

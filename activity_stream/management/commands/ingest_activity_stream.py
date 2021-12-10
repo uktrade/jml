@@ -25,8 +25,12 @@ class Command(BaseCommand):
                 defaults={
                     "name": activity_stream_object["object"]["name"],
                     "obj_type": activity_stream_object["object"]["type"],
-                    "first_name": activity_stream_object["object"]["dit:firstName"],  # /PS-IGNORE
-                    "last_name": activity_stream_object["object"]["dit:lastName"],  # /PS-IGNORE
+                    "first_name": activity_stream_object["object"][
+                        "dit:firstName"  # /PS-IGNORE
+                    ],
+                    "last_name": activity_stream_object["object"][
+                        "dit:lastName"  # /PS-IGNORE
+                    ],
                     "email_address": activity_stream_object["object"][
                         "dit:emailAddress"
                     ],

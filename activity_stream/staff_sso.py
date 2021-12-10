@@ -1,10 +1,9 @@
-from ctypes import Union
-from typing import Any, List, Literal, Optional, TypedDict
+from typing import Any, List, Optional, TypedDict
 
 import requests
 from django.conf import settings
-from mohawk import Receiver, Sender
-from mohawk.exc import HawkFail
+from mohawk import Sender
+
 
 URL = settings.STAFF_SSO_ACTIVITY_STREAM_URL
 CONTENT_TYPE = "application/json"

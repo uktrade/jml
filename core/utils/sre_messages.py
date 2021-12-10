@@ -27,8 +27,9 @@ def send_sre_alert_message(*, leaving_request: LeavingRequest) -> SlackResponse:
             leaving_date = leaving_request.last_day.strftime("%d/%m/%Y")
 
             message_content = (
-                f"{leaver_name} is leaving DIT on the {leaving_date}, please remove their "
-                "access from tools and services. Confirm removal on "
+                f"{leaver_name} is leaving DIT on the {leaving_date}, please"
+                f"remove their access from tools and services. "
+                f"Confirm removal on "
                 f"{settings.SITE_URL}{leaving_request_path}."
             )
         else:
@@ -64,7 +65,8 @@ def send_sre_complete_message(
     try:
         return send_slack_message(
             channel_id=settings.SLACK_SRE_CHANNEL_ID,
-            message_content=f"Thank you for completing the SRE leaving process for {leaver_name}",
+            message_content=f"Thank you for completing the "
+            f"SRE leaving process for {leaver_name}",
             thread_ts=thread_ts,
         )
     except FailedToSendSlackMessage:

@@ -1,5 +1,4 @@
-from datetime import date
-from typing import List, Optional, TypedDict
+from typing import Optional, TypedDict
 
 
 class AssetDetails(TypedDict):

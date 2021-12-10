@@ -9,15 +9,24 @@ app = Celery()
 def setup_periodic_tasks(sender, **kwargs):
     # Run every day at midnight
     sender.add_periodic_task(
-        crontab(hour=0, minute=0,),
+        crontab(
+            hour=0,
+            minute=0,
+        ),
         hr_leaver_tasks_confirmation.s(),
     )
     sender.alert_sre_on_leaving_date(
-        crontab(hour=0, minute=0,),
+        crontab(
+            hour=0,
+            minute=0,
+        ),
         hr_leaver_tasks_confirmation.s(),
     )
     sender.send_reminders(
-        crontab(hour=0, minute=0,),
+        crontab(
+            hour=0,
+            minute=0,
+        ),
         hr_leaver_tasks_confirmation.s(),
     )
 

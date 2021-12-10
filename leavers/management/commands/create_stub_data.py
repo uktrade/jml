@@ -4,23 +4,24 @@ from leavers.models import Position
 
 import leavers
 
+
 class PositionStub:
     name = "Cost Centre Hierarchy"
     counter = 0
 
     def clear(self):
-        Position.objects.all().delete()   
+        Position.objects.all().delete()
 
     def create(self):
         """Clear the Position tables, and create the stub data"""
         self.clear()
-        Position.objects.create(title='Software Developer')
-        Position.objects.create(title='Software Tester')
-        Position.objects.create(title='Lead Developer')
-        Position.objects.create(title='Delivery Manager')
-        Position.objects.create(title='Program Manager')
-        Position.objects.create(title='UX Developer')
-        Position.objects.create(title='Product Manager')
+        Position.objects.create(title="Software Developer")
+        Position.objects.create(title="Software Tester")
+        Position.objects.create(title="Lead Developer")
+        Position.objects.create(title="Delivery Manager")
+        Position.objects.create(title="Program Manager")
+        Position.objects.create(title="UX Developer")
+        Position.objects.create(title="Product Manager")
 
 
 class Command(BaseCommand):
@@ -54,9 +55,7 @@ class Command(BaseCommand):
         del leavers._called_from_test
         self.stdout.write(
             self.style.SUCCESS(
-                "Successfully completed stub data creation for {}.".format(
-                    p.name
-                )
+                "Successfully completed stub data creation for {}.".format(p.name)
             )
         )
 
@@ -66,11 +65,7 @@ class Command(BaseCommand):
         p.clear()
         del leavers._called_from_test
         self.stdout.write(
-            self.style.SUCCESS(
-                "Successfully cleared stub data for {}.".format(
-                    p.name
-                )
-            )
+            self.style.SUCCESS("Successfully cleared stub data for {}.".format(p.name))
         )
 
     def handle(self, *args, **options):

@@ -159,7 +159,7 @@ class ServiceNowInterface(ServiceNowBase):
                 "assets_confirmation": assets_confirmation,
                 "Additional_information": leaver_info.additional_information,
                 "contact_telephone_for_collection": leaver_info.return_personal_phone,
-                "contact_email_for_delivery_collection": leaver_info.return_contact_email,
+                "contact_email_for_delivery_collection": leaver_info.return_contact_email,  # noqa E501
                 "collection_address_for_remote_leaver": (
                     f"{collection_address['building_and_street']}\n"
                     f"{collection_address['city']}\n"
@@ -187,3 +187,5 @@ class ServiceNowInterface(ServiceNowBase):
         response = requests.post(
             self.POST_LEAVER_REQUEST, json=service_now_request_data
         )
+
+        return response

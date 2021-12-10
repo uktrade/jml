@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView
 from django.urls import reverse_lazy
-from django.shortcuts import reverse, render
+from django.shortcuts import reverse
 from django.views.generic.edit import FormView
 
 
@@ -23,7 +23,7 @@ class WhoIsLeavingView(FormView):
     success_url = reverse_lazy("search")
 
     def form_valid(self, form):
-        self.who_for = form.cleaned_data['who_for']
+        self.who_for = form.cleaned_data["who_for"]
         return super().form_valid(form)
 
     def get_success_url(self):

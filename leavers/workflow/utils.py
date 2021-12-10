@@ -1,5 +1,3 @@
-from typing import cast
-
 from datetime import datetime, timedelta
 from django.utils import timezone
 
@@ -19,7 +17,7 @@ def get_payroll_date() -> datetime:
     if today.day < PAYROLL_DAY_OF_MONTH:
         # Payroll hasn't happened this month.
         return today.replace(day=PAYROLL_DAY_OF_MONTH)
-    
+
     # Payroll is next month.
     payroll_day = PAYROLL_DAY_OF_MONTH
     payroll_month = today.month + 1
@@ -30,11 +28,13 @@ def get_payroll_date() -> datetime:
         payroll_month = 1
         payroll_year = today.year + 1
 
-    return timezone.make_aware(datetime(
-        payroll_year,
-        payroll_month,
-        payroll_day,
-    ))
+    return timezone.make_aware(
+        datetime(
+            payroll_year,
+            payroll_month,
+            payroll_day,
+        )
+    )
 
 
 def is_x_days_before_payroll(days_before_payroll: int) -> bool:
@@ -44,7 +44,9 @@ def is_x_days_before_payroll(days_before_payroll: int) -> bool:
     return bool(today == x_days_before_payroll)
 
 
-def is_it_leaving_date_plus_x_days(leaving_request: LeavingRequest, days_after_leaving_date: int) -> bool:
+def is_it_leaving_date_plus_x_days(
+    leaving_request: LeavingRequest, days_after_leaving_date: int
+) -> bool:
     # If there isn't a last_day set, it can't be past it.
     if not leaving_request.last_day:
         return False
