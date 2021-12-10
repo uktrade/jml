@@ -14,10 +14,9 @@ from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
+from core.people_finder import get_people_finder_interface
 from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
-from core.people_finder import get_people_finder_interface
-
 from leavers import forms, types
 from leavers.models import LeaverInformation, ReturnOption
 from user.models import User
@@ -144,46 +143,41 @@ class LeaverInformationMixin:
         leaver_info.save(update_fields=["return_option"])
 
     def store_return_information(
-        self, email, personal_phone: str, contact_email: str, address: Optional[str]
+        self,
+        email,
+        personal_phone: str,
+        contact_email: str,
+        address: Optional[service_now_types.Address],
     ):
         leaver_info = self.get_leaver_information(email=email)
         leaver_info.return_personal_phone = personal_phone
         leaver_info.return_contact_email = contact_email
         if address:
-            leaver_info.return_address = address
+            leaver_info.return_address_building_and_street = address[
+                "building_and_street"
+            ]
+            leaver_info.return_address_city = address["building_and_citystreet"]
+            leaver_info.return_address_county = address["county"]
+            leaver_info.return_address_postcode = address["postcode"]
         leaver_info.save(
             update_fields=[
                 "return_personal_phone",
                 "return_contact_email",
-                "return_address",
+                "return_address_building_and_street",
+                "return_address_city",
+                "return_address_county",
+                "return_address_postcode",
             ]
         )
 
-    def submit_to_service_now(self):
+    def submit_to_service_now(self, email: str):
+        leaver_info = self.get_leaver_information(email=email)
+        leaver_details = self.get_leaver_details_with_updates(email=email)
         service_now_interface = get_service_now_interface()
-        # TODO: Map form data to the expected format to submit to Service Now.
-        leaving_request_data: service_now_types.LeaverRequestData = {
-            "collection_address": {
-                "building_and_street": "",
-                "city": "",
-                "county": "",
-                "postcode": "",
-            },
-            "collection_telephone": "0123456789",
-            "collection_email": "someone@example.com",
-            "reason_for_leaving": "",
-            "leaving_date": timezone.now().date(),
-            "employee_email": "someone@example.com",
-            "employee_name": "Joe Bloggs",
-            "employee_department": "Example Department",
-            "employee_directorate": "Example Directorate",
-            "employee_staff_id": "Staff ID",
-            "manager_name": "Jane Doe",
-            "assets": [],
-            "assets_confirmation": True,
-            "assets_information": "",
-        }
-        service_now_interface.submit_leaver_request(request_data=leaving_request_data)
+        # TODO: Populate assets and clear session
+        service_now_interface.submit_leaver_request(
+            leaver_info=leaver_info, leaver_details=leaver_details, assets=[]
+        )
 
 
 class ConfirmDetailsView(LoginRequiredMixin, LeaverInformationMixin, FormView):
@@ -278,6 +272,7 @@ class KitView(LoginRequiredMixin, LeaverInformationMixin, TemplateView):
         # Add asset to session
         asset = {
             "uuid": str(uuid.uuid4()),
+            "sys_id": None,
             "tag": None,
             "name": form.cleaned_data["asset_name"],
         }
@@ -317,15 +312,19 @@ class KitView(LoginRequiredMixin, LeaverInformationMixin, TemplateView):
         return self.render_to_response(context)
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
         if "assets" not in request.session:
             service_now_interface = get_service_now_interface()
             request.session["assets"] = [
                 {
                     "uuid": str(uuid.uuid4()),
+                    "sys_id": asset["sys_id"],
                     "tag": asset["tag"],
                     "name": asset["name"],
                 }
-                for asset in service_now_interface.get_assets_for_user()
+                for asset in service_now_interface.get_assets_for_user(email=user_email)
             ]
         return super().get(request, *args, **kwargs)
 
@@ -379,12 +378,22 @@ class EquipmentReturnInformationView(
     def form_valid(self, form):
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
+        leaver_info = self.get_leaver_information(email=user_email)
+
+        address: Optional[service_now_types.Address] = None
+        if leaver_info.return_option == ReturnOption.HOME:
+            address = {
+                "building_and_street": form.cleaned_data["address_building"],
+                "city": form.cleaned_data["address_city"],
+                "county": form.cleaned_data["address_county"],
+                "postcode": form.cleaned_data["address_postcode"],
+            }
 
         self.store_return_information(
             email=user_email,
             personal_phone=form.cleaned_data["personal_phone"],
             contact_email=form.cleaned_data["contact_email"],
-            address=form.cleaned_data["address"],
+            address=address,
         )
 
         return super().form_valid(form)

@@ -16,14 +16,16 @@
                                 {{ asset.name }}
                             </dd>
                         </div>
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Asset tag
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {{ asset.tag }}
-                            </dd>
-                        </div>
+                        {% if asset.tag %}
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key">
+                                    Asset tag
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    {{ asset.tag }}
+                                </dd>
+                            </div>
+                        {% endif %}
                     </dl>
                     <a href="{% url 'leaver-kit-delete' asset.uuid %} " class="govuk-button govuk-button--secondary" data-module="govuk-button">
                         Delete

@@ -10,6 +10,7 @@ class AssetDetails(factory.Factory):
     class Meta:
         model = types.AssetDetails
 
+    sys_id = factory.Sequence(lambda n: n)
     tag = factory.Sequence(lambda n: n)
     name = factory.Sequence(lambda n: f"Asset {n}")
 
@@ -27,23 +28,3 @@ class Address(factory.Factory):
     city = factory.Sequence(lambda n: f"City {n}")
     county = factory.Sequence(lambda n: f"County {n}")
     postcode = factory.Sequence(lambda n: f"PO57 {n}DE")
-
-
-class LeaverRequestData(factory.Factory):
-    class Meta:
-        model = types.LeaverRequestData
-
-    collection_address = factory.SubFactory(Address)
-    collection_telephone = factory.Sequence(lambda n: f"0123456789{n}")
-    collection_email = factory.Sequence(lambda n: f"collection{n}@example.com")
-    reason_for_leaving = factory.Sequence(lambda n: f"Reason {n}")
-    leaving_date = fuzzy.FuzzyDate(start_date="2022-01-01", end_date="2022-12-31")
-    employee_email = factory.Sequence(lambda n: f"employee{n}@example.com")
-    employee_name = fuzzy.FuzzyText(length=20)
-    employee_department = fuzzy.FuzzyText(length=20)
-    employee_directorate = fuzzy.FuzzyText(length=20)
-    employee_staff_id = fuzzy.FuzzyText(length=20)
-    manager_name = fuzzy.FuzzyText(length=20)
-    assets: List[types.AssetDetails] = []
-    assets_confirmation = True
-    assets_information = ""
