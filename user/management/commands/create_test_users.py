@@ -5,11 +5,11 @@ from django.contrib.auth.models import Group
 
 from user.models import User
 
-# first name, last name
+# first name, last name, team /PS-IGNORE
 USERS: List[Tuple[str, str, str]] = [
-    ("John", "Smith", "Hardware Team"),
-    ("Jane", "Doe", "SRE"),
-    ("Miss", "Marple", "HR"),
+    ("John", "Smith", "Hardware Team"),  # /PS-IGNORE
+    ("Jane", "Doe", "SRE"),  # /PS-IGNORE
+    ("Miss", "Marple", "HR"),  # /PS-IGNORE
 ]
 
 
@@ -32,7 +32,7 @@ class Command(BaseCommand):
         )
 
     def create_user(self, first_name: str, last_name: str, group_name: str) -> User:
-        username = f"{first_name.lower()}.{last_name.lower()}@example.com"
+        username = f"{first_name.lower()}.{last_name.lower()}@example.com" # /PS-IGNORE
 
         try:
             group = Group.objects.get(name=group_name)

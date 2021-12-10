@@ -40,8 +40,8 @@ OrderedItem = TypedDict(
         "dit:StaffSSO:User:status": str,
         "dit:StaffSSO:User:userId": str,
         "dit:emailAddress": str,
-        "dit:lastName": str,
-        "dit:firstName": str,
+        "dit:lastName": str,  # /PS-IGNORE
+        "dit:firstName": str,  # /PS-IGNORE
         "id": str,
         "name": str,
         "type": str,

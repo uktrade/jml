@@ -11,10 +11,10 @@ from user.test.factories import UserFactory
 class TestSSOUserProfile(TestCase):
     def setUp(self):
         self.sso_profile = {
-            "email_user_id": "sso_test-1111111@example.com",
-            "email": "sso.test@example.com",
-            "contact_email": "sso_test_1@example.com",
-            "first_name": "Barry",
+            "email_user_id": "sso_test-1111111@example.com",  # /PS-IGNORE
+            "email": "sso.test@example.com",  # /PS-IGNORE
+            "contact_email": "sso_test_1@example.com",  # /PS-IGNORE
+            "first_name": "Barry",  # /PS-IGNORE
             "last_name": "Test",
             "user_id": str(uuid.uuid4()),
         }
@@ -28,7 +28,7 @@ class TestSSOUserProfile(TestCase):
 
         self.assertEqual(User.objects.count(), user_count + 1)
 
-        user = User.objects.get(email="sso.test@example.com")
+        user = User.objects.get(email="sso.test@example.com")  # /PS-IGNORE
 
         self.assertEqual(
             user.username,

@@ -25,8 +25,8 @@ class StaffSSOBase(ABC):
 class StaffSSOStubbed(StaffSSOBase):
     def get_user_details(self, email: str) -> Optional[SSOUserDetail]:
         return {
-            "first_name": "Joe",
-            "last_name": "Bloggs",
+            "first_name": "Joe",  # /PS-IGNORE
+            "last_name": "Bloggs",  # /PS-IGNORE
             "sso_id": "123",
         }
 

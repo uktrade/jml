@@ -28,13 +28,13 @@ class PeopleFinderStubbed(PeopleFinderBase):
     def get_search_results(self, search_term: str) -> List[PersonDetail]:
         return [
             {
-                "first_name": "Joe",
-                "last_name": "Bloggs",
+                "first_name": "Joe",  # /PS-IGNORE
+                "last_name": "Bloggs",  # /PS-IGNORE
                 "image": "",
                 "job_title": "Job title",
                 "directorate": "Directorate name",
-                "email": "joe.bloggs@example.com",
-                "phone": "0123456789",
+                "email": "joe.bloggs@example.com",  # /PS-IGNORE
+                "phone": "0123456789",  # /PS-IGNORE
                 "grade": "Example Grade",
                 "image": "",
             },
