@@ -1,10 +1,34 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, TypedDict, cast
 
 from PyPDF2 import PdfFileReader
 from PyPDF2.pdf import PageObject  # /PS-IGNORE
 
+ParsedUKSBSPDF = TypedDict(  # /PS-IGNORE
+    "ParsedUKSBSPDF",  # /PS-IGNORE
+    {
+        "Line Manager": str,
+        "Line Manager's Email": str,
+        "Line Manager's Oracle ID": str,
+        "Line Manager's Employee Number": str,
+        "Completed on": str,
+        "Name": str,
+        "Email": str,
+        "Oracle ID": str,
+        "Employee Number": str,
+        "Paid or Unpaid?": str,
+        "Reason for Leaving": str,
+        "Last Day of Employment": str,
+        "Unit of Measurement": str,  # /PS-IGNORE
+        "Paid or Deducted?": str,
+        "Number of Days to be Paid": str,
+        "Number of Hours to be Paid": str,
+        "Number of Days to be Deducted": str,
+        "Number of Hours to be Deducted": str,
+    },
+)
 
-def parse_leaver_pdf(*, filename: str) -> Dict[str, str]:
+
+def parse_leaver_pdf(*, filename: str) -> ParsedUKSBSPDF:
     fileReader = PdfFileReader(open(filename, "rb"))
 
     page: PageObject = fileReader.getPage(0)
@@ -89,8 +113,9 @@ def parse_leaver_pdf(*, filename: str) -> Dict[str, str]:
         ),
     )
 
-    parsed_pdf = {}
+    # Merge all the data
+    parsed_pdf: Dict[str, str] = {}
     parsed_pdf.update(**user_who_completed_values)
     parsed_pdf.update(**leaver_details_values)
     parsed_pdf.update(**annual_leave_values)
-    return parsed_pdf
+    return cast(ParsedUKSBSPDF, parsed_pdf)
