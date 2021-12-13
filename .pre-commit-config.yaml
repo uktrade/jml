@@ -32,10 +32,10 @@ repos:
     rev: 4.0.1
     hooks:
     - id: flake8
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "5cf22ccb774a8be8f47dfe4c1e8c4f177c608cbf"  # /PS-IGNORE
-    hooks:
-    - id: mypy
+# -   repo: https://github.com/pre-commit/mirrors-mypy
+#     rev: "5cf22ccb774a8be8f47dfe4c1e8c4f177c608cbf"  # /PS-IGNORE
+#     hooks:
+#     - id: mypy
 -   repo: https://github.com/PyCQA/isort
     rev: 5.10.1
     hooks:
