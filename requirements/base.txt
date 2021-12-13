@@ -128,6 +128,8 @@ pycrypto==2.6.1
     # via -r requirements.in/base.in
 pyjwt==2.3.0
     # via notifications-python-client
+pypdf2==1.26.0
+    # via -r requirements.in/base.in
 python-crontab==2.6.0
     # via django-celery-beat
 python-dateutil==2.8.2

@@ -190,6 +190,8 @@ pyjwt==2.3.0
     # via notifications-python-client
 pyparsing==3.0.6
     # via packaging
+pypdf2==1.26.0
+    # via -r requirements.in/base.in
 pytest==6.2.5
     # via
     #   -r requirements.in/dev.in
