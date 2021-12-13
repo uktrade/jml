@@ -1,18 +1,18 @@
 -r base.in
 
-Faker
-factory-boy
 black
+django-stubs
+factory-boy
+Faker
 flake8
+freezegun
 isort
 mypy
-django-stubs
-types-certifi
-types-requests
+pip-tools>=6.0.1
 pytest
 pytest-cov
 pytest-django
 pytest-xdist
-freezegun
-pip-tools>=6.0.1
+types-certifi
 types-freezegun
+types-requests
