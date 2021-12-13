@@ -1,11 +1,8 @@
-from django.contrib.auth.mixins import (
-    LoginRequiredMixin,
-    UserPassesTestMixin,
-)
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django_workflow_engine.views import (
-    FlowListView,
-    FlowCreateView,
     FlowContinueView,
+    FlowCreateView,
+    FlowListView,
     FlowView,
 )
 
@@ -13,7 +10,10 @@ from django_workflow_engine.views import (
 class LeaverBaseView(UserPassesTestMixin):
     def test_func(self):
         return self.request.user.groups.filter(
-            name__in=("SRE", "HR",),
+            name__in=(
+                "SRE",
+                "HR",
+            ),
         ).first()
 
 

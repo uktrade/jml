@@ -145,21 +145,21 @@ class ServiceNowInterface(ServiceNowBase):
             leaving_date = leaver_info.leaving_date.strftime("%d/%m/%Y")
 
         collection_address: types.Address = {
-            "building_and_street": leaver_info.return_address_building_and_street,
-            "city": leaver_info.return_address_city,
-            "county": leaver_info.return_address_county,
-            "postcode": leaver_info.return_address_postcode,
+            "building_and_street": leaver_info.return_address_building_and_street or "",
+            "city": leaver_info.return_address_city or "",
+            "county": leaver_info.return_address_county or "",
+            "postcode": leaver_info.return_address_postcode or "",
         }
 
         service_now_request_data = {
             "sysparm_quantity": "1",
             "variables": {
-                "leaver_staff_id": leaver_details.staff_id,
+                "leaver_staff_id": leaver_details["staff_id"],
                 "leaver_leave_date": leaving_date,
                 "assets_confirmation": assets_confirmation,
                 "Additional_information": leaver_info.additional_information,
                 "contact_telephone_for_collection": leaver_info.return_personal_phone,
-                "contact_email_for_delivery_collection": leaver_info.return_contact_email,
+                "contact_email_for_delivery_collection": leaver_info.return_contact_email,  # noqa E501
                 "collection_address_for_remote_leaver": (
                     f"{collection_address['building_and_street']}\n"
                     f"{collection_address['city']}\n"
@@ -167,10 +167,10 @@ class ServiceNowInterface(ServiceNowBase):
                 ),
                 "collection_postcode_for_remote_leaver": collection_address["postcode"],
                 "leaver_user": "",
-                "users_manager": leaver_details.manager,
+                "users_manager": leaver_details["manager"],
                 "leaver_other_reason": "",
-                "leaver_dept": leaver_details.department,
-                "u_users_directorate": leaver_details.directorate,
+                "leaver_dept": leaver_details["department"],
+                "u_users_directorate": leaver_details["directorate"],
                 "users_assets": [
                     {
                         "asset_tag": asset_details["tag"],
@@ -187,3 +187,5 @@ class ServiceNowInterface(ServiceNowBase):
         response = requests.post(
             self.POST_LEAVER_REQUEST, json=service_now_request_data
         )
+
+        return response

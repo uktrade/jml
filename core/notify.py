@@ -1,9 +1,5 @@
 from django.conf import settings
-
-from notifications_python_client.notifications import (
-    NotificationsAPIClient,
-)
-
+from notifications_python_client.notifications import NotificationsAPIClient
 
 notification_client = NotificationsAPIClient(
     settings.GOVUK_NOTIFY_API_KEY,

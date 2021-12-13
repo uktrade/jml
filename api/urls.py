@@ -1,7 +1,5 @@
-from django.urls import path
-
 from api.views import DetailCorrectionViewSet
-
+from django.urls import path
 
 urlpatterns = [
     path(

@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
-from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group
+from django.core.management.base import BaseCommand
 
 from user.models import User
 
@@ -32,7 +32,7 @@ class Command(BaseCommand):
         )
 
     def create_user(self, first_name: str, last_name: str, group_name: str) -> User:
-        username = f"{first_name.lower()}.{last_name.lower()}@example.com" # /PS-IGNORE
+        username = f"{first_name.lower()}.{last_name.lower()}@example.com"  # /PS-IGNORE
 
         try:
             group = Group.objects.get(name=group_name)

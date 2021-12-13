@@ -1,11 +1,6 @@
 from authbroker_client.backends import AuthbrokerBackend
-from authbroker_client.utils import (
-    get_client,
-    get_profile,
-    has_valid_token,
-)
+from authbroker_client.utils import get_client, get_profile, has_valid_token
 from django.contrib.auth import get_user_model
-
 
 User = get_user_model()
 
@@ -20,9 +15,7 @@ class CustomAuthbrokerBackend(AuthbrokerBackend):
 
     @staticmethod
     def get_or_create_user(profile):
-        user = User.objects.filter(
-            username=profile["email_user_id"]
-        ).first()
+        user = User.objects.filter(username=profile["email_user_id"]).first()
 
         if user:
             # Set email_user_id as username (it is now the preferred option)

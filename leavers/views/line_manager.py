@@ -1,30 +1,22 @@
 import uuid
-from typing import List, TypedDict, Optional
+from typing import List, Optional, TypedDict
 
-from django.views.generic import TemplateView
-from django.urls import reverse_lazy
-from django.shortcuts import redirect
-from django.views.generic.edit import FormView
-from django.core.validators import validate_email
 from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.validators import validate_email
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 from django.views import View
-from django.shortcuts import render
-
+from django.views.generic import TemplateView
+from django.views.generic.edit import FormView
 from django_workflow_engine.exceptions import WorkflowNotAuthError
 from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
 
-from core.utils.sso import get_sso_user_details
 from core.people_finder import get_people_finder_interface
-
-from leavers.models import LeavingRequest
-
 from core.utils.hr import get_hr_people_data
-
-from leavers.forms import (
-    SearchForm,
-    LeaverConfirmationForm,
-)
+from core.utils.sso import get_sso_user_details
+from leavers.forms import LeaverConfirmationForm, SearchForm
+from leavers.models import LeavingRequest
 
 
 class PersonResult(TypedDict):
@@ -106,6 +98,7 @@ class LeaverSearchView(View):
             try:
                 validate_email(part)
             except ValidationError as e:
+                print(e)
                 # It's not an email address
                 pass
             else:
@@ -116,12 +109,14 @@ class LeaverSearchView(View):
         for email in emails:
             sso_result = get_sso_user_details(request=self.request, email=email)
             if sso_result:
-                person_results.append({
-                    "uuid": str(uuid.uuid4()),
-                    "sso_id": sso_result["sso_id"],
-                    "email": email,
-                    "staff_number": None,
-                })
+                person_results.append(
+                    {
+                        "uuid": str(uuid.uuid4()),
+                        "sso_id": sso_result["sso_id"],
+                        "email": email,
+                        "staff_number": None,
+                    }
+                )
 
         # We do not present a result unless
         # we have been able to establish SSO id
@@ -143,7 +138,7 @@ class LeaverSearchView(View):
 
     def get(self, request, *args, **kwargs):
         form = self.form_class()
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {"form": form})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
@@ -155,12 +150,16 @@ class LeaverSearchView(View):
                 search_terms,
             )
 
-            request.session['people_list'] = people_list
+            request.session["people_list"] = people_list
 
-        return render(request, self.template_name, {
-            'form': form,
-            'people_list': people_list,
-        })
+        return render(
+            request,
+            self.template_name,
+            {
+                "form": form,
+                "people_list": people_list,
+            },
+        )
 
 
 class ConfirmationView(FormView):
@@ -174,7 +173,7 @@ class ConfirmationView(FormView):
         if not person_id:
             redirect("search")
 
-        for person in self.request.session['people_list']:
+        for person in self.request.session["people_list"]:
             if person["uuid"] == person_id:
                 self.person = person
 
@@ -183,8 +182,8 @@ class ConfirmationView(FormView):
     def create_workflow(self):
         flow = Flow.objects.create(
             workflow_name="leaving",
-            flow_name=f"{self.person['first_name']} {self.person['last_name']} is leaving",
-            executed_by=self.request.user
+            flow_name=f"{self.person['first_name']} {self.person['last_name']} is leaving",  # noqa E501
+            executed_by=self.request.user,
         )
         flow.save()
 
@@ -212,7 +211,7 @@ class ConfirmationView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['person'] = self.person
+        context["person"] = self.person
 
         return context
 

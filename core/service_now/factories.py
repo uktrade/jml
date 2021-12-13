@@ -1,7 +1,4 @@
-from typing import List
-
 import factory
-from factory import fuzzy
 
 from core.service_now import types
 

@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('leavers', '0002_auto_20211122_1317'),
+        ("leavers", "0002_auto_20211122_1317"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='leavingrequest',
-            name='leaver_first_name',
+            model_name="leavingrequest",
+            name="leaver_first_name",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
         migrations.AddField(
-            model_name='leavingrequest',
-            name='leaver_last_name',
+            model_name="leavingrequest",
+            name="leaver_last_name",
             field=models.CharField(blank=True, max_length=100, null=True),
         ),
     ]

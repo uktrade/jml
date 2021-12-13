@@ -1,11 +1,5 @@
 from django import forms
-from django.forms.widgets import (
-    Textarea,
-    Select,
-    CheckboxInput,
-    TextInput,
-    EmailInput,
-)
+from django.forms.widgets import CheckboxInput, EmailInput, Select, Textarea, TextInput
 
 
 class GovFormattedModelForm(forms.ModelForm):

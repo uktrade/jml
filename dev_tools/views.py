@@ -1,13 +1,11 @@
 from functools import wraps
 
+from dev_tools.forms import ChangeUserForm
 from django.conf import settings
 from django.contrib.auth import get_user_model, login, logout
 from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.shortcuts import redirect, render
 from django.urls import reverse
-
-from dev_tools.forms import ChangeUserForm
-
 
 User = get_user_model()
 

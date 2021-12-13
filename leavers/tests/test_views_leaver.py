@@ -11,16 +11,6 @@ from leavers import factories, models, types
 from leavers.views.leaver import LeaverInformationMixin
 from user.test.factories import UserFactory
 
-PEOPLE_FINDER_RESULT = {
-    "first_name": "Joe",  # /PS-IGNORE
-    "last_name": "Bloggs",  # /PS-IGNORE
-    "grade": "Example Grade",
-    "primary_phone_number": "0987654321",  # /PS-IGNORE
-    "email": "joe.bloggs@example.com",  # /PS-IGNORE
-    "photo": "",
-    "roles": [{"job_title": "Example Job Title", "team": {"name": "Example Team"}}],
-}
-
 
 class TestLeaverInformationMixin(TestCase):
 
@@ -29,11 +19,17 @@ class TestLeaverInformationMixin(TestCase):
     """
 
     def test_get_leaver_information_new(self):
-        LeaverInformationMixin().get_leaver_information(email="joe.bloggs@example.com")  # /PS-IGNORE
+
+        LeaverInformationMixin().get_leaver_information(
+            email="joe.bloggs@example.com"  # /PS-IGNORE
+        )
 
         self.assertEqual(models.LeaverInformation.objects.count(), 1)
         leaver_info = models.LeaverInformation.objects.first()
-        self.assertEqual(leaver_info.leaver_email, "joe.bloggs@example.com")  # /PS-IGNORE
+
+        self.assertEqual(
+            leaver_info.leaver_email, "joe.bloggs@example.com"  # /PS-IGNORE
+        )
 
     def test_get_leaver_information_existing(self):
         leaver_info = factories.LeaverInformationFactory(
@@ -44,12 +40,17 @@ class TestLeaverInformationMixin(TestCase):
 
         self.assertEqual(models.LeaverInformation.objects.count(), 1)
         leaver_info = models.LeaverInformation.objects.first()
-        self.assertEqual(leaver_info.leaver_email, "joe.bloggs@example.com")  # /PS-IGNORE
+
+        self.assertEqual(
+            leaver_info.leaver_email, "joe.bloggs@example.com"  # /PS-IGNORE
+        )
 
     def test_get_leaver_information_other_information(self):
         factories.LeaverInformationFactory.create_batch(5)
 
-        LeaverInformationMixin().get_leaver_information(email="joe.bloggs@example.com")  # /PS-IGNORE
+        LeaverInformationMixin().get_leaver_information(
+            email="joe.bloggs@example.com"  # /PS-IGNORE
+        )
 
         self.assertEqual(models.LeaverInformation.objects.count(), 6)
         self.assertEqual(
@@ -63,42 +64,33 @@ class TestLeaverInformationMixin(TestCase):
     Tests for `get_leaver_details`
     """
 
-    @mock.patch("leavers.views.leaver.search_people_finder", return_value=[])
-    def test_get_leaver_details_no_results(self, mock_search_people_finder):
+    @mock.patch(
+        "core.people_finder.interfaces.PeopleFinderStubbed.get_search_results",
+        return_value=[],
+    )
+    def test_get_leaver_details_no_results(self, mock_get_search_results):
         with self.assertRaisesMessage(Exception, "Issue finding user in People Finder"):
             LeaverInformationMixin().get_leaver_details(email="")
 
-    @mock.patch(
-        "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
-    )
-    def test_get_leaver_details_with_result(self, mock_search_people_finder):
+    def test_get_leaver_details_with_result(self):
         leaver_details = LeaverInformationMixin().get_leaver_details(email="")
+        self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
+        self.assertEqual(leaver_details["last_name"], "Bloggs")
+        self.assertEqual(leaver_details["grade"], "Example Grade")
+        self.assertEqual(leaver_details["personal_phone"], "0123456789")
         self.assertEqual(
-            leaver_details["first_name"], PEOPLE_FINDER_RESULT["first_name"]
+            leaver_details["work_email"], "joe.bloggs@example.com"  # /PS-IGNORE
         )
-        self.assertEqual(leaver_details["last_name"], PEOPLE_FINDER_RESULT["last_name"])
-        self.assertEqual(leaver_details["grade"], PEOPLE_FINDER_RESULT["grade"])
-        self.assertEqual(
-            leaver_details["personal_phone"],
-            PEOPLE_FINDER_RESULT["primary_phone_number"],
-        )
-        self.assertEqual(leaver_details["work_email"], PEOPLE_FINDER_RESULT["email"])
-        self.assertEqual(
-            leaver_details["job_title"],
-            PEOPLE_FINDER_RESULT["roles"][0]["job_title"],
-        )
-        self.assertEqual(
-            leaver_details["directorate"],
-            PEOPLE_FINDER_RESULT["roles"][0]["team"]["name"],
+        self.assertEqual(leaver_details["job_title"], "Job title")
+        self.assertEqual(leaver_details["directorate"], "Directorate name")
+
+    def test_get_leaver_details_existing_updates(self):
+
+        factories.LeaverInformationFactory(
+            leaver_email="joe.bloggs@example.com",  # /PS-IGNORE
+            updates={"first_name": "Joey"},  # /PS-IGNORE
         )
 
-    @mock.patch(
-        "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
-    )
-    def test_get_leaver_details_existing_updates(self, mock_search_people_finder):
-        factories.LeaverInformationFactory(
-            leaver_email="joe.bloggs@example.com", updates={"first_name": "Joey"}  # /PS-IGNORE
-        )
         leaver_details = LeaverInformationMixin().get_leaver_details(
             email="joe.bloggs@example.com"  # /PS-IGNORE
         )
@@ -115,9 +107,12 @@ class TestLeaverInformationMixin(TestCase):
         self.assertEqual(leaver_detail_updates, {})
 
     def test_get_leaver_detail_updates_some_updates(self):
+
         factories.LeaverInformationFactory(
-            leaver_email="joe.bloggs@example.com", updates={"first_name": "Joey"}  # /PS-IGNORE
+            leaver_email="joe.bloggs@example.com",  # /PS-IGNORE
+            updates={"first_name": "Joey"},  # /PS-IGNORE
         )
+
         leaver_detail_updates = LeaverInformationMixin().get_leaver_detail_updates(
             email="joe.bloggs@example.com"  # /PS-IGNORE
         )
@@ -127,10 +122,7 @@ class TestLeaverInformationMixin(TestCase):
     Tests for `store_leaver_detail_updates`
     """
 
-    @mock.patch(
-        "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
-    )
-    def store_leaver_detail_updates_no_changes(self, mock_search_people_finder):
+    def store_leaver_detail_updates_no_changes(self):
         LeaverInformationMixin().store_leaver_detail_updates(
             email="joe.bloggs@example.com", updates={}  # /PS-IGNORE
         )
@@ -141,10 +133,7 @@ class TestLeaverInformationMixin(TestCase):
             1,
         )
 
-    @mock.patch(
-        "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
-    )
-    def store_leaver_detail_updates_some_changes(self, mock_search_people_finder):
+    def store_leaver_detail_updates_some_changes(self):
         LeaverInformationMixin().store_leaver_detail_updates(
             email="joe.bloggs@example.com", updates={"first_name": "Joey"}  # /PS-IGNORE
         )
@@ -158,25 +147,16 @@ class TestLeaverInformationMixin(TestCase):
     Tests for `get_leaver_details_with_updates`
     """
 
-    @mock.patch(
-        "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
-    )
-    def test_get_leaver_details_with_updates_no_updates(
-        self, mock_search_people_finder
-    ):
+    def test_get_leaver_details_with_updates_no_updates(self):
         leaver_details = LeaverInformationMixin().get_leaver_details_with_updates(
             email="joe.bloggs@example.com"  # /PS-IGNORE
         )
         self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
 
-    @mock.patch(
-        "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
-    )
-    def test_get_leaver_details_with_updates_some_updates(
-        self, mock_search_people_finder
-    ):
+    def test_get_leaver_details_with_updates_some_updates(self):
         factories.LeaverInformationFactory(
-            leaver_email="joe.bloggs@example.com", updates={"first_name": "Joey"}  # /PS-IGNORE
+            leaver_email="joe.bloggs@example.com",  # /PS-IGNORE
+            updates={"first_name": "Joey"},  # /PS-IGNORE
         )
         leaver_details = LeaverInformationMixin().get_leaver_details_with_updates(
             email="joe.bloggs@example.com"  # /PS-IGNORE
@@ -239,8 +219,10 @@ class TestLeaverInformationMixin(TestCase):
         leaver_info = factories.LeaverInformationFactory(
             leaver_email="joe.bloggs@example.com"  # /PS-IGNORE
         )
+
         LeaverInformationMixin().store_return_option(
-            email="joe.bloggs@example.com", return_option=models.ReturnOption.HOME  # /PS-IGNORE
+            email="joe.bloggs@example.com",  # /PS-IGNORE
+            return_option=models.ReturnOption.HOME,
         )
 
         leaver_info.refresh_from_db()
@@ -250,8 +232,10 @@ class TestLeaverInformationMixin(TestCase):
         leaver_info = factories.LeaverInformationFactory(
             leaver_email="joe.bloggs@example.com"  # /PS-IGNORE
         )
+
         LeaverInformationMixin().store_return_option(
-            email="joe.bloggs@example.com", return_option=models.ReturnOption.OFFICE  # /PS-IGNORE
+            email="joe.bloggs@example.com",  # /PS-IGNORE
+            return_option=models.ReturnOption.OFFICE,
         )
 
         leaver_info.refresh_from_db()
@@ -275,7 +259,8 @@ class TestLeaverInformationMixin(TestCase):
         leaver_info.refresh_from_db()
         self.assertEqual(leaver_info.return_personal_phone, "0123451234")  # /PS-IGNORE
         self.assertEqual(
-            leaver_info.return_contact_email, "joe.bloggs.contact@example.com"  # /PS-IGNORE
+            leaver_info.return_contact_email,
+            "joe.bloggs.contact@example.com",  # /PS-IGNORE
         )
 
     def test_store_return_information_with_address(self):
@@ -286,29 +271,38 @@ class TestLeaverInformationMixin(TestCase):
             email="joe.bloggs@example.com",  # /PS-IGNORE
             personal_phone="0123451234",  # /PS-IGNORE
             contact_email="joe.bloggs.contact@example.com",  # /PS-IGNORE
-            address="Test address",
+            address={  # /PS-IGNORE
+                "building_and_street": "Example Building name",  # /PS-IGNORE
+                "city": "Bristol",
+                "county": "Bristol",
+                "postcode": "AB1 2CD",  # /PS-IGNORE
+            },
         )
 
         leaver_info.refresh_from_db()
         self.assertEqual(leaver_info.return_personal_phone, "0123451234")  # /PS-IGNORE
         self.assertEqual(
-            leaver_info.return_contact_email, "joe.bloggs.contact@example.com"  # /PS-IGNORE
+            leaver_info.return_contact_email,
+            "joe.bloggs.contact@example.com",  # /PS-IGNORE
         )
-        self.assertEqual(leaver_info.return_address, "Test address")
+        self.assertEqual(
+            leaver_info.return_address_building_and_street,
+            "Example Building name",  # /PS-IGNORE
+        )
+        self.assertEqual(leaver_info.return_address_city, "Bristol")
+        self.assertEqual(leaver_info.return_address_county, "Bristol")
+        self.assertEqual(leaver_info.return_address_postcode, "AB1 2CD")  # /PS-IGNORE
 
 
-@mock.patch(
-    "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
-)
 class TestConfirmDetailsView(TestCase):
     view_name = "leaver-confirm-details"
 
-    def test_unauthenticated_user(self, mock_search_people_finder):
+    def test_unauthenticated_user(self):
         response = self.client.get(reverse(self.view_name))
 
         self.assertEqual(response.status_code, 302)
 
-    def test_authenticated_user(self, mock_search_people_finder):
+    def test_authenticated_user(self):
         user = UserFactory()
         self.client.force_login(user)
         response = self.client.get(reverse(self.view_name))
@@ -320,22 +314,22 @@ class TestConfirmDetailsView(TestCase):
             {
                 "date_of_birth": date(2021, 11, 25),
                 "department": "",
-                "directorate": "Example Team",
+                "directorate": "Directorate name",
                 "first_name": "Joe",  # /PS-IGNORE
                 "grade": "Example Grade",
-                "job_title": "Example Job Title",
+                "job_title": "Job title",
                 "last_name": "Bloggs",
                 "manager": "",
                 "staff_id": "",
                 "personal_address": "",
                 "personal_email": "",
-                "personal_phone": "0987654321",  # /PS-IGNORE
+                "personal_phone": "0123456789",  # /PS-IGNORE
                 "photo": "",
                 "work_email": "joe.bloggs@example.com",  # /PS-IGNORE
             },
         )
 
-    def test_existing_updates(self, mock_search_people_finder):
+    def test_existing_updates(self):
         user = UserFactory()
         updates: types.LeaverDetailUpdates = {
             "department": "Updated Department",
@@ -377,7 +371,7 @@ class TestConfirmDetailsView(TestCase):
             },
         )
 
-    def test_submit_missing_required_data(self, mock_search_people_finder):
+    def test_submit_missing_required_data(self):
         user = UserFactory()
         self.client.force_login(user)
 
@@ -385,16 +379,16 @@ class TestConfirmDetailsView(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_submit_contains_required_data(self, mock_search_people_finder):
+    def test_submit_contains_required_data(self):
         user = UserFactory()
         updates: types.LeaverDetailUpdates = {
-            "department": "Updated Department",
-            "directorate": "Updated Directorate",
+            "department": "1",
+            "directorate": "1",
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
             "grade": "Updated Grade",
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "manager": "Updated Manager",
+            "manager": "222",
             "staff_id": "Updated Staff ID",
             "personal_address": "Updated Address",
             "personal_email": "new.personal.email@example.com",  # /PS-IGNORE
@@ -410,18 +404,15 @@ class TestConfirmDetailsView(TestCase):
         self.assertEqual(response.url, reverse("leaver-kit"))
 
 
-@mock.patch(
-    "leavers.views.leaver.search_people_finder", return_value=[PEOPLE_FINDER_RESULT]
-)
 class TestUpdateDetailsView(TestCase):
     view_name = "leaver-update-details"
 
-    def test_unauthenticated_user(self, mock_search_people_finder):
+    def test_unauthenticated_user(self):
         response = self.client.get(reverse(self.view_name))
 
         self.assertEqual(response.status_code, 302)
 
-    def test_authenticated_user(self, mock_search_people_finder):
+    def test_authenticated_user(self):
         user = UserFactory()
         self.client.force_login(user)
 
@@ -435,22 +426,22 @@ class TestUpdateDetailsView(TestCase):
             {
                 "date_of_birth": date(2021, 11, 25),
                 "department": "",
-                "directorate": "Example Team",
+                "directorate": "Directorate name",
                 "first_name": "Joe",  # /PS-IGNORE
                 "grade": "Example Grade",
-                "job_title": "Example Job Title",
+                "job_title": "Job title",
                 "last_name": "Bloggs",  # /PS-IGNORE
                 "manager": "",
                 "staff_id": "",
                 "personal_address": "",
                 "personal_email": "",
-                "personal_phone": "0987654321",  # /PS-IGNORE
+                "personal_phone": "0123456789",  # /PS-IGNORE
                 "photo": "",
                 "work_email": "joe.bloggs@example.com",  # /PS-IGNORE
             },
         )
 
-    def test_existing_updates(self, mock_search_people_finder):
+    def test_existing_updates(self):
         user = UserFactory()
         updates: types.LeaverDetailUpdates = {
             "department": "Updated Department",
@@ -494,7 +485,7 @@ class TestUpdateDetailsView(TestCase):
             },
         )
 
-    def test_submit_missing_required_data(self, mock_search_people_finder):
+    def test_submit_missing_required_data(self):
         user = UserFactory()
         self.client.force_login(user)
 
@@ -532,24 +523,24 @@ class TestUpdateDetailsView(TestCase):
             response, "form", "personal_email", "This field is required."
         )
 
-    def test_submit_contains_required_data(self, mock_search_people_finder):
+    def test_submit_contains_required_data(self):
         user = UserFactory()
         self.client.force_login(user)
 
         response = self.client.post(
             reverse(self.view_name),
             {
-                "department": "Test Department",
-                "directorate": "Test Directorate",
+                "department": "1",
+                "directorate": "1",
                 "first_name": "FirstName",  # /PS-IGNORE
                 "grade": "Grade",
                 "job_title": "Job Title",
                 "last_name": "LastName",  # /PS-IGNORE
-                "manager": "Manager Name",
+                "manager": "222",
                 "staff_id": "Staff ID",
                 "personal_address": "Personal Address",
                 "personal_email": "someone@example.com",  # /PS-IGNORE
-                "personal_phone": "0123456789",  # /PS-IGNORE
+                "personal_phone": "0987654321",  # /PS-IGNORE
                 "work_email": user.email,
             },
         )
@@ -562,17 +553,22 @@ class TestUpdateDetailsView(TestCase):
         )
         leaver_updates: types.LeaverDetailUpdates = leaver_updates_obj.updates
 
-        self.assertEqual(leaver_updates["department"], "Test Department")
-        self.assertEqual(leaver_updates["directorate"], "Test Directorate")
+        self.assertEqual(leaver_updates["department"], "1")
+        self.assertEqual(leaver_updates["directorate"], "1")
         self.assertEqual(leaver_updates["first_name"], "FirstName")  # /PS-IGNORE
         self.assertEqual(leaver_updates["grade"], "Grade")
         self.assertEqual(leaver_updates["job_title"], "Job Title")
         self.assertEqual(leaver_updates["last_name"], "LastName")  # /PS-IGNORE
-        self.assertEqual(leaver_updates["manager"], "Manager Name")
+        self.assertEqual(leaver_updates["manager"], "222")
         self.assertEqual(leaver_updates["staff_id"], "Staff ID")
         self.assertEqual(leaver_updates["personal_address"], "Personal Address")
-        self.assertEqual(leaver_updates["personal_email"], "someone@example.com")  # /PS-IGNORE
-        self.assertEqual(leaver_updates["personal_phone"], "0123456789")  # /PS-IGNORE
+
+        self.assertEqual(
+            leaver_updates["personal_email"],
+            "someone@example.com",  # /PS-IGNORE
+        )
+
+        self.assertEqual(leaver_updates["personal_phone"], "0987654321")  # /PS-IGNORE
         self.assertEqual(leaver_updates["work_email"], user.email)
 
 
@@ -865,7 +861,10 @@ class TestEquipmentReturnInformationView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         context_form = response.context["form"]
-        self.assertTrue(context_form.fields["address"].required)
+        self.assertTrue(context_form.fields["address_building"].required)
+        self.assertTrue(context_form.fields["address_city"].required)
+        self.assertTrue(context_form.fields["address_county"].required)
+        self.assertTrue(context_form.fields["address_postcode"].required)
 
     def test_office(self):
         user = UserFactory()
@@ -879,19 +878,29 @@ class TestEquipmentReturnInformationView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         context_form = response.context["form"]
-        self.assertFalse(context_form.fields["address"].required)
+        self.assertFalse(context_form.fields["address_building"].required)
+        self.assertFalse(context_form.fields["address_city"].required)
+        self.assertFalse(context_form.fields["address_county"].required)
+        self.assertFalse(context_form.fields["address_postcode"].required)
 
     @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_information")
     def test_post(self, mock_store_return_information):
         user = UserFactory()
         self.client.force_login(user)
+        factories.LeaverInformationFactory(
+            leaver_email=user.email,
+            return_option=models.ReturnOption.HOME,
+        )
 
         response = self.client.post(
             reverse(self.view_name),
             {
                 "personal_phone": "0123123123",  # /PS-IGNORE
                 "contact_email": "joe.bloggs@example.com",  # /PS-IGNORE
-                "address": "Test Address",
+                "address_building": "Example Building name",  # /PS-IGNORE
+                "address_city": "Bristol",
+                "address_county": "Bristol",
+                "address_postcode": "AB1 2CD",  # /PS-IGNORE
             },
         )
 
@@ -902,5 +911,10 @@ class TestEquipmentReturnInformationView(TestCase):
             email=user.email,
             personal_phone="0123123123",  # /PS-IGNORE
             contact_email="joe.bloggs@example.com",  # /PS-IGNORE
-            address="Test Address",
+            address={  # /PS-IGNORE
+                "building_and_street": "Example Building name",  # /PS-IGNORE
+                "city": "Bristol",
+                "county": "Bristol",
+                "postcode": "AB1 2CD",  # /PS-IGNORE
+            },
         )

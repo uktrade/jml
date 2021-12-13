@@ -350,3 +350,18 @@ freezegun==1.1.0
 py==1.11.0
 pycodestyle==2.8.0
 wheel==0.37.0
+activity_stream:{access_key_id}:{nonce}".format
+crontab
+F401
+context["person
+Position.objects.create(title="Software Developer
+Position.objects.create(title="Software Tester
+Position.objects.create(title="UX Developer
+# Set anti XSS
+Sequence
+Sequence
+activity_stream:{access_key_id}:{nonce}".format
+context["person
+E203
+# Set anti
+Position.objects.create(title="UX

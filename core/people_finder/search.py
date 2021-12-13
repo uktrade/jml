@@ -21,7 +21,10 @@ class SearchResult(TypedDict):
 
 def get_search_results(search_term) -> List[SearchResult]:
     safe_search_term = urllib.parse.quote_plus(search_term)
-    url = f"{settings.PEOPLE_FINDER_URL}/api/people-search/?search_query={safe_search_term}"
+    url = (
+        f"{settings.PEOPLE_FINDER_URL}/api/people-search/"
+        f"?search_query={safe_search_term}"
+    )
     sender = Sender(
         {
             "id": settings.PEOPLE_FINDER_HAWK_ACCESS_ID,

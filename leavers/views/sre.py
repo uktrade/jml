@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
@@ -33,6 +33,7 @@ class TaskConfirmationView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
+        assert self.leaving_request  # /PS-IGNORE
         return reverse_lazy("sre-thank-you", args=[self.leaving_request.uuid])
 
     def get_context_data(self, **kwargs):
@@ -82,7 +83,7 @@ class TaskConfirmationView(
 class ThankYouView(TemplateView):
     template_name = "leaving/sre_thank_you.html"
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
