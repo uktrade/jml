@@ -28,12 +28,45 @@ ParsedUKSBSPDF = TypedDict(  # /PS-IGNORE
 )
 
 
+def get_table_data(
+    *, pdf_text: str, title: str, labels: List[str], cut_off_text: str
+) -> Dict[str, str]:
+    """
+    Gets the data from a table in the PDF
+    """
+    title_index = pdf_text.find(title)
+    cut_off_index = pdf_text.find(cut_off_text)
+    editing_text = pdf_text[title_index + len(title) : cut_off_index]
+
+    table_data = {}
+
+    for index, label in enumerate(labels):
+        label_index = editing_text.find(label)
+        row_value = editing_text[label_index + len(label) :]
+        next_label: Optional[str] = None
+        next_label_index = None
+        try:
+            next_label = labels[index + 1]
+            next_label_index = row_value.find(next_label)
+            row_value = row_value[:next_label_index]
+        except IndexError:  # /PS-IGNORE
+            pass
+
+        table_data[label] = row_value.strip()
+
+    return table_data
+
+
+def get_pdf_page_text(*, filename: str, page: int) -> str:
+    """
+    Gets the text from a PDF page
+    """
+    pdf = PdfFileReader(open(filename, "rb"))  # /PS-IGNORE
+    page: PageObject = pdf.getPage(page)
+    return page.extractText()
+
+
 def parse_leaver_pdf(*, filename: str) -> ParsedUKSBSPDF:
-    fileReader = PdfFileReader(open(filename, "rb"))
-
-    page: PageObject = fileReader.getPage(0)
-    page_text = page.extractText()
-
     user_who_completed_title = "User who completed the form:"
     user_who_completed_labels = [
         "Line Manager",
@@ -64,47 +97,24 @@ def parse_leaver_pdf(*, filename: str) -> ParsedUKSBSPDF:
         "Number of Hours to be Deducted",
     ]
 
-    def get_table_data(
-        *, title: str, labels: List[str], cut_off_text: str
-    ) -> Dict[str, str]:
-        """
-        Gets the data from a table in the PDF
-        """
-        title_index = page_text.find(title)
-        cut_off_index = page_text.find(cut_off_text)
-        editing_text = page_text[title_index + len(title) : cut_off_index]
-
-        table_data = {}
-
-        for index, label in enumerate(labels):
-            label_index = editing_text.find(label)
-            row_value = editing_text[label_index + len(label) :]
-            next_label: Optional[str] = None
-            next_label_index = None
-            try:
-                next_label = labels[index + 1]
-                next_label_index = row_value.find(next_label)
-                row_value = row_value[:next_label_index]
-            except IndexError:  # /PS-IGNORE
-                pass
-
-            table_data[label] = row_value
-
-        return table_data
+    pdf_text = get_pdf_page_text(filename=filename, page=0)
 
     user_who_completed_values = get_table_data(  # /PS-IGNORE
+        pdf_text=pdf_text,
         title=user_who_completed_title,
         labels=user_who_completed_labels,
         cut_off_text=leavers_details_title,
     )
 
     leaver_details_values = get_table_data(
+        pdf_text=pdf_text,
         title=leavers_details_title,
         labels=leavers_details_labels,
         cut_off_text=annual_leave_title,
     )
 
     annual_leave_values = get_table_data(
+        pdf_text=pdf_text,
         title=annual_leave_title,
         labels=annual_leave_labels,
         cut_off_text=(
