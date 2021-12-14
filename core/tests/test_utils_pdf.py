@@ -40,9 +40,9 @@ class ParseLeaverPDF(TestCase):
             "The Leaver does not have Flexi Impacting Pay to be paid/deducted. "  # /PS-IGNORE
         )
 
-    @mock.patch("core.utils.pdf.get_pdf_text")
-    def test_blank_pdf(self, mock_get_pdf_text):
-        mock_get_pdf_text.return_value = self.BLANK_PDF_TEXT  # /PS-IGNORE
+    @mock.patch("core.utils.pdf.get_pdf_page_text")
+    def test_blank_pdf(self, mock_get_pdf_page_text):
+        mock_get_pdf_page_text.return_value = self.BLANK_PDF_TEXT  # /PS-IGNORE
         parsed_value = parse_leaver_pdf(filename="")
 
         self.assertEqual(
@@ -69,9 +69,9 @@ class ParseLeaverPDF(TestCase):
             },
         )
 
-    @mock.patch("core.utils.pdf.get_pdf_text")
-    def test_leaver_pdf(self, mock_get_pdf_text):
-        mock_get_pdf_text.return_value = self.LEAVER_PDF_TEXT
+    @mock.patch("core.utils.pdf.get_pdf_page_text")
+    def test_leaver_pdf(self, mock_get_pdf_page_text):
+        mock_get_pdf_page_text.return_value = self.LEAVER_PDF_TEXT
         parsed_value = parse_leaver_pdf(filename="")
 
         self.assertEqual(
