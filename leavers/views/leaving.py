@@ -16,7 +16,7 @@ class LeaversStartView(TemplateView):
 class WhoIsLeavingView(FormView):
     template_name = "leaving/who_is_leaving.html"
     form_class = WhoIsLeavingForm
-    success_url = reverse_lazy("search")
+    success_url = reverse_lazy("report-a-leaver-search")
 
     def form_valid(self, form):
         self.who_for = form.cleaned_data["who_for"]

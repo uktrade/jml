@@ -3,7 +3,6 @@ from datetime import date
 from typing import Any, Dict, List, Optional, Type, cast
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms import Form
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
@@ -179,7 +178,7 @@ class LeaverInformationMixin:
         )
 
 
-class ConfirmDetailsView(LoginRequiredMixin, LeaverInformationMixin, FormView):
+class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
     template_name = "leaving/leaver/confirm_details.html"
     form_class = forms.LeaverConfirmationForm
     success_url = reverse_lazy("leaver-kit")
@@ -226,7 +225,7 @@ class ConfirmDetailsView(LoginRequiredMixin, LeaverInformationMixin, FormView):
         return self.form_invalid(form)
 
 
-class UpdateDetailsView(LoginRequiredMixin, LeaverInformationMixin, FormView):
+class UpdateDetailsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/update_details.html"
     form_class = forms.LeaverUpdateForm
     success_url = reverse_lazy("leaver-confirm-details")
@@ -255,7 +254,7 @@ def delete_kit(request: HttpRequest, kit_uuid: uuid.UUID):
     return redirect("leaver-kit")
 
 
-class KitView(LoginRequiredMixin, LeaverInformationMixin, TemplateView):
+class KitView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
     forms: Dict[str, Type[Form]] = {
         "add_asset_form": forms.AddAssetForm,
         "correction_form": forms.CorrectionForm,
@@ -338,7 +337,7 @@ class KitView(LoginRequiredMixin, LeaverInformationMixin, TemplateView):
         return context
 
 
-class EquipmentReturnOptionsView(LoginRequiredMixin, LeaverInformationMixin, FormView):
+class EquipmentReturnOptionsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/equipment_options.html"
     form_class = forms.ReturnOptionForm
     success_url = reverse_lazy("leaver-return-information")
@@ -355,9 +354,7 @@ class EquipmentReturnOptionsView(LoginRequiredMixin, LeaverInformationMixin, For
         return super().form_valid(form)
 
 
-class EquipmentReturnInformationView(
-    LoginRequiredMixin, LeaverInformationMixin, FormView
-):
+class EquipmentReturnInformationView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/equipment_information.html"
     form_class = forms.ReturnInformationForm
     success_url = reverse_lazy("leaver-request-received")
@@ -398,7 +395,7 @@ class EquipmentReturnInformationView(
         return super().form_valid(form)
 
 
-class RequestReceivedView(LoginRequiredMixin, LeaverInformationMixin, TemplateView):
+class RequestReceivedView(LeaverInformationMixin, TemplateView):
     template_name = "leaving/leaver/request_received.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:

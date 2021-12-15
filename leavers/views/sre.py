@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404
@@ -12,7 +12,6 @@ from leavers.models import LeavingRequest, TaskLog
 
 
 class TaskConfirmationView(
-    LoginRequiredMixin,
     UserPassesTestMixin,
     FormView,
 ):

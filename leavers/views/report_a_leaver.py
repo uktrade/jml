@@ -171,7 +171,7 @@ class ConfirmationView(FormView):
         # UUID created when we created people list
         person_id = request.GET.get("person_id", None)
         if not person_id:
-            redirect("search")
+            redirect("report-a-leaver-search")
 
         for person in self.request.session["people_list"]:
             if person["uuid"] == person_id:
