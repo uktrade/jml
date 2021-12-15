@@ -9,6 +9,9 @@
             <div class="govuk-grid-column-two-thirds">
                 <form novalidate method='post'>
                     {% csrf_token %}
+
+                    {% include "includes/govt_uk_form_error.html" with form=form %}
+
                     <h2 class="govuk-heading-m">Personal Information</h3>
                     {% include "includes/govt_uk_field.html" with field=form.first_name %}
                     {% include "includes/govt_uk_field.html" with field=form.last_name %}
