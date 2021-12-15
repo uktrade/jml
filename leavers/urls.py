@@ -5,6 +5,7 @@ from leavers.views import flow as flow_views
 from leavers.views import leaver as leaver_views
 from leavers.views import leaving as leaving_views
 from leavers.views import line_manager as line_manager_views
+from leavers.views import line_manager_return as line_manager_return_views  # /PS-IGNORE
 from leavers.views import sre as sre_views
 
 urlpatterns = [
@@ -58,6 +59,22 @@ urlpatterns = [
         "leaver/request-received/",
         leaver_views.RequestReceivedView.as_view(),
         name="leaver-request-received",
+    ),
+    # Line manager return
+    path(
+        "line-manager/information/",
+        line_manager_return_views.ProcessInformationView.as_view(),  # /PS-IGNORE
+        name="line-manager-return-information",
+    ),
+    path(
+        "line-manager/details/",
+        line_manager_return_views.DetailsView.as_view(),  # /PS-IGNORE
+        name="line-manager-return-details",
+    ),
+    path(
+        "line-manager/thank-you/",
+        line_manager_return_views.ThankYouView.as_view(),  # /PS-IGNORE
+        name="line-manager-return-thank-you",
     ),
     # SRE
     path(

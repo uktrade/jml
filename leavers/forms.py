@@ -3,6 +3,7 @@ from typing import Dict, List
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import UploadedFile  # /PS-IGNORE
 
 from core.forms import GovFormattedForm, GovFormattedModelForm
 from core.service_now import get_service_now_interface
@@ -247,3 +248,32 @@ class ReturnInformationForm(GovFormattedForm):
             for field_name in address_fields:
                 self.fields[field_name].required = False
                 self.fields[field_name].widget = forms.HiddenInput()
+
+
+class PdfFileField(forms.FileField):
+    def validate(self, value: UploadedFile) -> None:
+        if value.content_type != "application/pdf":
+            raise ValidationError("File must be a PDF")
+        return super().validate(value)
+
+
+class LineManagerDetailsForm(GovFormattedForm):
+    # TODO: Populate
+    SECURITY_CLEARANCES = [
+        ("security_clearance_1", "Security clearance 1"),
+    ]
+    uksbs_pdf = PdfFileField(
+        label="UK SBS PDF",  # /PS-IGNORE
+    )
+    security_clearance = forms.ChoiceField(
+        label="Security clearance",
+        choices=SECURITY_CLEARANCES,
+    )
+    rosa_user = forms.BooleanField(
+        label="Is the leaver a ROSA user?",  # /PS-IGNORE
+        required=False,
+    )
+    has_dse = forms.BooleanField(
+        label="Does the leaver have any Display Screen Equipment?",
+        required=False,
+    )
