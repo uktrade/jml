@@ -252,9 +252,9 @@ class ReturnInformationForm(GovFormattedForm):
 
 class PdfFileField(forms.FileField):
     def validate(self, value: UploadedFile) -> None:
+        super().validate(value)
         if value.content_type != "application/pdf":
             raise ValidationError("File must be a PDF")
-        return super().validate(value)
 
 
 class LineManagerDetailsForm(GovFormattedForm):
@@ -279,18 +279,25 @@ class LineManagerDetailsForm(GovFormattedForm):
     )
     holds_government_procurement_card = forms.BooleanField(
         label="Does the leaver hold a government procurement card?",
+        required=False,
     )
     service_now_reference_number = forms.CharField(
         label="Service Now reference number",
     )
-    # TODO: Populate departments
-    DEPARTMENT_TRANSFER_CHOICES = [
-        ("not_transferring", "Not transferring"),
-    ]
     department_transferring_to = forms.ChoiceField(
         label="Department transferring to",
-        choices=DEPARTMENT_TRANSFER_CHOICES,
     )
     loan_end_date = forms.DateField(
         label="Loan end date",
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        service_now_interface = get_service_now_interface()
+        service_now_departments = service_now_interface.get_departments()
+        self.fields["department_transferring_to"].choices = [
+            ("not_transferring", "Not transferring"),
+        ] + [
+            (department["sys_id"], department["name"])
+            for department in service_now_departments
+        ]
