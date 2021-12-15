@@ -258,7 +258,7 @@ class PdfFileField(forms.FileField):
 
 
 class LineManagerDetailsForm(GovFormattedForm):
-    # TODO: Populate
+    # TODO: Populate security clearances
     SECURITY_CLEARANCES = [
         ("security_clearance_1", "Security clearance 1"),
     ]
@@ -276,4 +276,21 @@ class LineManagerDetailsForm(GovFormattedForm):
     has_dse = forms.BooleanField(
         label="Does the leaver have any Display Screen Equipment?",
         required=False,
+    )
+    holds_government_procurement_card = forms.BooleanField(
+        label="Does the leaver hold a government procurement card?",
+    )
+    service_now_reference_number = forms.CharField(
+        label="Service Now reference number",
+    )
+    # TODO: Populate departments
+    DEPARTMENT_TRANSFER_CHOICES = [
+        ("not_transferring", "Not transferring"),
+    ]
+    department_transferring_to = forms.ChoiceField(
+        label="Department transferring to",
+        choices=DEPARTMENT_TRANSFER_CHOICES,
+    )
+    loan_end_date = forms.DateField(
+        label="Loan end date",
     )
