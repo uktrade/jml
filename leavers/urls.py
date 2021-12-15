@@ -5,28 +5,28 @@ from leavers.views import flow as flow_views
 from leavers.views import leaver as leaver_views
 from leavers.views import leaving as leaving_views
 from leavers.views import line_manager as line_manager_views
-from leavers.views import line_manager_return as line_manager_return_views  # /PS-IGNORE
+from leavers.views import report_a_leaver as report_a_leaver_views
 from leavers.views import sre as sre_views
 
 urlpatterns = [
     path("", leaving_views.LeaversStartView.as_view(), name="start"),
     path("start/", leaving_views.LeaversStartView.as_view(), name="start"),
     path("who/", leaving_views.WhoIsLeavingView.as_view(), name="who"),
-    # Line manager
+    # Report a leaver
     path(
-        "line-manager/search/",
-        line_manager_views.LeaverSearchView.as_view(),
-        name="line-manager-search",
+        "report-a-leaver/search/",
+        report_a_leaver_views.LeaverSearchView.as_view(),
+        name="report-a-leaver-search",
     ),
     path(
-        "line-manager/confirmation/",
-        line_manager_views.ConfirmationView.as_view(),
-        name="line-manager-confirmation",
+        "report-a-leaver/confirmation/",
+        report_a_leaver_views.ConfirmationView.as_view(),
+        name="report-a-leaver-confirmation",
     ),
     path(
-        "line-manager/request-received/",
-        line_manager_views.RequestReceivedView.as_view(),
-        name="line-manager-request-received",
+        "report-a-leaver/request-received/",
+        report_a_leaver_views.RequestReceivedView.as_view(),
+        name="report-a-leaver-request-received",
     ),
     # Leaver
     path(
@@ -63,17 +63,17 @@ urlpatterns = [
     # Line manager return
     path(
         "line-manager/information/",
-        line_manager_return_views.ProcessInformationView.as_view(),  # /PS-IGNORE
+        line_manager_views.ProcessInformationView.as_view(),  # /PS-IGNORE
         name="line-manager-return-information",
     ),
     path(
         "line-manager/details/",
-        line_manager_return_views.DetailsView.as_view(),  # /PS-IGNORE
+        line_manager_views.DetailsView.as_view(),  # /PS-IGNORE
         name="line-manager-return-details",
     ),
     path(
         "line-manager/thank-you/",
-        line_manager_return_views.ThankYouView.as_view(),  # /PS-IGNORE
+        line_manager_views.ThankYouView.as_view(),  # /PS-IGNORE
         name="line-manager-return-thank-you",
     ),
     # SRE

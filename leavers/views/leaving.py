@@ -26,4 +26,4 @@ class WhoIsLeavingView(FormView):
         if self.who_for == "me":
             return reverse("leaver-confirm-details")
         else:
-            return reverse("line-manager-search")
+            return reverse("report-a-leaver-search")
