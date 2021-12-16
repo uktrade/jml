@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from django.conf import settings
 from django.urls import reverse
@@ -13,7 +13,7 @@ class ViewAccessTest:
     """
 
     view_name: str = ""
-    view_kwargs: Dict[str, str] = {}
+    view_kwargs: Dict[str, Any] = {}
     allowed_methods: List[str] = ["get", "post", "patch", "put"]
     url_query_params: str = ""
 

@@ -2,6 +2,7 @@ import uuid
 from datetime import date
 from typing import Any, Dict, List, Optional, Type, cast
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.forms import Form
 from django.http.request import HttpRequest
@@ -12,6 +13,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
+from activity_stream.models import ActivityStreamStaffSSOUser
 from core.people_finder import get_people_finder_interface
 from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
@@ -48,6 +50,15 @@ class LeaverInformationMixin:
         if len(people_finder_results) > 0:
             person = people_finder_results[0]
 
+            service_now_interface = get_service_now_interface()
+            service_now_department_id = settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
+            service_now_directorates = service_now_interface.get_directorates(
+                name=person["directorate"]
+            )
+            service_now_directorate_id: Optional[str] = None
+            if len(service_now_directorates) == 1:
+                service_now_directorate_id = service_now_directorates[0]
+
             # TODO: Map values to the blank leaver details
             leaver_details: types.LeaverDetails = {
                 # Personal details
@@ -60,8 +71,8 @@ class LeaverInformationMixin:
                 # Professional details
                 "grade": person["grade"],
                 "job_title": person["job_title"],
-                "department": "",
-                "directorate": person["directorate"],
+                "department": service_now_department_id,
+                "directorate": service_now_directorate_id,
                 "work_email": person["email"],
                 "manager": "",
                 "staff_id": "",
@@ -104,6 +115,39 @@ class LeaverInformationMixin:
         leaver_details = self.get_leaver_details(email=email)
         leaver_details_updates = self.get_leaver_detail_updates(email=email)
         leaver_details.update(**leaver_details_updates)  # type: ignore
+        return leaver_details
+
+    def get_leaver_details_with_updates_for_display(
+        self, email: str
+    ) -> types.LeaverDetails:
+        leaver_details = self.get_leaver_details_with_updates(email=email)
+        if leaver_details["manager"]:
+            manager = ActivityStreamStaffSSOUser.objects.get(
+                id=leaver_details["manager"]
+            )
+            # Lead the Manager's name from the Database
+            leaver_details["manager"] = manager.name
+
+        # Get data from Service Now /PS-IGNORE
+        service_now_interface = get_service_now_interface()
+        # Get the Department's Name from Service Now
+        if leaver_details["department"]:
+            service_now_departments = service_now_interface.get_departments(
+                sys_id=leaver_details["department"]
+            )
+            if len(service_now_departments) != 1:
+                raise Exception("Issue finding department in Service Now")
+            leaver_details["department"] = service_now_departments[0]["name"]
+
+        # Get the Directorate's Name from Service Now
+        if leaver_details["directorate"]:
+            service_now_directorate = service_now_interface.get_directorates(
+                sys_id=leaver_details["directorate"]
+            )
+            if len(service_now_directorate) != 1:
+                raise Exception("Issue finding directorate in Service Now")
+            leaver_details["directorate"] = service_now_directorate[0]["name"]
+
         return leaver_details
 
     def store_leaving_date(self, email: str, leaving_date: date):
@@ -188,7 +232,9 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
         # Get the Leaver details
-        leaver_details = self.get_leaver_details_with_updates(email=user_email)
+        leaver_details = self.get_leaver_details_with_updates_for_display(
+            email=user_email
+        )
         context.update(leaver_details=leaver_details),
         # Build a list of errors to present to the user.
         errors: List[str] = []
@@ -241,7 +287,22 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
     def form_valid(self, form) -> HttpResponse:
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
-        self.store_leaver_detail_updates(email=user_email, updates=form.cleaned_data)
+        updates: types.LeaverDetailUpdates = {
+            "first_name": form.cleaned_data["first_name"],
+            "last_name": form.cleaned_data["last_name"],
+            "personal_email": form.cleaned_data["personal_email"],
+            "personal_phone": form.cleaned_data["personal_phone"],
+            "personal_address": form.cleaned_data["personal_address"],
+            "grade": form.cleaned_data["grade"],
+            "job_title": form.cleaned_data["job_title"],
+            "department": form.cleaned_data["department"],
+            "directorate": form.cleaned_data["directorate"],
+            "work_email": form.cleaned_data["work_email"],
+            "manager": form.cleaned_data["manager"].id,
+            "staff_id": form.cleaned_data["staff_id"],
+        }
+
+        self.store_leaver_detail_updates(email=user_email, updates=updates)
         return super().form_valid(form)
 
 

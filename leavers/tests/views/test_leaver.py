@@ -6,6 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from core.service_now.interfaces import ServiceNowStubbed
 from leavers import factories, models, types
 from leavers.views.leaver import LeaverInformationMixin
@@ -82,7 +83,8 @@ class TestLeaverInformationMixin(TestCase):
             leaver_details["work_email"], "joe.bloggs@example.com"  # /PS-IGNORE
         )
         self.assertEqual(leaver_details["job_title"], "Job title")
-        self.assertEqual(leaver_details["directorate"], "Directorate name")
+        self.assertEqual(leaver_details["department"], "")
+        self.assertEqual(leaver_details["directorate"], "")
 
     def test_get_leaver_details_existing_updates(self):
 
@@ -314,7 +316,7 @@ class TestConfirmDetailsView(TestCase):
             {
                 "date_of_birth": date(2021, 11, 25),
                 "department": "",
-                "directorate": "Directorate name",
+                "directorate": "",
                 "first_name": "Joe",  # /PS-IGNORE
                 "grade": "Example Grade",
                 "job_title": "Job title",
@@ -331,14 +333,15 @@ class TestConfirmDetailsView(TestCase):
 
     def test_existing_updates(self):
         user = UserFactory()
+        activity_stream_staff_sso_user = ActivityStreamStaffSSOUserFactory()
         updates: types.LeaverDetailUpdates = {
-            "department": "Updated Department",
-            "directorate": "Updated Directorate",
+            "department": "2",
+            "directorate": "2",
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
             "grade": "Updated Grade",
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "manager": "Updated Manager",
+            "manager": activity_stream_staff_sso_user.id,
             "staff_id": "Updated Staff ID",
             "personal_address": "Updated Address",
             "personal_email": "Updated Personal Email",
@@ -354,20 +357,20 @@ class TestConfirmDetailsView(TestCase):
         self.assertEqual(
             response.context["leaver_details"],
             {
-                "date_of_birth": date(2021, 11, 25),
-                "photo": "",
-                "department": updates["department"],
-                "directorate": updates["directorate"],
                 "first_name": updates["first_name"],
-                "grade": updates["grade"],
-                "job_title": updates["job_title"],
                 "last_name": updates["last_name"],
-                "manager": updates["manager"],
-                "staff_id": updates["staff_id"],
-                "personal_address": updates["personal_address"],
+                "date_of_birth": date(2021, 11, 25),
                 "personal_email": updates["personal_email"],
                 "personal_phone": updates["personal_phone"],
+                "personal_address": updates["personal_address"],
+                "grade": updates["grade"],
+                "job_title": updates["job_title"],
+                "department": "Department 2",
+                "directorate": "Directorate 2",
                 "work_email": updates["work_email"],
+                "manager": activity_stream_staff_sso_user.name,
+                "staff_id": updates["staff_id"],
+                "photo": "",
             },
         )
 
@@ -381,6 +384,7 @@ class TestConfirmDetailsView(TestCase):
 
     def test_submit_contains_required_data(self):
         user = UserFactory()
+        activity_stream_staff_sso_user = ActivityStreamStaffSSOUserFactory()
         updates: types.LeaverDetailUpdates = {
             "department": "1",
             "directorate": "1",
@@ -388,7 +392,7 @@ class TestConfirmDetailsView(TestCase):
             "grade": "Updated Grade",
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "manager": "222",
+            "manager": activity_stream_staff_sso_user.id,
             "staff_id": "Updated Staff ID",
             "personal_address": "Updated Address",
             "personal_email": "new.personal.email@example.com",  # /PS-IGNORE
@@ -426,7 +430,7 @@ class TestUpdateDetailsView(TestCase):
             {
                 "date_of_birth": date(2021, 11, 25),
                 "department": "",
-                "directorate": "Directorate name",
+                "directorate": "",
                 "first_name": "Joe",  # /PS-IGNORE
                 "grade": "Example Grade",
                 "job_title": "Job title",
@@ -443,6 +447,7 @@ class TestUpdateDetailsView(TestCase):
 
     def test_existing_updates(self):
         user = UserFactory()
+        activity_stream_staff_sso_user = ActivityStreamStaffSSOUserFactory()
         updates: types.LeaverDetailUpdates = {
             "department": "Updated Department",
             "directorate": "Updated Directorate",
@@ -450,7 +455,7 @@ class TestUpdateDetailsView(TestCase):
             "grade": "Updated Grade",
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "manager": "Updated Manager",
+            "manager": activity_stream_staff_sso_user.id,
             "staff_id": "Updated Staff ID",
             "personal_address": "Updated Address",
             "personal_email": "Updated Personal Email",
@@ -525,6 +530,7 @@ class TestUpdateDetailsView(TestCase):
 
     def test_submit_contains_required_data(self):
         user = UserFactory()
+        activity_stream_staff_sso_user = ActivityStreamStaffSSOUserFactory()
         self.client.force_login(user)
 
         response = self.client.post(
@@ -536,7 +542,7 @@ class TestUpdateDetailsView(TestCase):
                 "grade": "Grade",
                 "job_title": "Job Title",
                 "last_name": "LastName",  # /PS-IGNORE
-                "manager": "222",
+                "manager": activity_stream_staff_sso_user.id,
                 "staff_id": "Staff ID",
                 "personal_address": "Personal Address",
                 "personal_email": "someone@example.com",  # /PS-IGNORE
@@ -559,7 +565,7 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(leaver_updates["grade"], "Grade")
         self.assertEqual(leaver_updates["job_title"], "Job Title")
         self.assertEqual(leaver_updates["last_name"], "LastName")  # /PS-IGNORE
-        self.assertEqual(leaver_updates["manager"], "222")
+        self.assertEqual(leaver_updates["manager"], activity_stream_staff_sso_user.id)
         self.assertEqual(leaver_updates["staff_id"], "Staff ID")
         self.assertEqual(leaver_updates["personal_address"], "Personal Address")
 

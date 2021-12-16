@@ -38,5 +38,3 @@ class LeaverDetailUpdates(TypedDict, total=False):
     work_email: str
     manager: str
     staff_id: str
-    # Misc.
-    photo: str

@@ -1,14 +1,16 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Literal
-from urllib.parse import urlencode, urlparse, urlunparse
+from typing import TYPE_CHECKING, List, Literal, Optional
 
-import requests
 from django.conf import settings
+from django.core.cache import cache
 
 from core.service_now import types
+from core.service_now.client import ServiceNowClient
 from leavers import types as leavers_types
-from leavers.models import LeaverInformation
+
+if TYPE_CHECKING:
+    from leavers.models import LeaverInformation
 
 logger = logging.getLogger(__name__)
 
@@ -19,21 +21,25 @@ class ServiceNowBase(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_active_line_managers(self) -> List[types.LineManagerDetails]:
+    def get_users(self, email: str) -> List[types.UserDetails]:
         raise NotImplementedError
 
     @abstractmethod
-    def get_departments(self) -> List[types.DepartmentDetails]:
+    def get_departments(
+        self, sys_id: Optional[str] = None
+    ) -> List[types.DepartmentDetails]:
         raise NotImplementedError
 
     @abstractmethod
-    def get_directorates(self) -> List[types.DirectorateDetails]:
+    def get_directorates(
+        self, sys_id: Optional[str] = None
+    ) -> List[types.DirectorateDetails]:
         raise NotImplementedError
 
     @abstractmethod
     def submit_leaver_request(
         self,
-        leaver_info: LeaverInformation,
+        leaver_info: "LeaverInformation",
         leaver_details: leavers_types.LeaverDetails,
         assets: List[types.AssetDetails],
     ):
@@ -51,26 +57,50 @@ class ServiceNowStubbed(ServiceNowBase):
             },
         ]
 
-    def get_active_line_managers(self) -> List[types.LineManagerDetails]:
-        logger.info("Getting active line managers")
+    def get_users(self, email: str) -> List[types.UserDetails]:
+        logger.info("Getting users")
         return [
             {
-                "sys_id": "222",
-                "name": "Line Manager 1",
+                "sys_id": "1",
+                "name": "User 1",
+                "manager": "manager1@example.com",  # /PS-IGNORE
             }
         ]
 
-    def get_departments(self) -> List[types.DepartmentDetails]:
+    def get_departments(
+        self, sys_id: Optional[str] = None
+    ) -> List[types.DepartmentDetails]:
         logger.info("Getting departments")
-        return [{"sys_id": "1", "name": "Department 1"}]
+        test_departments: List[types.DepartmentDetails] = [
+            {"sys_id": "1", "name": "Department 1"},
+            {"sys_id": "2", "name": "Department 2"},
+        ]
+        if sys_id:
+            filtered_result: List[types.DepartmentDetails] = []
+            for test_department in test_departments:
+                if test_department["sys_id"] == sys_id:
+                    filtered_result.append(test_department)
+                    break
+            return filtered_result
+        return test_departments
 
-    def get_directorates(self) -> List[types.DirectorateDetails]:
+    def get_directorates(
+        self, sys_id: Optional[str] = None
+    ) -> List[types.DirectorateDetails]:
         logger.info("Getting directorates")
-        return [{"sys_id": "1", "name": "Directorate 1"}]
+        test_directorates: List[types.DirectorateDetails] = [
+            {"sys_id": "1", "name": "Directorate 1"},
+            {"sys_id": "2", "name": "Directorate 2"},
+        ]
+        if sys_id:
+            for test_directorate in test_directorates:
+                if test_directorate["sys_id"] == sys_id:
+                    return [test_directorate]
+        return test_directorates
 
     def submit_leaver_request(
         self,
-        leaver_info: LeaverInformation,
+        leaver_info: "LeaverInformation",
         leaver_details: leavers_types.LeaverDetails,
         assets: List[types.AssetDetails],
     ):
@@ -81,33 +111,32 @@ class ServiceNowStubbed(ServiceNowBase):
 
 
 class ServiceNowInterface(ServiceNowBase):
-
-    GET_ASSET_PATH = settings.SERVICE_NOW_GET_ASSET_PATH
-    POST_LEAVER_REQUEST = settings.SERVICE_NOW_POST_LEAVER_REQUEST
-
     def __init__(self, *args, **kwargs):
-        if not settings.SERVICE_NOW_API_URL:
-            raise ValueError("SERVICE_NOW_API_URL is not set")
-        self.service_now_api_url = settings.SERVICE_NOW_API_URL
+        self.GET_USER_PATH = settings.SERVICE_NOW_GET_USER_PATH
+        self.GET_ASSET_PATH = settings.SERVICE_NOW_GET_ASSET_PATH
+        self.GET_DIRECTORATE_PATH = (
+            settings.SERVICE_NOW_GET_DIRECTORATE_PATH  # /PS-IGNORE
+        )
+        self.POST_LEAVER_REQUEST = settings.SERVICE_NOW_POST_LEAVER_REQUEST
+        self.client = ServiceNowClient()
 
     def get_assets_for_user(self, email: str) -> List[types.AssetDetails]:
-        # Build the URL
-        get_assets_url = f"{self.service_now_api_url}{self.GET_ASSET_PATH}"
-        url_parts = list(urlparse(get_assets_url))
-        query = {
-            "sysparm_fields": "sys_id,asset_tag,display_name",
-            "sysparm_query": f"assigned_to.email={email}",
-        }
-        url_parts[4] = urlencode(query)
-        query_url = urlunparse(url_parts)
+        # Check if there is a cached result
+        cache_key: str = f"assets_for_user_{email}"
+        cached_result = cache.get(cache_key)
+        if cached_result:
+            return cached_result
 
-        # Make the request for the asset list
-        response = requests.get(query_url)
-        if response.status_code != 200:
-            raise Exception("Failed to get assets for user")
-        content = response.json()
-        service_now_assets: List[types.ServiceNowAsset] = content.get("result", [])
-
+        # Get all data from Service Now /PS-IGNORE
+        service_now_assets: List[types.ServiceNowAsset] = self.client.get_results(
+            path=self.GET_ASSET_PATH,
+            sysparm_query=f"assigned_to.email={email}",
+            sysparm_fields=[
+                "sys_id",
+                "asset_tag",
+                "display_name",
+            ],
+        )
         # Convert to a list of AssetDetails
         asset_details: List[types.AssetDetails] = [
             {
@@ -118,20 +147,116 @@ class ServiceNowInterface(ServiceNowBase):
             for service_now_asset in service_now_assets
         ]
 
+        # Store the result in the cache
+        cache.set(cache_key, asset_details)
         return asset_details
 
-    def get_active_line_managers(self) -> List[types.LineManagerDetails]:
-        return []
+    def get_users(self, email: str) -> List[types.UserDetails]:
+        # Check if there is a cached result
+        cache_key: str = f"get_users_{email}"
+        cached_result = cache.get(cache_key)
+        if cached_result:
+            return cached_result
 
-    def get_departments(self) -> List[types.DepartmentDetails]:
-        return []
+        # Get all data from Service Now /PS-IGNORE
+        service_now_users: List[types.ServiceNowUser] = self.client.get_results(
+            path=self.GET_USER_PATH,
+            sysparm_query=f"email={email}",
+            sysparm_fields=[
+                "sys_id",
+                "name",
+                "manager",
+            ],
+        )
+        # Convert to a list of UserDetails /PS-IGNORE
+        users_details: List[types.UserDetails] = []
+        for service_now_user in service_now_users:  # /PS-IGNORE
+            users_manager = None
+            if service_now_user["manager"]:
+                users_manager = service_now_user["manager"]
+            user_details: types.UserDetails = {
+                "sys_id": service_now_user["sys_id"],
+                "name": service_now_user["name"],
+                "manager": users_manager,
+            }
+            users_details.append(user_details)
 
-    def get_directorates(self) -> List[types.DirectorateDetails]:
-        return []
+        # Store the result in the cache
+        cache.set(cache_key, users_details)
+        return users_details
+
+    def get_departments(
+        self, sys_id: Optional[str] = None
+    ) -> List[types.DepartmentDetails]:
+        # Check if there is a cached result
+        cache_key: str = f"get_departments_{sys_id}"
+        cached_result = cache.get(cache_key)
+        if cached_result:
+            return cached_result
+
+        results: List[types.DepartmentDetails] = [
+            {
+                "sys_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
+                "name": "Department of International Trade",  # /PS-IGNORE
+            }
+        ]
+
+        if sys_id:
+            filtered_result: List[types.DepartmentDetails] = []
+            for result in results:
+                if result["sys_id"] == sys_id:
+                    filtered_result.append(result)
+                    break
+            # Store the result in the cache
+            cache.set(cache_key, filtered_result)
+            return filtered_result
+
+        # Store the result in the cache
+        cache.set(cache_key, results)
+        return results
+
+    def get_directorates(
+        self, sys_id: Optional[str] = None, name: Optional[str] = None
+    ) -> List[types.DirectorateDetails]:
+        # Check if there is a cached result
+        cache_key: str = f"get_directorates{sys_id}_{name}"
+        cached_result = cache.get(cache_key)
+        if cached_result:
+            return cached_result
+
+        query = ""
+        if sys_id:
+            query = f"sys_id={sys_id}"
+        if name:
+            query = f"name={name}"
+
+        # Get all data from Service Now /PS-IGNORE
+        service_now_directorates: List[
+            types.ServiceNowDirectorate
+        ] = self.client.get_results(
+            path=self.GET_DIRECTORATE_PATH,
+            sysparm_query=query,
+            sysparm_fields=[
+                "sys_id",
+                "name",
+            ],
+        )
+        # Convert to a list of DirectorateDetails /PS-IGNORE
+        directorate_details: List[types.DirectorateDetails] = [
+            {
+                "sys_id": service_now_directorate["sys_id"],
+                "name": service_now_directorate["name"],
+            }
+            for service_now_directorate in service_now_directorates
+        ]
+
+        # Store the result in the cache
+        cache.set(cache_key, directorate_details)
+        return directorate_details
 
     def submit_leaver_request(
         self,
-        leaver_info: LeaverInformation,
+        leaver_info: "LeaverInformation",
         leaver_details: leavers_types.LeaverDetails,
         assets: List[types.AssetDetails],
     ):
@@ -184,7 +309,7 @@ class ServiceNowInterface(ServiceNowBase):
             "sysparm_no_validation": "true",
         }
         # Submit the leaver request
-        response = requests.post(
+        response = self.client.post(
             self.POST_LEAVER_REQUEST, json=service_now_request_data
         )
 
