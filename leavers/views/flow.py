@@ -6,6 +6,11 @@ from django_workflow_engine.views import (
     FlowView,
 )
 
+# NOTE: These views don't have the LoginRequiredMixin because this is handled by
+# the following MIDDLEWARE: /PS-IGNORE
+# - dev_tools.middleware.DevToolsLoginRequiredMiddleware
+# - authbroker_client.middleware.ProtectAllViewsMiddleware
+
 
 class LeaverBaseView(UserPassesTestMixin):
     def test_func(self):
