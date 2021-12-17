@@ -139,6 +139,8 @@ pycrypto==2.6.1
     # via -r requirements.in/base.in
 pyjwt==2.3.0
     # via notifications-python-client
+pypdf2==1.26.0
+    # via -r requirements.in/base.in
 python-crontab==2.6.0
     # via django-celery-beat
 python-dateutil==2.8.2
@@ -195,7 +197,7 @@ waitress==2.0.0
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
