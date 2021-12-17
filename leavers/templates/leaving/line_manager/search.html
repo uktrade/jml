@@ -14,7 +14,7 @@
         <h2 class="govuk-heading-m">Select the leaver</h2>
         {% for person in people_list %}
             {% include "includes/leaver_details.html" with leaver_details=person %}
-            <a href="{% url "line-manager-confirmation" %}?person_id={{ person.uuid }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Select</a>
+            <a href="{% url "report-a-leaver-confirmation" %}?person_id={{ person.uuid }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Select</a>
         {% endfor %}
     {% endif %}
 {% endblock %}

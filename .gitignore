@@ -141,3 +141,5 @@ fixtures/*
 # Test files
 test.txt
 test_*.txt
+
+media/

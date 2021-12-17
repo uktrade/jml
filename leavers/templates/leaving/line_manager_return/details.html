@@ -1,0 +1,19 @@
+{% extends "leaving/leaving_base.html" %}
+{% load static %}
+
+{% block content %}
+    <h1 class="govuk-heading-l">Details form</h2>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <form novalidate method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% include "includes/govt_uk_form.html" with form=form %}
+                        <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

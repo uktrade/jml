@@ -165,6 +165,10 @@ CACHES = {
     }
 }
 
+# Media /PS-IGNORE
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
+
 # Dev tools
 LOGIN_URL = reverse_lazy("dev_tools:index")
 

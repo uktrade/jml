@@ -1,10 +1,15 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django_workflow_engine.views import (
     FlowContinueView,
     FlowCreateView,
     FlowListView,
     FlowView,
 )
+
+# NOTE: These views don't have the LoginRequiredMixin because this is handled by
+# the following MIDDLEWARE: /PS-IGNORE
+# - dev_tools.middleware.DevToolsLoginRequiredMiddleware
+# - authbroker_client.middleware.ProtectAllViewsMiddleware
 
 
 class LeaverBaseView(UserPassesTestMixin):
@@ -18,7 +23,6 @@ class LeaverBaseView(UserPassesTestMixin):
 
 
 class LeaversFlowListView(
-    LoginRequiredMixin,
     LeaverBaseView,
     FlowListView,
 ):
@@ -26,7 +30,6 @@ class LeaversFlowListView(
 
 
 class LeaversFlowCreateView(
-    LoginRequiredMixin,
     LeaverBaseView,
     FlowCreateView,
 ):
@@ -34,7 +37,6 @@ class LeaversFlowCreateView(
 
 
 class LeaversFlowContinueView(
-    LoginRequiredMixin,
     LeaverBaseView,
     FlowContinueView,
 ):
@@ -43,7 +45,6 @@ class LeaversFlowContinueView(
 
 
 class LeaversFlowView(
-    LoginRequiredMixin,
     LeaverBaseView,
     FlowView,
 ):
