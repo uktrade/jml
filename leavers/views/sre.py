@@ -79,8 +79,13 @@ class TaskConfirmationView(
         return super(TaskConfirmationView, self).form_valid(form)
 
 
-class ThankYouView(TemplateView):
+class ThankYouView(UserPassesTestMixin, TemplateView):
     template_name = "leaving/sre_thank_you.html"
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="SRE",
+        ).first()
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(

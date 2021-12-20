@@ -109,5 +109,21 @@ class TestThankYouView(ViewAccessTest, TestCase):
 
     def setUp(self):
         super().setUp()  # /PS-IGNORE
-        leaving_request = LeavingRequestFactory()
-        self.view_kwargs = {"args": [leaving_request.uuid]}
+        # Create Leaving Request (with initial Slack message)
+        self.leaving_request = LeavingRequestFactory()
+        SlackMessageFactory(leaving_request=self.leaving_request)
+        # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE
+        sre_group, _ = Group.objects.get_or_create(name="SRE")
+        self.authenticated_user.groups.add(sre_group.id)
+        # Update the view_kwargs to pass the leaving_request ID to the view.
+        self.view_kwargs = {"args": [self.leaving_request.uuid]}
+
+    def test_page_contents(self):
+        self.client.force_login(self.authenticated_user)
+        response = self.client.get(self.get_url())
+
+        leaver_first_name = self.leaving_request.leaver_first_name
+        leaver_last_name = self.leaving_request.leaver_last_name
+        self.assertEqual(
+            response.context["leaver_name"], f"{leaver_first_name} {leaver_last_name}"
+        )
