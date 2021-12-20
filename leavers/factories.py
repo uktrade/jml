@@ -1,6 +1,9 @@
 import uuid
+from datetime import timedelta
 
 import factory
+import factory.fuzzy
+from django.utils import timezone
 from factory.django import DjangoModelFactory
 
 from leavers import models, types
@@ -13,6 +16,18 @@ class LeavingRequestFactory(DjangoModelFactory):
 
     uuid = uuid.uuid4()
     user_requesting = factory.SubFactory(UserFactory)
+
+
+class SlackMessageFactory(DjangoModelFactory):
+    class Meta:
+        model = models.SlackMessage
+
+    created_at = factory.fuzzy.FuzzyDateTime(
+        start_dt=timezone.now() - timedelta(days=10)
+    )
+    slack_timestamp = factory.Sequence(lambda n: f"{n}")
+    channel_id = factory.Sequence(lambda n: f"channel_{n}")
+    leaving_request = factory.SubFactory(LeavingRequestFactory)
 
 
 class LeaverInformationFactory(DjangoModelFactory):
