@@ -57,6 +57,10 @@ class LeavingRequest(models.Model):
         blank=True,
     )
 
+    """
+    SRE Access  /PS-IGNORE
+    """
+
     vpn_access_removed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
@@ -117,6 +121,26 @@ class LeavingRequest(models.Model):
         TaskLog,
         on_delete=models.CASCADE,
         related_name="jira_access_task_log",
+        null=True,
+        blank=True,
+    )
+
+    """
+    Security Team Access  /PS-IGNORE
+    """
+
+    building_pass_access_revoked = models.OneToOneField(
+        TaskLog,
+        on_delete=models.CASCADE,
+        related_name="building_pass_access_task_log",
+        null=True,
+        blank=True,
+    )
+
+    rosa_access_revoked = models.OneToOneField(
+        TaskLog,
+        on_delete=models.CASCADE,
+        related_name="rosa_access_task_log",
         null=True,
         blank=True,
     )
