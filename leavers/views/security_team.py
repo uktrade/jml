@@ -69,7 +69,7 @@ class TaskConfirmationView(
 
 
 class ThankYouView(UserPassesTestMixin, TemplateView):
-    template_name = "leaving/sre_thank_you.html"
+    template_name = "leaving/security_team_thank_you.html"
 
     def test_func(self):
         return self.request.user.groups.filter(
