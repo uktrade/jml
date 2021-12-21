@@ -48,6 +48,10 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
             user=self.authenticated_user  # /PS-IGNORE
         )
         self.assertTrue(user_task_logs.exists())
+        self.assertTrue(
+            user_task_logs.filter(task_name="Building access removed").exists()
+        )
+        self.assertTrue(user_task_logs.filter(task_name="ROSA access removed").exists())
 
 
 class TestThankYouView(ViewAccessTest, TestCase):

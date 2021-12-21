@@ -46,11 +46,11 @@ class TaskConfirmationView(
         actions = {
             "building_pass_access_revoked": [
                 "building_pass_access_revoked",
-                "VPN access removed",
+                "Building access removed",
             ],
             "rosa_access_revoked": [
                 "rosa_access_revoked",
-                "GOV.UK PAAS access removed",
+                "ROSA access removed",  # /PS-IGNORE
             ],
         }
 
