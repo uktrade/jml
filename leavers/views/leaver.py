@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Type, cast
 from django.contrib.auth.decorators import login_required
 from django.forms import Form
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
@@ -230,7 +230,9 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
     form_class = forms.LeaverUpdateForm
     success_url = reverse_lazy("leaver-confirm-details")
 
-    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
         self.initial = dict(self.get_leaver_details_with_updates(email=user_email))
