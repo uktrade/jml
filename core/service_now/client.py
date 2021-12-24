@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class ServiceNowException(Exception):
     def __init__(
-        self, *args: object, status_code: str, path: str, query: Dict[str, Any]
+        self, *args: object, status_code: int, path: str, query: Dict[str, Any]
     ) -> None:
         super().__init__(*args)
         self.status_code = status_code

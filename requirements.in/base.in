@@ -27,5 +27,8 @@ zenpy==2.0.24
 elasticsearch
 elasticsearch-dsl
 django-elasticsearch-dsl
+# OpenSearch
+opensearch-py==1.0.0
+opensearch-dsl==1.0.0
 # GovUK Notify
 notifications-python-client

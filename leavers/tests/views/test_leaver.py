@@ -2,6 +2,7 @@ import uuid
 from datetime import date, datetime
 from unittest import mock
 
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -88,7 +89,9 @@ class TestLeaverInformationMixin(TestCase):
         self.assertEqual(leaver_details["personal_phone"], "0123456789")
         self.assertEqual(leaver_details["work_email"], self.leaver_email)
         self.assertEqual(leaver_details["job_title"], "Job title")
-        self.assertEqual(leaver_details["department"], "1234567890")
+        self.assertEqual(
+            leaver_details["department"], settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
+        )
         self.assertEqual(leaver_details["directorate"], "")
 
     def test_get_leaver_details_existing_updates(self):
@@ -344,24 +347,25 @@ class TestConfirmDetailsView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Leaver details confirmation")
+        leaver_details = response.context["leaver_details"]
+        self.assertEqual(leaver_details["date_of_birth"], date(2021, 11, 25))
         self.assertEqual(
-            response.context["leaver_details"],
-            {
-                "date_of_birth": date(2021, 11, 25),
-                "department": "Department of International Trade",  # /PS-IGNORE
-                "directorate": "",
-                "first_name": "Joe",  # /PS-IGNORE
-                "grade": "Example Grade",
-                "job_title": "Job title",
-                "last_name": "Bloggs",
-                "manager": "",
-                "staff_id": "",
-                "personal_address": "",
-                "personal_email": "",
-                "personal_phone": "0123456789",  # /PS-IGNORE
-                "photo": "",
-                "work_email": "joe.bloggs@example.com",  # /PS-IGNORE
-            },
+            leaver_details["department"],
+            "Department of International Trade",  # /PS-IGNORE
+        )
+        self.assertEqual(leaver_details["directorate"], "")
+        self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
+        self.assertEqual(leaver_details["grade"], "Example Grade")
+        self.assertEqual(leaver_details["job_title"], "Job title")
+        self.assertEqual(leaver_details["last_name"], "Bloggs")
+        self.assertEqual(leaver_details["manager"], "")
+        self.assertEqual(leaver_details["staff_id"], "")
+        self.assertEqual(leaver_details["personal_address"], "")
+        self.assertEqual(leaver_details["personal_email"], "")
+        self.assertEqual(leaver_details["personal_phone"], "0123456789")  # /PS-IGNORE
+        self.assertEqual(leaver_details["photo"], "")
+        self.assertEqual(
+            leaver_details["work_email"], "joe.bloggs@example.com"  # /PS-IGNORE
         )
 
     def test_existing_updates(self):
@@ -468,24 +472,23 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Edit leaver details")
         form = response.context["form"]
+        self.assertEqual(form.initial["date_of_birth"], date(2021, 11, 25))
         self.assertEqual(
-            form.initial,
-            {
-                "date_of_birth": date(2021, 11, 25),
-                "department": "1234567890",
-                "directorate": "",
-                "first_name": "Joe",  # /PS-IGNORE
-                "grade": "Example Grade",
-                "job_title": "Job title",
-                "last_name": "Bloggs",  # /PS-IGNORE
-                "manager": "",
-                "staff_id": "",
-                "personal_address": "",
-                "personal_email": "",
-                "personal_phone": "0123456789",  # /PS-IGNORE
-                "photo": "",
-                "work_email": "joe.bloggs@example.com",  # /PS-IGNORE
-            },
+            form.initial["department"], settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
+        )
+        self.assertEqual(form.initial["directorate"], "")
+        self.assertEqual(form.initial["first_name"], "Joe")  # /PS-IGNORE
+        self.assertEqual(form.initial["grade"], "Example Grade")
+        self.assertEqual(form.initial["job_title"], "Job title")
+        self.assertEqual(form.initial["last_name"], "Bloggs")  # /PS-IGNORE
+        self.assertEqual(form.initial["manager"], "")
+        self.assertEqual(form.initial["staff_id"], "")
+        self.assertEqual(form.initial["personal_address"], "")
+        self.assertEqual(form.initial["personal_email"], "")
+        self.assertEqual(form.initial["personal_phone"], "0123456789")  # /PS-IGNORE
+        self.assertEqual(form.initial["photo"], "")
+        self.assertEqual(
+            form.initial["work_email"], "joe.bloggs@example.com"  # /PS-IGNORE
         )
 
     def test_existing_updates(self):

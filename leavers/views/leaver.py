@@ -315,7 +315,8 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
         leaver_details = self.get_leaver_details_with_updates(
             email=user_email, requester=user
         )
-        if forms.LeaverUpdateForm(data=leaver_details).is_valid():
+        update_form = forms.LeaverUpdateForm(data=leaver_details)
+        if update_form.is_valid():
             return super().form_valid(form)
         return self.form_invalid(form)
 
