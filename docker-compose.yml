@@ -10,39 +10,54 @@ networks:
       config:
       -  subnet: 192.168.3.0/24
 services:
- db:
-   networks:
-      - inside
-   image: postgres:11
-   environment:
-     - POSTGRES_DB=leavers
-     - POSTGRES_PASSWORD=postgres
-   ports:
-     - "5433:5432"
-   healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+  db:
+    networks:
+        - inside
+    image: postgres:11
+    environment:
+      - POSTGRES_DB=leavers
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5433:5432"
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U postgres"]
+        interval: 5s
+        timeout: 5s
+        retries: 5
 
- leavers:
-   networks:
+  leavers:
+    networks:
+        - default
+        - inside
+    build:
+        context: .
+        dockerfile: "docker/Dockerfile.dev"
+    env_file: .env
+    command: "python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./:/app/
+    ports:
+      - "0.0.0.0:8001:8000"
+    depends_on:
+      - db
+      - elasticsearch
+    restart: always
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+
+  elasticsearch:
+    networks:
       - default
       - inside
-   build:
-      context: .
-      dockerfile: "docker/Dockerfile.dev"
-   env_file: .env
-   command: "python manage.py runserver 0.0.0.0:8000"
-   volumes:
-     - ./:/app/
-   ports:
-     - "0.0.0.0:8001:8000"
-   depends_on:
-     - db
-   restart: always
-   environment:
-     - DJANGO_SETTINGS_MODULE=config.settings.local
+    image: elasticsearch:7.16.2
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - bootstrap.memory_lock=true
+      - network.host=127.0.0.0
+      - http.host=0.0.0.0
+
 # redis:
 #   networks:
 #     - inside

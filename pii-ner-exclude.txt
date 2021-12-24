@@ -367,3 +367,4 @@ E203
 Position.objects.create(title="UX
 LSD_ZENDESK_TOKEN
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID=1234567890
+elasticsearch:7.16.2
