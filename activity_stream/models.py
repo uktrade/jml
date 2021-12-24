@@ -16,3 +16,6 @@ class ActivityStreamStaffSSOUser(models.Model):
     email_user_id = models.CharField(max_length=255)
     contact_email_address = models.EmailField(null=True, max_length=255)
     became_inactive_on = models.DateTimeField(null=True)
+
+    def __str__(self):
+        return self.name

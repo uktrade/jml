@@ -5,6 +5,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile  # /PS-IGNORE
 
+from activity_stream.models import ActivityStreamStaffSSOUser
 from core.forms import GovFormattedForm, GovFormattedModelForm
 from core.service_now import get_service_now_interface
 from leavers.models import LeavingRequest, ReturnOption
@@ -185,7 +186,10 @@ class LeaverUpdateForm(GovFormattedForm):
     directorate = forms.ChoiceField(label="Directorate", choices=[])
     department = forms.ChoiceField(label="Department", choices=[])
     work_email = forms.EmailField(label="Email")
-    manager = forms.ChoiceField(label="Manager", choices=[])
+    manager = forms.ModelChoiceField(
+        label="Manager",
+        queryset=ActivityStreamStaffSSOUser.objects.all(),
+    )
     staff_id = forms.CharField(label="Staff ID")
 
     def __init__(self, *args, **kwargs):
@@ -197,9 +201,6 @@ class LeaverUpdateForm(GovFormattedForm):
         service_now_departments = service_now_interface.get_departments()
         if not service_now_departments:
             raise Exception("No departments returned from Service Now")
-        service_now_managers = service_now_interface.get_active_line_managers()
-        if not service_now_managers:
-            raise Exception("No line managers returned from Service Now")
 
         self.fields["directorate"].choices = [
             (directorate["sys_id"], directorate["name"])
@@ -208,9 +209,6 @@ class LeaverUpdateForm(GovFormattedForm):
         self.fields["department"].choices = [
             (department["sys_id"], department["name"])
             for department in service_now_departments
-        ]
-        self.fields["manager"].choices = [
-            (manager["sys_id"], manager["name"]) for manager in service_now_managers
         ]
 
 

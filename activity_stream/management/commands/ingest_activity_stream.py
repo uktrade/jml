@@ -1,7 +1,8 @@
 from typing import List
 
-from activity_stream import models, staff_sso
 from django.core.management.base import BaseCommand
+
+from activity_stream import models, staff_sso
 
 
 class Command(BaseCommand):

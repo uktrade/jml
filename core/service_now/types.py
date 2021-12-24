@@ -21,6 +21,25 @@ class ServiceNowAsset(TypedDict):
     display_name: str
 
 
+class ServiceNowDirectorate(TypedDict):
+    """
+    The Service Now API Directorate response /PS-IGNORE
+    """
+
+    sys_id: str
+    name: str
+
+
+class ServiceNowUser(TypedDict):
+    """
+    The Service Now API User response
+    """
+
+    sys_id: str
+    name: str
+    manager: Optional[str]
+
+
 class LineManagerDetails(TypedDict):
     sys_id: str
     name: str
@@ -39,6 +58,12 @@ class Address(TypedDict):
 class DepartmentDetails(TypedDict):
     sys_id: str
     name: str
+
+
+class UserDetails(TypedDict):
+    sys_id: str
+    name: str
+    manager: Optional[str]
 
 
 class DirectorateDetails(TypedDict):
