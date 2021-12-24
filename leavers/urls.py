@@ -6,6 +6,7 @@ from leavers.views import leaver as leaver_views
 from leavers.views import leaving as leaving_views
 from leavers.views import line_manager as line_manager_views
 from leavers.views import report_a_leaver as report_a_leaver_views
+from leavers.views import security_team as security_team_views
 from leavers.views import sre as sre_views
 
 urlpatterns = [
@@ -86,6 +87,17 @@ urlpatterns = [
         "leaver/sre/thank-you/<uuid:leaving_request_id>/",
         sre_views.ThankYouView.as_view(),
         name="sre-thank-you",
+    ),
+    # Security Team
+    path(
+        "leaver/security-team/<uuid:leaving_request_id>/",
+        security_team_views.TaskConfirmationView.as_view(),
+        name="security-team-confirmation",
+    ),
+    path(
+        "leaver/security-team/thank-you/<uuid:leaving_request_id>/",
+        security_team_views.ThankYouView.as_view(),
+        name="security-team-thank-you",
     ),
     # Django workflow
     path(
