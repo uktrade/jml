@@ -18,7 +18,10 @@ class ViewAccessTest:
     url_query_params: str = ""
 
     def get_url(self) -> str:
-        view_path = reverse(self.view_name, **self.view_kwargs)
+        view_path = reverse(
+            viewname=self.view_name,
+            **self.view_kwargs,  # type: ignore
+        )
         if self.url_query_params:
             return f"{view_path}?{self.url_query_params}"
         return view_path
@@ -56,7 +59,7 @@ class ViewAccessTest:
 
     def assert_authenticated_pass(self, method: str, response):
         status_code = 200 if method in self.allowed_methods else 405
-        self.assertEqual(response.status_code, status_code)
+        self.assertEqual(response.status_code, status_code)  # type: ignore
 
     def test_authenticated_user_get(self):
         self.client.force_login(self.authenticated_user)

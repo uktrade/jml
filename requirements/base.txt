@@ -18,6 +18,8 @@ attrs==21.2.0
     # via aiohttp
 billiard==3.6.4.0
     # via celery
+cachetools==5.0.0
+    # via zenpy
 celery==5.2.1
     # via
     #   -r requirements.in/base.in
@@ -136,11 +138,13 @@ python-dateutil==2.8.2
     # via
     #   elasticsearch-dsl
     #   python-crontab
+    #   zenpy
 pytz==2021.3
     # via
     #   celery
     #   django
     #   django-timezone-field
+    #   zenpy
 rcssmin==1.0.6
     # via django-compressor
 redis==4.0.2
@@ -149,6 +153,7 @@ requests==2.26.0
     # via
     #   notifications-python-client
     #   requests-oauthlib
+    #   zenpy
 requests-oauthlib==1.3.0
     # via django-staff-sso-client
 rjsmin==1.1.0
@@ -164,6 +169,7 @@ six==1.16.0
     #   libsass
     #   mohawk
     #   python-dateutil
+    #   zenpy
 slack-sdk==3.12.0
     # via -r requirements.in/base.in
 slackclient==2.9.3
@@ -192,6 +198,8 @@ wrapt==1.13.3
     # via deprecated
 yarl==1.7.2
     # via aiohttp
+zenpy==2.0.24
+    # via -r requirements.in/base.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

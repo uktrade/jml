@@ -22,6 +22,7 @@ django-celery-results
 redis
 djangorestframework
 PyPDF2==1.26.0
+zenpy==2.0.24
 # Elastic Search
 elasticsearch
 elasticsearch-dsl

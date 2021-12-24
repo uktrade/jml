@@ -57,12 +57,12 @@ def get_table_data(
     return table_data
 
 
-def get_pdf_page_text(*, filename: str, page: int) -> str:
+def get_pdf_page_text(*, filename: str, page_index: int) -> str:
     """
     Gets the text from a PDF page
     """
     pdf = PdfFileReader(open(filename, "rb"))  # /PS-IGNORE
-    page: PageObject = pdf.getPage(page)
+    page: PageObject = pdf.getPage(page_index)
     return page.extractText()
 
 
@@ -97,7 +97,7 @@ def parse_leaver_pdf(*, filename: str) -> ParsedUKSBSPDF:
         "Number of Hours to be Deducted",
     ]
 
-    pdf_text = get_pdf_page_text(filename=filename, page=0)
+    pdf_text = get_pdf_page_text(filename=filename, page_index=0)
 
     user_who_completed_values = get_table_data(  # /PS-IGNORE
         pdf_text=pdf_text,
