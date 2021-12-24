@@ -11,26 +11,20 @@ MIDDLEWARE.append("dev_tools.middleware.DevToolsLoginRequiredMiddleware")  # typ
 MIDDLEWARE.remove("authbroker_client.middleware.ProtectAllViewsMiddleware")  # type: ignore
 AUTHENTICATION_BACKENDS.remove("user.backends.CustomAuthbrokerBackend")  # type: ignore
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "stdout": {
-            "class": "logging.StreamHandler",
-            "stream": sys.stdout,
-        },
-    },
-    "root": {
-        "handlers": ["stdout"],
-        "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),
-    },
-    "loggers": {
-        "django": {
-            "handlers": [
-                "stdout",
-            ],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
-            "propagate": True,
-        },
+LOGGING["handlers"]["stdout"] = {
+    "class": "logging.StreamHandler",
+    "stream": sys.stdout,
+}
+LOGGING["root"] = {
+    "handlers": ["stdout"],
+    "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),
+}
+LOGGING["loggers"] = {
+    "django": {
+        "handlers": [
+            "stdout",
+        ],
+        "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+        "propagate": True,
     },
 }
