@@ -32,7 +32,7 @@ class ServiceNowBase(ABC):
 
     @abstractmethod
     def get_directorates(
-        self, sys_id: Optional[str] = None
+        self, sys_id: Optional[str] = None, name: Optional[str] = None
     ) -> List[types.DirectorateDetails]:
         raise NotImplementedError
 
@@ -74,6 +74,10 @@ class ServiceNowStubbed(ServiceNowBase):
         test_departments: List[types.DepartmentDetails] = [
             {"sys_id": "1", "name": "Department 1"},
             {"sys_id": "2", "name": "Department 2"},
+            {
+                "sys_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
+                "name": "Department of International Trade",  # /PS-IGNORE
+            },
         ]
         if sys_id:
             filtered_result: List[types.DepartmentDetails] = []
@@ -85,7 +89,7 @@ class ServiceNowStubbed(ServiceNowBase):
         return test_departments
 
     def get_directorates(
-        self, sys_id: Optional[str] = None
+        self, sys_id: Optional[str] = None, name: Optional[str] = None
     ) -> List[types.DirectorateDetails]:
         logger.info("Getting directorates")
         test_directorates: List[types.DirectorateDetails] = [

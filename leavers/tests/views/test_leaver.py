@@ -83,8 +83,8 @@ class TestLeaverInformationMixin(TestCase):
             leaver_details["work_email"], "joe.bloggs@example.com"  # /PS-IGNORE
         )
         self.assertEqual(leaver_details["job_title"], "Job title")
-        self.assertEqual(leaver_details["department"], "")
-        self.assertEqual(leaver_details["directorate"], "")
+        self.assertEqual(leaver_details["department"], "1234567890")
+        self.assertEqual(leaver_details["directorate"], None)
 
     def test_get_leaver_details_existing_updates(self):
 
@@ -315,8 +315,8 @@ class TestConfirmDetailsView(TestCase):
             response.context["leaver_details"],
             {
                 "date_of_birth": date(2021, 11, 25),
-                "department": "",
-                "directorate": "",
+                "department": "Department of International Trade",  # /PS-IGNORE
+                "directorate": None,
                 "first_name": "Joe",  # /PS-IGNORE
                 "grade": "Example Grade",
                 "job_title": "Job title",
@@ -429,8 +429,8 @@ class TestUpdateDetailsView(TestCase):
             form.initial,
             {
                 "date_of_birth": date(2021, 11, 25),
-                "department": "",
-                "directorate": "",
+                "department": "1234567890",
+                "directorate": None,
                 "first_name": "Joe",  # /PS-IGNORE
                 "grade": "Example Grade",
                 "job_title": "Job title",
