@@ -1,6 +1,7 @@
 from django.test.testcases import TestCase
 from django.urls import reverse
 
+from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from leavers.tests.views.include import ViewAccessTest
 
 
@@ -16,11 +17,14 @@ class TestConfirmationView(ViewAccessTest, TestCase):  # /PS-IGNORE
 
     def setUp(self):
         super().setUp()  # /PS-IGNORE
+        self.leaver_email = "joe.bloggs@example.com"  # /PS-IGNORE
+        ActivityStreamStaffSSOUserFactory(email_address=self.leaver_email)
         session = self.client.session
         session["people_list"] = [
             {
                 "uuid": "1",
                 "sso_id": "1",
+                "email": self.leaver_email,
                 "first_name": "Joe",  # /PS-IGNORE
                 "last_name": "Bloggs",
             },

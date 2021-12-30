@@ -1,8 +1,11 @@
+import uuid
 from typing import List, Tuple
 
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
+from activity_stream.models import ActivityStreamStaffSSOUser
 from user.models import User
 
 # first name, last name, team /PS-IGNORE
@@ -63,5 +66,26 @@ class Command(BaseCommand):
 
         group.user_set.add(user)
         self.stdout.write(f"{username} added to {group.name}")
+
+        # Create ActivityStreamStaffSSOUser for each user
+        _, created = ActivityStreamStaffSSOUser.objects.get_or_create(
+            email_address=username,
+            defaults={
+                "identifier": uuid.uuid4(),
+                "name": f"{first_name} {last_name}",
+                "obj_type": "dit:StaffSSO:User",
+                "first_name": first_name,
+                "last_name": last_name,
+                "user_id": user.id,
+                "status": "active",
+                "last_accessed": timezone.now(),
+                "joined": timezone.now(),
+                "email_user_id": "",
+                "contact_email_address": "",
+                "became_inactive_on": None,
+            },
+        )
+        if created:
+            self.stdout.write(f"ActivityStreamStaffSSOUser created for {username}")
 
         return user

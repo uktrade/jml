@@ -1,6 +1,6 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse, HttpResponseBase
+from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
@@ -87,7 +87,7 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
             name="SRE",
         ).first()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),

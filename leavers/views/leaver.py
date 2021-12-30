@@ -19,23 +19,40 @@ from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
 from leavers import forms, types
 from leavers.models import LeaverInformation, ReturnOption
+from leavers.utils import update_or_create_leaving_request  # /PS-IGNORE
 from user.models import User
 
 
 class LeaverInformationMixin:
     people_finder_search = get_people_finder_interface()
 
-    def get_leaver_information(self, email: str) -> LeaverInformation:
+    def get_leaver_information(self, email: str, requester: User) -> LeaverInformation:
         """
         Get the Leaver information stored in the DB
         Creates a new model if one doesn't exist.
         """
 
         try:
-            leaver_info = LeaverInformation.objects.get(leaver_email=email)
+            leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
+                email_address=email,
+            )
+        except ActivityStreamStaffSSOUser.DoesNotExist:
+            raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")
+
+        leaving_request = update_or_create_leaving_request(
+            leaver=leaver_activitystream_user,
+            user_requesting=requester,
+        )
+
+        try:
+            leaver_info = LeaverInformation.objects.get(
+                leaving_request=leaving_request, leaver_email=email
+            )
         except LeaverInformation.DoesNotExist:
             leaver_info = LeaverInformation.objects.create(
-                leaver_email=email, updates={}
+                leaving_request=leaving_request,
+                leaver_email=email,
+                updates={},
             )
         return leaver_info
 
@@ -57,7 +74,7 @@ class LeaverInformationMixin:
             )
             service_now_directorate_id: Optional[str] = None
             if len(service_now_directorates) == 1:
-                service_now_directorate_id = service_now_directorates[0]
+                service_now_directorate_id = service_now_directorates[0]["sys_id"]
 
             # TODO: Map values to the blank leaver details
             leaver_details: types.LeaverDetails = {
@@ -72,7 +89,7 @@ class LeaverInformationMixin:
                 "grade": person["grade"],
                 "job_title": person["job_title"],
                 "department": service_now_department_id,
-                "directorate": service_now_directorate_id,
+                "directorate": service_now_directorate_id or "",
                 "work_email": person["email"],
                 "manager": "",
                 "staff_id": "",
@@ -82,23 +99,31 @@ class LeaverInformationMixin:
             return leaver_details
         raise Exception("Issue finding user in People Finder")
 
-    def get_leaver_detail_updates(self, email: str) -> types.LeaverDetailUpdates:
+    def get_leaver_detail_updates(
+        self, email: str, requester: User
+    ) -> types.LeaverDetailUpdates:
         """
         Get the stored updates for the Leaver.
         """
 
-        leaver_info = self.get_leaver_information(email=email)
+        leaver_info = self.get_leaver_information(
+            email=email,
+            requester=requester,
+        )
         updates: types.LeaverDetailUpdates = leaver_info.updates
         return updates
 
     def store_leaver_detail_updates(
-        self, email: str, updates: types.LeaverDetailUpdates
+        self, email: str, requester: User, updates: types.LeaverDetailUpdates
     ):
         """
         Store updates for the Leaver.
         """
 
-        leaver_info = self.get_leaver_information(email=email)
+        leaver_info = self.get_leaver_information(
+            email=email,
+            requester=requester,
+        )
 
         # Work out what information is new and only store that.
         existing_data = self.get_leaver_details(email=email)
@@ -111,16 +136,24 @@ class LeaverInformationMixin:
         leaver_info.updates = new_data
         leaver_info.save(update_fields=["updates"])
 
-    def get_leaver_details_with_updates(self, email: str) -> types.LeaverDetails:
+    def get_leaver_details_with_updates(
+        self, email: str, requester: User
+    ) -> types.LeaverDetails:
         leaver_details = self.get_leaver_details(email=email)
-        leaver_details_updates = self.get_leaver_detail_updates(email=email)
+        leaver_details_updates = self.get_leaver_detail_updates(
+            email=email, requester=requester
+        )
         leaver_details.update(**leaver_details_updates)  # type: ignore
         return leaver_details
 
     def get_leaver_details_with_updates_for_display(
-        self, email: str
+        self,
+        email: str,
+        requester: User,
     ) -> types.LeaverDetails:
-        leaver_details = self.get_leaver_details_with_updates(email=email)
+        leaver_details = self.get_leaver_details_with_updates(
+            email=email, requester=requester
+        )
         if leaver_details["manager"]:
             manager = ActivityStreamStaffSSOUser.objects.get(
                 id=leaver_details["manager"]
@@ -150,18 +183,22 @@ class LeaverInformationMixin:
 
         return leaver_details
 
-    def store_leaving_date(self, email: str, leaving_date: date):
+    def store_leaving_date(self, email: str, requester: User, leaving_date: date):
         """
         Store the leaving date
         """
 
-        leaver_info = self.get_leaver_information(email=email)
+        leaver_info = self.get_leaver_information(
+            email=email,
+            requester=requester,
+        )
         leaver_info.leaving_date = leaving_date
         leaver_info.save(update_fields=["leaving_date"])
 
     def store_correction_information(
         self,
         email: str,
+        requester: User,
         information_is_correct: bool,
         additional_information: str,
     ):
@@ -169,7 +206,7 @@ class LeaverInformationMixin:
         Store the Correction information
         """
 
-        leaver_info = self.get_leaver_information(email=email)
+        leaver_info = self.get_leaver_information(email=email, requester=requester)
         leaver_info.information_is_correct = information_is_correct
         leaver_info.additional_information = additional_information
         leaver_info.save(
@@ -179,19 +216,22 @@ class LeaverInformationMixin:
             ]
         )
 
-    def store_return_option(self, email: str, return_option: ReturnOption):
-        leaver_info = self.get_leaver_information(email=email)
+    def store_return_option(
+        self, email: str, requester: User, return_option: ReturnOption
+    ):
+        leaver_info = self.get_leaver_information(email=email, requester=requester)
         leaver_info.return_option = return_option
         leaver_info.save(update_fields=["return_option"])
 
     def store_return_information(
         self,
-        email,
+        email: str,
+        requester: User,
         personal_phone: str,
         contact_email: str,
         address: Optional[service_now_types.Address],
     ):
-        leaver_info = self.get_leaver_information(email=email)
+        leaver_info = self.get_leaver_information(email=email, requester=requester)
         leaver_info.return_personal_phone = personal_phone
         leaver_info.return_contact_email = contact_email
         if address:
@@ -212,9 +252,11 @@ class LeaverInformationMixin:
             ]
         )
 
-    def submit_to_service_now(self, email: str):
-        leaver_info = self.get_leaver_information(email=email)
-        leaver_details = self.get_leaver_details_with_updates(email=email)
+    def submit_to_service_now(self, email: str, requester: User):
+        leaver_info = self.get_leaver_information(email=email, requester=requester)
+        leaver_details = self.get_leaver_details_with_updates(
+            email=email, requester=requester
+        )
         service_now_interface = get_service_now_interface()
         # TODO: Populate assets and clear session
         service_now_interface.submit_leaver_request(
@@ -232,10 +274,14 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
         # Get the Leaver details
-        leaver_details = self.get_leaver_details_with_updates_for_display(
-            email=user_email
+        leaver_details = self.get_leaver_details_with_updates(
+            email=user_email, requester=user
         )
-        context.update(leaver_details=leaver_details),
+        display_leaver_details = self.get_leaver_details_with_updates_for_display(
+            email=user_email,
+            requester=user,
+        )
+        context.update(leaver_details=display_leaver_details),
         # Build a list of errors to present to the user.
         errors: List[str] = []
         # Add an error message if the required details are missing
@@ -261,11 +307,14 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
         # Store the leaving date
         self.store_leaving_date(
             email=user_email,
+            requester=user,
             leaving_date=form.cleaned_data["last_day"],
         )
 
         # Get the person details with the updates.
-        leaver_details = self.get_leaver_details_with_updates(email=user_email)
+        leaver_details = self.get_leaver_details_with_updates(
+            email=user_email, requester=user
+        )
         if forms.LeaverUpdateForm(data=leaver_details).is_valid():
             return super().form_valid(form)
         return self.form_invalid(form)
@@ -281,7 +330,9 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
     ) -> HttpResponseBase:
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
-        self.initial = dict(self.get_leaver_details_with_updates(email=user_email))
+        self.initial = dict(
+            self.get_leaver_details_with_updates(email=user_email, requester=user)
+        )
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form) -> HttpResponse:
@@ -302,7 +353,9 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             "staff_id": form.cleaned_data["staff_id"],
         }
 
-        self.store_leaver_detail_updates(email=user_email, updates=updates)
+        self.store_leaver_detail_updates(
+            email=user_email, requester=user, updates=updates
+        )
         return super().form_valid(form)
 
 
@@ -352,6 +405,7 @@ class KitView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
         # Store correction info and assets into the leaver details
         self.store_correction_information(
             email=user_email,
+            requester=user,
             information_is_correct=bool(form_data["is_correct"] == "yes"),
             additional_information=form_data["whats_incorrect"],
         )
@@ -428,7 +482,7 @@ class EquipmentReturnInformationView(LeaverInformationMixin, FormView):
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
 
-        leaver_info = self.get_leaver_information(email=user_email)
+        leaver_info = self.get_leaver_information(email=user_email, requester=user)
         if leaver_info.return_option == ReturnOption.OFFICE:
             kwargs.update(hide_address=True)
 
@@ -437,7 +491,9 @@ class EquipmentReturnInformationView(LeaverInformationMixin, FormView):
     def form_valid(self, form):
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
-        leaver_info = self.get_leaver_information(email=user_email)
+        leaver_info = self.get_leaver_information(
+            email=user_email, requester=self.request.user
+        )
 
         address: Optional[service_now_types.Address] = None
         if leaver_info.return_option == ReturnOption.HOME:
@@ -466,5 +522,7 @@ class RequestReceivedView(LeaverInformationMixin, TemplateView):
         user_email = cast(str, user.email)
 
         context = super().get_context_data(**kwargs)
-        context.update(leaver_info=self.get_leaver_information(email=user_email))
+        context.update(
+            leaver_info=self.get_leaver_information(email=user_email, requester=user)
+        )
         return context

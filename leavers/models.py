@@ -4,6 +4,8 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.enums import TextChoices
 
+from activity_stream.models import ActivityStreamStaffSSOUser
+
 
 class TaskLog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -35,6 +37,10 @@ class LeavingRequest(models.Model):
         get_user_model(),
         on_delete=models.CASCADE,
         related_name="requesting_users",
+    )
+    leaver_activitystream_user = models.ForeignKey(
+        ActivityStreamStaffSSOUser,
+        on_delete=models.CASCADE,
     )
     # We won't necessary have an app user
     leaver_sso_id = models.CharField(max_length=155)
@@ -163,6 +169,11 @@ class ReturnOption(TextChoices):
 
 
 class LeaverInformation(models.Model):
+    leaving_request = models.ForeignKey(
+        LeavingRequest,
+        on_delete=models.CASCADE,
+        related_name="leaver_information",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     leaver_email = models.EmailField(unique=True)
     updates = models.JSONField()

@@ -12,11 +12,12 @@ from django_workflow_engine.exceptions import WorkflowNotAuthError
 from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
 
+from activity_stream.models import ActivityStreamStaffSSOUser
 from core.people_finder import get_people_finder_interface
 from core.utils.hr import get_hr_people_data
 from core.utils.sso import get_sso_user_details
 from leavers.forms import LeaverConfirmationForm, SearchForm
-from leavers.models import LeavingRequest
+from leavers.utils import update_or_create_leaving_request  # /PS-IGNORE
 
 
 class PersonResult(TypedDict):
@@ -187,7 +188,15 @@ class ConfirmationView(FormView):
         )
         flow.save()
 
-        LeavingRequest.objects.create(
+        try:
+            leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
+                email_address=self.person["email"],
+            )
+        except ActivityStreamStaffSSOUser.DoesNotExist:
+            raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")
+
+        update_or_create_leaving_request(
+            leaver=leaver_activitystream_user,
             leaver_sso_id=self.person["sso_id"],
             user_requesting=self.request.user,
             flow=flow,
