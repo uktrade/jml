@@ -7,19 +7,21 @@ HOST_URLS: List[str] = settings.ELASTIC_SEARCH_HOST_URLS
 STAFF_INDEX_NAME: str = settings.ELASTIC_SEARCH_STAFF_INDEX_NAME
 STAFF_INDEX_MAPPING: Mapping[str, Any] = {
     "properties": {
-        "staff_number": {"type": "text"},
-        "first_name": {"type": "text"},
-        "last_name": {"type": "text"},
-        "email": {"type": "text"},
+        "staff_sso_activity_stream_id": {"type": "text"},
+        "staff_sso_first_name": {"type": "text"},
+        "staff_sso_last_name": {"type": "text"},
+        "staff_sso_email_address": {"type": "text"},
+        "staff_sso_contact_email_address": {"type": "text"},
     },
 }
 
 
 class StaffDocument(TypedDict):
-    staff_number: str
-    first_name: str
-    last_name: str
-    email: str
+    staff_sso_activity_stream_id: str
+    staff_sso_first_name: str
+    staff_sso_last_name: str
+    staff_sso_email_address: str
+    staff_sso_contact_email_address: str
 
 
 def get_elasticsearch_connection():

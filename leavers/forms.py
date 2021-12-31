@@ -188,7 +188,7 @@ class LeaverUpdateForm(GovFormattedForm):
     work_email = forms.EmailField(label="Email")
     manager = forms.ModelChoiceField(
         label="Manager",
-        queryset=ActivityStreamStaffSSOUser.objects.all(),
+        queryset=ActivityStreamStaffSSOUser.objects.available(),
     )
     staff_id = forms.CharField(label="Staff ID")
 

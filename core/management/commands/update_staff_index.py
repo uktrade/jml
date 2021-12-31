@@ -2,6 +2,7 @@ from typing import List
 
 from django.core.management.base import BaseCommand
 
+from activity_stream.models import ActivityStreamStaffSSOUser
 from core.utils.es_staff_index import (
     StaffDocument,
     clear_staff_index,
@@ -36,16 +37,18 @@ class Command(BaseCommand):
         - Using asyncronous tasks
         """
 
+        staff_documents: List[StaffDocument] = []
         # Add documents to the index
-        # TODO: populate list from integrations
-        staff_documents: List[StaffDocument] = [
-            {
-                "staff_number": "123",
-                "first_name": "John",
-                "last_name": "Smith",
-                "email": "john.smith@example.com",  # /PS-IGNORE
-            },
-        ]
+        for staff_sso_user in ActivityStreamStaffSSOUser.objects.all():
+            # TODO: populate list from integrations
+            staff_document: StaffDocument = {
+                "staff_sso_activity_stream_id": staff_sso_user.identifier,
+                "staff_sso_first_name": staff_sso_user.first_name,
+                "staff_sso_last_name": staff_sso_user.last_name,
+                "staff_sso_email_address": staff_sso_user.email_address,
+                "staff_sso_contact_email_address": staff_sso_user.contact_email_address,
+            }
+            staff_documents.append(staff_document)
         indexed_count = 0
         for staff_document in staff_documents:
             index_staff_document(staff_document=staff_document)

@@ -35,3 +35,4 @@ class ActivityStreamStaffSSOUserFactory(DjangoModelFactory):
     became_inactive_on = factory.fuzzy.FuzzyDateTime(
         start_dt=timezone.now() - timedelta(days=10),
     )
+    available = True

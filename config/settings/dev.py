@@ -11,7 +11,7 @@ MIDDLEWARE.append("dev_tools.middleware.DevToolsLoginRequiredMiddleware")  # typ
 MIDDLEWARE.remove("authbroker_client.middleware.ProtectAllViewsMiddleware")  # type: ignore
 AUTHENTICATION_BACKENDS.remove("user.backends.CustomAuthbrokerBackend")  # type: ignore
 
-LOGGING["handlers"]["stdout"] = {
+LOGGING["handlers"]["stdout"] = {  # type: ignore
     "class": "logging.StreamHandler",
     "stream": sys.stdout,
 }
