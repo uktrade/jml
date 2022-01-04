@@ -6,6 +6,7 @@ import factory.fuzzy
 from django.utils import timezone
 from factory.django import DjangoModelFactory
 
+from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from leavers import models, types
 from user.test.factories import UserFactory
 
@@ -16,6 +17,7 @@ class LeavingRequestFactory(DjangoModelFactory):
 
     uuid = uuid.uuid4()
     user_requesting = factory.SubFactory(UserFactory)
+    leaver_activitystream_user = factory.SubFactory(ActivityStreamStaffSSOUserFactory)
 
 
 class SlackMessageFactory(DjangoModelFactory):
@@ -36,3 +38,4 @@ class LeaverInformationFactory(DjangoModelFactory):
 
     leaver_email = factory.Faker("email")
     updates: types.LeaverDetailUpdates = {}
+    leaving_request = factory.SubFactory(LeavingRequestFactory)

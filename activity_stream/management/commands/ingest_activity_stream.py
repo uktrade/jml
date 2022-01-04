@@ -61,6 +61,8 @@ class Command(BaseCommand):
             created_updated_ids.append(as_staff_sso_user.id)
 
         # Delete Activity Stream SSO objects that are no longer in the Activity Stream
+        # TODO: I don't think we want to delete any of these as they may be being
+        # referenced elsewhere, perhaps we should just mark them as inactive?
         models.ActivityStreamStaffSSOUser.objects.exclude(
             id__in=created_updated_ids
         ).delete()
