@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.utils.es_staff_index import (
     StaffDocument,
+    StaffIndexNotFound,
     clear_staff_index,
     create_staff_index,
     delete_staff_index,
@@ -17,17 +18,22 @@ class Command(BaseCommand):
     help = "Create/Update Staff ES Index"  # /PS-IGNORE
 
     def handle(self, *args, **options):
-        if staff_index_mapping_changed():
-            # If the mapping has changed, delete and recreate the index
-            self.stdout.write(self.style.WARNING("Staff index mapping has changed"))
-            delete_staff_index()
-            self.stdout.write(self.style.WARNING("Staff index deleted"))
+        try:
+            mapping_has_changed = staff_index_mapping_changed()
+        except StaffIndexNotFound:
             create_staff_index()
-            self.stdout.write(self.style.WARNING("Staff index created"))
         else:
-            # If the mapping hasn't changed, clear the index
-            clear_staff_index()  # /PS-IGNORE
-            self.stdout.write(self.style.WARNING("Staff index cleared"))
+            if mapping_has_changed:
+                # If the mapping has changed, delete and recreate the index
+                self.stdout.write(self.style.WARNING("Staff index mapping has changed"))
+                delete_staff_index()
+                self.stdout.write(self.style.WARNING("Staff index deleted"))
+                create_staff_index()
+                self.stdout.write(self.style.WARNING("Staff index created"))
+            else:
+                # If the mapping hasn't changed, clear the index
+                clear_staff_index()  # /PS-IGNORE
+                self.stdout.write(self.style.WARNING("Staff index cleared"))
 
         """
         START OF POTENTIALLY LONG RUNNING TASK
