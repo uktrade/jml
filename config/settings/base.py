@@ -3,6 +3,7 @@ from pathlib import Path
 
 import environ
 from django.urls import reverse_lazy
+from django_log_formatter_ecs import ECSFormatter
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -73,6 +74,64 @@ else:
 DATABASES = {"default": env.db()}
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "ecs_formatter": {
+            "()": ECSFormatter,
+        },
+        "simple": {
+            "format": "{asctime} {levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "ecs": {
+            "class": "logging.StreamHandler",
+            "formatter": "ecs_formatter",
+        },
+        "simple": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "root": {
+        "handlers": [
+            "ecs",
+            "simple",
+        ],
+        "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),  # noqa F405
+    },
+    "loggers": {
+        "django": {
+            "handlers": [
+                "ecs",
+                "simple",
+            ],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),  # noqa F405
+            "propagate": False,
+        },
+        "django.server": {
+            "handlers": [
+                "ecs",
+                "simple",
+            ],
+            "level": os.getenv("DJANGO_SERVER_LOG_LEVEL", "ERROR"),  # noqa F405
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": [
+                "ecs",
+                "simple",
+            ],
+            "level": os.getenv("DJANGO_DB_LOG_LEVEL", "ERROR"),  # noqa F405
+            "propagate": False,
+        },
+    },
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators

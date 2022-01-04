@@ -1,8 +1,25 @@
+import logging
 from typing import Any, Dict, List, Optional
 from urllib.parse import urlencode, urlparse, urlunparse
 
 import requests
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
+
+
+class ServiceNowException(Exception):
+    def __init__(
+        self, *args: object, status_code: str, path: str, query: Dict[str, Any]
+    ) -> None:
+        super().__init__(*args)
+        self.status_code = status_code
+        self.path = path
+        self.query = query
+
+    def __str__(self) -> str:
+        path_with_query = self.path + "?" + urlencode(self.query)
+        return super().__str__() + f" (HTTP {self.status_code} {path_with_query})"
 
 
 class ServiceNowClient:
@@ -36,7 +53,16 @@ class ServiceNowClient:
             # Make request
             response = requests.get(query_url)
             if response.status_code != 200:
-                raise Exception("Failed to get results from Service Now")
+                # Note: Do not include query_url in the error message, as it
+                # contains the username and password.
+                service_now_exception = ServiceNowException(
+                    "Failed to get results from Service Now API",
+                    status_code=response.status_code,
+                    path=path,
+                    query=query,
+                )
+                logger.exception(service_now_exception)
+                raise service_now_exception
             content = response.json()
             content_results = content.get("result", [])
             if content_results:
