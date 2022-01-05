@@ -143,3 +143,4 @@ test.txt
 test_*.txt
 
 media/
+.pii-secret-hook/

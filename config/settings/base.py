@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import List
 
 import environ
 from django.urls import reverse_lazy
@@ -279,3 +280,10 @@ GOVUK_NOTIFY_API_KEY = env("GOVUK_NOTIFY_API_KEY")
 LSD_ZENDESK_EMAIL = env("LSD_ZENDESK_EMAIL")
 LSD_ZENDESK_TOKEN = env("LSD_ZENDESK_TOKEN")  # /PS-IGNORE
 LSD_ZENDESK_SUBDOMAIN = env("LSD_ZENDESK_SUBDOMAIN")
+
+# Search Staff Index
+SEARCH_HOST_URLS: List[str] = env(
+    "SEARCH_HOST_URLS",
+    default="",
+).split(",")
+SEARCH_STAFF_INDEX_NAME = env("SEARCH_STAFF_INDEX_NAME", default="staff")
