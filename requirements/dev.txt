@@ -57,7 +57,7 @@ coverage[toml]==6.2
     # via pytest-cov
 deprecated==1.2.13
     # via redis
-django==3.2.9
+django==3.2.10
     # via
     #   -r requirements.in/base.in
     #   django-appconf
