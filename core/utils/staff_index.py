@@ -102,20 +102,7 @@ def search_staff_index(*, query: str) -> List[StaffDocument]:
                 "should": [
                     {"match": {"staff_sso_first_name": {"query": query, "boost": 6.0}}},
                     {"match": {"staff_sso_last_name": {"query": query, "boost": 6.0}}},
-                    # TODO: Update "field_name^X" for each of the fields.
-                    {
-                        "multi_match": {
-                            "fields": [
-                                "staff_sso_activity_stream_id^1",
-                                "staff_sso_first_name^1",
-                                "staff_sso_last_name^1",
-                                "staff_sso_email_address^1",
-                                "staff_sso_contact_email_address^1",
-                            ],
-                            "query": query,
-                            "analyzer": "standard",
-                        }
-                    },
+                    {"multi_match": {"query": query, "analyzer": "standard"}},
                 ],
                 "minimum_should_match": 1,
                 "boost": 1.0,
