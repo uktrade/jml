@@ -281,11 +281,9 @@ LSD_ZENDESK_EMAIL = env("LSD_ZENDESK_EMAIL")
 LSD_ZENDESK_TOKEN = env("LSD_ZENDESK_TOKEN")  # /PS-IGNORE
 LSD_ZENDESK_SUBDOMAIN = env("LSD_ZENDESK_SUBDOMAIN")
 
-# Elasticsearch Staff Index
-ELASTIC_SEARCH_HOST_URLS: List[str] = env(
-    "ELASTIC_SEARCH_HOST_URLS",
+# Search Staff Index
+SEARCH_HOST_URLS: List[str] = env(
+    "SEARCH_HOST_URLS",
     default="",
 ).split(",")
-ELASTIC_SEARCH_STAFF_INDEX_NAME = env(
-    "ELASTIC_SEARCH_STAFF_INDEX_NAME", default="staff"
-)
+SEARCH_STAFF_INDEX_NAME = env("SEARCH_STAFF_INDEX_NAME", default="staff")

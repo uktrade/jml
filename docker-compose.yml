@@ -40,23 +40,25 @@ services:
       - "0.0.0.0:8001:8000"
     depends_on:
       - db
-      - elasticsearch
+      - opensearch
     restart: always
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.local
 
-  elasticsearch:
+  opensearch:
     networks:
       - default
       - inside
-    image: elasticsearch:7.16.2
+    image: opensearchproject/opensearch:1.2.3
     ports:
       - "9200:9200"
-      - "9300:9300"
+      - "9600:9600"
     environment:
-      - bootstrap.memory_lock=true
-      - network.host=127.0.0.0
-      - http.host=0.0.0.0
+      - "discovery.type=single-node"
+      - "bootstrap.memory_lock=true"
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"  # /PS-IGNORE
+      - "DISABLE_INSTALL_DEMO_CONFIG=true" 
+      - "DISABLE_SECURITY_PLUGIN=true"
 
 # redis:
 #   networks:

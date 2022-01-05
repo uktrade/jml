@@ -3,7 +3,7 @@ from typing import List
 from django.core.management.base import BaseCommand
 
 from activity_stream.models import ActivityStreamStaffSSOUser
-from core.utils.es_staff_index import (
+from core.utils.staff_index import (
     StaffDocument,
     StaffIndexNotFound,
     clear_staff_index,
