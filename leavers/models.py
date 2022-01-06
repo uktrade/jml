@@ -43,7 +43,6 @@ class LeavingRequest(models.Model):
         on_delete=models.CASCADE,
     )
     # We won't necessary have an app user
-    leaver_sso_id = models.CharField(max_length=155)
     leaver_first_name = models.CharField(
         max_length=100,
         blank=True,

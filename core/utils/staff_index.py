@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Any, List, Mapping, TypedDict, cast
 
 from django.conf import settings
@@ -18,6 +19,17 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "staff_sso_last_name": {"type": "text"},
             "staff_sso_email_address": {"type": "text"},
             "staff_sso_contact_email_address": {"type": "text"},
+            "people_finder_image": {"type": "text"},
+            "people_finder_first_name": {"type": "text"},
+            "people_finder_last_name": {"type": "text"},
+            "people_finder_job_title": {"type": "text"},
+            "people_finder_directorate": {"type": "text"},
+            "people_finder_phone": {"type": "text"},
+            "people_finder_grade": {"type": "text"},
+            "service_now_department_id": {"type": "text"},
+            "service_now_department_name": {"type": "text"},
+            "service_now_directorate_id": {"type": "text"},
+            "ervice_now_directorate_name": {"type": "text"},
         },
     },
 }
@@ -29,6 +41,35 @@ class StaffDocument(TypedDict):
     staff_sso_last_name: str
     staff_sso_email_address: str
     staff_sso_contact_email_address: str
+    people_finder_image: str
+    people_finder_first_name: str
+    people_finder_last_name: str
+    people_finder_job_title: str
+    people_finder_directorate: str
+    people_finder_phone: str
+    people_finder_grade: str
+    service_now_department_id: str
+    service_now_department_name: str
+    service_now_directorate_id: str
+    service_now_directorate_name: str
+
+
+class ConsolidatedStaffDocument(TypedDict):
+    staff_sso_activity_stream_id: str
+    first_name: str
+    last_name: str
+    email_address: str
+    contact_email_address: str
+    photo: str
+    contact_phone: str
+    contact_address: str
+    date_of_birth: str
+    grade: str
+    directorate: str
+    department: str
+    job_title: str
+    staff_id: str
+    manager: str
 
 
 def get_search_connection() -> OpenSearch:
@@ -100,8 +141,13 @@ def search_staff_index(*, query: str) -> List[StaffDocument]:
         "query": {
             "bool": {
                 "should": [
-                    {"match": {"staff_sso_first_name": {"query": query, "boost": 6.0}}},
-                    {"match": {"staff_sso_last_name": {"query": query, "boost": 6.0}}},
+                    {"match": {"staff_sso_first_name": {"query": query, "boost": 5.0}}},
+                    {"match": {"staff_sso_last_name": {"query": query, "boost": 5.0}}},
+                    {
+                        "match": {
+                            "staff_sso_email_address": {"query": query, "boost": 10.0}
+                        }
+                    },
                     {"multi_match": {"query": query, "analyzer": "standard"}},
                 ],
                 "minimum_should_match": 1,
@@ -134,3 +180,36 @@ def search_staff_index(*, query: str) -> List[StaffDocument]:
         staff_documents.append(staff_document)
 
     return staff_documents
+
+
+def consolidate_staff_documents(
+    *, staff_documents: List[StaffDocument]
+) -> List[ConsolidatedStaffDocument]:
+    consolidated_staff_documents: List[ConsolidatedStaffDocument] = []
+    for staff_document in staff_documents:
+        consolidated_staff_document: ConsolidatedStaffDocument = {
+            "staff_sso_activity_stream_id": staff_document[
+                "staff_sso_activity_stream_id"
+            ],
+            "first_name": staff_document["staff_sso_first_name"]
+            or staff_document["people_finder_first_name"]
+            or "",
+            "last_name": staff_document["staff_sso_last_name"]
+            or staff_document["people_finder_last_name"]
+            or "",
+            "email_address": staff_document["staff_sso_email_address"] or "",
+            "contact_email_address": staff_document["staff_sso_contact_email_address"]
+            or "",
+            "contact_phone": staff_document["people_finder_phone"] or "",
+            "contact_address": "",
+            "date_of_birth": date(2021, 11, 25).strftime("%d-%m-%Y"),
+            "photo": staff_document["people_finder_image"] or "",
+            "grade": staff_document["people_finder_grade"] or "",
+            "directorate": staff_document["service_now_directorate_id"] or "",
+            "department": staff_document["service_now_department_id"] or "",
+            "job_title": staff_document["people_finder_job_title"] or "",
+            "staff_id": "",
+            "manager": "",
+        }
+        consolidated_staff_documents.append(consolidated_staff_document)
+    return consolidated_staff_documents

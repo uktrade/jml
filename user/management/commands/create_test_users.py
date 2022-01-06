@@ -72,6 +72,7 @@ class Command(BaseCommand):
             email_address=username,
             defaults={
                 "identifier": uuid.uuid4(),
+                "available": True,
                 "name": f"{first_name} {last_name}",
                 "obj_type": "dit:StaffSSO:User",
                 "first_name": first_name,

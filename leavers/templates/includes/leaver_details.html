@@ -29,7 +29,7 @@
                             Email
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            {% firstof leaver_details.personal_email "Not provided" %}
+                            {% firstof leaver_details.contact_email_address "Not provided" %}
                         </dd>
                     </div>
                     <div class="govuk-summary-list__row">
@@ -37,7 +37,7 @@
                             Phone
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            {% firstof leaver_details.personal_phone "Not provided" %}
+                            {% firstof leaver_details.contact_phone "Not provided" %}
                         </dd>
                     </div>
                     <div class="govuk-summary-list__row">
@@ -45,7 +45,7 @@
                             Address
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            {% firstof leaver_details.personal_address "Not provided" %}
+                            {% firstof leaver_details.contact_address "Not provided" %}
                         </dd>
                     </div>
                 </dl>
@@ -64,7 +64,7 @@
                             Email
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            {% firstof leaver_details.work_email "Not provided" %}
+                            {% firstof leaver_details.email_address "Not provided" %}
                         </dd>
                     </div>
                     <div class="govuk-summary-list__row">

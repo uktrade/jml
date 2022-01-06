@@ -22,9 +22,8 @@ class TestConfirmationView(ViewAccessTest, TestCase):  # /PS-IGNORE
         session = self.client.session
         session["people_list"] = [
             {
-                "uuid": "1",
-                "sso_id": "1",
-                "email": self.leaver_email,
+                "staff_sso_activity_stream_id": "1",
+                "email_address": self.leaver_email,
                 "first_name": "Joe",  # /PS-IGNORE
                 "last_name": "Bloggs",
             },
