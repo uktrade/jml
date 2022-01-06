@@ -1,3 +1,4 @@
+import json
 import logging
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, List, Literal, Optional
@@ -300,13 +301,15 @@ class ServiceNowInterface(ServiceNowBase):
                 "leaver_other_reason": "",
                 "leaver_dept": leaver_details["department"],
                 "u_users_directorate": leaver_details["directorate"],
-                "users_assets": [
-                    {
-                        "asset_tag": asset_details["tag"],
-                        "asset_name": asset_details["name"],
-                    }
-                    for asset_details in assets
-                ],
+                "users_assets": json.dumps(
+                    [
+                        {
+                            "asset_tag": asset_details["tag"],
+                            "asset_name": asset_details["name"],
+                        }
+                        for asset_details in assets
+                    ]
+                ),
                 "leaver_email": leaver_info.leaver_email,
             },
             "get_portal_messages": "true",

@@ -372,3 +372,4 @@ OpenSearch
 MAX_RESULTS
 STAFF_INDEX_BODY
 Mapping[str
+Session

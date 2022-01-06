@@ -252,15 +252,20 @@ class LeaverInformationMixin:
             ]
         )
 
-    def submit_to_service_now(self, email: str, requester: User):
+    def submit_to_service_now(
+        self, email: str, requester: User, assets: List[service_now_types.AssetDetails]
+    ):
+        # Note: When this is called, make sure the assets have been cleared
+        # from the Session.
         leaver_info = self.get_leaver_information(email=email, requester=requester)
         leaver_details = self.get_leaver_details_with_updates(
             email=email, requester=requester
         )
         service_now_interface = get_service_now_interface()
-        # TODO: Populate assets and clear session
         service_now_interface.submit_leaver_request(
-            leaver_info=leaver_info, leaver_details=leaver_details, assets=[]
+            leaver_info=leaver_info,
+            leaver_details=leaver_details,
+            assets=assets,
         )
 
 
