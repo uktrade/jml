@@ -20,7 +20,7 @@ billiard==3.6.4.0
     # via celery
 cachetools==5.0.0
     # via zenpy
-celery==5.2.1
+celery==5.2.2
     # via
     #   -r requirements.in/base.in
     #   django-celery-beat

@@ -24,7 +24,7 @@ black==21.11b1
     # via -r requirements.in/dev.in
 cachetools==5.0.0
     # via zenpy
-celery==5.2.1
+celery==5.2.2
     # via
     #   -r requirements.in/base.in
     #   django-celery-beat
