@@ -8,12 +8,17 @@ from django.core.cache import cache
 
 from core.service_now import types
 from core.service_now.client import ServiceNowClient
+from core.utils.staff_index import StaffDocument, get_staff_document_from_staff_index
 from leavers import types as leavers_types
 
 if TYPE_CHECKING:
     from leavers.models import LeaverInformation
 
 logger = logging.getLogger(__name__)
+
+
+class ServiceNowUserNotFound(Exception):
+    pass
 
 
 class ServiceNowBase(ABC):
@@ -23,6 +28,10 @@ class ServiceNowBase(ABC):
 
     @abstractmethod
     def get_users(self, email: str) -> List[types.UserDetails]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_user(self, email: str) -> types.UserDetails:
         raise NotImplementedError
 
     @abstractmethod
@@ -64,9 +73,18 @@ class ServiceNowStubbed(ServiceNowBase):
             {
                 "sys_id": "1",
                 "name": "User 1",
+                "email": "manager1@example.com",  # /PS-IGNORE
                 "manager": "manager1@example.com",  # /PS-IGNORE
             }
         ]
+
+    def get_user(self, email: str) -> types.UserDetails:
+        logger.info("Getting user")
+        users = self.get_users(email=email)
+        for user in users:
+            if user["email"] == email:
+                return user
+        raise ServiceNowUserNotFound()
 
     def get_departments(
         self, sys_id: Optional[str] = None
@@ -170,6 +188,7 @@ class ServiceNowInterface(ServiceNowBase):
             sysparm_fields=[
                 "sys_id",
                 "name",
+                "email",
                 "manager",
             ],
         )
@@ -182,6 +201,7 @@ class ServiceNowInterface(ServiceNowBase):
             user_details: types.UserDetails = {
                 "sys_id": service_now_user["sys_id"],
                 "name": service_now_user["name"],
+                "email": service_now_user["email"],
                 "manager": users_manager,
             }
             users_details.append(user_details)
@@ -189,6 +209,13 @@ class ServiceNowInterface(ServiceNowBase):
         # Store the result in the cache
         cache.set(cache_key, users_details)
         return users_details
+
+    def get_user(self, email: str) -> types.UserDetails:
+        users = self.get_users(email=email)
+        for user in users:
+            if user["email"] == email:
+                return user
+        raise ServiceNowUserNotFound()
 
     def get_departments(
         self, sys_id: Optional[str] = None
@@ -281,6 +308,15 @@ class ServiceNowInterface(ServiceNowBase):
             "postcode": leaver_info.return_address_postcode or "",
         }
 
+        manager = leaver_info.leaving_request.manager_activitystream_user
+        if not manager:
+            raise Exception("Unable to get line manager information")
+
+        manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
+            staff_id=manager.identifier,
+        )
+        manager_service_now_id = manager_staff_document["service_now_user_id"]
+
         service_now_request_data = {
             "sysparm_quantity": "1",
             "variables": {
@@ -297,7 +333,7 @@ class ServiceNowInterface(ServiceNowBase):
                 ),
                 "collection_postcode_for_remote_leaver": collection_address["postcode"],
                 "leaver_user": "",
-                "users_manager": leaver_details["manager"],
+                "users_manager": manager_service_now_id,
                 "leaver_other_reason": "",
                 "leaver_dept": leaver_details["department"],
                 "u_users_directorate": leaver_details["directorate"],

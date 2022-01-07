@@ -384,3 +384,9 @@ person_id
 staff_details.job_title %
 AlterField
 assert self.manager
+# Get Service Now User
+# Get Service Now Department
+# Get Service Now Directorate
+StaffDocument
+manager_service_now_id = manager_staff_document["service_now_user_id
+manager_service_now_id
