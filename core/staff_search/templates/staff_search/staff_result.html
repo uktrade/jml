@@ -1,0 +1,20 @@
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-one-third">
+                <img class="leaver-image" src="{{ staff_details.photo }}" alt="Picture of {{ staff_details.first_name }} {{ staff_details.last_name }}" />
+            </div>
+            <div class="govuk-grid-column-two-thirds">
+                <dir>{{ staff_details.first_name }} {{ staff_details.last_name }}</dir>
+                {% if staff_details.email_address %}<dir>{{ staff_details.email_address }}</dir>{% endif %}
+                {% if staff_details.job_title %}<dir>{{ staff_details.job_title }}</dir>{% endif %}
+                {% if staff_details.grade %}<dir>{{ staff_details.grade }}</dir>{% endif %}
+                {% if staff_details.directorate %}<dir>{{ staff_details.directorate }}</dir>{% endif %}
+                {% if staff_details.department %}<dir>{{ staff_details.department }}</dir>{% endif %}
+                {% if staff_details.manager %}
+                    <dir>Managed by {{ staff_details.manager }}</dir>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

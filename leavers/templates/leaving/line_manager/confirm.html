@@ -3,8 +3,18 @@
 
 {% block content %}
     <h2 class="govuk-heading-l">Leaver details confirmation</h2>
-    {% include "includes/leaver_details.html" with person=person %}
-    <form novalidate method='post'>
+    {% include "staff_search/staff_result.html" with staff_details=leaver %}
+    {% if manager %}
+        {% include "staff_search/staff_result.html" with staff_details=manager %}
+    {% else %}
+        Manager Search
+        <form novalidate action="{{ manager_search }}" method="POST">
+            {% csrf_token %}
+            {% include "includes/govt_uk_form.html" with form=manager_search_form %}
+            <input type="submit" value="Search" class="govuk-button govuk-button" data-module="govuk-button"/>
+        </form>
+    {% endif %}
+    <form novalidate method="POST">
         {% csrf_token %}
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">

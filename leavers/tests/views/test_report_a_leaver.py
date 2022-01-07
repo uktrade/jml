@@ -5,11 +5,6 @@ from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from leavers.tests.views.include import ViewAccessTest
 
 
-class TestLeaverSearchView(ViewAccessTest, TestCase):
-    view_name = "report-a-leaver-search"
-    allowed_methods = ["get", "post"]
-
-
 class TestConfirmationView(ViewAccessTest, TestCase):  # /PS-IGNORE
     view_name = "report-a-leaver-confirmation"
     allowed_methods = ["get", "post", "put"]
@@ -20,7 +15,7 @@ class TestConfirmationView(ViewAccessTest, TestCase):  # /PS-IGNORE
         self.leaver_email = "joe.bloggs@example.com"  # /PS-IGNORE
         ActivityStreamStaffSSOUserFactory(email_address=self.leaver_email)
         session = self.client.session
-        session["people_list"] = [
+        session["staff_results"] = [
             {
                 "staff_sso_activity_stream_id": "1",
                 "email_address": self.leaver_email,

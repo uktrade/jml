@@ -137,10 +137,15 @@ def index_staff_document(*, staff_document: StaffDocument):
     )
 
 
-def search_staff_index(*, query: str) -> List[StaffDocument]:
+def search_staff_index(
+    *, query: str, exclude_staff_ids: Optional[List[str]] = None
+) -> List[StaffDocument]:
     """
     Search the Staff index.
     """
+    if not exclude_staff_ids:
+        exclude_staff_ids: List[str] = []
+
     search_client = get_search_connection()
     search_dict = {
         "query": {
@@ -175,16 +180,63 @@ def search_staff_index(*, query: str) -> List[StaffDocument]:
 
     staff_documents = []
     for hit in search_results.hits:
-        staff_document = cast(
-            StaffDocument,
-            {
-                field_name: hit[field_name]
-                for field_name in StaffDocument.__annotations__
-            },
-        )
-        staff_documents.append(staff_document)
+        if hit["staff_sso_activity_stream_id"] not in exclude_staff_ids:
+            staff_document = cast(
+                StaffDocument,
+                {
+                    field_name: hit[field_name]
+                    for field_name in StaffDocument.__annotations__
+                },
+            )
+            staff_documents.append(staff_document)
 
     return staff_documents
+
+
+class StaffDocumentNotFound(Exception):
+    pass
+
+
+def get_staff_document_from_staff_index(*, staff_id: str) -> StaffDocument:
+    """
+    Get a Staff document from the Staff index.
+    """
+
+    search_client = get_search_connection()
+    search_dict = {
+        "query": {
+            "bool": {
+                "should": [
+                    {"match": {"staff_sso_activity_stream_id": {"query": staff_id}}},
+                ],
+                "minimum_should_match": 1,
+                "boost": 1.0,
+            }
+        },
+        "sort": {
+            "_score": {"order": "desc"},
+        },
+        "size": MAX_RESULTS,
+        "min_score": MIN_SCORE,
+    }
+    search = (
+        Search(index=STAFF_INDEX_NAME)
+        .using(search_client)
+        .update_from_dict(search_dict)
+    )
+    search_results = search.execute()
+
+    if len(search_results) == 0:
+        raise StaffDocumentNotFound()
+
+    staff_document = cast(
+        StaffDocument,
+        {
+            field_name: search_results.hits[0][field_name]
+            for field_name in StaffDocument.__annotations__
+        },
+    )
+    return staff_document
 
 
 def consolidate_staff_documents(

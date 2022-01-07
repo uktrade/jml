@@ -1,0 +1,19 @@
+{% extends "leaving/leaving_base.html" %}
+
+{% block main_class_names %}back-link-format{% endblock %}
+
+{% block content %}
+    <h2 class="govuk-heading-m">Search for the {{ search_name }}</h2>
+    <form novalidate method="POST">
+        {% csrf_token %}
+        {% include "includes/govt_uk_form.html" with form=form %}
+        <input type="submit" value="Search" class="govuk-button govuk-button" data-module="govuk-button"/>
+    </form>
+    {% if staff_results %}
+        <h2 class="govuk-heading-m">{{ staff_results|length }} result{{ staff_results|pluralize }} for "{{ search_term }}"</h2>
+        {% for staff_details in staff_results %}
+            {% include "staff_search/staff_result.html" with staff_details=staff_details %}
+            <a href="{{ success_url }}?{{ query_param_name }}={{ staff_details.staff_sso_activity_stream_id }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Select</a>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
