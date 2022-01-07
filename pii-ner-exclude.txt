@@ -390,3 +390,4 @@ assert self.manager
 StaffDocument
 manager_service_now_id = manager_staff_document["service_now_user_id
 manager_service_now_id
+Generic Staff

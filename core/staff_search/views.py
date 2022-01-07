@@ -14,6 +14,16 @@ from core.utils.staff_index import (
 
 
 class StaffSearchView(FormView):
+    """
+    Generic Staff Search View
+
+    This view is used to search for staff members. Update the following values
+    to customise the view text and behaviour:
+    - success_url: The URL to redirect to after a successful search.
+    - search_name: A more specific name for the type of staff you are searching for.
+    - query_param_name: The name of the query parameter the staff ID will be passed on success.
+    """
+
     form_class = SearchForm
     template_name = "staff_search/search.html"
     success_url = reverse_lazy("staff-search")
