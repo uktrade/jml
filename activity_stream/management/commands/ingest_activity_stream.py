@@ -21,9 +21,10 @@ class Command(BaseCommand):
             (
                 as_staff_sso_user,
                 _,
-            ) = models.ActivityStreamStaffSSOUser.objects.get_or_create(
+            ) = models.ActivityStreamStaffSSOUser.objects.update_or_create(
                 identifier=activity_stream_object["object"]["id"],
                 defaults={
+                    "available": True,
                     "name": activity_stream_object["object"]["name"],
                     "obj_type": activity_stream_object["object"]["type"],
                     "first_name": activity_stream_object["object"][

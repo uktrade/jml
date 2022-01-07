@@ -1,8 +1,7 @@
 import uuid
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Type, cast
 
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.forms import Form
 from django.http.request import HttpRequest
@@ -17,6 +16,11 @@ from activity_stream.models import ActivityStreamStaffSSOUser
 from core.people_finder import get_people_finder_interface
 from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
+from core.utils.staff_index import (
+    ConsolidatedStaffDocument,
+    consolidate_staff_documents,
+    search_staff_index,
+)
 from leavers import forms, types
 from leavers.models import LeaverInformation, ReturnOption
 from leavers.utils import update_or_create_leaving_request  # /PS-IGNORE
@@ -61,43 +65,40 @@ class LeaverInformationMixin:
         Get the Leaver details from People Finder
         Raises an exception People Finder doesn't return a result.
         """
-        people_finder_results = self.people_finder_search.get_search_results(
-            search_term=email,
-        )
-        if len(people_finder_results) > 0:
-            person = people_finder_results[0]
 
-            service_now_interface = get_service_now_interface()
-            service_now_department_id = settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
-            service_now_directorates = service_now_interface.get_directorates(
-                name=person["directorate"]
-            )
-            service_now_directorate_id: Optional[str] = None
-            if len(service_now_directorates) == 1:
-                service_now_directorate_id = service_now_directorates[0]["sys_id"]
+        staff_documents = search_staff_index(query=email)
+        consolidated_staff_document: Optional[ConsolidatedStaffDocument] = None
 
-            # TODO: Map values to the blank leaver details
-            leaver_details: types.LeaverDetails = {
-                # Personal details
-                "first_name": person["first_name"],
-                "last_name": person["last_name"],
-                "date_of_birth": date(2021, 11, 25),
-                "personal_email": "",
-                "personal_phone": person["phone"],
-                "personal_address": "",
-                # Professional details
-                "grade": person["grade"],
-                "job_title": person["job_title"],
-                "department": service_now_department_id,
-                "directorate": service_now_directorate_id or "",
-                "work_email": person["email"],
-                "manager": "",
-                "staff_id": "",
-                # Misc.
-                "photo": person["image"],
-            }
-            return leaver_details
-        raise Exception("Issue finding user in People Finder")
+        if len(staff_documents) == 0:
+            raise Exception("Unable to find leaver in the Staff Index.")
+
+        consolidated_staff_document = consolidate_staff_documents(
+            staff_documents=[staff_documents[0]]
+        )[0]
+        leaver_details: types.LeaverDetails = {
+            # Personal details
+            "first_name": consolidated_staff_document["first_name"],
+            "last_name": consolidated_staff_document["last_name"],
+            "date_of_birth": datetime.strptime(
+                consolidated_staff_document["date_of_birth"], "%d-%m-%Y"
+            ).date(),
+            "contact_email_address": consolidated_staff_document[
+                "contact_email_address"
+            ],
+            "contact_phone": consolidated_staff_document["contact_phone"],
+            "contact_address": consolidated_staff_document["contact_address"],
+            # Professional details
+            "grade": consolidated_staff_document["grade"],
+            "job_title": consolidated_staff_document["job_title"],
+            "department": consolidated_staff_document["department"],
+            "directorate": consolidated_staff_document["directorate"],
+            "email_address": consolidated_staff_document["email_address"],
+            "manager": consolidated_staff_document["manager"],
+            "staff_id": consolidated_staff_document["staff_id"],
+            # Misc.
+            "photo": consolidated_staff_document["photo"],
+        }
+        return leaver_details
 
     def get_leaver_detail_updates(
         self, email: str, requester: User
@@ -347,14 +348,14 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         updates: types.LeaverDetailUpdates = {
             "first_name": form.cleaned_data["first_name"],
             "last_name": form.cleaned_data["last_name"],
-            "personal_email": form.cleaned_data["personal_email"],
-            "personal_phone": form.cleaned_data["personal_phone"],
-            "personal_address": form.cleaned_data["personal_address"],
+            "contact_email_address": form.cleaned_data["contact_email_address"],
+            "contact_phone": form.cleaned_data["contact_phone"],
+            "contact_address": form.cleaned_data["contact_address"],
             "grade": form.cleaned_data["grade"],
             "job_title": form.cleaned_data["job_title"],
             "department": form.cleaned_data["department"],
             "directorate": form.cleaned_data["directorate"],
-            "work_email": form.cleaned_data["work_email"],
+            "email_address": form.cleaned_data["email_address"],
             "manager": form.cleaned_data["manager"].id,
             "staff_id": form.cleaned_data["staff_id"],
         }

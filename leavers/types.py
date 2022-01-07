@@ -7,15 +7,15 @@ class LeaverDetails(TypedDict):
     first_name: str
     last_name: str
     date_of_birth: date
-    personal_email: str
-    personal_phone: str
-    personal_address: str
+    contact_email_address: str
+    contact_phone: str
+    contact_address: str
     # Professional details
     grade: str
     job_title: str
     department: str
     directorate: str
-    work_email: str
+    email_address: str
     manager: str
     staff_id: str
     # Misc.
@@ -27,14 +27,14 @@ class LeaverDetailUpdates(TypedDict, total=False):
     first_name: str
     last_name: str
     date_of_birth: date
-    personal_email: str
-    personal_phone: str
-    personal_address: str
+    contact_email_address: str
+    contact_phone: str
+    contact_address: str
     # Professional details
     grade: str
     job_title: str
     department: str
     directorate: str
-    work_email: str
+    email_address: str
     manager: str
     staff_id: str

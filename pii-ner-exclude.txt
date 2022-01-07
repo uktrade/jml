@@ -1,5 +1,4 @@
 # Staff
-STAFF_SSO_INTERFACE
 SERVICE_NOW_INTERFACE
 Base
 # People finder
@@ -34,7 +33,6 @@ elif isinstance(widget
 isinstance(widget
 EmailInput
 issubclass(interface_class
-raise ValueError("STAFF_SSO_INTERFACE
 class="govuk-button__start
 COLOUR_GREEN=\033[32;01
 COLOUR_YELLOW=\033[33;01
@@ -143,7 +141,6 @@ WorkflowExecutor
 #     #
 #         # Search
 #
-self.get_pf_results_with_sso_id
 request.session['people_list
 PermissionDenied(f"{e
 RequestReceivedView(TemplateView
@@ -323,7 +320,6 @@ DetailCorrectionViewSet(ViewSet
 information</h1
 WSGI
 core.staff_sso
-get_staff_sso_interface
 RemoveField
 max_length=15
 name='LeavingRequest
@@ -342,7 +338,6 @@ help_text='Required
 verbose_name='staff
 managers=
 model_name='user
-personal_email
 black==21.11b1
 coverage[toml]==6.2
 faker==9.9.0
@@ -373,3 +368,7 @@ MAX_RESULTS
 STAFF_INDEX_BODY
 Mapping[str
 Session
+leaver_details.email_a
+PersonDetail
+# Get Service Now
+leaver_details.email_address

@@ -174,9 +174,9 @@ class LeaverUpdateForm(GovFormattedForm):
     # Personal details
     first_name = forms.CharField(label="First name")  # /PS-IGNORE
     last_name = forms.CharField(label="Last name")  # /PS-IGNORE
-    personal_email = forms.EmailField(label="Email")
-    personal_phone = forms.CharField(label="Phone", max_length=16)
-    personal_address = forms.CharField(
+    contact_email_address = forms.EmailField(label="Email")
+    contact_phone = forms.CharField(label="Phone", max_length=16)
+    contact_address = forms.CharField(
         label="Address",
         widget=forms.Textarea,
     )
@@ -185,7 +185,7 @@ class LeaverUpdateForm(GovFormattedForm):
     job_title = forms.CharField(label="Job title")
     directorate = forms.ChoiceField(label="Directorate", choices=[])
     department = forms.ChoiceField(label="Department", choices=[])
-    work_email = forms.EmailField(label="Email")
+    email_address = forms.EmailField(label="Email")
     manager = forms.ModelChoiceField(
         label="Manager",
         queryset=ActivityStreamStaffSSOUser.objects.available(),

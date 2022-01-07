@@ -1,9 +1,15 @@
-from typing import Any, List, Mapping, TypedDict, cast
+from datetime import date
+from typing import Any, Dict, List, Mapping, Optional, TypedDict, Union, cast
 
 from django.conf import settings
 from opensearch_dsl import Search
 from opensearchpy import OpenSearch
 from opensearchpy.exceptions import NotFoundError
+
+from activity_stream.models import ActivityStreamStaffSSOUser
+from core.people_finder import get_people_finder_interface
+from core.people_finder.interfaces import PersonDetail
+from core.service_now import get_service_now_interface
 
 MAX_RESULTS = 100
 MIN_SCORE = 0.02
@@ -18,6 +24,17 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "staff_sso_last_name": {"type": "text"},
             "staff_sso_email_address": {"type": "text"},
             "staff_sso_contact_email_address": {"type": "text"},
+            "people_finder_image": {"type": "text"},
+            "people_finder_first_name": {"type": "text"},
+            "people_finder_last_name": {"type": "text"},
+            "people_finder_job_title": {"type": "text"},
+            "people_finder_directorate": {"type": "text"},
+            "people_finder_phone": {"type": "text"},
+            "people_finder_grade": {"type": "text"},
+            "service_now_department_id": {"type": "text"},
+            "service_now_department_name": {"type": "text"},
+            "service_now_directorate_id": {"type": "text"},
+            "ervice_now_directorate_name": {"type": "text"},
         },
     },
 }
@@ -29,6 +46,35 @@ class StaffDocument(TypedDict):
     staff_sso_last_name: str
     staff_sso_email_address: str
     staff_sso_contact_email_address: str
+    people_finder_image: str
+    people_finder_first_name: str
+    people_finder_last_name: str
+    people_finder_job_title: str
+    people_finder_directorate: str
+    people_finder_phone: str
+    people_finder_grade: str
+    service_now_department_id: str
+    service_now_department_name: str
+    service_now_directorate_id: str
+    service_now_directorate_name: str
+
+
+class ConsolidatedStaffDocument(TypedDict):
+    staff_sso_activity_stream_id: str
+    first_name: str
+    last_name: str
+    email_address: str
+    contact_email_address: str
+    photo: str
+    contact_phone: str
+    contact_address: str
+    date_of_birth: str
+    grade: str
+    directorate: str
+    department: str
+    job_title: str
+    staff_id: str
+    manager: str
 
 
 def get_search_connection() -> OpenSearch:
@@ -100,8 +146,13 @@ def search_staff_index(*, query: str) -> List[StaffDocument]:
         "query": {
             "bool": {
                 "should": [
-                    {"match": {"staff_sso_first_name": {"query": query, "boost": 6.0}}},
-                    {"match": {"staff_sso_last_name": {"query": query, "boost": 6.0}}},
+                    {"match": {"staff_sso_first_name": {"query": query, "boost": 5.0}}},
+                    {"match": {"staff_sso_last_name": {"query": query, "boost": 5.0}}},
+                    {
+                        "match": {
+                            "staff_sso_email_address": {"query": query, "boost": 10.0}
+                        }
+                    },
                     {"multi_match": {"query": query, "analyzer": "standard"}},
                 ],
                 "minimum_should_match": 1,
@@ -134,3 +185,115 @@ def search_staff_index(*, query: str) -> List[StaffDocument]:
         staff_documents.append(staff_document)
 
     return staff_documents
+
+
+def consolidate_staff_documents(
+    *, staff_documents: List[StaffDocument]
+) -> List[ConsolidatedStaffDocument]:
+    consolidated_staff_documents: List[ConsolidatedStaffDocument] = []
+    for staff_document in staff_documents:
+        consolidated_staff_document: ConsolidatedStaffDocument = {
+            "staff_sso_activity_stream_id": staff_document[
+                "staff_sso_activity_stream_id"
+            ],
+            "first_name": staff_document["staff_sso_first_name"]
+            or staff_document["people_finder_first_name"]
+            or "",
+            "last_name": staff_document["staff_sso_last_name"]
+            or staff_document["people_finder_last_name"]
+            or "",
+            "email_address": staff_document["staff_sso_email_address"] or "",
+            "contact_email_address": staff_document["staff_sso_contact_email_address"]
+            or "",
+            "contact_phone": staff_document["people_finder_phone"] or "",
+            "contact_address": "",
+            "date_of_birth": date(2021, 11, 25).strftime("%d-%m-%Y"),
+            "photo": staff_document["people_finder_image"] or "",
+            "grade": staff_document["people_finder_grade"] or "",
+            "directorate": staff_document["service_now_directorate_id"] or "",
+            "department": staff_document["service_now_department_id"] or "",
+            "job_title": staff_document["people_finder_job_title"] or "",
+            "staff_id": "",
+            "manager": "",
+        }
+        consolidated_staff_documents.append(consolidated_staff_document)
+    return consolidated_staff_documents
+
+
+def index_all_staff() -> int:
+    """
+    Index all staff to the Staff Search Index
+
+    POTENTIALLY LONG RUNNING TASK
+
+    Things to consider:
+    - API rate limits/throttling?
+    - Using asyncronous tasks
+    """
+    people_finder_search = get_people_finder_interface()
+    service_now_interface = get_service_now_interface()
+    staff_documents: List[StaffDocument] = []
+    # Add documents to the index
+    for staff_sso_user in ActivityStreamStaffSSOUser.objects.all():
+        # Get People Finder data
+        people_finder_results = people_finder_search.get_search_results(
+            search_term=staff_sso_user.email_address,
+        )
+        people_finder_result: Union[Dict, PersonDetail] = {}
+        if len(people_finder_results) > 0:
+            for pf_result in people_finder_results:
+                if pf_result["email"] == staff_sso_user.email_address:
+                    people_finder_result = pf_result
+        people_finder_directorate: Optional[str] = people_finder_result.get(
+            "directorate"
+        )
+
+        # Get Service Now data
+        service_now_department_id: str = settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
+        service_now_department_name: str = ""
+        service_now_departments = service_now_interface.get_departments(
+            sys_id=service_now_department_id,
+        )
+        if len(service_now_departments) == 1:
+            service_now_department_name = service_now_departments[0]["name"]
+        service_now_directorate_id: str = ""
+        service_now_directorate_name: str = ""
+        if people_finder_directorate:
+            service_now_directorates = service_now_interface.get_directorates(
+                name=people_finder_directorate,
+            )
+            if len(service_now_directorates) == 1:
+                service_now_directorate_id = service_now_directorates[0]["sys_id"]
+                service_now_directorate_name = service_now_directorates[0]["name"]
+
+        staff_document: StaffDocument = {
+            # Staff SSO
+            "staff_sso_activity_stream_id": staff_sso_user.identifier,
+            "staff_sso_first_name": staff_sso_user.first_name,
+            "staff_sso_last_name": staff_sso_user.last_name,
+            "staff_sso_email_address": staff_sso_user.email_address,
+            "staff_sso_contact_email_address": staff_sso_user.contact_email_address
+            or "",
+            # People Finder
+            "people_finder_image": people_finder_result.get("image", ""),
+            "people_finder_first_name": people_finder_result.get("first_name", ""),
+            "people_finder_last_name": people_finder_result.get("last_name", ""),
+            "people_finder_job_title": people_finder_result.get("job_title", ""),
+            "people_finder_directorate": people_finder_result.get("directorate", ""),
+            "people_finder_phone": people_finder_result.get("phone", ""),
+            "people_finder_grade": people_finder_result.get("grade", ""),
+            # Service Now
+            "service_now_department_id": service_now_department_id,
+            "service_now_department_name": service_now_department_name,
+            "service_now_directorate_id": service_now_directorate_id,
+            "service_now_directorate_name": service_now_directorate_name,
+        }
+
+        # Add to list of Staff Documents
+        staff_documents.append(staff_document)
+    indexed_count = 0
+    for staff_document in staff_documents:
+        index_staff_document(staff_document=staff_document)
+        indexed_count += 1
+
+    return indexed_count

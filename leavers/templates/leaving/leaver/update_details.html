@@ -15,16 +15,16 @@
                     <h2 class="govuk-heading-m">Personal Information</h3>
                     {% include "includes/govt_uk_field.html" with field=form.first_name %}
                     {% include "includes/govt_uk_field.html" with field=form.last_name %}
-                    {% include "includes/govt_uk_field.html" with field=form.personal_email %}
-                    {% include "includes/govt_uk_field.html" with field=form.personal_phone %}
-                    {% include "includes/govt_uk_field.html" with field=form.personal_address %}
+                    {% include "includes/govt_uk_field.html" with field=form.contact_email_address %}
+                    {% include "includes/govt_uk_field.html" with field=form.contact_phone %}
+                    {% include "includes/govt_uk_field.html" with field=form.contact_address %}
                     
                     <h2 class="govuk-heading-m">Professional Information</h3>
                     {% include "includes/govt_uk_field.html" with field=form.grade %}
                     {% include "includes/govt_uk_field.html" with field=form.job_title %}
                     {% include "includes/govt_uk_field.html" with field=form.directorate %}
                     {% include "includes/govt_uk_field.html" with field=form.department %}
-                    {% include "includes/govt_uk_field.html" with field=form.work_email %}
+                    {% include "includes/govt_uk_field.html" with field=form.email_address %}
                     {% include "includes/govt_uk_field.html" with field=form.manager %}
                     {% include "includes/govt_uk_field.html" with field=form.staff_id %}
 
