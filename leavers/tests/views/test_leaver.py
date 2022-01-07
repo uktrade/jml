@@ -401,7 +401,6 @@ class TestConfirmDetailsView(TestCase):
         )
 
     def test_existing_updates(self, mock_get_search_results):
-        activity_stream_staff_sso_user = ActivityStreamStaffSSOUserFactory()
         updates: types.LeaverDetailUpdates = {
             "department": "2",
             "directorate": "2",
@@ -409,7 +408,6 @@ class TestConfirmDetailsView(TestCase):
             "grade": "Updated Grade",
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "manager": activity_stream_staff_sso_user.id,
             "staff_id": "Updated Staff ID",
             "contact_address": "Updated Address",
             "contact_email_address": "Updated Personal Email",
@@ -440,7 +438,6 @@ class TestConfirmDetailsView(TestCase):
                 "department": "Department 2",
                 "directorate": "Directorate 2",
                 "email_address": updates["email_address"],
-                "manager": activity_stream_staff_sso_user.name,
                 "staff_id": updates["staff_id"],
                 "photo": "",
             },
@@ -454,7 +451,6 @@ class TestConfirmDetailsView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_submit_contains_required_data(self, mock_get_search_results):
-        activity_stream_staff_sso_user = ActivityStreamStaffSSOUserFactory()
         updates: types.LeaverDetailUpdates = {
             "department": "1",
             "directorate": "1",
@@ -462,7 +458,6 @@ class TestConfirmDetailsView(TestCase):
             "grade": "Updated Grade",
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "manager": activity_stream_staff_sso_user.id,
             "staff_id": "Updated Staff ID",
             "contact_address": "Updated Address",
             "contact_email_address": "new.personal.email@example.com",  # /PS-IGNORE
@@ -528,7 +523,6 @@ class TestUpdateDetailsView(TestCase):
         )
 
     def test_existing_updates(self, mock_get_search_results):
-        activity_stream_staff_sso_user = ActivityStreamStaffSSOUserFactory()
         updates: types.LeaverDetailUpdates = {
             "department": "Updated Department",
             "directorate": "Updated Directorate",
@@ -536,7 +530,6 @@ class TestUpdateDetailsView(TestCase):
             "grade": "Updated Grade",
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "manager": activity_stream_staff_sso_user.id,
             "staff_id": "Updated Staff ID",
             "contact_address": "Updated Address",
             "contact_email_address": "Updated Personal Email",

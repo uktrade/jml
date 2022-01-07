@@ -144,7 +144,7 @@ def search_staff_index(
     Search the Staff index.
     """
     if not exclude_staff_ids:
-        exclude_staff_ids: List[str] = []
+        exclude_staff_ids = []
 
     search_client = get_search_connection()
     search_dict = {

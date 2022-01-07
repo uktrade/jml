@@ -383,3 +383,4 @@ StaffDocumentNotFound(Exception
 person_id
 staff_details.job_title %
 AlterField
+assert self.manager

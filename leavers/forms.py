@@ -5,7 +5,6 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile  # /PS-IGNORE
 
-from activity_stream.models import ActivityStreamStaffSSOUser
 from core.forms import GovFormattedForm, GovFormattedModelForm
 from core.service_now import get_service_now_interface
 from leavers.models import LeavingRequest, ReturnOption
@@ -182,10 +181,6 @@ class LeaverUpdateForm(GovFormattedForm):
     directorate = forms.ChoiceField(label="Directorate", choices=[])
     department = forms.ChoiceField(label="Department", choices=[])
     email_address = forms.EmailField(label="Email")
-    manager = forms.ModelChoiceField(
-        label="Manager",
-        queryset=ActivityStreamStaffSSOUser.objects.available(),
-    )
     staff_id = forms.CharField(label="Staff ID")
 
     def __init__(self, *args, **kwargs):

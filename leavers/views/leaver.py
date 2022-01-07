@@ -93,7 +93,6 @@ class LeaverInformationMixin:
             "department": consolidated_staff_document["department"],
             "directorate": consolidated_staff_document["directorate"],
             "email_address": consolidated_staff_document["email_address"],
-            "manager": consolidated_staff_document["manager"],
             "staff_id": consolidated_staff_document["staff_id"],
             # Misc.
             "photo": consolidated_staff_document["photo"],
@@ -155,13 +154,6 @@ class LeaverInformationMixin:
         leaver_details = self.get_leaver_details_with_updates(
             email=email, requester=requester
         )
-        if leaver_details["manager"]:
-            manager = ActivityStreamStaffSSOUser.objects.get(
-                id=leaver_details["manager"]
-            )
-            # Lead the Manager's name from the Database
-            leaver_details["manager"] = manager.name
-
         # Get data from Service Now /PS-IGNORE
         service_now_interface = get_service_now_interface()
         # Get the Department's Name from Service Now
@@ -356,7 +348,6 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             "department": form.cleaned_data["department"],
             "directorate": form.cleaned_data["directorate"],
             "email_address": form.cleaned_data["email_address"],
-            "manager": form.cleaned_data["manager"].id,
             "staff_id": form.cleaned_data["staff_id"],
         }
 

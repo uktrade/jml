@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from django.core.exceptions import PermissionDenied
 from django.http.request import HttpRequest
@@ -23,6 +23,7 @@ from core.utils.staff_index import (
 )
 from leavers.forms import LeaverConfirmationForm
 from leavers.utils import update_or_create_leaving_request  # /PS-IGNORE
+from user.models import User
 
 LEAVER_SEARCH_PARAM = "leaver_id"
 MANAGER_SEARCH_PARAM = "manager_id"
@@ -98,6 +99,9 @@ class ConfirmationView(FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def create_workflow(self, last_day: datetime):
+        assert self.leaver
+        assert self.manager
+
         flow = Flow.objects.create(
             workflow_name="leaving",
             flow_name=f"{self.leaver['first_name']} {self.leaver['last_name']} is leaving",  # noqa E501
@@ -118,10 +122,12 @@ class ConfirmationView(FormView):
         except ActivityStreamStaffSSOUser.DoesNotExist:
             raise Exception("Unable to find manager in the Staff SSO ActivityStream.")
 
+        user = cast(User, self.request.user)
+
         update_or_create_leaving_request(
             leaver=leaver_activitystream_user,
             manager_activitystream_user=manager_activitystream_user,
-            user_requesting=self.request.user,
+            user_requesting=user,
             flow=flow,
             leaver_first_name=self.leaver["first_name"],
             leaver_last_name=self.leaver["last_name"],
