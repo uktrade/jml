@@ -2,12 +2,12 @@
 {% load static %}
 
 {% block content %}
-    <h2 class="govuk-heading-l">Leaver details confirmation</h2>
+    <h2 class="govuk-heading-m">Leaver details confirmation</h2>
     {% include "staff_search/staff_result.html" with staff_details=leaver %}
-    <h2 class="govuk-heading-l">Leaver's Manager</h3>
+    <h2 class="govuk-heading-m">Leaver's Manager</h3>
     {% if manager %}
         {% include "staff_search/staff_result.html" with staff_details=manager %}
-        <a href="{{ manager_search }}" class="govuk-button" data-module="govuk-button">Change the leaver's manager</a>
+        <a href="{{ manager_search }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Change the leaver's manager</a>
     {% else %}
         <form novalidate action="{{ manager_search }}" method="POST">
             {% csrf_token %}
