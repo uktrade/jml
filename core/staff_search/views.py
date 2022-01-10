@@ -56,12 +56,11 @@ class StaffSearchView(FormView):
         return context
 
     def form_valid(self, form) -> HttpResponse:
-        search_terms = form.cleaned_data["search_terms"]
-
-        staff_results = self.process_search(search_terms)
-        self.request.session["staff_results"] = staff_results
-
         context = self.get_context_data()
+
+        search_terms = form.cleaned_data["search_terms"]
+        staff_results = self.process_search(search_terms)
+
         context.update(
             search_term=search_terms,
             staff_results=staff_results,
