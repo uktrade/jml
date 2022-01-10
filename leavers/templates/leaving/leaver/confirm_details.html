@@ -2,10 +2,22 @@
 {% load static %}
 
 {% block content %}
-    <h1 class="govuk-heading-l">Leaver details confirmation</h1>
+    <h1 class="govuk-heading-l">Confirm your information</h1>
     {% include "includes/govt_error_summary.html" with errors=errors %}
-    <a href="{% url 'leaver-update-details' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit</a>
     {% include "includes/leaver_details.html" with leaver_details=leaver_details %}
+    <a href="{% url 'leaver-update-details' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
+    
+    <h2 class="govuk-heading-m">Your line manager</h2>
+    {% if manager %}
+        {% include "staff_search/staff_result.html" with staff_details=manager %}
+        <a href="{{ manager_search }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">This is not my line manager</a>
+    {% else %}
+        <form novalidate action="{{ manager_search }}" method="POST">
+            {% csrf_token %}
+            {% include "includes/govt_uk_form.html" with form=manager_search_form %}
+            <input type="submit" value="Search" class="govuk-button" data-module="govuk-button"/>
+        </form>
+    {% endif %}
     <form novalidate method='post'>
         {% csrf_token %}
         <fieldset class="govuk-fieldset">

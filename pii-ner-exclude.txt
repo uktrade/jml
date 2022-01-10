@@ -391,3 +391,8 @@ StaffDocument
 manager_service_now_id = manager_staff_document["service_now_user_id
 manager_service_now_id
 Generic Staff
+Manager</h2
+MyManagerSearchView.as_view
+below.</a>
+del request.session[MANAGER_SESSION_KEY]
+self.get_leaver(request

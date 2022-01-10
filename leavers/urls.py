@@ -36,6 +36,11 @@ urlpatterns = [
     ),
     # Leaver
     path(
+        "leaver/manager-search/",
+        leaver_views.MyManagerSearchView.as_view(),
+        name="leaver-manager-search",
+    ),
+    path(
         "leaver/confirm-details/",
         leaver_views.ConfirmDetailsView.as_view(),
         name="leaver-confirm-details",
