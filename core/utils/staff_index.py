@@ -33,7 +33,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "service_now_department_id": {"type": "text"},
             "service_now_department_name": {"type": "text"},
             "service_now_directorate_id": {"type": "text"},
-            "ervice_now_directorate_name": {"type": "text"},
+            "service_now_directorate_name": {"type": "text"},
         },
     },
 }
