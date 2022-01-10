@@ -84,6 +84,8 @@ class ConfirmationView(FormView):
 
         # Get the manager
         manager_id: Optional[str] = request.GET.get(MANAGER_SEARCH_PARAM, None)
+        if manager_id:
+            del self.request.session[MANAGER_SESSION_KEY]
         if MANAGER_SESSION_KEY in self.request.session:
             manager_id = self.request.session[MANAGER_SESSION_KEY]
         if manager_id:

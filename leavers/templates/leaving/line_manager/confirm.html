@@ -6,12 +6,13 @@
     {% include "staff_search/staff_result.html" with staff_details=leaver %}
     {% if manager %}
         {% include "staff_search/staff_result.html" with staff_details=manager %}
+        <a href="{{ manager_search }}" class="govuk-button" data-module="govuk-button">Change the leaver's manager</a>
     {% else %}
-        Manager Search
         <form novalidate action="{{ manager_search }}" method="POST">
             {% csrf_token %}
+            Manager Search
             {% include "includes/govt_uk_form.html" with form=manager_search_form %}
-            <input type="submit" value="Search" class="govuk-button govuk-button" data-module="govuk-button"/>
+            <input type="submit" value="Search" class="govuk-button" data-module="govuk-button"/>
         </form>
     {% endif %}
     <form novalidate method="POST">
@@ -28,6 +29,6 @@
                 {% endif %}
             {% endfor %}
         </fieldset>
-        <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
+        <input type="submit" value="Submit" class="govuk-button" data-module="govuk-button"/>
     </form>
 {% endblock %}
