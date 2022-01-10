@@ -4,6 +4,7 @@
 {% block content %}
     <h2 class="govuk-heading-l">Leaver details confirmation</h2>
     {% include "staff_search/staff_result.html" with staff_details=leaver %}
+    <h2 class="govuk-heading-l">Leaver's Manager</h3>
     {% if manager %}
         {% include "staff_search/staff_result.html" with staff_details=manager %}
         <a href="{{ manager_search }}" class="govuk-button" data-module="govuk-button">Change the leaver's manager</a>
@@ -19,9 +20,9 @@
         {% csrf_token %}
         <fieldset class="govuk-fieldset">
             <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                <h1 class="govuk-fieldset__heading">
+                <h2 class="govuk-fieldset__heading">
                     Proposed leaving date (if known)
-                </h1>
+                </h2>
             </legend>
             {% for field in form %}
                 {% if field.name == "last_day" %}
