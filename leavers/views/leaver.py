@@ -41,9 +41,10 @@ class MyManagerSearchView(StaffSearchView):
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
+        user = cast(User, self.request.user)
         try:
             leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
-                email_address=request.user.email,
+                email_address=user.email,
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:
             raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")

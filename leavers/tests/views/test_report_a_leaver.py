@@ -47,9 +47,10 @@ class TestConfirmationView(ViewAccessTest, TestCase):  # /PS-IGNORE
         self.leaver_as_sso_user = ActivityStreamStaffSSOUserFactory(
             email_address=self.leaver_email
         )
+        self.manager_as_sso_user = ActivityStreamStaffSSOUserFactory()
         session = self.client.session
-        session["leaver_id"] = 1
-        session["manager_id"] = 1
+        session["leaver_id"] = self.leaver_as_sso_user.identifier
+        session["manager_id"] = self.manager_as_sso_user.identifier
         session.save()
 
     def assert_authenticated_pass(self, method: str, response):

@@ -139,6 +139,8 @@ class ConfirmationView(FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def create_workflow(self, last_day: datetime):
+        assert self.leaver
+
         flow = Flow.objects.create(
             workflow_name="leaving",
             flow_name=f"{self.leaver['first_name']} {self.leaver['last_name']} is leaving",  # noqa E501
