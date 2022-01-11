@@ -104,7 +104,7 @@ class ConfirmationView(FormView):
             else:
                 manager_id = request.session[MANAGER_SESSION_KEY]
         # Try to load the manager using existing data.
-        if not manager_id:
+        if not manager_id and self.leaving_request.manager_activitystream_user:
             manager_id = self.leaving_request.manager_activitystream_user.identifier
         # Load the manager from the Staff index
         if manager_id:
