@@ -32,10 +32,6 @@ EMPTY_STAFF_DOCUMENT: StaffDocument = {
     "leavers.views.report_a_leaver.get_staff_document_from_staff_index",
     return_value=EMPTY_STAFF_DOCUMENT,
 )
-# @mock.patch(
-#     "core.utils.staff_index.get_staff_document_from_staff_index",
-#     return_value=EMPTY_STAFF_DOCUMENT,
-# )
 class TestConfirmationView(ViewAccessTest, TestCase):  # /PS-IGNORE
     view_name = "report-a-leaver-confirmation"
     allowed_methods = ["get", "post", "put"]
