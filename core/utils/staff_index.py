@@ -1,3 +1,4 @@
+import uuid
 from datetime import date
 from typing import Any, Dict, List, Mapping, Optional, TypedDict, Union, cast
 
@@ -17,6 +18,7 @@ STAFF_INDEX_NAME: str = settings.SEARCH_STAFF_INDEX_NAME
 STAFF_INDEX_BODY: Mapping[str, Any] = {
     "mappings": {
         "properties": {
+            "uuid": {"type": "text"},
             "staff_sso_activity_stream_id": {"type": "text"},
             "staff_sso_first_name": {"type": "text"},
             "staff_sso_last_name": {"type": "text"},
@@ -40,6 +42,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
 
 
 class StaffDocument(TypedDict):
+    uuid: str
     staff_sso_activity_stream_id: str
     staff_sso_first_name: str
     staff_sso_last_name: str
@@ -60,6 +63,7 @@ class StaffDocument(TypedDict):
 
 
 class ConsolidatedStaffDocument(TypedDict):
+    uuid: str
     staff_sso_activity_stream_id: str
     first_name: str
     last_name: str
@@ -197,21 +201,33 @@ class StaffDocumentNotFound(Exception):
     pass
 
 
-def get_staff_document_from_staff_index(*, staff_id: str) -> StaffDocument:
+def get_staff_document_from_staff_index(
+    *, staff_id: Optional[str] = None, staff_uuid: Optional[str] = None
+) -> StaffDocument:
     """
     Get a Staff document from the Staff index.
     """
+    if not staff_id and not staff_uuid or staff_id and staff_uuid:
+        raise ValueError("One of staff_id or staff_uuid must be provided, not both")
 
-    search_client = get_search_connection()
+    search_field: str = ""
+    search_value: str = ""
+    if staff_id:
+        search_field = "staff_sso_activity_stream_id"
+        search_value = staff_id
+    elif staff_uuid:
+        search_field = "uuid"
+        search_value = staff_uuid
+
     search_dict = {
         "query": {
             "bool": {
                 "should": [
-                    {"match": {"staff_sso_activity_stream_id": {"query": staff_id}}},
+                    {"match": {search_field: {"query": search_value}}},
                 ],
                 "minimum_should_match": 1,
                 "boost": 1.0,
-            }
+            },
         },
         "sort": {
             "_score": {"order": "desc"},
@@ -219,6 +235,9 @@ def get_staff_document_from_staff_index(*, staff_id: str) -> StaffDocument:
         "size": MAX_RESULTS,
         "min_score": MIN_SCORE,
     }
+
+    search_client = get_search_connection()
+
     search = (
         Search(index=STAFF_INDEX_NAME)
         .using(search_client)
@@ -245,6 +264,7 @@ def consolidate_staff_documents(
     consolidated_staff_documents: List[ConsolidatedStaffDocument] = []
     for staff_document in staff_documents:
         consolidated_staff_document: ConsolidatedStaffDocument = {
+            "uuid": staff_document["uuid"],
             "staff_sso_activity_stream_id": staff_document[
                 "staff_sso_activity_stream_id"
             ],
@@ -329,6 +349,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     Build Staff Document
     """
     staff_document: StaffDocument = {
+        "uuid": str(uuid.uuid4()),
         # Staff SSO
         "staff_sso_activity_stream_id": staff_sso_user.identifier,
         "staff_sso_first_name": staff_sso_user.first_name,

@@ -300,12 +300,19 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
 
         manager_id: Optional[str] = request.GET.get(MANAGER_SEARCH_PARAM, None)
         if manager_id:
+            manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
+                staff_uuid=manager_id,
+            )
+
             try:
-                manager = ActivityStreamStaffSSOUser.objects.get(identifier=manager_id)
+                manager = ActivityStreamStaffSSOUser.objects.get(
+                    identifier=manager_staff_document["staff_sso_activity_stream_id"],
+                )
             except ActivityStreamStaffSSOUser.DoesNotExist:
                 raise Exception(
                     "Unable to find manager in the Staff SSO ActivityStream."
                 )
+
             if self.leaver_info.leaving_request.manager_activitystream_user != manager:
                 self.leaver_info.leaving_request.manager_activitystream_user = manager
                 self.leaver_info.leaving_request.save()

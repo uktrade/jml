@@ -27,8 +27,7 @@ class StaffSearchView(FormView):
     form_class = SearchForm
     template_name = "staff_search/search.html"
     success_url = reverse_lazy("staff-search")
-    query_param_name: str = "person_id"
-
+    query_param_name: str = "staff_uuid"
     search_name: str = "member of staff"
 
     def __init__(self, **kwargs) -> None:

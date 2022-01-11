@@ -20,7 +20,7 @@ urlpatterns = [
         name="report-a-leaver-search",
     ),
     path(
-        "report-a-leaver/manager-search/",
+        "report-a-leaver/manager-search/<uuid:leaving_request_uuid>/",
         report_a_leaver_views.ManagerSearchView.as_view(),
         name="report-a-leaver-manager-search",
     ),

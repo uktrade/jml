@@ -9,12 +9,14 @@ from django.utils import timezone
 
 from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from core.service_now.interfaces import ServiceNowStubbed
+from core.utils.staff_index import StaffDocument
 from leavers import factories, models, types
 from leavers.views.leaver import LeaverInformationMixin
 from user.test.factories import UserFactory
 
-STAFF_INDEX_RETURN_VALUE = [
+STAFF_INDEX_RETURN_VALUE: StaffDocument = [
     {
+        "uuid": "",
         "people_finder_directorate": "",
         "people_finder_first_name": "Joe",  # /PS-IGNORE
         "people_finder_grade": "Example Grade",

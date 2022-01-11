@@ -8,6 +8,7 @@ from core.utils.staff_index import StaffDocument
 from leavers.tests.views.include import ViewAccessTest
 
 EMPTY_STAFF_DOCUMENT: StaffDocument = {
+    "uuid": "",
     "staff_sso_activity_stream_id": "",
     "staff_sso_first_name": "",
     "staff_sso_last_name": "",
@@ -35,7 +36,7 @@ EMPTY_STAFF_DOCUMENT: StaffDocument = {
 class TestConfirmationView(ViewAccessTest, TestCase):  # /PS-IGNORE
     view_name = "report-a-leaver-confirmation"
     allowed_methods = ["get", "post", "put"]
-    url_query_params = "person_id=1"
+    url_query_params = ""
 
     def setUp(self):
         super().setUp()  # /PS-IGNORE
@@ -44,6 +45,7 @@ class TestConfirmationView(ViewAccessTest, TestCase):  # /PS-IGNORE
             email_address=self.leaver_email
         )
         self.manager_as_sso_user = ActivityStreamStaffSSOUserFactory()
+        self.url_query_params = f"manager_id={self.manager_as_sso_user.identifier}"
         session = self.client.session
         session["leaver_id"] = self.leaver_as_sso_user.identifier
         session["manager_id"] = self.manager_as_sso_user.identifier
