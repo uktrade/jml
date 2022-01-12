@@ -75,7 +75,9 @@ class ConsolidatedStaffDocument(TypedDict):
     date_of_birth: str
     grade: str
     directorate: str
+    directorate_name: str
     department: str
+    department_name: str
     job_title: str
     staff_id: str
     manager: str
@@ -283,7 +285,9 @@ def consolidate_staff_documents(
             "photo": staff_document["people_finder_image"] or "",
             "grade": staff_document["people_finder_grade"] or "",
             "directorate": staff_document["service_now_directorate_id"] or "",
+            "directorate_name": staff_document["service_now_directorate_name"] or "",
             "department": staff_document["service_now_department_id"] or "",
+            "department_name": staff_document["service_now_department_name"] or "",
             "job_title": staff_document["people_finder_job_title"] or "",
             "staff_id": "",
             "manager": "",
