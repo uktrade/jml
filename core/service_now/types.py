@@ -36,6 +36,7 @@ class ServiceNowUser(TypedDict):
     """
 
     sys_id: str
+    email: str
     name: str
     manager: Optional[str]
 
@@ -62,6 +63,7 @@ class DepartmentDetails(TypedDict):
 
 class UserDetails(TypedDict):
     sys_id: str
+    email: str
     name: str
     manager: Optional[str]
 

@@ -141,7 +141,6 @@ WorkflowExecutor
 #     #
 #         # Search
 #
-request.session['people_list
 PermissionDenied(f"{e
 RequestReceivedView(TemplateView
 CharField(max_length=255
@@ -372,3 +371,30 @@ leaver_details.email_a
 PersonDetail
 # Get Service Now
 leaver_details.email_address
+leaver_id
+manager_id
+MANAGER_SESSION_KEY
+LeaverSearchView(StaffSearchView
+del self.request.session[LEAVER_SESSION_KEY
+del self.request.session[MANAGER_SESSION_KEY]
+ManagerSearchView(StaffSearchView
+self.manager["staff_sso_activity_stream_id
+StaffDocumentNotFound(Exception
+person_id
+staff_details.job_title %
+AlterField
+assert self.manager
+# Get Service Now User
+# Get Service Now Department
+# Get Service Now Directorate
+StaffDocument
+manager_service_now_id = manager_staff_document["service_now_user_id
+manager_service_now_id
+Generic Staff
+Manager</h2
+MyManagerSearchView.as_view
+below.</a>
+del request.session[MANAGER_SESSION_KEY]
+self.get_leaver(request
+self.leaving_request.manager_activitystream_user
+staff_id

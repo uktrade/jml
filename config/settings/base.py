@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "user",
     "core",
     "core.cookies",
+    "core.staff_search",
     "api",
     "activity_stream",
 ]

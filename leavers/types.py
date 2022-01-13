@@ -16,7 +16,6 @@ class LeaverDetails(TypedDict):
     department: str
     directorate: str
     email_address: str
-    manager: str
     staff_id: str
     # Misc.
     photo: str
@@ -36,5 +35,4 @@ class LeaverDetailUpdates(TypedDict, total=False):
     department: str
     directorate: str
     email_address: str
-    manager: str
     staff_id: str

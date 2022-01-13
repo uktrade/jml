@@ -15,9 +15,14 @@ urlpatterns = [
     path("who/", leaving_views.WhoIsLeavingView.as_view(), name="who"),
     # Report a leaver
     path(
-        "report-a-leaver/search/",
+        "report-a-leaver/leaver-search/",
         report_a_leaver_views.LeaverSearchView.as_view(),
         name="report-a-leaver-search",
+    ),
+    path(
+        "report-a-leaver/manager-search/<uuid:leaving_request_uuid>/",
+        report_a_leaver_views.ManagerSearchView.as_view(),
+        name="report-a-leaver-manager-search",
     ),
     path(
         "report-a-leaver/confirmation/",
@@ -30,6 +35,11 @@ urlpatterns = [
         name="report-a-leaver-request-received",
     ),
     # Leaver
+    path(
+        "leaver/manager-search/",
+        leaver_views.MyManagerSearchView.as_view(),
+        name="leaver-manager-search",
+    ),
     path(
         "leaver/confirm-details/",
         leaver_views.ConfirmDetailsView.as_view(),

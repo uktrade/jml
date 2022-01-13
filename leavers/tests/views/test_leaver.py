@@ -9,12 +9,14 @@ from django.utils import timezone
 
 from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from core.service_now.interfaces import ServiceNowStubbed
+from core.utils.staff_index import StaffDocument
 from leavers import factories, models, types
 from leavers.views.leaver import LeaverInformationMixin
 from user.test.factories import UserFactory
 
-STAFF_INDEX_RETURN_VALUE = [
+STAFF_INDEX_RETURN_VALUE: StaffDocument = [
     {
+        "uuid": "",
         "people_finder_directorate": "",
         "people_finder_first_name": "Joe",  # /PS-IGNORE
         "people_finder_grade": "Example Grade",
@@ -378,7 +380,7 @@ class TestConfirmDetailsView(TestCase):
         response = self.client.get(reverse(self.view_name))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Leaver details confirmation")
+        self.assertContains(response, "Confirm your information")
         leaver_details = response.context["leaver_details"]
         self.assertEqual(leaver_details["date_of_birth"], date(2021, 11, 25))
         self.assertEqual(
@@ -390,7 +392,6 @@ class TestConfirmDetailsView(TestCase):
         self.assertEqual(leaver_details["grade"], "Example Grade")
         self.assertEqual(leaver_details["job_title"], "Job title")
         self.assertEqual(leaver_details["last_name"], "Bloggs")
-        self.assertEqual(leaver_details["manager"], "")
         self.assertEqual(leaver_details["staff_id"], "")
         self.assertEqual(leaver_details["contact_address"], "")
         self.assertEqual(leaver_details["contact_email_address"], "")
@@ -401,7 +402,6 @@ class TestConfirmDetailsView(TestCase):
         )
 
     def test_existing_updates(self, mock_get_search_results):
-        activity_stream_staff_sso_user = ActivityStreamStaffSSOUserFactory()
         updates: types.LeaverDetailUpdates = {
             "department": "2",
             "directorate": "2",
@@ -409,7 +409,6 @@ class TestConfirmDetailsView(TestCase):
             "grade": "Updated Grade",
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "manager": activity_stream_staff_sso_user.id,
             "staff_id": "Updated Staff ID",
             "contact_address": "Updated Address",
             "contact_email_address": "Updated Personal Email",
@@ -425,7 +424,7 @@ class TestConfirmDetailsView(TestCase):
         response = self.client.get(reverse(self.view_name))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Leaver details confirmation")
+        self.assertContains(response, "Confirm your information")
         self.assertEqual(
             response.context["leaver_details"],
             {
@@ -440,7 +439,6 @@ class TestConfirmDetailsView(TestCase):
                 "department": "Department 2",
                 "directorate": "Directorate 2",
                 "email_address": updates["email_address"],
-                "manager": activity_stream_staff_sso_user.name,
                 "staff_id": updates["staff_id"],
                 "photo": "",
             },
@@ -454,7 +452,6 @@ class TestConfirmDetailsView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_submit_contains_required_data(self, mock_get_search_results):
-        activity_stream_staff_sso_user = ActivityStreamStaffSSOUserFactory()
         updates: types.LeaverDetailUpdates = {
             "department": "1",
             "directorate": "1",
@@ -462,7 +459,6 @@ class TestConfirmDetailsView(TestCase):
             "grade": "Updated Grade",
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "manager": activity_stream_staff_sso_user.id,
             "staff_id": "Updated Staff ID",
             "contact_address": "Updated Address",
             "contact_email_address": "new.personal.email@example.com",  # /PS-IGNORE
@@ -517,7 +513,6 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(form.initial["grade"], "Example Grade")
         self.assertEqual(form.initial["job_title"], "Job title")
         self.assertEqual(form.initial["last_name"], "Bloggs")  # /PS-IGNORE
-        self.assertEqual(form.initial["manager"], "")
         self.assertEqual(form.initial["staff_id"], "")
         self.assertEqual(form.initial["contact_address"], "")
         self.assertEqual(form.initial["contact_email_address"], "")
@@ -528,7 +523,6 @@ class TestUpdateDetailsView(TestCase):
         )
 
     def test_existing_updates(self, mock_get_search_results):
-        activity_stream_staff_sso_user = ActivityStreamStaffSSOUserFactory()
         updates: types.LeaverDetailUpdates = {
             "department": "Updated Department",
             "directorate": "Updated Directorate",
@@ -536,7 +530,6 @@ class TestUpdateDetailsView(TestCase):
             "grade": "Updated Grade",
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "manager": activity_stream_staff_sso_user.id,
             "staff_id": "Updated Staff ID",
             "contact_address": "Updated Address",
             "contact_email_address": "Updated Personal Email",
@@ -566,7 +559,6 @@ class TestUpdateDetailsView(TestCase):
                 "grade": updates["grade"],
                 "job_title": updates["job_title"],
                 "last_name": updates["last_name"],
-                "manager": updates["manager"],
                 "staff_id": updates["staff_id"],
                 "contact_address": updates["contact_address"],
                 "contact_email_address": updates["contact_email_address"],
@@ -587,7 +579,6 @@ class TestUpdateDetailsView(TestCase):
                 "grade": "",
                 "job_title": "",
                 "last_name": "",
-                "manager": "",
                 "staff_id": "",
                 "contact_address": "",
                 "contact_email_address": "",
@@ -603,7 +594,6 @@ class TestUpdateDetailsView(TestCase):
         self.assertFormError(response, "form", "grade", "This field is required.")
         self.assertFormError(response, "form", "job_title", "This field is required.")
         self.assertFormError(response, "form", "last_name", "This field is required.")
-        self.assertFormError(response, "form", "manager", "This field is required.")
         self.assertFormError(response, "form", "staff_id", "This field is required.")
         self.assertFormError(
             response, "form", "contact_address", "This field is required."
@@ -648,7 +638,6 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(leaver_updates["grade"], "Grade")
         self.assertEqual(leaver_updates["job_title"], "Job Title")
         self.assertEqual(leaver_updates["last_name"], "LastName")  # /PS-IGNORE
-        self.assertEqual(leaver_updates["manager"], activity_stream_staff_sso_user.id)
         self.assertEqual(leaver_updates["staff_id"], "Staff ID")
         self.assertEqual(leaver_updates["contact_address"], "Personal Address")
 
@@ -887,6 +876,7 @@ class TestEquipmentReturnOptionsView(TestCase):
         self.assertEqual(response.url, reverse("leaver-return-information"))
         mock_store_return_option.assert_called_once_with(
             email=user.email,
+            requester=user,
             return_option=models.ReturnOption.HOME,
         )
 
@@ -906,6 +896,7 @@ class TestEquipmentReturnOptionsView(TestCase):
         self.assertEqual(response.url, reverse("leaver-return-information"))
         mock_store_return_option.assert_called_once_with(
             email=user.email,
+            requester=user,
             return_option=models.ReturnOption.OFFICE,
         )
 
@@ -1004,6 +995,7 @@ class TestEquipmentReturnInformationView(TestCase):
 
         mock_store_return_information.assert_called_once_with(
             email=self.leaver.email,
+            requester=self.leaver,
             personal_phone="0123123123",  # /PS-IGNORE
             contact_email="joe.bloggs@example.com",  # /PS-IGNORE
             address={  # /PS-IGNORE

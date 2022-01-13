@@ -1,9 +1,11 @@
-from typing import List
+from datetime import datetime
+from typing import Any, Optional, cast
 
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
-from django.views import View
+from django.http.request import HttpRequest
+from django.http.response import HttpResponseBase
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django_workflow_engine.exceptions import WorkflowNotAuthError
@@ -11,49 +13,55 @@ from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
 
 from activity_stream.models import ActivityStreamStaffSSOUser
-from core.people_finder import get_people_finder_interface
+from core.staff_search.forms import SearchForm
+from core.staff_search.views import StaffSearchView
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
+    StaffDocument,
     consolidate_staff_documents,
-    search_staff_index,
+    get_staff_document_from_staff_index,
 )
-from leavers.forms import LeaverConfirmationForm, SearchForm
+from leavers.forms import LeaverConfirmationForm
+from leavers.models import LeavingRequest
 from leavers.utils import update_or_create_leaving_request  # /PS-IGNORE
+from user.models import User
+
+LEAVER_SEARCH_PARAM = "leaver_uuid"
+MANAGER_SEARCH_PARAM = "manager_uuid"
+LEAVER_SESSION_KEY = "leaver_uuid"
+MANAGER_SESSION_KEY = "manager_uuid"
 
 
-class LeaverSearchView(View):
-    form_class = SearchForm
-    template_name = "leaving/line_manager/search.html"
-    people_finder_search = get_people_finder_interface()
+class LeaverSearchView(StaffSearchView):
+    success_url = reverse_lazy("report-a-leaver-confirmation")
+    search_name = "leaver"
+    query_param_name = LEAVER_SEARCH_PARAM
 
-    def process_search(self, search_terms) -> List[ConsolidatedStaffDocument]:
-        return consolidate_staff_documents(
-            staff_documents=search_staff_index(query=search_terms),
+    def dispatch(self, request, *args, **kwargs):
+        if LEAVER_SESSION_KEY in self.request.session:
+            del self.request.session[LEAVER_SESSION_KEY]
+        if MANAGER_SESSION_KEY in self.request.session:
+            del self.request.session[MANAGER_SESSION_KEY]
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ManagerSearchView(StaffSearchView):
+    success_url = reverse_lazy("report-a-leaver-confirmation")
+    search_name = "manager"
+    query_param_name = MANAGER_SEARCH_PARAM
+
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
-    def get(self, request, *args, **kwargs):
-        form = self.form_class()
-        return render(request, self.template_name, {"form": form})
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        people_list = []
-
-        if form.is_valid():
-            search_terms = form.cleaned_data["search_terms"]
-            people_list = self.process_search(
-                search_terms,
-            )
-            request.session["people_list"] = people_list
-
-        return render(
-            request,
-            self.template_name,
-            {
-                "form": form,
-                "people_list": people_list,
-            },
-        )
+        if LEAVER_SESSION_KEY in request.session:
+            self.exclude_staff_ids = [
+                self.leaving_request.leaver_activitystream_user.identifier
+            ]
+        return super().dispatch(request, *args, **kwargs)
 
 
 class ConfirmationView(FormView):
@@ -61,40 +69,143 @@ class ConfirmationView(FormView):
     form_class = LeaverConfirmationForm
     success_url = reverse_lazy("report-a-leaver-request-received")
 
-    def dispatch(self, request, *args, **kwargs):
-        # UUID created when we created people list
-        person_id = request.GET.get("person_id", None)
-        if not person_id:
+    def get_leaver(self, request):
+        """
+        Gets the leaver from the GET param.
+
+        Sets the following values:
+        - self.leaver
+        - self.leaver_activitystream_user
+        """
+
+        user = cast(User, request.user)
+
+        self.leaver: Optional[ConsolidatedStaffDocument] = None
+        leaver_uuid: Optional[str] = request.GET.get(LEAVER_SEARCH_PARAM, None)
+
+        # If there is a value in the session, we either want to use it or clear it.
+        if LEAVER_SESSION_KEY in self.request.session:
+            if leaver_uuid:
+                del self.request.session[LEAVER_SESSION_KEY]
+            else:
+                leaver_uuid = request.session[LEAVER_SESSION_KEY]
+
+        # If we don't have a leaver_uuid in the GET params, redirect back to search.
+        if not leaver_uuid:
             redirect("report-a-leaver-search")
 
-        for person in self.request.session["people_list"]:
-            if person["staff_sso_activity_stream_id"] == person_id:
-                self.person: ConsolidatedStaffDocument = person
-                break
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def create_workflow(self):
-        flow = Flow.objects.create(
-            workflow_name="leaving",
-            flow_name=f"{self.person['first_name']} {self.person['last_name']} is leaving",  # noqa E501
-            executed_by=self.request.user,
+        # Load the leaver from the Staff index.
+        leaver_staff_document: StaffDocument = get_staff_document_from_staff_index(
+            staff_uuid=leaver_uuid
         )
-        flow.save()
+        self.leaver: ConsolidatedStaffDocument = consolidate_staff_documents(
+            staff_documents=[leaver_staff_document],
+        )[0]
+        request.session[LEAVER_SESSION_KEY] = leaver_uuid
+        request.session.save()
 
         try:
-            leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
-                email_address=self.person["email_address"],
+            self.leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
+                identifier=self.leaver["staff_sso_activity_stream_id"],
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:
             raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")
 
-        update_or_create_leaving_request(
-            leaver=leaver_activitystream_user,
-            user_requesting=self.request.user,
+        self.leaving_request = update_or_create_leaving_request(
+            leaver=self.leaver_activitystream_user,
+            user_requesting=user,
+        )
+
+    def get_manager(self, request):
+        """
+        Gets the manager from the DB or the GET param.
+
+        Sets the following values:
+        - self.manager
+        - self.manager_activitystream_user
+        """
+
+        manager_uuid: Optional[str] = request.GET.get(MANAGER_SEARCH_PARAM, None)
+        manager_staff_document: Optional[StaffDocument] = None
+
+        # If there is a value in the session, we either want to use it or clear it.
+        if MANAGER_SESSION_KEY in request.session:
+            if manager_uuid:
+                # If the manager_uuid is in the GET params, clear the current
+                # session value
+                del request.session[MANAGER_SESSION_KEY]
+            else:
+                # If there is not manager_uuid in the GET params, use the current
+                # session value
+                manager_uuid = request.session[MANAGER_SESSION_KEY]
+
+        # Try to load the manager using existing data from the database.
+        if not manager_uuid and self.leaving_request.manager_activitystream_user:
+            self.manager_activitystream_user = (
+                self.leaving_request.manager_activitystream_user
+            )
+            manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
+                staff_id=self.leaving_request.manager_activitystream_user.identifier
+            )
+
+        # Load the manager from the Staff index (if we haven't managed to load it yet)
+        if manager_uuid and not manager_staff_document:
+            manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
+                staff_uuid=manager_uuid
+            )
+
+        # If we have a manager, we can create a ConsolidatedStaffDocument and
+        # store data in the session.
+        if manager_staff_document:
+            self.manager: ConsolidatedStaffDocument = consolidate_staff_documents(
+                staff_documents=[manager_staff_document],
+            )[0]
+            request.session[MANAGER_SESSION_KEY] = manager_uuid
+            request.session.save()
+            try:
+                self.manager_activitystream_user = (
+                    ActivityStreamStaffSSOUser.objects.get(
+                        identifier=self.manager["staff_sso_activity_stream_id"],
+                    )
+                )
+            except ActivityStreamStaffSSOUser.DoesNotExist:
+                raise Exception(
+                    "Unable to find manager in the Staff SSO ActivityStream."
+                )
+
+    def dispatch(self, request, *args, **kwargs):
+        self.leaving_request: Optional[LeavingRequest] = None
+
+        self.leaver: Optional[ConsolidatedStaffDocument] = None
+        self.leaver_activitystream_user: Optional[ActivityStreamStaffSSOUser] = None
+        self.get_leaver(request)
+
+        self.manager: Optional[ConsolidatedStaffDocument] = None
+        self.manager_activitystream_user: Optional[ActivityStreamStaffSSOUser] = None
+        self.get_manager(request)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def create_workflow(self, last_day: datetime):
+        assert self.leaver
+
+        flow = Flow.objects.create(
+            workflow_name="leaving",
+            flow_name=f"{self.leaver['first_name']} {self.leaver['last_name']} is leaving",  # noqa E501
+            executed_by=self.request.user,
+        )
+        flow.save()
+
+        user = cast(User, self.request.user)
+
+        self.leaving_request = update_or_create_leaving_request(
+            leaver=self.leaver_activitystream_user,
+            manager_activitystream_user=self.manager_activitystream_user,
+            user_requesting=user,
             flow=flow,
-            leaver_first_name=self.person["first_name"],
-            leaver_last_name=self.person["last_name"],
+            leaver_first_name=self.leaver["first_name"],
+            leaver_last_name=self.leaver["last_name"],
+            last_day=last_day,
         )
 
         executor = WorkflowExecutor(flow)
@@ -105,16 +216,23 @@ class ConfirmationView(FormView):
             raise PermissionDenied(f"{e}")
 
     def form_valid(self, form):
-        # Need to find out SSO id here
-        self.create_workflow()
-
+        self.create_workflow(
+            last_day=form.cleaned_data["last_day"],
+        )
         # Need to validate user is correct record here
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["person"] = self.person
-
+        context.update(
+            leaver=self.leaver,
+            manager=self.manager,
+            manager_search=reverse(
+                "report-a-leaver-manager-search",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            ),
+            manager_search_form=SearchForm(),
+        )
         return context
 
 

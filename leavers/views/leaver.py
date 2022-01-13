@@ -16,15 +16,41 @@ from activity_stream.models import ActivityStreamStaffSSOUser
 from core.people_finder import get_people_finder_interface
 from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
+from core.staff_search.forms import SearchForm
+from core.staff_search.views import StaffSearchView
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
+    StaffDocument,
     consolidate_staff_documents,
+    get_staff_document_from_staff_index,
     search_staff_index,
 )
 from leavers import forms, types
 from leavers.models import LeaverInformation, ReturnOption
 from leavers.utils import update_or_create_leaving_request  # /PS-IGNORE
 from user.models import User
+
+MANAGER_SEARCH_PARAM = "manager_id"
+
+
+class MyManagerSearchView(StaffSearchView):
+    success_url = reverse_lazy("leaver-confirm-details")
+    search_name = "manager"
+    query_param_name = MANAGER_SEARCH_PARAM
+
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        user = cast(User, self.request.user)
+        try:
+            leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
+                email_address=user.email,
+            )
+        except ActivityStreamStaffSSOUser.DoesNotExist:
+            raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")
+
+        self.exclude_staff_ids = [leaver_activitystream_user.identifier]
+        return super().dispatch(request, *args, **kwargs)
 
 
 class LeaverInformationMixin:
@@ -93,7 +119,6 @@ class LeaverInformationMixin:
             "department": consolidated_staff_document["department"],
             "directorate": consolidated_staff_document["directorate"],
             "email_address": consolidated_staff_document["email_address"],
-            "manager": consolidated_staff_document["manager"],
             "staff_id": consolidated_staff_document["staff_id"],
             # Misc.
             "photo": consolidated_staff_document["photo"],
@@ -155,13 +180,6 @@ class LeaverInformationMixin:
         leaver_details = self.get_leaver_details_with_updates(
             email=email, requester=requester
         )
-        if leaver_details["manager"]:
-            manager = ActivityStreamStaffSSOUser.objects.get(
-                id=leaver_details["manager"]
-            )
-            # Lead the Manager's name from the Database
-            leaver_details["manager"] = manager.name
-
         # Get data from Service Now /PS-IGNORE
         service_now_interface = get_service_now_interface()
         # Get the Department's Name from Service Now
@@ -275,6 +293,31 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
     form_class = forms.LeaverConfirmationForm
     success_url = reverse_lazy("leaver-kit")
 
+    def dispatch(self, request, *args, **kwargs):
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+
+        manager_id: Optional[str] = request.GET.get(MANAGER_SEARCH_PARAM, None)
+        if manager_id:
+            manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
+                staff_uuid=manager_id,
+            )
+
+            try:
+                manager = ActivityStreamStaffSSOUser.objects.get(
+                    identifier=manager_staff_document["staff_sso_activity_stream_id"],
+                )
+            except ActivityStreamStaffSSOUser.DoesNotExist:
+                raise Exception(
+                    "Unable to find manager in the Staff SSO ActivityStream."
+                )
+
+            if self.leaver_info.leaving_request.manager_activitystream_user != manager:
+                self.leaver_info.leaving_request.manager_activitystream_user = manager
+                self.leaver_info.leaving_request.save()
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = cast(User, self.request.user)
@@ -288,8 +331,32 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
             requester=user,
         )
         context.update(leaver_details=display_leaver_details),
+
+        manager: Optional[ConsolidatedStaffDocument] = None
+        if self.leaver_info.leaving_request.manager_activitystream_user:
+            manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
+                staff_id=self.leaver_info.leaving_request.manager_activitystream_user.identifier,
+            )
+            manager: ConsolidatedStaffDocument = consolidate_staff_documents(
+                staff_documents=[manager_staff_document],
+            )[0]
+        manager_search = reverse("leaver-manager-search")
+        context.update(
+            manager=manager,
+            manager_search=reverse("leaver-manager-search"),
+            manager_search_form=SearchForm(),
+        )
         # Build a list of errors to present to the user.
         errors: List[str] = []
+        # Add an error message if the user hasn't selected a manager.
+        if not manager:
+            errors.append(
+                mark_safe(
+                    f"<a href='{manager_search}'>You need to inform us of your "
+                    "line manager, please search for your manager below.</a>"
+                )
+            )
+
         # Add an error message if the required details are missing
         if not forms.LeaverUpdateForm(data=leaver_details).is_valid():
             edit_path = reverse("leaver-update-details")
@@ -356,7 +423,6 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             "department": form.cleaned_data["department"],
             "directorate": form.cleaned_data["directorate"],
             "email_address": form.cleaned_data["email_address"],
-            "manager": form.cleaned_data["manager"].id,
             "staff_id": form.cleaned_data["staff_id"],
         }
 
@@ -472,6 +538,7 @@ class EquipmentReturnOptionsView(LeaverInformationMixin, FormView):
 
         self.store_return_option(
             email=user_email,
+            requester=user,
             return_option=form.cleaned_data["return_option"],
         )
 
@@ -513,6 +580,7 @@ class EquipmentReturnInformationView(LeaverInformationMixin, FormView):
 
         self.store_return_information(
             email=user_email,
+            requester=user,
             personal_phone=form.cleaned_data["personal_phone"],
             contact_email=form.cleaned_data["contact_email"],
             address=address,

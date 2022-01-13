@@ -41,6 +41,14 @@ class LeavingRequest(models.Model):
     leaver_activitystream_user = models.ForeignKey(
         ActivityStreamStaffSSOUser,
         on_delete=models.CASCADE,
+        related_name="+",
+    )
+    manager_activitystream_user = models.ForeignKey(
+        ActivityStreamStaffSSOUser,
+        on_delete=models.CASCADE,
+        related_name="+",
+        blank=True,
+        null=True,
     )
     # We won't necessary have an app user
     leaver_first_name = models.CharField(
