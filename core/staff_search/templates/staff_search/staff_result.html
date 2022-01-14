@@ -2,35 +2,36 @@
     <div class="govuk-grid-column-two-thirds">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
-                <img class="leaver-image" src="{{ staff_details.photo }}" alt="Picture of {{ staff_details.first_name }} {{ staff_details.last_name }}" />
+                <img class="leaver-image" src="{{ staff_details.photo }}"
+                    alt="Picture of {{ staff_details.first_name }} {{ staff_details.last_name }}" />
             </div>
             <div class="govuk-grid-column-two-thirds">
                 <div class="govuk-heading-s">{{ staff_details.first_name }} {{ staff_details.last_name }}</div>
                 <p class="govuk-body">
                     {% if staff_details.job_title %}
-                        <span class="govuk-!-font-weight-bold">
-                            {{ staff_details.job_title }}
-                        </span>
-                        <br>
+                    <span class="govuk-!-font-weight-bold">
+                        {{ staff_details.job_title }}
+                    </span>
+                    <br>
                     {% endif %}
                     {% if staff_details.email_address %}
-                        {{ staff_details.email_address }}
-                        <br>
+                    {{ staff_details.email_address }}
+                    <br>
                     {% endif %}
                     {% if staff_details.grade %}
-                        {{ staff_details.grade }}
-                        <br>
+                    {{ staff_details.grade }}
+                    <br>
                     {% endif %}
-                    {% if staff_details.divectorate %}
-                        {{ staff_details.divectorate }}
-                        <br>
+                    {% if staff_details.directorate_name %}
+                    {{ staff_details.directorate_name }}
+                    <br>
                     {% endif %}
-                    {% if staff_details.department %}
-                        {{ staff_details.department }}
-                        <br>
+                    {% if staff_details.department_name %}
+                    {{ staff_details.department_name }}
+                    <br>
                     {% endif %}
                     {% if staff_details.manager %}
-                        Managed by {{ staff_details.manager }}
+                    Managed by {{ staff_details.manager }}
                     {% endif %}
                 </p>
             </div>

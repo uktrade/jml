@@ -398,3 +398,4 @@ del request.session[MANAGER_SESSION_KEY]
 self.get_leaver(request
 self.leaving_request.manager_activitystream_user
 staff_id
+Information</h2
