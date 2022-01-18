@@ -4,22 +4,40 @@ from typing import Any, Dict
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import UploadedFile  # /PS-IGNORE
-from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
 from core.utils.pdf import parse_leaver_pdf
 from leavers.forms import LineManagerDetailsForm
+from leavers.models import LeavingRequest
 
 
-class ProcessInformationView(TemplateView):  # /PS-IGNORE
-    template_name = "leaving/line_manager_return/process_information.html"
+class StartView(TemplateView):  # /PS-IGNORE
+    template_name = "leaving/line_manager/start.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.leaving_request = get_object_or_404(
+            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(
+            start_url=reverse(
+                "line-manager-details",
+                kwargs={"leaving_request_uuid": str(self.leaving_request.uuid)},
+            ),
+        )
+        return context
 
 
 class DetailsView(FormView):
-    template_name = "leaving/line_manager_return/details.html"
-    success_url = reverse_lazy("line-manager-return-thank-you")
+    template_name = "leaving/line_manager/details.html"
+    success_url = reverse_lazy("line-manager-thank-you")
     form_class = LineManagerDetailsForm
 
     def get_form_kwargs(self) -> Dict[str, Any]:
@@ -46,4 +64,4 @@ class DetailsView(FormView):
 
 
 class ThankYouView(TemplateView):
-    template_name = "leaving/line_manager_return/thank_you.html"
+    template_name = "leaving/line_manager/thank_you.html"

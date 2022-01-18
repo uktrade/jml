@@ -6,9 +6,13 @@
         <li class="govuk-header__navigation-item govuk-header__navigation-item--active">
             <a class="govuk-header__link" href="{% url 'start' %}">Start leaving process</a>
         </li>
-        <li class="govuk-header__navigation-item govuk-header__navigation-item--active">
-            <a class="govuk-header__link" href="{% url "flow-list" %}">Leaving Requests</a>
-        </li>
+        {% comment %} DEV LINKS START - Remove before we go live {% endcomment %}
+        {% for dev_link in DEV_LINKS %}
+            <li class="govuk-header__navigation-item govuk-header__navigation-item--active">
+                <a class="govuk-header__link" href="{{ dev_link.1 }}">{{ dev_link.0 }}</a>
+            </li>
+        {% endfor %}
+        {% comment %} DEV LINKS END {% endcomment %}
         <li class="govuk-header__navigation-item govuk-header__navigation-item--active">
             {{ user }} ({{ user.groups.first }})
         </li>

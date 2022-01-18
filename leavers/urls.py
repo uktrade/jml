@@ -73,19 +73,19 @@ urlpatterns = [
     ),
     # Line manager return
     path(
-        "line-manager/information/",
-        line_manager_views.ProcessInformationView.as_view(),  # /PS-IGNORE
-        name="line-manager-return-information",
+        "line-manager/<uuid:leaving_request_uuid>/information/",
+        line_manager_views.StartView.as_view(),  # /PS-IGNORE
+        name="line-manager-start",
     ),
     path(
-        "line-manager/details/",
+        "line-manager/<uuid:leaving_request_uuid>/details/",
         line_manager_views.DetailsView.as_view(),  # /PS-IGNORE
-        name="line-manager-return-details",
+        name="line-manager-details",
     ),
     path(
-        "line-manager/thank-you/",
+        "line-manager/<uuid:leaving_request_uuid>/thank-you/",
         line_manager_views.ThankYouView.as_view(),  # /PS-IGNORE
-        name="line-manager-return-thank-you",
+        name="line-manager-thank-you",
     ),
     # SRE
     path(

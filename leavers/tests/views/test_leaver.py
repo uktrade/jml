@@ -1,5 +1,6 @@
 import uuid
 from datetime import date, datetime
+from typing import List
 from unittest import mock
 
 from django.conf import settings
@@ -14,7 +15,7 @@ from leavers import factories, models, types
 from leavers.views.leaver import LeaverInformationMixin
 from user.test.factories import UserFactory
 
-STAFF_INDEX_RETURN_VALUE: StaffDocument = [
+STAFF_INDEX_RETURN_VALUE: List[StaffDocument] = [
     {
         "uuid": "",
         "people_finder_directorate": "",
@@ -24,6 +25,7 @@ STAFF_INDEX_RETURN_VALUE: StaffDocument = [
         "people_finder_job_title": "Job title",
         "people_finder_last_name": "Bloggs",
         "people_finder_phone": "0123456789",
+        "service_now_user_id": "",
         "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
         "service_now_department_name": "Department of International Trade",  # /PS-IGNORE
         "service_now_directorate_id": "",

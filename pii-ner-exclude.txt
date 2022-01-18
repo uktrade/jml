@@ -399,3 +399,5 @@ self.get_leaver(request
 self.leaving_request.manager_activitystream_user
 staff_id
 Information</h2
+latest_leaving_request
+Start Line

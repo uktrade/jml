@@ -65,7 +65,7 @@ class ManagerSearchView(StaffSearchView):
 
 
 class ConfirmationView(FormView):
-    template_name = "leaving/line_manager/confirm.html"
+    template_name = "leaving/report_a_leaver/confirm.html"
     form_class = LeaverConfirmationForm
     success_url = reverse_lazy("report-a-leaver-request-received")
 
@@ -237,4 +237,4 @@ class ConfirmationView(FormView):
 
 
 class RequestReceivedView(TemplateView):
-    template_name = "leaving/line_manager/request_received.html"
+    template_name = "leaving/report_a_leaver/request_received.html"
