@@ -2,7 +2,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
-from leavers.forms import WhoIsLeavingForm  # /PS-IGNORE
+from leavers.forms import leaving as Leaving_form
 
 
 class CannotFindLeaverException(Exception):
@@ -15,7 +15,7 @@ class LeaversStartView(TemplateView):
 
 class WhoIsLeavingView(FormView):
     template_name = "leaving/who_is_leaving.html"
-    form_class = WhoIsLeavingForm
+    form_class = Leaving_form.WhoIsLeavingForm
     success_url = reverse_lazy("report-a-leaver-search")
 
     def form_valid(self, form):

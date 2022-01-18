@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
-from leavers.forms import GovFormattedForm
+from core.forms import GovFormattedForm
 
 User = get_user_model()
 

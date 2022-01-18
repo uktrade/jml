@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
-from leavers.forms import SecurityTeamConfirmCompleteForm
+from leavers.forms import security_team as security_team_form
 from leavers.models import LeavingRequest, TaskLog
 
 
@@ -15,7 +15,7 @@ class TaskConfirmationView(
     FormView,
 ):
     template_name = "leaving/task_form.html"
-    form_class = SecurityTeamConfirmCompleteForm
+    form_class = security_team_form.SecurityTeamConfirmCompleteForm
     leaving_request = None
 
     def test_func(self):

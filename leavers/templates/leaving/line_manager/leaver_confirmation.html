@@ -1,0 +1,33 @@
+{% extends "leaving/leaving_base.html" %}
+{% load static %}
+
+{% block content %}
+    <h1 class="govuk-heading-l">Title of page</h1>
+    <p class="govuk-body">{{ leaver_name }} is leaving and has reviewed and updated their details.</p>
+    <p class="govuk-body">This is your final check of their details and leaving date, and the last action you must complete on the service before the process moves on to IT, HR and Security.</p>
+    
+    <h2 class="govuk-heading-m">Personal information</h2>
+    {% include "staff_search/staff_result.html" with staff_details=leaver %}
+
+    <h2 class="govuk-heading-m">Leaver's data transfer</h2>
+    <p class="govuk-body">Who should your leaver's data be transferred to?</p>
+    {% include "staff_search/staff_result.html" with staff_details=data_recipient %}
+    
+    <form novalidate method='post'>
+        {% csrf_token %}
+        <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                <h2 class="govuk-fieldset__heading">
+                    Official leaving date
+                </h2>
+            </legend>
+            <p class="govuk-body">Update the date if it has changed.</p>
+            {% for field in form %}
+                {% include "includes/govt_uk_field.html" with field=field %}
+            {% endfor %}
+        </fieldset>
+        <p class="govuk-body">Once you submit the page, you cannot make any further changes.</p>
+        <p class="govuk-body">Leaving DIT service will then progress to IT, HR and Security to process the leaver.</p>
+        <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
+    </form>
+{% endblock %}
