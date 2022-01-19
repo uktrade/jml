@@ -1,7 +1,6 @@
 from typing import Any, Dict, List
 
 from django.http.response import HttpResponse
-from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 
 from core.people_finder import get_people_finder_interface
@@ -26,7 +25,6 @@ class StaffSearchView(FormView):
 
     form_class = SearchForm
     template_name = "staff_search/search.html"
-    success_url = reverse_lazy("staff-search")
     query_param_name: str = "staff_uuid"
     search_name: str = "member of staff"
 
@@ -48,7 +46,7 @@ class StaffSearchView(FormView):
         context.update(
             search_term="",
             staff_results=[],
-            success_url=self.success_url,
+            success_url=self.get_success_url(),
             search_name=self.search_name,
             query_param_name=self.query_param_name,
         )

@@ -12,7 +12,9 @@
     <h2 class="govuk-heading-m">Leaver's data transfer</h2>
     <p class="govuk-body">Who should your leaver's data be transferred to?</p>
     {% include "staff_search/staff_result.html" with staff_details=data_recipient %}
-    
+    <a href="{{ data_recipient_search }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Change recipient for leaver's data.</a>
+
+
     <form novalidate method='post'>
         {% csrf_token %}
         <fieldset class="govuk-fieldset">

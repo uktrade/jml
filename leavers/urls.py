@@ -71,7 +71,12 @@ urlpatterns = [
         leaver_views.RequestReceivedView.as_view(),
         name="leaver-request-received",
     ),
-    # Line manager return
+    # Line manager
+    path(
+        "line-manager/data-recipient-search/<uuid:leaving_request_uuid>/",
+        line_manager_views.DataRecipientSearchView.as_view(),
+        name="line-manager-data-recipient-search",
+    ),
     path(
         "line-manager/<uuid:leaving_request_uuid>/information/",
         line_manager_views.StartView.as_view(),  # /PS-IGNORE
