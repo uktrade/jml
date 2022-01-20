@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.files.uploadedfile import UploadedFile  # /PS-IGNORE
+from django.core.files.uploadedfile import UploadedFile
 
 from core.forms import GovFormattedForm
 from core.service_now import get_service_now_interface
@@ -14,20 +14,23 @@ class PdfFileField(forms.FileField):
             raise ValidationError("File must be a PDF")
 
 
+class UksbsPdfForm(GovFormattedForm):
+    uksbs_pdf = PdfFileField(
+        label="Upload the UKSBS PDF",
+    )
+
+
 class LineManagerDetailsForm(GovFormattedForm):
     # TODO: Populate security clearances
     SECURITY_CLEARANCES = [
         ("security_clearance_1", "Security clearance 1"),
     ]
-    uksbs_pdf = PdfFileField(
-        label="UK SBS PDF",  # /PS-IGNORE
-    )
     security_clearance = forms.ChoiceField(
         label="Security clearance",
         choices=SECURITY_CLEARANCES,
     )
     rosa_user = forms.BooleanField(
-        label="Is the leaver a ROSA user?",  # /PS-IGNORE
+        label="Is the leaver a ROSA user?",
         required=False,
     )
     has_dse = forms.BooleanField(
