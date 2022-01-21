@@ -292,6 +292,30 @@ class DetailsView(FormView):
             kwargs={"leaving_request_uuid": self.leaving_request.uuid},
         )
 
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+        if self.leaving_request:
+            # Security Clearance
+            if self.leaving_request.security_clearance:
+                initial["security_clearance"] = self.leaving_request.security_clearance
+            # ROSA user
+            is_rosa_user = self.leaving_request.is_rosa_user
+            if is_rosa_user is not None:
+                rosa_user_yes_no = "yes" if is_rosa_user else "no"
+                initial["rosa_user"] = rosa_user_yes_no
+            # Government Procurement Card
+            holds_government_procurement_card = (
+                self.leaving_request.holds_government_procurement_card
+            )
+            if holds_government_procurement_card is not None:
+                holds_government_procurement_card_yes_no = (
+                    "yes" if holds_government_procurement_card else "no"
+                )
+                initial[
+                    "holds_government_procurement_card"
+                ] = holds_government_procurement_card_yes_no
+        return initial
+
     def dispatch(self, request, *args, **kwargs):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
