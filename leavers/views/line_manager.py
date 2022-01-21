@@ -298,6 +298,21 @@ class DetailsView(FormView):
         )
         return super().dispatch(request, *args, **kwargs)
 
+    def form_valid(self, form) -> HttpResponse:
+        # Store the details against the LeavingRequest.
+        self.leaving_request.security_clearance = form.cleaned_data[
+            "security_clearance"
+        ]
+        self.leaving_request.is_rosa_user = bool(
+            form.cleaned_data["rosa_user"] == "yes"
+        )
+        self.leaving_request.holds_government_procurement_card = bool(
+            form.cleaned_data["holds_government_procurement_card"] == "yes"
+        )
+        self.leaving_request.save()
+
+        return super().form_valid(form)
+
 
 class ThankYouView(TemplateView):
     template_name = "leaving/line_manager/thank_you.html"

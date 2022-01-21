@@ -13,7 +13,7 @@ class WhoIsLeavingForm(GovFormattedForm):
     who_for = forms.ChoiceField(
         label="",
         choices=CHOICES,
-        widget=forms.RadioSelect(attrs={"class": "govuk-radios__input"}),
+        widget=forms.RadioSelect,
     )
 
     last_day = forms.DateField(
