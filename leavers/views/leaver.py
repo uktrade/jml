@@ -25,7 +25,8 @@ from core.utils.staff_index import (
     get_staff_document_from_staff_index,
     search_staff_index,
 )
-from leavers import forms, types
+from leavers import types
+from leavers.forms import leaver as leaver_forms
 from leavers.models import LeaverInformation, ReturnOption
 from leavers.utils import update_or_create_leaving_request  # /PS-IGNORE
 from user.models import User
@@ -290,7 +291,7 @@ class LeaverInformationMixin:
 
 class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
     template_name = "leaving/leaver/confirm_details.html"
-    form_class = forms.LeaverConfirmationForm
+    form_class = leaver_forms.LeaverConfirmationForm
     success_url = reverse_lazy("leaver-kit")
 
     def dispatch(self, request, *args, **kwargs):
@@ -358,7 +359,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
             )
 
         # Add an error message if the required details are missing
-        if not forms.LeaverUpdateForm(data=leaver_details).is_valid():
+        if not leaver_forms.LeaverUpdateForm(data=leaver_details).is_valid():
             edit_path = reverse("leaver-update-details")
             errors.append(
                 mark_safe(
@@ -388,7 +389,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
         leaver_details = self.get_leaver_details_with_updates(
             email=user_email, requester=user
         )
-        update_form = forms.LeaverUpdateForm(data=leaver_details)
+        update_form = leaver_forms.LeaverUpdateForm(data=leaver_details)
         if update_form.is_valid():
             return super().form_valid(form)
         return self.form_invalid(form)
@@ -396,7 +397,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
 
 class UpdateDetailsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/update_details.html"
-    form_class = forms.LeaverUpdateForm
+    form_class = leaver_forms.LeaverUpdateForm
     success_url = reverse_lazy("leaver-confirm-details")
 
     def dispatch(
@@ -445,8 +446,8 @@ def delete_kit(request: HttpRequest, kit_uuid: uuid.UUID):
 
 class KitView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
     forms: Dict[str, Type[Form]] = {
-        "add_asset_form": forms.AddAssetForm,
-        "correction_form": forms.CorrectionForm,
+        "add_asset_form": leaver_forms.AddAssetForm,
+        "correction_form": leaver_forms.CorrectionForm,
     }
     template_name = "leaving/leaver/kit.html"
     success_url = reverse_lazy("leaver-return-options")
@@ -529,7 +530,7 @@ class KitView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
 
 class EquipmentReturnOptionsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/equipment_options.html"
-    form_class = forms.ReturnOptionForm
+    form_class = leaver_forms.ReturnOptionForm
     success_url = reverse_lazy("leaver-return-information")
 
     def form_valid(self, form):
@@ -547,7 +548,7 @@ class EquipmentReturnOptionsView(LeaverInformationMixin, FormView):
 
 class EquipmentReturnInformationView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/equipment_information.html"
-    form_class = forms.ReturnInformationForm
+    form_class = leaver_forms.ReturnInformationForm
     success_url = reverse_lazy("leaver-request-received")
 
     def get_form_kwargs(self) -> Dict[str, Any]:

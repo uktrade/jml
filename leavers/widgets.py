@@ -11,8 +11,15 @@ class DateSelectorWidget(forms.MultiWidget):
     def day(self):
         return self.widgets[0]
 
+    @property
+    def month(self):
+        return self.widgets[1]
+
+    @property
+    def year(self):
+        return self.widgets[2]
+
     def __init__(self, hint="", attrs=None):
-        print(attrs)
         self.hint = hint
         widgets = [
             forms.NumberInput(),

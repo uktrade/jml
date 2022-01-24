@@ -78,6 +78,11 @@ urlpatterns = [
         name="line-manager-start",
     ),
     path(
+        "line-manager/<uuid:leaving_request_uuid>/leaver-confirmation/",
+        line_manager_views.LeaverConfirmationView.as_view(),  # /PS-IGNORE
+        name="line-manager-leaver-confirmation",
+    ),
+    path(
         "line-manager/<uuid:leaving_request_uuid>/details/",
         line_manager_views.DetailsView.as_view(),  # /PS-IGNORE
         name="line-manager-details",

@@ -7,7 +7,7 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
 from core.utils.sre_messages import send_sre_complete_message
-from leavers.forms import SREConfirmCompleteForm
+from leavers.forms import sre as sre_forms
 from leavers.models import LeavingRequest, TaskLog
 
 
@@ -15,8 +15,8 @@ class TaskConfirmationView(
     UserPassesTestMixin,
     FormView,
 ):
-    template_name = "leaving/task_form.html"
-    form_class = SREConfirmCompleteForm
+    tempate_name = "leaving/task_form.html"
+    form_class = sre_forms.SREConfirmCompleteForm
     leaving_request = None
 
     def test_func(self):

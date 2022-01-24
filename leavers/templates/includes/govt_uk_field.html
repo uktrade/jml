@@ -48,8 +48,8 @@
                         </label>
                         <input class="govuk-input govuk-date-input__input govuk-input--width-2" type="text"
                                name="{{ field.name }}_0"
-                                {% if field.field.widget.widgets.0.value != None %}
-                               value="{{ field.field.widget.widgets.0.value }}" {% endif %}>
+                                {% if field.field.widget.day.value != None %}
+                               value="{{ field.field.widget.day.value }}" {% endif %}>
                     </div>
                 </div>
                 <div class="govuk-date-input__item">
@@ -59,8 +59,8 @@
                         </label>
                         <input class="govuk-input govuk-date-input__input govuk-input--width-2" type="text"
                                name="{{ field.name }}_1"
-                                {% if field.field.widget.widgets.1.value != None %}
-                               value="{{ field.field.widget.widgets.1.value }}" {% endif %}>
+                                {% if field.field.widget.month.value != None %}
+                               value="{{ field.field.widget.month.value }}" {% endif %}>
                     </div>
                 </div>
                 <div class="govuk-date-input__item">
@@ -70,8 +70,8 @@
                         </label>
                         <input class="govuk-input govuk-date-input__input govuk-input--width-4" type="text"
                                name="{{ field.name }}_2"
-                                {% if field.field.widget.widgets.2.value != None %}
-                               value="{{ field.field.widget.widgets.2.value }}" {% endif %}>
+                                {% if field.field.widget.year.value != None %}
+                               value="{{ field.field.widget.year.value }}" {% endif %}>
                     </div>
                 </div>
             </div>
