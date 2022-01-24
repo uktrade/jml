@@ -49,13 +49,12 @@ click-repl==0.2.0
     # via celery
 deprecated==1.2.13
     # via redis
-django==3.2.9
+django==3.2.11
     # via
     #   -r requirements.in/base.in
     #   django-appconf
     #   django-audit-log-middleware
     #   django-celery-beat
-    #   django-settings-export
     #   django-staff-sso-client
     #   django-timezone-field
     #   django-workflow-engine
@@ -81,8 +80,6 @@ django-ipware==3.0.7
 django-log-formatter-ecs==0.0.5
     # via -r requirements.in/base.in
 django-sass-processor==1.1
-    # via -r requirements.in/base.in
-django-settings-export==1.2.1
     # via -r requirements.in/base.in
 django-staff-sso-client==3.1.1
     # via -r requirements.in/base.in
