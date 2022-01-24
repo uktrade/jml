@@ -18,7 +18,11 @@ class TaskLog(models.Model):
 
 
 class SecurityClearance(TextChoices):
-    SECURITY_CLEARANCE_1 = "security_clearance_1", "Security clearance 1"
+    CTC = "ctc", "Counter Terrorist Check"
+    SC = "sc", "Security Check"
+    ESC = "esc", "Enhanced Security Check"
+    DV = "dv", "Developed Vetting"
+    EDV = "edv", "Enhanced Developed Vetting"
 
 
 class LeavingRequest(models.Model):

@@ -414,7 +414,6 @@ Store
 RadioSelect
 YesNoField(forms
 SecurityClearance
-SECURITY_CLEARANCE_1
 SRE Access
 Security Team Access
 rosa_user_yes_no
@@ -428,3 +427,8 @@ Functionality
 response.context["data_recipient"]["staff_sso_activity_stream_id
 SubFactory
 Line
+CTC
+Enhanced Security Check
+Developed Vetting
+EDV
+choices=[('ctc

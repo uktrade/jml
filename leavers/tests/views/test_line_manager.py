@@ -424,7 +424,7 @@ class TestDetailsView(ViewAccessTest, TestCase):
         response = self.client.post(
             self.get_url(),
             {
-                "security_clearance": "security_clearance_1",
+                "security_clearance": "ctc",
                 "rosa_user": "yes",
                 "holds_government_procurement_card": "yes",
             },
