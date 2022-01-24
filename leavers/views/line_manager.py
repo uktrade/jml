@@ -6,8 +6,8 @@ from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import UploadedFile  # /PS-IGNORE
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
-from django.shortcuts import get_object_or_404
-from django.urls import reverse, reverse_lazy
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
@@ -75,7 +75,7 @@ class LeaverConfirmationView(FormView):
 
     def get_success_url(self) -> str:
         return reverse(
-            "line-manager-details",
+            "line-manager-uksbs-handover",
             kwargs={"leaving_request_uuid": self.leaving_request.uuid},
         )
 
@@ -211,10 +211,29 @@ class LeaverConfirmationView(FormView):
         return super().form_valid(form)
 
 
-class DetailsView(FormView):
-    template_name = "leaving/line_manager/details.html"
-    success_url = reverse_lazy("line-manager-thank-you")
-    form_class = line_manager_forms.LineManagerDetailsForm
+class UksbsHandoverView(FormView):
+    template_name = "leaving/line_manager/uksbs-handover.html"
+    form_class = line_manager_forms.UksbsPdfForm
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "line-manager-details",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
+
+    def dispatch(self, request, *args, **kwargs):
+        self.leaving_request = get_object_or_404(
+            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
+        )
+
+        if self.leaving_request.uksbs_pdf_data:
+            # TODO: Discuss, the assumption here is that if the data is already in the
+            # LeavingRequest, we will just redirect users to the details step.
+            # Perhaps this isn't the intended behaviour, instead we might want to show
+            # a message to inform the user that they have already uploaded the form.
+            return redirect(self.get_success_url())
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
@@ -222,10 +241,31 @@ class DetailsView(FormView):
             form_kwargs["files"] = self.request.FILES
         return form_kwargs
 
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        # Load the leaver from the Staff index.
+        leaver_staff_document: StaffDocument = get_staff_document_from_staff_index(
+            staff_id=self.leaving_request.leaver_activitystream_user.identifier,
+        )
+        leaver: ConsolidatedStaffDocument = consolidate_staff_documents(
+            staff_documents=[leaver_staff_document],
+        )[0]
+
+        # Update context with leaver information.
+        context.update(
+            leaver_name=f"{leaver['first_name']} {leaver['last_name']}",
+            leaver_email=leaver["email_address"],
+            leaver_address=leaver["contact_address"],
+            leaver_phone=leaver["contact_phone"],
+        )
+        return context
+
     def form_valid(self, form):
         uksbs_pdf: UploadedFile = form.cleaned_data["uksbs_pdf"]
         date_time = timezone.now().strftime("%Y-%m-%d-%H-%M-%S")
-        # Store file to disk /PS-IGNORE
+
+        # Store file to disk
         pdf_path = os.path.join(
             settings.MEDIA_ROOT,
             default_storage.save(
@@ -233,10 +273,30 @@ class DetailsView(FormView):
                 content=uksbs_pdf.file,
             ),
         )
-        parsed_pdf = parse_leaver_pdf(filename=pdf_path)  # noqa
-        # TODO: Store parsed pdf information
-        # TODO: Store form details
+
+        # Store parsed data against the LeavingRequest.
+        parsed_pdf = parse_leaver_pdf(filename=pdf_path)
+        self.leaving_request.uksbs_pdf_data = parsed_pdf
+        self.leaving_request.save()
+
         return super().form_valid(form)
+
+
+class DetailsView(FormView):
+    template_name = "leaving/line_manager/details.html"
+    form_class = line_manager_forms.LineManagerDetailsForm
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "line-manager-thank-you",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
+
+    def dispatch(self, request, *args, **kwargs):
+        self.leaving_request = get_object_or_404(
+            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
+        )
+        return super().dispatch(request, *args, **kwargs)
 
 
 class ThankYouView(TemplateView):

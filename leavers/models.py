@@ -165,6 +165,12 @@ class LeavingRequest(models.Model):
         blank=True,
     )
 
+    """
+    UKSBS PDF data
+    """
+
+    uksbs_pdf_data = models.JSONField(null=True, blank=True)
+
 
 class SlackMessage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

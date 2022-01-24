@@ -79,22 +79,27 @@ urlpatterns = [
     ),
     path(
         "line-manager/<uuid:leaving_request_uuid>/information/",
-        line_manager_views.StartView.as_view(),  # /PS-IGNORE
+        line_manager_views.StartView.as_view(),
         name="line-manager-start",
     ),
     path(
         "line-manager/<uuid:leaving_request_uuid>/leaver-confirmation/",
-        line_manager_views.LeaverConfirmationView.as_view(),  # /PS-IGNORE
+        line_manager_views.LeaverConfirmationView.as_view(),
         name="line-manager-leaver-confirmation",
     ),
     path(
+        "line-manager/<uuid:leaving_request_uuid>/uksbs-handover/",
+        line_manager_views.UksbsHandoverView.as_view(),
+        name="line-manager-uksbs-handover",
+    ),
+    path(
         "line-manager/<uuid:leaving_request_uuid>/details/",
-        line_manager_views.DetailsView.as_view(),  # /PS-IGNORE
+        line_manager_views.DetailsView.as_view(),
         name="line-manager-details",
     ),
     path(
         "line-manager/<uuid:leaving_request_uuid>/thank-you/",
-        line_manager_views.ThankYouView.as_view(),  # /PS-IGNORE
+        line_manager_views.ThankYouView.as_view(),
         name="line-manager-thank-you",
     ),
     # SRE
