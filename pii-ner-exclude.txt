@@ -418,3 +418,13 @@ SECURITY_CLEARANCE_1
 SRE Access
 Security Team Access
 rosa_user_yes_no
+super().setUp
+TestStartView(ViewAccessTest
+TestDetailsView(ViewAccessTest
+self.leaving_request.leaver_activitystream_user
+Unit of Measurement
+self.leaving_request.refresh_from_db
+Functionality
+response.context["data_recipient"]["staff_sso_activity_stream_id
+SubFactory
+Line
