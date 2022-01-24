@@ -411,3 +411,10 @@ UploadedFile
 ROSA
 Discuss
 Store
+RadioSelect
+YesNoField(forms
+SecurityClearance
+SECURITY_CLEARANCE_1
+SRE Access
+Security Team Access
+rosa_user_yes_no

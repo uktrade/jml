@@ -2,7 +2,7 @@ from typing import List
 
 from django import forms
 
-from core.forms import GovFormattedForm
+from core.forms import GovFormattedForm, YesNoField
 from core.service_now import get_service_now_interface
 from leavers.models import ReturnOption
 from leavers.widgets import DateSelectorWidget
@@ -58,7 +58,7 @@ class ReturnOptionForm(GovFormattedForm):
     return_option = forms.ChoiceField(
         label="",
         choices=ReturnOption.choices,
-        widget=forms.RadioSelect(attrs={"class": "govuk-radios__input"}),
+        widget=forms.RadioSelect,
     )
 
 
@@ -97,14 +97,8 @@ class AddAssetForm(GovFormattedForm):
 
 
 class CorrectionForm(GovFormattedForm):
-    CHOICES = [
-        ("yes", "Yes"),
-        ("no", "No"),
-    ]
-    is_correct = forms.ChoiceField(
+    is_correct = YesNoField(
         label="I confirm that all information is up to date and correct",
-        choices=CHOICES,
-        widget=forms.RadioSelect(attrs={"class": "govuk-radios__input"}),
     )
     whats_incorrect = forms.CharField(
         required=False,

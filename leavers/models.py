@@ -17,6 +17,10 @@ class TaskLog(models.Model):
     )
 
 
+class SecurityClearance(TextChoices):
+    SECURITY_CLEARANCE_1 = "security_clearance_1", "Security clearance 1"
+
+
 class LeavingRequest(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4)
     flow = models.OneToOneField(
@@ -78,7 +82,7 @@ class LeavingRequest(models.Model):
     )
 
     """
-    SRE Access  /PS-IGNORE
+    SRE Access
     """
 
     vpn_access_removed = models.OneToOneField(
@@ -146,7 +150,7 @@ class LeavingRequest(models.Model):
     )
 
     """
-    Security Team Access  /PS-IGNORE
+    Security Team Access
     """
 
     building_pass_access_revoked = models.OneToOneField(
@@ -170,6 +174,19 @@ class LeavingRequest(models.Model):
     """
 
     uksbs_pdf_data = models.JSONField(null=True, blank=True)
+
+    """
+    Line Manager
+    """
+
+    security_clearance = models.CharField(
+        choices=SecurityClearance.choices,
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    is_rosa_user = models.BooleanField(null=True, blank=True)
+    holds_government_procurement_card = models.BooleanField(null=True, blank=True)
 
 
 class SlackMessage(models.Model):

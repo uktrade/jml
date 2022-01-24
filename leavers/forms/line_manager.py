@@ -2,8 +2,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
 
-from core.forms import GovFormattedForm
-from core.service_now import get_service_now_interface
+from core.forms import GovFormattedForm, YesNoField
+from leavers.models import SecurityClearance
 from leavers.widgets import DateSelectorWidget
 
 
@@ -21,46 +21,16 @@ class UksbsPdfForm(GovFormattedForm):
 
 
 class LineManagerDetailsForm(GovFormattedForm):
-    # TODO: Populate security clearances
-    SECURITY_CLEARANCES = [
-        ("security_clearance_1", "Security clearance 1"),
-    ]
     security_clearance = forms.ChoiceField(
-        label="Security clearance",
-        choices=SECURITY_CLEARANCES,
+        label="Leaver's security clearance",
+        choices=SecurityClearance.choices,
     )
-    rosa_user = forms.BooleanField(
+    rosa_user = YesNoField(
         label="Is the leaver a ROSA user?",
-        required=False,
     )
-    has_dse = forms.BooleanField(
-        label="Does the leaver have any Display Screen Equipment?",
-        required=False,
-    )
-    holds_government_procurement_card = forms.BooleanField(
+    holds_government_procurement_card = YesNoField(
         label="Does the leaver hold a government procurement card?",
-        required=False,
     )
-    service_now_reference_number = forms.CharField(
-        label="Service Now reference number",
-    )
-    department_transferring_to = forms.ChoiceField(
-        label="Department transferring to",
-    )
-    loan_end_date = forms.DateField(
-        label="Loan end date",
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        service_now_interface = get_service_now_interface()
-        service_now_departments = service_now_interface.get_departments()
-        self.fields["department_transferring_to"].choices = [
-            ("not_transferring", "Not transferring"),
-        ] + [
-            (department["sys_id"], department["name"])
-            for department in service_now_departments
-        ]
 
 
 class ConfirmLeavingDate(GovFormattedForm):
