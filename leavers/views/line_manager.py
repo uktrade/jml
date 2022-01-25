@@ -3,7 +3,8 @@ from typing import Any, Dict, Optional
 
 from django.conf import settings
 from django.core.files.storage import default_storage
-from django.core.files.uploadedfile import UploadedFile  # /PS-IGNORE
+from django.core.files.uploadedfile import UploadedFile
+from django.http import HttpResponseForbidden  # /PS-IGNORE
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
@@ -43,6 +44,14 @@ class DataRecipientSearchView(StaffSearchView):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
+
+        # Check if the user viewing the page is the Line manager
+        if (
+            self.request.user.email
+            != self.leaving_request.manager_activitystream_user.email_address
+        ):
+            return HttpResponseForbidden()
+
         self.exclude_staff_ids = [
             self.leaving_request.leaver_activitystream_user.identifier
         ]
@@ -56,6 +65,14 @@ class StartView(TemplateView):  # /PS-IGNORE
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
+
+        # Check if the user viewing the page is the Line manager
+        if (
+            self.request.user.email
+            != self.leaving_request.manager_activitystream_user.email_address
+        ):
+            return HttpResponseForbidden()
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
@@ -165,6 +182,13 @@ class LeaverConfirmationView(FormView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        # Check if the user viewing the page is the Line manager
+        if (
+            self.request.user.email
+            != self.leaving_request.manager_activitystream_user.email_address
+        ):
+            return HttpResponseForbidden()
+
         self.leaver: ConsolidatedStaffDocument = self.get_leaver()
         self.manager: ConsolidatedStaffDocument = self.get_manager()
 
@@ -225,6 +249,13 @@ class UksbsHandoverView(FormView):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
+
+        # Check if the user viewing the page is the Line manager
+        if (
+            self.request.user.email
+            != self.leaving_request.manager_activitystream_user.email_address
+        ):
+            return HttpResponseForbidden()
 
         if self.leaving_request.uksbs_pdf_data:
             # TODO: Discuss, the assumption here is that if the data is already in the
@@ -320,6 +351,14 @@ class DetailsView(FormView):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
+
+        # Check if the user viewing the page is the Line manager
+        if (
+            self.request.user.email
+            != self.leaving_request.manager_activitystream_user.email_address
+        ):
+            return HttpResponseForbidden()
+
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form) -> HttpResponse:
@@ -340,3 +379,17 @@ class DetailsView(FormView):
 
 class ThankYouView(TemplateView):
     template_name = "leaving/line_manager/thank_you.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.leaving_request = get_object_or_404(
+            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
+        )
+
+        # Check if the user viewing the page is the Line manager
+        if (
+            self.request.user.email
+            != self.leaving_request.manager_activitystream_user.email_address
+        ):
+            return HttpResponseForbidden()
+
+        return super().dispatch(request, *args, **kwargs)

@@ -18,6 +18,10 @@ class LeavingRequestFactory(DjangoModelFactory):
     uuid = uuid.uuid4()
     user_requesting = factory.SubFactory(UserFactory)
     leaver_activitystream_user = factory.SubFactory(ActivityStreamStaffSSOUserFactory)
+    manager_activitystream_user = factory.SubFactory(ActivityStreamStaffSSOUserFactory)
+    data_recipient_activitystream_user = factory.SubFactory(
+        ActivityStreamStaffSSOUserFactory
+    )
 
 
 class SlackMessageFactory(DjangoModelFactory):
