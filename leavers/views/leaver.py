@@ -27,7 +27,8 @@ from core.utils.staff_index import (
 )
 from leavers import types
 from leavers.forms import leaver as leaver_forms
-from leavers.models import LeaverInformation, ReturnOption
+from leavers.forms.leaver import ReturnOptions
+from leavers.models import LeaverInformation
 from leavers.utils import update_or_create_leaving_request  # /PS-IGNORE
 from user.models import User
 
@@ -237,7 +238,7 @@ class LeaverInformationMixin:
         )
 
     def store_return_option(
-        self, email: str, requester: User, return_option: ReturnOption
+        self, email: str, requester: User, return_option: ReturnOptions
     ):
         leaver_info = self.get_leaver_information(email=email, requester=requester)
         leaver_info.return_option = return_option
@@ -558,7 +559,7 @@ class EquipmentReturnInformationView(LeaverInformationMixin, FormView):
         user_email = cast(str, user.email)
 
         leaver_info = self.get_leaver_information(email=user_email, requester=user)
-        if leaver_info.return_option == ReturnOption.OFFICE:
+        if leaver_info.return_option == ReturnOptions.OFFICE:
             kwargs.update(hide_address=True)
 
         return kwargs
@@ -571,7 +572,7 @@ class EquipmentReturnInformationView(LeaverInformationMixin, FormView):
         )
 
         address: Optional[service_now_types.Address] = None
-        if leaver_info.return_option == ReturnOption.HOME:
+        if leaver_info.return_option == ReturnOptions.HOME:
             address = {
                 "building_and_street": form.cleaned_data["address_building"],
                 "city": form.cleaned_data["address_city"],

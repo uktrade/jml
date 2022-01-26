@@ -1,10 +1,13 @@
+from enum import Enum
 from typing import List
 
+from crispy_forms_gds.choices import Choice
+from crispy_forms_gds.helper import FormHelper
+from crispy_forms_gds.layout import Field, Layout, Size, Submit
 from django import forms
 
-from core.forms import GovFormattedForm, GovRadioSelect, YesNoField
+from core.forms import GovFormattedForm, YesNoField
 from core.service_now import get_service_now_interface
-from leavers.models import ReturnOption
 from leavers.widgets import DateSelectorWidget
 
 
@@ -54,12 +57,46 @@ class LeaverUpdateForm(GovFormattedForm):
         ]
 
 
+class ReturnOptions(Enum):
+    OFFICE = "office"
+    HOME = "home"
+
+
+RETURN_OPTIONS = [
+    Choice(
+        ReturnOptions.OFFICE.value,
+        "Return at the office",
+        hint=(
+            "You will need to bring in all your equipment on your last day in the "
+            "office and return it to the Cirrus Tech Bar."
+        ),
+    ),
+    Choice(
+        ReturnOptions.HOME.value,
+        "Collection from home",
+        hint=(
+            "We will send you a box to return your laptop, iPhone, chargers and "
+            "building security pass. This will be collected by a courier, "
+            "instructions will be included in the box"
+        ),
+    ),
+]
+
+
 class ReturnOptionForm(GovFormattedForm):
     return_option = forms.ChoiceField(
         label="",
-        choices=ReturnOption.choices,
-        widget=GovRadioSelect,
+        choices=RETURN_OPTIONS,
+        widget=forms.RadioSelect,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.radios("return_option", legend_size=Size.MEDIUM),
+            Submit("submit", "Save and continue"),
+        )
 
 
 class ReturnInformationForm(GovFormattedForm):
