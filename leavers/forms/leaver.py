@@ -98,7 +98,7 @@ class AddAssetForm(GovFormattedForm):
 
 class CorrectionForm(GovFormattedForm):
     is_correct = YesNoField(
-        label="I confirm that all information is up to date and correct",
+        label="",
     )
     whats_incorrect = forms.CharField(
         required=False,
