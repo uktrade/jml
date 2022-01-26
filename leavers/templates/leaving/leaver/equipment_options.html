@@ -2,7 +2,8 @@
 {% load static %}
 
 {% block content %}
-    <h1 class="govuk-heading-l">How do you wish to return the equipment</h1>
+    <h1 class="govuk-heading-l">Return of laptop, phone and other IT equipment</h1>
+    <h2 class="govuk-heading-m">How would you like to return your equipment?</h2>
     {% include "includes/govt_error_summary.html" with errors=errors %}
     <form novalidate method='post'>
         {% csrf_token %}

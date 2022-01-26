@@ -2,7 +2,7 @@ from typing import List
 
 from django import forms
 
-from core.forms import GovFormattedForm, YesNoField
+from core.forms import GovFormattedForm, GovRadioSelect, YesNoField
 from core.service_now import get_service_now_interface
 from leavers.models import ReturnOption
 from leavers.widgets import DateSelectorWidget
@@ -58,7 +58,7 @@ class ReturnOptionForm(GovFormattedForm):
     return_option = forms.ChoiceField(
         label="",
         choices=ReturnOption.choices,
-        widget=forms.RadioSelect,
+        widget=GovRadioSelect,
     )
 
 
