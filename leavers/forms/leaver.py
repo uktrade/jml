@@ -3,7 +3,7 @@ from typing import List
 
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Layout, Size, Submit
+from crispy_forms_gds.layout import Field, Layout, Submit
 from django import forms
 
 from core.forms import GovFormattedForm, YesNoField
@@ -94,7 +94,7 @@ class ReturnOptionForm(GovFormattedForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field.radios("return_option", legend_size=Size.MEDIUM),
+            Field.radios("return_option"),
             Submit("submit", "Save and continue"),
         )
 
@@ -117,6 +117,17 @@ class ReturnInformationForm(GovFormattedForm):
 
     def __init__(self, *args, hide_address: bool = False, **kwargs):
         super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("personal_phone"),
+            Field("contact_email"),
+            Field("address_building"),
+            Field("address_city"),
+            Field("address_county"),
+            Field("address_postcode"),
+            Submit("submit", "Save and continue"),
+        )
+
         address_fields: List[str] = [
             "address_building",
             "address_city",

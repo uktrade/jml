@@ -552,17 +552,23 @@ class EquipmentReturnInformationView(LeaverInformationMixin, FormView):
     form_class = leaver_forms.ReturnInformationForm
     success_url = reverse_lazy("leaver-request-received")
 
-    def get_form_kwargs(self) -> Dict[str, Any]:
-        kwargs = super().get_form_kwargs()
-
+    def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
+        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+        return super().dispatch(request, *args, **kwargs)
 
-        leaver_info = self.get_leaver_information(email=user_email, requester=user)
-        if leaver_info.return_option == ReturnOptions.OFFICE:
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+        if self.leaver_info.return_option == ReturnOptions.OFFICE.value:
             kwargs.update(hide_address=True)
 
         return kwargs
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(return_option=self.leaver_info.return_option)
+        return context
 
     def form_valid(self, form):
         user = cast(User, self.request.user)
@@ -572,7 +578,7 @@ class EquipmentReturnInformationView(LeaverInformationMixin, FormView):
         )
 
         address: Optional[service_now_types.Address] = None
-        if leaver_info.return_option == ReturnOptions.HOME:
+        if leaver_info.return_option == ReturnOptions.HOME.value:
             address = {
                 "building_and_street": form.cleaned_data["address_building"],
                 "city": form.cleaned_data["address_city"],
