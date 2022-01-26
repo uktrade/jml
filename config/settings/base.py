@@ -282,8 +282,13 @@ LSD_ZENDESK_TOKEN = env("LSD_ZENDESK_TOKEN")  # /PS-IGNORE
 LSD_ZENDESK_SUBDOMAIN = env("LSD_ZENDESK_SUBDOMAIN")
 
 # Search Staff Index
-SEARCH_HOST_URLS: List[str] = env(
-    "SEARCH_HOST_URLS",
-    default="",
-).split(",")
+SEARCH_HOST_URLS: List[str] = []
+if "opensearch" in VCAP_SERVICES:
+    SEARCH_HOST_URLS = [VCAP_SERVICES["opensearch"][0]["credentials"]["uri"]]
+else:
+    SEARCH_HOST_URLS = env(
+        "SEARCH_HOST_URLS",
+        default="",
+    ).split(",")
+
 SEARCH_STAFF_INDEX_NAME = env("SEARCH_STAFF_INDEX_NAME", default="staff")
