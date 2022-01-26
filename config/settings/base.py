@@ -56,7 +56,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "django_settings_export.settings_export",
                 "dev_tools.views.dev_tools_context",
                 "core.context_processors.global_context",
             ]
