@@ -55,11 +55,14 @@ click-repl==0.2.0
     # via celery
 coverage[toml]==6.2
     # via pytest-cov
+crispy-forms-gds==0.2.3
+    # via -r requirements.in/base.in
 deprecated==1.2.13
     # via redis
 django==3.2.11
     # via
     #   -r requirements.in/base.in
+    #   crispy-forms-gds
     #   django-appconf
     #   django-celery-beat
     #   django-staff-sso-client
@@ -76,6 +79,10 @@ django-celery-results==2.2.0
     # via -r requirements.in/base.in
 django-compressor==2.4.1
     # via -r requirements.in/base.in
+django-crispy-forms==1.14.0
+    # via
+    #   -r requirements.in/base.in
+    #   crispy-forms-gds
 django-elasticsearch-dsl==7.2.1
     # via -r requirements.in/base.in
 django-environ==0.8.1
@@ -307,7 +314,7 @@ wcwidth==0.2.5
     # via prompt-toolkit
 wheel==0.37.0
     # via pip-tools
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated

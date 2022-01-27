@@ -1,4 +1,6 @@
 Celery==5.2.3
+django-crispy-forms
+crispy-forms-gds
 django-celery-beat
 django-celery-results
 django-compressor

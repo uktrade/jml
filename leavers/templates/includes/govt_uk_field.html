@@ -17,7 +17,7 @@
         {% endif %}
 
         {% if field.field.widget.input_type == 'radio' %}
-            <div class="govuk-radios">
+            <div class="govuk-radios {% if field.field.widget.inline %}govuk-radios--inline{% endif %}" data-module="govuk-radios">
                 {% for radio in field %}
                     <div class="govuk-radios__item">
                         {{ radio.tag }}

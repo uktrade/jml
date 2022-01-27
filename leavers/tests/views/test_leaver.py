@@ -12,6 +12,7 @@ from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from core.service_now.interfaces import ServiceNowStubbed
 from core.utils.staff_index import StaffDocument
 from leavers import factories, models, types
+from leavers.forms.leaver import ReturnOptions
 from leavers.views.leaver import LeaverInformationMixin
 from user.test.factories import UserFactory
 
@@ -281,11 +282,11 @@ class TestLeaverInformationMixin(TestCase):
         LeaverInformationMixin().store_return_option(
             email=self.leaver_email,
             requester=UserFactory(),
-            return_option=models.ReturnOption.HOME,
+            return_option=ReturnOptions.HOME,
         )
 
         leaver_info.refresh_from_db()
-        self.assertEqual(leaver_info.return_option, models.ReturnOption.HOME)
+        self.assertEqual(leaver_info.return_option, ReturnOptions.HOME)
 
     def test_store_return_option_office(self, mock_get_search_results):
         leaver_info = factories.LeaverInformationFactory(
@@ -296,11 +297,11 @@ class TestLeaverInformationMixin(TestCase):
         LeaverInformationMixin().store_return_option(
             email=self.leaver_email,
             requester=UserFactory(),
-            return_option=models.ReturnOption.OFFICE,
+            return_option=ReturnOptions.OFFICE,
         )
 
         leaver_info.refresh_from_db()
-        self.assertEqual(leaver_info.return_option, models.ReturnOption.OFFICE)
+        self.assertEqual(leaver_info.return_option, ReturnOptions.OFFICE)
 
     """
     Tests for `store_return_information`
@@ -314,13 +315,13 @@ class TestLeaverInformationMixin(TestCase):
         LeaverInformationMixin().store_return_information(
             email=self.leaver_email,
             requester=UserFactory(),
-            personal_phone="0123451234",  # /PS-IGNORE
+            personal_phone="0123451234",
             contact_email=self.leaver_email,
             address=None,
         )
 
         leaver_info.refresh_from_db()
-        self.assertEqual(leaver_info.return_personal_phone, "0123451234")  # /PS-IGNORE
+        self.assertEqual(leaver_info.return_personal_phone, "0123451234")
         self.assertEqual(
             leaver_info.return_contact_email,
             self.leaver_email,
@@ -334,10 +335,10 @@ class TestLeaverInformationMixin(TestCase):
         LeaverInformationMixin().store_return_information(
             email=self.leaver_email,
             requester=UserFactory(),
-            personal_phone="0123451234",  # /PS-IGNORE
+            personal_phone="0123451234",
             contact_email=self.leaver_email,
-            address={  # /PS-IGNORE
-                "building_and_street": "Example Building name",  # /PS-IGNORE
+            address={
+                "building_and_street": "Example Building name",
                 "city": "Bristol",
                 "county": "Bristol",
                 "postcode": "AB1 2CD",  # /PS-IGNORE
@@ -345,14 +346,14 @@ class TestLeaverInformationMixin(TestCase):
         )
 
         leaver_info.refresh_from_db()
-        self.assertEqual(leaver_info.return_personal_phone, "0123451234")  # /PS-IGNORE
+        self.assertEqual(leaver_info.return_personal_phone, "0123451234")
         self.assertEqual(
             leaver_info.return_contact_email,
             self.leaver_email,
         )
         self.assertEqual(
             leaver_info.return_address_building_and_street,
-            "Example Building name",  # /PS-IGNORE
+            "Example Building name",
         )
         self.assertEqual(leaver_info.return_address_city, "Bristol")
         self.assertEqual(leaver_info.return_address_county, "Bristol")
@@ -870,7 +871,7 @@ class TestEquipmentReturnOptionsView(TestCase):
         response = self.client.post(
             reverse(self.view_name),
             {
-                "return_option": models.ReturnOption.HOME,
+                "return_option": ReturnOptions.HOME,
             },
         )
 
@@ -879,7 +880,7 @@ class TestEquipmentReturnOptionsView(TestCase):
         mock_store_return_option.assert_called_once_with(
             email=user.email,
             requester=user,
-            return_option=models.ReturnOption.HOME,
+            return_option=ReturnOptions.HOME,
         )
 
     @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_option")
@@ -890,7 +891,7 @@ class TestEquipmentReturnOptionsView(TestCase):
         response = self.client.post(
             reverse(self.view_name),
             {
-                "return_option": models.ReturnOption.OFFICE,
+                "return_option": ReturnOptions.OFFICE,
             },
         )
 
@@ -899,7 +900,7 @@ class TestEquipmentReturnOptionsView(TestCase):
         mock_store_return_option.assert_called_once_with(
             email=user.email,
             requester=user,
-            return_option=models.ReturnOption.OFFICE,
+            return_option=ReturnOptions.OFFICE,
         )
 
     @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_option")
@@ -942,7 +943,7 @@ class TestEquipmentReturnInformationView(TestCase):
         factories.LeaverInformationFactory(
             leaver_email=self.leaver.email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-            return_option=models.ReturnOption.HOME,
+            return_option=ReturnOptions.HOME,
         )
 
         response = self.client.get(reverse(self.view_name))
@@ -959,7 +960,7 @@ class TestEquipmentReturnInformationView(TestCase):
         factories.LeaverInformationFactory(
             leaver_email=self.leaver.email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-            return_option=models.ReturnOption.OFFICE,
+            return_option=ReturnOptions.OFFICE,
         )
 
         response = self.client.get(reverse(self.view_name))
@@ -977,7 +978,7 @@ class TestEquipmentReturnInformationView(TestCase):
         factories.LeaverInformationFactory(
             leaver_email=self.leaver.email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-            return_option=models.ReturnOption.HOME,
+            return_option=ReturnOptions.HOME,
         )
 
         response = self.client.post(

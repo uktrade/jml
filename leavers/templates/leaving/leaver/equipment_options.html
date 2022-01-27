@@ -1,12 +1,15 @@
 {% extends "leaving/leaving_base.html" %}
-{% load static %}
+{% load static crispy_forms_tags %}
 
 {% block content %}
-    <h1 class="govuk-heading-l">How do you wish to return the equipment</h1>
-    {% include "includes/govt_error_summary.html" with errors=errors %}
-    <form novalidate method='post'>
-        {% csrf_token %}
-        {% include "includes/govt_uk_form.html" with form=form %}
-        <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
-    </form>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">Return of laptop, phone and other IT equipment</h1>
+            <h2 class="govuk-heading-m">How would you like to return your equipment?</h2>
+            {% include "includes/govt_error_summary.html" with errors=errors %}
+            <form novalidate method='post'>
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
 {% endblock %}

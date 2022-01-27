@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     "django_workflow_engine",
     "django_celery_beat",
     "django_celery_results",
+    "crispy_forms",
+    "crispy_forms_gds",
     "notifications_python_client",
     "authbroker_client",
     "rest_framework",
@@ -224,6 +226,10 @@ CACHES = {
         "LOCATION": "django_cache_table",
     }
 }
+
+# Crispy forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = ["gds"]
+CRISPY_TEMPLATE_PACK = "gds"
 
 # Media /PS-IGNORE
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")

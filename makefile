@@ -43,6 +43,7 @@ first-use:
 	docker-compose up -d db
 	docker-compose run --rm leavers python manage.py migrate
 	docker-compose run --rm leavers python manage.py create_test_users
+	docker-compose run --rm leavers python manage.py update_staff_index
 	docker-compose up
 
 check-fixme:

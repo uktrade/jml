@@ -1,12 +1,24 @@
 {% extends "leaving/leaving_base.html" %}
-{% load static %}
+{% load static crispy_forms_tags %}
 
 {% block content %}
-    <h1 class="govuk-heading-l">Please provide contact information</h1>
-    {% include "includes/govt_error_summary.html" with errors=errors %}
-    <form novalidate method='post'>
-        {% csrf_token %}
-        {% include "includes/govt_uk_form.html" with form=form %}
-        <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
-    </form>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% include "includes/govt_error_summary.html" with errors=errors %}
+            {% if return_option == "office" %}
+                <h1 class="govuk-heading-l">Returning IT equipment to the office</h1>
+                <p class="govuk-body">Please bring in all your equipment on your last day in the office and return it to the Cirrus Tech Bar.</p>
+                <p class="govuk-body">Once you have left, you will not have access to your DIT work phone or emails. Your personal phone and email is needed should we need to contact you about your return.</p>
+                <h2 class="govuk-heading-m">Contact information for return to the office</h2>
+            {% else %}
+                <h1 class="govuk-heading-l">Home collection of IT equipment</h1>
+                <p class="govuk-body">To collect your equipment from home we need a collection address.</p>
+                <p class="govuk-body">Once you have left, you will not have access to your works phone or emails, so your personal phone and email is needed should we need to contact you about your return.</p>
+                <h2 class="govuk-heading-m">Contact information for collection</h2>
+            {% endif %}
+            <form novalidate method='post'>
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
 {% endblock %}

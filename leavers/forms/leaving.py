@@ -1,6 +1,6 @@
 from django import forms
 
-from core.forms import GovFormattedForm
+from core.forms import GovFormattedForm, GovRadioSelect
 from leavers.widgets import DateSelectorWidget
 
 
@@ -13,7 +13,7 @@ class WhoIsLeavingForm(GovFormattedForm):
     who_for = forms.ChoiceField(
         label="",
         choices=CHOICES,
-        widget=forms.RadioSelect,
+        widget=GovRadioSelect,
     )
 
     last_day = forms.DateField(
