@@ -18,7 +18,7 @@ class TestWhoIsLeavingView(ViewAccessTest, TestCase):
         response = self.client.post(self.get_url(), {"who_for": "me"})
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-confirm-details"))
+        self.assertEqual(response.url, reverse("leaver-update-details"))
 
     def test_someone_else(self):
         self.client.force_login(self.authenticated_user)

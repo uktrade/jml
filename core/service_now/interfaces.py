@@ -335,7 +335,7 @@ class ServiceNowInterface(ServiceNowBase):
                 "leaver_user": "",
                 "users_manager": manager_service_now_id,
                 "leaver_other_reason": "",
-                "leaver_dept": leaver_details["department"],
+                "leaver_dept": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
                 "u_users_directorate": leaver_details["directorate"],
                 "users_assets": json.dumps(
                     [

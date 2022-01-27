@@ -40,6 +40,6 @@ class LeaverInformationFactory(DjangoModelFactory):
     class Meta:
         model = models.LeaverInformation
 
-    leaver_email = factory.Faker("email")
-    updates: types.LeaverDetailUpdates = {}
     leaving_request = factory.SubFactory(LeavingRequestFactory)
+    updates: types.LeaverDetailUpdates = {}
+    leaver_email = factory.Faker("email")

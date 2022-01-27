@@ -28,7 +28,7 @@ from core.utils.staff_index import (
 from leavers import types
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
-from leavers.models import LeaverInformation
+from leavers.models import LeaverInformation, LeavingRequest
 from leavers.utils import update_or_create_leaving_request  # /PS-IGNORE
 from user.models import User
 
@@ -113,14 +113,9 @@ class LeaverInformationMixin:
             "contact_email_address": consolidated_staff_document[
                 "contact_email_address"
             ],
-            "contact_phone": consolidated_staff_document["contact_phone"],
-            "contact_address": consolidated_staff_document["contact_address"],
             # Professional details
-            "grade": consolidated_staff_document["grade"],
             "job_title": consolidated_staff_document["job_title"],
-            "department": consolidated_staff_document["department"],
             "directorate": consolidated_staff_document["directorate"],
-            "email_address": consolidated_staff_document["email_address"],
             "staff_id": consolidated_staff_document["staff_id"],
             # Misc.
             "photo": consolidated_staff_document["photo"],
@@ -143,7 +138,7 @@ class LeaverInformationMixin:
 
     def store_leaver_detail_updates(
         self, email: str, requester: User, updates: types.LeaverDetailUpdates
-    ):
+    ) -> None:
         """
         Store updates for the Leaver.
         """
@@ -162,7 +157,94 @@ class LeaverInformationMixin:
 
         # Store the updates
         leaver_info.updates = new_data
-        leaver_info.save(update_fields=["updates"])
+
+        # Store the data against the leaver info
+        leaver_info.leaver_first_name = updates.get("first_name", "")
+        leaver_info.leaver_last_name = updates.get("last_name", "")
+        leaver_info.personal_email = updates.get("contact_email_address", "")
+        leaver_info.job_title = updates.get("job_title", "")
+        leaver_info.directorate_id = updates.get("directorate", "")
+        leaver_info.staff_id = updates.get("staff_id", "")
+
+        # Save the leaver info
+        leaver_info.save(
+            update_fields=[
+                "updates",
+                "leaver_first_name",
+                "leaver_last_name",
+                "personal_email",
+                "job_title",
+                "directorate_id",
+                "staff_id",
+            ]
+        )
+
+    def get_leaver_extra_details(
+        self,
+        email: str,
+        requester: User,
+    ) -> Dict[str, Any]:
+        leaver_info = self.get_leaver_information(
+            email=email,
+            requester=requester,
+        )
+        leaving_request: LeavingRequest = leaver_info.leaving_request
+
+        # Convert yes/no to boolean values.
+        has_rosa_kit = "yes" if leaving_request.is_rosa_user else "no"
+        has_gov_procurement_card = (
+            "yes" if leaving_request.holds_government_procurement_card else "no"
+        )
+        has_dse = "yes" if leaver_info.has_dse else "no"
+
+        return {
+            "security_clearance": leaving_request.security_clearance,
+            "locker_number": leaver_info.locker_number,
+            "has_rosa_kit": has_rosa_kit,
+            "has_gov_procurement_card": has_gov_procurement_card,
+            "has_dse": has_dse,
+        }
+
+    def store_leaver_extra_details(
+        self,
+        email: str,
+        requester: User,
+        security_clearance: str,
+        locker_number: str,
+        has_gov_procurement_card: bool,
+        has_rosa_kit: bool,
+        has_dse: bool,
+    ) -> None:
+        """
+        Store Extra details for the Leaver.
+        """
+
+        leaver_info = self.get_leaver_information(
+            email=email,
+            requester=requester,
+        )
+
+        leaver_info.leaving_request.security_clearance = security_clearance
+        leaver_info.leaving_request.is_rosa_user = has_rosa_kit
+        leaver_info.leaving_request.holds_government_procurement_card = (
+            has_gov_procurement_card
+        )
+        leaver_info.leaving_request.save(
+            update_fields=[
+                "security_clearance",
+                "is_rosa_user",
+                "holds_government_procurement_card",
+            ]
+        )
+
+        leaver_info.locker_number = locker_number
+        leaver_info.has_dse = has_dse
+        leaver_info.save(
+            update_fields=[
+                "locker_number",
+                "has_dse",
+            ]
+        )
 
     def get_leaver_details_with_updates(
         self, email: str, requester: User
@@ -184,14 +266,6 @@ class LeaverInformationMixin:
         )
         # Get data from Service Now /PS-IGNORE
         service_now_interface = get_service_now_interface()
-        # Get the Department's Name from Service Now
-        if leaver_details["department"]:
-            service_now_departments = service_now_interface.get_departments(
-                sys_id=leaver_details["department"]
-            )
-            if len(service_now_departments) != 1:
-                raise Exception("Issue finding department in Service Now")
-            leaver_details["department"] = service_now_departments[0]["name"]
 
         # Get the Directorate's Name from Service Now
         if leaver_details["directorate"]:
@@ -204,7 +278,9 @@ class LeaverInformationMixin:
 
         return leaver_details
 
-    def store_leaving_date(self, email: str, requester: User, leaving_date: date):
+    def store_leaving_date(
+        self, email: str, requester: User, leaving_date: date
+    ) -> None:
         """
         Store the leaving date
         """
@@ -216,13 +292,13 @@ class LeaverInformationMixin:
         leaver_info.leaving_date = leaving_date
         leaver_info.save(update_fields=["leaving_date"])
 
-    def store_correction_information(
+    def store_cirrus_kit_information(
         self,
         email: str,
         requester: User,
         information_is_correct: bool,
         additional_information: str,
-    ):
+    ) -> None:
         """
         Store the Correction information
         """
@@ -238,8 +314,13 @@ class LeaverInformationMixin:
         )
 
     def store_return_option(
-        self, email: str, requester: User, return_option: ReturnOptions
-    ):
+        self, email: str, requester: User, return_option: str
+    ) -> None:
+        """
+        Store the selected return option.
+
+        return_option is a value from ReturnOptions.
+        """
         leaver_info = self.get_leaver_information(email=email, requester=requester)
         leaver_info.return_option = return_option
         leaver_info.save(update_fields=["return_option"])
@@ -251,7 +332,7 @@ class LeaverInformationMixin:
         personal_phone: str,
         contact_email: str,
         address: Optional[service_now_types.Address],
-    ):
+    ) -> None:
         leaver_info = self.get_leaver_information(email=email, requester=requester)
         leaver_info.return_personal_phone = personal_phone
         leaver_info.return_contact_email = contact_email
@@ -275,7 +356,7 @@ class LeaverInformationMixin:
 
     def submit_to_service_now(
         self, email: str, requester: User, assets: List[service_now_types.AssetDetails]
-    ):
+    ) -> None:
         # Note: When this is called, make sure the assets have been cleared
         # from the Session.
         leaver_info = self.get_leaver_information(email=email, requester=requester)
@@ -293,7 +374,7 @@ class LeaverInformationMixin:
 class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
     template_name = "leaving/leaver/confirm_details.html"
     form_class = leaver_forms.LeaverConfirmationForm
-    success_url = reverse_lazy("leaver-kit")
+    success_url = reverse_lazy("leaver-cirrus-kit")
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
@@ -399,17 +480,34 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
 class UpdateDetailsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/update_details.html"
     form_class = leaver_forms.LeaverUpdateForm
-    success_url = reverse_lazy("leaver-confirm-details")
+    success_url = reverse_lazy("leaver-cirrus-kit")
 
-    def dispatch(
-        self, request: HttpRequest, *args: Any, **kwargs: Any
-    ) -> HttpResponseBase:
+    def get_initial(self) -> Dict[str, Any]:
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
-        self.initial = dict(
-            self.get_leaver_details_with_updates(email=user_email, requester=user)
+
+        initial = super().get_initial()
+        initial.update(
+            **self.get_leaver_details_with_updates(email=user_email, requester=user)
         )
-        return super().dispatch(request, *args, **kwargs)
+        initial.update(
+            **self.get_leaver_extra_details(email=user_email, requester=user)
+        )
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
+        display_leaver_details = self.get_leaver_details_with_updates_for_display(
+            email=user_email,
+            requester=user,
+        )
+        leaver_first_name = display_leaver_details["first_name"]
+        leaver_last_name = display_leaver_details["last_name"]
+        context.update(leaver_name=f"{leaver_first_name} {leaver_last_name}"),
+        return context
 
     def form_valid(self, form) -> HttpResponse:
         user = cast(User, self.request.user)
@@ -418,34 +516,40 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             "first_name": form.cleaned_data["first_name"],
             "last_name": form.cleaned_data["last_name"],
             "contact_email_address": form.cleaned_data["contact_email_address"],
-            "contact_phone": form.cleaned_data["contact_phone"],
-            "contact_address": form.cleaned_data["contact_address"],
-            "grade": form.cleaned_data["grade"],
             "job_title": form.cleaned_data["job_title"],
-            "department": form.cleaned_data["department"],
             "directorate": form.cleaned_data["directorate"],
-            "email_address": form.cleaned_data["email_address"],
             "staff_id": form.cleaned_data["staff_id"],
         }
 
         self.store_leaver_detail_updates(
             email=user_email, requester=user, updates=updates
         )
+        self.store_leaver_extra_details(
+            email=user_email,
+            requester=user,
+            security_clearance=form.cleaned_data["security_clearance"],
+            locker_number=form.cleaned_data["locker_number"],
+            has_gov_procurement_card=bool(
+                form.cleaned_data["has_gov_procurement_card"] == "yes"
+            ),
+            has_rosa_kit=bool(form.cleaned_data["has_rosa_kit"] == "yes"),
+            has_dse=bool(form.cleaned_data["has_dse"] == "yes"),
+        )
         return super().form_valid(form)
 
 
 @login_required
-def delete_kit(request: HttpRequest, kit_uuid: uuid.UUID):
+def delete_cirrus_kit(request: HttpRequest, kit_uuid: uuid.UUID):
     if "assets" in request.session:
         for asset in request.session["assets"]:
             if asset["uuid"] == str(kit_uuid):
                 request.session["assets"].remove(asset)
                 request.session.save()
                 break
-    return redirect("leaver-kit")
+    return redirect("leaver-cirrus-kit")
 
 
-class KitView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
+class CirrusKitView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
     forms: Dict[str, Type[Form]] = {
         "add_asset_form": leaver_forms.AddAssetForm,
         "correction_form": leaver_forms.CorrectionForm,
@@ -469,7 +573,7 @@ class KitView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
         session.save()
 
         # Redirect to the GET method
-        return redirect("leaver-kit")
+        return redirect("leaver-cirrus-kit")
 
     def post_correction_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         user = cast(User, self.request.user)
@@ -478,7 +582,7 @@ class KitView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
         form_data = form.cleaned_data
 
         # Store correction info and assets into the leaver details
-        self.store_correction_information(
+        self.store_cirrus_kit_information(
             email=user_email,
             requester=user,
             information_is_correct=bool(form_data["is_correct"] == "yes"),

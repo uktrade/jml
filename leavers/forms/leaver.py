@@ -5,10 +5,19 @@ from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Layout, Submit
 from django import forms
+from django.db.models.enums import TextChoices
 
 from core.forms import GovFormattedForm, YesNoField
 from core.service_now import get_service_now_interface
 from leavers.widgets import DateSelectorWidget
+
+
+class SecurityClearance(TextChoices):
+    CTC = "ctc", "Counter Terrorist Check"
+    SC = "sc", "Security Check"
+    ESC = "esc", "Enhanced Security Check"
+    DV = "dv", "Developed Vetting"
+    EDV = "edv", "Enhanced Developed Vetting"
 
 
 class LeaverConfirmationForm(GovFormattedForm):
@@ -23,19 +32,21 @@ class LeaverUpdateForm(GovFormattedForm):
     # Personal details
     first_name = forms.CharField(label="First name")  # /PS-IGNORE
     last_name = forms.CharField(label="Last name")  # /PS-IGNORE
-    contact_email_address = forms.EmailField(label="Email")
-    contact_phone = forms.CharField(label="Phone", max_length=16)
-    contact_address = forms.CharField(
-        label="Address",
-        widget=forms.Textarea,
-    )
-    # Professional details
-    grade = forms.CharField(label="Grade")
+    contact_email_address = forms.EmailField(label="Personal email")
     job_title = forms.CharField(label="Job title")
     directorate = forms.ChoiceField(label="Directorate", choices=[])
-    department = forms.ChoiceField(label="Department", choices=[])
-    email_address = forms.EmailField(label="Email")
     staff_id = forms.CharField(label="Staff ID")
+    # Extra information
+    security_clearance = forms.ChoiceField(
+        label="Security clearance type",
+        choices=SecurityClearance.choices,
+    )
+    locker_number = forms.CharField(label="Locker number")
+    has_gov_procurement_card = YesNoField(
+        label="Do you have a Government Procurement Card?"
+    )
+    has_rosa_kit = YesNoField(label="Do you have a ROSA kit?")
+    has_dse = YesNoField(label="Do you have any display screen equipment?")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,18 +54,27 @@ class LeaverUpdateForm(GovFormattedForm):
         service_now_directorates = service_now_interface.get_directorates()
         if not service_now_directorates:
             raise Exception("No directorates returned from Service Now")
-        service_now_departments = service_now_interface.get_departments()
-        if not service_now_departments:
-            raise Exception("No departments returned from Service Now")
 
         self.fields["directorate"].choices = [
             (directorate["sys_id"], directorate["name"])
             for directorate in service_now_directorates
         ]
-        self.fields["department"].choices = [
-            (department["sys_id"], department["name"])
-            for department in service_now_departments
-        ]
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("first_name"),
+            Field("last_name"),
+            Field("contact_email_address"),
+            Field("job_title"),
+            Field("directorate"),
+            Field("staff_id"),
+            Field("security_clearance"),
+            Field("locker_number"),
+            Field.radios("has_gov_procurement_card", inline=True),
+            Field.radios("has_rosa_kit", inline=True),
+            Field.radios("has_dse", inline=True),
+            Submit("submit", "Save and continue"),
+        )
 
 
 class ReturnOptions(Enum):

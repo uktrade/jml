@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -23,12 +23,31 @@ from core.utils.staff_index import (
     get_staff_document_from_staff_index,
 )
 from leavers.forms import line_manager as line_manager_forms
-from leavers.models import LeavingRequest
+from leavers.models import LeaverInformation, LeavingRequest
+from user.models import User
 
 DATA_RECIPIENT_SEARCH_PARAM = "data_recipient_id"
 
 
-class DataRecipientSearchView(StaffSearchView):
+class LineManagerViewMixin:
+    def line_manager_access(
+        self, request: HttpRequest, leaving_request: LeavingRequest
+    ) -> bool:
+        user = cast(User, request.user)
+        manager_activitystream_user = leaving_request.manager_activitystream_user
+
+        # Check if we know the line manager
+        if not manager_activitystream_user:
+            return False
+
+        # Check if the user viewing the page is the Line manager
+        if user.email != manager_activitystream_user.email_address:
+            return False
+
+        return True
+
+
+class DataRecipientSearchView(LineManagerViewMixin, StaffSearchView):
     search_name = "data recipient"
     query_param_name = DATA_RECIPIENT_SEARCH_PARAM
 
@@ -45,10 +64,9 @@ class DataRecipientSearchView(StaffSearchView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
-        # Check if the user viewing the page is the Line manager
-        if (
-            self.request.user.email
-            != self.leaving_request.manager_activitystream_user.email_address
+        if not self.line_manager_access(
+            request=request,
+            leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
 
@@ -58,7 +76,7 @@ class DataRecipientSearchView(StaffSearchView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class StartView(TemplateView):  # /PS-IGNORE
+class StartView(LineManagerViewMixin, TemplateView):  # /PS-IGNORE
     template_name = "leaving/line_manager/start.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -66,10 +84,9 @@ class StartView(TemplateView):  # /PS-IGNORE
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
-        # Check if the user viewing the page is the Line manager
-        if (
-            self.request.user.email
-            != self.leaving_request.manager_activitystream_user.email_address
+        if not self.line_manager_access(
+            request=request,
+            leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
 
@@ -86,7 +103,7 @@ class StartView(TemplateView):  # /PS-IGNORE
         return context
 
 
-class LeaverConfirmationView(FormView):
+class LeaverConfirmationView(LineManagerViewMixin, FormView):
     template_name = "leaving/line_manager/leaver_confirmation.html"
     form_class = line_manager_forms.ConfirmLeavingDate
 
@@ -182,10 +199,9 @@ class LeaverConfirmationView(FormView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
-        # Check if the user viewing the page is the Line manager
-        if (
-            self.request.user.email
-            != self.leaving_request.manager_activitystream_user.email_address
+        if not self.line_manager_access(
+            request=request,
+            leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
 
@@ -235,7 +251,7 @@ class LeaverConfirmationView(FormView):
         return super().form_valid(form)
 
 
-class UksbsHandoverView(FormView):
+class UksbsHandoverView(LineManagerViewMixin, FormView):
     template_name = "leaving/line_manager/uksbs-handover.html"
     form_class = line_manager_forms.UksbsPdfForm
 
@@ -250,10 +266,9 @@ class UksbsHandoverView(FormView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
-        # Check if the user viewing the page is the Line manager
-        if (
-            self.request.user.email
-            != self.leaving_request.manager_activitystream_user.email_address
+        if not self.line_manager_access(
+            request=request,
+            leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
 
@@ -275,6 +290,7 @@ class UksbsHandoverView(FormView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
+        # TODO: Remove Staff Index search from this view.
         # Load the leaver from the Staff index.
         leaver_staff_document: StaffDocument = get_staff_document_from_staff_index(
             staff_id=self.leaving_request.leaver_activitystream_user.identifier,
@@ -283,12 +299,18 @@ class UksbsHandoverView(FormView):
             staff_documents=[leaver_staff_document],
         )[0]
 
+        leaver_information: LeaverInformation = (
+            self.leaving_request.leaver_information.first()
+        )
+        if not leaver_information:
+            raise Exception("Unable to find leaver information.")
+
         # Update context with leaver information.
         context.update(
             leaver_name=f"{leaver['first_name']} {leaver['last_name']}",
-            leaver_email=leaver["email_address"],
-            leaver_address=leaver["contact_address"],
-            leaver_phone=leaver["contact_phone"],
+            leaver_email=leaver_information.leaver_email,
+            leaver_address=leaver_information.display_address,
+            leaver_phone=leaver_information.return_personal_phone,
         )
         return context
 
@@ -313,7 +335,7 @@ class UksbsHandoverView(FormView):
         return super().form_valid(form)
 
 
-class DetailsView(FormView):
+class DetailsView(LineManagerViewMixin, FormView):
     template_name = "leaving/line_manager/details.html"
     form_class = line_manager_forms.LineManagerDetailsForm
 
@@ -352,10 +374,9 @@ class DetailsView(FormView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
-        # Check if the user viewing the page is the Line manager
-        if (
-            self.request.user.email
-            != self.leaving_request.manager_activitystream_user.email_address
+        if not self.line_manager_access(
+            request=request,
+            leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
 
@@ -377,7 +398,7 @@ class DetailsView(FormView):
         return super().form_valid(form)
 
 
-class ThankYouView(TemplateView):
+class ThankYouView(LineManagerViewMixin, TemplateView):
     template_name = "leaving/line_manager/thank_you.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -385,10 +406,9 @@ class ThankYouView(TemplateView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
-        # Check if the user viewing the page is the Line manager
-        if (
-            self.request.user.email
-            != self.leaving_request.manager_activitystream_user.email_address
+        if not self.line_manager_access(
+            request=request,
+            leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
 
