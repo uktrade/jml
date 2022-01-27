@@ -2,15 +2,32 @@
 {% load static %}
 
 {% block content %}
-    <h2 class="govuk-heading-m">Thank you, your requested will now be processed</h2>
-    <h2 class="govuk-heading-s">Debug stuff</h2>
-    <p>Email: {{ leaver_info.leaver_email }}</p>
-    <p>Updates: {{ leaver_info.updates }}</p>
-    <p>Leaving date: {{ leaver_info.leaving_date }}</p>
-    <p>Information is correct?: {{ leaver_info.information_is_correct }}</p>
-    <p>Additional information: {{ leaver_info.additional_information }}</p>
-    <p>Return option: {{ leaver_info.return_option }}</p>
-    <p>Return Phone: {{ leaver_info.return_personal_phone }}</p>
-    <p>Return email: {{ leaver_info.return_contact_email }}</p>
-    <p>Return address: {{ leaver_info.return_address }}</p>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-panel govuk-panel--confirmation">
+                <h1 class="govuk-panel__title">Thank you for completing the form</h1>
+            </div>              
+        </div>
+    </div>
+
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l"></h1>
+            <p class="govuk-body">We have sent you and your line manager a confirmation email.</p>
+            <h2 class="govuk-heading-m">What happens next</h2>
+            <p class="govuk-body">We've sent your request to your Line Manager to confirm your leaving date, once they have done this:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>Service Now who will process your IT equipment return, they may ask you for more information</li>
+                <li>SRE Team who will schedule your removal from IT tools and services</li>
+            </ul>
+            <p class="govuk-body">To ensure that your pay is correct, log into <a href="#">UKBS Connect</a> and make sure your personal details are up to date such as:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>home phone</li>
+                <li>home address</li>
+                <li>attendance records, including sick leave</li>
+            </ul>
+        </div>
+    </div>
 {% endblock %}
