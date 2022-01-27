@@ -1,4 +1,4 @@
-Celery
+Celery==5.2.3
 django-celery-beat
 django-celery-results
 django-compressor
@@ -12,7 +12,6 @@ djangorestframework
 libsass==0.20.0
 mohawk
 psycopg2>=2.8.5,<3
-pycrypto
 PyPDF2==1.26.0
 redis
 sentry-sdk>=1.1.0
