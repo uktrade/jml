@@ -39,7 +39,7 @@ class LeaverUpdateForm(GovFormattedForm):
     # Extra information
     security_clearance = forms.ChoiceField(
         label="Security clearance type",
-        choices=SecurityClearance.choices,
+        choices=[(None, "Select security clearance type")] + SecurityClearance.choices,
     )
     locker_number = forms.CharField(label="Locker number")
     has_gov_procurement_card = YesNoField(
