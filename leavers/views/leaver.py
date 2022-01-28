@@ -191,11 +191,17 @@ class LeaverInformationMixin:
         leaving_request: LeavingRequest = leaver_info.leaving_request
 
         # Convert yes/no to boolean values.
-        has_rosa_kit = "yes" if leaving_request.is_rosa_user else "no"
-        has_gov_procurement_card = (
-            "yes" if leaving_request.holds_government_procurement_card else "no"
-        )
-        has_dse = "yes" if leaver_info.has_dse else "no"
+        has_rosa_kit = None
+        if leaving_request.is_rosa_user is not None:
+            has_rosa_kit = "yes" if leaving_request.is_rosa_user else "no"
+        has_gov_procurement_card = None
+        if leaving_request.holds_government_procurement_card is not None:
+            has_gov_procurement_card = (
+                "yes" if leaving_request.holds_government_procurement_card else "no"
+            )
+        has_dse = None
+        if leaver_info.has_dse is not None:
+            has_dse = "yes" if leaver_info.has_dse else "no"
 
         return {
             "security_clearance": leaving_request.security_clearance,
@@ -474,6 +480,8 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
         update_form = leaver_forms.LeaverUpdateForm(data=leaver_details)
         if update_form.is_valid():
             return super().form_valid(form)
+        print("CAM WAS HERE")
+        print(update_form.errors)
         return self.form_invalid(form)
 
 

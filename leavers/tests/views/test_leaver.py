@@ -451,7 +451,13 @@ class TestConfirmDetailsView(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    def test_submit_contains_required_data(self, mock_get_search_results) -> None:
+    @mock.patch(
+        "leavers.views.leaver.get_staff_document_from_staff_index",
+        return_value=STAFF_DOCUMENT,
+    )
+    def test_submit_contains_required_data(
+        self, mock_get_staff_document_from_staff_index, mock_get_search_results
+    ) -> None:
         updates: types.LeaverDetailUpdates = {
             "directorate": "1",
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
@@ -459,6 +465,11 @@ class TestConfirmDetailsView(TestCase):
             "last_name": "UpdatedLastName",  # /PS-IGNORE
             "staff_id": "Updated Staff ID",
             "contact_email_address": "new.personal.email@example.com",  # /PS-IGNORE
+            "security_clearance": "sc",
+            "locker_number": "LOCK123",
+            "has_gov_procurement_card": "yes",
+            "has_rosa_kit": "yes",
+            "has_dse": "yes",
         }
         factories.LeaverInformationFactory(
             leaver_email=self.leaver.email,
@@ -467,7 +478,10 @@ class TestConfirmDetailsView(TestCase):
         )
         self.client.force_login(self.leaver)
 
-        response = self.client.post(reverse(self.view_name), {})
+        response = self.client.post(
+            reverse(self.view_name),
+            {},
+        )
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("leaver-cirrus-kit"))
@@ -551,6 +565,11 @@ class TestUpdateDetailsView(TestCase):
                 "last_name": updates["last_name"],
                 "staff_id": updates["staff_id"],
                 "contact_email_address": updates["contact_email_address"],
+                "has_dse": None,
+                "has_gov_procurement_card": None,
+                "has_rosa_kit": None,
+                "security_clearance": None,
+                "locker_number": None,
             },
         )
 
@@ -585,12 +604,17 @@ class TestUpdateDetailsView(TestCase):
         response = self.client.post(
             reverse(self.view_name),
             {
-                "directorate": "1",
                 "first_name": "FirstName",  # /PS-IGNORE
-                "job_title": "Job Title",
                 "last_name": "LastName",  # /PS-IGNORE
-                "staff_id": "Staff ID",
                 "contact_email_address": "someone@example.com",  # /PS-IGNORE
+                "job_title": "Job Title",
+                "directorate": "1",
+                "staff_id": "Staff ID",
+                "security_clearance": "sc",
+                "locker_number": "123",
+                "has_gov_procurement_card": "yes",
+                "has_rosa_kit": "yes",
+                "has_dse": "yes",
             },
         )
 
