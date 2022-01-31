@@ -494,6 +494,9 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         leaver_details = self.get_leaver_details_with_updates(
             email=user_email, requester=user
         )
+        leaver_details.update(
+            **self.get_leaver_extra_details(email=user_email, requester=user)
+        )
         update_form = leaver_forms.LeaverUpdateForm(data=leaver_details)
         if update_form.is_valid():
             return super().form_valid(form)
@@ -604,7 +607,7 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
         self.store_display_screen_equipment(
             email=user_email,
             requester=user,
-            dse_assets=request.session["dse_assets"],
+            dse_assets=request.session.get("dse_assets", []),
         )
 
         return redirect(self.success_url)
@@ -689,7 +692,7 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
             requester=user,
             information_is_correct=bool(form_data["is_correct"] == "yes"),
             additional_information=form_data["whats_incorrect"],
-            cirrus_assets=request.session["cirrus_assets"],
+            cirrus_assets=request.session.get("cirrus_assets", []),
         )
 
         return redirect(self.success_url)

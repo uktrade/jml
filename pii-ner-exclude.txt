@@ -1,5 +1,6 @@
 'Tests for `get_leaver_details_with_updates`
 " Get Service Now
+" Line Manager
 " Store Extra
 " Store the Correction
 activity_stream.activitystreamstaffssouser
@@ -10,6 +11,7 @@ AssetDetails
 below.</a>
 Build Staff Document
 Building Pass Access Revoked
+building_pass_access_task_log
 Convert
 Convert Request Data
 Create/Update Staff ES
@@ -40,6 +42,7 @@ F401
 Finder Raises
 Flexi Impacting Pay
 Get the Leaver StaffDocument
+govuk_paas_access_task_log
 Hours
 Jira
 job_title"
@@ -68,8 +71,10 @@ SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
 SERVICE_NOW_INTERFACE
 Session
 Slack
+slack_access_task_log
 Split
 SRE
+sso_access_task_log
 staff_id"
 Store DSE
 StreamHandler
@@ -88,4 +93,5 @@ the Leaver Form's
 Unit of Measurement
 Unit of Measurement Hours
 Updated Personal Email
+vpn_access_task_log
 WhiteNoiseMiddleware

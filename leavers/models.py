@@ -221,10 +221,10 @@ class LeaverInformation(models.Model):
     has_dse = models.BooleanField(null=True, blank=True)
 
     # Display Screen Equipment
-    dse_assets = models.JSONField()
+    dse_assets = models.JSONField(null=True, blank=True)
 
     # Return Cirrus Kit
-    cirrus_assets = models.JSONField()
+    cirrus_assets = models.JSONField(null=True, blank=True)
     information_is_correct = models.BooleanField(null=True)
     additional_information = models.CharField(max_length=1000)
     return_option = models.CharField(max_length=10, choices=RETURN_OPTIONS)

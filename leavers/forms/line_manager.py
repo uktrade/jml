@@ -23,7 +23,9 @@ class UksbsPdfForm(GovFormattedForm):
 class LineManagerDetailsForm(GovFormattedForm):
     security_clearance = forms.ChoiceField(
         label="Leaver's security clearance",
-        choices=[(None, "Select security clearance type")] + SecurityClearance.choices,
+        choices=(
+            [(None, "Select security clearance type")] + SecurityClearance.choices  # type: ignore
+        ),
     )
     rosa_user = YesNoField(
         label="Is the leaver a ROSA user?",

@@ -31,6 +31,6 @@ class DisplayScreenEquipmentAsset(TypedDict):
 
 class CirrusAsset(TypedDict):
     uuid: str
-    sys_id: str
+    sys_id: Optional[str]
     tag: Optional[str]
     name: str
