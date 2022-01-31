@@ -41,20 +41,24 @@ urlpatterns = [
         name="leaver-manager-search",
     ),
     path(
+        "leaver/update-details/",
+        leaver_views.UpdateDetailsView.as_view(),
+        name="leaver-update-details",
+    ),
+    path(
         "leaver/confirm-details/",
         leaver_views.ConfirmDetailsView.as_view(),
         name="leaver-confirm-details",
     ),
     path(
-        "leaver/update-details/",
-        leaver_views.UpdateDetailsView.as_view(),
-        name="leaver-update-details",
+        "leaver/cirrus-kit/",
+        leaver_views.CirrusKitView.as_view(),
+        name="leaver-cirrus-kit",
     ),
-    path("leaver/kit/", leaver_views.KitView.as_view(), name="leaver-kit"),
     path(
-        "leaver/kit/delete/<uuid:kit_uuid>",
-        leaver_views.delete_kit,
-        name="leaver-kit-delete",
+        "leaver/cirrus-kit/delete/<uuid:kit_uuid>",
+        leaver_views.delete_cirrus_kit,
+        name="leaver-cirrus-kit-delete",
     ),
     path(
         "leaver/return/",

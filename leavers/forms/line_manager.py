@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
 
 from core.forms import GovFormattedForm, YesNoField
-from leavers.models import SecurityClearance
+from leavers.forms.leaver import SecurityClearance
 from leavers.widgets import DateSelectorWidget
 
 
@@ -23,7 +23,7 @@ class UksbsPdfForm(GovFormattedForm):
 class LineManagerDetailsForm(GovFormattedForm):
     security_clearance = forms.ChoiceField(
         label="Leaver's security clearance",
-        choices=SecurityClearance.choices,
+        choices=[(None, "Select security clearance type")] + SecurityClearance.choices,
     )
     rosa_user = YesNoField(
         label="Is the leaver a ROSA user?",

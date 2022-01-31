@@ -5,7 +5,7 @@ from django.test.testcases import TestCase
 from django.urls import reverse
 
 from core.utils.staff_index import StaffDocument
-from leavers.factories import LeavingRequestFactory
+from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
 from leavers.tests.views.include import ViewAccessTest
 
 EMPTY_STAFF_DOCUMENT: StaffDocument = {
@@ -240,6 +240,9 @@ class TestUksbsHandoverView(ViewAccessTest, TestCase):
         self.leaving_request = LeavingRequestFactory(
             manager_activitystream_user__email_address=self.authenticated_user.email,
         )
+        self.leaver_information = LeaverInformationFactory(
+            leaving_request=self.leaving_request
+        )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
         self.leaver_as_sso_user = self.leaving_request.leaver_activitystream_user
 
@@ -305,12 +308,14 @@ class TestUksbsHandoverView(ViewAccessTest, TestCase):
         mock_get_staff_document_from_staff_index.return_value[
             "staff_sso_last_name"
         ] = self.leaver_as_sso_user.last_name
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_email_address"
-        ] = self.leaver_as_sso_user.email_address
-        mock_get_staff_document_from_staff_index.return_value[
-            "people_finder_phone"
-        ] = "0123456789"
+
+        self.leaver_information.leaver_email = self.leaver_as_sso_user.email_address
+        self.leaver_information.return_personal_phone = "0123456789"
+        self.leaver_information.return_address_building_and_street = "Building name"
+        self.leaver_information.return_address_city = "City name"
+        self.leaver_information.return_address_county = "County name"
+        self.leaver_information.return_address_postcode = "PO57 C0D3"
+        self.leaver_information.save()
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
@@ -326,7 +331,7 @@ class TestUksbsHandoverView(ViewAccessTest, TestCase):
         )
         self.assertEqual(
             response.context["leaver_address"],
-            "",
+            "Building name, \nCity name, \nCounty name, \nPO57 C0D3",
         )
         self.assertEqual(
             response.context["leaver_phone"],

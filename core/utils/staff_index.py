@@ -71,7 +71,6 @@ class ConsolidatedStaffDocument(TypedDict):
     contact_email_address: str
     photo: str
     contact_phone: str
-    contact_address: str
     date_of_birth: str
     grade: str
     directorate: str
@@ -280,7 +279,6 @@ def consolidate_staff_documents(
             "contact_email_address": staff_document["staff_sso_contact_email_address"]
             or "",
             "contact_phone": staff_document["people_finder_phone"] or "",
-            "contact_address": "",
             "date_of_birth": date(2021, 11, 25).strftime("%d-%m-%Y"),
             "photo": staff_document["people_finder_image"] or "",
             "grade": staff_document["people_finder_grade"] or "",

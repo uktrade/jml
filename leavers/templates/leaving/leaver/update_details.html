@@ -1,37 +1,21 @@
 {% extends "leaving/leaving_base.html" %}
-{% load static %}
+{% load static crispy_forms_tags %}
 
 {% block content %}
-    <h1 class="govuk-heading-l">Edit leaver details</h2>
     <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <form novalidate method='post'>
-                    {% csrf_token %}
-
-                    {% include "includes/govt_uk_form_error.html" with form=form %}
-
-                    <h2 class="govuk-heading-m">Personal Information</h3>
-                    {% include "includes/govt_uk_field.html" with field=form.first_name %}
-                    {% include "includes/govt_uk_field.html" with field=form.last_name %}
-                    {% include "includes/govt_uk_field.html" with field=form.contact_email_address %}
-                    {% include "includes/govt_uk_field.html" with field=form.contact_phone %}
-                    {% include "includes/govt_uk_field.html" with field=form.contact_address %}
-                    
-                    <h2 class="govuk-heading-m">Professional Information</h3>
-                    {% include "includes/govt_uk_field.html" with field=form.grade %}
-                    {% include "includes/govt_uk_field.html" with field=form.job_title %}
-                    {% include "includes/govt_uk_field.html" with field=form.directorate %}
-                    {% include "includes/govt_uk_field.html" with field=form.department %}
-                    {% include "includes/govt_uk_field.html" with field=form.email_address %}
-                    {% include "includes/govt_uk_field.html" with field=form.manager %}
-                    {% include "includes/govt_uk_field.html" with field=form.staff_id %}
-
-                    <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
-                    <a href="{% url 'leaver-confirm-details' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Cancel</a>
-                </form>
-            </div>
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">Hi {{ leaver_name }},</h1>
+            <p class="govuk-body">Please check, update and add any missing information.</p>
+            <p class="govuk-body">The details you add will only be seen by the teams who need that specific piece of information to process your leaving request, so your: personal email, phone number and address will only be seen by your line manager and Service Now.</p>
+        </div>
+    </div>
+    
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">About me</h2>
+            <form novalidate method='post'>
+                {% crispy form %}
+            </form>
         </div>
     </div>
 {% endblock %}

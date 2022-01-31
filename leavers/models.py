@@ -2,10 +2,9 @@ import uuid
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models.enums import TextChoices
 
 from activity_stream.models import ActivityStreamStaffSSOUser
-from leavers.forms.leaver import RETURN_OPTIONS
+from leavers.forms.leaver import RETURN_OPTIONS, SecurityClearance
 
 
 class TaskLog(models.Model):
@@ -16,14 +15,6 @@ class TaskLog(models.Model):
         on_delete=models.CASCADE,
         related_name="task_logs",
     )
-
-
-class SecurityClearance(TextChoices):
-    CTC = "ctc", "Counter Terrorist Check"
-    SC = "sc", "Security Check"
-    ESC = "esc", "Enhanced Security Check"
-    DV = "dv", "Developed Vetting"
-    EDV = "edv", "Enhanced Developed Vetting"
 
 
 class LeavingRequest(models.Model):
@@ -212,9 +203,24 @@ class LeaverInformation(models.Model):
         related_name="leaver_information",
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    leaver_email = models.EmailField(unique=True)
     updates = models.JSONField()
+
     leaving_date = models.DateTimeField(null=True, blank=True)
+    leaver_email = models.EmailField(unique=True)
+
+    # Leaver information
+    leaver_first_name = models.CharField(max_length=1000, null=True, blank=True)
+    leaver_last_name = models.CharField(max_length=1000, null=True, blank=True)
+    personal_email = models.EmailField(null=True, blank=True)
+    job_title = models.CharField(max_length=1000, null=True, blank=True)
+    directorate_id = models.CharField(max_length=1000, null=True, blank=True)
+    staff_id = models.CharField(max_length=1000, null=True, blank=True)
+
+    # Extra information
+    locker_number = models.CharField(max_length=1000, null=True, blank=True)
+    has_dse = models.BooleanField(null=True, blank=True)
+
+    # Return Cirrus Kit
     information_is_correct = models.BooleanField(null=True)
     additional_information = models.CharField(max_length=1000)
     return_option = models.CharField(max_length=10, choices=RETURN_OPTIONS)
@@ -226,3 +232,13 @@ class LeaverInformation(models.Model):
     return_address_city = models.CharField(max_length=1000, null=True, blank=True)
     return_address_county = models.CharField(max_length=1000, null=True, blank=True)
     return_address_postcode = models.CharField(max_length=15, null=True, blank=True)
+
+    @property
+    def display_address(self) -> str:
+        address_data = [
+            self.return_address_building_and_street,
+            self.return_address_city,
+            self.return_address_county,
+            self.return_address_postcode,
+        ]
+        return ", \n".join(filter(None, address_data))

@@ -15,7 +15,7 @@ class TaskConfirmationView(
     UserPassesTestMixin,
     FormView,
 ):
-    tempate_name = "leaving/task_form.html"
+    template_name = "leaving/task_form.html"
     form_class = sre_forms.SREConfirmCompleteForm
     leaving_request = None
 

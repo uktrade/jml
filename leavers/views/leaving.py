@@ -24,6 +24,6 @@ class WhoIsLeavingView(FormView):
 
     def get_success_url(self):
         if self.who_for == "me":
-            return reverse("leaver-confirm-details")
+            return reverse("leaver-update-details")
         else:
             return reverse("report-a-leaver-search")

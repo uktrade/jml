@@ -191,7 +191,7 @@ Test Directorate
 self.add_kit_to_session("Test Asset 1
 self.add_kit_to_session("Test Asset 2
 self.add_kit_to_session("Test Asset 3
-mock_store_correction_information.assert_called_once_with
+mock_store_cirrus_kit_information.assert_called_once_with
 TestEquipmentReturnOptionsView(TestCase
 Test Address
 mock_store_return_information.assert_called_once_with
@@ -369,7 +369,6 @@ Session
 leaver_details.email_a
 PersonDetail
 # Get Service Now
-leaver_details.email_address
 leaver_id
 manager_id
 MANAGER_SESSION_KEY
@@ -444,3 +443,19 @@ address=
 crispy_forms_gds
 the Cirrus Tech
 form</h1
+Service Now.</p>
+TestDeleteCirrusKitView(TestCase
+test_existing_updates
+LeaverConfirmationView(LineManagerViewMixin
+leaver_information.leaver_email
+ThankYouView(LineManagerViewMixin
+Building
+# Extra
+Return Cirrus Kit
+Field("staff_id
+updates.get("staff_id
+leaver_info.leaving_request.security_clearance
+leaver_info.has_dse
+SessionBase
+leaving_request.is_rosa_user
+leaving_request.holds_government_procurement_card
