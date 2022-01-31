@@ -11,7 +11,7 @@ from core.utils.staff_index import (
 
 
 class Command(BaseCommand):
-    help = "Create/Update Staff ES Index"  # /PS-IGNORE
+    help = "Create/Update Staff ES Index"
 
     def handle(self, *args, **options):
         try:
@@ -28,7 +28,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING("Staff index created"))
             else:
                 # If the mapping hasn't changed, clear the index
-                clear_staff_index()  # /PS-IGNORE
+                clear_staff_index()
                 self.stdout.write(self.style.WARNING("Staff index cleared"))
 
         indexed_count = index_all_staff()

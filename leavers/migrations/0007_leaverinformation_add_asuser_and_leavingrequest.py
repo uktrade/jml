@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.RunPython(delete_all_leaving_requests, migrations.RunPython.noop),
-        migrations.AlterField(  # /PS-IGNORE
+        migrations.AlterField(
             model_name="leaverinformation",
             name="leaving_request",
             field=models.ForeignKey(
@@ -54,7 +54,7 @@ class Migration(migrations.Migration):
                 to="leavers.leavingrequest",
             ),
         ),
-        migrations.AlterField(  # /PS-IGNORE
+        migrations.AlterField(
             model_name="leavingrequest",
             name="leaver_activitystream_user",
             field=models.ForeignKey(

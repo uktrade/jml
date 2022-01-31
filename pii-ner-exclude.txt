@@ -1,472 +1,91 @@
-# Staff
-SERVICE_NOW_INTERFACE
-Base
-# People finder
-PEOPLE_FINDER_INTERFACE=core.people_finder.interfaces
-Group
-List[Tuple[str
-Hardware Team
-User
-API Asset
-FormView
-LeaverInformation
-DB
-updates=
-People Finder
-Map
-person["first_name
-date_of_birth
-job_title
-get_leaver_details_with_updates(self
-cast(str
-Build
-UpdateDetailsView(LoginRequiredMixin, LeaverInformationMixin, FormView
-UUID
-self.forms[form_name](request
-CirrusEquipmentReturnInformationView
-LoginRequiredMixin, LeaverInformationMixin, FormView
-RequestReceivedView(LoginRequiredMixin
-CheckboxInput
-Textarea
-elif isinstance(widget
-isinstance(widget
-EmailInput
-issubclass(interface_class
-class="govuk-button__start
-COLOUR_GREEN=\033[32;01
-COLOUR_YELLOW=\033[33;01
-migrate$(COLOUR_NONE
-Compile SCSS
-object.current_task_record
-234px
-100px
-APIConfig(AppConfig
-ImportError
-Python 2
-PYTHONPATH
-Joiners, Movers and Leavers
-Joiners
-Movers
-Leavers</h2
->View cookies</a>
-ServiceNowBase
-DevToolsConfig(AppConfig
-UserAdmin
-django.contrib import
-self.readonly_fields
-is_superuser
-Requests</h1
-yet.</p
-TemplateResponse
-TemplateResponse(request
-redirect_response.set_cookie
-Job Title
-CustomAuthbrokerBackend(AuthbrokerBackend
-@staticmethod
-User.objects.filter
-# Set email_user_id
-SlackResponse
-LeavingRequest
-FailedToSendSREAlertMessage("SLACK_SRE_CHANNEL_ID
-DIT
-channel_id
-f"Thank
-SRE
-MIT License
-Department for International Trade
-Software
-IMPLIED
-DAMAGES
-LIABILITY
-LeaverInformation(models
-JSONField
-CharField(max_length=10
-BasicTask
-Split
-NumberInput
-Celery
-Alert SRE
-OPTIONS
-default=
-https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
-NAME
-env("AUTHBROKER_CLIENT_ID
-BASE_DIR
-Dev
-env("SLACK_SRE_CHANNEL_ID
-Hawk
-PEOPLE_FINDER_HAWK_ACCESS_ID =
-PEOPLE_FINDER_INTERFACE = env("PEOPLE_FINDER_INTERFACE
-LeaversWorkflow
-ner_output_file.txt
-WebClient
-str
-Slack
-# Post
-Slack API
-label="When
-HardwareReceivedForm(GovFormattedModelForm
-SREConfirmCompleteForm(GovFormattedForm
-PAAS
-GOVUK PAAS
-Someone Else
-label="Can't
-LeaverUpdateForm(GovFormattedForm
-CharField(label="First
-raise Exception("No directorates
-Exception("No departments
-ReturnOptionForm(GovFormattedForm
-django_log_formatter_ecs
-SSO
-ECSFormatter
-StreamHandler
-#     integrations=[DjangoIntegration
-# Set
-# Set cookie
-JS
-CRSF
-Audit
-AUDIT_LOG_USER_FIELD
-amqp==5.0.6
-asgiref==3.4.1
-django-compressor==2.4.1
-docopt==0.6.2
-elasticsearch==7.15.2
-pyjwt==2.3.0
-rjsmin==1.1.0
-#   amqp
-View
-WorkflowExecutor
-#     #
-#         # Search
-#
-PermissionDenied(f"{e
-RequestReceivedView(TemplateView
-CharField(max_length=255
-Elastic
-role="alert
-get_response
-assert settings
-assert hasattr(request
-form.cleaned_data["user
-new_user
-the Leaving DIT
-to:</p
-Google Analytics
-visit</li>
-Google
-Digital Workspace
-before.</td>
-Digital
-ends.</td
-session.</p
-users.</td
-CreateModel
-AutoField
-Information</h3
-TaskLog
-Github
-Jira
-thread_ts=first_slack_message.slack_timestamp
-leaving_request=self.leaving_request
-ThankYouView(TemplateView
-Sequence(lambda
-f"user{n
-Cost Centre Hierarchy
-"Clear the Position
-Bloggs
-Example Grade
-return_value=
-LeaverInformationMixin().get_leaver_details
-leaver_info.refresh_from_db
-TestConfirmDetailsView(TestCase
-self.assertEqual(response.status_code
-Updated Personal Email
-Updated Work Email
-staff_id": updates["staff_id
-FirstName
-Grade
-Personal Address
-Test Directorate
-self.add_kit_to_session("Test Asset 1
-self.add_kit_to_session("Test Asset 2
-self.add_kit_to_session("Test Asset 3
-mock_store_cirrus_kit_information.assert_called_once_with
-TestCirrusEquipmentReturnOptionsView(TestCase
-Test Address
-mock_store_return_information.assert_called_once_with
-LeaversStartView(TemplateView
-WhoIsLeavingView(FormView
-CustomAuthbrokerBackend
-User.objects.get(email="sso.test@example.com
-abc
-ABC
-@abstractmethod
-search_result["photo
-name=
-3.13.1
-# Created
-Files
-AFP
-DLL
-env/
-var/
-PyInstaller
-# Installer
-pip-delete-this-directory.txt
-Sphinx
-PyBuilder
-local_settings.py
-Docker
-# Local
-dir
-Front
-Node
-test_*.txt
-SlackMessage
-views.cookie_response
-Dockerfile.dev
-related_name='govuk_paas_access_task_log
-related_name='slack_access_task_log
-name='user
-related_name='task_logs
-namespace="authbroker
-admin.site.urls
-line_manager_views
-leaving_views.
-# Leaver
-CirrusEquipmentReturnInformationView.as_view
-TaskConfirmationView.as_view
-Install Cloudfoundry
-CLI
-python manage.py compilescss &&
-python manage.py migrate &&
-return PeopleFinderStubbed()
-raise ValueError("PEOPLE_FINDER_INTERFACE
-Elasticsearch
-class="ws
-def get_search_results(search_terms
-location^4
-minimum_should_match
-formatted_additional_responsibilities
-# Joiners Movers Leavers
-BasicTask(Task
-HaveSRECarriedOutLeavingTasks(Task
-SlackMessage.objects.create
--O codecov.sh https://codecov.io/bash
-Payroll
-Sequence(lambda n: n
-f"Asset
-LineManagerDetails(factory
-Ingest Staff SSO Activity Stream
-as_staff_sso_user
-Activity
-is_x_days_before_payroll
-LeavingDatePlusXDays(TestCase
-days_after_leaving_date=1
-sizes="152x152
-IE
-height="30" width="36">
-7.7-.2
-aria-label="Show
-viewBox="0 0 483.2
-height="17
-8.7 39.7 21.8l42.7-27.2A97.63
-href="https://www.nationalarchives.gov.uk
-Crown
-x.groups.first
-FlowView
-LeaverBaseView(UserPassesTestMixin
-LeaversFlowListView
-LeaversFlowCreateView
-BigAutoField
-max_length=10
-max_length=254
-max_length=1000
-W503
-end_of_month
-treasurySS
-Union
-HawkFail
-Sender
-FailedToGetActivityStream(Exception
-OrderedItem
-api.views
-EmailField
-django.core.cache
-django.utils.crypto import
-constant_time_compare
-BaseAuthentication
-AuthenticationFailed
-Raises
-HAWK_INCOMING_ACCESS_KEY
-access_key_id=access_key_id
-seen_nonce(access_key_id
-access_key_id
-WWW
-DRF
-META
-hawk_receiver = authorise(request
-response['Server-Authorization'
-api.hawk
-HawkAuthentication
-django.utils.decorators
-decorator_from_middleware
-Response
-ViewSet
-DetailCorrectionViewSet(ViewSet
-information</h1
-WSGI
-core.staff_sso
-RemoveField
-max_length=15
-name='LeavingRequest
-related_name='github_user_task_log
-submit_leaver_request
-SERVICE_NOW_GET_ASSET_PATH
-Convert
-AssetDetails
-Convert Request Data
-API
-leaver_info.return_address_county
-leaver_info.leaver_email
-name='User
-verbose_name='superuser
-help_text='Required
-verbose_name='staff
-managers=
-model_name='user
-black==21.11b1
-coverage[toml]==6.2
-faker==9.9.0
-freezegun==1.1.0
-py==1.11.0
-pycodestyle==2.8.0
-wheel==0.37.0
-activity_stream:{access_key_id}:{nonce}".format
-crontab
-F401
-context["person
-Position.objects.create(title="Software Developer
-Position.objects.create(title="Software Tester
-Position.objects.create(title="UX Developer
-# Set anti XSS
-Sequence
-Sequence
-activity_stream:{access_key_id}:{nonce}".format
-context["person
-E203
-# Set anti
-Position.objects.create(title="UX
-LSD_ZENDESK_TOKEN
-SERVICE_NOW_DIT_DEPARTMENT_SYS_ID=1234567890
-elasticsearch:7.16.2
-OpenSearch
-MAX_RESULTS
-STAFF_INDEX_BODY
-Mapping[str
-Session
-leaver_details.email_a
-PersonDetail
-# Get Service Now
-leaver_id
-manager_id
-MANAGER_SESSION_KEY
-LeaverSearchView(StaffSearchView
-del self.request.session[LEAVER_SESSION_KEY
-del self.request.session[MANAGER_SESSION_KEY]
-ManagerSearchView(StaffSearchView
-self.manager["staff_sso_activity_stream_id
-StaffDocumentNotFound(Exception
-person_id
-staff_details.job_title %
-AlterField
-assert self.manager
-# Get Service Now User
-# Get Service Now Department
-# Get Service Now Directorate
-StaffDocument
-manager_service_now_id = manager_staff_document["service_now_user_id
-manager_service_now_id
-Generic Staff
-Manager</h2
-MyManagerSearchView.as_view
-below.</a>
-del request.session[MANAGER_SESSION_KEY]
-self.get_leaver(request
-self.leaving_request.manager_activitystream_user
-staff_id
-Information</h2
-latest_leaving_request
-Start Line
-the Leaver StaffDocument
-Data
-# Load
-UKSBS
-UKSBS Leavers
-UKSBS Connect
-UploadedFile
-ROSA
-Discuss
-Store
-RadioSelect
-YesNoField(forms
-SecurityClearance
-SRE Access
-Security Team Access
-rosa_user_yes_no
-super().setUp
-TestStartView(ViewAccessTest
-TestDetailsView(ViewAccessTest
-self.leaving_request.leaver_activitystream_user
-Unit of Measurement
-self.leaving_request.refresh_from_db
-Functionality
-response.context["data_recipient"]["staff_sso_activity_stream_id
-SubFactory
-Line
-CTC
-Enhanced Security Check
-Developed Vetting
-EDV
-choices=[('ctc
-Cirrus
-ReturnOptions
-hint=
-the Cirrus Tech Bar
-Size
-FormHelper
-Choice
-Enum
-Example Building
-address=
-crispy_forms_gds
-the Cirrus Tech
-form</h1
-Service Now.</p>
-TestDeleteCirrusEquipmentView(TestCase
-test_existing_updates
-LeaverConfirmationView(LineManagerViewMixin
-leaver_information.leaver_email
-ThankYouView(LineManagerViewMixin
-Building
-# Extra
-Return Cirrus Kit
-Field("staff_id
-updates.get("staff_id
-leaver_info.leaving_request.security_clearance
-leaver_info.has_dse
-SessionBase
-leaving_request.is_rosa_user
-leaving_request.holds_government_procurement_card
-the DB Creates
-Finder Raises
-job_title
-job_title"
-staff_id"
-directorate_id
+'Tests for `get_leaver_details_with_updates`
+" Get Service Now
 " Store Extra
-Store DSE
 " Store the Correction
-the Health and Safety Team</h2
-you.</p
+activity_stream.activitystreamstaffssouser
+Annual Leave
+Annual Leave: "
+API
+AssetDetails
+below.</a>
+Build Staff Document
+Building Pass Access Revoked
+Convert
+Convert Request Data
+Create/Update Staff ES
+crispy_forms_gds
+CssFinder
+Data
+date_of_birth
+DB
+Department 1
+Department 2
+Department of International Trade
+Dev
+Developed Vetting
+directorate_id
+Discuss
+DIT
+DjangoTemplates
+Dockerfile.dev
+E501
+Elastic
+Enhanced Security Check
+Example Building
+Example Grade
+f"Gsuite
+f"sys_id={sys_id
+f"sys_id={sys_id'
+F401
+Finder Raises
+Flexi Impacting Pay
+Get the Leaver StaffDocument
+Hours
+Jira
+job_title"
+Leaver's Notification Form
+LeaversWorkflow
+LeavingRequest
+Line
+LSD_ZENDESK_TOKEN
+manager_id
+minimum_should_match
+NAME
+OpenSearch
+OPENSEARCH_JAVA_OPTS=-Xms512
+OPTIONS
+OrderedItem
+PAAS
+ParsedUKSBSPDF
+ParsedUKSBSPDF"
+People Finder
+Procurement Card
+Reason for Leaving Resignation
+ReturnOptions
+ROSA
+ROSA Access Revoked
+SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
+SERVICE_NOW_INTERFACE
+Session
+Slack
+Split
+SRE
+staff_id"
+Store DSE
+StreamHandler
+Tests for `get_leaver_detail_updates` "
+Tests for `get_leaver_details_with_updates`
+Tests for `get_leaver_details` "
+Tests for `get_leaver_information`
+Tests for `store_cirrus_kit_information`
+Tests for `store_leaver_detail_updates` "
+Tests for `store_leaving_date` "
+Tests for `store_return_information`
+Tests for `store_return_option
+the Cirrus Tech Bar
+the DB Creates
+the Leaver Form's
+Unit of Measurement
+Unit of Measurement Hours
+Updated Personal Email
+WhiteNoiseMiddleware

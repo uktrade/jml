@@ -29,7 +29,7 @@ from leavers import types
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation, LeavingRequest
-from leavers.utils import update_or_create_leaving_request  # /PS-IGNORE
+from leavers.utils import update_or_create_leaving_request
 from user.models import User
 
 MANAGER_SEARCH_PARAM = "manager_id"
@@ -394,7 +394,7 @@ class LeaverInformationMixin:
         )
 
 
-class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
+class ConfirmDetailsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/confirm_details.html"
     form_class = leaver_forms.LeaverConfirmationForm
     success_url = reverse_lazy("leaver-cirrus-equipment")
@@ -572,7 +572,7 @@ def delete_dse_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
     return redirect("leaver-display-screen-equipment")
 
 
-class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
+class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
     forms: Dict[str, Type[Form]] = {
         "add_asset_form": leaver_forms.AddDisplayScreenEquipmentAssetForm,
         "submission_form": leaver_forms.SubmissionForm,
@@ -651,7 +651,7 @@ def delete_cirrus_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
     return redirect("leaver-cirrus-equipment")
 
 
-class CirrusEquipmentView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
+class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
     forms: Dict[str, Type[Form]] = {
         "add_asset_form": leaver_forms.AddCirrusAssetForm,
         "correction_form": leaver_forms.CorrectionForm,

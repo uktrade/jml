@@ -95,7 +95,7 @@ class ServiceNowStubbed(ServiceNowBase):
             {"sys_id": "2", "name": "Department 2"},
             {
                 "sys_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
-                "name": "Department of International Trade",  # /PS-IGNORE
+                "name": "Department of International Trade",
             },
         ]
         if sys_id:
@@ -137,9 +137,7 @@ class ServiceNowInterface(ServiceNowBase):
     def __init__(self, *args, **kwargs):
         self.GET_USER_PATH = settings.SERVICE_NOW_GET_USER_PATH
         self.GET_ASSET_PATH = settings.SERVICE_NOW_GET_ASSET_PATH
-        self.GET_DIRECTORATE_PATH = (
-            settings.SERVICE_NOW_GET_DIRECTORATE_PATH  # /PS-IGNORE
-        )
+        self.GET_DIRECTORATE_PATH = settings.SERVICE_NOW_GET_DIRECTORATE_PATH
         self.POST_LEAVER_REQUEST = settings.SERVICE_NOW_POST_LEAVER_REQUEST
         self.client = ServiceNowClient()
 
@@ -194,7 +192,7 @@ class ServiceNowInterface(ServiceNowBase):
         )
         # Convert to a list of UserDetails /PS-IGNORE
         users_details: List[types.UserDetails] = []
-        for service_now_user in service_now_users:  # /PS-IGNORE
+        for service_now_user in service_now_users:
             users_manager = None
             if service_now_user["manager"]:
                 users_manager = service_now_user["manager"]
@@ -229,7 +227,7 @@ class ServiceNowInterface(ServiceNowBase):
         results: List[types.DepartmentDetails] = [
             {
                 "sys_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
-                "name": "Department of International Trade",  # /PS-IGNORE
+                "name": "Department of International Trade",
             }
         ]
 

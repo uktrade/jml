@@ -101,7 +101,7 @@ def delete_staff_index():
     search_client.indices.delete(index=STAFF_INDEX_NAME)
 
 
-def clear_staff_index():  # /PS-IGNORE
+def clear_staff_index():
     """
     Delete all documents from the index.
     """

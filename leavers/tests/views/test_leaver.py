@@ -28,7 +28,7 @@ STAFF_DOCUMENT: StaffDocument = {
     "people_finder_phone": "0123456789",
     "service_now_user_id": "",
     "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
-    "service_now_department_name": "Department of International Trade",  # /PS-IGNORE
+    "service_now_department_name": "Department of International Trade",
     "service_now_directorate_id": "",
     "service_now_directorate_name": "",
     "staff_sso_activity_stream_id": "1",
@@ -59,7 +59,7 @@ class TestLeaverInformationMixin(TestCase):
     def test_get_leaver_information_new(self, mock_get_search_results) -> None:
 
         LeaverInformationMixin().get_leaver_information(
-            email=self.leaver_email,  # /PS-IGNORE
+            email=self.leaver_email,
             requester=UserFactory(),
         )
 
@@ -176,7 +176,7 @@ class TestLeaverInformationMixin(TestCase):
         LeaverInformationMixin().store_leaver_detail_updates(
             email=self.leaver_email,
             requester=UserFactory(),
-            updates={},  # /PS-IGNORE
+            updates={},
         )
         self.assertEqual(
             models.LeaverInformation.objects.filter(
@@ -988,7 +988,7 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
             requester=self.leaver,
             personal_phone="0123123123",  # /PS-IGNORE
             contact_email="joe.bloggs@example.com",  # /PS-IGNORE
-            address={  # /PS-IGNORE
+            address={
                 "building_and_street": "Example Building name",  # /PS-IGNORE
                 "city": "Bristol",
                 "county": "Bristol",

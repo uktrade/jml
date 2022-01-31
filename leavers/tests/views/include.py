@@ -27,7 +27,7 @@ class ViewAccessTest:
         return view_path
 
     def setUp(self):
-        self.authenticated_user = UserFactory()  # /PS-IGNORE
+        self.authenticated_user = UserFactory()
 
     """
     Unauthenticated user checks

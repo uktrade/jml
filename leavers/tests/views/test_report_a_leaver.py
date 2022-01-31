@@ -33,13 +33,13 @@ EMPTY_STAFF_DOCUMENT: StaffDocument = {
     "leavers.views.report_a_leaver.get_staff_document_from_staff_index",
     return_value=EMPTY_STAFF_DOCUMENT,
 )
-class TestConfirmationView(ViewAccessTest, TestCase):  # /PS-IGNORE
+class TestConfirmationView(ViewAccessTest, TestCase):
     view_name = "report-a-leaver-confirmation"
     allowed_methods = ["get", "post", "put"]
     url_query_params = ""
 
     def setUp(self):
-        super().setUp()  # /PS-IGNORE
+        super().setUp()
         self.leaver_email = "joe.bloggs@example.com"  # /PS-IGNORE
         self.leaver_as_sso_user = ActivityStreamStaffSSOUserFactory(
             email_address=self.leaver_email
