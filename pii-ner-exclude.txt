@@ -23,7 +23,7 @@ Build
 UpdateDetailsView(LoginRequiredMixin, LeaverInformationMixin, FormView
 UUID
 self.forms[form_name](request
-EquipmentReturnInformationView
+CirrusEquipmentReturnInformationView
 LoginRequiredMixin, LeaverInformationMixin, FormView
 RequestReceivedView(LoginRequiredMixin
 CheckboxInput
@@ -192,7 +192,7 @@ self.add_kit_to_session("Test Asset 1
 self.add_kit_to_session("Test Asset 2
 self.add_kit_to_session("Test Asset 3
 mock_store_cirrus_kit_information.assert_called_once_with
-TestEquipmentReturnOptionsView(TestCase
+TestCirrusEquipmentReturnOptionsView(TestCase
 Test Address
 mock_store_return_information.assert_called_once_with
 LeaversStartView(TemplateView
@@ -235,7 +235,7 @@ admin.site.urls
 line_manager_views
 leaving_views.
 # Leaver
-EquipmentReturnInformationView.as_view
+CirrusEquipmentReturnInformationView.as_view
 TaskConfirmationView.as_view
 Install Cloudfoundry
 CLI
@@ -444,7 +444,7 @@ crispy_forms_gds
 the Cirrus Tech
 form</h1
 Service Now.</p>
-TestDeleteCirrusKitView(TestCase
+TestDeleteCirrusEquipmentView(TestCase
 test_existing_updates
 LeaverConfirmationView(LineManagerViewMixin
 leaver_information.leaver_email
@@ -459,3 +459,14 @@ leaver_info.has_dse
 SessionBase
 leaving_request.is_rosa_user
 leaving_request.holds_government_procurement_card
+the DB Creates
+Finder Raises
+job_title
+job_title"
+staff_id"
+directorate_id
+" Store Extra
+Store DSE
+" Store the Correction
+the Health and Safety Team</h2
+you.</p

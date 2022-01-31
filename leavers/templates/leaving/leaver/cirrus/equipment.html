@@ -15,7 +15,7 @@
             <div class="govuk-grid-column-two-thirds">
                 <h2 class="govuk-heading-m">Equipment currently assigned to you</h2>
                 <p class="govuk-body">If you no longer have the items listed, please delete to remove them.</p>
-                {% for asset in assets %}
+                {% for asset in cirrus_assets %}
                     <dl class="govuk-summary-list">
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
@@ -36,7 +36,7 @@
                             </div>
                         {% endif %}
                     </dl>
-                    <a href="{% url 'leaver-cirrus-kit-delete' asset.uuid %} " class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                    <a href="{% url 'leaver-cirrus-equipment-delete' asset.uuid %} " class="govuk-button govuk-button--secondary" data-module="govuk-button">
                         Delete
                     </a>
                 {% endfor %}

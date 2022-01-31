@@ -160,7 +160,11 @@ class ReturnInformationForm(GovFormattedForm):
                 self.fields[field_name].widget = forms.HiddenInput()
 
 
-class AddAssetForm(GovFormattedForm):
+class AddCirrusAssetForm(GovFormattedForm):
+    asset_name = forms.CharField(label="Add asset")
+
+
+class AddDisplayScreenEquipmentAssetForm(GovFormattedForm):
     asset_name = forms.CharField(label="Add asset")
 
 
@@ -174,3 +178,7 @@ class CorrectionForm(GovFormattedForm):
         widget=forms.Textarea(),
         max_length=1000,
     )
+
+
+class SubmissionForm(GovFormattedForm):
+    pass

@@ -51,23 +51,33 @@ urlpatterns = [
         name="leaver-confirm-details",
     ),
     path(
-        "leaver/cirrus-kit/",
-        leaver_views.CirrusKitView.as_view(),
-        name="leaver-cirrus-kit",
+        "leaver/display-screen-equipment/",
+        leaver_views.DisplayScreenEquipmentView.as_view(),
+        name="leaver-display-screen-equipment",
     ),
     path(
-        "leaver/cirrus-kit/delete/<uuid:kit_uuid>",
-        leaver_views.delete_cirrus_kit,
-        name="leaver-cirrus-kit-delete",
+        "leaver/display-screen-equipment/delete/<uuid:kit_uuid>",
+        leaver_views.delete_dse_equipment,
+        name="leaver-display-screen-equipment-delete",
+    ),
+    path(
+        "leaver/cirrus-equipment/",
+        leaver_views.CirrusEquipmentView.as_view(),
+        name="leaver-cirrus-equipment",
+    ),
+    path(
+        "leaver/cirrus-equipment/delete/<uuid:kit_uuid>",
+        leaver_views.delete_cirrus_equipment,
+        name="leaver-cirrus-equipment-delete",
     ),
     path(
         "leaver/return/",
-        leaver_views.EquipmentReturnOptionsView.as_view(),
+        leaver_views.CirrusEquipmentReturnOptionsView.as_view(),
         name="leaver-return-options",
     ),
     path(
         "leaver/return-information/",
-        leaver_views.EquipmentReturnInformationView.as_view(),
+        leaver_views.CirrusEquipmentReturnInformationView.as_view(),
         name="leaver-return-information",
     ),
     path(

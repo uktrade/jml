@@ -220,7 +220,11 @@ class LeaverInformation(models.Model):
     locker_number = models.CharField(max_length=1000, null=True, blank=True)
     has_dse = models.BooleanField(null=True, blank=True)
 
+    # Display Screen Equipment
+    dse_assets = models.JSONField()
+
     # Return Cirrus Kit
+    cirrus_assets = models.JSONField()
     information_is_correct = models.BooleanField(null=True)
     additional_information = models.CharField(max_length=1000)
     return_option = models.CharField(max_length=10, choices=RETURN_OPTIONS)

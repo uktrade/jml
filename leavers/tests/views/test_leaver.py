@@ -484,7 +484,7 @@ class TestConfirmDetailsView(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-kit"))
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
 
 
 @mock.patch(
@@ -619,7 +619,7 @@ class TestUpdateDetailsView(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-kit"))
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
 
         leaver_updates_obj = models.LeaverInformation.objects.get(
             leaver_email=self.leaver.email,
@@ -638,8 +638,8 @@ class TestUpdateDetailsView(TestCase):
         )
 
 
-class TestCirrusKitView(TestCase):
-    view_name = "leaver-cirrus-kit"
+class TestCirrusEquipmentView(TestCase):
+    view_name = "leaver-cirrus-equipment"
 
     def test_unauthenticated_user(self) -> None:
         response = self.client.get(reverse(self.view_name))
@@ -766,8 +766,8 @@ class TestCirrusKitView(TestCase):
         )
 
 
-class TestDeleteCirrusKitView(TestCase):
-    view_name = "leaver-cirrus-kit-delete"
+class TestDeleteCirrusEquipmentView(TestCase):
+    view_name = "leaver-cirrus-equipment-delete"
 
     def test_unauthenticated_user(self) -> None:
         response = self.client.get(reverse(self.view_name, args=[str(uuid.uuid4())]))
@@ -781,7 +781,7 @@ class TestDeleteCirrusKitView(TestCase):
         response = self.client.get(reverse(self.view_name, args=[str(uuid.uuid4())]))
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-kit"))
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
 
     def initiate_session(self) -> SessionBase:
         session = self.client.session
@@ -815,7 +815,7 @@ class TestDeleteCirrusKitView(TestCase):
         session_assets = session["assets"]
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-kit"))
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
         self.assertEqual(len(session_assets), 0)
 
     def test_invalid_uuid(self) -> None:
@@ -829,12 +829,12 @@ class TestDeleteCirrusKitView(TestCase):
         session_assets = session["assets"]
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-kit"))
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
         self.assertEqual(len(session_assets), 1)
         self.assertEqual(session_assets[0]["uuid"], str(asset_uuid))
 
 
-class TestEquipmentReturnOptionsView(TestCase):
+class TestCirrusEquipmentReturnOptionsView(TestCase):
     view_name = "leaver-return-options"
 
     def test_unauthenticated_user(self) -> None:
@@ -904,7 +904,7 @@ class TestEquipmentReturnOptionsView(TestCase):
         )
 
 
-class TestEquipmentReturnInformationView(TestCase):
+class TestCirrusEquipmentReturnInformationView(TestCase):
     view_name = "leaver-return-information"
 
     def setUp(self) -> None:
