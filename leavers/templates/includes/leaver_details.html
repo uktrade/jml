@@ -1,107 +1,70 @@
-<h2 class="govuk-heading-m">Personal Information</h2>
 <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-third">
+        <img class="leaver-image" src="{{ leaver_details.photo }}"
+            alt="Picture of {{ leaver_details.first_name }} {{ leaver_details.last_name }}" />
+    </div>
     <div class="govuk-grid-column-two-thirds">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-one-third">
-                <img class="leaver-image" src="{{ leaver_details.photo }}"
-                    alt="Picture of {{ leaver_details.first_name }} {{ leaver_details.last_name }}" />
-            </div>
-            <div class="govuk-grid-column-two-thirds">
-                <dl class="govuk-summary-list">
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Name
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {{ leaver_details.first_name }}
-                            {{ leaver_details.last_name }}
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Date of birth
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {% firstof leaver_details.date_of_birth "Not provided" %}
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Email
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {% firstof leaver_details.contact_email_address "Not provided" %}
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Phone
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {% firstof leaver_details.contact_phone "Not provided" %}
-                        </dd>
-                    </div>
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Address
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {% firstof leaver_details.contact_address "Not provided" %}
-                        </dd>
-                    </div>
-                </dl>
-            </div>
-        </div>
+        <p class="govuk-body">{{ leaver_details.first_name }} {{ leaver_details.last_name }}</p>
+        <p class="govuk-body">{% firstof leaver_details.job_title "Not provided" %}</p>
+        <p class="govuk-body">{{ leaver_info.leaver_email }}</p>
     </div>
+    
 </div>
-<h2 class="govuk-heading-m">Professional Information</h3>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-two-thirds">
-                    <dl class="govuk-summary-list">
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Email
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {% firstof leaver_details.email_address "Not provided" %}
-                            </dd>
-                        </div>
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Directorate
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {% firstof leaver_details.directorate_name "Not provided" %}
-                            </dd>
-                        </div>
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Department
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {% firstof leaver_details.department_name "Not provided" %}
-                            </dd>
-                        </div>
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Job Title
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {% firstof leaver_details.job_title "Not provided" %}
-                            </dd>
-                        </div>
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Staff ID
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {% firstof leaver_details.staff_id "Not provided" %}
-                            </dd>
-                        </div>
-                    </dl>
-                </div>
-            </div>
-        </div>
+<dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Staff ID
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {% firstof leaver_details.staff_id "Not provided" %}
+        </dd>
     </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Personal email
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {% firstof leaver_details.contact_email_address "Not provided" %}
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Security clearance
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {% firstof leaver_info.leaving_request.get_security_clearance_display "Not provided" %}
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Locker number
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {% firstof leaver_info.locker_number "Not provided" %}
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Has Government Procurement Card
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {{ leaver_info.leaving_request.holds_government_procurement_card|yesno:"Yes,No"}}
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Is a ROSA user
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {{ leaver_info.leaving_request.is_rosa_user|yesno:"Yes,No"}}
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Has Display screen equipment
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {{ leaver_info.has_dse|yesno:"Yes,No"}}
+        </dd>
+    </div>
+</dl>

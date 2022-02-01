@@ -398,7 +398,6 @@ class TestConfirmDetailsView(TestCase):
         self.assertContains(response, "Confirm your information")
 
         leaver_details: types.LeaverDetails = response.context["leaver_details"]
-        self.assertEqual(leaver_details["date_of_birth"], date(2021, 11, 25))
         self.assertEqual(leaver_details["directorate"], "")
         self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
         self.assertEqual(leaver_details["job_title"], "Job title")
@@ -437,7 +436,6 @@ class TestConfirmDetailsView(TestCase):
             {
                 "first_name": updates["first_name"],
                 "last_name": updates["last_name"],
-                "date_of_birth": date(2021, 11, 25),
                 "contact_email_address": updates["contact_email_address"],
                 "job_title": updates["job_title"],
                 "directorate": "Directorate 2",
@@ -486,7 +484,7 @@ class TestConfirmDetailsView(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
+        self.assertEqual(response.url, reverse("leaver-request-received"))
 
 
 @mock.patch(
@@ -519,7 +517,6 @@ class TestUpdateDetailsView(TestCase):
         )
 
         form = response.context["form"]
-        self.assertEqual(form.initial["date_of_birth"], date(2021, 11, 25))
         self.assertEqual(form.initial["directorate"], "")
         self.assertEqual(form.initial["first_name"], "Joe")  # /PS-IGNORE
         self.assertEqual(form.initial["job_title"], "Job title")
@@ -559,7 +556,6 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(
             form.initial,
             {
-                "date_of_birth": date(2021, 11, 25),
                 "photo": "",
                 "directorate": updates["directorate"],
                 "first_name": updates["first_name"],
@@ -772,14 +768,36 @@ class TestCirrusEquipmentView(TestCase):
 class TestDisplayScreenEquipmentView(TestCase):
     view_name = "leaver-display-screen-equipment"
 
+    def setUp(self) -> None:
+        self.leaver = UserFactory()
+        self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
+            email_address=self.leaver.email,
+        )
+        self.leaver_information = factories.LeaverInformationFactory(
+            leaver_email=self.leaver.email,
+            has_dse=True,
+            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
+            leaving_request__user_requesting=self.leaver,
+        )
+
     def test_unauthenticated_user(self) -> None:
         response = self.client.get(reverse(self.view_name))
 
         self.assertEqual(response.status_code, 302)
 
     def test_authenticated_user(self) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.leaver_information.has_dse = False
+        self.leaver_information.save()
+
+        self.client.force_login(self.leaver)
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
+
+    def test_no_dse(self) -> None:
+        self.client.force_login(self.leaver)
 
         response = self.client.get(reverse(self.view_name))
 
@@ -809,8 +827,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_with_assets_in_session(self, mock_get_service_now_interface) -> None:
         mock_get_service_now_interface.get_assets_for_user.return_value = []
 
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
         self.add_kit_to_session("Test Asset 1")
         self.add_kit_to_session("Test Asset 2")
@@ -824,19 +841,17 @@ class TestDisplayScreenEquipmentView(TestCase):
         self.assertContains(response, "Test Asset 3")
 
     def test_post_no_form_name(self) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(10):
             response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 200)
 
     def test_post_add_asset_form(self) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(14):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -855,10 +870,9 @@ class TestDisplayScreenEquipmentView(TestCase):
         "leavers.views.leaver.LeaverInformationMixin.store_display_screen_equipment"
     )
     def test_post_submission_form(self, mock_store_display_screen_equipment) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(2):
+        with self.assertNumQueries(8):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -870,8 +884,8 @@ class TestDisplayScreenEquipmentView(TestCase):
         self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
 
         mock_store_display_screen_equipment.assert_called_once_with(
-            email=user.email,
-            requester=user,
+            email=self.leaver.email,
+            requester=self.leaver,
             dse_assets=[],
         )
 
@@ -947,14 +961,24 @@ class TestDeleteCirrusEquipmentView(TestCase):
 class TestCirrusEquipmentReturnOptionsView(TestCase):
     view_name = "leaver-return-options"
 
+    def setUp(self) -> None:
+        self.leaver = UserFactory()
+        self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
+            email_address=self.leaver.email,
+        )
+        self.leaver_information = factories.LeaverInformationFactory(
+            leaver_email=self.leaver.email,
+            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
+            leaving_request__user_requesting=self.leaver,
+        )
+
     def test_unauthenticated_user(self) -> None:
         response = self.client.get(reverse(self.view_name))
 
         self.assertEqual(response.status_code, 302)
 
     def test_authenticated_user(self) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
         response = self.client.get(reverse(self.view_name))
 
@@ -962,8 +986,7 @@ class TestCirrusEquipmentReturnOptionsView(TestCase):
 
     @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_option")
     def test_post_home(self, mock_store_return_option) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
         response = self.client.post(
             reverse(self.view_name),
@@ -975,15 +998,14 @@ class TestCirrusEquipmentReturnOptionsView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("leaver-return-information"))
         mock_store_return_option.assert_called_once_with(
-            email=user.email,
-            requester=user,
+            email=self.leaver.email,
+            requester=self.leaver,
             return_option=ReturnOptions.HOME.value,
         )
 
     @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_option")
     def test_post_office(self, mock_store_return_option) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
         response = self.client.post(
             reverse(self.view_name),
@@ -995,15 +1017,14 @@ class TestCirrusEquipmentReturnOptionsView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("leaver-return-information"))
         mock_store_return_option.assert_called_once_with(
-            email=user.email,
-            requester=user,
+            email=self.leaver.email,
+            requester=self.leaver,
             return_option=ReturnOptions.OFFICE.value,
         )
 
     @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_option")
     def test_post_empty(self, mock_store_return_option) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
         response = self.client.post(reverse(self.view_name), {})
 
@@ -1091,7 +1112,7 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-request-received"))
+        self.assertEqual(response.url, reverse("leaver-confirm-details"))
 
         mock_store_return_information.assert_called_once_with(
             email=self.leaver.email,
