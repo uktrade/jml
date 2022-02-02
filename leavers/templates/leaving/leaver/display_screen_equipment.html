@@ -2,60 +2,62 @@
 {% load static %}
 
 {% block content %}
-    <div class="govuk-width-container">
 
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <h1 class="govuk-heading-l">Display screen equipment</h1>
-                <h2 class="govuk-heading-m">Items issued to you by the Health and Safety Team</h2>
-                <p class="govuk-body">Please confirm, update or add any display screen equipment that has been issued to you.</p>
-            </div>
+    <a href="{% url 'leaver-update-details' %}" class="govuk-back-link">Back</a>
+
+    {% include "leaving/progress_indicator.html" with steps=progress_steps %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">Display screen equipment</h1>
+            <h2 class="govuk-heading-m">Items issued to you by the Health and Safety Team</h2>
+            <p class="govuk-body">Please confirm, update or add any display screen equipment that has been issued to you.</p>
         </div>
+    </div>
 
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-m">Equipment currently assigned to you</h2>
-                <p class="govuk-body">If you no longer have the items listed, click delete to remove them.</p>
-                {% for asset in dse_assets %}
-                    <dl class="govuk-summary-list">
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Asset name
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {{ asset.name }}
-                            </dd>
-                        </div>
-                    </dl>
-                    <a href="{% url 'leaver-display-screen-equipment-delete' asset.uuid %} " class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                        Delete
-                    </a>
-                {% endfor %}
-            </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">Equipment currently assigned to you</h2>
+            <p class="govuk-body">If you no longer have the items listed, click delete to remove them.</p>
+            {% for asset in dse_assets %}
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Asset name
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ asset.name }}
+                        </dd>
+                    </div>
+                </dl>
+                <a href="{% url 'leaver-display-screen-equipment-delete' asset.uuid %} " class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                    Delete
+                </a>
+            {% endfor %}
         </div>
+    </div>
 
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-m">Add additional equipment:</h2>
-                <p class="govuk-body">Add any display screen items you have which are not listed above.</p>
-                <form novalidate method='post'>
-                    {% csrf_token %}
-                    <input type="hidden" name="form_name" value="add_asset_form">
-                    {% include "includes/govt_uk_form.html" with form=add_asset_form %}
-                    <input type="submit" value="Add" class="govuk-button govuk-button--secondary" data-module="govuk-button"/>
-                </form>
-            </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">Add additional equipment:</h2>
+            <p class="govuk-body">Add any display screen items you have which are not listed above.</p>
+            <form novalidate method='post'>
+                {% csrf_token %}
+                <input type="hidden" name="form_name" value="add_asset_form">
+                {% include "includes/govt_uk_form.html" with form=add_asset_form %}
+                <input type="submit" value="Add" class="govuk-button govuk-button--secondary" data-module="govuk-button"/>
+            </form>
         </div>
+    </div>
 
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <form novalidate method='post'>
-                    {% csrf_token %}
-                    <input type="hidden" name="form_name" value="submission_form">
-                    {% include "includes/govt_uk_form.html" with form=submission_form %}
-                    <input type="submit" value="Save and continue" class="govuk-button" data-module="govuk-button"/>
-                </form>
-            </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method='post'>
+                {% csrf_token %}
+                <input type="hidden" name="form_name" value="submission_form">
+                {% include "includes/govt_uk_form.html" with form=submission_form %}
+                <input type="submit" value="Save and continue" class="govuk-button" data-module="govuk-button"/>
+            </form>
         </div>
     </div>
 {% endblock %}

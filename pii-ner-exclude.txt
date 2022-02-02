@@ -12,6 +12,8 @@ below.</a>
 Build Staff Document
 Building Pass Access Revoked
 building_pass_access_task_log
+Cirrus
+Cirrus Equipment
 Convert
 Convert Request Data
 Create/Update Staff ES
@@ -26,6 +28,7 @@ Dev
 Developed Vetting
 directorate_id
 Discuss
+Display Screen Equipment
 DIT
 DjangoTemplates
 Dockerfile.dev
@@ -49,6 +52,7 @@ job_title"
 Leaver's Notification Form
 LeaversWorkflow
 LeavingRequest
+li class="progress-step{%
 Line
 LSD_ZENDESK_TOKEN
 manager_id
@@ -67,6 +71,7 @@ Reason for Leaving Resignation
 ReturnOptions
 ROSA
 ROSA Access Revoked
+Service Now.</p>
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
 SERVICE_NOW_INTERFACE
 Session
@@ -87,11 +92,14 @@ Tests for `store_leaver_detail_updates` "
 Tests for `store_leaving_date` "
 Tests for `store_return_information`
 Tests for `store_return_option
+the Cirrus Tech
 the Cirrus Tech Bar
 the DB Creates
+the Health and Safety Team</h2
 the Leaver Form's
 Unit of Measurement
 Unit of Measurement Hours
 Updated Personal Email
 vpn_access_task_log
 WhiteNoiseMiddleware
+you.</p
