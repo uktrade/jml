@@ -71,7 +71,7 @@ urlpatterns = [
         name="leaver-cirrus-equipment-delete",
     ),
     path(
-        "leaver/return/",
+        "leaver/cirrus-equipment/return/",
         leaver_views.CirrusEquipmentReturnOptionsView.as_view(),
         name="leaver-return-options",
     ),

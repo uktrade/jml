@@ -18,7 +18,6 @@ Create/Update Staff ES
 crispy_forms_gds
 CssFinder
 Data
-date_of_birth
 DB
 Department 1
 Department 2
@@ -30,6 +29,7 @@ Discuss
 DIT
 DjangoTemplates
 Dockerfile.dev
+DSE
 E501
 Elastic
 Enhanced Security Check

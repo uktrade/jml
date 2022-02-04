@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime
+from datetime import date
 from typing import Any, Dict, List, Optional, Type, cast
 
 from django.contrib.auth.decorators import login_required
@@ -16,7 +16,6 @@ from activity_stream.models import ActivityStreamStaffSSOUser
 from core.people_finder import get_people_finder_interface
 from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
-from core.staff_search.forms import SearchForm
 from core.staff_search.views import StaffSearchView
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
@@ -76,16 +75,11 @@ class LeaverInformationMixin:
             user_requesting=requester,
         )
 
-        try:
-            leaver_info = LeaverInformation.objects.get(
-                leaving_request=leaving_request, leaver_email=email
-            )
-        except LeaverInformation.DoesNotExist:
-            leaver_info = LeaverInformation.objects.create(
-                leaving_request=leaving_request,
-                leaver_email=email,
-                updates={},
-            )
+        leaver_info, _ = LeaverInformation.objects.get_or_create(
+            leaving_request=leaving_request,
+            leaver_email=email,
+            defaults={"updates": {}},
+        )
         return leaver_info
 
     def get_leaver_details(self, email: str) -> types.LeaverDetails:
@@ -107,9 +101,6 @@ class LeaverInformationMixin:
             # Personal details
             "first_name": consolidated_staff_document["first_name"],
             "last_name": consolidated_staff_document["last_name"],
-            "date_of_birth": datetime.strptime(
-                consolidated_staff_document["date_of_birth"], "%d-%m-%Y"
-            ).date(),
             "contact_email_address": consolidated_staff_document[
                 "contact_email_address"
             ],
@@ -359,6 +350,13 @@ class LeaverInformationMixin:
         leaver_info = self.get_leaver_information(email=email, requester=requester)
         leaver_info.return_personal_phone = personal_phone
         leaver_info.return_contact_email = contact_email
+
+        # Reset address fields
+        leaver_info.return_address_building_and_street = None
+        leaver_info.return_address_city = None
+        leaver_info.return_address_county = None
+        leaver_info.return_address_postcode = None
+
         if address:
             leaver_info.return_address_building_and_street = address[
                 "building_and_street"
@@ -366,6 +364,8 @@ class LeaverInformationMixin:
             leaver_info.return_address_city = address["city"]
             leaver_info.return_address_county = address["county"]
             leaver_info.return_address_postcode = address["postcode"]
+
+        # Save leaver information
         leaver_info.save(
             update_fields=[
                 "return_personal_phone",
@@ -392,115 +392,6 @@ class LeaverInformationMixin:
             leaver_details=leaver_details,
             assets=assets,
         )
-
-
-class ConfirmDetailsView(LeaverInformationMixin, FormView):
-    template_name = "leaving/leaver/confirm_details.html"
-    form_class = leaver_forms.LeaverConfirmationForm
-    success_url = reverse_lazy("leaver-cirrus-equipment")
-
-    def dispatch(self, request, *args, **kwargs):
-        user = cast(User, self.request.user)
-        user_email = cast(str, user.email)
-        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
-
-        manager_id: Optional[str] = request.GET.get(MANAGER_SEARCH_PARAM, None)
-        if manager_id:
-            manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
-                staff_uuid=manager_id,
-            )
-
-            try:
-                manager = ActivityStreamStaffSSOUser.objects.get(
-                    identifier=manager_staff_document["staff_sso_activity_stream_id"],
-                )
-            except ActivityStreamStaffSSOUser.DoesNotExist:
-                raise Exception(
-                    "Unable to find manager in the Staff SSO ActivityStream."
-                )
-
-            if self.leaver_info.leaving_request.manager_activitystream_user != manager:
-                self.leaver_info.leaving_request.manager_activitystream_user = manager
-                self.leaver_info.leaving_request.save()
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = cast(User, self.request.user)
-        user_email = cast(str, user.email)
-        # Get the Leaver details
-        leaver_details = self.get_leaver_details_with_updates(
-            email=user_email, requester=user
-        )
-        display_leaver_details = self.get_leaver_details_with_updates_for_display(
-            email=user_email,
-            requester=user,
-        )
-        context.update(leaver_details=display_leaver_details),
-
-        manager: Optional[ConsolidatedStaffDocument] = None
-        if self.leaver_info.leaving_request.manager_activitystream_user:
-            manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
-                staff_id=self.leaver_info.leaving_request.manager_activitystream_user.identifier,
-            )
-            manager: ConsolidatedStaffDocument = consolidate_staff_documents(
-                staff_documents=[manager_staff_document],
-            )[0]
-        manager_search = reverse("leaver-manager-search")
-        context.update(
-            manager=manager,
-            manager_search=reverse("leaver-manager-search"),
-            manager_search_form=SearchForm(),
-        )
-        # Build a list of errors to present to the user.
-        errors: List[str] = []
-        # Add an error message if the user hasn't selected a manager.
-        if not manager:
-            errors.append(
-                mark_safe(
-                    f"<a href='{manager_search}'>You need to inform us of your "
-                    "line manager, please search for your manager below.</a>"
-                )
-            )
-
-        # Add an error message if the required details are missing
-        if not leaver_forms.LeaverUpdateForm(data=leaver_details).is_valid():
-            edit_path = reverse("leaver-update-details")
-            errors.append(
-                mark_safe(
-                    f"<a href='{edit_path}'>There is missing information that "
-                    "is required to continue, please edit the details on this "
-                    "page.</a>"
-                )
-            )
-        context.update(errors=errors)
-        return context
-
-    def form_valid(self, form) -> HttpResponse:
-        """
-        Check we have all the required information before we continue.
-        """
-        user = cast(User, self.request.user)
-        user_email = cast(str, user.email)
-
-        # Store the leaving date
-        self.store_leaving_date(
-            email=user_email,
-            requester=user,
-            leaving_date=form.cleaned_data["last_day"],
-        )
-
-        # Get the person details with the updates.
-        leaver_details = self.get_leaver_details_with_updates(
-            email=user_email, requester=user
-        )
-        leaver_details.update(
-            **self.get_leaver_extra_details(email=user_email, requester=user)
-        )
-        update_form = leaver_forms.LeaverUpdateForm(data=leaver_details)
-        if update_form.is_valid():
-            return super().form_valid(form)
-        return self.form_invalid(form)
 
 
 class UpdateDetailsView(LeaverInformationMixin, FormView):
@@ -582,6 +473,18 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
     }
     template_name = "leaving/leaver/display_screen_equipment.html"
     success_url = reverse_lazy("leaver-cirrus-equipment")
+
+    def dispatch(self, request, *args, **kwargs):
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
+        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+
+        # If the leaver doesn't have DSE, skip this step.
+        if not self.leaver_info.has_dse:
+            return redirect("leaver-cirrus-equipment")
+
+        return super().dispatch(request, *args, **kwargs)
 
     def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         session = request.session
@@ -745,6 +648,17 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
     form_class = leaver_forms.ReturnOptionForm
     success_url = reverse_lazy("leaver-return-information")
 
+    def dispatch(self, request, *args, **kwargs):
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+        initial["return_option"] = self.leaver_info.return_option
+        return initial
+
     def form_valid(self, form):
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
@@ -761,13 +675,25 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
 class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/cirrus/equipment_information.html"
     form_class = leaver_forms.ReturnInformationForm
-    success_url = reverse_lazy("leaver-request-received")
+    success_url = reverse_lazy("leaver-confirm-details")
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
         self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
         return super().dispatch(request, *args, **kwargs)
+
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+        initial["personal_phone"] = self.leaver_info.return_personal_phone
+        initial["contact_email"] = self.leaver_info.return_contact_email
+        initial[
+            "address_building"
+        ] = self.leaver_info.return_address_building_and_street
+        initial["address_city"] = self.leaver_info.return_address_city
+        initial["address_county"] = self.leaver_info.return_address_county
+        initial["address_postcode"] = self.leaver_info.return_address_postcode
+        return initial
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         kwargs = super().get_form_kwargs()
@@ -804,6 +730,141 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
             contact_email=form.cleaned_data["contact_email"],
             address=address,
         )
+
+        return super().form_valid(form)
+
+
+class ConfirmDetailsView(LeaverInformationMixin, FormView):
+    template_name = "leaving/leaver/confirm_details.html"
+    form_class = leaver_forms.LeaverConfirmationForm
+    success_url = reverse_lazy("leaver-request-received")
+
+    def dispatch(self, request, *args, **kwargs):
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+
+        manager_id: Optional[str] = request.GET.get(MANAGER_SEARCH_PARAM, None)
+        if manager_id:
+            manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
+                staff_uuid=manager_id,
+            )
+
+            try:
+                manager = ActivityStreamStaffSSOUser.objects.get(
+                    identifier=manager_staff_document["staff_sso_activity_stream_id"],
+                )
+            except ActivityStreamStaffSSOUser.DoesNotExist:
+                raise Exception(
+                    "Unable to find manager in the Staff SSO ActivityStream."
+                )
+
+            if self.leaver_info.leaving_request.manager_activitystream_user != manager:
+                self.leaver_info.leaving_request.manager_activitystream_user = manager
+                self.leaver_info.leaving_request.save()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_manager(self) -> Optional[ConsolidatedStaffDocument]:
+        manager: Optional[ConsolidatedStaffDocument] = None
+        if self.leaver_info.leaving_request.manager_activitystream_user:
+            manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
+                staff_id=self.leaver_info.leaving_request.manager_activitystream_user.identifier,
+            )
+            manager = cast(
+                ConsolidatedStaffDocument,
+                consolidate_staff_documents(
+                    staff_documents=[manager_staff_document],
+                )[0],
+            )
+        return manager
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
+        context.update(
+            has_dse=self.leaver_info.has_dse,
+            cirrus_assets=self.leaver_info.cirrus_assets,
+            dse_assets=self.leaver_info.dse_assets,
+            return_option=self.leaver_info.return_option,
+            return_personal_phone=self.leaver_info.return_personal_phone,
+            return_contact_email=self.leaver_info.return_contact_email,
+            return_address=self.leaver_info.display_address,
+            leaver_info=self.leaver_info,
+            leaver_details=self.get_leaver_details_with_updates_for_display(
+                email=user_email,
+                requester=user,
+            ),
+        ),
+
+        manager = self.get_manager()
+        manager_search = reverse("leaver-manager-search")
+        context.update(
+            manager=manager,
+            manager_search=manager_search,
+        )
+
+        # Build a list of errors to present to the user.
+        errors: List[str] = []
+        # Add an error message if the user hasn't selected a manager.
+        if not manager:
+            errors.append(
+                mark_safe(
+                    f"<a href='{manager_search}'>You need to inform us of your "
+                    "line manager, please search for your manager below.</a>"
+                )
+            )
+
+        # Get the Leaver details
+        leaver_details = self.get_leaver_details_with_updates(
+            email=user_email, requester=user
+        )
+        leaver_details.update(
+            **self.get_leaver_extra_details(email=user_email, requester=user)
+        )
+
+        # Add an error message if the required details are missing
+        if not leaver_forms.LeaverUpdateForm(data=leaver_details).is_valid():
+            edit_path = reverse("leaver-update-details")
+            errors.append(
+                mark_safe(
+                    f"<a href='{edit_path}'>There is missing information that "
+                    "is required to continue, please edit the details on this "
+                    "page.</a>"
+                )
+            )
+        context.update(errors=errors)
+        return context
+
+    def form_valid(self, form) -> HttpResponse:
+        """
+        Check we have all the required information before we continue.
+        """
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
+        # Store the leaving date
+        self.store_leaving_date(
+            email=user_email,
+            requester=user,
+            leaving_date=form.cleaned_data["last_day"],
+        )
+
+        # Get the person details with the updates.
+        leaver_details = cast(
+            dict, self.get_leaver_details_with_updates(email=user_email, requester=user)
+        )
+        leaver_details.update(
+            **self.get_leaver_extra_details(email=user_email, requester=user)
+        )
+        update_form = leaver_forms.LeaverUpdateForm(data=leaver_details)
+        if not update_form.is_valid():
+            return self.form_invalid(form)
+
+        # Check if a manager has been selected.
+        if not self.get_manager():
+            return self.form_invalid(form)
 
         return super().form_valid(form)
 

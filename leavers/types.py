@@ -1,11 +1,9 @@
-from datetime import date
 from typing import Optional, TypedDict
 
 
 class LeaverDetails(TypedDict):
     first_name: str
     last_name: str
-    date_of_birth: date
     contact_email_address: str
     job_title: str
     directorate: str
@@ -17,7 +15,6 @@ class LeaverDetails(TypedDict):
 class LeaverDetailUpdates(TypedDict, total=False):
     first_name: str
     last_name: str
-    date_of_birth: date
     contact_email_address: str
     job_title: str
     directorate: str
