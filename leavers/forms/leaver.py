@@ -13,6 +13,10 @@ from leavers.widgets import DateSelectorWidget
 
 
 class SecurityClearance(TextChoices):
+    """
+    Security Clearance levels
+    """
+
     CTC = "ctc", "Counter Terrorist Check"
     SC = "sc", "Security Check"
     ESC = "esc", "Enhanced Security Check"

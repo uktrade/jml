@@ -1,6 +1,6 @@
 import uuid
 from datetime import date
-from typing import Any, Dict, List, Optional, Type, cast
+from typing import Any, Dict, List, Optional, Tuple, Type, TypedDict, cast
 
 from django.contrib.auth.decorators import login_required
 from django.forms import Form
@@ -394,10 +394,66 @@ class LeaverInformationMixin:
         )
 
 
+class StepDict(TypedDict):
+    completed: bool
+    active: bool
+    name: str
+    link: Optional[str]
+
+
+class LeaverProgressIndicator:
+
+    steps: List[Tuple[str, str, str]] = [
+        ("your_details", "Your details", reverse_lazy("leaver-update-details")),
+        (
+            "display_screen_equipment",
+            "Display Screen Equipment",
+            reverse_lazy("leaver-display-screen-equipment"),
+        ),
+        (
+            "cirrus_equipment",
+            "Cirrus Equipment",
+            reverse_lazy("leaver-cirrus-equipment"),
+        ),
+        ("confirmation", "Confirmation", reverse_lazy("leaver-confirm-details")),
+    ]
+
+    def __init__(self, current_step: str) -> None:
+        self.current_step = current_step
+
+    def get_progress_steps(self) -> List[StepDict]:
+        """
+        Build the list of progress steps
+        """
+
+        progress_steps: List[StepDict] = []
+        completed: bool = True
+
+        for index, step in enumerate(self.steps):
+            # Check if the step is the current step.
+            active: bool = step[0] == self.current_step
+            # If we are on the active step, all future steps are not completed yet.
+            if active:
+                completed = False
+            # Build the step and add it to the list.
+            progress_step: StepDict = {
+                "completed": completed,
+                "active": active,
+                "name": step[1],
+                "number": index + 1,
+                "link": step[2] if completed else None,
+            }
+            progress_steps.append(progress_step)
+
+        return progress_steps
+
+
 class UpdateDetailsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/update_details.html"
     form_class = leaver_forms.LeaverUpdateForm
     success_url = reverse_lazy("leaver-display-screen-equipment")
+
+    progress_indicator = LeaverProgressIndicator("your_details")
 
     def get_initial(self) -> Dict[str, Any]:
         user = cast(User, self.request.user)
@@ -424,6 +480,8 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         leaver_first_name = display_leaver_details["first_name"]
         leaver_last_name = display_leaver_details["last_name"]
         context.update(leaver_name=f"{leaver_first_name} {leaver_last_name}"),
+
+        context.update(progress_steps=self.progress_indicator.get_progress_steps())
         return context
 
     def form_valid(self, form) -> HttpResponse:
@@ -473,6 +531,8 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
     }
     template_name = "leaving/leaver/display_screen_equipment.html"
     success_url = reverse_lazy("leaver-cirrus-equipment")
+
+    progress_indicator = LeaverProgressIndicator("display_screen_equipment")
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
@@ -543,6 +603,8 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
             context[form_name] = form_class()
         if "dse_assets" in self.request.session:
             context["dse_assets"] = self.request.session["dse_assets"]
+
+        context.update(progress_steps=self.progress_indicator.get_progress_steps())
         return context
 
 
@@ -564,6 +626,8 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
     }
     template_name = "leaving/leaver/cirrus/equipment.html"
     success_url = reverse_lazy("leaver-return-options")
+
+    progress_indicator = LeaverProgressIndicator("cirrus_equipment")
 
     def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         session = request.session
@@ -632,7 +696,7 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
             ]
         return super().get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
         # Add form instances to the context.
@@ -640,6 +704,8 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
             context[form_name] = form_class()
         if "cirrus_assets" in self.request.session:
             context["cirrus_assets"] = self.request.session["cirrus_assets"]
+
+        context.update(progress_steps=self.progress_indicator.get_progress_steps())
         return context
 
 
@@ -647,6 +713,8 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/cirrus/equipment_options.html"
     form_class = leaver_forms.ReturnOptionForm
     success_url = reverse_lazy("leaver-return-information")
+
+    progress_indicator = LeaverProgressIndicator("cirrus_equipment")
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
@@ -671,11 +739,18 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
 
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(progress_steps=self.progress_indicator.get_progress_steps())
+        return context
+
 
 class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/cirrus/equipment_information.html"
     form_class = leaver_forms.ReturnInformationForm
     success_url = reverse_lazy("leaver-confirm-details")
+
+    progress_indicator = LeaverProgressIndicator("cirrus_equipment")
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
@@ -704,7 +779,10 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(return_option=self.leaver_info.return_option)
+        context.update(
+            return_option=self.leaver_info.return_option,
+            progress_steps=self.progress_indicator.get_progress_steps(),
+        )
         return context
 
     def form_valid(self, form):
@@ -738,6 +816,8 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/confirm_details.html"
     form_class = leaver_forms.LeaverConfirmationForm
     success_url = reverse_lazy("leaver-request-received")
+
+    progress_indicator = LeaverProgressIndicator("confirmation")
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
@@ -784,6 +864,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         user_email = cast(str, user.email)
 
         context.update(
+            progress_steps=self.progress_indicator.get_progress_steps(),
             has_dse=self.leaver_info.has_dse,
             cirrus_assets=self.leaver_info.cirrus_assets,
             dse_assets=self.leaver_info.dse_assets,

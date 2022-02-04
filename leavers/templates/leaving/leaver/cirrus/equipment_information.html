@@ -2,6 +2,11 @@
 {% load static crispy_forms_tags %}
 
 {% block content %}
+
+    <a href="{% url 'leaver-return-options' %}" class="govuk-back-link">Back</a>
+
+    {% include "leaving/progress_indicator.html" with steps=progress_steps %}
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {% include "includes/govt_error_summary.html" with errors=errors %}

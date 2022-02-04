@@ -1,0 +1,92 @@
+
+@include govuk-media-query($until: tablet) {
+    .progress-indicator-wrapper {
+        .progress-step{
+            p {
+                color: govuk-colour("mid-grey");
+            }
+
+            &.is-active {
+                p {
+                    color: govuk-colour("green");
+                }
+            }
+
+            .progress-step-number {
+                display: none;
+            }
+        } 
+    }
+}
+@include govuk-media-query($from: tablet) {
+    .progress-indicator-wrapper {
+        max-width: 1200px;
+        margin: 0;
+        // margin: 0 auto;
+        padding: 0 50px 50px 50px;
+        
+        .progress-indicator {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+
+            .progress-step {
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+                position: relative;
+                z-index: 1;
+
+                &.is-active,
+                &.is-complete {
+                    .progress-step-number {
+                        background: govuk-colour("green");
+                    }
+                    p {
+                        color: govuk-colour("green");
+                    }
+                }
+
+                p {
+                    text-align: center;
+                    position: absolute;
+                    width: 150px;
+                    top: 55px;
+                    color: govuk-colour("mid-grey");
+                    font-size: 14px;
+                    font-weight: bold;
+                    a {
+                        text-decoration: none;
+                    }
+                }
+
+                .progress-step-number {
+                    height: 50px;
+                    width: 50px;
+                    margin: 0;
+                    padding: 0;
+                    border-radius: 50%;
+                    background: govuk-colour("mid-grey");
+                    text-align: center;
+                    color: govuk-colour("white");
+                    position: relative;
+                    line-height: 50px;
+                    display: default;
+                }
+            }
+
+            .progress-step-line {
+                width: 100%;
+                height: 10px;
+                background: govuk-colour("mid-grey");
+                flex: 1;
+                
+                &.is-active,
+                &.is-complete {
+                    background: govuk-colour("green");
+                }
+            }
+        }
+    }
+}
