@@ -4734,6 +4734,10 @@
   @media (min-width: 40.0625em) {
     .govuk-\!-width-one-quarter {
       width: 25% !important; } }
+@media only screen and (max-width: 790px) {
+  .progress-indicator-wrapper .progress-indicator .progress-step p {
+    width: 100px !important; } }
+
 @media (max-width: 40.0525em) {
   .progress-indicator-wrapper .progress-step p {
     color: #b1b4b6; }

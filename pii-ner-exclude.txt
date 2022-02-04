@@ -3,6 +3,8 @@
 " Line Manager
 " Store Extra
 " Store the Correction
+@media
+100px
 activity_stream.activitystreamstaffssouser
 Annual Leave
 Annual Leave: "

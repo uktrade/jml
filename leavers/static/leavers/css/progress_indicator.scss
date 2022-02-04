@@ -1,4 +1,10 @@
 
+@media only screen and (max-width: 790px) {
+    .progress-indicator-wrapper .progress-indicator .progress-step p {
+        width: 100px !important;
+    }
+}
+
 @include govuk-media-query($until: tablet) {
     .progress-indicator-wrapper {
         .progress-step{
@@ -18,6 +24,7 @@
         } 
     }
 }
+
 @include govuk-media-query($from: tablet) {
     .progress-indicator-wrapper {
         max-width: 1200px;
