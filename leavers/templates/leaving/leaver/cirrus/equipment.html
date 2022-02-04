@@ -1,9 +1,11 @@
 {% extends "leaving/leaving_base.html" %}
-{% load static %}
+{% load static crispy_forms_tags crispy_forms_gds %}
 
 {% block content %}
 
     <a href="{% url 'leaver-display-screen-equipment' %}" class="govuk-back-link">Back</a>
+
+    {% error_summary correction_form %}
 
     {% include "leaving/progress_indicator.html" with steps=progress_steps %}
 
@@ -64,10 +66,7 @@
             <form novalidate method='post'>
                 {% csrf_token %}
                 <input type="hidden" name="form_name" value="correction_form">
-                <h3 class="govuk-heading-s">Is this information correct?</h3>
-                {% include "includes/govt_uk_form.html" with form=correction_form %}
-                <p class="govuk-body">If you have made any changes, Service Now may contact you to confirm.</p>
-                <input type="submit" value="Submit" class="govuk-button" data-module="govuk-button"/>
+                {% crispy correction_form %}
             </form>
         </div>
     </div>

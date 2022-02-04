@@ -1,9 +1,11 @@
 {% extends "leaving/leaving_base.html" %}
-{% load static crispy_forms_tags %}
+{% load static crispy_forms_tags crispy_forms_gds %}
 
 {% block content %}
 
     <a href="{% url 'leaver-return-options' %}" class="govuk-back-link">Back</a>
+
+    {% error_summary form %}
 
     {% include "leaving/progress_indicator.html" with steps=progress_steps %}
 
