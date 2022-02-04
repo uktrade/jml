@@ -29,7 +29,7 @@ from leavers import types
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation, LeavingRequest
-from leavers.utils import update_or_create_leaving_request  # /PS-IGNORE
+from leavers.utils import update_or_create_leaving_request
 from user.models import User
 
 MANAGER_SEARCH_PARAM = "manager_id"
@@ -298,22 +298,39 @@ class LeaverInformationMixin:
         leaver_info.leaving_date = leaving_date
         leaver_info.save(update_fields=["leaving_date"])
 
+    def store_display_screen_equipment(
+        self,
+        email: str,
+        requester: User,
+        dse_assets: List[types.DisplayScreenEquipmentAsset],
+    ) -> None:
+        """
+        Store DSE assets
+        """
+
+        leaver_info = self.get_leaver_information(email=email, requester=requester)
+        leaver_info.dse_assets = dse_assets
+        leaver_info.save(update_fields=["dse_assets"])
+
     def store_cirrus_kit_information(
         self,
         email: str,
         requester: User,
         information_is_correct: bool,
         additional_information: str,
+        cirrus_assets: List[types.CirrusAsset],
     ) -> None:
         """
         Store the Correction information
         """
 
         leaver_info = self.get_leaver_information(email=email, requester=requester)
+        leaver_info.cirrus_assets = cirrus_assets
         leaver_info.information_is_correct = information_is_correct
         leaver_info.additional_information = additional_information
         leaver_info.save(
             update_fields=[
+                "cirrus_assets",
                 "information_is_correct",
                 "additional_information",
             ]
@@ -377,10 +394,10 @@ class LeaverInformationMixin:
         )
 
 
-class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
+class ConfirmDetailsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/confirm_details.html"
     form_class = leaver_forms.LeaverConfirmationForm
-    success_url = reverse_lazy("leaver-cirrus-kit")
+    success_url = reverse_lazy("leaver-cirrus-equipment")
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
@@ -477,18 +494,19 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):  # /PS-IGNORE
         leaver_details = self.get_leaver_details_with_updates(
             email=user_email, requester=user
         )
+        leaver_details.update(
+            **self.get_leaver_extra_details(email=user_email, requester=user)
+        )
         update_form = leaver_forms.LeaverUpdateForm(data=leaver_details)
         if update_form.is_valid():
             return super().form_valid(form)
-        print("CAM WAS HERE")
-        print(update_form.errors)
         return self.form_invalid(form)
 
 
 class UpdateDetailsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/update_details.html"
     form_class = leaver_forms.LeaverUpdateForm
-    success_url = reverse_lazy("leaver-cirrus-kit")
+    success_url = reverse_lazy("leaver-display-screen-equipment")
 
     def get_initial(self) -> Dict[str, Any]:
         user = cast(User, self.request.user)
@@ -547,41 +565,120 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
 
 
 @login_required
-def delete_cirrus_kit(request: HttpRequest, kit_uuid: uuid.UUID):
-    if "assets" in request.session:
-        for asset in request.session["assets"]:
+def delete_dse_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
+    if "dse_assets" in request.session:
+        for asset in request.session["dse_assets"]:
             if asset["uuid"] == str(kit_uuid):
-                request.session["assets"].remove(asset)
+                request.session["dse_assets"].remove(asset)
                 request.session.save()
                 break
-    return redirect("leaver-cirrus-kit")
+    return redirect("leaver-display-screen-equipment")
 
 
-class CirrusKitView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
+class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
     forms: Dict[str, Type[Form]] = {
-        "add_asset_form": leaver_forms.AddAssetForm,
+        "add_asset_form": leaver_forms.AddDisplayScreenEquipmentAssetForm,
+        "submission_form": leaver_forms.SubmissionForm,
+    }
+    template_name = "leaving/leaver/display_screen_equipment.html"
+    success_url = reverse_lazy("leaver-cirrus-equipment")
+
+    def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
+        session = request.session
+        if "dse_assets" not in session:
+            session["dse_assets"] = []
+
+        # Add asset to session
+        asset: types.DisplayScreenEquipmentAsset = {
+            "uuid": str(uuid.uuid4()),
+            "name": form.cleaned_data["asset_name"],
+        }
+        session["dse_assets"].append(asset)
+        session.save()
+
+        # Redirect to the GET method
+        return redirect("leaver-display-screen-equipment")
+
+    def post_submission_form(self, request: HttpRequest, form: Form, *args, **kwargs):
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
+        # Store dse assets into the leaver details
+        self.store_display_screen_equipment(
+            email=user_email,
+            requester=user,
+            dse_assets=request.session.get("dse_assets", []),
+        )
+
+        return redirect(self.success_url)
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        if "form_name" in request.POST:
+            form_name = request.POST["form_name"]
+            if form_name in self.forms:
+                form = self.forms[form_name](request.POST)
+                if form.is_valid():
+                    # Call the "post_{form_name}" method to handle the form POST logic.
+                    return getattr(self, f"post_{form_name}")(
+                        request, form, *args, **kwargs
+                    )
+                else:
+                    context[form_name] = form
+        return self.render_to_response(context)
+
+    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        if "dse_assets" not in request.session:
+            request.session["dse_assets"] = []
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Add form instances to the context.
+        for form_name, form_class in self.forms.items():
+            context[form_name] = form_class()
+        if "dse_assets" in self.request.session:
+            context["dse_assets"] = self.request.session["dse_assets"]
+        return context
+
+
+@login_required
+def delete_cirrus_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
+    if "cirrus_assets" in request.session:
+        for asset in request.session["cirrus_assets"]:
+            if asset["uuid"] == str(kit_uuid):
+                request.session["cirrus_assets"].remove(asset)
+                request.session.save()
+                break
+    return redirect("leaver-cirrus-equipment")
+
+
+class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
+    forms: Dict[str, Type[Form]] = {
+        "add_asset_form": leaver_forms.AddCirrusAssetForm,
         "correction_form": leaver_forms.CorrectionForm,
     }
-    template_name = "leaving/leaver/kit.html"
+    template_name = "leaving/leaver/cirrus/equipment.html"
     success_url = reverse_lazy("leaver-return-options")
 
     def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         session = request.session
-        if "assets" not in session:
-            session["assets"] = []
+        if "cirrus_assets" not in session:
+            session["cirrus_assets"] = []
 
         # Add asset to session
-        asset = {
+        asset: types.CirrusAsset = {
             "uuid": str(uuid.uuid4()),
             "sys_id": None,
             "tag": None,
             "name": form.cleaned_data["asset_name"],
         }
-        session["assets"].append(asset)
+        session["cirrus_assets"].append(asset)
         session.save()
 
         # Redirect to the GET method
-        return redirect("leaver-cirrus-kit")
+        return redirect("leaver-cirrus-equipment")
 
     def post_correction_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         user = cast(User, self.request.user)
@@ -595,7 +692,9 @@ class CirrusKitView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
             requester=user,
             information_is_correct=bool(form_data["is_correct"] == "yes"),
             additional_information=form_data["whats_incorrect"],
+            cirrus_assets=request.session.get("cirrus_assets", []),
         )
+
         return redirect(self.success_url)
 
     def post(self, request, *args, **kwargs):
@@ -617,9 +716,9 @@ class CirrusKitView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
 
-        if "assets" not in request.session:
+        if "cirrus_assets" not in request.session:
             service_now_interface = get_service_now_interface()
-            request.session["assets"] = [
+            request.session["cirrus_assets"] = [
                 {
                     "uuid": str(uuid.uuid4()),
                     "sys_id": asset["sys_id"],
@@ -636,13 +735,13 @@ class CirrusKitView(LeaverInformationMixin, TemplateView):  # /PS-IGNORE
         # Add form instances to the context.
         for form_name, form_class in self.forms.items():
             context[form_name] = form_class()
-        if "assets" in self.request.session:
-            context["assets"] = self.request.session["assets"]
+        if "cirrus_assets" in self.request.session:
+            context["cirrus_assets"] = self.request.session["cirrus_assets"]
         return context
 
 
-class EquipmentReturnOptionsView(LeaverInformationMixin, FormView):
-    template_name = "leaving/leaver/equipment_options.html"
+class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
+    template_name = "leaving/leaver/cirrus/equipment_options.html"
     form_class = leaver_forms.ReturnOptionForm
     success_url = reverse_lazy("leaver-return-information")
 
@@ -659,8 +758,8 @@ class EquipmentReturnOptionsView(LeaverInformationMixin, FormView):
         return super().form_valid(form)
 
 
-class EquipmentReturnInformationView(LeaverInformationMixin, FormView):
-    template_name = "leaving/leaver/equipment_information.html"
+class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
+    template_name = "leaving/leaver/cirrus/equipment_information.html"
     form_class = leaver_forms.ReturnInformationForm
     success_url = reverse_lazy("leaver-request-received")
 

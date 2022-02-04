@@ -28,7 +28,7 @@ STAFF_DOCUMENT: StaffDocument = {
     "people_finder_phone": "0123456789",
     "service_now_user_id": "",
     "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
-    "service_now_department_name": "Department of International Trade",  # /PS-IGNORE
+    "service_now_department_name": "Department of International Trade",
     "service_now_directorate_id": "",
     "service_now_directorate_name": "",
     "staff_sso_activity_stream_id": "1",
@@ -59,7 +59,7 @@ class TestLeaverInformationMixin(TestCase):
     def test_get_leaver_information_new(self, mock_get_search_results) -> None:
 
         LeaverInformationMixin().get_leaver_information(
-            email=self.leaver_email,  # /PS-IGNORE
+            email=self.leaver_email,
             requester=UserFactory(),
         )
 
@@ -176,7 +176,7 @@ class TestLeaverInformationMixin(TestCase):
         LeaverInformationMixin().store_leaver_detail_updates(
             email=self.leaver_email,
             requester=UserFactory(),
-            updates={},  # /PS-IGNORE
+            updates={},
         )
         self.assertEqual(
             models.LeaverInformation.objects.filter(
@@ -256,6 +256,7 @@ class TestLeaverInformationMixin(TestCase):
         LeaverInformationMixin().store_cirrus_kit_information(
             email=self.leaver_email,
             requester=UserFactory(),
+            cirrus_assets=[],
             information_is_correct=False,
             additional_information="Test additional information",
         )
@@ -269,6 +270,7 @@ class TestLeaverInformationMixin(TestCase):
         LeaverInformationMixin().store_cirrus_kit_information(
             email=self.leaver_email,
             requester=UserFactory(),
+            cirrus_assets=[],
             information_is_correct=True,
             additional_information="",
         )
@@ -465,16 +467,16 @@ class TestConfirmDetailsView(TestCase):
             "last_name": "UpdatedLastName",  # /PS-IGNORE
             "staff_id": "Updated Staff ID",
             "contact_email_address": "new.personal.email@example.com",  # /PS-IGNORE
-            "security_clearance": "sc",
-            "locker_number": "LOCK123",
-            "has_gov_procurement_card": "yes",
-            "has_rosa_kit": "yes",
-            "has_dse": "yes",
         }
         factories.LeaverInformationFactory(
             leaver_email=self.leaver.email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
+            leaving_request__security_clearance="sc",
+            leaving_request__is_rosa_user=True,
+            leaving_request__holds_government_procurement_card=True,
             updates=updates,
+            locker_number="123",
+            has_dse=True,
         )
         self.client.force_login(self.leaver)
 
@@ -484,7 +486,7 @@ class TestConfirmDetailsView(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-kit"))
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
 
 
 @mock.patch(
@@ -619,7 +621,7 @@ class TestUpdateDetailsView(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-kit"))
+        self.assertEqual(response.url, reverse("leaver-display-screen-equipment"))
 
         leaver_updates_obj = models.LeaverInformation.objects.get(
             leaver_email=self.leaver.email,
@@ -638,8 +640,8 @@ class TestUpdateDetailsView(TestCase):
         )
 
 
-class TestCirrusKitView(TestCase):
-    view_name = "leaver-cirrus-kit"
+class TestCirrusEquipmentView(TestCase):
+    view_name = "leaver-cirrus-equipment"
 
     def test_unauthenticated_user(self) -> None:
         response = self.client.get(reverse(self.view_name))
@@ -656,8 +658,8 @@ class TestCirrusKitView(TestCase):
 
     def initiate_session(self) -> SessionBase:
         session = self.client.session
-        if "assets" not in self.client.session:
-            session["assets"] = []
+        if "cirrus_assets" not in self.client.session:
+            session["cirrus_assets"] = []
             session.save()
         return session
 
@@ -665,7 +667,7 @@ class TestCirrusKitView(TestCase):
         session = self.initiate_session()
 
         asset_uuid = uuid.uuid4()
-        session["assets"].append(
+        session["cirrus_assets"].append(
             {
                 "uuid": str(asset_uuid),
                 "tag": asset_tag,
@@ -707,8 +709,8 @@ class TestCirrusKitView(TestCase):
         response = self.client.get(reverse(self.view_name))
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["assets"][0]["name"], "Asset 1")
-        self.assertEqual(response.context["assets"][0]["tag"], "1")
+        self.assertEqual(response.context["cirrus_assets"][0]["name"], "Asset 1")
+        self.assertEqual(response.context["cirrus_assets"][0]["tag"], "1")
 
     def test_post_no_form_name(self) -> None:
         user = UserFactory()
@@ -735,7 +737,7 @@ class TestCirrusKitView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse(self.view_name))
 
-        session_assets = response.client.session["assets"]
+        session_assets = response.client.session["cirrus_assets"]
         self.assertEqual(len(session_assets), 1)
 
     @mock.patch(
@@ -761,13 +763,121 @@ class TestCirrusKitView(TestCase):
         mock_store_cirrus_kit_information.assert_called_once_with(
             email=user.email,
             requester=user,
+            cirrus_assets=[],
             information_is_correct=True,
             additional_information="Some additional information",
         )
 
 
-class TestDeleteCirrusKitView(TestCase):
-    view_name = "leaver-cirrus-kit-delete"
+class TestDisplayScreenEquipmentView(TestCase):
+    view_name = "leaver-display-screen-equipment"
+
+    def test_unauthenticated_user(self) -> None:
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_authenticated_user(self) -> None:
+        user = UserFactory()
+        self.client.force_login(user)
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 200)
+
+    def initiate_session(self) -> SessionBase:
+        session = self.client.session
+        if "dse_assets" not in self.client.session:
+            session["dse_assets"] = []
+            session.save()
+        return session
+
+    def add_kit_to_session(self, asset_name: str) -> uuid.UUID:
+        session = self.initiate_session()
+
+        asset_uuid = uuid.uuid4()
+        session["dse_assets"].append(
+            {
+                "uuid": str(asset_uuid),
+                "name": asset_name,
+            }
+        )
+        session.save()
+        return asset_uuid
+
+    @mock.patch("leavers.views.leaver.get_service_now_interface")
+    def test_with_assets_in_session(self, mock_get_service_now_interface) -> None:
+        mock_get_service_now_interface.get_assets_for_user.return_value = []
+
+        user = UserFactory()
+        self.client.force_login(user)
+
+        self.add_kit_to_session("Test Asset 1")
+        self.add_kit_to_session("Test Asset 2")
+        self.add_kit_to_session("Test Asset 3")
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Test Asset 1")
+        self.assertContains(response, "Test Asset 2")
+        self.assertContains(response, "Test Asset 3")
+
+    def test_post_no_form_name(self) -> None:
+        user = UserFactory()
+        self.client.force_login(user)
+
+        with self.assertNumQueries(4):
+            response = self.client.post(reverse(self.view_name), {})
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_add_asset_form(self) -> None:
+        user = UserFactory()
+        self.client.force_login(user)
+
+        with self.assertNumQueries(8):
+            response = self.client.post(
+                reverse(self.view_name),
+                {
+                    "form_name": "add_asset_form",
+                    "asset_name": "Test Asset",
+                },
+            )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse(self.view_name))
+
+        session_assets = response.client.session["dse_assets"]
+        self.assertEqual(len(session_assets), 1)
+
+    @mock.patch(
+        "leavers.views.leaver.LeaverInformationMixin.store_display_screen_equipment"
+    )
+    def test_post_submission_form(self, mock_store_display_screen_equipment) -> None:
+        user = UserFactory()
+        self.client.force_login(user)
+
+        with self.assertNumQueries(2):
+            response = self.client.post(
+                reverse(self.view_name),
+                {
+                    "form_name": "submission_form",
+                },
+            )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
+
+        mock_store_display_screen_equipment.assert_called_once_with(
+            email=user.email,
+            requester=user,
+            dse_assets=[],
+        )
+
+
+class TestDeleteCirrusEquipmentView(TestCase):
+    view_name = "leaver-cirrus-equipment-delete"
 
     def test_unauthenticated_user(self) -> None:
         response = self.client.get(reverse(self.view_name, args=[str(uuid.uuid4())]))
@@ -781,12 +891,12 @@ class TestDeleteCirrusKitView(TestCase):
         response = self.client.get(reverse(self.view_name, args=[str(uuid.uuid4())]))
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-kit"))
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
 
     def initiate_session(self) -> SessionBase:
         session = self.client.session
-        if "assets" not in self.client.session:
-            session["assets"] = []
+        if "cirrus_assets" not in self.client.session:
+            session["cirrus_assets"] = []
             session.save()
         return session
 
@@ -794,7 +904,7 @@ class TestDeleteCirrusKitView(TestCase):
         session = self.initiate_session()
 
         asset_uuid = uuid.uuid4()
-        session["assets"].append(
+        session["cirrus_assets"].append(
             {
                 "uuid": str(asset_uuid),
                 "tag": asset_tag,
@@ -812,10 +922,10 @@ class TestDeleteCirrusKitView(TestCase):
 
         response = self.client.get(reverse(self.view_name, args=[str(asset_uuid)]))
         session = response.client.session
-        session_assets = session["assets"]
+        session_assets = session["cirrus_assets"]
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-kit"))
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
         self.assertEqual(len(session_assets), 0)
 
     def test_invalid_uuid(self) -> None:
@@ -826,15 +936,15 @@ class TestDeleteCirrusKitView(TestCase):
 
         response = self.client.get(reverse(self.view_name, args=[str(uuid.uuid4())]))
         session = response.client.session
-        session_assets = session["assets"]
+        session_assets = session["cirrus_assets"]
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-kit"))
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
         self.assertEqual(len(session_assets), 1)
         self.assertEqual(session_assets[0]["uuid"], str(asset_uuid))
 
 
-class TestEquipmentReturnOptionsView(TestCase):
+class TestCirrusEquipmentReturnOptionsView(TestCase):
     view_name = "leaver-return-options"
 
     def test_unauthenticated_user(self) -> None:
@@ -904,7 +1014,7 @@ class TestEquipmentReturnOptionsView(TestCase):
         )
 
 
-class TestEquipmentReturnInformationView(TestCase):
+class TestCirrusEquipmentReturnInformationView(TestCase):
     view_name = "leaver-return-information"
 
     def setUp(self) -> None:
@@ -988,7 +1098,7 @@ class TestEquipmentReturnInformationView(TestCase):
             requester=self.leaver,
             personal_phone="0123123123",  # /PS-IGNORE
             contact_email="joe.bloggs@example.com",  # /PS-IGNORE
-            address={  # /PS-IGNORE
+            address={
                 "building_and_street": "Example Building name",  # /PS-IGNORE
                 "city": "Bristol",
                 "county": "Bristol",

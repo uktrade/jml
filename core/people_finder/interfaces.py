@@ -29,12 +29,12 @@ class PeopleFinderStubbed(PeopleFinderBase):
         return [
             {
                 "first_name": "Joe",  # /PS-IGNORE
-                "last_name": "Bloggs",  # /PS-IGNORE
+                "last_name": "Bloggs",
                 "image": "",
                 "job_title": "Job title",
                 "directorate": "Directorate name",
                 "email": "joe.bloggs@example.com",  # /PS-IGNORE
-                "phone": "0123456789",  # /PS-IGNORE
+                "phone": "0123456789",
                 "grade": "Example Grade",
                 "image": "",
             },

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import Group
 from django.test.testcases import TestCase
 
-from leavers.factories import LeavingRequestFactory  # /PS-IGNORE
+from leavers.factories import LeavingRequestFactory
 from leavers.models import TaskLog
 from leavers.tests.views.include import ViewAccessTest
 
@@ -11,7 +11,7 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
     allowed_methods = ["get", "post", "put"]
 
     def setUp(self):
-        super().setUp()  # /PS-IGNORE
+        super().setUp()
         # Create Leaving Request
         self.leaving_request = LeavingRequestFactory()
         # Add the Security Team User Group (and add the authenticated user to it)  /PS-IGNORE
@@ -44,9 +44,7 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
         )
 
         # Check the task logs are created
-        user_task_logs = TaskLog.objects.filter(
-            user=self.authenticated_user  # /PS-IGNORE
-        )
+        user_task_logs = TaskLog.objects.filter(user=self.authenticated_user)
         self.assertTrue(user_task_logs.exists())
         self.assertTrue(
             user_task_logs.filter(task_name="Building access removed").exists()
@@ -59,7 +57,7 @@ class TestThankYouView(ViewAccessTest, TestCase):
     allowed_methods = ["get"]
 
     def setUp(self):
-        super().setUp()  # /PS-IGNORE
+        super().setUp()
         # Create Leaving Request (with initial Slack message)
         self.leaving_request = LeavingRequestFactory()
         # Add the Security Team User Group (and add the authenticated user to it)  /PS-IGNORE

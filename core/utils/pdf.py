@@ -1,10 +1,10 @@
 from typing import Dict, List, Optional, TypedDict, cast
 
 from PyPDF2 import PdfFileReader
-from PyPDF2.pdf import PageObject  # /PS-IGNORE
+from PyPDF2.pdf import PageObject
 
-ParsedUKSBSPDF = TypedDict(  # /PS-IGNORE
-    "ParsedUKSBSPDF",  # /PS-IGNORE
+ParsedUKSBSPDF = TypedDict(
+    "ParsedUKSBSPDF",
     {
         "Line Manager": str,
         "Line Manager's Email": str,
@@ -18,7 +18,7 @@ ParsedUKSBSPDF = TypedDict(  # /PS-IGNORE
         "Paid or Unpaid?": str,
         "Reason for Leaving": str,
         "Last Day of Employment": str,
-        "Unit of Measurement": str,  # /PS-IGNORE
+        "Unit of Measurement": str,
         "Paid or Deducted?": str,
         "Number of Days to be Paid": str,
         "Number of Hours to be Paid": str,
@@ -49,7 +49,7 @@ def get_table_data(
             next_label = labels[index + 1]
             next_label_index = row_value.find(next_label)
             row_value = row_value[:next_label_index]
-        except IndexError:  # /PS-IGNORE
+        except IndexError:
             pass
 
         table_data[label] = row_value.strip()
@@ -61,7 +61,7 @@ def get_pdf_page_text(*, filename: str, page_index: int) -> str:
     """
     Gets the text from a PDF page
     """
-    pdf = PdfFileReader(open(filename, "rb"))  # /PS-IGNORE
+    pdf = PdfFileReader(open(filename, "rb"))
     page: PageObject = pdf.getPage(page_index)
     return page.extractText()
 
@@ -87,9 +87,9 @@ def parse_leaver_pdf(*, filename: str) -> ParsedUKSBSPDF:
         "Last Day of Employment",
     ]
 
-    annual_leave_title = "Annual Leave"  # /PS-IGNORE
+    annual_leave_title = "Annual Leave"
     annual_leave_labels = [
-        "Unit of Measurement",  # /PS-IGNORE
+        "Unit of Measurement",
         "Paid or Deducted?",
         "Number of Days to be Paid",
         "Number of Hours to be Paid",
@@ -99,7 +99,7 @@ def parse_leaver_pdf(*, filename: str) -> ParsedUKSBSPDF:
 
     pdf_text = get_pdf_page_text(filename=filename, page_index=0)
 
-    user_who_completed_values = get_table_data(  # /PS-IGNORE
+    user_who_completed_values = get_table_data(
         pdf_text=pdf_text,
         title=user_who_completed_title,
         labels=user_who_completed_labels,
@@ -118,8 +118,7 @@ def parse_leaver_pdf(*, filename: str) -> ParsedUKSBSPDF:
         title=annual_leave_title,
         labels=annual_leave_labels,
         cut_off_text=(
-            "The Leaver does not have Flexi Impacting Pay to be "  # /PS-IGNORE
-            "paid/deducted."
+            "The Leaver does not have Flexi Impacting Pay to be paid/deducted."
         ),
     )
 

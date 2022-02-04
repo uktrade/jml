@@ -23,7 +23,7 @@ from core.utils.staff_index import (
 )
 from leavers.forms import leaver as leaver_forms
 from leavers.models import LeavingRequest
-from leavers.utils import update_or_create_leaving_request  # /PS-IGNORE
+from leavers.utils import update_or_create_leaving_request
 from user.models import User
 
 LEAVER_SEARCH_PARAM = "leaver_uuid"

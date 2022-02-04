@@ -56,7 +56,7 @@ services:
     environment:
       - "discovery.type=single-node"
       - "bootstrap.memory_lock=true"
-      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"  # /PS-IGNORE
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
       - "DISABLE_INSTALL_DEMO_CONFIG=true" 
       - "DISABLE_SECURITY_PLUGIN=true"
 

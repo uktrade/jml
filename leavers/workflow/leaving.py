@@ -1,6 +1,6 @@
 from django_workflow_engine import Step, Workflow
 
-from leavers.workflow.tasks import BasicTask  # noqa F401  # /PS-IGNORE
+from leavers.workflow.tasks import BasicTask  # noqa F401
 
 LeaversWorkflow = Workflow(
     name="leaving",

@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, cast
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import UploadedFile
-from django.http import HttpResponseForbidden  # /PS-IGNORE
+from django.http import HttpResponseForbidden
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
@@ -76,7 +76,7 @@ class DataRecipientSearchView(LineManagerViewMixin, StaffSearchView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class StartView(LineManagerViewMixin, TemplateView):  # /PS-IGNORE
+class StartView(LineManagerViewMixin, TemplateView):
     template_name = "leaving/line_manager/start.html"
 
     def dispatch(self, request, *args, **kwargs):

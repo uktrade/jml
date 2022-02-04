@@ -1,5 +1,5 @@
 from datetime import date
-from typing import TypedDict
+from typing import Optional, TypedDict
 
 
 class LeaverDetails(TypedDict):
@@ -22,3 +22,15 @@ class LeaverDetailUpdates(TypedDict, total=False):
     job_title: str
     directorate: str
     staff_id: str
+
+
+class DisplayScreenEquipmentAsset(TypedDict):
+    uuid: str
+    name: str
+
+
+class CirrusAsset(TypedDict):
+    uuid: str
+    sys_id: Optional[str]
+    tag: Optional[str]
+    name: str

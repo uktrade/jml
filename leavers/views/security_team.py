@@ -20,7 +20,7 @@ class TaskConfirmationView(
 
     def test_func(self):
         return self.request.user.groups.filter(
-            name="Security Team",  # /PS-IGNORE
+            name="Security Team",
         ).first()
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -31,7 +31,7 @@ class TaskConfirmationView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
-        assert self.leaving_request  # /PS-IGNORE
+        assert self.leaving_request
         return reverse_lazy("security-team-thank-you", args=[self.leaving_request.uuid])
 
     def get_context_data(self, **kwargs):
@@ -50,7 +50,7 @@ class TaskConfirmationView(
             ],
             "rosa_access_revoked": [
                 "rosa_access_revoked",
-                "ROSA access removed",  # /PS-IGNORE
+                "ROSA access removed",
             ],
         }
 
@@ -73,7 +73,7 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
 
     def test_func(self):
         return self.request.user.groups.filter(
-            name="Security Team",  # /PS-IGNORE
+            name="Security Team",
         ).first()
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:

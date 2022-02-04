@@ -39,7 +39,9 @@ class LeaverUpdateForm(GovFormattedForm):
     # Extra information
     security_clearance = forms.ChoiceField(
         label="Security clearance type",
-        choices=[(None, "Select security clearance type")] + SecurityClearance.choices,
+        choices=(
+            [(None, "Select security clearance type")] + SecurityClearance.choices  # type: ignore
+        ),
     )
     locker_number = forms.CharField(label="Locker number")
     has_gov_procurement_card = YesNoField(
@@ -160,7 +162,11 @@ class ReturnInformationForm(GovFormattedForm):
                 self.fields[field_name].widget = forms.HiddenInput()
 
 
-class AddAssetForm(GovFormattedForm):
+class AddCirrusAssetForm(GovFormattedForm):
+    asset_name = forms.CharField(label="Add asset")
+
+
+class AddDisplayScreenEquipmentAssetForm(GovFormattedForm):
     asset_name = forms.CharField(label="Add asset")
 
 
@@ -174,3 +180,7 @@ class CorrectionForm(GovFormattedForm):
         widget=forms.Textarea(),
         max_length=1000,
     )
+
+
+class SubmissionForm(GovFormattedForm):
+    pass

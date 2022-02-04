@@ -32,7 +32,7 @@ class TaskConfirmationView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
-        assert self.leaving_request  # /PS-IGNORE
+        assert self.leaving_request
         return reverse_lazy("sre-thank-you", args=[self.leaving_request.uuid])
 
     def get_context_data(self, **kwargs):

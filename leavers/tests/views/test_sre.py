@@ -3,7 +3,7 @@ from unittest import mock
 from django.contrib.auth.models import Group
 from django.test.testcases import TestCase
 
-from leavers.factories import LeavingRequestFactory, SlackMessageFactory  # /PS-IGNORE
+from leavers.factories import LeavingRequestFactory, SlackMessageFactory
 from leavers.models import TaskLog
 from leavers.tests.views.include import ViewAccessTest
 
@@ -13,7 +13,7 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
     allowed_methods = ["get", "post", "put"]
 
     def setUp(self):
-        super().setUp()  # /PS-IGNORE
+        super().setUp()
         # Create Leaving Request (with initial Slack message)
         self.leaving_request = LeavingRequestFactory()
         SlackMessageFactory(leaving_request=self.leaving_request)
@@ -57,9 +57,7 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
         mock_send_sre_complete_message.assert_called_once()
 
         # Check the task logs are created
-        user_task_logs = TaskLog.objects.filter(
-            user=self.authenticated_user  # /PS-IGNORE
-        )
+        user_task_logs = TaskLog.objects.filter(user=self.authenticated_user)
         self.assertTrue(user_task_logs.exists())
         self.assertTrue(
             user_task_logs.filter(
@@ -88,7 +86,7 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
         )
         self.assertTrue(
             user_task_logs.filter(
-                task_name="SSO access removed",  # /PS-IGNORE
+                task_name="SSO access removed",
             ).exists()
         )
         self.assertTrue(
@@ -108,7 +106,7 @@ class TestThankYouView(ViewAccessTest, TestCase):
     allowed_methods = ["get"]
 
     def setUp(self):
-        super().setUp()  # /PS-IGNORE
+        super().setUp()
         # Create Leaving Request (with initial Slack message)
         self.leaving_request = LeavingRequestFactory()
         SlackMessageFactory(leaving_request=self.leaving_request)

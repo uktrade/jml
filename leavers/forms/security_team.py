@@ -7,7 +7,7 @@ from core.forms import GovFormattedForm
 
 class SecurityTeamConfirmCompleteForm(GovFormattedForm):
     building_pass_access_revoked = forms.BooleanField(
-        label="Building Pass Access Revoked",  # /PS-IGNORE
+        label="Building Pass Access Revoked",
         required=True,
     )
     rosa_access_revoked = forms.BooleanField(
@@ -18,8 +18,8 @@ class SecurityTeamConfirmCompleteForm(GovFormattedForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         required_message_replacement: Dict[str, str] = {
-            "building_pass_access_revoked": "Building Pass Access Revoked",  # /PS-IGNORE
-            "rosa_access_revoked": "ROSA Access Revoked",  # /PS-IGNORE
+            "building_pass_access_revoked": "Building Pass Access Revoked",
+            "rosa_access_revoked": "ROSA Access Revoked",
         }
         for field_name, field in self.fields.items():
             if field_name in required_message_replacement:
