@@ -4734,6 +4734,14 @@
   @media (min-width: 40.0625em) {
     .govuk-\!-width-one-quarter {
       width: 25% !important; } }
+.pagination ul {
+  list-style: none;
+  display: flex;
+  justify-content: center; }
+  .pagination ul li {
+    margin-right: 10px;
+    margin-bottom: 10px; }
+
 @media (max-width: 40.0525em) {
   .progress-indicator-wrapper {
     padding: 0 50px 75px 50px; }

@@ -1,0 +1,7 @@
+{% extends "leaving/leaving_base.html" %}
+
+{% block content %}
+    <h1 class="govuk-heading-l">SRE access removal</h1>
+    <p class="govuk-body">Select the leaver to confirm removal of their access from tools and services.</p>
+    {% include "leaving/sre/includes/leaving_request_table.html" with object_type_name=object_type_name page=page pagination_pages=pagination_pages %}
+{% endblock %}

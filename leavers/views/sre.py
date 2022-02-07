@@ -1,4 +1,7 @@
+from typing import Any, Dict, List
+
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.paginator import Paginator
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -11,11 +14,75 @@ from leavers.forms import sre as sre_forms
 from leavers.models import LeavingRequest, TaskLog
 
 
+class LeavingRequestListing(
+    UserPassesTestMixin,
+    TemplateView,
+):
+    template_name = "leaving/sre/listing.html"
+
+    show_complete: bool = False
+    show_incomplete: bool = False
+
+    def __init__(
+        self,
+        show_complete: bool = False,
+        show_incomplete: bool = False,
+    ) -> None:
+        super().__init__()
+        self.show_complete = show_complete
+        self.show_incomplete = show_incomplete
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="SRE",
+        ).first()
+
+    def get_leaving_requests(self) -> List[LeavingRequest]:
+        leaving_requests = LeavingRequest.objects.all()
+        if not self.show_complete:
+            leaving_requests = leaving_requests.exclude(sre_complete=True)
+        if not self.show_incomplete:
+            leaving_requests = leaving_requests.exclude(sre_complete=False)
+        return leaving_requests
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        object_type_name: str = "leaving requests"
+        if self.show_complete and not self.show_incomplete:
+            object_type_name: str = "complete leaving requests"
+        if self.show_incomplete and not self.show_complete:
+            object_type_name: str = "incomplete leaving requests"
+
+        context.update(
+            object_type_name=object_type_name,
+        )
+
+        leaving_requests = self.get_leaving_requests()
+
+        paginator = Paginator(leaving_requests, 20)
+        page_number: int = int(self.request.GET.get("page", 1))
+        page = paginator.page(page_number)
+
+        pagination_pages: List[int] = []
+
+        if page_number - 1 > 1:
+            pagination_pages.append(page_number - 1)
+
+        pagination_pages.append(page_number)
+
+        if page_number + 1 < paginator.num_pages:
+            pagination_pages.append(page_number + 1)
+
+        context.update(page=page, pagination_pages=pagination_pages)
+
+        return context
+
+
 class TaskConfirmationView(
     UserPassesTestMixin,
     FormView,
 ):
-    template_name = "leaving/task_form.html"
+    template_name = "leaving/sre/task_form.html"
     form_class = sre_forms.SREConfirmCompleteForm
     leaving_request = None
 
@@ -80,7 +147,7 @@ class TaskConfirmationView(
 
 
 class ThankYouView(UserPassesTestMixin, TemplateView):
-    template_name = "leaving/sre_thank_you.html"
+    template_name = "leaving/sre/thank_you.html"
 
     def test_func(self):
         return self.request.user.groups.filter(
