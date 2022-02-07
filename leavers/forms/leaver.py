@@ -1,9 +1,9 @@
 from enum import Enum
-from typing import List
+from typing import List, Literal
 
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Layout, Submit
+from crispy_forms_gds.layout import HTML, Field, Layout, Size, Submit
 from django import forms
 from django.db.models.enums import TextChoices
 
@@ -176,7 +176,7 @@ class AddDisplayScreenEquipmentAssetForm(GovFormattedForm):
 
 class CorrectionForm(GovFormattedForm):
     is_correct = YesNoField(
-        label="",
+        label="Is this information correct?",
     )
     whats_incorrect = forms.CharField(
         required=False,
@@ -184,6 +184,38 @@ class CorrectionForm(GovFormattedForm):
         widget=forms.Textarea(),
         max_length=1000,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.radios(
+                "is_correct",
+                legend_size=Size.MEDIUM,
+                inline=True,
+            ),
+            Field("whats_incorrect"),
+            HTML.p(
+                "If you have made any changes, Service Now may contact you to confirm."
+            ),
+            Submit("submit", "Submit"),
+        )
+
+    def clean_whats_incorrect(self) -> str:
+        is_correct: Literal["yes", "no"] = self.cleaned_data["is_correct"]
+        whats_incorrect: str = self.cleaned_data["whats_incorrect"]
+
+        if is_correct == "yes":
+            whats_incorrect = ""
+
+        elif is_correct == "no":
+            if not whats_incorrect:
+                raise forms.ValidationError(
+                    "Please tell us why the information is incorrect"
+                )
+
+        return whats_incorrect
 
 
 class SubmissionForm(GovFormattedForm):

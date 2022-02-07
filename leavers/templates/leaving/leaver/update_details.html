@@ -1,11 +1,15 @@
 {% extends "leaving/leaving_base.html" %}
-{% load static crispy_forms_tags %}
+{% load static crispy_forms_tags crispy_forms_gds %}
 
 {% block content %}
 
-    <a href="{% url 'who' %}" class="govuk-back-link">Back</a>
-
-    {% include "leaving/progress_indicator.html" with steps=progress_steps %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <a href="{% url 'who' %}" class="govuk-back-link">Back</a>
+            {% error_summary form %}
+            {% include "leaving/progress_indicator.html" with steps=progress_steps %}
+        </div>
+    </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">

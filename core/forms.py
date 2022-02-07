@@ -41,19 +41,11 @@ class GovFormattedForm(forms.Form):
                 widget.attrs.update({"class": "govuk-input"})
 
 
-class GovRadioSelect(forms.RadioSelect):
-    inline: bool = False
-
-
-class GovRadioSelectInline(GovRadioSelect):
-    inline: bool = True
-
-
 class YesNoField(forms.ChoiceField):
     def __init__(self, *args, **kwargs):
         kwargs["choices"] = (
             ("yes", "Yes"),
             ("no", "No"),
         )
-        kwargs["widget"] = GovRadioSelectInline
+        kwargs["widget"] = RadioSelect
         super().__init__(*args, **kwargs)
