@@ -4805,6 +4805,12 @@
         .progress-indicator-wrapper .progress-indicator .progress-step-line.is-active, .progress-indicator-wrapper .progress-indicator .progress-step-line.is-complete {
           background: #00703c; } }
 
+.sre-leaving-requests-table .complete {
+  color: #00703c; }
+
+.sre-leaving-requests-table .incomplete {
+  color: #d4351c; }
+
 .leaver-image {
   width: 100%;
   margin-bottom: 26px;

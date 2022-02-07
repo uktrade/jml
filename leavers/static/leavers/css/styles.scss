@@ -2,6 +2,7 @@ $govuk-page-width: 1800px;
 @import "./node_modules/govuk-frontend/govuk/all";
 @import "./leavers/static/leavers/css/pagination";
 @import "./leavers/static/leavers/css/progress_indicator";
+@import "./leavers/static/leavers/css/sre_leaving_requests_table";
 
 .leaver-image {
   width:100%;

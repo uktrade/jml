@@ -1,4 +1,4 @@
-<table class="govuk-table">
+<table class="govuk-table sre-leaving-requests-table">
     <caption class="govuk-table__caption govuk-table__caption--m">{{ object_type_name|capfirst }}</caption>
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
@@ -11,10 +11,16 @@
     <tbody class="govuk-table__body">
         {% for object in page.object_list %}
             <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header">{{ object }}</th>
-                <td class="govuk-table__cell">NA</td>
-                <td class="govuk-table__cell">NA</td>
-                <td class="govuk-table__cell">NA</td>
+                <th scope="row" class="govuk-table__header">{{ object.leaver_activitystream_user.first_name }} {{ object.leaver_activitystream_user.last_name }}</th>
+                <td class="govuk-table__cell">{{ object.leaver_email }}</td>
+                <td class="govuk-table__cell">{{ object.last_day }}</td>
+                <td class="govuk-table__cell">
+                    {% if object.sre_complete %}
+                        <span class="complete">Complete</span>
+                    {% else %}
+                        <span class="incomplete">Incomplete</span>
+                    {% endif %}
+                </td>
             </tr>
         {% endfor %}
     </tbody>
