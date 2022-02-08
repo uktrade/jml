@@ -1,8 +1,8 @@
 from typing import Any, Dict, List
 
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
-from django.db.models import Q
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -48,15 +48,18 @@ class LeavingRequestListing(
         if not self.show_incomplete:
             leaving_requests = leaving_requests.exclude(sre_complete=False)
 
-        # Search (needs improvement, opensearch?)
+        # Search
         if self.query:
-            leaving_requests = leaving_requests.filter(
-                Q(leaver_first_name__contains=self.query)
-                | Q(leaver_last_name__contains=self.query)
-                | Q(leaver_activitystream_user__first_name__contains=self.query)
-                | Q(leaver_activitystream_user__last_name__contains=self.query)
-                | Q(leaver_activitystream_user__email_address__contains=self.query)
+            leaving_requests = leaving_requests.annotate(
+                search=SearchVector(
+                    "leaver_first_name",
+                    "leaver_last_name",
+                    "leaver_activitystream_user__first_name",
+                    "leaver_activitystream_user__last_name",
+                    "leaver_activitystream_user__email_address",
+                )
             )
+            leaving_requests = leaving_requests.filter(search=self.query)
 
         # Return filtered and searched leaving requests
         return leaving_requests

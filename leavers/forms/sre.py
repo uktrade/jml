@@ -8,7 +8,7 @@ from core.forms import GovFormattedForm
 
 
 class SRESearchForm(GovFormattedForm):
-    query = forms.CharField(label="Search")
+    query = forms.CharField(label="Search", required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
