@@ -1,21 +1,24 @@
 from typing import Dict
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Layout, Size, Submit
+from crispy_forms_gds.layout import Field, Fluid, Layout, Submit
 from django import forms
 
 from core.forms import GovFormattedForm
 
 
 class SRESearchForm(GovFormattedForm):
-    query = forms.CharField(label="Search", required=False)
+    query = forms.CharField(
+        label="",
+        help_text="Search leaver by name or email",
+        required=False,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.label_size = Size.SMALL
         self.helper.layout = Layout(
-            Field.text("query"),
+            Field.text("query", field_width=Fluid.ONE_QUARTER),
             Submit("submit", "Search"),
         )
 
