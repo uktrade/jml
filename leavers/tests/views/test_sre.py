@@ -8,6 +8,28 @@ from leavers.models import TaskLog
 from leavers.tests.views.include import ViewAccessTest
 
 
+class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
+    view_name = "sre-listing-incomplete"
+    allowed_methods = ["get", "post", "put"]
+
+    def setUp(self):
+        super().setUp()
+        # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE
+        sre_group, _ = Group.objects.get_or_create(name="SRE")
+        self.authenticated_user.groups.add(sre_group.id)
+
+
+class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
+    view_name = "sre-listing-complete"
+    allowed_methods = ["get", "post", "put"]
+
+    def setUp(self):
+        super().setUp()
+        # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE
+        sre_group, _ = Group.objects.get_or_create(name="SRE")
+        self.authenticated_user.groups.add(sre_group.id)
+
+
 class TestTaskConfirmationView(ViewAccessTest, TestCase):
     view_name = "sre-confirmation"
     allowed_methods = ["get", "post", "put"]
