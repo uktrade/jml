@@ -1,7 +1,15 @@
 {% extends "leaving/leaving_base.html" %}
+{% load crispy_forms_tags crispy_forms_gds %}
 
 {% block content %}
+    {% error_summary form %}
+    
     <h1 class="govuk-heading-l">SRE access removal</h1>
     <p class="govuk-body">Select the leaver to confirm removal of their access from tools and services.</p>
+    
+    <form action="" method="post">
+        {% crispy form %}
+    </form>
+
     {% include "leaving/sre/includes/leaving_request_table.html" with object_type_name=object_type_name page=page pagination_pages=pagination_pages %}
 {% endblock %}
