@@ -59,6 +59,22 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
         )
         self.assertContains(response, '<nav class="pagination')
 
+    def test_search(self) -> None:
+        LeavingRequestFactory.create_batch(50)
+        LeavingRequestFactory(
+            leaver_first_name="Joe",
+            leaver_last_name="Bloggs",
+        )
+
+        self.client.force_login(self.authenticated_user)
+        response = self.client.post(self.get_url(), {"query": "Joe Bloggs"})
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, "Joe")
+        self.assertContains(response, "Bloggs")
+        self.assertContains(response, "Incomplete")
+
 
 class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
     view_name = "sre-listing-complete"
@@ -110,6 +126,23 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
             "Showing <b>21</b> to <b>40</b> of <b>50</b> complete leaving requests",
         )
         self.assertContains(response, '<nav class="pagination')
+
+    def test_search(self) -> None:
+        LeavingRequestFactory.create_batch(50, sre_complete=True)
+        LeavingRequestFactory(
+            sre_complete=True,
+            leaver_first_name="Joe",
+            leaver_last_name="Bloggs",
+        )
+
+        self.client.force_login(self.authenticated_user)
+        response = self.client.post(self.get_url(), {"query": "Joe Bloggs"})
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, "Joe")
+        self.assertContains(response, "Bloggs")
+        self.assertContains(response, "Complete")
 
 
 class TestTaskConfirmationView(ViewAccessTest, TestCase):
