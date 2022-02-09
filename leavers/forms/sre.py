@@ -1,7 +1,7 @@
 from typing import Dict
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Fluid, Layout, Submit
+from crispy_forms_gds.layout import HTML, Field, Fluid, Layout, Submit
 from django import forms
 
 from core.forms import GovFormattedForm
@@ -80,6 +80,10 @@ class SREConfirmCompleteForm(GovFormattedForm):
             Field.checkbox("sso"),
             Field.checkbox("aws"),
             Field.checkbox("jira"),
+            HTML.p(
+                "Select Confirm and Send only when you have removed access to all "
+                "the tools and services for {{ leaver_name }}."
+            ),
             Submit(
                 "save",
                 "Save and continue later",
