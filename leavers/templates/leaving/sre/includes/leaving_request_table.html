@@ -10,7 +10,10 @@
     <tbody class="govuk-table__body">
         {% for object in page.object_list %}
             <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header">{% firstof object.leaver_first_name object.leaver_activitystream_user.first_name %} {% firstof object.leaver_last_name object.leaver_activitystream_user.last_name %}</th>
+                <th scope="row" class="govuk-table__header">
+                    <a class="govuk-link" href="{% url 'sre-confirmation' object.uuid %}">{% firstof object.leaver_first_name object.leaver_activitystream_user.first_name %} {% firstof object.leaver_last_name object.leaver_activitystream_user.last_name %}
+                    </a>
+                </th>
                 <td class="govuk-table__cell">{{ object.leaver_email }}</td>
                 <td class="govuk-table__cell">{{ object.last_day }}</td>
                 <td class="govuk-table__cell">
