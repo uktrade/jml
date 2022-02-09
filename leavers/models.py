@@ -78,6 +78,12 @@ class LeavingRequest(models.Model):
     )
 
     """
+    Task Logs
+    """
+
+    task_logs = models.ManyToManyField(TaskLog)
+
+    """
     SRE Access
     """
 

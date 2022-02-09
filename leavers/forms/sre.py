@@ -69,3 +69,21 @@ class SREConfirmCompleteForm(GovFormattedForm):
                 field.error_messages[
                     "required"
                 ] = f"Select {message_replacement} to confirm removal."
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.checkbox("vpn"),
+            Field.checkbox("govuk_paas"),
+            Field.checkbox("github"),
+            Field.checkbox("sentry"),
+            Field.checkbox("slack"),
+            Field.checkbox("sso"),
+            Field.checkbox("aws"),
+            Field.checkbox("jira"),
+            Submit(
+                "save",
+                "Save and continue later",
+                css_class="govuk-button--secondary",
+            ),
+            Submit("submit", "Confirm and send"),
+        )
