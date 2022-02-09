@@ -13,11 +13,12 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">Please remove access from the following tools and services for {{ leaver_name }}{% if leaving_date %} on {{ leaving_date }}{% endif %}.</h1>
-            <p class="govuk-body">Check the box to confirm removal from:</p>
+            <p class="govuk-body">Select only those services and tools from the list below, that {{ leaver_name }} has access to and has been removed from.</p>
             <form method='post'>
                 <input type="hidden" name="uuid" value="{{ flow.current_task_record.uuid }}">
                 {% crispy form %}
             </form>
+            <p class="govuk-body">Select Confirm and Send only when you have removed access to all the tools and services for {{ leaver_name }}.</p>
         </div>
     </div>
 {% endblock %}

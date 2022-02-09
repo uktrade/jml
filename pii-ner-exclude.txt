@@ -82,6 +82,7 @@ Reason for Leaving Resignation
 ReturnOptions
 ROSA
 ROSA Access Revoked
+Send
 Service Now.</p>
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
 SERVICE_NOW_INTERFACE
