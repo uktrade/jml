@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 from activity_stream.models import ActivityStreamStaffSSOUser
-from leavers.forms.leaver import RETURN_OPTIONS, SecurityClearance
+from leavers.forms.leaver import ReturnOptions, SecurityClearance
 
 
 class TaskLog(models.Model):
@@ -227,7 +227,7 @@ class LeaverInformation(models.Model):
     cirrus_assets = models.JSONField(null=True, blank=True)
     information_is_correct = models.BooleanField(null=True)
     additional_information = models.CharField(max_length=1000)
-    return_option = models.CharField(max_length=10, choices=RETURN_OPTIONS)
+    return_option = models.CharField(max_length=10, choices=ReturnOptions.choices)
     return_personal_phone = models.CharField(max_length=16, null=True, blank=True)
     return_contact_email = models.EmailField(null=True, blank=True)
     return_address_building_and_street = models.CharField(

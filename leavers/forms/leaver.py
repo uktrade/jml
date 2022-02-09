@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import List, Literal
 
 from crispy_forms_gds.choices import Choice
@@ -83,15 +82,15 @@ class LeaverUpdateForm(GovFormattedForm):
         )
 
 
-class ReturnOptions(Enum):
-    OFFICE = "office"
-    HOME = "home"
+class ReturnOptions(TextChoices):
+    OFFICE = "office", "Return at the office"
+    HOME = "home", "Collection from home"
 
 
 RETURN_OPTIONS = [
     Choice(
         ReturnOptions.OFFICE.value,
-        "Return at the office",
+        ReturnOptions.OFFICE.label,
         hint=(
             "You will need to bring in all your equipment on your last day in the "
             "office and return it to the Cirrus Tech Bar."
@@ -99,7 +98,7 @@ RETURN_OPTIONS = [
     ),
     Choice(
         ReturnOptions.HOME.value,
-        "Collection from home",
+        ReturnOptions.HOME.label,
         hint=(
             "We will send you a box to return your laptop, iPhone, chargers and "
             "building security pass. This will be collected by a courier, "
