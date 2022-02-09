@@ -72,9 +72,7 @@ class LeavingRequestListing(
         if self.show_incomplete and not self.show_complete:
             object_type_name: str = "incomplete leaving requests"
 
-        context.update(
-            object_type_name=object_type_name,
-        )
+        context.update(object_type_name=object_type_name)
 
         leaving_requests = self.get_leaving_requests()
 

@@ -11,8 +11,13 @@
         {% for object in page.object_list %}
             <tr class="govuk-table__row">
                 <th scope="row" class="govuk-table__header">
-                    <a class="govuk-link" href="{% url 'sre-confirmation' object.uuid %}">{% firstof object.leaver_first_name object.leaver_activitystream_user.first_name %} {% firstof object.leaver_last_name object.leaver_activitystream_user.last_name %}
-                    </a>
+                    {% if not object.sre_complete %}
+                        <a class="govuk-link" href="{% url 'sre-confirmation' object.uuid %}">
+                    {% endif %}
+                    {% firstof object.leaver_first_name object.leaver_activitystream_user.first_name %} {% firstof object.leaver_last_name object.leaver_activitystream_user.last_name %}
+                    {% if not object.sre_complete %}
+                        </a>
+                    {% endif %}
                 </th>
                 <td class="govuk-table__cell">{{ object.leaver_email }}</td>
                 <td class="govuk-table__cell">{{ object.last_day }}</td>
