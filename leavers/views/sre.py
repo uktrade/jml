@@ -5,7 +5,7 @@ from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
@@ -141,6 +141,9 @@ class TaskConfirmationView(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
         )
+        if self.leaving_request.sre_complete:
+            # TODO: Update with link to the summary page
+            return redirect(self.get_success_url())
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
@@ -204,6 +207,9 @@ class TaskConfirmationView(
             self.leaving_request.save()
 
         if submission_type == "submit":
+            self.leaving_request.sre_complete = True
+            self.leaving_request.save()
+
             first_slack_message = self.leaving_request.slack_messages.order_by(
                 "-created_at"
             ).first()
