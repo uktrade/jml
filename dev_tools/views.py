@@ -7,6 +7,8 @@ from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
+
+
 User = get_user_model()
 
 DEV_TOOLS_ENABLED = settings.APP_ENV in ("local", "dev")
@@ -48,7 +50,7 @@ def change_user(request):
     if form.cleaned_data["user"]:
         new_user = User.objects.get(pk=form.cleaned_data["user"])
 
-        login(request, new_user)
+        login(request, new_user, backend="django.contrib.auth.backends.ModelBackend")
     else:
         logout(request)
 

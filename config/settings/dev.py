@@ -3,13 +3,10 @@ import sys
 
 from config.settings.base import *  # type: ignore # noqa
 
+# Add dev tools but not middleware (so we can use SSO with it)
 INSTALLED_APPS += [  # type: ignore
     "dev_tools.apps.DevToolsConfig",
 ]
-
-MIDDLEWARE.append("dev_tools.middleware.DevToolsLoginRequiredMiddleware")  # type: ignore
-MIDDLEWARE.remove("authbroker_client.middleware.ProtectAllViewsMiddleware")  # type: ignore
-AUTHENTICATION_BACKENDS.remove("user.backends.CustomAuthbrokerBackend")  # type: ignore
 
 LOGGING["handlers"]["stdout"] = {  # type: ignore
     "class": "logging.StreamHandler",
