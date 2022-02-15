@@ -1,4 +1,5 @@
 import uuid
+from typing import List, Tuple
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -191,6 +192,32 @@ class LeavingRequest(models.Model):
     )
     is_rosa_user = models.BooleanField(null=True, blank=True)
     holds_government_procurement_card = models.BooleanField(null=True, blank=True)
+
+    """
+    Methods
+    """
+
+    def sre_services(self) -> List[Tuple[str, bool]]:
+        """
+        Returns a list of the SRE services and if access has been removed.
+        Tuple: (service_name, access_removed)
+        """
+
+        sre_service_label_mapping: List[Tuple[str, str]] = [
+            ("vpn_access_removed", "VPN"),
+            ("govuk_paas_access_removed", "GOV UK PaaS"),
+            ("github_user_access_removed", "Github"),
+            ("sentry_access_removed", "Sentry"),
+            ("slack_removed", "Slack"),
+            ("sso_access_removed", "SSO"),
+            ("aws_access_removed", "AWS"),
+            ("jira_access_removed", "Jira"),
+        ]
+        sre_services: List[Tuple[str, bool]] = []
+        for service_field, service_label in sre_service_label_mapping:
+            access_removed: bool = getattr(self, service_field) is not None
+            sre_services.append((service_label, access_removed))
+        return sre_services
 
 
 class SlackMessage(models.Model):

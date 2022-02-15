@@ -265,6 +265,13 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         leaver_first_name = self.leaving_request.leaver_first_name
         leaver_last_name = self.leaving_request.leaver_last_name
-        context.update(leaver_name=f"{leaver_first_name} {leaver_last_name}")
-        context.update(leaving_request=self.leaving_request)
+        context.update(
+            leaver_name=f"{leaver_first_name} {leaver_last_name}",
+            leaving_request=self.leaving_request,
+            access_removed_services=[
+                sre_service[0]
+                for sre_service in self.leaving_request.sre_services()
+                if sre_service[1]
+            ],
+        )
         return context

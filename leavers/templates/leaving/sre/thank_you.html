@@ -2,10 +2,29 @@
 
 {% block content %}
 
+    {% if access_removed_services %}
+        <div class="govuk-panel govuk-panel--confirmation">
+            <h1 class="govuk-panel__title">SRE access has been removed</h1>
+        </div>
+    {% endif %}
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-m">Thank you for removing access for {{ leaver_name }}</h1>
-            <p class="govuk-body">A confirmation message will be sent to the SRE slack channel.</p>
+            {% if access_removed_services %}
+                <p class="govuk-body">Access has been removed for {{ leaver_name }} from the following services:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    {% for service in access_removed_services %}
+                        <li>{{ service }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% if leaving_request.sre_complete %}
+                <h2 class="govuk-heading-m">What happens next?</h2>
+                <p class="govuk-body">An email has been sent to (Leaver's Line manager) to confirm access has been removed.</p>
+                <a class="govuk-link" href="#">Return to SRE access removal Dashboard</a>
+            {% else %}
+                {% comment %} TODO: Messaging around submitting this. {% endcomment %}
+            {% endif %}
         </div>
     </div>
 
