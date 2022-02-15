@@ -1,12 +1,8 @@
 
-@media only screen and (max-width: 790px) {
-    .progress-indicator-wrapper .progress-indicator .progress-step p {
-        width: 100px !important;
-    }
-}
-
 @include govuk-media-query($until: tablet) {
     .progress-indicator-wrapper {
+        padding: 0 50px 75px 50px;
+
         .progress-step{
             p {
                 color: govuk-colour("mid-grey");
@@ -25,12 +21,18 @@
     }
 }
 
+@media only screen and (max-width: 790px) {
+    .progress-indicator-wrapper {
+        padding: 0;
+    }
+}
+
+
 @include govuk-media-query($from: tablet) {
     .progress-indicator-wrapper {
         max-width: 1200px;
         margin: 0;
-        // margin: 0 auto;
-        padding: 0 50px 50px 50px;
+        padding: 0 50px 75px 50px;
         
         .progress-indicator {
             margin: 0;
@@ -58,7 +60,6 @@
                 p {
                     text-align: center;
                     position: absolute;
-                    width: 150px;
                     top: 55px;
                     color: govuk-colour("mid-grey");
                     font-size: 14px;

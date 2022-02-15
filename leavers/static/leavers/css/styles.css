@@ -4734,23 +4734,25 @@
   @media (min-width: 40.0625em) {
     .govuk-\!-width-one-quarter {
       width: 25% !important; } }
-@media only screen and (max-width: 790px) {
-  .progress-indicator-wrapper .progress-indicator .progress-step p {
-    width: 100px !important; } }
-
 @media (max-width: 40.0525em) {
-  .progress-indicator-wrapper .progress-step p {
-    color: #b1b4b6; }
-  .progress-indicator-wrapper .progress-step.is-active p {
-    color: #00703c; }
-  .progress-indicator-wrapper .progress-step .progress-step-number {
-    display: none; } }
+  .progress-indicator-wrapper {
+    padding: 0 50px 75px 50px; }
+    .progress-indicator-wrapper .progress-step p {
+      color: #b1b4b6; }
+    .progress-indicator-wrapper .progress-step.is-active p {
+      color: #00703c; }
+    .progress-indicator-wrapper .progress-step .progress-step-number {
+      display: none; } }
+
+@media only screen and (max-width: 790px) {
+  .progress-indicator-wrapper {
+    padding: 0; } }
 
 @media (min-width: 40.0625em) {
   .progress-indicator-wrapper {
     max-width: 1200px;
     margin: 0;
-    padding: 0 50px 50px 50px; }
+    padding: 0 50px 75px 50px; }
     .progress-indicator-wrapper .progress-indicator {
       margin: 0;
       padding: 0;
@@ -4769,7 +4771,6 @@
         .progress-indicator-wrapper .progress-indicator .progress-step p {
           text-align: center;
           position: absolute;
-          width: 150px;
           top: 55px;
           color: #b1b4b6;
           font-size: 14px;
