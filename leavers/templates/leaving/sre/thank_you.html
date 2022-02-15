@@ -21,10 +21,10 @@
             {% if leaving_request.sre_complete %}
                 <h2 class="govuk-heading-m">What happens next?</h2>
                 <p class="govuk-body">An email has been sent to (Leaver's Line manager) to confirm access has been removed.</p>
-                <a class="govuk-link" href="#">Return to SRE access removal Dashboard</a>
             {% else %}
                 {% comment %} TODO: Messaging around submitting this. {% endcomment %}
             {% endif %}
+            <a class="govuk-link" href="{% url 'sre-listing-incomplete' %}">Return to SRE access removal Dashboard</a>
         </div>
     </div>
 
