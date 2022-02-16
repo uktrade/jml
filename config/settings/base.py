@@ -235,9 +235,6 @@ CRISPY_TEMPLATE_PACK = "gds"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
-# Dev tools
-LOGIN_URL = reverse_lazy("dev_tools:index")
-
 SLACK_API_TOKEN = env("SLACK_API_TOKEN", default=None)
 SLACK_SRE_CHANNEL_ID = env("SLACK_SRE_CHANNEL_ID", default=None)
 

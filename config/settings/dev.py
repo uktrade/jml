@@ -1,4 +1,3 @@
-import os
 import sys
 
 from config.settings.base import *  # type: ignore # noqa
@@ -7,6 +6,9 @@ from config.settings.base import *  # type: ignore # noqa
 INSTALLED_APPS += [  # type: ignore
     "dev_tools.apps.DevToolsConfig",
 ]
+
+# Dev tools
+LOGIN_URL = reverse_lazy("dev_tools:index")
 
 LOGGING["handlers"]["stdout"] = {  # type: ignore
     "class": "logging.StreamHandler",

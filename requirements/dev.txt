@@ -65,6 +65,7 @@ django==3.2.12
     #   crispy-forms-gds
     #   django-appconf
     #   django-celery-beat
+    #   django-configurations
     #   django-staff-sso-client
     #   django-stubs
     #   django-stubs-ext
@@ -79,6 +80,8 @@ django-celery-results==2.2.0
     # via -r requirements.in/base.in
 django-compressor==2.4.1
     # via -r requirements.in/base.in
+django-configurations==2.3.2
+    # via -r requirements.in/dev.in
 django-crispy-forms==1.14.0
     # via
     #   -r requirements.in/base.in
