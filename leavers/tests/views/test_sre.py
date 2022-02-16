@@ -8,6 +8,143 @@ from leavers.models import TaskLog
 from leavers.tests.views.include import ViewAccessTest
 
 
+class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
+    view_name = "sre-listing-incomplete"
+    allowed_methods = ["get", "post", "put"]
+
+    def setUp(self) -> None:
+        super().setUp()
+        # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE
+        sre_group, _ = Group.objects.get_or_create(name="SRE")
+        self.authenticated_user.groups.add(sre_group.id)
+
+    def test_pagination_one_page(self) -> None:
+        LeavingRequestFactory.create_batch(19)
+
+        self.client.force_login(self.authenticated_user)
+        response = self.client.get(self.get_url())
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Showing <b>1</b> to <b>19</b> of <b>19</b> incomplete leaving requests",
+        )
+        self.assertNotContains(response, '<nav class="pagination')
+
+    def test_pagination_multiple_pages_page_1(self) -> None:
+        LeavingRequestFactory.create_batch(50)
+
+        self.client.force_login(self.authenticated_user)
+        response = self.client.get(self.get_url())
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            "Showing <b>1</b> to <b>20</b> of <b>50</b> incomplete leaving requests",
+        )
+        self.assertContains(response, '<nav class="pagination')
+
+    def test_pagination_multiple_pages_page_2(self) -> None:
+        LeavingRequestFactory.create_batch(50)
+
+        self.client.force_login(self.authenticated_user)
+        response = self.client.get(self.get_url() + "?page=2")
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            "Showing <b>21</b> to <b>40</b> of <b>50</b> incomplete leaving requests",
+        )
+        self.assertContains(response, '<nav class="pagination')
+
+    def test_search(self) -> None:
+        LeavingRequestFactory.create_batch(50)
+        LeavingRequestFactory(
+            leaver_first_name="Joe",
+            leaver_last_name="Bloggs",
+        )
+
+        self.client.force_login(self.authenticated_user)
+        response = self.client.post(self.get_url(), {"query": "Joe Bloggs"})
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, "Joe")
+        self.assertContains(response, "Bloggs")
+        self.assertContains(response, "Incomplete")
+
+
+class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
+    view_name = "sre-listing-complete"
+    allowed_methods = ["get", "post", "put"]
+
+    def setUp(self):
+        super().setUp()
+        # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE
+        sre_group, _ = Group.objects.get_or_create(name="SRE")
+        self.authenticated_user.groups.add(sre_group.id)
+
+    def test_pagination_one_page(self) -> None:
+        LeavingRequestFactory.create_batch(19, sre_complete=True)
+
+        self.client.force_login(self.authenticated_user)
+        response = self.client.get(self.get_url())
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            "Showing <b>1</b> to <b>19</b> of <b>19</b> complete leaving requests",
+        )
+        self.assertNotContains(response, '<nav class="pagination')
+
+    def test_pagination_multiple_pages_page_1(self) -> None:
+        LeavingRequestFactory.create_batch(50, sre_complete=True)
+
+        self.client.force_login(self.authenticated_user)
+        response = self.client.get(self.get_url())
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            "Showing <b>1</b> to <b>20</b> of <b>50</b> complete leaving requests",
+        )
+        self.assertContains(response, '<nav class="pagination')
+
+    def test_pagination_multiple_pages_page_2(self) -> None:
+        LeavingRequestFactory.create_batch(50, sre_complete=True)
+
+        self.client.force_login(self.authenticated_user)
+        response = self.client.get(self.get_url() + "?page=2")
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(
+            response,
+            "Showing <b>21</b> to <b>40</b> of <b>50</b> complete leaving requests",
+        )
+        self.assertContains(response, '<nav class="pagination')
+
+    def test_search(self) -> None:
+        LeavingRequestFactory.create_batch(50, sre_complete=True)
+        LeavingRequestFactory(
+            sre_complete=True,
+            leaver_first_name="Joe",
+            leaver_last_name="Bloggs",
+        )
+
+        self.client.force_login(self.authenticated_user)
+        response = self.client.post(self.get_url(), {"query": "Joe Bloggs"})
+
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, "Joe")
+        self.assertContains(response, "Bloggs")
+        self.assertContains(response, "Complete")
+
+
 class TestTaskConfirmationView(ViewAccessTest, TestCase):
     view_name = "sre-confirmation"
     allowed_methods = ["get", "post", "put"]

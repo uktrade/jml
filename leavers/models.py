@@ -145,6 +145,8 @@ class LeavingRequest(models.Model):
         blank=True,
     )
 
+    sre_complete = models.BooleanField(default=False)
+
     """
     Security Team Access
     """

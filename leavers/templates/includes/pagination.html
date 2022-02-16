@@ -1,0 +1,44 @@
+{% if page.paginator.count != 0 %}
+    <p class="govuk-body govuk-!-font-size-19" >Showing <b>{{ page.start_index }}</b> to <b>{{ page.end_index }}</b> of <b>{{ page.paginator.count }}</b> {{ object_type_name }}</p>
+{% endif %}
+
+{% if page.paginator.num_pages > 1 %}
+    <nav class="pagination govuk-!-font-size-19" aria-labelledby="pagination-label">
+        <p id="pagination-label" class="govuk-visually-hidden" >Pagination navigation</p>
+        <ul>
+            {% if page.has_previous %}
+                <li>
+                    <a class="govuk-link" href="?page={{ page.previous_page_number }}">Previous<span class="govuk-visually-hidden"> set of {{ object_type_name }}</span></a>
+                </li>
+                <li>
+                    <a class="govuk-link" href="?page=1">1</a>
+                </li>
+            {% endif %}
+
+            {% for pagination_page_num in pagination_pages %}
+                {% if forloop.first and pagination_page_num != 1 and pagination_page_num != 2 %}
+                    <li>...</li>
+                {% endif %}
+                <li>
+                    {% if pagination_page_num == page.number %}
+                        <b>{{ pagination_page_num }}</b>
+                    {% else %}
+                        <a class="govuk-link" href="?page={{ pagination_page_num }}">{{ pagination_page_num }}</a>
+                    {% endif %}
+                </li>
+                {% if forloop.last and pagination_page_num != page.paginator.num_pages and pagination_page_num != page.paginator.num_pages|add:"-1" %}
+                    <li>...</li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page.has_next %}
+                <li>
+                    <a class="govuk-link" href="?page={{ page.paginator.num_pages }}">{{ page.paginator.num_pages }}</a>
+                </li>
+                <li>
+                    <a class="govuk-link" href="?page={{ page.next_page_number }}">Next<span class="govuk-visually-hidden"> set of {{ object_type_name }}</span></a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}

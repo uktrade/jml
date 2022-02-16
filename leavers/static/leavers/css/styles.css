@@ -4734,6 +4734,14 @@
   @media (min-width: 40.0625em) {
     .govuk-\!-width-one-quarter {
       width: 25% !important; } }
+.pagination ul {
+  list-style: none;
+  display: flex;
+  justify-content: center; }
+  .pagination ul li {
+    margin-right: 10px;
+    margin-bottom: 10px; }
+
 @media (max-width: 40.0525em) {
   .progress-indicator-wrapper {
     padding: 0 50px 75px 50px; }
@@ -4796,6 +4804,12 @@
         flex: 1; }
         .progress-indicator-wrapper .progress-indicator .progress-step-line.is-active, .progress-indicator-wrapper .progress-indicator .progress-step-line.is-complete {
           background: #00703c; } }
+
+.sre-leaving-requests-table .complete {
+  color: #00703c; }
+
+.sre-leaving-requests-table .incomplete {
+  color: #d4351c; }
 
 .leaver-image {
   width: 100%;

@@ -118,6 +118,16 @@ urlpatterns = [
     ),
     # SRE
     path(
+        "leaver/sre/complete-leaving-request/",
+        sre_views.LeavingRequestListing.as_view(show_complete=True),
+        name="sre-listing-complete",
+    ),
+    path(
+        "leaver/sre/incomplete-leaving-request/",
+        sre_views.LeavingRequestListing.as_view(show_incomplete=True),
+        name="sre-listing-incomplete",
+    ),
+    path(
         "leaver/sre/<uuid:leaving_request_id>/",
         sre_views.TaskConfirmationView.as_view(),
         name="sre-confirmation",

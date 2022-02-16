@@ -1,0 +1,25 @@
+{% extends "leaving/leaving_base.html" %}
+{% load crispy_forms_tags crispy_forms_gds %}
+
+{% block content %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% error_summary form %}
+        </div>
+    </div>
+    
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">SRE access removal</h1>
+            <p class="govuk-body">Select the leaver to confirm removal of their access from tools and services.</p>
+            
+            <h2 class="govuk-heading-m">{{ object_type_name|capfirst }}</h2>
+            <form action="" method="post">
+                {% crispy form %}
+            </form>
+            
+            {% include "leaving/sre/includes/leaving_request_table.html" with object_type_name=object_type_name page=page pagination_pages=pagination_pages %}
+        </div>
+    </div>
+{% endblock %}
