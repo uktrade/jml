@@ -112,6 +112,8 @@ myignore/
 prod_dump_clean.sql
 prod_dump_clean_backup.sql
 
+config/settings/local.py
+
 # Docker compose
 .env
 
