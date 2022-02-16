@@ -2,13 +2,11 @@ import sys
 
 from config.settings.base import *  # type: ignore # noqa
 
-# Add dev tools but not middleware (so we can use SSO with it)
-INSTALLED_APPS += [  # type: ignore
-    "dev_tools.apps.DevToolsConfig",
-]
+"""
+Development settings
 
-# Dev tools
-LOGIN_URL = reverse_lazy("dev_tools:index")
+These settings are used by the dev and staging instances.
+"""
 
 LOGGING["handlers"]["stdout"] = {  # type: ignore
     "class": "logging.StreamHandler",

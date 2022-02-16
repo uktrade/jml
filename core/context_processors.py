@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import reverse
 
 from leavers.models import LeavingRequest
@@ -11,13 +12,23 @@ def global_context(request):
 
     global_context = {
         "COOKIE_RESPONSE": request.COOKIES.get("cookie_banner_response"),
-        "DEV_LINKS": [
-            (
-                "Leaving Requests",
-                reverse("flow-list"),
-            ),
-        ],
+        "DEV_LINKS": [],
     }
+
+    if "dev_tools.apps.DevToolsConfig" in settings.INSTALLED_APPS:
+        global_context["DEV_LINKS"].append(
+            (
+                "Dev tools",
+                reverse("dev_tools:index"),
+            )
+        )
+
+    global_context["DEV_LINKS"].append(
+        (
+            "Leaving Requests",
+            reverse("flow-list"),
+        )
+    )
 
     latest_leaving_request = LeavingRequest.objects.all().last()
     if latest_leaving_request:
