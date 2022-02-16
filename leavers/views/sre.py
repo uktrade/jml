@@ -109,26 +109,46 @@ class TaskConfirmationView(
 
     # Field mapping from the Form field name to the LeavingRequest field name (with task messages)
     field_mapping: Dict[str, Tuple[str, str, str]] = {
-        "vpn": ("vpn_access_removed", "VPN access removed", "VPN access ???"),
+        "vpn": (
+            "vpn_access_removed",
+            "VPN access removal confirmed",
+            "VPN access removal unconfirmed",
+        ),
         "govuk_paas": (
             "govuk_paas_access_removed",
-            "GOV.UK PAAS access removed",
-            "GOV.UK PAAS access ???",
+            "GOV.UK PAAS access removal confirmed",
+            "GOV.UK PAAS access removal unconfirmed",
         ),
         "github": (
             "github_user_access_removed",
-            "Github access removed",
-            "Github access ???",
+            "Github access removal confirmed",
+            "Github access removal unconfirmed",
         ),
         "sentry": (
             "sentry_access_removed",
-            "Sentry access removed",
-            "Sentry access ???",
+            "Sentry access removal confirmed",
+            "Sentry access removal unconfirmed",
         ),
-        "slack": ("slack_removed", "Slack access removed", "Slack access ???"),
-        "sso": ("sso_access_removed", "SSO access removed", "SSO access ???"),
-        "aws": ("aws_access_removed", "AWS access removed", "AWS access ???"),
-        "jira": ("jira_access_removed", "Jira access removed", "Jira access ???"),
+        "slack": (
+            "slack_removed",
+            "Slack access removal confirmed",
+            "Slack access removal unconfirmed",
+        ),
+        "sso": (
+            "sso_access_removed",
+            "SSO access removal confirmed",
+            "SSO access removal unconfirmed",
+        ),
+        "aws": (
+            "aws_access_removed",
+            "AWS access removal confirmed",
+            "AWS access removal unconfirmed",
+        ),
+        "jira": (
+            "jira_access_removed",
+            "Jira access removal confirmed",
+            "Jira access removal unconfirmed",
+        ),
     }
 
     def test_func(self):
