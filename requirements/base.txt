@@ -204,7 +204,7 @@ waitress==2.0.0
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
