@@ -6,6 +6,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <a href="{% url 'leaver-display-screen-equipment' %}" class="govuk-back-link">Back</a>
+            {% error_summary add_asset_form %}
             {% error_summary correction_form %}
             {% include "leaving/progress_indicator.html" with steps=progress_steps %}
         </div>
@@ -55,10 +56,8 @@
             <h2 class="govuk-heading-m">Additional equipment:</h2>
             <p class="govuk-body">If you have any cirrus items not listed above, please add them.</p>
             <form novalidate method='post'>
-                {% csrf_token %}
                 <input type="hidden" name="form_name" value="add_asset_form">
-                {% include "includes/govt_uk_form.html" with form=add_asset_form %}
-                <input type="submit" value="Add" class="govuk-button govuk-button govuk-button--secondary" data-module="govuk-button"/>
+                {% crispy add_asset_form %}
             </form>
         </div>
     </div>
@@ -66,7 +65,6 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method='post'>
-                {% csrf_token %}
                 <input type="hidden" name="form_name" value="correction_form">
                 {% crispy correction_form %}
             </form>

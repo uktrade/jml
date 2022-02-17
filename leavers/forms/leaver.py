@@ -2,7 +2,7 @@ from typing import List, Literal
 
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Field, Layout, Size, Submit
+from crispy_forms_gds.layout import HTML, Button, Field, Layout, Size, Submit
 from django import forms
 from django.db.models.enums import TextChoices
 
@@ -168,6 +168,14 @@ class ReturnInformationForm(GovFormattedForm):
 class AddCirrusAssetForm(GovFormattedForm):
     asset_name = forms.CharField(label="Add asset")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.text("asset_name"),
+            Button.secondary("submit", "Add"),
+        )
+
 
 class AddDisplayScreenEquipmentAssetForm(GovFormattedForm):
     asset_name = forms.CharField(label="Add asset")
@@ -194,7 +202,7 @@ class CorrectionForm(GovFormattedForm):
                 legend_size=Size.MEDIUM,
                 inline=True,
             ),
-            Field("whats_incorrect"),
+            Field.textarea("whats_incorrect"),
             HTML.p(
                 "If you have made any changes, Service Now may contact you to confirm."
             ),

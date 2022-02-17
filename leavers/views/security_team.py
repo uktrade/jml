@@ -14,7 +14,7 @@ class TaskConfirmationView(
     UserPassesTestMixin,
     FormView,
 ):
-    template_name = "leaving/task_form.html"
+    template_name = "leaving/security_team/task_form.html"
     form_class = security_team_form.SecurityTeamConfirmCompleteForm
     leaving_request = None
 
@@ -69,7 +69,7 @@ class TaskConfirmationView(
 
 
 class ThankYouView(UserPassesTestMixin, TemplateView):
-    template_name = "leaving/security_team_thank_you.html"
+    template_name = "leaving/security_team/thank_you.html"
 
     def test_func(self):
         return self.request.user.groups.filter(
