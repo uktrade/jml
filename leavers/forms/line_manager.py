@@ -1,3 +1,5 @@
+from crispy_forms_gds.helper import FormHelper
+from crispy_forms_gds.layout import Field, Layout, Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
@@ -22,17 +24,28 @@ class UksbsPdfForm(GovFormattedForm):
 
 class LineManagerDetailsForm(GovFormattedForm):
     security_clearance = forms.ChoiceField(
-        label="Leaver's security clearance",
+        label="Security clearance",
         choices=(
             [(None, "Select security clearance type")] + SecurityClearance.choices  # type: ignore
         ),
     )
-    rosa_user = YesNoField(
-        label="Is the leaver a ROSA user?",
-    )
     holds_government_procurement_card = YesNoField(
-        label="Does the leaver hold a government procurement card?",
+        label="Do they have a Government Procurement Card?",
     )
+    rosa_user = YesNoField(
+        label="Do they have ROSA kit?",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("security_clearance"),
+            Field.radios("holds_government_procurement_card", inline=True),
+            Field.radios("rosa_user", inline=True),
+            Submit("submit", "Save and continue"),
+        )
 
 
 class ConfirmLeavingDate(GovFormattedForm):

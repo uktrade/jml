@@ -400,6 +400,26 @@ class DetailsView(LineManagerViewMixin, FormView):
 
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        leaver_activitystream_user: ActivityStreamStaffSSOUser = (
+            self.leaving_request.leaver_activitystream_user
+        )
+        leaver_first_name = (
+            self.leaving_request.leaver_first_name
+            or leaver_activitystream_user.first_name
+        )
+        leaver_last_name = (
+            self.leaving_request.leaver_last_name
+            or leaver_activitystream_user.last_name
+        )
+
+        context.update(
+            leaver_name=f"{leaver_first_name} {leaver_last_name}",
+        )
+        return context
+
 
 class ThankYouView(LineManagerViewMixin, TemplateView):
     template_name = "leaving/line_manager/thank_you.html"

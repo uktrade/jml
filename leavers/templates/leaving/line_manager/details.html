@@ -1,19 +1,22 @@
 {% extends "leaving/leaving_base.html" %}
-{% load static %}
+{% load static crispy_forms_tags crispy_forms_gds %}
 
 {% block content %}
-    <h1 class="govuk-heading-l">Details form</h2>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <div class="govuk-grid-row">
-                <div class="govuk-grid-column-two-thirds">
-                    <form novalidate method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {% include "includes/govt_uk_form.html" with form=form %}
-                        <input type="submit" value="Submit" class="govuk-button" data-module="govuk-button"/>
-                    </form>
-                </div>
-            </div>
+            <a href="{% url 'who' %}" class="govuk-back-link">Back</a>
+            {% error_summary form %}
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">Confirm the Leaver's information</h1>
+            <p class="govuk-body">As the line manager of <em>{{ leaver_name }}</em> we need you to confirm the following:</p>
+            <form novalidate method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% crispy form %}
+            </form>
         </div>
     </div>
 {% endblock %}
