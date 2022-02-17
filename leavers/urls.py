@@ -133,6 +133,11 @@ urlpatterns = [
         name="sre-confirmation",
     ),
     path(
+        "leaver/sre/<uuid:leaving_request_id>/summary/",
+        sre_views.TaskSummaryView.as_view(),
+        name="sre-summary",
+    ),
+    path(
         "leaver/sre/thank-you/<uuid:leaving_request_id>/",
         sre_views.ThankYouView.as_view(),
         name="sre-thank-you",

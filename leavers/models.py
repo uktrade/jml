@@ -197,13 +197,27 @@ class LeavingRequest(models.Model):
     Methods
     """
 
+    def get_leaver_name(self) -> str:
+        leaver_activitystream_user = self.leaver_activitystream_user
+        leaver_first_name = (
+            self.leaver_first_name or leaver_activitystream_user.first_name
+        )
+        leaver_last_name = self.leaver_last_name or leaver_activitystream_user.last_name
+        if leaver_activitystream_user:
+            if not leaver_first_name:
+                leaver_first_name = leaver_activitystream_user.first_name
+            if not leaver_last_name:
+                leaver_last_name = leaver_activitystream_user.last_name
+
+        return f"{leaver_first_name} {leaver_last_name}"
+
     def sre_services(self) -> List[Tuple[str, bool]]:
         """
         Returns a list of the SRE services and if access has been removed.
-        Tuple: (service_name, access_removed)
+        Tuple: (service_field, service_name, access_removed)
         """
 
-        sre_service_label_mapping: List[Tuple[str, str]] = [
+        sre_service_label_mapping: List[Tuple[str, str, str]] = [
             ("vpn_access_removed", "VPN"),
             ("govuk_paas_access_removed", "GOV UK PaaS"),
             ("github_user_access_removed", "Github"),
@@ -216,7 +230,7 @@ class LeavingRequest(models.Model):
         sre_services: List[Tuple[str, bool]] = []
         for service_field, service_label in sre_service_label_mapping:
             access_removed: bool = getattr(self, service_field) is not None
-            sre_services.append((service_label, access_removed))
+            sre_services.append((service_field, service_label, access_removed))
         return sre_services
 
 
