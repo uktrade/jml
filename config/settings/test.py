@@ -1,4 +1,8 @@
-from config.settings.dev import *  # type: ignore # noqa
+from django.urls import reverse_lazy
+
+from config.settings.base import *  # type: ignore # noqa
+
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 INSTALLED_APPS += [  # type: ignore
     "dev_tools.apps.DevToolsConfig",
