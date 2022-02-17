@@ -3,6 +3,7 @@
 " Line Manager
 " Store Extra
 " Store the Correction
+" Task Logs
 @media
 100px
 activity_stream.activitystreamstaffssouser
@@ -14,6 +15,7 @@ below.</a>
 Build Staff Document
 Building Pass Access Revoked
 building_pass_access_task_log
+checkbox
 Cirrus
 Cirrus Equipment
 Convert
@@ -46,7 +48,9 @@ f"sys_id={sys_id'
 F401
 Finder Raises
 Flexi Impacting Pay
+Form
 Get the Leaver StaffDocument
+Github
 GOVUK PAAS
 govuk_paas_access_task_log
 Hours
@@ -54,8 +58,8 @@ href="?page=
 Jira
 job_title"
 Joe
-Joe"
 Joe Bloggs
+Joe"
 Leaver's Notification Form
 LeaversWorkflow
 LeavingRequest
@@ -78,6 +82,7 @@ Reason for Leaving Resignation
 ReturnOptions
 ROSA
 ROSA Access Revoked
+Send
 Service Now.</p>
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
 SERVICE_NOW_INTERFACE

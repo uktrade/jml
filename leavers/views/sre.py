@@ -1,18 +1,18 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Literal, Tuple
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
 from core.utils.sre_messages import send_sre_complete_message
 from leavers.forms import sre as sre_forms
-from leavers.models import LeavingRequest, TaskLog
+from leavers.models import LeavingRequest
 
 
 class LeavingRequestListing(
@@ -107,6 +107,50 @@ class TaskConfirmationView(
     form_class = sre_forms.SREConfirmCompleteForm
     leaving_request = None
 
+    # Field mapping from the Form field name to the LeavingRequest field name (with task messages)
+    field_mapping: Dict[str, Tuple[str, str, str]] = {
+        "vpn": (
+            "vpn_access_removed",
+            "VPN access removal confirmed",
+            "VPN access removal unconfirmed",
+        ),
+        "govuk_paas": (
+            "govuk_paas_access_removed",
+            "GOV.UK PAAS access removal confirmed",
+            "GOV.UK PAAS access removal unconfirmed",
+        ),
+        "github": (
+            "github_user_access_removed",
+            "Github access removal confirmed",
+            "Github access removal unconfirmed",
+        ),
+        "sentry": (
+            "sentry_access_removed",
+            "Sentry access removal confirmed",
+            "Sentry access removal unconfirmed",
+        ),
+        "slack": (
+            "slack_removed",
+            "Slack access removal confirmed",
+            "Slack access removal unconfirmed",
+        ),
+        "sso": (
+            "sso_access_removed",
+            "SSO access removal confirmed",
+            "SSO access removal unconfirmed",
+        ),
+        "aws": (
+            "aws_access_removed",
+            "AWS access removal confirmed",
+            "AWS access removal unconfirmed",
+        ),
+        "jira": (
+            "jira_access_removed",
+            "Jira access removal confirmed",
+            "Jira access removal unconfirmed",
+        ),
+    }
+
     def test_func(self):
         return self.request.user.groups.filter(
             name="SRE",
@@ -117,6 +161,9 @@ class TaskConfirmationView(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
         )
+        if self.leaving_request.sre_complete:
+            # TODO: Update with link to the summary page
+            return redirect(self.get_success_url())
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
@@ -131,38 +178,70 @@ class TaskConfirmationView(
         context["leaving_date"] = self.leaving_request.last_day
         return context
 
-    def form_valid(self, form):
-        actions = {
-            "vpn": ["vpn_access_removed", "VPN access removed"],
-            "govuk_paas": ["govuk_paas_access_removed", "GOV.UK PAAS access removed"],
-            "github": ["github_user_access_removed", "Github access removed"],
-            "sentry": ["sentry_access_removed", "Sentry access removed"],
-            "slack": ["slack_removed", "Slack access removed"],
-            "sso": ["sso_access_removed", "SSO access removed"],
-            "aws": ["aws_access_removed", "AWS access removed"],
-            "jira": ["jira_access_removed", "Jira access removed"],
-        }
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
 
-        for key, value in actions.items():
-            if form.cleaned_data[key]:
+        for key, value in self.field_mapping.items():
+            leaving_request_value = getattr(self.leaving_request, value[0])
+            initial[key] = bool(leaving_request_value)
+
+        return initial
+
+    def form_valid(self, form):
+        submission_type: Literal["save", "submit"] = "save"
+        if "submit" in form.data:
+            submission_type = "submit"
+
+        for key, value in self.field_mapping.items():
+            existing_task_log = getattr(self.leaving_request, value[0])
+
+            if key not in form.changed_data:
+                continue
+
+            if form.cleaned_data[key] and not existing_task_log:
+                # Create a TaskLog to not that the checkbox has been checked.
+                new_task_log = self.leaving_request.task_logs.create(
+                    user=self.request.user,
+                    task_name=value[1],
+                )
+                # Set the value on the LeavingRequest so we know that the
+                # checkbox is checked.
                 setattr(
                     self.leaving_request,
                     value[0],
-                    TaskLog.objects.create(
-                        user=self.request.user,
-                        task_name=value[1],
-                    ),
+                    new_task_log,
                 )
+            elif not form.cleaned_data[key]:
+                # Create a TaskLog to not that the checkbox was unchecked.
+                self.leaving_request.task_logs.create(
+                    user=self.request.user,
+                    task_name=value[2],
+                )
+                # Remove the value from the LeavingRequest so we know this checkbox
+                # is unchecked.
+                setattr(
+                    self.leaving_request,
+                    value[0],
+                    None,
+                )
+            self.leaving_request.save()
 
-        first_slack_message = self.leaving_request.slack_messages.order_by(
-            "-created_at"
-        ).first()
+        if submission_type == "submit":
+            self.leaving_request.sre_complete = True
+            self.leaving_request.save()
 
-        # TODO handle None in above result
-        send_sre_complete_message(
-            thread_ts=first_slack_message.slack_timestamp,
-            leaving_request=self.leaving_request,
-        )
+            first_slack_message = self.leaving_request.slack_messages.order_by(
+                "-created_at"
+            ).first()
+
+            if not first_slack_message:
+                raise Exception("No Slack messages found")
+
+            # TODO handle None in above result
+            send_sre_complete_message(
+                thread_ts=first_slack_message.slack_timestamp,
+                leaving_request=self.leaving_request,
+            )
 
         return super(TaskConfirmationView, self).form_valid(form)
 
@@ -187,4 +266,5 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
         leaver_first_name = self.leaving_request.leaver_first_name
         leaver_last_name = self.leaving_request.leaver_last_name
         context.update(leaver_name=f"{leaver_first_name} {leaver_last_name}")
+        context.update(leaving_request=self.leaving_request)
         return context

@@ -1,14 +1,23 @@
 {% extends "leaving/leaving_base.html" %}
 
+{% load crispy_forms_tags crispy_forms_gds %}
+
 {% block content %}
-    <h1 class="govuk-heading-l">Please remove access from the following tools and services for {{ leaver_name }}{% if leaving_date %} on {{ leaving_date }}{% endif %}.</h1>
-    <p class="govuk-body">Check the box to confirm removal from:</p>
-    <form novalidate method='post'>
-        <fieldset class="govuk-fieldset">
-            {% csrf_token %}
-            <input type="hidden" name="uuid" value="{{ flow.current_task_record.uuid }}">
-            {% include "includes/govt_uk_form.html" with form=form %}
-            <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
-        </fieldset>
-    </form>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% error_summary form %}
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">Please remove access from the following tools and services for {{ leaver_name }}{% if leaving_date %} on {{ leaving_date }}{% endif %}.</h1>
+            <p class="govuk-body">Select only those services and tools from the list below, that {{ leaver_name }} has access to and has been removed from.</p>
+            <form method='post'>
+                <input type="hidden" name="uuid" value="{{ flow.current_task_record.uuid }}">
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
 {% endblock %}

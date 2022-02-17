@@ -1,7 +1,7 @@
 from typing import Dict
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Fluid, Layout, Submit
+from crispy_forms_gds.layout import HTML, Field, Fluid, Layout, Submit
 from django import forms
 
 from core.forms import GovFormattedForm
@@ -69,3 +69,25 @@ class SREConfirmCompleteForm(GovFormattedForm):
                 field.error_messages[
                     "required"
                 ] = f"Select {message_replacement} to confirm removal."
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.checkbox("vpn"),
+            Field.checkbox("govuk_paas"),
+            Field.checkbox("github"),
+            Field.checkbox("sentry"),
+            Field.checkbox("slack"),
+            Field.checkbox("sso"),
+            Field.checkbox("aws"),
+            Field.checkbox("jira"),
+            HTML.p(
+                "Select Confirm and Send only when you have removed access to all "
+                "the tools and services for {{ leaver_name }}."
+            ),
+            Submit(
+                "save",
+                "Save and continue later",
+                css_class="govuk-button--secondary",
+            ),
+            Submit("submit", "Confirm and send"),
+        )
