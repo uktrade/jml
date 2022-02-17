@@ -12,7 +12,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 """
 Using SSO locally
 
-Uncomment the below (you must comment out all the Dev Test user settings)
+Uncomment the below (you must comment out all the Dev Tools user settings)
 """
 
 # AUTHBROKER_ANONYMOUS_PATHS = [
@@ -21,7 +21,7 @@ Uncomment the below (you must comment out all the Dev Test user settings)
 # ]
 
 """
-Using Dev Test Users locally
+Using Dev Tools Users locally
 
 Uncomment the below (you must comment out all the SSO settings)
 """
