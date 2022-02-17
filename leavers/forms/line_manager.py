@@ -1,5 +1,5 @@
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Layout, Submit
+from crispy_forms_gds.layout import Field, Fieldset, Layout, Size, Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
@@ -18,8 +18,21 @@ class PdfFileField(forms.FileField):
 
 class UksbsPdfForm(GovFormattedForm):
     uksbs_pdf = PdfFileField(
-        label="Upload the UKSBS PDF",
+        label="",
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(
+                "uksbs_pdf",
+                legend="Upload the UKSBS PDF",
+                legend_size=Size.MEDIUM,
+            ),
+            Submit("submit", "Submit"),
+        )
 
 
 class LineManagerDetailsForm(GovFormattedForm):
