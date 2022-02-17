@@ -51,7 +51,7 @@ crispy-forms-gds==0.2.3
     # via -r requirements.in/base.in
 deprecated==1.2.13
     # via redis
-django==3.2.11
+django==3.2.12
     # via
     #   -r requirements.in/base.in
     #   crispy-forms-gds
@@ -204,7 +204,7 @@ waitress==2.0.0
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2.0
+whitenoise==5.2
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated

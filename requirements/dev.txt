@@ -59,7 +59,7 @@ crispy-forms-gds==0.2.3
     # via -r requirements.in/base.in
 deprecated==1.2.13
     # via redis
-django==3.2.11
+django==3.2.12
     # via
     #   -r requirements.in/base.in
     #   crispy-forms-gds
@@ -179,7 +179,7 @@ pathspec==0.9.0
     # via black
 pep517==0.12.0
     # via pip-tools
-pip-tools==6.4.0
+pip-tools==6.5.1
     # via -r requirements.in/dev.in
 platformdirs==2.4.0
     # via black
@@ -314,7 +314,7 @@ wcwidth==0.2.5
     # via prompt-toolkit
 wheel==0.37.0
     # via pip-tools
-whitenoise==5.2.0
+whitenoise==5.2
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
