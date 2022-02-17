@@ -2,9 +2,25 @@
 {% load static %}
 
 {% block content %}
-    <h2 class="govuk-heading-m">Line manager</h2>
-    <p class="govuk-body">Details about what will happen next</p>
+    <h1 class="govuk-heading-l">Confirmation of leavers details</h1>
+    <p class="govuk-body"><em>{{ leaver_name }}</em> is leaving DIT.</p>
+    <p class="govuk-body">As their Line Manager we need you to confirm some details about <em>{{ leaver_name }}</em> and provide additional information.</p>
+    <p class="govuk-body">Using this service will:</p>
+    <ul class="govuk-list govuk-list--bullet">
+        <li>help facilitate off-boarding</li>
+        <li>remove their access to buildings and IT services</li>
+    </ul>
+    <p class="govuk-body">This should take you between 10 and 20 minutes to complete.</p>
     <a class="govuk-button" data-module="govuk-button" href="{{ start_url }}">
         Start now
     </a>
+    <h2 class="govuk-heading-m">Before you start</h2>
+    <p class="govuk-body">You should make sure you know:</p>
+    <ul class="govuk-list govuk-list--bullet">
+        <li>their confirmed leaving date</li>
+        <li>if they are a Rosa user</li>
+        <li>if they have a government procurement card</li>
+        <li>if they have any outstanding google data and who it should be transferred to</li>
+        <li>their security clearance level</li>
+    </ul>
 {% endblock %}
