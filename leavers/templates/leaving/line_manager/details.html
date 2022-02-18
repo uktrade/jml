@@ -14,7 +14,6 @@
             <h1 class="govuk-heading-l">Confirm the Leaver's information</h1>
             <p class="govuk-body">As the line manager of <em>{{ leaver_name }}</em> we need you to confirm the following:</p>
             <form novalidate method="post" enctype="multipart/form-data">
-                {% csrf_token %}
                 {% crispy form %}
             </form>
         </div>

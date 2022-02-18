@@ -66,7 +66,6 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method='post'>
-                {% csrf_token %}
                 <input type="hidden" name="form_name" value="correction_form">
                 {% crispy correction_form %}
             </form>
