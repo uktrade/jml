@@ -85,7 +85,7 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        leaver_first_name = self.leaving_request.leaver_first_name
-        leaver_last_name = self.leaving_request.leaver_last_name
-        context.update(leaver_name=f"{leaver_first_name} {leaver_last_name}")
+
+        context.update(leaver_name=self.leaving_request.get_leaver_name())
+
         return context
