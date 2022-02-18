@@ -1,10 +1,17 @@
 {% extends "leaving/leaving_base.html" %}
-{% load static %}
+{% load static crispy_forms_tags crispy_forms_gds %}
 
 {% block content %}
-    <h1 class="govuk-heading-l">UKSBS handover</h2>
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {% error_summary correction_form %}
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">UKSBS handover</h2>
             <p class="govuk-body">The last step for you to off-board {{ leaver_name }} is to inform payroll by completing the UKSBS form, and update the resulting PDF into our system. Below here you will find guidance and key information to complete this last step.</p>
             <p class="govuk-body">You need to:</p>
             <ul class="govuk-list govuk-list--bullet">
@@ -49,11 +56,9 @@
             </dl>
             <p class="govuk-body">Once you have completed the UKSBS form, download the form in PDF format, and upload it below here. In your mail you have received the same instruction to come back to this page.</p>
             <p class="govuk-body">Please <a href="#">contact us</a> if you need assistance.</p>
-            <h2 class="govuk-heading-m">Upload the UKSBS PDF</h2>
+
             <form novalidate method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {% include "includes/govt_uk_form.html" with form=form %}
-                <input type="submit" value="Submit" class="govuk-button" data-module="govuk-button"/>
+                {% crispy form %}
             </form>
         </div>
     </div>

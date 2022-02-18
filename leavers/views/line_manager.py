@@ -400,6 +400,15 @@ class DetailsView(LineManagerViewMixin, FormView):
 
         return super().form_valid(form)
 
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        context.update(
+            leaver_name=self.leaving_request.get_leaver_name(),
+        )
+
+        return context
+
 
 class ThankYouView(LineManagerViewMixin, TemplateView):
     template_name = "leaving/line_manager/thank_you.html"
