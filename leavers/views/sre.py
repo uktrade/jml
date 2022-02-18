@@ -6,13 +6,13 @@ from django.core.paginator import Paginator
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
 from core.utils.sre_messages import send_sre_complete_message
 from leavers.forms import sre as sre_forms
-from leavers.models import LeavingRequest
+from leavers.models import LeavingRequest, TaskLog
 
 
 class LeavingRequestListing(
@@ -172,10 +172,12 @@ class TaskConfirmationView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        leaver_first_name = self.leaving_request.leaver_first_name
-        leaver_last_name = self.leaving_request.leaver_last_name
-        context["leaver_name"] = f"{leaver_first_name} {leaver_last_name}"
-        context["leaving_date"] = self.leaving_request.last_day
+
+        context.update(
+            leaver_name=self.leaving_request.get_leaver_name(),
+            leaving_date=self.leaving_request.last_day,
+        )
+
         return context
 
     def get_initial(self) -> Dict[str, Any]:
@@ -246,6 +248,49 @@ class TaskConfirmationView(
         return super(TaskConfirmationView, self).form_valid(form)
 
 
+class TaskSummaryView(
+    UserPassesTestMixin,
+    TemplateView,
+):
+    template_name = "leaving/sre/summary.html"
+    leaving_request = None
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="SRE",
+        ).first()
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest,
+            uuid=self.kwargs.get("leaving_request_id", None),
+        )
+        if not self.leaving_request.sre_complete:
+            return redirect(
+                reverse("sre-confirmation", args=[self.leaving_request.uuid])
+            )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        access_removed_services: List[Tuple[str, str, TaskLog]] = {
+            (
+                sre_service[0],
+                sre_service[1],
+                getattr(self.leaving_request, sre_service[0]),
+            )
+            for sre_service in self.leaving_request.sre_services()
+            if sre_service[2]
+        }
+        context.update(
+            leaver_name=self.leaving_request.get_leaver_name(),
+            access_removed_services=access_removed_services,
+        )
+
+        return context
+
+
 class ThankYouView(UserPassesTestMixin, TemplateView):
     template_name = "leaving/sre/thank_you.html"
 
@@ -263,15 +308,15 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        leaver_first_name = self.leaving_request.leaver_first_name
-        leaver_last_name = self.leaving_request.leaver_last_name
+
         context.update(
-            leaver_name=f"{leaver_first_name} {leaver_last_name}",
+            leaver_name=self.leaving_request.get_leaver_name(),
             leaving_request=self.leaving_request,
             access_removed_services=[
-                sre_service[0]
+                sre_service[1]
                 for sre_service in self.leaving_request.sre_services()
-                if sre_service[1]
+                if sre_service[2]
             ],
         )
+
         return context

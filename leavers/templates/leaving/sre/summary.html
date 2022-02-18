@@ -1,0 +1,42 @@
+{% extends "leaving/leaving_base.html" %}
+
+
+{% block content %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <a href="{% url 'sre-listing-complete' %}" class="govuk-back-link">Back</a>
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l"><em>{{ leaver_name }}</em> service access removal</h1>
+            <p class="govuk-body"><em>{{ leaver_name }}</em> access has been removed from the following services:</p>
+            <table class="govuk-table">
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Service name</th>
+                    <th scope="col" class="govuk-table__header">Removed at</th>
+                    <th scope="col" class="govuk-table__header">Removed by</th>
+                    </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                    {% for access_removed_service in access_removed_services %}
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">{{ access_removed_service.1 }}</th>
+                            <td class="govuk-table__cell">{{ access_removed_service.2.created_at }}</td>
+                            <td class="govuk-table__cell">{{ access_removed_service.2.user }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">No services have had access removed</th>
+                            <td class="govuk-table__cell"></td>
+                            <td class="govuk-table__cell"></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
