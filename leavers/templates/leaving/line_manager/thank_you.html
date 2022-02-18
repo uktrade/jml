@@ -1,6 +1,17 @@
 {% extends "leaving/leaving_base.html" %}
 
 {% block content %}
-    <h1 class="govuk-heading-m">Thank you for ...</h1>
-    <p class="govuk-body">Some further text</p>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-panel govuk-panel--confirmation">
+                <h1 class="govuk-panel__title">
+                    Application complete
+                </h1>
+            </div>
+            <p class="govuk-body">Thank you for uploading the UK SBS form and supplying the additional information. You have now finished the off-boarding process for <em>{{ leaver_name }}</em>.</p>
+            <p class="govuk-body">No further changes can now be made to the information supplied</p>
+        </div>
+    </div>
+
 {% endblock %}

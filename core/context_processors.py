@@ -30,7 +30,9 @@ def global_context(request):
         )
     )
 
-    latest_leaving_request = LeavingRequest.objects.all().last()
+    latest_leaving_request = LeavingRequest.objects.filter(
+        manager_activitystream_user__email_address=request.user.email
+    ).last()
     if latest_leaving_request:
         global_context["DEV_LINKS"].append(
             (
