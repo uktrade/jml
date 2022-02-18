@@ -748,7 +748,7 @@ class TestCirrusEquipmentView(TestCase):
                 reverse(self.view_name),
                 {
                     "form_name": "correction_form",
-                    "is_correct": "yes",
+                    "is_correct": "no",
                     "whats_incorrect": "Some additional information",
                 },
             )
@@ -759,9 +759,9 @@ class TestCirrusEquipmentView(TestCase):
         mock_store_cirrus_kit_information.assert_called_once_with(
             email=user.email,
             requester=user,
-            cirrus_assets=[],
-            information_is_correct=True,
+            information_is_correct=False,
             additional_information="Some additional information",
+            cirrus_assets=[],
         )
 
 
