@@ -17,6 +17,7 @@ from core.people_finder import get_people_finder_interface
 from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
 from core.staff_search.views import StaffSearchView
+from core.utils.helpers import bool_to_yes_no
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
     StaffDocument,
@@ -184,15 +185,15 @@ class LeaverInformationMixin:
         # Convert yes/no to boolean values.
         has_rosa_kit = None
         if leaving_request.is_rosa_user is not None:
-            has_rosa_kit = "yes" if leaving_request.is_rosa_user else "no"
+            has_rosa_kit = bool_to_yes_no(leaving_request.is_rosa_user)
         has_gov_procurement_card = None
         if leaving_request.holds_government_procurement_card is not None:
-            has_gov_procurement_card = (
-                "yes" if leaving_request.holds_government_procurement_card else "no"
+            has_gov_procurement_card = bool_to_yes_no(
+                leaving_request.holds_government_procurement_card
             )
         has_dse = None
         if leaver_info.has_dse is not None:
-            has_dse = "yes" if leaver_info.has_dse else "no"
+            has_dse = bool_to_yes_no(leaver_info.has_dse)
 
         return {
             "security_clearance": leaving_request.security_clearance,

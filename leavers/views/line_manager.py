@@ -15,6 +15,7 @@ from django.views.generic.edit import FormView
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.staff_search.views import StaffSearchView
+from core.utils.helpers import bool_to_yes_no
 from core.utils.pdf import parse_leaver_pdf
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
@@ -363,7 +364,7 @@ class DetailsView(LineManagerViewMixin, FormView):
             # ROSA user
             is_rosa_user = self.leaving_request.is_rosa_user
             if is_rosa_user is not None:
-                rosa_user_yes_no = "yes" if is_rosa_user else "no"
+                rosa_user_yes_no = bool_to_yes_no(is_rosa_user)
                 initial["rosa_user"] = rosa_user_yes_no
             # Government Procurement Card
             holds_government_procurement_card = (
@@ -476,10 +477,10 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
             leaving_date=self.leaving_request.last_day.date(),
             uksbs_pdf_data=self.leaving_request.uksbs_pdf_data,
             has_security_clearance=self.leaving_request.get_security_clearance_display(),
-            is_rosa_user="Yes" if self.leaving_request.is_rosa_user else "No",
-            holds_government_procurement_card="Yes"
-            if self.leaving_request.holds_government_procurement_card
-            else "No",
+            is_rosa_user=bool_to_yes_no(self.leaving_request.is_rosa_user).title(),
+            holds_government_procurement_card=bool_to_yes_no(
+                self.leaving_request.holds_government_procurement_card
+            ).title(),
             leaver_confirmation_view_url=reverse_lazy(
                 "line-manager-leaver-confirmation",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
