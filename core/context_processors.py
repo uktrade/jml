@@ -30,18 +30,19 @@ def global_context(request):
         )
     )
 
-    latest_leaving_request = LeavingRequest.objects.filter(
-        manager_activitystream_user__email_address=request.user.email
-    ).last()
-    if latest_leaving_request:
-        global_context["DEV_LINKS"].append(
-            (
-                "Start Line Manager process",
-                reverse(
-                    "line-manager-start",
-                    kwargs={"leaving_request_uuid": latest_leaving_request.uuid},
-                ),
+    if request.user.is_authenticated:
+        latest_leaving_request = LeavingRequest.objects.filter(
+            manager_activitystream_user__email_address=request.user.email
+        ).last()
+        if latest_leaving_request:
+            global_context["DEV_LINKS"].append(
+                (
+                    "Start Line Manager process",
+                    reverse(
+                        "line-manager-start",
+                        kwargs={"leaving_request_uuid": latest_leaving_request.uuid},
+                    ),
+                )
             )
-        )
 
     return global_context

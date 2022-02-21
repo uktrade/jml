@@ -60,11 +60,13 @@ GOVUK PAAS
 govuk_paas_access_task_log
 Hours
 href="?page=
+information</h1
 Jira
 job_title"
 Joe
 Joe Bloggs
 Joe"
+kit</th
 know:</p
 Leaver's Notification Form
 LeaversWorkflow
@@ -113,6 +115,7 @@ Tests for `store_return_information`
 Tests for `store_return_option
 the Cirrus Tech
 the Cirrus Tech Bar
+the Data Recipient StaffDocument
 the DB Creates
 the Health and Safety Team</h2
 the Leaver Form's
