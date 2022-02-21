@@ -425,3 +425,8 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
             return HttpResponseForbidden()
 
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(leaver_name=self.leaving_request.get_leaver_name())
+        return context
