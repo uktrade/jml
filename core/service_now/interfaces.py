@@ -8,6 +8,7 @@ from django.core.cache import cache
 
 from core.service_now import types
 from core.service_now.client import ServiceNowClient
+from core.utils.helpers import bool_to_yes_no
 from core.utils.staff_index import StaffDocument, get_staff_document_from_staff_index
 from leavers import types as leavers_types
 
@@ -291,9 +292,9 @@ class ServiceNowInterface(ServiceNowBase):
         assets: List[types.AssetDetails],
     ):
         # Convert Request Data to what the Service Now API expects
-        assets_confirmation: Literal["Yes", "No"] = "No"
-        if leaver_info.information_is_correct:
-            assets_confirmation = "Yes"
+        assets_confirmation: Literal["Yes", "No"] = bool_to_yes_no(
+            leaver_info.information_is_correct
+        ).title()
 
         leaving_date: str = ""
         if leaver_info.leaving_date:

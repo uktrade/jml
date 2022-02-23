@@ -8,13 +8,14 @@ from django.http import HttpResponseForbidden
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.staff_search.views import StaffSearchView
+from core.utils.helpers import bool_to_yes_no
 from core.utils.pdf import parse_leaver_pdf
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
@@ -31,8 +32,14 @@ DATA_RECIPIENT_SEARCH_PARAM = "data_recipient_id"
 
 class LineManagerViewMixin:
     def line_manager_access(
-        self, request: HttpRequest, leaving_request: LeavingRequest
+        self,
+        request: HttpRequest,
+        leaving_request: LeavingRequest,
+        complete: bool = False,
     ) -> bool:
+        if leaving_request.line_manager_complete != complete:
+            return False
+
         user = cast(User, request.user)
         manager_activitystream_user = leaving_request.manager_activitystream_user
 
@@ -344,7 +351,7 @@ class DetailsView(LineManagerViewMixin, FormView):
 
     def get_success_url(self) -> str:
         return reverse(
-            "line-manager-thank-you",
+            "line-manager-confirmation",
             kwargs={"leaving_request_uuid": self.leaving_request.uuid},
         )
 
@@ -357,7 +364,7 @@ class DetailsView(LineManagerViewMixin, FormView):
             # ROSA user
             is_rosa_user = self.leaving_request.is_rosa_user
             if is_rosa_user is not None:
-                rosa_user_yes_no = "yes" if is_rosa_user else "no"
+                rosa_user_yes_no = bool_to_yes_no(is_rosa_user)
                 initial["rosa_user"] = rosa_user_yes_no
             # Government Procurement Card
             holds_government_procurement_card = (
@@ -410,6 +417,93 @@ class DetailsView(LineManagerViewMixin, FormView):
         return context
 
 
+class ConfirmDetailsView(LineManagerViewMixin, FormView):
+    template_name = "leaving/line_manager/confirm_details.html"
+    form_class = line_manager_forms.LineManagerConfirmationForm
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "line-manager-thank-you",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
+
+    def get_leaver(self) -> ConsolidatedStaffDocument:
+        """
+        Get the Leaver StaffDocument
+        """
+        # Load the leaver from the Staff index.
+        leaver_staff_document: StaffDocument = get_staff_document_from_staff_index(
+            staff_id=self.leaving_request.leaver_activitystream_user.identifier,
+        )
+        return consolidate_staff_documents(
+            staff_documents=[leaver_staff_document],
+        )[0]
+
+    def get_data_recipient(self) -> ConsolidatedStaffDocument:
+        """
+        Get the Data Recipient StaffDocument
+        """
+        # Load the Data Recipient from the Staff index.
+        data_recipient_staff_document: StaffDocument = get_staff_document_from_staff_index(
+            staff_id=self.leaving_request.data_recipient_activitystream_user.identifier,
+        )
+        return consolidate_staff_documents(
+            staff_documents=[data_recipient_staff_document],
+        )[0]
+
+    def dispatch(self, request, *args, **kwargs):
+        self.leaving_request = get_object_or_404(
+            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
+        )
+
+        if not self.line_manager_access(
+            request=request,
+            leaving_request=self.leaving_request,
+        ):
+            return HttpResponseForbidden()
+
+        self.leaver: ConsolidatedStaffDocument = self.get_leaver()
+        self.data_recipient: ConsolidatedStaffDocument = self.get_data_recipient()
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        context.update(
+            leaver_name=self.leaving_request.get_leaver_name(),
+            leaver=self.leaver,
+            data_recipient=self.data_recipient,
+            leaving_date=self.leaving_request.last_day.date(),
+            uksbs_pdf_data=self.leaving_request.uksbs_pdf_data,
+            has_security_clearance=self.leaving_request.get_security_clearance_display(),
+            is_rosa_user=bool_to_yes_no(self.leaving_request.is_rosa_user).title(),
+            holds_government_procurement_card=bool_to_yes_no(
+                self.leaving_request.holds_government_procurement_card
+            ).title(),
+            leaver_confirmation_view_url=reverse_lazy(
+                "line-manager-leaver-confirmation",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            ),
+            details_view_url=reverse_lazy(
+                "line-manager-details",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            ),
+            uksbs_upload_view_url=reverse_lazy(
+                "line-manager-uksbs-handover",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            ),
+        )
+
+        return context
+
+    def form_valid(self, form) -> HttpResponse:
+        self.leaving_request.line_manager_complete = True
+        self.leaving_request.save()
+
+        return super().form_valid(form)
+
+
 class ThankYouView(LineManagerViewMixin, TemplateView):
     template_name = "leaving/line_manager/thank_you.html"
 
@@ -421,6 +515,7 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
         if not self.line_manager_access(
             request=request,
             leaving_request=self.leaving_request,
+            complete=True,
         ):
             return HttpResponseForbidden()
 

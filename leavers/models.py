@@ -193,6 +193,8 @@ class LeavingRequest(models.Model):
     is_rosa_user = models.BooleanField(null=True, blank=True)
     holds_government_procurement_card = models.BooleanField(null=True, blank=True)
 
+    line_manager_complete = models.BooleanField(default=False)
+
     """
     Methods
     """

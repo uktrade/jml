@@ -112,6 +112,11 @@ urlpatterns = [
         name="line-manager-details",
     ),
     path(
+        "line-manager/<uuid:leaving_request_uuid>/confirm/",
+        line_manager_views.ConfirmDetailsView.as_view(),
+        name="line-manager-confirmation",
+    ),
+    path(
         "line-manager/<uuid:leaving_request_uuid>/thank-you/",
         line_manager_views.ThankYouView.as_view(),
         name="line-manager-thank-you",

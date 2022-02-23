@@ -61,6 +61,16 @@ class LineManagerDetailsForm(GovFormattedForm):
         )
 
 
+class LineManagerConfirmationForm(GovFormattedForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Submit("submit", "Confirm and send"),
+        )
+
+
 class ConfirmLeavingDate(GovFormattedForm):
     leaving_date = forms.DateField(
         label="",
