@@ -55,3 +55,24 @@ def send_csu4_leaver_email(leaving_request: LeavingRequest):
             "leaving_date": leaver_information.leaving_date,
         },
     )
+
+
+def send_ocs_leaver_email(leaving_request: LeavingRequest):
+    """
+    Send OCS Email to notify of a new leaver.
+
+    The data sent in this email is Sensitive and Personal.
+    Only add more information to this email if it is absolutely necessary.
+
+    Currently included data:
+    - Leaver Name
+    """
+
+    if not settings.OCS_EMAIL:
+        raise ValueError("OCS_EMAIL is not set")
+
+    notify.email(
+        email_address=settings.OCS_EMAIL,
+        template_id=notify.EmailTemplates.csu4_leaver_email,
+        personalisation={"leaver_name": leaving_request.leaver_name},
+    )
