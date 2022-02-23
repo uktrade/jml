@@ -29,6 +29,7 @@ CssFinder
 CSU4_EMAIL
 Dashboard</a>
 Data
+date_of_birth
 DB
 Department 1
 Department 2

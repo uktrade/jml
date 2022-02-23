@@ -1,10 +1,10 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from django.conf import settings
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core import notify
-from leavers.models import LeavingRequest
+from leavers.models import LeaverInformation, LeavingRequest
 
 if TYPE_CHECKING:
     from user.models import User
@@ -39,8 +39,19 @@ def send_csu4_leaver_email(leaving_request: LeavingRequest):
     if not settings.CSU4_EMAIL:
         raise ValueError("CSU4_EMAIL is not set")
 
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    if not leaver_information:
+        raise ValueError("leaver_information is not set")
+
     notify.email(
         email_address=settings.CSU4_EMAIL,
         template_id=notify.EmailTemplates.csu4_leaver_email,
-        personalisation={"leaver_name": leaving_request.leaver_name},
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "date_of_birth": leaving_request.last_day,
+            "leaving_date": leaver_information.leaving_date,
+        },
     )
