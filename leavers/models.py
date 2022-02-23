@@ -152,7 +152,7 @@ class LeavingRequest(models.Model):
         blank=True,
     )
 
-    sre_complete = models.BooleanField(default=False)
+    sre_complete = models.DateTimeField(null=True, blank=True)
 
     """
     Security Team Access
@@ -193,7 +193,7 @@ class LeavingRequest(models.Model):
     is_rosa_user = models.BooleanField(null=True, blank=True)
     holds_government_procurement_card = models.BooleanField(null=True, blank=True)
 
-    line_manager_complete = models.BooleanField(default=False)
+    line_manager_complete = models.DateTimeField(null=True, blank=True)
 
     """
     Methods

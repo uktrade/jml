@@ -3,6 +3,7 @@ from unittest import mock
 
 from django.test.testcases import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from core.utils.staff_index import StaffDocument
 from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
@@ -439,7 +440,7 @@ class TestDetailsView(ViewAccessTest, TestCase):
         self.assertEqual(
             response.url,
             reverse(
-                "line-manager-thank-you",
+                "line-manager-confirmation",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
         )
@@ -453,5 +454,6 @@ class TestThankYouView(ViewAccessTest, TestCase):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
             manager_activitystream_user__email_address=self.authenticated_user.email,
+            line_manager_complete=timezone.now(),
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}

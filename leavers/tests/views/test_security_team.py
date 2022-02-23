@@ -70,8 +70,5 @@ class TestThankYouView(ViewAccessTest, TestCase):
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
 
-        leaver_first_name = self.leaving_request.leaver_first_name
-        leaver_last_name = self.leaving_request.leaver_last_name
-        self.assertEqual(
-            response.context["leaver_name"], f"{leaver_first_name} {leaver_last_name}"
-        )
+        leaver_name = self.leaving_request.get_leaver_name()
+        self.assertEqual(response.context["leaver_name"], leaver_name)

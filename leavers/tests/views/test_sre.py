@@ -2,6 +2,7 @@ from unittest import mock
 
 from django.contrib.auth.models import Group
 from django.test.testcases import TestCase
+from django.utils import timezone
 
 from leavers.factories import LeavingRequestFactory, SlackMessageFactory
 from leavers.models import TaskLog
@@ -87,7 +88,7 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.authenticated_user.groups.add(sre_group.id)
 
     def test_pagination_one_page(self) -> None:
-        LeavingRequestFactory.create_batch(19, sre_complete=True)
+        LeavingRequestFactory.create_batch(19, sre_complete=timezone.now())
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
@@ -100,7 +101,7 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertNotContains(response, '<nav class="pagination')
 
     def test_pagination_multiple_pages_page_1(self) -> None:
-        LeavingRequestFactory.create_batch(50, sre_complete=True)
+        LeavingRequestFactory.create_batch(50, sre_complete=timezone.now())
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
@@ -114,7 +115,7 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertContains(response, '<nav class="pagination')
 
     def test_pagination_multiple_pages_page_2(self) -> None:
-        LeavingRequestFactory.create_batch(50, sre_complete=True)
+        LeavingRequestFactory.create_batch(50, sre_complete=timezone.now())
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url() + "?page=2")
@@ -128,9 +129,9 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertContains(response, '<nav class="pagination')
 
     def test_search(self) -> None:
-        LeavingRequestFactory.create_batch(50, sre_complete=True)
+        LeavingRequestFactory.create_batch(50, sre_complete=timezone.now())
         LeavingRequestFactory(
-            sre_complete=True,
+            sre_complete=timezone.now(),
             leaver_first_name="Joe",
             leaver_last_name="Bloggs",
         )
@@ -164,14 +165,24 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
 
-        leaver_first_name = self.leaving_request.leaver_first_name
-        leaver_last_name = self.leaving_request.leaver_last_name
-        self.assertEqual(
-            response.context["leaver_name"], f"{leaver_first_name} {leaver_last_name}"
-        )
+        leaver_name = self.leaving_request.get_leaver_name()
+        self.assertEqual(response.context["leaver_name"], leaver_name)
         self.assertEqual(
             response.context["leaving_date"], self.leaving_request.last_day
         )
+
+    @mock.patch("leavers.views.sre.send_sre_complete_message")
+    def test_save_form(self, mock_send_sre_complete_message):
+        self.client.force_login(self.authenticated_user)
+        self.client.post(
+            self.get_url(),
+            {},
+        )
+
+        self.leaving_request.refresh_from_db()
+
+        # Check that the leaving request has NOT been marked as SRE complete
+        self.assertFalse(self.leaving_request.sre_complete)
 
     @mock.patch("leavers.views.sre.send_sre_complete_message")
     def test_submit_form(self, mock_send_sre_complete_message):
@@ -179,6 +190,7 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
         self.client.post(
             self.get_url(),
             {
+                "submit": "",
                 "vpn": True,
                 "govuk_paas": True,
                 "github": True,
@@ -190,6 +202,11 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
             },
         )
 
+        self.leaving_request.refresh_from_db()
+
+        # Check that the leaving request has been marked as SRE complete
+        self.assertTrue(self.leaving_request.sre_complete)
+
         # Check the SRE Complete message is triggered
         mock_send_sre_complete_message.assert_called_once()
 
@@ -198,42 +215,42 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
         self.assertTrue(user_task_logs.exists())
         self.assertTrue(
             user_task_logs.filter(
-                task_name="VPN access removed",
+                task_name="VPN access removal confirmed",
             ).exists()
         )
         self.assertTrue(
             user_task_logs.filter(
-                task_name="GOV.UK PAAS access removed",
+                task_name="GOV.UK PAAS access removal confirmed",
             ).exists()
         )
         self.assertTrue(
             user_task_logs.filter(
-                task_name="Github access removed",
+                task_name="Github access removal confirmed",
             ).exists()
         )
         self.assertTrue(
             user_task_logs.filter(
-                task_name="Sentry access removed",
+                task_name="Sentry access removal confirmed",
             ).exists()
         )
         self.assertTrue(
             user_task_logs.filter(
-                task_name="Slack access removed",
+                task_name="Slack access removal confirmed",
             ).exists()
         )
         self.assertTrue(
             user_task_logs.filter(
-                task_name="SSO access removed",
+                task_name="SSO access removal confirmed",
             ).exists()
         )
         self.assertTrue(
             user_task_logs.filter(
-                task_name="AWS access removed",
+                task_name="AWS access removal confirmed",
             ).exists()
         )
         self.assertTrue(
             user_task_logs.filter(
-                task_name="Jira access removed",
+                task_name="Jira access removal confirmed",
             ).exists()
         )
 
@@ -257,8 +274,5 @@ class TestThankYouView(ViewAccessTest, TestCase):
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
 
-        leaver_first_name = self.leaving_request.leaver_first_name
-        leaver_last_name = self.leaving_request.leaver_last_name
-        self.assertEqual(
-            response.context["leaver_name"], f"{leaver_first_name} {leaver_last_name}"
-        )
+        leaver_name = self.leaving_request.get_leaver_name()
+        self.assertEqual(response.context["leaver_name"], leaver_name)
