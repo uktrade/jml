@@ -73,6 +73,6 @@ def send_ocs_leaver_email(leaving_request: LeavingRequest):
 
     notify.email(
         email_address=settings.OCS_EMAIL,
-        template_id=notify.EmailTemplates.csu4_leaver_email,
+        template_id=notify.EmailTemplates.OCS_LEAVER_EMAIL,
         personalisation={"leaver_name": leaving_request.leaver_name},
     )
