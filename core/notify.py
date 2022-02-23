@@ -10,7 +10,7 @@ class EmailTemplates(Enum):
     GOV.UK Notify email Templates.
     """
 
-    csu4_leaver_email = "csu4_leaver_email_tempalte_id"
+    CSU4_LEAVER_EMAIL = "csu4_leaver_email_tempalte_id"
 
 
 notification_client = NotificationsAPIClient(
