@@ -48,7 +48,7 @@ def send_csu4_leaver_email(leaving_request: LeavingRequest):
 
     notify.email(
         email_address=settings.CSU4_EMAIL,
-        template_id=notify.EmailTemplates.csu4_leaver_email,
+        template_id=notify.EmailTemplates.CSU4_LEAVER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
             "date_of_birth": leaving_request.last_day,
