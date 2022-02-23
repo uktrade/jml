@@ -11,7 +11,7 @@ class EmailTemplates(Enum):
     """
 
     CSU4_LEAVER_EMAIL = settings.CSU4_EMAIL_TEMPLATE_ID
-    OCS_LEAVER_EMAIL = "ocs_leaver_email_tempalte_id"
+    OCS_LEAVER_EMAIL = settings.OCS_LEAVER_EMAIL_TEMPLATE_ID
 
 
 notification_client = NotificationsAPIClient(
