@@ -93,6 +93,7 @@ ReturnOptions
 ROSA
 ROSA Access Revoked
 Send
+Send OCS Email
 Sensitive and Personal
 Service Now.</p>
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
