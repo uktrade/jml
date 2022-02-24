@@ -74,5 +74,27 @@ def send_ocs_leaver_email(leaving_request: LeavingRequest):
     notify.email(
         email_address=settings.OCS_EMAIL,
         template_id=notify.EmailTemplates.OCS_LEAVER_EMAIL,
-        personalisation={"leaver_name": leaving_request.leaver_name},
+        personalisation={"leaver_name": leaving_request.get_leaver_name()},
+    )
+
+
+class LeaverDoesNotHaveRosaKit(Exception):
+    pass
+
+
+def send_rosa_leaver_reminder_email(leaving_request: LeavingRequest):
+    """
+    Send Leaver an email to remind them to return their ROSA Kit.
+    """
+
+    if not settings.ROSA_LEAVER_REMINDER_EMAIL:
+        raise ValueError("ROSA_LEAVER_REMINDER_EMAIL is not set")
+
+    if not leaving_request.is_rosa_user:
+        raise LeaverDoesNotHaveRosaKit()
+
+    notify.email(
+        email_address=settings.ROSA_LEAVER_REMINDER_EMAIL,
+        template_id=notify.EmailTemplates.ROSA_LEAVER_REMINDER_EMAIL,
+        personalisation={"leaver_name": leaving_request.get_leaver_name()},
     )
