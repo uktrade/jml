@@ -87,9 +87,6 @@ def send_rosa_leaver_reminder_email(leaving_request: LeavingRequest):
     Send Leaver an email to remind them to return their ROSA Kit.
     """
 
-    if not settings.ROSA_LEAVER_REMINDER_EMAIL:
-        raise ValueError("ROSA_LEAVER_REMINDER_EMAIL is not set")
-
     if not leaving_request.is_rosa_user:
         raise LeaverDoesNotHaveRosaKit()
 
