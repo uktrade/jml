@@ -7,6 +7,7 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
@@ -44,9 +45,9 @@ class LeavingRequestListing(
         # Filter
         leaving_requests = LeavingRequest.objects.all()
         if not self.show_complete:
-            leaving_requests = leaving_requests.exclude(sre_complete=True)
+            leaving_requests = leaving_requests.exclude(sre_complete__isnull=False)
         if not self.show_incomplete:
-            leaving_requests = leaving_requests.exclude(sre_complete=False)
+            leaving_requests = leaving_requests.exclude(sre_complete__isnull=True)
 
         # Search
         if self.query:
@@ -229,7 +230,7 @@ class TaskConfirmationView(
             self.leaving_request.save()
 
         if submission_type == "submit":
-            self.leaving_request.sre_complete = True
+            self.leaving_request.sre_complete = timezone.now()
             self.leaving_request.save()
 
             first_slack_message = self.leaving_request.slack_messages.order_by(

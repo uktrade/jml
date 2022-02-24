@@ -37,7 +37,7 @@ class LineManagerViewMixin:
         leaving_request: LeavingRequest,
         complete: bool = False,
     ) -> bool:
-        if leaving_request.line_manager_complete != complete:
+        if bool(leaving_request.line_manager_complete) != complete:
             return False
 
         user = cast(User, request.user)
@@ -498,7 +498,7 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
         return context
 
     def form_valid(self, form) -> HttpResponse:
-        self.leaving_request.line_manager_complete = True
+        self.leaving_request.line_manager_complete = timezone.now()
         self.leaving_request.save()
 
         return super().form_valid(form)
