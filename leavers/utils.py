@@ -116,7 +116,7 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
         raise LeaverDoesNotHaveRosaKit()
 
     notify.email(
-        email_address=settings.ROSA_LINE_MANAGER_REMINDER_EMAIL,
+        email_address=leaving_request.manager_activitystream_user.email_address,
         template_id=notify.EmailTemplates.ROSA_LINE_MANAGER_REMINDER_EMAIL,
         personalisation={"leaver_name": leaving_request.get_leaver_name()},
     )
