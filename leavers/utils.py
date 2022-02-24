@@ -117,3 +117,18 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.ROSA_LINE_MANAGER_REMINDER_EMAIL,
         personalisation={"leaver_name": leaving_request.get_leaver_name()},
     )
+
+
+def send_security_team_offboard_leaver_email(leaving_request: LeavingRequest):
+    """
+    Send Security Team an email to inform them of a new leaver to be offboarded.
+    """
+
+    if not settings.SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL:
+        raise ValueError("SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL is not set")
+
+    notify.email(
+        email_address=settings.SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL,
+        template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL,
+        personalisation={"leaver_name": leaving_request.get_leaver_name()},
+    )
