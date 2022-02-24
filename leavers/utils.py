@@ -93,8 +93,15 @@ def send_rosa_leaver_reminder_email(leaving_request: LeavingRequest):
     if not leaving_request.is_rosa_user:
         raise LeaverDoesNotHaveRosaKit()
 
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    if not leaver_information:
+        raise ValueError("leaver_information is not set")
+
     notify.email(
-        email_address=settings.ROSA_LEAVER_REMINDER_EMAIL,
+        email_address=leaver_information.leaver_email,
         template_id=notify.EmailTemplates.ROSA_LEAVER_REMINDER_EMAIL,
         personalisation={"leaver_name": leaving_request.get_leaver_name()},
     )
