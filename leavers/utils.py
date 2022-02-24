@@ -109,9 +109,6 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
     Send Line Manager an email to remind the Leaver to return their ROSA Kit.
     """
 
-    if not settings.ROSA_LINE_MANAGER_REMINDER_EMAIL:
-        raise ValueError("ROSA_LINE_MANAGER_REMINDER_EMAIL is not set")
-
     if not leaving_request.is_rosa_user:
         raise LeaverDoesNotHaveRosaKit()
 
