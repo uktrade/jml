@@ -14,12 +14,12 @@ class EmailTemplates(Enum):
     OCS_LEAVER_EMAIL = settings.OCS_LEAVER_EMAIL_TEMPLATE_ID
 
 
-notification_client = NotificationsAPIClient(
-    settings.GOVUK_NOTIFY_API_KEY,
-)
-
-
 def email(email_address: str, template_id: EmailTemplates, personalisation: Dict):
+    # TODO: Test GOV UK Notify Integration
+    notification_client = NotificationsAPIClient(
+        settings.GOVUK_NOTIFY_API_KEY,
+    )
+
     message_response = notification_client.send_email_notification(
         email_address=email_address,
         template_id=template_id.value,
