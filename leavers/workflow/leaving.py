@@ -1,6 +1,14 @@
 from django_workflow_engine import Step, Workflow
 
-from leavers.workflow.tasks import BasicTask  # noqa F401
+from leavers.workflow.tasks import BasicTask, EmailIds  # noqa F401
+
+"""
+Leavers Workflow
+
+This can be triggered in 2 places:
+- By the Leaver when they notify the Service that they are leaving
+- By the Leaver Reporter when they notify the Service that there is a Leaver
+"""
 
 LeaversWorkflow = Workflow(
     name="leaving",
@@ -10,46 +18,47 @@ LeaversWorkflow = Workflow(
             task_name="basic_task",
             start=True,
             targets=[
-                "notify_leaver",
-            ],
-        ),
-        Step(
-            step_id="notify_leaver",
-            task_name="notification_email",
-            targets=[
                 "notify_line_manager",
             ],
-            task_info={
-                "subject": "Thank you for registering ",
-                "message": "TODO - details of the leaver",
-                "from_email": "noreply@jml.uktrade.com",  # /PS-IGNORE
-            },
         ),
+        # Line manager
         Step(
             step_id="notify_line_manager",
             task_name="notification_email",
             targets=[
-                "notify_hr_of_leaving",
+                "has_line_manager_completed",
             ],
             task_info={
-                "subject": "Thank you for registering ",
-                "message": "TODO - details of the leaver",
-                "from_email": "noreply@jml.uktrade.com",  # /PS-IGNORE
+                "email_id": EmailIds.LINE_MANAGER_NOTIFICATION.value,
             },
         ),
         Step(
-            step_id="notify_hr_of_leaving",
+            step_id="has_line_manager_completed",
+            task_name="has_line_manager_completed",
+            targets=[
+                "send_line_manager_reminder",
+                "thank_line_manager",
+            ],
+        ),
+        Step(
+            step_id="send_line_manager_reminder",
+            task_name="notification_email",
+            targets=[
+                "has_line_manager_completed",
+            ],
+            break_flow=True,
+            task_info={
+                "email_id": EmailIds.LINE_MANAGER_REMINDER.value,
+            },
+        ),
+        Step(
+            step_id="thank_line_manager",
             task_name="notification_email",
             targets=[
                 "setup_scheduled_tasks",
             ],
             task_info={
-                "groups": [
-                    "HR",
-                ],
-                "subject": "A member of staff is leaving DIT",
-                "message": "TODO - details of the leaver",
-                "from_email": "noreply@jml.uktrade.com",  # /PS-IGNORE
+                "email_id": EmailIds.LINE_MANAGER_THANKYOU.value,
             },
         ),
         # Split flow
@@ -58,7 +67,9 @@ LeaversWorkflow = Workflow(
             task_name="basic_task",
             targets=[
                 "is_it_leaving_date_plus_x",
-                "is_it_x_days_before_payroll",
+                "notify_hr_of_leaving",
+                "notify_csu4_of_leaving",
+                "notify_ocs_of_leaving",
             ],
         ),
         # SRE
@@ -92,16 +103,21 @@ LeaversWorkflow = Workflow(
                 "have_sre_carried_out_leaving_tasks",
             ],
             task_info={
-                "groups": [
-                    "SRE",
-                ],
-                "subject": "Test",
-                "message": "Please review the hardware required http://localhost:8000/{{ flow.continue_url }}.",  # noqa E501
-                "from_email": "system@example.com",  # /PS-IGNORE
+                "email_id": EmailIds.SRE_REMINDER.value,
             },
             break_flow=True,
         ),
         # HR
+        Step(
+            step_id="notify_hr_of_leaving",
+            task_name="notification_email",
+            targets=[
+                "is_it_x_days_before_payroll",
+            ],
+            task_info={
+                "email_id": EmailIds.HR_LEAVER_NOTIFICATION.value,
+            },
+        ),
         Step(
             step_id="is_it_x_days_before_payroll",
             task_name="is_it_x_days_before_payroll",
@@ -117,12 +133,7 @@ LeaversWorkflow = Workflow(
                 "have_hr_carried_out_leaving_tasks",
             ],
             task_info={
-                "groups": [
-                    "HR",
-                ],
-                "subject": "Please confirm leaving tasks have been carried out",
-                "message": "Please confirm you have carried out leaving tasks for {} here http://localhost:8000/{{ flow.continue_url }}.",  # noqa E501
-                "from_email": "noreply@jml.uktrade.com",  # /PS-IGNORE
+                "email_id": EmailIds.HR_TASKS_NOTIFICATION.value,
             },
         ),
         Step(
@@ -140,18 +151,36 @@ LeaversWorkflow = Workflow(
                 "have_hr_carried_out_leaving_tasks",
             ],
             task_info={
-                "groups": [
-                    "SRE",
-                ],
-                "subject": "Test",
-                "message": "Please review the hardware required http://localhost:8000/{{ flow.continue_url }}.",  # noqa E501
-                "from_email": "system@example.com",  # /PS-IGNORE
+                "email_id": EmailIds.HR_REMINDER.value,
             },
             break_flow=True,
         ),
+        # CSU4
+        Step(
+            step_id="notify_csu4_of_leaving",
+            task_name="notification_email",
+            targets=[
+                "are_all_tasks_complete",
+            ],
+            task_info={
+                "email_id": EmailIds.CSU4_EMAIL.value,
+            },
+        ),
+        # OCS
+        Step(
+            step_id="notify_ocs_of_leaving",
+            task_name="notification_email",
+            targets=[
+                "are_all_tasks_complete",
+            ],
+            task_info={
+                "email_id": EmailIds.OCS_EMAIL.value,
+            },
+        ),
+        # End
         Step(
             step_id="are_all_tasks_complete",
-            task_name="basic_task",
+            task_name="leaver_complete",
             targets=[],
         ),
     ],

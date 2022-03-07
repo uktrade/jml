@@ -10,7 +10,6 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django_workflow_engine.exceptions import WorkflowNotAuthError
 from django_workflow_engine.executor import WorkflowExecutor
-from django_workflow_engine.models import Flow
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.staff_search.forms import SearchForm
@@ -23,7 +22,10 @@ from core.utils.staff_index import (
 )
 from leavers.forms import leaver as leaver_forms
 from leavers.models import LeavingRequest
-from leavers.utils import update_or_create_leaving_request
+from leavers.utils import (
+    get_or_create_leaving_workflow,
+    update_or_create_leaving_request,
+)
 from user.models import User
 
 LEAVER_SEARCH_PARAM = "leaver_uuid"
@@ -189,12 +191,10 @@ class ConfirmationView(FormView):
     def create_workflow(self, last_day: datetime):
         assert self.leaver
 
-        flow = Flow.objects.create(
-            workflow_name="leaving",
-            flow_name=f"{self.leaver['first_name']} {self.leaver['last_name']} is leaving",  # noqa E501
+        flow = get_or_create_leaving_workflow(
+            leaving_request=self.leaving_request,
             executed_by=self.request.user,
         )
-        flow.save()
 
         user = cast(User, self.request.user)
 
@@ -214,6 +214,8 @@ class ConfirmationView(FormView):
             raise PermissionDenied(f"{e}")
 
     def form_valid(self, form):
+        # TODO: Send Leaver Notifier Thank you email
+
         self.create_workflow(
             last_day=form.cleaned_data["last_day"],
         )
