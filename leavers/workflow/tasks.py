@@ -47,7 +47,7 @@ class NotificationEmail(Task):
     auto = True
 
     def execute(self, task_info):
-        email_id: EmailIds = task_info["email_id"]
+        email_id: EmailIds = EmailIds(task_info["email_id"])
         send_email_method: Optional[Callable] = EMAIL_MAPPING.get(email_id, None)
 
         if not send_csu4_leaver_email:
