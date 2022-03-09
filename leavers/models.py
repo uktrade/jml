@@ -241,6 +241,12 @@ class LeavingRequest(models.Model):
 
         return None
 
+    def get_manager_name(self) -> str:
+        manager_activitystream_user = self.manager_activitystream_user
+        manager_first_name = manager_activitystream_user.first_name
+        manager_last_name = manager_activitystream_user.last_name
+        return f"{manager_first_name} {manager_last_name}"
+
     def sre_services(self) -> List[Tuple[str, bool]]:
         """
         Returns a list of the SRE services and if access has been removed.
