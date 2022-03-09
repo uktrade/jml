@@ -93,10 +93,20 @@ def send_ocs_leaver_email(leaving_request: LeavingRequest):
     if not settings.OCS_EMAIL:
         raise ValueError("OCS_EMAIL is not set")
 
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    if not leaver_information:
+        raise ValueError("leaver_information is not set")
+
     notify.email(
         email_address=settings.OCS_EMAIL,
         template_id=notify.EmailTemplates.OCS_LEAVER_EMAIL,
-        personalisation={"leaver_name": leaving_request.get_leaver_name()},
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "leaving_date": leaver_information.leaving_date,
+        },
     )
 
 
