@@ -66,11 +66,66 @@ LeaversWorkflow = Workflow(
             step_id="setup_scheduled_tasks",
             task_name="basic_task",
             targets=[
-                "is_it_leaving_date_plus_x",
-                "notify_hr_of_leaving",
                 "notify_csu4_of_leaving",
                 "notify_ocs_of_leaving",
+                "send_security_notification",
+                "is_it_leaving_date_plus_x",
+                "notify_hr_of_leaving",
             ],
+        ),
+        # CSU4
+        Step(
+            step_id="notify_csu4_of_leaving",
+            task_name="notification_email",
+            targets=[
+                "are_all_tasks_complete",
+            ],
+            task_info={
+                "email_id": EmailIds.CSU4_EMAIL.value,
+            },
+        ),
+        # OCS
+        Step(
+            step_id="notify_ocs_of_leaving",
+            task_name="notification_email",
+            targets=[
+                "are_all_tasks_complete",
+            ],
+            task_info={
+                "email_id": EmailIds.OCS_EMAIL.value,
+            },
+        ),
+        # SECURITY
+        Step(
+            step_id="send_security_notification",
+            task_name="notification_email",
+            targets=[
+                "have_security_carried_out_leaving_tasks",
+            ],
+            task_info={
+                "email_id": EmailIds.SECURITY_OFFBOARD_LEAVER_NOTIFICATION.value,
+            },
+            break_flow=True,
+        ),
+        Step(
+            step_id="have_security_carried_out_leaving_tasks",
+            task_name="have_security_carried_out_leaving_tasks",
+            targets=[
+                "send_security_reminder",
+                "are_all_tasks_complete",
+            ],
+        ),
+        Step(
+            step_id="send_security_reminder",
+            task_name="reminder_email",
+            targets=[
+                "have_security_carried_out_leaving_tasks",
+            ],
+            task_info={
+                "email_id": EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER.value,
+                "reminder_wait_time": 86400,  # 1 day
+            },
+            break_flow=True,
         ),
         # SRE
         Step(
@@ -98,12 +153,13 @@ LeaversWorkflow = Workflow(
         ),
         Step(
             step_id="send_sre_reminder",
-            task_name="notification_email",
+            task_name="reminder_email",
             targets=[
                 "have_sre_carried_out_leaving_tasks",
             ],
             task_info={
                 "email_id": EmailIds.SRE_REMINDER.value,
+                "reminder_wait_time": 86400,  # 1 day
             },
             break_flow=True,
         ),
@@ -146,36 +202,15 @@ LeaversWorkflow = Workflow(
         ),
         Step(
             step_id="send_hr_reminder",
-            task_name="notification_email",
+            task_name="reminder_email",
             targets=[
                 "have_hr_carried_out_leaving_tasks",
             ],
             task_info={
                 "email_id": EmailIds.HR_REMINDER.value,
+                "reminder_wait_time": 86400,  # 1 day
             },
             break_flow=True,
-        ),
-        # CSU4
-        Step(
-            step_id="notify_csu4_of_leaving",
-            task_name="notification_email",
-            targets=[
-                "are_all_tasks_complete",
-            ],
-            task_info={
-                "email_id": EmailIds.CSU4_EMAIL.value,
-            },
-        ),
-        # OCS
-        Step(
-            step_id="notify_ocs_of_leaving",
-            task_name="notification_email",
-            targets=[
-                "are_all_tasks_complete",
-            ],
-            task_info={
-                "email_id": EmailIds.OCS_EMAIL.value,
-            },
         ),
         # End
         Step(
