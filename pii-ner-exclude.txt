@@ -3,6 +3,7 @@
 " Line Manager
 " Local Development Settings
 " Methods "
+" Send Leaver
 " Store Extra
 " Store the Correction
 " Task Logs
@@ -46,6 +47,7 @@ Dockerfile.dev
 DSE
 E501
 Elastic
+Email Templates
 Enhanced Security Check
 Example Building
 Example Grade
@@ -92,6 +94,7 @@ Reason for Leaving Resignation
 ReturnOptions
 ROSA
 ROSA Access Revoked
+ROSA Kit
 Send
 Send OCS Email
 Sensitive and Personal
