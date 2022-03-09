@@ -14,6 +14,7 @@ class EmailTemplates(Enum):
     OCS_LEAVER_EMAIL = settings.OCS_LEAVER_EMAIL_TEMPLATE_ID
     ROSA_LEAVER_REMINDER_EMAIL = settings.ROSA_LEAVER_REMINDER_EMAIL
     ROSA_LINE_MANAGER_REMINDER_EMAIL = settings.ROSA_LINE_MANAGER_REMINDER_EMAIL
+    SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL = settings.SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL
 
 
 def email(email_address: str, template_id: EmailTemplates, personalisation: Dict):
