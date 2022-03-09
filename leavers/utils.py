@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
 from django.conf import settings
+from django.urls import reverse
 from django_workflow_engine.models import Flow
 
 from activity_stream.models import ActivityStreamStaffSSOUser
@@ -162,8 +163,19 @@ def send_security_team_offboard_leaver_email(leaving_request: LeavingRequest):
     if not settings.SECURITY_TEAM_EMAIL:
         raise ValueError("SECURITY_TEAM_EMAIL is not set")
 
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    if not leaver_information:
+        raise ValueError("leaver_information is not set")
+
     notify.email(
         email_address=settings.SECURITY_TEAM_EMAIL,
         template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL,
-        personalisation={"leaver_name": leaving_request.get_leaver_name()},
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "leaving_date": leaver_information.leaving_date,
+            "security_team_link": reverse(""),
+        },
     )
