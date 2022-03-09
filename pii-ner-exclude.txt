@@ -20,6 +20,7 @@ below.</a>
 Build Staff Document
 Building Pass Access Revoked
 building_pass_access_task_log
+channel_id
 checkbox
 Cirrus
 Cirrus Equipment
@@ -115,6 +116,7 @@ SERVICE_NOW_INTERFACE
 Session
 Slack
 slack_access_task_log
+SlackMessage.objects.create
 Split
 SRE
 sso_access_task_log

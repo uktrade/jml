@@ -14,7 +14,7 @@ class BasicTask(Task):
     auto = True
 
     def execute(self, task_info):
-        return None, {}
+        return None, {}, True
 
 
 class EmailIds(Enum):
@@ -55,7 +55,7 @@ class NotificationEmail(Task):
 
         send_email_method(leaving_request=self.flow.leaving_request)
 
-        return None, {}
+        return None, {}, True
 
 
 class HasLineManagerCompleted(Task):
@@ -63,7 +63,8 @@ class HasLineManagerCompleted(Task):
     auto = True
 
     def execute(self, task_info):
-        return ["send_line_manager_reminder"], {}
+        return ["send_line_manager_reminder"], {}, False
+        # return ["thank_line_manager"], {}, True
 
 
 class IsItLeavingDatePlusXDays(Task):
@@ -72,7 +73,7 @@ class IsItLeavingDatePlusXDays(Task):
 
     def execute(self, task_info):
         print("is it x days before leaving date task executed")
-        return None, {}
+        return None, {}, True
 
 
 class IsItXDaysBeforePayroll(Task):
@@ -81,7 +82,7 @@ class IsItXDaysBeforePayroll(Task):
 
     def execute(self, task_info):
         print("is it x days before payroll date task executed")
-        return None, {}
+        return None, {}, True
 
 
 class HaveSRECarriedOutLeavingTasks(Task):
@@ -89,7 +90,7 @@ class HaveSRECarriedOutLeavingTasks(Task):
     auto = True
 
     def execute(self, task_info):
-        return None, {}
+        return None, {}, True
 
 
 class SendSRESlackMessage(Task):
@@ -109,7 +110,7 @@ class SendSRESlackMessage(Task):
         except FailedToSendSREAlertMessage:
             print("Failed to send SRE alert message")
 
-        return None, {}
+        return None, {}, True
 
 
 class HaveHRCarriedOutLeavingTasks(Task):
@@ -117,7 +118,7 @@ class HaveHRCarriedOutLeavingTasks(Task):
     auto = True
 
     def execute(self, task_info):
-        return None, {}
+        return None, {}, True
 
 
 class LeaverCompleteTask(Task):
@@ -125,4 +126,4 @@ class LeaverCompleteTask(Task):
     auto = True
 
     def execute(self, task_info):
-        return None, {}
+        return None, {}, True
