@@ -7,8 +7,6 @@ from django.core.exceptions import SuspiciousOperation, ValidationError
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-
-
 User = get_user_model()
 
 DEV_TOOLS_ENABLED = settings.APP_ENV in ("local", "dev")

@@ -70,7 +70,6 @@ LeaversWorkflow = Workflow(
                 "notify_ocs_of_leaving",
                 "send_security_notification",
                 "is_it_leaving_date_plus_x",
-                "notify_hr_of_leaving",
             ],
         ),
         # CSU4
@@ -159,55 +158,6 @@ LeaversWorkflow = Workflow(
             ],
             task_info={
                 "email_id": EmailIds.SRE_REMINDER.value,
-                "reminder_wait_time": 86400,  # 1 day
-            },
-            break_flow=True,
-        ),
-        # HR
-        Step(
-            step_id="notify_hr_of_leaving",
-            task_name="notification_email",
-            targets=[
-                "is_it_x_days_before_payroll",
-            ],
-            task_info={
-                "email_id": EmailIds.HR_LEAVER_NOTIFICATION.value,
-            },
-        ),
-        Step(
-            step_id="is_it_x_days_before_payroll",
-            task_name="is_it_x_days_before_payroll",
-            targets=[
-                "ask_hr_to_confirm_leaving_tasks",
-            ],
-            break_flow=True,
-        ),
-        Step(
-            step_id="ask_hr_to_confirm_leaving_tasks",
-            task_name="notification_email",
-            targets=[
-                "have_hr_carried_out_leaving_tasks",
-            ],
-            task_info={
-                "email_id": EmailIds.HR_TASKS_NOTIFICATION.value,
-            },
-        ),
-        Step(
-            step_id="have_hr_carried_out_leaving_tasks",
-            task_name="have_hr_carried_out_leaving_tasks",
-            targets=[
-                "send_hr_reminder",
-                "are_all_tasks_complete",
-            ],
-        ),
-        Step(
-            step_id="send_hr_reminder",
-            task_name="reminder_email",
-            targets=[
-                "have_hr_carried_out_leaving_tasks",
-            ],
-            task_info={
-                "email_id": EmailIds.HR_REMINDER.value,
                 "reminder_wait_time": 86400,  # 1 day
             },
             break_flow=True,

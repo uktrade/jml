@@ -33,7 +33,6 @@ class EmailIds(Enum):
     SECURITY_OFFBOARD_LEAVER_NOTIFICATION = "security_offboard_leaver_notification"
     SECURITY_OFFBOARD_LEAVER_REMINDER = "security_offboard_leaver_reminder"
     SRE_REMINDER = "sre_reminder"
-    HR_LEAVER_NOTIFICATION = "hr_leaver_notification"
     HR_TASKS_NOTIFICATION = "hr_tasks_notification"
     HR_REMINDER = "hr_reminder"
     CSU4_EMAIL = "csu4_email"
@@ -49,7 +48,6 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.SECURITY_OFFBOARD_LEAVER_NOTIFICATION: send_security_team_offboard_leaver_email,
     EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER: None,
     EmailIds.SRE_REMINDER: None,
-    EmailIds.HR_LEAVER_NOTIFICATION: None,
     EmailIds.HR_TASKS_NOTIFICATION: None,
     EmailIds.HR_REMINDER: None,
     EmailIds.CSU4_EMAIL: send_csu4_leaver_email,
