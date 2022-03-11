@@ -1,8 +1,9 @@
 from typing import Dict
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Fluid, Layout, Submit
+from crispy_forms_gds.layout import HTML, Field, Fluid, Layout, Submit
 from django import forms
+from django.db.models.enums import TextChoices
 
 from core.forms import GovFormattedForm
 
@@ -23,25 +24,53 @@ class SecurityTeamSearchForm(GovFormattedForm):
         )
 
 
+class SecurityPassChoices(TextChoices):
+    RETURNED = "returned", "Returned"
+    DESTROYED = "destroyed", "Destroyed"
+
+
 class SecurityTeamConfirmCompleteForm(GovFormattedForm):
-    building_pass_access_revoked = forms.BooleanField(
-        label="Building Pass Access Revoked",
-        required=True,
+    security_pass = forms.ChoiceField(
+        label="Security pass",
+        required=False,
+        choices=[(None, "Select an option")] + SecurityPassChoices.choices,
     )
-    rosa_access_revoked = forms.BooleanField(
-        label="ROSA Access Revoked (where appropriate)",
-        required=True,
+    rosa_laptop_returned = forms.BooleanField(
+        label="ROSA laptop returned",
+        required=False,
+    )
+    rosa_key_returned = forms.BooleanField(
+        label="ROSA log-in key returned",
+        required=False,
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         required_message_replacement: Dict[str, str] = {
-            "building_pass_access_revoked": "Building Pass Access Revoked",
-            "rosa_access_revoked": "ROSA Access Revoked",
+            "security_pass": "Security pass",
+            "rosa_laptop_returned": "ROSA laptop returned",
+            "rosa_key_returned": "ROSA log-in keyreturned",
         }
         for field_name, field in self.fields.items():
             if field_name in required_message_replacement:
                 message_replacement = required_message_replacement[field_name]
                 field.error_messages[
                     "required"
-                ] = f"Select {message_replacement} to confirm removal."
+                ] = f"Select '{message_replacement}' to confirm removal."
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.checkbox("security_pass"),
+            Field.checkbox("rosa_laptop_returned"),
+            Field.checkbox("rosa_key_returned"),
+            HTML.p(
+                "Select Confirm and Send only when you have removed access to all "
+                "the tools and services for {{ leaver_name }}."
+            ),
+            Submit(
+                "save",
+                "Save and continue later",
+                css_class="govuk-button--secondary",
+            ),
+            Submit("submit", "Confirm and send"),
+        )

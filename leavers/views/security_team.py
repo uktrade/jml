@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.search import SearchVector
@@ -12,6 +12,7 @@ from django.views.generic.edit import FormView
 
 from leavers.forms import security_team as security_team_forms
 from leavers.models import LeavingRequest, TaskLog
+from leavers.views import base
 
 
 class LeavingRequestListing(
@@ -124,60 +125,62 @@ class LeavingRequestListing(
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class TaskConfirmationView(
-    UserPassesTestMixin,
-    FormView,
-):
+class TaskConfirmationView(base.TaskConfirmationView):
     template_name = "leaving/security_team/task_form.html"
     form_class = security_team_forms.SecurityTeamConfirmCompleteForm
-    leaving_request = None
+    complete_field: str = "security_team_complete"
+
+    # Field mapping from the Form field name to the LeavingRequest field name (with task messages)
+    field_mapping: Dict[str, Tuple[str, str, str]] = {
+        "security_pass": (
+            "security_pass",
+            "Security pass {action} confirmed",
+            "ROSA access {action} uncomfirmed",
+        ),
+        "rosa_laptop_returned": (
+            "rosa_laptop_returned",
+            "ROSA access removal confirmed",
+            "ROSA access removal uncomfirmed",
+        ),
+        "rosa_key_returned": [
+            "rosa_key_returned",
+            "ROSA access removal confirmed",
+            "ROSA access removal unconfirmed",
+        ],
+    }
 
     def test_func(self):
         return self.request.user.groups.filter(
             name="Security Team",
         ).first()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-        return super().dispatch(request, *args, **kwargs)
-
     def get_success_url(self) -> str:
         assert self.leaving_request
         return reverse_lazy("security-team-thank-you", args=[self.leaving_request.uuid])
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["leaver_name"] = self.leaving_request.get_leaver_name()
-        context["leaving_date"] = self.leaving_request.last_day
-        return context
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
 
-    def form_valid(self, form):
-        actions = {
-            "building_pass_access_revoked": [
-                "building_pass_access_revoked",
-                "Building access removed",
-            ],
-            "rosa_access_revoked": [
-                "rosa_access_revoked",
-                "ROSA access removed",
-            ],
-        }
+        for key, value in self.field_mapping.items():
+            leaving_request_value: TaskLog = getattr(self.leaving_request, value[0])
+            if key == "security_pass":
+                for security_pass_choice in security_team_forms.SecurityPassChoices:
+                    if security_pass_choice.value in leaving_request_value.task_name:
+                        initial[key] = security_pass_choice.value
+                        break
+            else:
+                initial[key] = bool(leaving_request_value)
 
-        for key, value in actions.items():
-            if form.cleaned_data[key]:
-                setattr(
-                    self.leaving_request,
-                    value[0],
-                    TaskLog.objects.create(
-                        user=self.request.user,
-                        task_name=value[1],
-                    ),
-                )
+        return initial
 
-        return super(TaskConfirmationView, self).form_valid(form)
+    def format_task_name(self, field_key: str, task_name: str, field_value: Any) -> str:
+        if field_key == "security_pass":
+            return task_name.format(action=field_value)
+        return super().format_task_name(
+            field_key=field_key,
+            task_name=task_name,
+            field_value=field_value,
+        )
 
 
 class ThankYouView(UserPassesTestMixin, TemplateView):
