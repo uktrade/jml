@@ -149,9 +149,24 @@ urlpatterns = [
     ),
     # Security Team
     path(
+        "leaver/security-team/complete-leaving-request/",
+        security_team_views.LeavingRequestListing.as_view(show_complete=True),
+        name="security-team-listing-complete",
+    ),
+    path(
+        "leaver/security-team/incomplete-leaving-request/",
+        security_team_views.LeavingRequestListing.as_view(show_incomplete=True),
+        name="security-team-listing-incomplete",
+    ),
+    path(
         "leaver/security-team/<uuid:leaving_request_id>/",
         security_team_views.TaskConfirmationView.as_view(),
         name="security-team-confirmation",
+    ),
+    path(
+        "leaver/security-team/<uuid:leaving_request_id>/summary/",
+        sre_views.TaskSummaryView.as_view(),
+        name="security-team-summary",
     ),
     path(
         "leaver/security-team/thank-you/<uuid:leaving_request_id>/",

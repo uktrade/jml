@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group
 from django.test.testcases import TestCase
 
 from leavers.factories import LeavingRequestFactory
-from leavers.models import TaskLog
+from leavers.models import LeavingRequest, TaskLog
 from leavers.tests.views.include import ViewAccessTest
 
 
@@ -13,7 +13,7 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         # Create Leaving Request
-        self.leaving_request = LeavingRequestFactory()
+        self.leaving_request: LeavingRequest = LeavingRequestFactory()
         # Add the Security Team User Group (and add the authenticated user to it)  /PS-IGNORE
         security_team_group, _ = Group.objects.get_or_create(name="Security Team")
         self.authenticated_user.groups.add(security_team_group.id)
@@ -24,10 +24,8 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
 
-        leaver_first_name = self.leaving_request.leaver_first_name
-        leaver_last_name = self.leaving_request.leaver_last_name
         self.assertEqual(
-            response.context["leaver_name"], f"{leaver_first_name} {leaver_last_name}"
+            response.context["leaver_name"], self.leaving_request.get_leaver_name()
         )
         self.assertEqual(
             response.context["leaving_date"], self.leaving_request.last_day

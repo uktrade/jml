@@ -19,9 +19,7 @@ def send_sre_alert_message(*, leaving_request: LeavingRequest) -> SlackResponse:
             "sre-confirmation", kwargs={"leaving_request_id": leaving_request.uuid}
         )
 
-        leaver_name = (
-            f"{leaving_request.leaver_first_name} {leaving_request.leaver_last_name}"
-        )
+        leaver_name = leaving_request.get_leaver_name()
 
         if leaving_request.last_day:
             leaving_date = leaving_request.last_day.strftime("%d/%m/%Y")
@@ -58,9 +56,7 @@ def send_sre_complete_message(
     if not settings.SLACK_SRE_CHANNEL_ID:
         raise FailedToSendSRECompleteMessage("SLACK_SRE_CHANNEL_ID is not set")
 
-    leaver_name = (
-        f"{leaving_request.leaver_first_name} {leaving_request.leaver_last_name}"
-    )
+    leaver_name = leaving_request.get_leaver_name()
 
     try:
         return send_slack_message(

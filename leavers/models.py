@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -57,25 +57,6 @@ class LeavingRequest(models.Model):
         related_name="+",
         blank=True,
         null=True,
-    )
-    # We won't necessary have an app user
-    leaver_first_name = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-    )
-    leaver_last_name = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-    )
-
-    hardware_received = models.OneToOneField(
-        TaskLog,
-        on_delete=models.CASCADE,
-        related_name="hardware_task_log",
-        null=True,
-        blank=True,
     )
 
     """
@@ -174,6 +155,8 @@ class LeavingRequest(models.Model):
         blank=True,
     )
 
+    security_team_complete = models.DateTimeField(null=True, blank=True)
+
     """
     UKSBS PDF data
     """
@@ -199,19 +182,42 @@ class LeavingRequest(models.Model):
     Methods
     """
 
-    def get_leaver_name(self) -> str:
-        leaver_activitystream_user = self.leaver_activitystream_user
-        leaver_first_name = (
-            self.leaver_first_name or leaver_activitystream_user.first_name
-        )
-        leaver_last_name = self.leaver_last_name or leaver_activitystream_user.last_name
-        if leaver_activitystream_user:
-            if not leaver_first_name:
-                leaver_first_name = leaver_activitystream_user.first_name
-            if not leaver_last_name:
-                leaver_last_name = leaver_activitystream_user.last_name
+    def get_leaver_name(self) -> Optional[str]:
+        """
+        Get the Leaver's name in order of preference:
 
-        return f"{leaver_first_name} {leaver_last_name}"
+        - From the LeaverInformation (This should be up to date info provided by the Leaver)
+        - From the Leaver Activity Stream
+        """
+        leaver_information: Optional[
+            "LeaverInformation"
+        ] = self.leaver_information.first()
+        if leaver_information:
+            leaver_info_first_name = leaver_information.leaver_first_name
+            leaver_info_last_name = leaver_information.leaver_last_name
+            if leaver_info_first_name and leaver_info_last_name:
+                return f"{leaver_info_first_name} {leaver_info_last_name}"
+
+        leaver_activitystream_user = self.leaver_activitystream_user
+        if leaver_activitystream_user:
+            leaver_as_first_name = leaver_activitystream_user.first_name
+            leaver_as_last_name = leaver_activitystream_user.last_name
+            if leaver_as_first_name and leaver_as_last_name:
+                return f"{leaver_as_first_name} {leaver_as_last_name}"
+
+        return None
+
+    def get_leaver_email(self) -> Optional[str]:
+        leaver_information: Optional[
+            "LeaverInformation"
+        ] = self.leaver_information.first()
+        if leaver_information and leaver_information.leaver_email:
+            return leaver_information.leaver_email
+
+        if self.leaver_activitystream_user:
+            return self.leaver_activitystream_user.email
+
+        return None
 
     def sre_services(self) -> List[Tuple[str, bool]]:
         """
