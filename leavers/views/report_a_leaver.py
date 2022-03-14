@@ -203,8 +203,6 @@ class ConfirmationView(FormView):
             manager_activitystream_user=self.manager_activitystream_user,
             user_requesting=user,
             flow=flow,
-            leaver_first_name=self.leaver["first_name"],
-            leaver_last_name=self.leaver["last_name"],
             last_day=last_day,
         )
 

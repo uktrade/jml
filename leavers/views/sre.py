@@ -53,8 +53,8 @@ class LeavingRequestListing(
         if self.query:
             leaving_requests = leaving_requests.annotate(
                 search=SearchVector(
-                    "leaver_first_name",
-                    "leaver_last_name",
+                    "leaver_information__leaver_first_name",
+                    "leaver_information__leaver_last_name",
                     "leaver_activitystream_user__first_name",
                     "leaver_activitystream_user__last_name",
                     "leaver_activitystream_user__email_address",
@@ -67,17 +67,39 @@ class LeavingRequestListing(
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
+
+        # Set object type name
         object_type_name: str = "leaving requests"
         if self.show_complete and not self.show_incomplete:
             object_type_name: str = "complete leaving requests"
         if self.show_incomplete and not self.show_complete:
             object_type_name: str = "incomplete leaving requests"
-
         context.update(object_type_name=object_type_name)
 
+        # Build the results
         leaving_requests = self.get_leaving_requests()
+        lr_results_data = []
+        for lr in leaving_requests:
+            link = reverse_lazy(
+                "sre-confirmation", kwargs={"leaving_request_id": lr.uuid}
+            )
+            if lr.sre_complete:
+                link = reverse_lazy(
+                    "sre-summary", kwargs={"leaving_request_id": lr.uuid}
+                )
 
-        paginator = Paginator(leaving_requests, 20)
+            lr_results_data.append(
+                {
+                    "link": link,
+                    "last_day": lr.last_day,
+                    "leaver_name": lr.get_leaver_name(),
+                    "leaver_email": lr.get_leaver_email(),
+                    "complete": lr.sre_complete,
+                }
+            )
+
+        # Paginate the results
+        paginator = Paginator(lr_results_data, 20)
         page_number: int = int(self.request.GET.get("page", 1))
         page = paginator.page(page_number)
 

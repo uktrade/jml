@@ -31,6 +31,33 @@ def global_context(request):
     )
 
     if request.user.is_authenticated:
+        if request.user.groups.filter(name="SRE").exists():
+            global_context["DEV_LINKS"].append(
+                (
+                    "SRE landing page (complete)",
+                    reverse("sre-listing-complete"),
+                )
+            )
+            global_context["DEV_LINKS"].append(
+                (
+                    "SRE landing page (incomplete)",
+                    reverse("sre-listing-incomplete"),
+                )
+            )
+        if request.user.groups.filter(name="Security Team").exists():
+            global_context["DEV_LINKS"].append(
+                (
+                    "Security landing page (complete)",
+                    reverse("security-team-listing-complete"),
+                )
+            )
+            global_context["DEV_LINKS"].append(
+                (
+                    "Security landing page (incomplete)",
+                    reverse("security-team-listing-incomplete"),
+                )
+            )
+
         latest_leaving_request = LeavingRequest.objects.filter(
             manager_activitystream_user__email_address=request.user.email
         ).last()
