@@ -165,7 +165,11 @@ class TaskConfirmationView(base.TaskConfirmationView):
             leaving_request_value: TaskLog = getattr(self.leaving_request, value[0])
             if key == "security_pass":
                 for security_pass_choice in security_team_forms.SecurityPassChoices:
-                    if security_pass_choice.value in leaving_request_value.task_name:
+                    if (
+                        leaving_request_value
+                        and security_pass_choice.value
+                        in leaving_request_value.task_name
+                    ):
                         initial[key] = security_pass_choice.value
                         break
             else:

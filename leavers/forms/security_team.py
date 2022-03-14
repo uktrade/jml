@@ -1,7 +1,7 @@
 from typing import Dict
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Field, Fluid, Layout, Submit
+from crispy_forms_gds.layout import Field, Fluid, Layout, Submit
 from django import forms
 from django.db.models.enums import TextChoices
 
@@ -63,10 +63,6 @@ class SecurityTeamConfirmCompleteForm(GovFormattedForm):
             Field.checkbox("security_pass"),
             Field.checkbox("rosa_laptop_returned"),
             Field.checkbox("rosa_key_returned"),
-            HTML.p(
-                "Select Confirm and Send only when you have removed access to all "
-                "the tools and services for {{ leaver_name }}."
-            ),
             Submit(
                 "save",
                 "Save and continue later",
