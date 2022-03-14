@@ -227,6 +227,20 @@ class LeavingRequest(models.Model):
 
         return None
 
+    def get_line_manager_name(self) -> Optional[str]:
+        """
+        Get the Line manager's name.
+        """
+
+        manager_activitystream_user = self.manager_activitystream_user
+        if manager_activitystream_user:
+            line_manager_as_first_name = manager_activitystream_user.first_name
+            line_manager_as_last_name = manager_activitystream_user.last_name
+            if line_manager_as_first_name and line_manager_as_last_name:
+                return f"{line_manager_as_first_name} {line_manager_as_last_name}"
+
+        return None
+
     def sre_services(self) -> List[Tuple[str, bool]]:
         """
         Returns a list of the SRE services and if access has been removed.
@@ -248,6 +262,23 @@ class LeavingRequest(models.Model):
             access_removed: bool = getattr(self, service_field) is not None
             sre_services.append((service_field, service_label, access_removed))
         return sre_services
+
+    def security_access(self) -> List[Tuple[str, bool]]:
+        """
+        Returns a list of the Security tasks and if they have been collected
+        Tuple: (field_name, service_name, item_received)
+        """
+
+        security_team_label_mapping: List[Tuple[str, str, str]] = [
+            ("security_pass", "Security pass"),
+            ("rosa_laptop_returned", "ROSA laptop"),
+            ("rosa_key_returned", "ROSA log-in key"),
+        ]
+        security_items: List[Tuple[str, bool]] = []
+        for field_name, service_name in security_team_label_mapping:
+            item_received: bool = getattr(self, field_name) is not None
+            security_items.append((field_name, service_name, item_received))
+        return security_items
 
 
 class SlackMessage(models.Model):

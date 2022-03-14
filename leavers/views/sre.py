@@ -273,6 +273,7 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
                 for sre_service in self.leaving_request.sre_services()
                 if sre_service[2]
             ],
+            complete=bool(self.leaving_request.sre_complete),
         )
 
         return context

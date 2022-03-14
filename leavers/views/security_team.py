@@ -205,6 +205,15 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context.update(leaver_name=self.leaving_request.get_leaver_name())
+        context.update(
+            leaver_name=self.leaving_request.get_leaver_name(),
+            line_manager_name=self.leaving_request.get_line_manager_name(),
+            security_access=[
+                security_item[1]
+                for security_item in self.leaving_request.security_access()
+                if security_item[2]
+            ],
+            complete=bool(self.leaving_request.security_team_complete),
+        )
 
         return context
