@@ -712,7 +712,7 @@ class TestCirrusEquipmentView(TestCase):
         user = UserFactory()
         self.client.force_login(user)
 
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(6):
             response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 200)
@@ -843,7 +843,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_post_no_form_name(self) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(10):
+        with self.assertNumQueries(12):
             response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 200)

@@ -63,8 +63,8 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
     def test_search(self) -> None:
         LeavingRequestFactory.create_batch(50)
         LeavingRequestFactory(
-            leaver_first_name="Joe",
-            leaver_last_name="Bloggs",
+            leaver_activitystream_user__first_name="Joe",
+            leaver_activitystream_user__last_name="Bloggs",
         )
 
         self.client.force_login(self.authenticated_user)
@@ -132,8 +132,8 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         LeavingRequestFactory.create_batch(50, sre_complete=timezone.now())
         LeavingRequestFactory(
             sre_complete=timezone.now(),
-            leaver_first_name="Joe",
-            leaver_last_name="Bloggs",
+            leaver_activitystream_user__first_name="Joe",
+            leaver_activitystream_user__last_name="Bloggs",
         )
 
         self.client.force_login(self.authenticated_user)
