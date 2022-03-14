@@ -135,17 +135,17 @@ class TaskConfirmationView(base.TaskConfirmationView):
         "security_pass": (
             "security_pass",
             "Security pass {action} confirmed",
-            "ROSA access {action} uncomfirmed",
+            "Security pass {action} uncomfirmed",
         ),
         "rosa_laptop_returned": (
             "rosa_laptop_returned",
-            "ROSA access removal confirmed",
-            "ROSA access removal uncomfirmed",
+            "ROSA laptop return confirmed",
+            "ROSA laptop return uncomfirmed",
         ),
         "rosa_key_returned": [
             "rosa_key_returned",
-            "ROSA access removal confirmed",
-            "ROSA access removal unconfirmed",
+            "ROSA key return confirmed",
+            "ROSA key return unconfirmed",
         ],
     }
 
