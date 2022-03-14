@@ -15,7 +15,7 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
 
     def setUp(self) -> None:
         super().setUp()
-        # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE
+        # Add the SRE User Group (and add the authenticated user to it)
         sre_group, _ = Group.objects.get_or_create(name="SRE")
         self.authenticated_user.groups.add(sre_group.id)
 
@@ -83,7 +83,7 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
 
     def setUp(self):
         super().setUp()
-        # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE
+        # Add the SRE User Group (and add the authenticated user to it)
         sre_group, _ = Group.objects.get_or_create(name="SRE")
         self.authenticated_user.groups.add(sre_group.id)
 

@@ -223,7 +223,7 @@ class LeavingRequest(models.Model):
             return leaver_information.leaver_email
 
         if self.leaver_activitystream_user:
-            return self.leaver_activitystream_user.email
+            return self.leaver_activitystream_user.email_address
 
         return None
 

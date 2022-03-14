@@ -134,6 +134,8 @@ the DB Creates
 the Health and Safety Team</h2
 the Leaver Activity Stream
 the Leaver Form's
+the Security Team User Group
+the SRE User Group
 to:</p
 UKSBS
 UKSBS Connect
