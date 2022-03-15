@@ -97,6 +97,9 @@ ReturnOptions
 ROSA
 ROSA Access Revoked
 ROSA Kit
+rosa_laptop_returned_task_log
+Security
+Security Team
 Send
 Send Line
 Send OCS Email
@@ -131,6 +134,8 @@ the DB Creates
 the Health and Safety Team</h2
 the Leaver Activity Stream
 the Leaver Form's
+the Security Team User Group
+the SRE User Group
 to:</p
 UKSBS
 UKSBS Connect
@@ -141,4 +146,3 @@ Updated Personal Email
 vpn_access_task_log
 WhiteNoiseMiddleware
 you.</p
-rosa_laptop_returned_task_log

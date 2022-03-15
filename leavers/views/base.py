@@ -112,6 +112,8 @@ class TaskConfirmationView(
         task_name_unconfirmed: str,
     ) -> None:
         if existing_task_log and new_value != old_value:
+            # There was an existing task log, and the value has changed.
+
             # Create a new task log to unconfirm the old action
             old_task_name_unconfirmed = self.format_task_name(
                 field_key=form_field_name,
@@ -123,6 +125,25 @@ class TaskConfirmationView(
                 task_name=old_task_name_unconfirmed,
                 add_to_leaving_request=False,
             )
+
+            # Only create a news task log if the new value is set (not an empty string)
+            if new_value:
+                # Create a new task log to confirm the new action
+                self.create_task(
+                    leaving_request_field_name=leaving_request_field_name,
+                    task_name=task_name_confirmed,
+                    add_to_leaving_request=True,
+                )
+            else:
+                # The new value is empty, so remove the value from the LeavingRequest
+                setattr(
+                    self.leaving_request,
+                    leaving_request_field_name,
+                    None,
+                )
+        elif not existing_task_log and new_value:
+            # There was no existing task log, there is a value set.
+
             # Create a new task log to confirm the new action
             self.create_task(
                 leaving_request_field_name=leaving_request_field_name,

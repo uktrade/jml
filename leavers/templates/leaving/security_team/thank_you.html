@@ -1,5 +1,36 @@
 {% extends "leaving/leaving_base.html" %}
 
 {% block content %}
-    <h1 class="govuk-heading-m">Thank you for removing access for {{ leaver_name }}</h1>
+
+    {% if security_access %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-panel govuk-panel--confirmation">
+                    <h1 class="govuk-panel__title">
+                        Security has been cleared
+                    </h1>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% if security_access %}
+                <p class="govuk-body">The following security items has been marked as received from <em>{{ leaver_name }}</em>:</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    {% for item in security_access %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% if complete %}
+                <h2 class="govuk-heading-m">What happens next?</h2>
+                <p class="govuk-body">An email has been sent to <em>{{ line_manager_name }}</em> to confirm <em>{{ leaver_name }}</em> has returned the items listed above.</p>
+            {% else %}
+                {% comment %} TODO: Messaging around submitting this. {% endcomment %}
+            {% endif %}
+            <a class="govuk-link" href="{% url 'security-team-listing-incomplete' %}">Return to Security Team off-boarding Dashboard</a>
+        </div>
+    </div>
 {% endblock %}
