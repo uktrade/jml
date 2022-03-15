@@ -5,7 +5,7 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <a href="{% url 'who' %}" class="govuk-back-link">Back</a>
+            <a href="{% url 'start' %}" class="govuk-back-link">Back</a>
             {% error_summary form %}
             {% include "leaving/progress_indicator.html" with steps=progress_steps %}
         </div>
