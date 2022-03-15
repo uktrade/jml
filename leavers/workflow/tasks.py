@@ -14,6 +14,7 @@ from leavers.utils import (
     send_rosa_leaver_reminder_email,
     send_rosa_line_manager_reminder_email,
     send_security_team_offboard_leaver_email,
+    send_security_team_offboard_leaver_reminder_email,
 )
 
 
@@ -34,8 +35,6 @@ class EmailIds(Enum):
     SECURITY_OFFBOARD_LEAVER_NOTIFICATION = "security_offboard_leaver_notification"
     SECURITY_OFFBOARD_LEAVER_REMINDER = "security_offboard_leaver_reminder"
     SRE_REMINDER = "sre_reminder"
-    HR_TASKS_NOTIFICATION = "hr_tasks_notification"
-    HR_REMINDER = "hr_reminder"
     CSU4_EMAIL = "csu4_email"
     OCS_EMAIL = "ocs_email"
 
@@ -47,10 +46,8 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LINE_MANAGER_REMINDER: None,
     EmailIds.LINE_MANAGER_THANKYOU: None,
     EmailIds.SECURITY_OFFBOARD_LEAVER_NOTIFICATION: send_security_team_offboard_leaver_email,
-    EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER: None,
+    EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER: send_security_team_offboard_leaver_reminder_email,
     EmailIds.SRE_REMINDER: None,
-    EmailIds.HR_TASKS_NOTIFICATION: None,
-    EmailIds.HR_REMINDER: None,
     EmailIds.CSU4_EMAIL: send_csu4_leaver_email,
     EmailIds.OCS_EMAIL: send_ocs_leaver_email,
 }
@@ -185,18 +182,6 @@ class SendSRESlackMessage(Task):
             print("Failed to send SRE alert message")
 
         return None, {}, True
-
-
-class HaveHRCarriedOutLeavingTasks(Task):
-    task_name = "have_hr_carried_out_leaving_tasks"
-    auto = True
-
-    def execute(self, task_info):
-        # TODO: Define the conditional logic to check if the HR Team have
-        # completed their tasks.
-        if False:
-            return ["are_all_tasks_complete"], {}, True
-        return ["send_hr_reminder"], {}, False
 
 
 class LeaverCompleteTask(Task):

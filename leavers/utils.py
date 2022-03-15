@@ -175,7 +175,7 @@ def send_line_manager_notification_email(leaving_request: LeavingRequest):
 
 def send_security_team_offboard_leaver_email(leaving_request: LeavingRequest):
     """
-    Send Security Team an email to inform them of a new leaver to be offboarded.
+    Send Security Team an email to inform them of a new leaver to be off-boarded.
     """
 
     if not settings.SECURITY_TEAM_EMAIL:
@@ -194,6 +194,36 @@ def send_security_team_offboard_leaver_email(leaving_request: LeavingRequest):
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
             "leaving_date": leaver_information.leaving_date,
-            "security_team_link": reverse(""),
+            "security_team_link": reverse(
+                "security-team-confirmation", args=[leaving_request.uuid]
+            ),
+        },
+    )
+
+
+def send_security_team_offboard_leaver_reminder_email(leaving_request: LeavingRequest):
+    """
+    Send Security Team an email to remind them of a leaver to be offboarded.
+    """
+
+    if not settings.SECURITY_TEAM_EMAIL:
+        raise ValueError("SECURITY_TEAM_EMAIL is not set")
+
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    if not leaver_information:
+        raise ValueError("leaver_information is not set")
+
+    notify.email(
+        email_address=settings.SECURITY_TEAM_EMAIL,
+        template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "leaving_date": leaver_information.leaving_date,
+            "security_team_link": reverse(
+                "security-team-confirmation", args=[leaving_request.uuid]
+            ),
         },
     )
