@@ -284,6 +284,9 @@ OCS_EMAIL = env("OCS_EMAIL")
 # Security Team Settings
 SECURITY_TEAM_EMAIL = env("SECURITY_TEAM_EMAIL")
 
+# SRE Team Settings
+SRE_EMAIL = env("SRE_EMAIL")
+
 # Email Templates
 CSU4_EMAIL_TEMPLATE_ID = env("CSU4_EMAIL_TEMPLATE_ID", default=None)
 OCS_LEAVER_EMAIL_TEMPLATE_ID = env("OCS_LEAVER_EMAIL_TEMPLATE_ID", default=None)

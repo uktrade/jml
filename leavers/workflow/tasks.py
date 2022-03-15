@@ -15,6 +15,7 @@ from leavers.utils import (
     send_rosa_line_manager_reminder_email,
     send_security_team_offboard_leaver_email,
     send_security_team_offboard_leaver_reminder_email,
+    send_sre_reminder_email,
 )
 
 
@@ -47,7 +48,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LINE_MANAGER_THANKYOU: None,
     EmailIds.SECURITY_OFFBOARD_LEAVER_NOTIFICATION: send_security_team_offboard_leaver_email,
     EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER: send_security_team_offboard_leaver_reminder_email,
-    EmailIds.SRE_REMINDER: None,
+    EmailIds.SRE_REMINDER: send_sre_reminder_email,
     EmailIds.CSU4_EMAIL: send_csu4_leaver_email,
     EmailIds.OCS_EMAIL: send_ocs_leaver_email,
 }

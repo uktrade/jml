@@ -19,6 +19,7 @@ class EmailTemplates(Enum):
         settings.SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL
     )
     LINE_MANAGER_NOTIFICATION_EMAIL = settings.LINE_MANAGER_NOTIFICATION_EMAIL
+    SRE_REMINDER = settings.SRE_REMINDER
 
 
 def email(email_address: str, template_id: EmailTemplates, personalisation: Dict):

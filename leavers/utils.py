@@ -227,3 +227,29 @@ def send_security_team_offboard_leaver_reminder_email(leaving_request: LeavingRe
             ),
         },
     )
+
+
+def send_sre_reminder_email(leaving_request: LeavingRequest):
+    """
+    Send SRE Team an email to remind them of a leaver.
+    """
+
+    if not settings.SRE_EMAIL:
+        raise ValueError("SRE_EMAIL is not set")
+
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    if not leaver_information:
+        raise ValueError("leaver_information is not set")
+
+    notify.email(
+        email_address=settings.SRE_EMAIL,
+        template_id=notify.EmailTemplates.SRE_REMINDER,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "leaving_date": leaver_information.leaving_date,
+            "sre_team_link": reverse("sre-confirmation", args=[leaving_request.uuid]),
+        },
+    )
