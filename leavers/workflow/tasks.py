@@ -9,6 +9,7 @@ from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_
 from leavers.models import SlackMessage
 from leavers.utils import (
     send_csu4_leaver_email,
+    send_line_manager_notification_email,
     send_ocs_leaver_email,
     send_rosa_leaver_reminder_email,
     send_rosa_line_manager_reminder_email,
@@ -42,7 +43,7 @@ class EmailIds(Enum):
 EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LEAVER_ROSA_REMINDER: send_rosa_leaver_reminder_email,
     EmailIds.LINE_MANAGER_ROSA_REMINDER: send_rosa_line_manager_reminder_email,
-    EmailIds.LINE_MANAGER_NOTIFICATION: None,
+    EmailIds.LINE_MANAGER_NOTIFICATION: send_line_manager_notification_email,
     EmailIds.LINE_MANAGER_REMINDER: None,
     EmailIds.LINE_MANAGER_THANKYOU: None,
     EmailIds.SECURITY_OFFBOARD_LEAVER_NOTIFICATION: send_security_team_offboard_leaver_email,

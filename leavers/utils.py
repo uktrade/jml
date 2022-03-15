@@ -155,6 +155,24 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
     )
 
 
+def send_line_manager_notification_email(leaving_request: LeavingRequest):
+    """
+    Send Line Manager an email to notify them of a Leaver they need to process.
+    """
+
+    notify.email(
+        email_address=leaving_request.manager_activitystream_user.email_address,
+        template_id=notify.EmailTemplates.LINE_MANAGER_NOTIFICATION_EMAIL,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "manager_name": leaving_request.get_manager_name(),
+            "line_manager_link": reverse(
+                "line-manager-start", args=[leaving_request.uuid]
+            ),
+        },
+    )
+
+
 def send_security_team_offboard_leaver_email(leaving_request: LeavingRequest):
     """
     Send Security Team an email to inform them of a new leaver to be offboarded.
