@@ -7,13 +7,13 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
-from django.utils import timezone
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
 from core.utils.sre_messages import send_sre_complete_message
 from leavers.forms import sre as sre_forms
 from leavers.models import LeavingRequest, TaskLog
+from leavers.views import base
 
 
 class LeavingRequestListing(
@@ -122,13 +122,10 @@ class LeavingRequestListing(
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class TaskConfirmationView(
-    UserPassesTestMixin,
-    FormView,
-):
+class TaskConfirmationView(base.TaskConfirmationView):
     template_name = "leaving/sre/task_form.html"
     form_class = sre_forms.SREConfirmCompleteForm
-    leaving_request = None
+    complete_field: str = "sre_complete"
 
     # Field mapping from the Form field name to the LeavingRequest field name (with task messages)
     field_mapping: Dict[str, Tuple[str, str, str]] = {
@@ -179,82 +176,18 @@ class TaskConfirmationView(
             name="SRE",
         ).first()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-        if self.leaving_request.sre_complete:
-            # TODO: Update with link to the summary page
-            return redirect(self.get_success_url())
-        return super().dispatch(request, *args, **kwargs)
-
     def get_success_url(self) -> str:
         assert self.leaving_request
         return reverse_lazy("sre-thank-you", args=[self.leaving_request.uuid])
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context.update(
-            leaver_name=self.leaving_request.get_leaver_name(),
-            leaving_date=self.leaving_request.last_day,
-        )
-
-        return context
-
-    def get_initial(self) -> Dict[str, Any]:
-        initial = super().get_initial()
-
-        for key, value in self.field_mapping.items():
-            leaving_request_value = getattr(self.leaving_request, value[0])
-            initial[key] = bool(leaving_request_value)
-
-        return initial
-
     def form_valid(self, form):
+        response = super().form_valid(form)
+
         submission_type: Literal["save", "submit"] = "save"
         if "submit" in form.data:
             submission_type = "submit"
 
-        for key, value in self.field_mapping.items():
-            existing_task_log = getattr(self.leaving_request, value[0])
-
-            if key not in form.changed_data:
-                continue
-
-            if form.cleaned_data[key] and not existing_task_log:
-                # Create a TaskLog to not that the checkbox has been checked.
-                new_task_log = self.leaving_request.task_logs.create(
-                    user=self.request.user,
-                    task_name=value[1],
-                )
-                # Set the value on the LeavingRequest so we know that the
-                # checkbox is checked.
-                setattr(
-                    self.leaving_request,
-                    value[0],
-                    new_task_log,
-                )
-            elif not form.cleaned_data[key]:
-                # Create a TaskLog to not that the checkbox was unchecked.
-                self.leaving_request.task_logs.create(
-                    user=self.request.user,
-                    task_name=value[2],
-                )
-                # Remove the value from the LeavingRequest so we know this checkbox
-                # is unchecked.
-                setattr(
-                    self.leaving_request,
-                    value[0],
-                    None,
-                )
-            self.leaving_request.save()
-
         if submission_type == "submit":
-            self.leaving_request.sre_complete = timezone.now()
-            self.leaving_request.save()
-
             first_slack_message = self.leaving_request.slack_messages.order_by(
                 "-created_at"
             ).first()
@@ -268,7 +201,7 @@ class TaskConfirmationView(
                 leaving_request=self.leaving_request,
             )
 
-        return super(TaskConfirmationView, self).form_valid(form)
+        return response
 
 
 class TaskSummaryView(

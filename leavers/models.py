@@ -139,18 +139,26 @@ class LeavingRequest(models.Model):
     Security Team Access
     """
 
-    building_pass_access_revoked = models.OneToOneField(
+    security_pass = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
-        related_name="building_pass_access_task_log",
+        related_name="security_pass_task_log",
         null=True,
         blank=True,
     )
 
-    rosa_access_revoked = models.OneToOneField(
+    rosa_laptop_returned = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
-        related_name="rosa_access_task_log",
+        related_name="rosa_laptop_returned_task_log",
+        null=True,
+        blank=True,
+    )
+
+    rosa_key_returned = models.OneToOneField(
+        TaskLog,
+        on_delete=models.CASCADE,
+        related_name="rosa_key_returned_task_log",
         null=True,
         blank=True,
     )
