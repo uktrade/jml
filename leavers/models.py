@@ -6,6 +6,7 @@ from django.db import models
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from leavers.forms.leaver import ReturnOptions, SecurityClearance
+from leavers.forms.security_team import SecurityPassChoices
 
 
 class TaskLog(models.Model):
@@ -270,13 +271,24 @@ class LeavingRequest(models.Model):
         """
 
         security_team_label_mapping: List[Tuple[str, str, str]] = [
-            ("security_pass", "Security pass"),
+            ("security_pass", "Security pass {value}"),
             ("rosa_laptop_returned", "ROSA laptop"),
             ("rosa_key_returned", "ROSA log-in key"),
         ]
         security_items: List[Tuple[str, bool]] = []
         for field_name, service_name in security_team_label_mapping:
             item_received: bool = getattr(self, field_name) is not None
+            if field_name == "security_pass":
+                field_value = getattr(self, field_name)
+                for security_pass_choice in SecurityPassChoices:
+                    if (
+                        field_value
+                        and security_pass_choice.value in field_value.task_name
+                    ):
+                        service_name: str = service_name.format(
+                            value=security_pass_choice.value
+                        )
+                        break
             security_items.append((field_name, service_name, item_received))
         return security_items
 
