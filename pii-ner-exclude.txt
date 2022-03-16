@@ -84,6 +84,7 @@ LeaversWorkflow
 LeavingRequest
 li class="progress-step{%
 Line
+LINE_MANAGER_REMINDER_EMAIL
 LSD_ZENDESK_TOKEN
 manager_id
 minimum_should_match
