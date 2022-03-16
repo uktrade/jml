@@ -191,6 +191,21 @@ def send_line_manager_reminder_email(leaving_request: LeavingRequest):
     )
 
 
+def send_line_manager_thankyou_email(leaving_request: LeavingRequest):
+    """
+    Send Line Manager a thank you email.
+    """
+
+    notify.email(
+        email_address=leaving_request.manager_activitystream_user.email_address,
+        template_id=notify.EmailTemplates.LINE_MANAGER_THANKYOU_EMAIL,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "manager_name": leaving_request.get_manager_name(),
+        },
+    )
+
+
 def send_security_team_offboard_leaver_email(leaving_request: LeavingRequest):
     """
     Send Security Team an email to inform them of a new leaver to be off-boarded.
