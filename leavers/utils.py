@@ -279,7 +279,7 @@ def send_sre_reminder_email(leaving_request: LeavingRequest):
 
     notify.email(
         email_address=settings.SRE_EMAIL,
-        template_id=notify.EmailTemplates.SRE_REMINDER,
+        template_id=notify.EmailTemplates.SRE_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
             "leaving_date": leaver_information.leaving_date,

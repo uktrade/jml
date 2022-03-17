@@ -21,7 +21,7 @@ class EmailTemplates(Enum):
     LINE_MANAGER_NOTIFICATION_EMAIL = settings.LINE_MANAGER_NOTIFICATION_EMAIL
     LINE_MANAGER_REMINDER_EMAIL = settings.LINE_MANAGER_REMINDER_EMAIL
     LINE_MANAGER_THANKYOU_EMAIL = settings.LINE_MANAGER_THANKYOU_EMAIL
-    SRE_REMINDER = settings.SRE_REMINDER
+    SRE_REMINDER_EMAIL = settings.SRE_REMINDER_EMAIL
 
 
 def email(email_address: str, template_id: EmailTemplates, personalisation: Dict):
