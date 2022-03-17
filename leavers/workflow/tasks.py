@@ -61,6 +61,7 @@ class EmailTask(Task):
 
     def should_send_email(
         self,
+        task_info: Dict,
         email_id: EmailIds,
     ) -> bool:
         """
@@ -80,7 +81,10 @@ class EmailTask(Task):
         if not send_email_method:
             raise Exception(f"Email method not found for {email_id}")
 
-        if self.should_send_email():
+        if self.should_send_email(
+            task_info=task_info,
+            email_id=email_id,
+        ):
             send_email_method(leaving_request=self.flow.leaving_request)
 
         return None, {}, True

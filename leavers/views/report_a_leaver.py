@@ -1,15 +1,12 @@
 from datetime import datetime
 from typing import Any, Optional, cast
 
-from django.core.exceptions import PermissionDenied
 from django.http.request import HttpRequest
 from django.http.response import HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
-from django_workflow_engine.exceptions import WorkflowNotAuthError
-from django_workflow_engine.executor import WorkflowExecutor
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.staff_search.forms import SearchForm
@@ -206,14 +203,12 @@ class ConfirmationView(FormView):
             last_day=last_day,
         )
 
-        executor = WorkflowExecutor(flow)
-
-        try:
-            executor.run_flow(user=self.request.user)
-        except WorkflowNotAuthError as e:
-            raise PermissionDenied(f"{e}")
-
     def form_valid(self, form):
+        if not self.leaver_activitystream_user:
+            raise Exception("No leaver selected.")
+        if not self.manager_activitystream_user:
+            raise Exception("No manager selected.")
+
         # TODO: Send Leaver Notifier Thank you email
 
         self.create_workflow(

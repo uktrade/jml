@@ -15,8 +15,8 @@ class ActivityStreamStaffSSOUserFactory(DjangoModelFactory):
     identifier = factory.fuzzy.FuzzyText(length=255)
     name = factory.fuzzy.FuzzyText(length=255)
     obj_type = factory.fuzzy.FuzzyText(length=255)
-    first_name = factory.fuzzy.FuzzyText(length=255)
-    last_name = factory.fuzzy.FuzzyText(length=255)
+    first_name = factory.fuzzy.FuzzyText(length=50)
+    last_name = factory.fuzzy.FuzzyText(length=50)
     email_address = factory.Sequence(
         lambda n: f"activity_stream_staff_sso_user_{n}@example.com"  # /PS-IGNORE
     )
