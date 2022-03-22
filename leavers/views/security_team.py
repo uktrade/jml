@@ -5,8 +5,8 @@ from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
-from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
@@ -185,6 +185,49 @@ class TaskConfirmationView(base.TaskConfirmationView):
             task_name=task_name,
             field_value=field_value,
         )
+
+
+class TaskSummaryView(
+    UserPassesTestMixin,
+    TemplateView,
+):
+    template_name = "leaving/security_team/summary.html"
+    leaving_request = None
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="Security Team",
+        ).first()
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest,
+            uuid=self.kwargs.get("leaving_request_id", None),
+        )
+        if not self.leaving_request.sre_complete:
+            return redirect(
+                reverse("security-team-confirmation", args=[self.leaving_request.uuid])
+            )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        security_access_items: List[Tuple[str, str, TaskLog]] = [
+            (
+                security_access_item[0],
+                security_access_item[1],
+                getattr(self.leaving_request, security_access_item[0]),
+            )
+            for security_access_item in self.leaving_request.security_access()
+            if security_access_item[2]
+        ]
+        context.update(
+            leaver_name=self.leaving_request.get_leaver_name(),
+            security_access_items=security_access_items,
+        )
+
+        return context
 
 
 class ThankYouView(UserPassesTestMixin, TemplateView):

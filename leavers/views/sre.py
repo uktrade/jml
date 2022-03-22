@@ -230,7 +230,7 @@ class TaskSummaryView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        access_removed_services: List[Tuple[str, str, TaskLog]] = {
+        access_removed_services: List[Tuple[str, str, TaskLog]] = [
             (
                 sre_service[0],
                 sre_service[1],
@@ -238,7 +238,7 @@ class TaskSummaryView(
             )
             for sre_service in self.leaving_request.sre_services()
             if sre_service[2]
-        }
+        ]
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
             access_removed_services=access_removed_services,

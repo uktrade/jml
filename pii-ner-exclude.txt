@@ -97,6 +97,7 @@ ReturnOptions
 ROSA
 ROSA Access Revoked
 ROSA Kit
+ROSA Kit retrieved</h1
 rosa_laptop_returned_task_log
 Security
 Security Team

@@ -165,7 +165,7 @@ urlpatterns = [
     ),
     path(
         "leaver/security-team/<uuid:leaving_request_id>/summary/",
-        sre_views.TaskSummaryView.as_view(),
+        security_team_views.TaskSummaryView.as_view(),
         name="security-team-summary",
     ),
     path(
