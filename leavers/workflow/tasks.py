@@ -1,12 +1,13 @@
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Callable, Dict, Optional
 
 from django.conf import settings
-from django.core.cache import cache
+from django.utils import timezone
 from django_workflow_engine import Task
 
 from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_message
-from leavers.models import SlackMessage
+from leavers.models import LeavingRequest, SlackMessage, TaskLog
 from leavers.utils import (
     send_csu4_leaver_email,
     send_line_manager_notification_email,
@@ -21,7 +22,18 @@ from leavers.utils import (
 )
 
 
-class BasicTask(Task):
+class LeavingRequestTask(Task):
+    abstract = True
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.leaving_request: Optional[LeavingRequest] = getattr(
+            self.flow, "leaving_request", None
+        )
+
+
+class BasicTask(LeavingRequestTask):
+    abstract = False
     task_name = "basic_task"
     auto = True
 
@@ -56,7 +68,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
 }
 
 
-class EmailTask(Task):
+class EmailTask(LeavingRequestTask):
     abstract = True
 
     def should_send_email(
@@ -79,13 +91,18 @@ class EmailTask(Task):
         send_email_method: Optional[Callable] = EMAIL_MAPPING.get(email_id, None)
 
         if not send_email_method:
-            raise Exception(f"Email method not found for {email_id}")
+            raise Exception(f"Email method not found for {email_id.value}")
 
         if self.should_send_email(
             task_info=task_info,
             email_id=email_id,
         ):
-            send_email_method(leaving_request=self.flow.leaving_request)
+            send_email_method(leaving_request=self.leaving_request)
+            email_task_log = self.leaving_request.task_logs.create(
+                task_name=f"Sending email {email_id.value}",
+            )
+            self.leaving_request.email_task_logs.add(email_task_log)
+            self.leaving_request.save()
 
         return None, {}, True
 
@@ -106,18 +123,39 @@ class ReminderEmail(EmailTask):
         task_info: Dict,
         email_id: EmailIds,
     ) -> bool:
-        """
-        Check if the email has been sent recently, if not then return True and cache that
-        we have sent the email.
-        """
-        cache_key = email_id + "_" + self.flow.leaving_request.id
-        sent_email = cache.get(cache_key)
-        if not sent_email:
-            cache.set(cache_key, True, task_info.get("reminder_wait_time", 86400))
+        last_day: datetime = self.leaving_request.last_day
+        latest_email: Optional[TaskLog] = (
+            self.leaving_request.email_task_logs.filter(
+                task_name__contains=email_id.value,
+            )
+            .order_by("-created_at")
+            .first()
+        )
+
+        two_weeks_before_last_day: datetime = last_day - timedelta(days=14)
+        one_week_before_last_day: datetime = last_day - timedelta(days=7)
+
+        # Work out when the next email should be sent
+        if not latest_email:
+            # 2 Weeks before the last day
+            next_email_date: datetime = two_weeks_before_last_day
+        else:
+            latest_email_date = latest_email.created_at
+            if latest_email_date < one_week_before_last_day:
+                # 2 week email was sent
+                next_email_date: datetime = one_week_before_last_day
+            else:
+                # 1 week email was sent
+                next_email_date: datetime = latest_email_date + timedelta(days=1)
+
+        # Send the email if the next email date has passed
+        if timezone.now() >= next_email_date:
             return True
+        return False
 
 
-class HasLineManagerCompleted(Task):
+class HasLineManagerCompleted(LeavingRequestTask):
+    abstract = False
     task_name = "has_line_manager_completed"
     auto = True
 
@@ -129,7 +167,8 @@ class HasLineManagerCompleted(Task):
         return ["send_line_manager_reminder"], {}, False
 
 
-class IsItLeavingDatePlusXDays(Task):
+class IsItLeavingDatePlusXDays(LeavingRequestTask):
+    abstract = False
     task_name = "is_it_leaving_date_plus_x"
     auto = True
 
@@ -138,7 +177,8 @@ class IsItLeavingDatePlusXDays(Task):
         return None, {}, True
 
 
-class IsItXDaysBeforePayroll(Task):
+class IsItXDaysBeforePayroll(LeavingRequestTask):
+    abstract = False
     task_name = "is_it_x_days_before_payroll"
     auto = True
 
@@ -147,7 +187,8 @@ class IsItXDaysBeforePayroll(Task):
         return None, {}, True
 
 
-class HaveSecurityCarriedOutLeavingTasks(Task):
+class HaveSecurityCarriedOutLeavingTasks(LeavingRequestTask):
+    abstract = False
     task_name = "have_security_carried_out_leaving_tasks"
     auto = True
 
@@ -159,7 +200,8 @@ class HaveSecurityCarriedOutLeavingTasks(Task):
         return ["send_security_reminder"], {}, False
 
 
-class HaveSRECarriedOutLeavingTasks(Task):
+class HaveSRECarriedOutLeavingTasks(LeavingRequestTask):
+    abstract = False
     task_name = "have_sre_carried_out_leaving_tasks"
     auto = True
 
@@ -171,18 +213,19 @@ class HaveSRECarriedOutLeavingTasks(Task):
         return ["send_sre_reminder"], {}, False
 
 
-class SendSRESlackMessage(Task):
+class SendSRESlackMessage(LeavingRequestTask):
+    abstract = False
     auto = True
     task_name = "send_sre_slack_message"
 
     def execute(self, task_info):
         try:
             alert_response = send_sre_alert_message(
-                leaving_request=self.flow.leaving_request,
+                leaving_request=self.leaving_request,
             )
             SlackMessage.objects.create(
                 slack_timestamp=alert_response.data["ts"],
-                leaving_request=self.flow.leaving_request,
+                leaving_request=self.leaving_request,
                 channel_id=settings.SLACK_SRE_CHANNEL_ID,
             )
         except FailedToSendSREAlertMessage:
@@ -191,7 +234,8 @@ class SendSRESlackMessage(Task):
         return None, {}, True
 
 
-class LeaverCompleteTask(Task):
+class LeaverCompleteTask(LeavingRequestTask):
+    abstract = False
     task_name = "leaver_complete"
     auto = True
 
