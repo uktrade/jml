@@ -65,6 +65,10 @@ class LeavingRequest(models.Model):
     """
 
     task_logs = models.ManyToManyField(TaskLog)
+    email_task_logs = models.ManyToManyField(
+        TaskLog,
+        related_name="+",
+    )
 
     """
     SRE Access
@@ -241,6 +245,12 @@ class LeavingRequest(models.Model):
                 return f"{line_manager_as_first_name} {line_manager_as_last_name}"
 
         return None
+
+    def get_manager_name(self) -> str:
+        manager_activitystream_user = self.manager_activitystream_user
+        manager_first_name = manager_activitystream_user.first_name
+        manager_last_name = manager_activitystream_user.last_name
+        return f"{manager_first_name} {manager_last_name}"
 
     def sre_services(self) -> List[Tuple[str, bool]]:
         """

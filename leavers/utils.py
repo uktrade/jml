@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING, Optional
 
 from django.conf import settings
+from django.urls import reverse
+from django_workflow_engine.models import Flow
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core import notify
@@ -8,6 +10,27 @@ from leavers.models import LeaverInformation, LeavingRequest
 
 if TYPE_CHECKING:
     from user.models import User
+
+
+def get_or_create_leaving_workflow(
+    *, leaving_request: LeavingRequest, executed_by: "User"
+) -> Flow:
+    """
+    Get or create a workflow for a leaver.
+
+    This workflow is used to track the progress of a leaver's leaving request.
+    """
+
+    if not leaving_request.flow:
+        flow = Flow.objects.create(
+            workflow_name="leaving",
+            executed_by=executed_by,
+            flow_name=f"{leaving_request.get_leaver_name()} is leaving",
+        )
+        leaving_request.flow = flow
+        leaving_request.save()
+
+    return flow
 
 
 def update_or_create_leaving_request(
@@ -71,10 +94,20 @@ def send_ocs_leaver_email(leaving_request: LeavingRequest):
     if not settings.OCS_EMAIL:
         raise ValueError("OCS_EMAIL is not set")
 
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    if not leaver_information:
+        raise ValueError("leaver_information is not set")
+
     notify.email(
         email_address=settings.OCS_EMAIL,
         template_id=notify.EmailTemplates.OCS_LEAVER_EMAIL,
-        personalisation={"leaver_name": leaving_request.get_leaver_name()},
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "leaving_date": leaver_information.leaving_date,
+        },
     )
 
 
@@ -115,20 +148,141 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
     notify.email(
         email_address=leaving_request.manager_activitystream_user.email_address,
         template_id=notify.EmailTemplates.ROSA_LINE_MANAGER_REMINDER_EMAIL,
-        personalisation={"leaver_name": leaving_request.get_leaver_name()},
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "manager_name": leaving_request.get_manager_name(),
+        },
+    )
+
+
+def send_line_manager_notification_email(leaving_request: LeavingRequest):
+    """
+    Send Line Manager an email to notify them of a Leaver they need to process.
+    """
+
+    notify.email(
+        email_address=leaving_request.manager_activitystream_user.email_address,
+        template_id=notify.EmailTemplates.LINE_MANAGER_NOTIFICATION_EMAIL,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "manager_name": leaving_request.get_manager_name(),
+            "line_manager_link": reverse(
+                "line-manager-start", args=[leaving_request.uuid]
+            ),
+        },
+    )
+
+
+def send_line_manager_reminder_email(leaving_request: LeavingRequest):
+    """
+    Send Line Manager a reminder email to notify them of a Leaver they need to process.
+    """
+
+    notify.email(
+        email_address=leaving_request.manager_activitystream_user.email_address,
+        template_id=notify.EmailTemplates.LINE_MANAGER_REMINDER_EMAIL,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "manager_name": leaving_request.get_manager_name(),
+            "line_manager_link": reverse(
+                "line-manager-start", args=[leaving_request.uuid]
+            ),
+        },
+    )
+
+
+def send_line_manager_thankyou_email(leaving_request: LeavingRequest):
+    """
+    Send Line Manager a thank you email.
+    """
+
+    notify.email(
+        email_address=leaving_request.manager_activitystream_user.email_address,
+        template_id=notify.EmailTemplates.LINE_MANAGER_THANKYOU_EMAIL,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "manager_name": leaving_request.get_manager_name(),
+        },
     )
 
 
 def send_security_team_offboard_leaver_email(leaving_request: LeavingRequest):
     """
-    Send Security Team an email to inform them of a new leaver to be offboarded.
+    Send Security Team an email to inform them of a new leaver to be off-boarded.
     """
 
     if not settings.SECURITY_TEAM_EMAIL:
         raise ValueError("SECURITY_TEAM_EMAIL is not set")
 
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    if not leaver_information:
+        raise ValueError("leaver_information is not set")
+
     notify.email(
         email_address=settings.SECURITY_TEAM_EMAIL,
         template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL,
-        personalisation={"leaver_name": leaving_request.get_leaver_name()},
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "leaving_date": leaver_information.leaving_date,
+            "security_team_link": reverse(
+                "security-team-confirmation", args=[leaving_request.uuid]
+            ),
+        },
+    )
+
+
+def send_security_team_offboard_leaver_reminder_email(leaving_request: LeavingRequest):
+    """
+    Send Security Team an email to remind them of a leaver to be offboarded.
+    """
+
+    if not settings.SECURITY_TEAM_EMAIL:
+        raise ValueError("SECURITY_TEAM_EMAIL is not set")
+
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    if not leaver_information:
+        raise ValueError("leaver_information is not set")
+
+    notify.email(
+        email_address=settings.SECURITY_TEAM_EMAIL,
+        template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "leaving_date": leaver_information.leaving_date,
+            "security_team_link": reverse(
+                "security-team-confirmation", args=[leaving_request.uuid]
+            ),
+        },
+    )
+
+
+def send_sre_reminder_email(leaving_request: LeavingRequest):
+    """
+    Send SRE Team an email to remind them of a leaver.
+    """
+
+    if not settings.SRE_EMAIL:
+        raise ValueError("SRE_EMAIL is not set")
+
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    if not leaver_information:
+        raise ValueError("leaver_information is not set")
+
+    notify.email(
+        email_address=settings.SRE_EMAIL,
+        template_id=notify.EmailTemplates.SRE_REMINDER_EMAIL,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "leaving_date": leaver_information.leaving_date,
+            "sre_team_link": reverse("sre-confirmation", args=[leaving_request.uuid]),
+        },
     )

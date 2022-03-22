@@ -45,10 +45,10 @@ class TestConfirmationView(ViewAccessTest, TestCase):
             email_address=self.leaver_email
         )
         self.manager_as_sso_user = ActivityStreamStaffSSOUserFactory()
-        self.url_query_params = f"manager_id={self.manager_as_sso_user.identifier}"
+        self.url_query_params = f"manager_uuid={self.manager_as_sso_user.identifier}"
         session = self.client.session
-        session["leaver_id"] = self.leaver_as_sso_user.identifier
-        session["manager_id"] = self.manager_as_sso_user.identifier
+        session["leaver_uuid"] = self.leaver_as_sso_user.identifier
+        session["manager_uuid"] = self.manager_as_sso_user.identifier
         session.save()
 
     def assert_authenticated_pass(self, method: str, response):

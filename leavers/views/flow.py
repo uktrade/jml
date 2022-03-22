@@ -40,7 +40,6 @@ class LeaversFlowContinueView(
     LeaverBaseView,
     FlowContinueView,
 ):
-    # TODO: Can't override template like this for the continue view.
     template_name = "flow/flow_continue.html"
 
 

@@ -29,7 +29,10 @@ from leavers import types
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation, LeavingRequest
-from leavers.utils import update_or_create_leaving_request
+from leavers.utils import (
+    get_or_create_leaving_workflow,
+    update_or_create_leaving_request,
+)
 from user.models import User
 
 MANAGER_SEARCH_PARAM = "manager_id"
@@ -58,10 +61,9 @@ class MyManagerSearchView(StaffSearchView):
 class LeaverInformationMixin:
     people_finder_search = get_people_finder_interface()
 
-    def get_leaver_information(self, email: str, requester: User) -> LeaverInformation:
+    def get_leaving_request(self, email: str, requester: User) -> LeavingRequest:
         """
-        Get the Leaver information stored in the DB
-        Creates a new model if one doesn't exist.
+        Get the Leaving Request for the Leaver
         """
 
         try:
@@ -75,6 +77,14 @@ class LeaverInformationMixin:
             leaver=leaver_activitystream_user,
             user_requesting=requester,
         )
+        return leaving_request
+
+    def get_leaver_information(self, email: str, requester: User) -> LeaverInformation:
+        """
+        Get the Leaver information stored in the DB
+        Creates a new model if one doesn't exist.
+        """
+        leaving_request = self.get_leaving_request(email=email, requester=requester)
 
         leaver_info, _ = LeaverInformation.objects.get_or_create(
             leaving_request=leaving_request,
@@ -392,6 +402,13 @@ class LeaverInformationMixin:
             leaver_info=leaver_info,
             leaver_details=leaver_details,
             assets=assets,
+        )
+
+    def create_workflow(self, email: str, requester: User):
+        leaving_request = self.get_leaving_request(email=email, requester=requester)
+        get_or_create_leaving_workflow(
+            leaving_request=leaving_request,
+            executed_by=requester,
         )
 
 
@@ -947,6 +964,11 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         # Check if a manager has been selected.
         if not self.get_manager():
             return self.form_invalid(form)
+
+        # TODO: Send Leaver Thank you email
+
+        # Create the workflow
+        self.create_workflow(email=user_email, requester=user)
 
         return super().form_valid(form)
 

@@ -1,76 +1,246 @@
+from datetime import datetime, timedelta
+from enum import Enum
+from typing import Callable, Dict, Optional
+
 from django.conf import settings
+from django.utils import timezone
 from django_workflow_engine import Task
 
 from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_message
-from leavers.models import SlackMessage
+from leavers.models import LeavingRequest, SlackMessage, TaskLog
+from leavers.utils import (
+    send_csu4_leaver_email,
+    send_line_manager_notification_email,
+    send_line_manager_reminder_email,
+    send_line_manager_thankyou_email,
+    send_ocs_leaver_email,
+    send_rosa_leaver_reminder_email,
+    send_rosa_line_manager_reminder_email,
+    send_security_team_offboard_leaver_email,
+    send_security_team_offboard_leaver_reminder_email,
+    send_sre_reminder_email,
+)
 
 
-class BasicTask(Task):
+class LeavingRequestTask(Task):
+    abstract = True
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.leaving_request: Optional[LeavingRequest] = getattr(
+            self.flow, "leaving_request", None
+        )
+
+
+class BasicTask(LeavingRequestTask):
+    abstract = False
     task_name = "basic_task"
     auto = True
 
     def execute(self, task_info):
-        return None, {}
+        return None, {}, True
 
 
-class NotificationEmail(Task):
+class EmailIds(Enum):
+    LEAVER_ROSA_REMINDER = "leaver_rosa_reminder"
+    LINE_MANAGER_ROSA_REMINDER = "line_manager_rosa_reminder"
+    LINE_MANAGER_NOTIFICATION = "line_manager_notification"
+    LINE_MANAGER_REMINDER = "line_manager_reminder"
+    LINE_MANAGER_THANKYOU = "line_manager_thankyou"
+    SECURITY_OFFBOARD_LEAVER_NOTIFICATION = "security_offboard_leaver_notification"
+    SECURITY_OFFBOARD_LEAVER_REMINDER = "security_offboard_leaver_reminder"
+    SRE_REMINDER = "sre_reminder"
+    CSU4_EMAIL = "csu4_email"
+    OCS_EMAIL = "ocs_email"
+
+
+EMAIL_MAPPING: Dict[EmailIds, Callable] = {
+    EmailIds.LEAVER_ROSA_REMINDER: send_rosa_leaver_reminder_email,
+    EmailIds.LINE_MANAGER_ROSA_REMINDER: send_rosa_line_manager_reminder_email,
+    EmailIds.LINE_MANAGER_NOTIFICATION: send_line_manager_notification_email,
+    EmailIds.LINE_MANAGER_REMINDER: send_line_manager_reminder_email,
+    EmailIds.LINE_MANAGER_THANKYOU: send_line_manager_thankyou_email,
+    EmailIds.SECURITY_OFFBOARD_LEAVER_NOTIFICATION: send_security_team_offboard_leaver_email,
+    EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER: send_security_team_offboard_leaver_reminder_email,
+    EmailIds.SRE_REMINDER: send_sre_reminder_email,
+    EmailIds.CSU4_EMAIL: send_csu4_leaver_email,
+    EmailIds.OCS_EMAIL: send_ocs_leaver_email,
+}
+
+
+class EmailTask(LeavingRequestTask):
+    abstract = True
+
+    def should_send_email(
+        self,
+        task_info: Dict,
+        email_id: EmailIds,
+    ) -> bool:
+        """
+        Check if we should send the email.
+        This method can be used to prevent the task from sending the email.
+
+        Example scenarios:
+        - Email no longer needed
+        - Email was sent recently and we only want to send evert X mins/days/hours
+        """
+        return True
+
+    def execute(self, task_info):
+        email_id: EmailIds = EmailIds(task_info["email_id"])
+        send_email_method: Optional[Callable] = EMAIL_MAPPING.get(email_id, None)
+
+        if not send_email_method:
+            raise Exception(f"Email method not found for {email_id.value}")
+
+        if self.should_send_email(
+            task_info=task_info,
+            email_id=email_id,
+        ):
+            send_email_method(leaving_request=self.leaving_request)
+            email_task_log = self.leaving_request.task_logs.create(
+                task_name=f"Sending email {email_id.value}",
+            )
+            self.leaving_request.email_task_logs.add(email_task_log)
+            self.leaving_request.save()
+
+        return None, {}, True
+
+
+class NotificationEmail(EmailTask):
+    abstract = False
     task_name = "notification_email"
     auto = True
 
+
+class ReminderEmail(EmailTask):
+    abstract = False
+    task_name = "reminder_email"
+    auto = True
+
+    def should_send_email(
+        self,
+        task_info: Dict,
+        email_id: EmailIds,
+    ) -> bool:
+        last_day: datetime = self.leaving_request.last_day
+        latest_email: Optional[TaskLog] = (
+            self.leaving_request.email_task_logs.filter(
+                task_name__contains=email_id.value,
+            )
+            .order_by("-created_at")
+            .first()
+        )
+
+        two_weeks_before_last_day: datetime = last_day - timedelta(days=14)
+        one_week_before_last_day: datetime = last_day - timedelta(days=7)
+
+        # Work out when the next email should be sent
+        if not latest_email:
+            # 2 Weeks before the last day
+            next_email_date: datetime = two_weeks_before_last_day
+        else:
+            latest_email_date = latest_email.created_at
+            if latest_email_date < one_week_before_last_day:
+                # 2 week email was sent
+                next_email_date: datetime = one_week_before_last_day
+            else:
+                # 1 week email was sent
+                next_email_date: datetime = latest_email_date + timedelta(days=1)
+
+        # Send the email if the next email date has passed
+        if timezone.now() >= next_email_date:
+            return True
+        return False
+
+
+class HasLineManagerCompleted(LeavingRequestTask):
+    abstract = False
+    task_name = "has_line_manager_completed"
+    auto = True
+
     def execute(self, task_info):
-        print("Notification email task executed...")
-        return None, {}
+        # TODO: Define the conditional logic to check if the line manager has
+        # completed their tasks.
+        if False:
+            return ["thank_line_manager"], {}, True
+        return ["send_line_manager_reminder"], {}, False
 
 
-class IsItLeavingDatePlusXDays(Task):
+class IsItLeavingDatePlusXDays(LeavingRequestTask):
+    abstract = False
     task_name = "is_it_leaving_date_plus_x"
     auto = True
 
     def execute(self, task_info):
         print("is it x days before leaving date task executed")
-        return None, {}
+        return None, {}, True
 
 
-class IsItXDaysBeforePayroll(Task):
+class IsItXDaysBeforePayroll(LeavingRequestTask):
+    abstract = False
     task_name = "is_it_x_days_before_payroll"
     auto = True
 
     def execute(self, task_info):
         print("is it x days before payroll date task executed")
-        return None, {}
+        return None, {}, True
 
 
-class HaveSRECarriedOutLeavingTasks(Task):
+class HaveSecurityCarriedOutLeavingTasks(LeavingRequestTask):
+    abstract = False
+    task_name = "have_security_carried_out_leaving_tasks"
+    auto = True
+
+    def execute(self, task_info):
+        # TODO: Define the conditional logic to check if the Security Team have
+        # completed their tasks.
+        if False:
+            return ["are_all_tasks_complete"], {}, True
+        return ["send_security_reminder"], {}, False
+
+
+class HaveSRECarriedOutLeavingTasks(LeavingRequestTask):
+    abstract = False
     task_name = "have_sre_carried_out_leaving_tasks"
     auto = True
 
     def execute(self, task_info):
-        return None, {}
+        # TODO: Define the conditional logic to check if the SRE Team have
+        # completed their tasks.
+        if False:
+            return ["are_all_tasks_complete"], {}, True
+        return ["send_sre_reminder"], {}, False
 
 
-class SendSRESlackMessage(Task):
+class SendSRESlackMessage(LeavingRequestTask):
+    abstract = False
     auto = True
     task_name = "send_sre_slack_message"
 
     def execute(self, task_info):
         try:
             alert_response = send_sre_alert_message(
-                leaving_request=self.flow.leaving_request,
+                leaving_request=self.leaving_request,
             )
             SlackMessage.objects.create(
                 slack_timestamp=alert_response.data["ts"],
-                leaving_request=self.flow.leaving_request,
+                leaving_request=self.leaving_request,
                 channel_id=settings.SLACK_SRE_CHANNEL_ID,
             )
         except FailedToSendSREAlertMessage:
             print("Failed to send SRE alert message")
 
-        return None, {}
+        return None, {}, True
 
 
-class HaveHRCarriedOutLeavingTasks(Task):
-    task_name = "have_hr_carried_out_leaving_tasks"
+class LeaverCompleteTask(LeavingRequestTask):
+    abstract = False
+    task_name = "leaver_complete"
     auto = True
 
     def execute(self, task_info):
-        return None, {}
+        # TODO: Add conditional logic to check if all previous steps are complete
+        if False:
+            return None, {}, True
+        return None, {}, False
