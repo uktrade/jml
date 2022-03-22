@@ -11,6 +11,7 @@
 # Joiners Movers Leavers
 100px
 activity_stream.activitystreamstaffssouser
+ActivityStream
 Annual Leave
 Annual Leave: "
 API
@@ -25,6 +26,7 @@ Cirrus Equipment
 class="govuk-button__start
 Convert
 Convert Request Data
+Create ActivityStream
 Create/Update Staff ES
 crispy_forms_gds
 CssFinder
@@ -44,6 +46,7 @@ Discuss
 Display Screen Equipment
 DIT
 DjangoTemplates
+DO NOT USE ON PRODUCTION
 Dockerfile.dev
 DSE
 E501
