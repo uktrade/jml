@@ -19,7 +19,7 @@ redis
 sentry-sdk>=1.1.0
 slack_sdk
 slackclient
-waitress==2.0.0
+waitress==2.1.1
 whitenoise==5.2
 whitenoise==5.2.0
 zenpy==2.0.24
