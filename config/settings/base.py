@@ -322,4 +322,4 @@ SEARCH_STAFF_INDEX_NAME = env("SEARCH_STAFF_INDEX_NAME", default="staff")
 
 # Index Current user middleware
 if env("INDEX_CURRENT_USER_MIDDLEWARE", default="false") == "true":
-    MIDDLEWARE.append("core.middlewareIndexCurrentUser")
+    MIDDLEWARE.append("core.middleware.IndexCurrentUser")
