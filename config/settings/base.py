@@ -208,12 +208,10 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "authbroker_client.middleware.ProtectAllViewsMiddleware",
 ]
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "user.backends.CustomAuthbrokerBackend",
 ]
 
 DEV_TOOLS_ENABLED = APP_ENV in ("local", "dev")
@@ -235,6 +233,27 @@ CRISPY_TEMPLATE_PACK = "gds"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
+# Authbroker
+if env("AUTHBROKER_ENABLED", default="false") == "true":
+    AUTHBROKER_ANONYMOUS_PATHS = [
+        "/admin/",
+        "/admin/login/",
+    ]
+    AUTHENTICATION_BACKENDS.append("user.backends.CustomAuthbrokerBackend")
+    MIDDLEWARE.append("authbroker_client.middleware.ProtectAllViewsMiddleware")
+
+# Dev tools
+if env("DEV_TOOLS_ENABLED", default="false") == "true":
+    INSTALLED_APPS += [
+        "dev_tools.apps.DevToolsConfig",
+    ]
+
+    LOGIN_URL = reverse_lazy("dev_tools:index")
+
+    MIDDLEWARE.append("dev_tools.middleware.DevToolsLoginRequiredMiddleware")
+
+
+# Slack
 SLACK_API_TOKEN = env("SLACK_API_TOKEN", default=None)
 SLACK_SRE_CHANNEL_ID = env("SLACK_SRE_CHANNEL_ID", default=None)
 
@@ -272,9 +291,6 @@ SERVICE_NOW_DIT_DEPARTMENT_SYS_ID = env("SERVICE_NOW_DIT_DEPARTMENT_SYS_ID")
 LEGACY_PEOPLE_FINDER_ES_INDEX = env("LEGACY_PEOPLE_FINDER_ES_INDEX", default=None)
 LEGACY_PEOPLE_FINDER_ES_URL = env("LEGACY_PEOPLE_FINDER_ES_URL", default=None)
 
-# GOV.UK Notify
-GOVUK_NOTIFY_API_KEY = env("GOVUK_NOTIFY_API_KEY")
-
 # CSU4 Settings
 CSU4_EMAIL = env("CSU4_EMAIL")
 
@@ -287,21 +303,34 @@ SECURITY_TEAM_EMAIL = env("SECURITY_TEAM_EMAIL")
 # SRE Team Settings
 SRE_EMAIL = env("SRE_EMAIL")
 
+# GOV.UK Notify
+GOVUK_NOTIFY_API_KEY = env("GOVUK_NOTIFY_API_KEY")
+
 # Email Templates
 CSU4_EMAIL_TEMPLATE_ID = env("CSU4_EMAIL_TEMPLATE_ID", default=None)
 OCS_LEAVER_EMAIL_TEMPLATE_ID = env("OCS_LEAVER_EMAIL_TEMPLATE_ID", default=None)
-ROSA_LEAVER_REMINDER_EMAIL = env("ROSA_LEAVER_REMINDER_EMAIL", default=None)
-ROSA_LINE_MANAGER_REMINDER_EMAIL = env("ROSA_LINE_MANAGER_REMINDER_EMAIL", default=None)
-SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL = env(
-    "SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL", default=None
+ROSA_LEAVER_REMINDER_EMAIL_TEMPLATE_ID = env(
+    "ROSA_LEAVER_REMINDER_EMAIL_TEMPLATE_ID", default=None
 )
-SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL = env(
-    "SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL", default=None
+ROSA_LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID = env(
+    "ROSA_LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID", default=None
 )
-SRE_REMINDER_EMAIL = env("SRE_REMINDER_EMAIL", default=None)
-LINE_MANAGER_NOTIFICATION_EMAIL = env("LINE_MANAGER_NOTIFICATION_EMAIL", default=None)
-LINE_MANAGER_REMINDER_EMAIL = env("LINE_MANAGER_REMINDER_EMAIL", default=None)
-LINE_MANAGER_THANKYOU_EMAIL = env("LINE_MANAGER_THANKYOU_EMAIL", default=None)
+SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL_TEMPLATE_ID = env(
+    "SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL_TEMPLATE_ID", default=None
+)
+SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL_TEMPLATE_ID = env(
+    "SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL_TEMPLATE_ID", default=None
+)
+SRE_REMINDER_EMAIL_TEMPLATE_ID = env("SRE_REMINDER_EMAIL_TEMPLATE_ID", default=None)
+LINE_MANAGER_NOTIFICATION_EMAIL_TEMPLATE_ID = env(
+    "LINE_MANAGER_NOTIFICATION_EMAIL_TEMPLATE_ID", default=None
+)
+LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID = env(
+    "LINE_MANAGER_REMINDER_EMAI_TEMPLATE_IDL", default=None
+)
+LINE_MANAGER_THANKYOU_EMAIL_TEMPLATE_ID = env(
+    "LINE_MANAGER_THANKYOU_EMAIL_TEMPLATE_ID", default=None
+)
 
 # LSD Team settings
 LSD_ZENDESK_EMAIL = env("LSD_ZENDESK_EMAIL")
