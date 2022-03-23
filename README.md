@@ -18,46 +18,45 @@
 
 ## Environment Variables
 
-| Environment variable                                     | Default                                    | Notes                                                     |
-| ---------------------------------                        | ------------------------------------------ | ---------------------------------                         |
-| AUTHBROKER_ENABLED                                       | false                                      | Set this value to "true" to require SSO to view the site. |
-| DEV_TOOLS_ENABLED                                        | false                                      | Set this value to "true" to enable Dev Tools.             |
-| SLACK_API_TOKEN                                          | None                                       |                                                           |
-| SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           |
-| PEOPLE_FINDER_HAWK_ACCESS_ID                             |                                            |                                                           |
-| PEOPLE_FINDER_HAWK_SECRET_KEY                            |                                            |                                                           |
-| PEOPLE_FINDER_URL                                        |                                            |                                                           |
-| PEOPLE_FINDER_INTERFACE                                  |                                            |                                                           |
-| STAFF_SSO_ACTIVITY_STREAM_URL                            | None                                       |                                                           |
-| STAFF_SSO_ACTIVITY_STREAM_ID                             | None                                       |                                                           |
-| STAFF_SSO_ACTIVITY_STREAM_SECRET                         | None                                       |                                                           |
-| SERVICE_NOW_INTERFACE                                    | None                                       |                                                           |
-| SERVICE_NOW_API_URL                                      | None                                       |                                                           |
-| SERVICE_NOW_POST_LEAVER_REQUEST                          | None                                       |                                                           |
-| SERVICE_NOW_GET_ASSET_PATH                               | None                                       |                                                           |
-| SERVICE_NOW_GET_USER_PATH                                | None                                       |                                                           |
-| SERVICE_NOW_GET_DIRECTORATE_PATH                         | None                                       |                                                           |
-| SERVICE_NOW_DIT_DEPARTMENT_SYS_ID                        | None                                       |                                                           |
-| LEGACY_PEOPLE_FINDER_ES_INDEX                            | None                                       |                                                           |
-| LEGACY_PEOPLE_FINDER_ES_URL                              | None                                       |                                                           |
-| CSU4_EMAIL                                               | None                                       | Email address for the CSU4 Team                           |
-| OCS_EMAIL                                                | None                                       | Email address for the OCS Team                            |
-| SECURITY_TEAM_EMAIL                                      | None                                       | Email address for the Security Team                       |
-| SRE_EMAIL                                                | None                                       | Email address for the SRE Team                            |
-| GOVUK_NOTIFY_API_KEY                                     | None                                       |                                                           |
-| CSU4_EMAIL_TEMPLATE_ID                                   | None                                       |                                                           |
-| OCS_LEAVER_EMAIL_TEMPLATE_ID                             | None                                       |                                                           |
-| ROSA_LEAVER_REMINDER_EMAIL_TEMPLATE_ID                   | None                                       |                                                           |
-| ROSA_LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID             | None                                       |                                                           |
-| SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL_TEMPLATE_ID          | None                                       |                                                           |
-| SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL_TEMPLATE_ID | None                                       |                                                           |
-| SRE_REMINDER_EMAIL_TEMPLATE_ID                           | None                                       |                                                           |
-| LINE_MANAGER_NOTIFICATION_EMAIL_TEMPLATE_ID              | None                                       |                                                           |
-| LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID                  | None                                       |                                                           |
-| LINE_MANAGER_THANKYOU_EMAIL_TEMPLATE_ID                  | None                                       |                                                           |
-| LSD_ZENDESK_EMAIL                                        |                                            | LSD Team Zendesk email address                            |
-| LSD_ZENDESK_TOKEN                                        |                                            |                                                           |
-| LSD_ZENDESK_SUBDOMAIN                                    |                                            |                                                           |
-| SEARCH_HOST_URLS                                         |                                            |                                                           |
-| SEARCH_STAFF_INDEX_NAME                                  | staff                                      |                                                           |
-| INDEX_CURRENT_USER_MIDDLEWARE                            | false                                      |                                                           |
+| Environment variable                                     | Default                                    | Notes                                                               |
+| ---------------------------------                        | ------------------------------------------ | ---------------------------------                                   |
+| DEV_TOOLS_ENABLED                                        | false                                      | Set this value to "true" to enable Dev Tools and disable Authbroker |
+| SLACK_API_TOKEN                                          | None                                       |                                                                     |
+| SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                                     |
+| PEOPLE_FINDER_HAWK_ACCESS_ID                             |                                            |                                                                     |
+| PEOPLE_FINDER_HAWK_SECRET_KEY                            |                                            |                                                                     |
+| PEOPLE_FINDER_URL                                        |                                            |                                                                     |
+| PEOPLE_FINDER_INTERFACE                                  |                                            |                                                                     |
+| STAFF_SSO_ACTIVITY_STREAM_URL                            | None                                       |                                                                     |
+| STAFF_SSO_ACTIVITY_STREAM_ID                             | None                                       |                                                                     |
+| STAFF_SSO_ACTIVITY_STREAM_SECRET                         | None                                       |                                                                     |
+| SERVICE_NOW_INTERFACE                                    | None                                       |                                                                     |
+| SERVICE_NOW_API_URL                                      | None                                       |                                                                     |
+| SERVICE_NOW_POST_LEAVER_REQUEST                          | None                                       |                                                                     |
+| SERVICE_NOW_GET_ASSET_PATH                               | None                                       |                                                                     |
+| SERVICE_NOW_GET_USER_PATH                                | None                                       |                                                                     |
+| SERVICE_NOW_GET_DIRECTORATE_PATH                         | None                                       |                                                                     |
+| SERVICE_NOW_DIT_DEPARTMENT_SYS_ID                        | None                                       |                                                                     |
+| LEGACY_PEOPLE_FINDER_ES_INDEX                            | None                                       |                                                                     |
+| LEGACY_PEOPLE_FINDER_ES_URL                              | None                                       |                                                                     |
+| CSU4_EMAIL                                               | None                                       | Email address for the CSU4 Team                                     |
+| OCS_EMAIL                                                | None                                       | Email address for the OCS Team                                      |
+| SECURITY_TEAM_EMAIL                                      | None                                       | Email address for the Security Team                                 |
+| SRE_EMAIL                                                | None                                       | Email address for the SRE Team                                      |
+| GOVUK_NOTIFY_API_KEY                                     | None                                       |                                                                     |
+| CSU4_EMAIL_TEMPLATE_ID                                   | None                                       |                                                                     |
+| OCS_LEAVER_EMAIL_TEMPLATE_ID                             | None                                       |                                                                     |
+| ROSA_LEAVER_REMINDER_EMAIL_TEMPLATE_ID                   | None                                       |                                                                     |
+| ROSA_LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID             | None                                       |                                                                     |
+| SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL_TEMPLATE_ID          | None                                       |                                                                     |
+| SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL_TEMPLATE_ID | None                                       |                                                                     |
+| SRE_REMINDER_EMAIL_TEMPLATE_ID                           | None                                       |                                                                     |
+| LINE_MANAGER_NOTIFICATION_EMAIL_TEMPLATE_ID              | None                                       |                                                                     |
+| LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID                  | None                                       |                                                                     |
+| LINE_MANAGER_THANKYOU_EMAIL_TEMPLATE_ID                  | None                                       |                                                                     |
+| LSD_ZENDESK_EMAIL                                        |                                            | LSD Team Zendesk email address                                      |
+| LSD_ZENDESK_TOKEN                                        |                                            |                                                                     |
+| LSD_ZENDESK_SUBDOMAIN                                    |                                            |                                                                     |
+| SEARCH_HOST_URLS                                         |                                            |                                                                     |
+| SEARCH_STAFF_INDEX_NAME                                  | staff                                      |                                                                     |
+| INDEX_CURRENT_USER_MIDDLEWARE                            | false                                      |                                                                     |

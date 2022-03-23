@@ -214,8 +214,6 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
-DEV_TOOLS_ENABLED = APP_ENV in ("local", "dev")
-
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 CACHES = {
@@ -233,17 +231,10 @@ CRISPY_TEMPLATE_PACK = "gds"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
-# Authbroker
-if env("AUTHBROKER_ENABLED", default="false") == "true":
-    AUTHBROKER_ANONYMOUS_PATHS = [
-        "/admin/",
-        "/admin/login/",
-    ]
-    AUTHENTICATION_BACKENDS.append("user.backends.CustomAuthbrokerBackend")
-    MIDDLEWARE.append("authbroker_client.middleware.ProtectAllViewsMiddleware")
+# Dev tools & Authbroker
+DEV_TOOLS_ENABLED = env("DEV_TOOLS_ENABLED", default="false") == "true"
 
-# Dev tools
-if env("DEV_TOOLS_ENABLED", default="false") == "true":
+if DEV_TOOLS_ENABLED:
     INSTALLED_APPS += [
         "dev_tools.apps.DevToolsConfig",
     ]
@@ -251,6 +242,13 @@ if env("DEV_TOOLS_ENABLED", default="false") == "true":
     LOGIN_URL = reverse_lazy("dev_tools:index")
 
     MIDDLEWARE.append("dev_tools.middleware.DevToolsLoginRequiredMiddleware")
+else:
+    AUTHBROKER_ANONYMOUS_PATHS = [
+        "/admin/",
+        "/admin/login/",
+    ]
+    AUTHENTICATION_BACKENDS.append("user.backends.CustomAuthbrokerBackend")
+    MIDDLEWARE.append("authbroker_client.middleware.ProtectAllViewsMiddleware")
 
 
 # Slack

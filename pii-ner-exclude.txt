@@ -12,6 +12,7 @@
 @media
 # Joiners Movers Leavers
 | SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL_TEMPLATE_ID |
+| SLACK_SRE_CHANNEL_ID                                     | None                                       
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
 100px
 activity_stream.activitystreamstaffssouser
@@ -102,6 +103,7 @@ LSD_ZENDESK_TOKEN
 manager_id
 minimum_should_match
 NAME
+None                                       
 OCS
 OCS_EMAIL
 OpenSearch
@@ -161,6 +163,7 @@ Tests for `store_return_information`
 Tests for `store_return_option
 the Cirrus Tech
 the Cirrus Tech Bar
+the CSU4 Team                                     
 the Data Recipient StaffDocument
 the DB Creates
 the Health and Safety Team</h2
