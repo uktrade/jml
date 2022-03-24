@@ -7,7 +7,7 @@ class DevToolsLoginRequiredMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
-        assert settings.APP_ENV in ("local", "dev")
+        assert settings.DEV_TOOLS_ENABLED
 
     def __call__(self, request):
         assert hasattr(request, "user")

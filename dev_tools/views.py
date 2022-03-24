@@ -9,7 +9,7 @@ from django.urls import reverse
 
 User = get_user_model()
 
-DEV_TOOLS_ENABLED = settings.APP_ENV in ("local", "dev")
+DEV_TOOLS_ENABLED = settings.DEV_TOOLS_ENABLED
 
 
 def dev_tools_context(request):
