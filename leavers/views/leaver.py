@@ -287,7 +287,7 @@ class LeaverInformationMixin:
         return leaver_details
 
     def store_leaving_date(
-        self, email: str, requester: User, leaving_date: date
+        self, email: str, requester: User, last_day: date, leaving_date: date
     ) -> None:
         """
         Store the leaving date
@@ -297,8 +297,14 @@ class LeaverInformationMixin:
             email=email,
             requester=requester,
         )
+        leaver_info.last_day = last_day
         leaver_info.leaving_date = leaving_date
-        leaver_info.save(update_fields=["leaving_date"])
+        leaver_info.save(
+            update_fields=[
+                "last_day",
+                "leaving_date",
+            ]
+        )
 
     def store_display_screen_equipment(
         self,
@@ -948,7 +954,8 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         self.store_leaving_date(
             email=user_email,
             requester=user,
-            leaving_date=form.cleaned_data["last_day"],
+            last_day=form.cleaned_data["last_day"],
+            leaving_date=form.cleaned_data["leaving_date"],
         )
 
         # Get the person details with the updates.

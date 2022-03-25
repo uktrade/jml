@@ -72,6 +72,10 @@ class LineManagerConfirmationForm(GovFormattedForm):
 
 
 class ConfirmLeavingDate(GovFormattedForm):
+    last_day = forms.DateField(
+        label="",
+        widget=DateSelectorWidget(hint="For example, 27 3 2007"),
+    )
     leaving_date = forms.DateField(
         label="",
         widget=DateSelectorWidget(hint="For example, 27 3 2007"),

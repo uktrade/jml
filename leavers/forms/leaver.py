@@ -29,6 +29,11 @@ class LeaverConfirmationForm(GovFormattedForm):
         widget=DateSelectorWidget(hint="For example, 27 3 2007"),
         required=False,
     )
+    leaving_date = forms.DateField(
+        label="",
+        widget=DateSelectorWidget(hint="For example, 27 3 2007"),
+        required=False,
+    )
 
 
 class LeaverUpdateForm(GovFormattedForm):

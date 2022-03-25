@@ -33,7 +33,9 @@ class LeavingRequest(models.Model):
     requested_by = models.CharField(
         max_length=255,
     )  # SSO id
+
     last_day = models.DateTimeField(null=True, blank=True)
+    leaving_date = models.DateTimeField(null=True, blank=True)
 
     user_requesting = models.ForeignKey(
         get_user_model(),
@@ -312,6 +314,7 @@ class LeaverInformation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updates = models.JSONField()
 
+    last_day = models.DateTimeField(null=True, blank=True)
     leaving_date = models.DateTimeField(null=True, blank=True)
     leaver_email = models.EmailField(unique=True)
 
