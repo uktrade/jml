@@ -20,7 +20,7 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.authenticated_user.groups.add(sre_group.id)
 
     def test_pagination_one_page(self) -> None:
-        LeavingRequestFactory.create_batch(19)
+        LeavingRequestFactory.create_batch(19, line_manager_complete=timezone.now())
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
@@ -33,7 +33,7 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertNotContains(response, '<nav class="pagination')
 
     def test_pagination_multiple_pages_page_1(self) -> None:
-        LeavingRequestFactory.create_batch(50)
+        LeavingRequestFactory.create_batch(50, line_manager_complete=timezone.now())
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
@@ -47,7 +47,7 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertContains(response, '<nav class="pagination')
 
     def test_pagination_multiple_pages_page_2(self) -> None:
-        LeavingRequestFactory.create_batch(50)
+        LeavingRequestFactory.create_batch(50, line_manager_complete=timezone.now())
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url() + "?page=2")
@@ -61,8 +61,9 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertContains(response, '<nav class="pagination')
 
     def test_search(self) -> None:
-        LeavingRequestFactory.create_batch(50)
+        LeavingRequestFactory.create_batch(50, line_manager_complete=timezone.now())
         LeavingRequestFactory(
+            line_manager_complete=timezone.now(),
             leaver_activitystream_user__first_name="Joe",
             leaver_activitystream_user__last_name="Bloggs",
         )
@@ -88,7 +89,9 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.authenticated_user.groups.add(sre_group.id)
 
     def test_pagination_one_page(self) -> None:
-        LeavingRequestFactory.create_batch(19, sre_complete=timezone.now())
+        LeavingRequestFactory.create_batch(
+            19, line_manager_complete=timezone.now(), sre_complete=timezone.now()
+        )
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
@@ -101,7 +104,9 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertNotContains(response, '<nav class="pagination')
 
     def test_pagination_multiple_pages_page_1(self) -> None:
-        LeavingRequestFactory.create_batch(50, sre_complete=timezone.now())
+        LeavingRequestFactory.create_batch(
+            50, line_manager_complete=timezone.now(), sre_complete=timezone.now()
+        )
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
@@ -115,7 +120,9 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertContains(response, '<nav class="pagination')
 
     def test_pagination_multiple_pages_page_2(self) -> None:
-        LeavingRequestFactory.create_batch(50, sre_complete=timezone.now())
+        LeavingRequestFactory.create_batch(
+            50, line_manager_complete=timezone.now(), sre_complete=timezone.now()
+        )
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url() + "?page=2")
@@ -129,8 +136,11 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertContains(response, '<nav class="pagination')
 
     def test_search(self) -> None:
-        LeavingRequestFactory.create_batch(50, sre_complete=timezone.now())
+        LeavingRequestFactory.create_batch(
+            50, line_manager_complete=timezone.now(), sre_complete=timezone.now()
+        )
         LeavingRequestFactory(
+            line_manager_complete=timezone.now(),
             sre_complete=timezone.now(),
             leaver_activitystream_user__first_name="Joe",
             leaver_activitystream_user__last_name="Bloggs",
@@ -153,7 +163,9 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         # Create Leaving Request (with initial Slack message)
-        self.leaving_request = LeavingRequestFactory()
+        self.leaving_request = LeavingRequestFactory(
+            line_manager_complete=timezone.now()
+        )
         SlackMessageFactory(leaving_request=self.leaving_request)
         # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE
         sre_group, _ = Group.objects.get_or_create(name="SRE")
@@ -262,7 +274,9 @@ class TestThankYouView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         # Create Leaving Request (with initial Slack message)
-        self.leaving_request = LeavingRequestFactory()
+        self.leaving_request = LeavingRequestFactory(
+            line_manager_complete=timezone.now()
+        )
         SlackMessageFactory(leaving_request=self.leaving_request)
         # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE
         sre_group, _ = Group.objects.get_or_create(name="SRE")

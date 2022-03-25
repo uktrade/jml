@@ -71,6 +71,22 @@ class LeavingRequest(models.Model):
     )
 
     """
+    Line Manager
+    """
+
+    uksbs_pdf_data = models.JSONField(null=True, blank=True)
+    security_clearance = models.CharField(
+        choices=SecurityClearance.choices,
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    is_rosa_user = models.BooleanField(null=True, blank=True)
+    holds_government_procurement_card = models.BooleanField(null=True, blank=True)
+
+    line_manager_complete = models.DateTimeField(null=True, blank=True)
+
+    """
     SRE Access
     """
 
@@ -169,27 +185,6 @@ class LeavingRequest(models.Model):
     )
 
     security_team_complete = models.DateTimeField(null=True, blank=True)
-
-    """
-    UKSBS PDF data
-    """
-
-    uksbs_pdf_data = models.JSONField(null=True, blank=True)
-
-    """
-    Line Manager
-    """
-
-    security_clearance = models.CharField(
-        choices=SecurityClearance.choices,
-        max_length=255,
-        blank=True,
-        null=True,
-    )
-    is_rosa_user = models.BooleanField(null=True, blank=True)
-    holds_government_procurement_card = models.BooleanField(null=True, blank=True)
-
-    line_manager_complete = models.DateTimeField(null=True, blank=True)
 
     """
     Methods
