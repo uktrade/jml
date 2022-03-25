@@ -4,6 +4,10 @@ from django import forms
 
 
 class DateSelectorWidget(forms.MultiWidget):
+    """
+    TODO: Replace all usage of this widget with crispy_forms_gds.fields.DateInputField
+    """
+
     input_type = "date_multi_field"
     hint = ""
 
