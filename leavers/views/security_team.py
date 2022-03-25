@@ -42,11 +42,11 @@ class TaskConfirmationView(base.TaskConfirmationView):
             "ROSA laptop return confirmed",
             "ROSA laptop return uncomfirmed",
         ),
-        "rosa_key_returned": [
+        "rosa_key_returned": (
             "rosa_key_returned",
             "ROSA key return confirmed",
             "ROSA key return unconfirmed",
-        ],
+        ),
     }
 
     def test_func(self):

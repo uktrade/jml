@@ -17,7 +17,7 @@ class SecurityTeamConfirmCompleteForm(GovFormattedForm):
     security_pass = forms.ChoiceField(
         label="Security pass",
         required=False,
-        choices=[(None, "Select an option")] + SecurityPassChoices.choices,
+        choices=[(None, "Select an option")] + SecurityPassChoices.choices,  # type: ignore
     )
     rosa_laptop_returned = forms.BooleanField(
         label="ROSA laptop returned",

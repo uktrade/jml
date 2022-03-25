@@ -241,19 +241,13 @@ class LeavingRequest(models.Model):
 
         return None
 
-    def get_manager_name(self) -> str:
-        manager_activitystream_user = self.manager_activitystream_user
-        manager_first_name = manager_activitystream_user.first_name
-        manager_last_name = manager_activitystream_user.last_name
-        return f"{manager_first_name} {manager_last_name}"
-
-    def sre_services(self) -> List[Tuple[str, bool]]:
+    def sre_services(self) -> List[Tuple[str, str, bool]]:
         """
         Returns a list of the SRE services and if access has been removed.
         Tuple: (service_field, service_name, access_removed)
         """
 
-        sre_service_label_mapping: List[Tuple[str, str, str]] = [
+        sre_service_label_mapping: List[Tuple[str, str]] = [
             ("vpn_access_removed", "VPN"),
             ("govuk_paas_access_removed", "GOV UK PaaS"),
             ("github_user_access_removed", "Github"),
@@ -263,24 +257,24 @@ class LeavingRequest(models.Model):
             ("aws_access_removed", "AWS"),
             ("jira_access_removed", "Jira"),
         ]
-        sre_services: List[Tuple[str, bool]] = []
+        sre_services: List[Tuple[str, str, bool]] = []
         for service_field, service_label in sre_service_label_mapping:
             access_removed: bool = getattr(self, service_field) is not None
             sre_services.append((service_field, service_label, access_removed))
         return sre_services
 
-    def security_access(self) -> List[Tuple[str, bool]]:
+    def security_access(self) -> List[Tuple[str, str, bool]]:
         """
         Returns a list of the Security tasks and if they have been collected
         Tuple: (field_name, service_name, item_received)
         """
 
-        security_team_label_mapping: List[Tuple[str, str, str]] = [
+        security_team_label_mapping: List[Tuple[str, str]] = [
             ("security_pass", "Security pass {value}"),
             ("rosa_laptop_returned", "ROSA laptop"),
             ("rosa_key_returned", "ROSA log-in key"),
         ]
-        security_items: List[Tuple[str, bool]] = []
+        security_items: List[Tuple[str, str, bool]] = []
         for field_name, service_name in security_team_label_mapping:
             item_received: bool = getattr(self, field_name) is not None
             if field_name == "security_pass":
@@ -290,7 +284,7 @@ class LeavingRequest(models.Model):
                         field_value
                         and security_pass_choice.value in field_value.task_name
                     ):
-                        service_name: str = service_name.format(
+                        service_name = service_name.format(
                             value=security_pass_choice.value
                         )
                         break

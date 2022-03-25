@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.search import SearchVector
@@ -12,6 +12,7 @@ from django.views.generic.edit import FormView
 
 from leavers.forms import data_processor as data_processor_forms
 from leavers.models import LeavingRequest, TaskLog
+from user.models import User
 
 
 class LeavingRequestListing(
@@ -36,7 +37,7 @@ class LeavingRequestListing(
         self.show_complete = show_complete
         self.show_incomplete = show_incomplete
 
-    def get_leaving_requests(self) -> List[LeavingRequest]:
+    def get_leaving_requests(self) -> Iterable[LeavingRequest]:
         # Filter out any that haven't been completed by the line manager.
         leaving_requests = LeavingRequest.objects.all().exclude(
             line_manager_complete__isnull=True
@@ -72,9 +73,9 @@ class LeavingRequestListing(
         # Set object type name
         object_type_name: str = "leaving requests"
         if self.show_complete and not self.show_incomplete:
-            object_type_name: str = "complete leaving requests"
+            object_type_name = "complete leaving requests"
         if self.show_incomplete and not self.show_complete:
-            object_type_name: str = "incomplete leaving requests"
+            object_type_name = "incomplete leaving requests"
         context.update(object_type_name=object_type_name)
 
         # Build the results
@@ -175,8 +176,11 @@ class TaskConfirmationView(
         task_name: str,
         add_to_leaving_request: bool,
     ) -> None:
+        assert self.leaving_request
+        user = cast(User, self.request.user)
+
         new_task_log = self.leaving_request.task_logs.create(
-            user=self.request.user,
+            user=user,
             task_name=task_name,
         )
         if add_to_leaving_request:
