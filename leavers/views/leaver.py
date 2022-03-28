@@ -181,6 +181,27 @@ class LeaverInformationMixin:
             ]
         )
 
+    def get_leaving_dates(
+        self,
+        email: str,
+        requester: User,
+    ) -> Dict[str, Any]:
+        leaver_info = self.get_leaver_information(
+            email=email,
+            requester=requester,
+        )
+        last_day: Optional[date] = None
+        if leaver_info.last_day:
+            last_day = leaver_info.last_day.date()
+        leaving_date: Optional[date] = None
+        if leaver_info.leaving_date:
+            leaving_date = leaver_info.leaving_date.date()
+
+        return {
+            "last_day": last_day,
+            "leaving_date": leaving_date,
+        }
+
     def get_leaver_extra_details(
         self,
         email: str,
@@ -286,7 +307,7 @@ class LeaverInformationMixin:
 
         return leaver_details
 
-    def store_leaving_date(
+    def store_leaving_dates(
         self, email: str, requester: User, last_day: date, leaving_date: date
     ) -> None:
         """
@@ -491,6 +512,8 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         initial.update(
             **self.get_leaver_extra_details(email=user_email, requester=user)
         )
+        initial.update(**self.get_leaving_dates(email=user_email, requester=user))
+
         return initial
 
     def get_context_data(self, **kwargs):
@@ -534,6 +557,12 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             ),
             has_rosa_kit=bool(form.cleaned_data["has_rosa_kit"] == "yes"),
             has_dse=bool(form.cleaned_data["has_dse"] == "yes"),
+        )
+        self.store_leaving_dates(
+            email=user_email,
+            requester=user,
+            last_day=form.cleaned_data["last_day"],
+            leaving_date=form.cleaned_data["leaving_date"],
         )
         return super().form_valid(form)
 
@@ -922,24 +951,6 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
                 )
             )
 
-        # Get the Leaver details
-        leaver_details = self.get_leaver_details_with_updates(
-            email=user_email, requester=user
-        )
-        leaver_details.update(
-            **self.get_leaver_extra_details(email=user_email, requester=user)
-        )
-
-        # Add an error message if the required details are missing
-        if not leaver_forms.LeaverUpdateForm(data=leaver_details).is_valid():
-            edit_path = reverse("leaver-update-details")
-            errors.append(
-                mark_safe(
-                    f"<a href='{edit_path}'>There is missing information that "
-                    "is required to continue, please edit the details on this "
-                    "page.</a>"
-                )
-            )
         context.update(errors=errors)
         return context
 
@@ -949,14 +960,6 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         """
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
-
-        # Store the leaving date
-        self.store_leaving_date(
-            email=user_email,
-            requester=user,
-            last_day=form.cleaned_data["last_day"],
-            leaving_date=form.cleaned_data["leaving_date"],
-        )
 
         # Get the person details with the updates.
         leaver_details = cast(
