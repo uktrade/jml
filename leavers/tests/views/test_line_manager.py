@@ -1,4 +1,3 @@
-from datetime import date
 from unittest import mock
 
 from django.test.testcases import TestCase
@@ -188,44 +187,6 @@ class TestLeaverConfirmationView(ViewAccessTest, TestCase):
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
         )
-
-    def test_post_no_leaving_date(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-
-        self.client.force_login(self.authenticated_user)
-        response = self.client.post(self.get_url(), {})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This field is required.")
-
-    def test_post_with_leaving_date(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-
-        self.client.force_login(self.authenticated_user)
-        response = self.client.post(
-            self.get_url(),
-            {
-                "leaving_date_0": "21",
-                "leaving_date_1": "12",
-                "leaving_date_2": "2022",
-            },
-        )
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-            response.url,
-            reverse(
-                "line-manager-uksbs-handover",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
-        )
-
-        self.leaving_request.refresh_from_db()
-        self.assertEqual(self.leaving_request.last_day.date(), date(2022, 12, 21))
 
 
 @mock.patch(

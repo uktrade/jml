@@ -573,6 +573,8 @@ class TestUpdateDetailsView(TestCase):
                 "has_rosa_kit": None,
                 "security_clearance": None,
                 "locker_number": None,
+                "last_day": None,
+                "leaving_date": None,
             },
         )
 
@@ -618,6 +620,12 @@ class TestUpdateDetailsView(TestCase):
                 "has_gov_procurement_card": "yes",
                 "has_rosa_kit": "yes",
                 "has_dse": "yes",
+                "last_day_0": 15,
+                "last_day_1": 12,
+                "last_day_2": 2022,
+                "leaving_date_0": 30,
+                "leaving_date_1": 12,
+                "leaving_date_2": 2022,
             },
         )
 
@@ -717,7 +725,7 @@ class TestCirrusEquipmentView(TestCase):
         user = UserFactory()
         self.client.force_login(user)
 
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(19):
             response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 200)
@@ -726,7 +734,7 @@ class TestCirrusEquipmentView(TestCase):
         user = UserFactory()
         self.client.force_login(user)
 
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(18):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -748,7 +756,7 @@ class TestCirrusEquipmentView(TestCase):
         user = UserFactory()
         self.client.force_login(user)
 
-        with self.assertNumQueries(2):
+        with self.assertNumQueries(15):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -848,7 +856,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_post_no_form_name(self) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(25):
             response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 200)
@@ -856,7 +864,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_post_add_asset_form(self) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(14):
+        with self.assertNumQueries(24):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -877,7 +885,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_post_submission_form(self, mock_store_display_screen_equipment) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(21):
             response = self.client.post(
                 reverse(self.view_name),
                 {
