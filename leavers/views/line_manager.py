@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, cast
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import UploadedFile
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
@@ -96,6 +96,9 @@ class StartView(LineManagerViewMixin, TemplateView):
             leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
+
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -215,6 +218,9 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
         ):
             return HttpResponseForbidden()
 
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
+
         self.leaver: ConsolidatedStaffDocument = self.get_leaver()
         self.manager: ConsolidatedStaffDocument = self.get_manager()
 
@@ -291,6 +297,9 @@ class UksbsHandoverView(LineManagerViewMixin, FormView):
             leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
+
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
 
         if self.leaving_request.uksbs_pdf_data:
             # TODO: Discuss, the assumption here is that if the data is already in the
@@ -400,6 +409,9 @@ class DetailsView(LineManagerViewMixin, FormView):
         ):
             return HttpResponseForbidden()
 
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
+
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form) -> HttpResponse:
@@ -472,6 +484,9 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
         ):
             return HttpResponseForbidden()
 
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
+
         self.leaver: ConsolidatedStaffDocument = self.get_leaver()
         self.data_recipient: ConsolidatedStaffDocument = self.get_data_recipient()
 
@@ -529,6 +544,9 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
             complete=True,
         ):
             return HttpResponseForbidden()
+
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
 
         return super().dispatch(request, *args, **kwargs)
 

@@ -8,6 +8,7 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
@@ -501,6 +502,16 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
 
     progress_indicator = LeaverProgressIndicator("your_details")
 
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+        leaving_request = self.get_leaving_request(email=user_email, requester=user)
+        if leaving_request and leaving_request.leaver_complete:
+            return redirect(reverse("leaver-request-received"))
+        return super().dispatch(request, *args, **kwargs)
+
     def get_initial(self) -> Dict[str, Any]:
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
@@ -961,20 +972,13 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
 
-        # Get the person details with the updates.
-        leaver_details = cast(
-            dict, self.get_leaver_details_with_updates(email=user_email, requester=user)
-        )
-        leaver_details.update(
-            **self.get_leaver_extra_details(email=user_email, requester=user)
-        )
-        update_form = leaver_forms.LeaverUpdateForm(data=leaver_details)
-        if not update_form.is_valid():
-            return self.form_invalid(form)
-
         # Check if a manager has been selected.
         if not self.get_manager():
             return self.form_invalid(form)
+
+        leaving_request = self.get_leaving_request(email=user_email, requester=user)
+        leaving_request.leaver_complete = timezone.now()
+        leaving_request.save()
 
         # TODO: Send Leaver Thank you email
 

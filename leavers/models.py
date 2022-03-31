@@ -62,6 +62,8 @@ class LeavingRequest(models.Model):
         null=True,
     )
 
+    leaver_complete = models.DateTimeField(null=True, blank=True)
+
     """
     Task Logs
     """
