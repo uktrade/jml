@@ -35,11 +35,7 @@ class LineManagerViewMixin:
         self,
         request: HttpRequest,
         leaving_request: LeavingRequest,
-        complete: bool = False,
     ) -> bool:
-        if bool(leaving_request.line_manager_complete) != complete:
-            return False
-
         user = cast(User, request.user)
         manager_activitystream_user = leaving_request.manager_activitystream_user
 
@@ -71,6 +67,14 @@ class DataRecipientSearchView(LineManagerViewMixin, StaffSearchView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if self.leaving_request.line_manager_complete:
+            return redirect(
+                reverse(
+                    "line-manager-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+            )
+
         if not self.line_manager_access(
             request=request,
             leaving_request=self.leaving_request,
@@ -90,6 +94,14 @@ class StartView(LineManagerViewMixin, TemplateView):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
+
+        if self.leaving_request.line_manager_complete:
+            return redirect(
+                reverse(
+                    "line-manager-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+            )
 
         if not self.line_manager_access(
             request=request,
@@ -212,6 +224,14 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if self.leaving_request.line_manager_complete:
+            return redirect(
+                reverse(
+                    "line-manager-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+            )
+
         if not self.line_manager_access(
             request=request,
             leaving_request=self.leaving_request,
@@ -291,6 +311,14 @@ class UksbsHandoverView(LineManagerViewMixin, FormView):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
+
+        if self.leaving_request.line_manager_complete:
+            return redirect(
+                reverse(
+                    "line-manager-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+            )
 
         if not self.line_manager_access(
             request=request,
@@ -403,6 +431,14 @@ class DetailsView(LineManagerViewMixin, FormView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if self.leaving_request.line_manager_complete:
+            return redirect(
+                reverse(
+                    "line-manager-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+            )
+
         if not self.line_manager_access(
             request=request,
             leaving_request=self.leaving_request,
@@ -444,9 +480,11 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
     form_class = line_manager_forms.LineManagerConfirmationForm
 
     def get_success_url(self) -> str:
-        return reverse(
-            "line-manager-thank-you",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        return redirect(
+            reverse(
+                "line-manager-thank-you",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
         )
 
     def get_leaver(self) -> ConsolidatedStaffDocument:
@@ -477,6 +515,14 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
+
+        if self.leaving_request.line_manager_complete:
+            return redirect(
+                reverse(
+                    "line-manager-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+            )
 
         if not self.line_manager_access(
             request=request,
@@ -538,10 +584,12 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if not self.leaving_request.line_manager_complete:
+            return HttpResponseForbidden()
+
         if not self.line_manager_access(
             request=request,
             leaving_request=self.leaving_request,
-            complete=True,
         ):
             return HttpResponseForbidden()
 
