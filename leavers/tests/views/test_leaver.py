@@ -725,7 +725,7 @@ class TestCirrusEquipmentView(TestCase):
         user = UserFactory()
         self.client.force_login(user)
 
-        with self.assertNumQueries(19):
+        with self.assertNumQueries(6):
             response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 200)
@@ -734,7 +734,7 @@ class TestCirrusEquipmentView(TestCase):
         user = UserFactory()
         self.client.force_login(user)
 
-        with self.assertNumQueries(18):
+        with self.assertNumQueries(8):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -756,7 +756,7 @@ class TestCirrusEquipmentView(TestCase):
         user = UserFactory()
         self.client.force_login(user)
 
-        with self.assertNumQueries(15):
+        with self.assertNumQueries(2):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -856,7 +856,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_post_no_form_name(self) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(25):
+        with self.assertNumQueries(12):
             response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 200)
@@ -864,7 +864,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_post_add_asset_form(self) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(24):
+        with self.assertNumQueries(15):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -885,7 +885,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_post_submission_form(self, mock_store_display_screen_equipment) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(21):
+        with self.assertNumQueries(8):
             response = self.client.post(
                 reverse(self.view_name),
                 {

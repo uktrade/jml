@@ -37,6 +37,7 @@ class TestDataRecipientSearchView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             manager_activitystream_user__email_address=self.authenticated_user.email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
@@ -67,6 +68,7 @@ class TestStartView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             manager_activitystream_user__email_address=self.authenticated_user.email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
@@ -96,6 +98,7 @@ class TestLeaverConfirmationView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             manager_activitystream_user__email_address=self.authenticated_user.email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
@@ -200,6 +203,7 @@ class TestUksbsHandoverView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             manager_activitystream_user__email_address=self.authenticated_user.email,
         )
         self.leaver_information = LeaverInformationFactory(
@@ -371,6 +375,7 @@ class TestDetailsView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             manager_activitystream_user__email_address=self.authenticated_user.email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
@@ -414,6 +419,7 @@ class TestThankYouView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             manager_activitystream_user__email_address=self.authenticated_user.email,
             line_manager_complete=timezone.now(),
         )

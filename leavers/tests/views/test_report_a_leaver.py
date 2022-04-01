@@ -1,4 +1,4 @@
-from unittest import mock
+from unittest import mock, skip
 
 from django.test.testcases import TestCase
 from django.urls import reverse
@@ -29,6 +29,7 @@ EMPTY_STAFF_DOCUMENT: StaffDocument = {
 }
 
 
+@skip("Report a leaver journey is no longer in use")
 @mock.patch(
     "leavers.views.report_a_leaver.get_staff_document_from_staff_index",
     return_value=EMPTY_STAFF_DOCUMENT,
@@ -109,6 +110,7 @@ class TestConfirmationView(ViewAccessTest, TestCase):
         super().test_authenticated_user_put()
 
 
+@skip("Report a leaver journey is no longer in use")
 class TestRequestReceivedView(ViewAccessTest, TestCase):
     view_name = "report-a-leaver-request-received"
     allowed_methods = ["get"]
