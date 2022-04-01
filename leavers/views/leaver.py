@@ -416,6 +416,7 @@ class StepDict(TypedDict):
     completed: bool
     active: bool
     name: str
+    number: int
     link: Optional[str]
 
 

@@ -1,13 +1,127 @@
-from typing import Any, Dict, Literal, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.postgres.search import SearchVector
+from django.core.paginator import Paginator
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic.edit import FormView
 
+from leavers.forms import data_processor as data_processor_forms
 from leavers.models import LeavingRequest, TaskLog
+from user.models import User
+
+
+class LeavingRequestListing(
+    UserPassesTestMixin,
+    FormView,
+):
+    form_class = data_processor_forms.LeavingRequestListingSearchForm
+
+    complete_field: str = ""
+    query: str = ""
+    show_complete: bool = False
+    show_incomplete: bool = False
+    confirmation_view: str = ""
+    summary_view: str = ""
+
+    def __init__(
+        self,
+        show_complete: bool = False,
+        show_incomplete: bool = False,
+    ) -> None:
+        super().__init__()
+        self.show_complete = show_complete
+        self.show_incomplete = show_incomplete
+
+    def get_leaving_requests(self) -> Iterable[LeavingRequest]:
+        # Filter out any that haven't been completed by the line manager.
+        leaving_requests = LeavingRequest.objects.all().exclude(
+            line_manager_complete__isnull=True
+        )
+        if not self.show_complete:
+            leaving_requests = leaving_requests.exclude(
+                **{self.complete_field + "__isnull": False}
+            )
+        if not self.show_incomplete:
+            leaving_requests = leaving_requests.exclude(
+                **{self.complete_field + "__isnull": True}
+            )
+
+        # Search
+        if self.query:
+            leaving_requests = leaving_requests.annotate(
+                search=SearchVector(
+                    "leaver_information__leaver_first_name",
+                    "leaver_information__leaver_last_name",
+                    "leaver_activitystream_user__first_name",
+                    "leaver_activitystream_user__last_name",
+                    "leaver_activitystream_user__email_address",
+                )
+            )
+            leaving_requests = leaving_requests.filter(search=self.query)
+
+        # Return filtered and searched leaving requests
+        return leaving_requests
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        # Set object type name
+        object_type_name: str = "leaving requests"
+        if self.show_complete and not self.show_incomplete:
+            object_type_name = "complete leaving requests"
+        if self.show_incomplete and not self.show_complete:
+            object_type_name = "incomplete leaving requests"
+        context.update(object_type_name=object_type_name)
+
+        # Build the results
+        leaving_requests = self.get_leaving_requests()
+        lr_results_data = []
+        for lr in leaving_requests:
+            link = reverse_lazy(
+                self.confirmation_view, kwargs={"leaving_request_id": lr.uuid}
+            )
+            if lr.security_team_complete:
+                link = reverse_lazy(
+                    self.summary_view, kwargs={"leaving_request_id": lr.uuid}
+                )
+
+            lr_results_data.append(
+                {
+                    "link": link,
+                    "last_day": lr.last_day,
+                    "leaver_name": lr.get_leaver_name(),
+                    "leaver_email": lr.get_leaver_email(),
+                    "complete": bool(getattr(lr, self.complete_field)),
+                }
+            )
+
+        # Paginate the results
+        paginator = Paginator(lr_results_data, 20)
+        page_number: int = int(self.request.GET.get("page", 1))
+        page = paginator.page(page_number)
+
+        pagination_pages: List[int] = []
+
+        if page_number - 1 > 1:
+            pagination_pages.append(page_number - 1)
+
+        pagination_pages.append(page_number)
+
+        if page_number + 1 < paginator.num_pages:
+            pagination_pages.append(page_number + 1)
+
+        context.update(page=page, pagination_pages=pagination_pages)
+
+        return context
+
+    def form_valid(self, form: Any) -> HttpResponse:
+        self.query = form.cleaned_data["query"]
+        return self.render_to_response(self.get_context_data(form=form))
 
 
 class TaskConfirmationView(
@@ -62,8 +176,11 @@ class TaskConfirmationView(
         task_name: str,
         add_to_leaving_request: bool,
     ) -> None:
+        assert self.leaving_request
+        user = cast(User, self.request.user)
+
         new_task_log = self.leaving_request.task_logs.create(
-            user=self.request.user,
+            user=user,
             task_name=task_name,
         )
         if add_to_leaving_request:

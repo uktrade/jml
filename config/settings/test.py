@@ -4,15 +4,17 @@ from config.settings.base import *  # type: ignore # noqa
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-DEV_TOOLS_ENABLED = True
 
-INSTALLED_APPS += [  # type: ignore
-    "dev_tools.apps.DevToolsConfig",
-]
+if not DEV_TOOLS_ENABLED:
+    DEV_TOOLS_ENABLED = True
 
-LOGIN_URL = reverse_lazy("dev_tools:index")
+    INSTALLED_APPS += [  # type: ignore
+        "dev_tools.apps.DevToolsConfig",
+    ]
 
-MIDDLEWARE.append("dev_tools.middleware.DevToolsLoginRequiredMiddleware")  # type: ignore
+    LOGIN_URL = reverse_lazy("dev_tools:index")
+
+    MIDDLEWARE.append("dev_tools.middleware.DevToolsLoginRequiredMiddleware")  # type: ignore
 
 if "core.middleware.IndexCurrentUser" in MIDDLEWARE:
     MIDDLEWARE.remove("core.middleware.IndexCurrentUser")

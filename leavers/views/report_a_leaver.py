@@ -187,13 +187,12 @@ class ConfirmationView(FormView):
 
     def create_workflow(self, last_day: datetime):
         assert self.leaver
+        user = cast(User, self.request.user)
 
         flow = get_or_create_leaving_workflow(
             leaving_request=self.leaving_request,
-            executed_by=self.request.user,
+            executed_by=user,
         )
-
-        user = cast(User, self.request.user)
 
         self.leaving_request = update_or_create_leaving_request(
             leaver=self.leaver_activitystream_user,

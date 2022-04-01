@@ -42,7 +42,7 @@ LeaversWorkflow = Workflow(
         ),
         Step(
             step_id="send_line_manager_reminder",
-            task_name="notification_email",
+            task_name="reminder_email",
             targets=[
                 "has_line_manager_completed",
             ],
@@ -122,7 +122,6 @@ LeaversWorkflow = Workflow(
             ],
             task_info={
                 "email_id": EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER.value,
-                "reminder_wait_time": 86400,  # 1 day
             },
             break_flow=True,
         ),
@@ -158,7 +157,6 @@ LeaversWorkflow = Workflow(
             ],
             task_info={
                 "email_id": EmailIds.SRE_REMINDER.value,
-                "reminder_wait_time": 86400,  # 1 day
             },
             break_flow=True,
         ),

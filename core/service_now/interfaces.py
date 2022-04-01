@@ -1,7 +1,7 @@
 import json
 import logging
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Literal, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from django.conf import settings
 from django.core.cache import cache
@@ -292,9 +292,7 @@ class ServiceNowInterface(ServiceNowBase):
         assets: List[types.AssetDetails],
     ):
         # Convert Request Data to what the Service Now API expects
-        assets_confirmation: Literal["Yes", "No"] = bool_to_yes_no(
-            leaver_info.information_is_correct
-        ).title()
+        assets_confirmation = bool_to_yes_no(leaver_info.information_is_correct).title()
 
         leaving_date: str = ""
         if leaver_info.leaving_date:

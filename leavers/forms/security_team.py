@@ -1,27 +1,11 @@
 from typing import Dict
 
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Fluid, Layout, Submit
+from crispy_forms_gds.layout import Field, Layout, Submit
 from django import forms
 from django.db.models.enums import TextChoices
 
 from core.forms import GovFormattedForm
-
-
-class SecurityTeamSearchForm(GovFormattedForm):
-    query = forms.CharField(
-        label="",
-        help_text="Search leaver by name or email",
-        required=False,
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Field.text("query", field_width=Fluid.ONE_QUARTER),
-            Submit("submit", "Search"),
-        )
 
 
 class SecurityPassChoices(TextChoices):
@@ -33,7 +17,7 @@ class SecurityTeamConfirmCompleteForm(GovFormattedForm):
     security_pass = forms.ChoiceField(
         label="Security pass",
         required=False,
-        choices=[(None, "Select an option")] + SecurityPassChoices.choices,
+        choices=[(None, "Select an option")] + SecurityPassChoices.choices,  # type: ignore
     )
     rosa_laptop_returned = forms.BooleanField(
         label="ROSA laptop returned",

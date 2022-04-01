@@ -145,12 +145,17 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
     if not leaving_request.is_rosa_user:
         raise LeaverDoesNotHaveRosaKit()
 
+    assert leaving_request.manager_activitystream_user
+    manager_as_user: ActivityStreamStaffSSOUser = (
+        leaving_request.manager_activitystream_user
+    )
+
     notify.email(
-        email_address=leaving_request.manager_activitystream_user.email_address,
+        email_address=manager_as_user.email_address,
         template_id=notify.EmailTemplates.ROSA_LINE_MANAGER_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "manager_name": leaving_request.get_manager_name(),
+            "manager_name": leaving_request.get_line_manager_name(),
         },
     )
 
@@ -159,13 +164,17 @@ def send_line_manager_notification_email(leaving_request: LeavingRequest):
     """
     Send Line Manager an email to notify them of a Leaver they need to process.
     """
+    assert leaving_request.manager_activitystream_user
+    manager_as_user: ActivityStreamStaffSSOUser = (
+        leaving_request.manager_activitystream_user
+    )
 
     notify.email(
-        email_address=leaving_request.manager_activitystream_user.email_address,
+        email_address=manager_as_user.email_address,
         template_id=notify.EmailTemplates.LINE_MANAGER_NOTIFICATION_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "manager_name": leaving_request.get_manager_name(),
+            "manager_name": leaving_request.get_line_manager_name(),
             "line_manager_link": reverse(
                 "line-manager-start", args=[leaving_request.uuid]
             ),
@@ -177,13 +186,17 @@ def send_line_manager_reminder_email(leaving_request: LeavingRequest):
     """
     Send Line Manager a reminder email to notify them of a Leaver they need to process.
     """
+    assert leaving_request.manager_activitystream_user
+    manager_as_user: ActivityStreamStaffSSOUser = (
+        leaving_request.manager_activitystream_user
+    )
 
     notify.email(
-        email_address=leaving_request.manager_activitystream_user.email_address,
+        email_address=manager_as_user.email_address,
         template_id=notify.EmailTemplates.LINE_MANAGER_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "manager_name": leaving_request.get_manager_name(),
+            "manager_name": leaving_request.get_line_manager_name(),
             "line_manager_link": reverse(
                 "line-manager-start", args=[leaving_request.uuid]
             ),
@@ -195,13 +208,17 @@ def send_line_manager_thankyou_email(leaving_request: LeavingRequest):
     """
     Send Line Manager a thank you email.
     """
+    assert leaving_request.manager_activitystream_user
+    manager_as_user: ActivityStreamStaffSSOUser = (
+        leaving_request.manager_activitystream_user
+    )
 
     notify.email(
-        email_address=leaving_request.manager_activitystream_user.email_address,
+        email_address=manager_as_user.email_address,
         template_id=notify.EmailTemplates.LINE_MANAGER_THANKYOU_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "manager_name": leaving_request.get_manager_name(),
+            "manager_name": leaving_request.get_line_manager_name(),
         },
     )
 

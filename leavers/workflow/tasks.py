@@ -123,7 +123,19 @@ class ReminderEmail(EmailTask):
         task_info: Dict,
         email_id: EmailIds,
     ) -> bool:
-        last_day: datetime = self.leaving_request.last_day
+        """
+        Sends reminder emails following the following rules:
+        - If the last day isn't set:
+          - Send the email daily (This is going to the line manager)
+        - If the last day is set
+          - Send the email 2 weeks before the last day
+          - Send the email 1 week before the last day
+          - Send the email daily for the week before the last day
+          - Send the email daily for the days after the last day
+        """
+        assert self.leaving_request
+
+        last_day: Optional[datetime] = self.leaving_request.last_day
         latest_email: Optional[TaskLog] = (
             self.leaving_request.email_task_logs.filter(
                 task_name__contains=email_id.value,
@@ -132,21 +144,28 @@ class ReminderEmail(EmailTask):
             .first()
         )
 
-        two_weeks_before_last_day: datetime = last_day - timedelta(days=14)
-        one_week_before_last_day: datetime = last_day - timedelta(days=7)
-
-        # Work out when the next email should be sent
-        if not latest_email:
-            # 2 Weeks before the last day
-            next_email_date: datetime = two_weeks_before_last_day
-        else:
-            latest_email_date = latest_email.created_at
-            if latest_email_date < one_week_before_last_day:
-                # 2 week email was sent
-                next_email_date: datetime = one_week_before_last_day
+        # If the last day isn't set, we should send the email daily.
+        if not last_day:
+            if not latest_email:
+                return True
             else:
-                # 1 week email was sent
-                next_email_date: datetime = latest_email_date + timedelta(days=1)
+                next_email_date = latest_email.created_at + timedelta(days=1)
+        else:
+            two_weeks_before_last_day: datetime = last_day - timedelta(days=14)
+            one_week_before_last_day: datetime = last_day - timedelta(days=7)
+
+            # Work out when the next email should be sent
+            if not latest_email:
+                # 2 Weeks before the last day
+                next_email_date = two_weeks_before_last_day
+            else:
+                latest_email_date = latest_email.created_at
+                if latest_email_date < one_week_before_last_day:
+                    # 2 week email was sent
+                    next_email_date = one_week_before_last_day
+                else:
+                    # 1 week email was sent
+                    next_email_date = latest_email_date + timedelta(days=1)
 
         # Send the email if the next email date has passed
         if timezone.now() >= next_email_date:
