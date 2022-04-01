@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     "core.cookies",
     "core.health_check.apps.HealthCheckConfig",
     "core.staff_search",
-    "api",
     "activity_stream",
     "health_check",
     "health_check.db",
@@ -371,3 +370,10 @@ SEARCH_STAFF_INDEX_NAME = env("SEARCH_STAFF_INDEX_NAME", default="staff")
 # Index Current user middleware
 if env("INDEX_CURRENT_USER_MIDDLEWARE", default="false") == "true":
     MIDDLEWARE.append("core.middleware.IndexCurrentUser")
+
+# DIT Activity Stream settings
+DIT_ACTIVITY_STREAM_CLIENT_CLASS = "leavers.client.ActivityStreamUserClient"
+DJANGO_HAWK = {
+    "HAWK_INCOMING_ACCESS_KEY": env("HAWK_INCOMING_ACCESS_KEY"),
+    "HAWK_INCOMING_SECRET_KEY": env("HAWK_INCOMING_SECRET_KEY"),
+}

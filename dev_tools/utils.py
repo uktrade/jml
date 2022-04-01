@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.models import Group
@@ -9,10 +9,13 @@ from django.utils import timezone
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.utils.staff_index import build_staff_document, index_staff_document
 
-User = get_user_model()
+if TYPE_CHECKING:
+    from user.models import User
+else:
+    User = get_user_model()
 
 
-def create_user(first_name: str, last_name: str, email: str, group: Group) -> User:
+def create_user(first_name: str, last_name: str, email: str, group: Group) -> "User":
     # Create the new user
     user = User.objects.create(
         username=str(uuid.uuid4()),

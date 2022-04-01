@@ -2,7 +2,6 @@ import uuid
 from datetime import date
 from typing import Any, Dict, List, Optional, Tuple, Type, TypedDict, cast
 
-from django.contrib.auth.decorators import login_required
 from django.forms import Form
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
@@ -87,7 +86,7 @@ class LeaverInformationMixin:
         """
         leaving_request = self.get_leaving_request(email=email, requester=requester)
 
-        leaver_info, _ = LeaverInformation.objects.get_or_create(
+        leaver_info, _ = LeaverInformation.objects.prefetch_related().get_or_create(
             leaving_request=leaving_request,
             leaver_email=email,
             defaults={"updates": {}},
@@ -584,7 +583,6 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         return super().form_valid(form)
 
 
-@login_required
 def delete_dse_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
     if "dse_assets" in request.session:
         for asset in request.session["dse_assets"]:
@@ -680,7 +678,6 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
         return context
 
 
-@login_required
 def delete_cirrus_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
     if "cirrus_assets" in request.session:
         for asset in request.session["cirrus_assets"]:

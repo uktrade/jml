@@ -59,12 +59,16 @@ crispy-forms-gds==0.2.3
     # via -r requirements.in/base.in
 deprecated==1.2.13
     # via redis
+dit-activity-stream==0.0.1
+    # via -r requirements.in/base.in
 django==3.2.13
     # via
     #   -r requirements.in/base.in
     #   crispy-forms-gds
+    #   dit-activity-stream
     #   django-appconf
     #   django-celery-beat
+    #   django-hawk
     #   django-health-check
     #   django-staff-sso-client
     #   django-stubs
@@ -88,6 +92,8 @@ django-elasticsearch-dsl==7.2.1
     # via -r requirements.in/base.in
 django-environ==0.8.1
     # via -r requirements.in/base.in
+django-hawk==0.0.2
+    # via dit-activity-stream
 django-health-check==3.16.5
     # via -r requirements.in/base.in
 django-ipware==3.0.7
@@ -107,7 +113,9 @@ django-timezone-field==4.2.1
 django-workflow-engine==0.0.20
     # via -r requirements.in/base.in
 djangorestframework==3.12.4
-    # via -r requirements.in/base.in
+    # via
+    #   -r requirements.in/base.in
+    #   django-hawk
 docopt==0.6.2
     # via notifications-python-client
 elasticsearch==7.15.2
@@ -153,7 +161,9 @@ marshmallow==3.6.1
 mccabe==0.6.1
     # via flake8
 mohawk==1.1.0
-    # via -r requirements.in/base.in
+    # via
+    #   -r requirements.in/base.in
+    #   django-hawk
 multidict==5.2.0
     # via
     #   aiohttp

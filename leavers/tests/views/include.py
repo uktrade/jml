@@ -35,7 +35,7 @@ class ViewAccessTest:
 
     def assert_unauthenticated_pass(self, response):
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, settings.LOGIN_URL)
+        self.assertTrue(str(settings.LOGIN_URL) in response.url)
 
     def test_unauthenticated_user_get(self):
         response = self.client.get(self.get_url())

@@ -1,3 +1,5 @@
+from typing import List
+
 from django.conf import settings
 from django.urls import reverse
 
@@ -32,7 +34,8 @@ def global_context(request):
     )
 
     if request.user.is_authenticated:
-        if request.user.groups.filter(name="SRE").exists():
+        user_group_names: List[str] = [g.name for g in request.user.groups.all()]
+        if "SRE" in user_group_names:
             global_context["DEV_LINKS"].append(
                 (
                     "SRE landing page (complete)",
@@ -45,7 +48,7 @@ def global_context(request):
                     reverse("sre-listing-incomplete"),
                 )
             )
-        if request.user.groups.filter(name="Security Team").exists():
+        if "Security Team" in user_group_names:
             global_context["DEV_LINKS"].append(
                 (
                     "Security landing page (complete)",
