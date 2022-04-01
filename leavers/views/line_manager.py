@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, cast
 from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import UploadedFile
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
@@ -35,11 +35,7 @@ class LineManagerViewMixin:
         self,
         request: HttpRequest,
         leaving_request: LeavingRequest,
-        complete: bool = False,
     ) -> bool:
-        if bool(leaving_request.line_manager_complete) != complete:
-            return False
-
         user = cast(User, request.user)
         manager_activitystream_user = leaving_request.manager_activitystream_user
 
@@ -71,6 +67,14 @@ class DataRecipientSearchView(LineManagerViewMixin, StaffSearchView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if self.leaving_request.line_manager_complete:
+            return redirect(
+                reverse(
+                    "line-manager-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+            )
+
         if not self.line_manager_access(
             request=request,
             leaving_request=self.leaving_request,
@@ -91,11 +95,22 @@ class StartView(LineManagerViewMixin, TemplateView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if self.leaving_request.line_manager_complete:
+            return redirect(
+                reverse(
+                    "line-manager-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+            )
+
         if not self.line_manager_access(
             request=request,
             leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
+
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -209,11 +224,22 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if self.leaving_request.line_manager_complete:
+            return redirect(
+                reverse(
+                    "line-manager-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+            )
+
         if not self.line_manager_access(
             request=request,
             leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
+
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
 
         self.leaver: ConsolidatedStaffDocument = self.get_leaver()
         self.manager: ConsolidatedStaffDocument = self.get_manager()
@@ -228,8 +254,18 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
+        leaver_information: Optional[
+            LeaverInformation
+        ] = self.leaving_request.leaver_information.first()
+
         if self.leaving_request.last_day:
-            initial["leaving_date"] = self.leaving_request.last_day
+            initial["last_day"] = self.leaving_request.last_day
+        elif leaver_information and leaver_information.last_day:
+            initial["last_day"] = leaver_information.last_day
+        if self.leaving_request.leaving_date:
+            initial["leaving_date"] = self.leaving_request.leaving_date
+        elif leaver_information and leaver_information.leaving_date:
+            initial["leaving_date"] = leaver_information.leaving_date
         return initial
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
@@ -254,8 +290,8 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
             )
 
         # Store the leaving date against the LeavingRequest.
-        leaving_date = form.cleaned_data["leaving_date"]
-        self.leaving_request.last_day = leaving_date
+        self.leaving_request.last_day = form.cleaned_data["last_day"]
+        self.leaving_request.leaving_date = form.cleaned_data["leaving_date"]
         self.leaving_request.save()
 
         return super().form_valid(form)
@@ -276,11 +312,22 @@ class UksbsHandoverView(LineManagerViewMixin, FormView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if self.leaving_request.line_manager_complete:
+            return redirect(
+                reverse(
+                    "line-manager-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+            )
+
         if not self.line_manager_access(
             request=request,
             leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
+
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
 
         if self.leaving_request.uksbs_pdf_data:
             # TODO: Discuss, the assumption here is that if the data is already in the
@@ -384,11 +431,22 @@ class DetailsView(LineManagerViewMixin, FormView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if self.leaving_request.line_manager_complete:
+            return redirect(
+                reverse(
+                    "line-manager-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+            )
+
         if not self.line_manager_access(
             request=request,
             leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
+
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -422,9 +480,11 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
     form_class = line_manager_forms.LineManagerConfirmationForm
 
     def get_success_url(self) -> str:
-        return reverse(
-            "line-manager-thank-you",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        return redirect(
+            reverse(
+                "line-manager-thank-you",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
         )
 
     def get_leaver(self) -> ConsolidatedStaffDocument:
@@ -456,11 +516,22 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if self.leaving_request.line_manager_complete:
+            return redirect(
+                reverse(
+                    "line-manager-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+            )
+
         if not self.line_manager_access(
             request=request,
             leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
+
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
 
         self.leaver: ConsolidatedStaffDocument = self.get_leaver()
         self.data_recipient: ConsolidatedStaffDocument = self.get_data_recipient()
@@ -474,7 +545,8 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
             leaver_name=self.leaving_request.get_leaver_name(),
             leaver=self.leaver,
             data_recipient=self.data_recipient,
-            leaving_date=self.leaving_request.last_day.date(),
+            last_day=self.leaving_request.last_day.date(),
+            leaving_date=self.leaving_request.leaving_date.date(),
             uksbs_pdf_data=self.leaving_request.uksbs_pdf_data,
             has_security_clearance=self.leaving_request.get_security_clearance_display(),
             is_rosa_user=bool_to_yes_no(self.leaving_request.is_rosa_user).title(),
@@ -512,12 +584,17 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if not self.leaving_request.line_manager_complete:
+            return HttpResponseForbidden()
+
         if not self.line_manager_access(
             request=request,
             leaving_request=self.leaving_request,
-            complete=True,
         ):
             return HttpResponseForbidden()
+
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
 
         return super().dispatch(request, *args, **kwargs)
 

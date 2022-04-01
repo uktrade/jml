@@ -41,7 +41,7 @@ def update_or_create_leaving_request(
     }
     defaults.update(**kwargs)
 
-    leaving_request, _ = LeavingRequest.objects.update_or_create(
+    leaving_request, _ = LeavingRequest.objects.prefetch_related().update_or_create(
         leaver_activitystream_user=leaver,
         defaults=defaults,
     )

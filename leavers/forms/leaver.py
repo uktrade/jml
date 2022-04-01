@@ -1,14 +1,14 @@
 from typing import List, Literal
 
 from crispy_forms_gds.choices import Choice
+from crispy_forms_gds.fields import DateInputField
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Field, Layout, Size, Submit
+from crispy_forms_gds.layout import HTML, Button, Field, Fieldset, Layout, Size, Submit
 from django import forms
 from django.db.models.enums import TextChoices
 
 from core.forms import GovFormattedForm, YesNoField
 from core.service_now import get_service_now_interface
-from leavers.widgets import DateSelectorWidget
 
 
 class SecurityClearance(TextChoices):
@@ -24,11 +24,7 @@ class SecurityClearance(TextChoices):
 
 
 class LeaverConfirmationForm(GovFormattedForm):
-    last_day = forms.DateField(
-        label="",
-        widget=DateSelectorWidget(hint="For example, 27 3 2007"),
-        required=False,
-    )
+    pass
 
 
 class LeaverUpdateForm(GovFormattedForm):
@@ -52,6 +48,13 @@ class LeaverUpdateForm(GovFormattedForm):
     )
     has_rosa_kit = YesNoField(label="Do you have a ROSA kit?")
     has_dse = YesNoField(label="Do you have any display screen equipment?")
+
+    leaving_date = DateInputField(
+        label="",
+    )
+    last_day = DateInputField(
+        label="",
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -78,6 +81,28 @@ class LeaverUpdateForm(GovFormattedForm):
             Field.radios("has_gov_procurement_card", inline=True),
             Field.radios("has_rosa_kit", inline=True),
             Field.radios("has_dse", inline=True),
+            Fieldset(
+                HTML(
+                    "<p class='govuk-body'>This is the last day you will be "
+                    "employed by the department and the last day you will be "
+                    "paid for.</p>"
+                ),
+                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
+                Field("leaving_date"),
+                legend="Leaving date",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                HTML(
+                    "<p class='govuk-body'>This is the last day vou will be "
+                    "working at DIT. After this date vou will no longer have "
+                    "access to any DIT provided systems and buildings.</p>"
+                ),
+                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
+                Field("last_day"),
+                legend="Last working day",
+                legend_size=Size.MEDIUM,
+            ),
             Submit("submit", "Save and continue"),
         )
 

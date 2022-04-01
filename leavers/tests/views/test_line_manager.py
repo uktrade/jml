@@ -1,4 +1,3 @@
-from datetime import date
 from unittest import mock
 
 from django.test.testcases import TestCase
@@ -38,6 +37,7 @@ class TestDataRecipientSearchView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             manager_activitystream_user__email_address=self.authenticated_user.email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
@@ -68,6 +68,7 @@ class TestStartView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             manager_activitystream_user__email_address=self.authenticated_user.email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
@@ -97,6 +98,7 @@ class TestLeaverConfirmationView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             manager_activitystream_user__email_address=self.authenticated_user.email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
@@ -189,44 +191,6 @@ class TestLeaverConfirmationView(ViewAccessTest, TestCase):
             ),
         )
 
-    def test_post_no_leaving_date(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-
-        self.client.force_login(self.authenticated_user)
-        response = self.client.post(self.get_url(), {})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This field is required.")
-
-    def test_post_with_leaving_date(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-
-        self.client.force_login(self.authenticated_user)
-        response = self.client.post(
-            self.get_url(),
-            {
-                "leaving_date_0": "21",
-                "leaving_date_1": "12",
-                "leaving_date_2": "2022",
-            },
-        )
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-            response.url,
-            reverse(
-                "line-manager-uksbs-handover",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
-        )
-
-        self.leaving_request.refresh_from_db()
-        self.assertEqual(self.leaving_request.last_day.date(), date(2022, 12, 21))
-
 
 @mock.patch(
     "leavers.views.line_manager.get_staff_document_from_staff_index",
@@ -239,6 +203,7 @@ class TestUksbsHandoverView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             manager_activitystream_user__email_address=self.authenticated_user.email,
         )
         self.leaver_information = LeaverInformationFactory(
@@ -410,6 +375,7 @@ class TestDetailsView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             manager_activitystream_user__email_address=self.authenticated_user.email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
@@ -453,6 +419,7 @@ class TestThankYouView(ViewAccessTest, TestCase):
     def setUp(self):
         super().setUp()
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             manager_activitystream_user__email_address=self.authenticated_user.email,
             line_manager_complete=timezone.now(),
         )

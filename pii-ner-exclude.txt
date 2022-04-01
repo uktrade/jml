@@ -71,6 +71,7 @@ f"Thank
 F401
 Finder Raises
 Flexi Impacting Pay
+for.</p
 Form
 Get the Leaver StaffDocument
 Get the Leaving Request for the Leaver
@@ -158,7 +159,7 @@ Tests for `get_leaver_details` "
 Tests for `get_leaver_information`
 Tests for `store_cirrus_kit_information`
 Tests for `store_leaver_detail_updates` "
-Tests for `store_leaving_date` "
+Tests for `store_leaving_dates` "
 Tests for `store_return_information`
 Tests for `store_return_option
 the Cirrus Tech

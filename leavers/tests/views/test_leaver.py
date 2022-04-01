@@ -225,20 +225,25 @@ class TestLeaverInformationMixin(TestCase):
         self.assertEqual(leaver_details["first_name"], "Joey")  # /PS-IGNORE
 
     """
-    Tests for `store_leaving_date`
+    Tests for `store_leaving_dates`
     """
 
-    def test_store_leaving_date(self, mock_get_search_results) -> None:
+    def test_store_leaving_dates(self, mock_get_search_results) -> None:
         leaver_info = factories.LeaverInformationFactory(
             leaver_email=self.leaver_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
         )
-        LeaverInformationMixin().store_leaving_date(
+        LeaverInformationMixin().store_leaving_dates(
             email=self.leaver_email,
             requester=UserFactory(),
+            last_day=date(2021, 11, 15),
             leaving_date=date(2021, 11, 30),
         )
         leaver_info.refresh_from_db()
+        self.assertEqual(
+            leaver_info.last_day,
+            timezone.make_aware(datetime(2021, 11, 15)),
+        )
         self.assertEqual(
             leaver_info.leaving_date,
             timezone.make_aware(datetime(2021, 11, 30)),
@@ -568,6 +573,8 @@ class TestUpdateDetailsView(TestCase):
                 "has_rosa_kit": None,
                 "security_clearance": None,
                 "locker_number": None,
+                "last_day": None,
+                "leaving_date": None,
             },
         )
 
@@ -613,6 +620,12 @@ class TestUpdateDetailsView(TestCase):
                 "has_gov_procurement_card": "yes",
                 "has_rosa_kit": "yes",
                 "has_dse": "yes",
+                "last_day_0": 15,
+                "last_day_1": 12,
+                "last_day_2": 2022,
+                "leaving_date_0": 30,
+                "leaving_date_1": 12,
+                "leaving_date_2": 2022,
             },
         )
 
@@ -851,7 +864,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_post_add_asset_form(self) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(14):
+        with self.assertNumQueries(15):
             response = self.client.post(
                 reverse(self.view_name),
                 {

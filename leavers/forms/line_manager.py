@@ -1,12 +1,12 @@
+from crispy_forms_gds.fields import DateInputField
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Fieldset, Layout, Size, Submit
+from crispy_forms_gds.layout import HTML, Field, Fieldset, Layout, Size, Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
 
 from core.forms import GovFormattedForm, YesNoField
 from leavers.forms.leaver import SecurityClearance
-from leavers.widgets import DateSelectorWidget
 
 
 class PdfFileField(forms.FileField):
@@ -72,7 +72,39 @@ class LineManagerConfirmationForm(GovFormattedForm):
 
 
 class ConfirmLeavingDate(GovFormattedForm):
-    leaving_date = forms.DateField(
+    leaving_date = DateInputField(
         label="",
-        widget=DateSelectorWidget(hint="For example, 27 3 2007"),
     )
+    last_day = DateInputField(
+        label="",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(
+                HTML(
+                    "<p class='govuk-body'>This is the last day the leaver will "
+                    "be employed by the department and the last day the leaver will "
+                    "be paid for.</p>"
+                ),
+                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
+                Field("leaving_date"),
+                legend="Leaving date",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                HTML(
+                    "<p class='govuk-body'>This is the last day the leaver will "
+                    "be working at DIT. After this date the leaver will no longer "
+                    "have access to any DIT provided systems and buildings.</p>"
+                ),
+                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
+                Field("last_day"),
+                legend="Last working day",
+                legend_size=Size.MEDIUM,
+            ),
+            Submit("submit", "Save and continue"),
+        )
