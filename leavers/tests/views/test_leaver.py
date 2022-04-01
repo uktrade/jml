@@ -864,7 +864,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_post_add_asset_form(self) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(15):
+        with self.assertNumQueries(14):
             response = self.client.post(
                 reverse(self.view_name),
                 {
