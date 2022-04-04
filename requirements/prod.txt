@@ -20,7 +20,7 @@ billiard==3.6.4.0
     # via celery
 cachetools==5.0.0
     # via zenpy
-celery==5.2.3
+celery[redis]==5.2.3
     # via
     #   -r requirements.in/base.in
     #   django-celery-beat
@@ -169,7 +169,9 @@ pytz==2021.3
 rcssmin==1.0.6
     # via django-compressor
 redis==4.0.2
-    # via -r requirements.in/base.in
+    # via
+    #   -r requirements.in/base.in
+    #   celery
 requests==2.26.0
     # via
     #   notifications-python-client
@@ -215,7 +217,7 @@ waitress==2.1.1
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2.0
+whitenoise==5.2
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
@@ -223,9 +225,9 @@ yarl==1.7.2
     # via aiohttp
 zenpy==2.0.24
     # via -r requirements.in/base.in
-zope.event==4.5.0
+zope-event==4.5.0
     # via gevent
-zope.interface==5.4.0
+zope-interface==5.4.0
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:

@@ -11,9 +11,9 @@ networks:
       -  subnet: 192.168.3.0/24
 services:
   db:
+    image: postgres:11
     networks:
         - inside
-    image: postgres:11
     environment:
       - POSTGRES_DB=leavers
       - POSTGRES_PASSWORD=postgres
@@ -25,31 +25,11 @@ services:
         timeout: 5s
         retries: 5
 
-  leavers:
-    networks:
-        - default
-        - inside
-    build:
-        context: .
-        dockerfile: "docker/Dockerfile.dev"
-    env_file: .env
-    command: "python manage.py runserver 0.0.0.0:8000"
-    volumes:
-      - ./:/app/
-    ports:
-      - "0.0.0.0:8001:8000"
-    depends_on:
-      - db
-      - opensearch
-    restart: always
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.local
-
   opensearch:
+    image: opensearchproject/opensearch:1.2.3
     networks:
       - default
       - inside
-    image: opensearchproject/opensearch:1.2.3
     ports:
       - "9200:9200"
       - "9600:9600"
@@ -60,21 +40,60 @@ services:
       - "DISABLE_INSTALL_DEMO_CONFIG=true" 
       - "DISABLE_SECURITY_PLUGIN=true"
 
-# redis:
-#   networks:
-#     - inside
-#   image: redis:buster
-#   ports:
-#     - "6379:6379"
-# celery:
-#   build:
-#      context: .
-#      dockerfile: "docker/Dockerfile.dev"
-#   command: celery -A config worker -l info
-#   volumes:
-#     - ./:/app/
-#   depends_on:
-#     - db
-#     - redis
-#   environment:
-#     - DJANGO_SETTINGS_MODULE=config.settings.local
+  redis:
+    image: redis:buster
+    networks:
+      - inside
+    ports:
+      - "6379:6379"
+
+  leavers:
+    build:
+      context: .
+      dockerfile: "docker/Dockerfile.dev"
+    networks:
+        - default
+        - inside
+    env_file: .env
+    command: "python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./:/app/
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+      - redis
+      - opensearch
+    restart: always
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+
+  celery:
+    build:
+      context: .
+      dockerfile: "docker/Dockerfile.dev"
+    networks:
+      - inside
+    env_file: .env
+    command: celery -A core.celery worker -l INFO
+    volumes:
+      - ./:/app/
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: "docker/Dockerfile.dev"
+    networks:
+      - inside
+    env_file: .env
+    command: celery -A core.celery beat -l INFO
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
