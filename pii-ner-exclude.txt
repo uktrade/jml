@@ -4,6 +4,8 @@
 " Line Manager
 " Local Development Settings
 " Methods "
+" Physical Asset Categories "
+" Physical Asset Statuses "
 " Send Leaver
 " Send SRE Team
 " Store Extra
@@ -149,6 +151,8 @@ PEOPLE_FINDER_HAWK_SECRET_KEY
 PEOPLE_FINDER_INTERFACE
 PEOPLE_FINDER_INTERFACE                                  |                                            
 PEOPLE_FINDER_INTERFACE=core.people_finder.interfaces
+Physical Asset
+PhysicalAsset
 Procurement Card
 python manage.py compilescss &&
 python manage.py migrate &&
@@ -183,6 +187,7 @@ Slack
 slack_access_task_log
 SLACK_SRE_CHANNEL_ID
 SlackMessage.objects.create
+Software Asset
 Split
 SRE
 sso_access_task_log
