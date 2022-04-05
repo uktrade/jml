@@ -37,7 +37,7 @@ class UksbsPdfForm(GovFormattedForm):
 
 class LineManagerDetailsForm(GovFormattedForm):
     security_clearance = forms.ChoiceField(
-        label="Security clearance",
+        label="",
         choices=(
             [(None, "Select security clearance type")] + SecurityClearance.choices  # type: ignore
         ),
@@ -46,7 +46,7 @@ class LineManagerDetailsForm(GovFormattedForm):
         label="Do they have a Government Procurement Card?",
     )
     rosa_user = YesNoField(
-        label="Do they have ROSA kit?",
+        label="",
     )
 
     def __init__(self, *args, **kwargs):
@@ -54,9 +54,26 @@ class LineManagerDetailsForm(GovFormattedForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("security_clearance"),
-            Field.radios("holds_government_procurement_card", inline=True),
-            Field.radios("rosa_user", inline=True),
+            Fieldset(
+                Field.select("security_clearance"),
+                legend="Security clearance",
+                legend_size=Size.MEDIUM,
+            ),
+            Field.radios(
+                "holds_government_procurement_card",
+                inline=True,
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                HTML(
+                    "<p class='govuk-body'>ROSA is a secure IT system platform for "
+                    "managing work classified at official, sensitive, secret or top "
+                    "secret level.</p>"
+                ),
+                Field.radios("rosa_user", inline=True),
+                legend="Do they have ROSA kit?",
+                legend_size=Size.MEDIUM,
+            ),
             Submit("submit", "Save and continue"),
         )
 
