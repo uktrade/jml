@@ -1,7 +1,17 @@
+from typing import TYPE_CHECKING, Optional
+
+from django.contrib.auth import get_user_model
 from django.db import models
+
+if TYPE_CHECKING:
+    from user.models import User
+else:
+    User = get_user_model()
 
 
 class Asset(models.Model):
+    users = models.ManyToManyField("user.User")
+
     class Meta:
         verbose_name = "Asset"
         verbose_name_plural = "Assets"
@@ -34,7 +44,6 @@ class PhysicalAsset(Asset):
     purchase_date = models.DateField()
     cost = models.DecimalField(max_digits=10, decimal_places=2)
     warranty_expire_date = models.DateField()
-    user = models.ForeignKey("user.User", on_delete=models.PROTECT)
     location = models.CharField(max_length=50)
     address = models.CharField(max_length=50)
     date_assigned = models.DateField()
@@ -44,6 +53,10 @@ class PhysicalAsset(Asset):
     class Meta:
         verbose_name = "Physical Asset"
         verbose_name_plural = "Physical Assets"
+
+    @property
+    def user(self) -> Optional[User]:
+        return self.users.first()
 
 
 class SoftwareAsset(Asset):
