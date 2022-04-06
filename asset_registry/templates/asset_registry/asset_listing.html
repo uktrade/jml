@@ -1,0 +1,22 @@
+
+{% load crispy_forms_tags crispy_forms_gds %}
+
+{% error_summary form %}
+
+<h1>Assets</h1>
+
+<form novalidate method='post'>
+    {% crispy form %}
+</form
+
+{% if object_list %}
+    <ul>
+        {% for asset in object_list %}
+            <li>{{ asset }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No assets yet.</p>
+{% endif %}
+
+ 
