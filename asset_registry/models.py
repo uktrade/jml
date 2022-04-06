@@ -58,7 +58,7 @@ class PhysicalAsset(Asset):
         verbose_name_plural = "Physical Assets"
 
     def __str__(self) -> str:
-        return f"Physical Asset {self.id}"
+        return f"Physical Asset {self.id} - {self.asset_number}"
 
     @property
     def user(self) -> Optional[User]:
@@ -78,4 +78,4 @@ class SoftwareAsset(Asset):
         verbose_name_plural = "Software Assets"
 
     def __str__(self) -> str:
-        return f"Software Asset {self.id}"
+        return f"Software Asset {self.id} - {self.software_name}"

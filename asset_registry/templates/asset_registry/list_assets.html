@@ -13,11 +13,20 @@
     </form>
 
     {% if object_list %}
-        <ul>
-            {% for asset in object_list %}
-                <li><a href="{% url 'update_asset' asset.pk %}">{{ asset }}</a></li>
-            {% endfor %}
-        </ul>
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">Asset name</th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                {% for asset in object_list %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell"><a href="{% url 'update_asset' asset.pk %}">{{ asset }}</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% else %}
         <p>No assets yet.</p>
     {% endif %}
