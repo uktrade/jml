@@ -22,7 +22,6 @@
 234px
 7.7-.2
 8.7 39.7 21.8l42.7-27.2A97.63
-8.7 39.7 21.8l42.7-27.2A97.63
 activity_stream.activitystreamstaffssouser
 ActivityStream
 Annual Leave
@@ -45,6 +44,7 @@ COLOUR_GREEN=\033[32;01
 COLOUR_YELLOW=\033[33;01
 Compile SCSS
 Convert
+Convert a Queryset
 Convert Request Data
 Create ActivityStream
 Create Leaving Request
@@ -86,7 +86,10 @@ ends.</td
 Enhanced Security Check
 Example Building
 Example Grade
+f"Asset
 f"Gsuite
+f"Physical Asset
+f"Software Asset
 f"sys_id={sys_id
 f"sys_id={sys_id'
 f"Thank

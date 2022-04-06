@@ -14,6 +14,8 @@ from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, FormView, UpdateView
 
+from core.utils.helpers import queryset_to_specific
+
 
 def update_asset(request: HttpResponse, pk: int) -> HttpResponse:
     if PhysicalAsset.objects.filter(pk=pk).exists():
@@ -38,7 +40,7 @@ class ListAssetsView(FormView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(object_list=self.get_queryset())
+        context.update(object_list=queryset_to_specific(self.get_queryset()))
         return context
 
     def form_valid(self, form) -> HttpResponse:

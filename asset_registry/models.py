@@ -16,6 +16,9 @@ class Asset(models.Model):
         verbose_name = "Asset"
         verbose_name_plural = "Assets"
 
+    def __str__(self) -> str:
+        return f"Asset {self.id}"
+
 
 class PysicalAssetCategories(models.TextChoices):
     """
@@ -54,6 +57,9 @@ class PhysicalAsset(Asset):
         verbose_name = "Physical Asset"
         verbose_name_plural = "Physical Assets"
 
+    def __str__(self) -> str:
+        return f"Physical Asset {self.id}"
+
     @property
     def user(self) -> Optional[User]:
         return self.users.first()
@@ -70,3 +76,6 @@ class SoftwareAsset(Asset):
     class Meta:
         verbose_name = "Software Asset"
         verbose_name_plural = "Software Assets"
+
+    def __str__(self) -> str:
+        return f"Software Asset {self.id}"
