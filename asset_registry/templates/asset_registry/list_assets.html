@@ -1,0 +1,25 @@
+{% extends "asset_registry_base.html" %}
+{% load crispy_forms_tags crispy_forms_gds %}
+
+{% block content %}
+    {% error_summary form %}
+
+    <h1 class="govuk-heading-l">Assets</h1>
+    <a href="{% url 'create_physical_asset' %}">Create Physical Asset</a>
+    <a href="{% url 'create_software_asset' %}">Create Software Asset</a>
+
+    <form novalidate method='post'>
+        {% crispy form %}
+    </form>
+
+    {% if object_list %}
+        <ul>
+            {% for asset in object_list %}
+                <li>{{ asset }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No assets yet.</p>
+    {% endif %}
+
+{% endblock %}

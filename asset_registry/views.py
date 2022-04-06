@@ -1,14 +1,19 @@
 from typing import Any, Dict, Optional
 
-from asset_registry.forms import AssetSearchForm
-from asset_registry.models import Asset
+from asset_registry.forms import (
+    AssetSearchForm,
+    PhysicalAssetCreateForm,
+    SoftwareAssetCreateForm,
+)
+from asset_registry.models import Asset, PhysicalAsset, SoftwareAsset
 from django.db.models import QuerySet
 from django.http import HttpResponse
-from django.views.generic import FormView
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, FormView
 
 
-class AssetListingView(FormView):
-    template_name = "asset_registry/asset_listing.html"
+class ListAssetsView(FormView):
+    template_name = "asset_registry/list_assets.html"
     form_class = AssetSearchForm
     search_terms: Optional[str] = None
 
@@ -21,9 +26,23 @@ class AssetListingView(FormView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(objects_list=self.get_queryset())
+        context.update(object_list=self.get_queryset())
         return context
 
     def form_valid(self, form) -> HttpResponse:
         self.search_terms = form.cleaned_data["search_terms"]
         return super().render_to_response(self.get_context_data(form=form))
+
+
+class CreatePhysicalAssetView(CreateView):
+    model = PhysicalAsset
+    template_name = "asset_registry/create_physical_asset.html"
+    form_class = PhysicalAssetCreateForm
+    success_url = reverse_lazy("list_assets")
+
+
+class CreateSoftwareAssetView(CreateView):
+    model = SoftwareAsset
+    template_name = "asset_registry/create_software_asset.html"
+    form_class = SoftwareAssetCreateForm
+    success_url = reverse_lazy("list_assets")

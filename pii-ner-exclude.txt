@@ -22,6 +22,7 @@
 234px
 7.7-.2
 8.7 39.7 21.8l42.7-27.2A97.63
+8.7 39.7 21.8l42.7-27.2A97.63
 activity_stream.activitystreamstaffssouser
 ActivityStream
 Annual Leave
@@ -47,6 +48,7 @@ Convert
 Convert Request Data
 Create ActivityStream
 Create Leaving Request
+create_physical_asset
 Create/Update Staff ES
 crispy_forms_gds
 Crown
