@@ -17,7 +17,7 @@ class AssetSearchForm(forms.Form):
         )
 
 
-class PhysicalAssetCreateForm(forms.ModelForm):
+class PhysicalAssetModelForm(forms.ModelForm):
 
     purchase_date = DateInputField()
     cost = forms.CharField()
@@ -65,11 +65,22 @@ class PhysicalAssetCreateForm(forms.ModelForm):
             Field("date_assigned"),
             Field("date_returned"),
             Field("last_verified_date"),
-            Submit("submit", "Create physical asset"),
         )
 
 
-class SoftwareAssetCreateForm(forms.ModelForm):
+class PhysicalAssetCreateForm(PhysicalAssetModelForm):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.helper.layout.append(Submit("submit", "Create physical asset"))
+
+
+class PhysicalAssetUpdateForm(PhysicalAssetModelForm):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.helper.layout.append(Submit("submit", "Update physical asset"))
+
+
+class SoftwareAssetModelForm(forms.ModelForm):
     renewal_date = DateInputField()
     licences_available = forms.CharField()
     licences_issued = forms.CharField()
@@ -95,5 +106,16 @@ class SoftwareAssetCreateForm(forms.ModelForm):
             Field.text("licences_available"),
             Field.text("licences_issued"),
             Field("renewal_date"),
-            Submit("submit", "Create software asset"),
         )
+
+
+class SoftwareAssetCreateForm(SoftwareAssetModelForm):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.helper.layout.append(Submit("submit", "Create software asset"))
+
+
+class SoftwareAssetUpdateForm(SoftwareAssetModelForm):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.helper.layout.append(Submit("submit", "Update software asset"))

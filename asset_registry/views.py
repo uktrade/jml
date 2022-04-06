@@ -3,13 +3,25 @@ from typing import Any, Dict, Optional
 from asset_registry.forms import (
     AssetSearchForm,
     PhysicalAssetCreateForm,
+    PhysicalAssetUpdateForm,
     SoftwareAssetCreateForm,
+    SoftwareAssetUpdateForm,
 )
 from asset_registry.models import Asset, PhysicalAsset, SoftwareAsset
 from django.db.models import QuerySet
-from django.http import HttpResponse
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, FormView
+from django.http import Http404, HttpResponse
+from django.shortcuts import redirect
+from django.urls import reverse, reverse_lazy
+from django.views.generic import CreateView, FormView, UpdateView
+
+
+def update_asset(request: HttpResponse, pk: int) -> HttpResponse:
+    if PhysicalAsset.objects.filter(pk=pk).exists():
+        return redirect(reverse("update_physical_asset", args=[pk]))
+    elif SoftwareAsset.objects.filter(pk=pk).exists():
+        return redirect(reverse("update_software_asset", args=[pk]))
+
+    raise Http404
 
 
 class ListAssetsView(FormView):
@@ -36,13 +48,27 @@ class ListAssetsView(FormView):
 
 class CreatePhysicalAssetView(CreateView):
     model = PhysicalAsset
-    template_name = "asset_registry/create_physical_asset.html"
+    template_name = "asset_registry/physical/create.html"
     form_class = PhysicalAssetCreateForm
+    success_url = reverse_lazy("list_assets")
+
+
+class UpdatePhysicalAssetView(UpdateView):
+    model = PhysicalAsset
+    template_name = "asset_registry/physical/update.html"
+    form_class = PhysicalAssetUpdateForm
     success_url = reverse_lazy("list_assets")
 
 
 class CreateSoftwareAssetView(CreateView):
     model = SoftwareAsset
-    template_name = "asset_registry/create_software_asset.html"
+    template_name = "asset_registry/software/create.html"
     form_class = SoftwareAssetCreateForm
+    success_url = reverse_lazy("list_assets")
+
+
+class UpdateSoftwareAssetView(UpdateView):
+    model = SoftwareAsset
+    template_name = "asset_registry/software/update.html"
+    form_class = SoftwareAssetUpdateForm
     success_url = reverse_lazy("list_assets")
