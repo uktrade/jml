@@ -43,7 +43,7 @@ class LineManagerDetailsForm(GovFormattedForm):
         ),
     )
     holds_government_procurement_card = YesNoField(
-        label="Do they have a Government Procurement Card?",
+        label="",
     )
     rosa_user = YesNoField(
         label="",
@@ -59,9 +59,16 @@ class LineManagerDetailsForm(GovFormattedForm):
                 legend="Security clearance",
                 legend_size=Size.MEDIUM,
             ),
-            Field.radios(
-                "holds_government_procurement_card",
-                inline=True,
+            Fieldset(
+                HTML(
+                    "<p class='govuk-body'>Government procurement card is a "
+                    "payment card issued by DIT.</p>"
+                ),
+                Field.radios(
+                    "holds_government_procurement_card",
+                    inline=True,
+                ),
+                legend="Do they have a Government Procurement Card?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
