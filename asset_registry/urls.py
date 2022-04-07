@@ -2,6 +2,8 @@ from asset_registry.views import (
     CreatePhysicalAssetView,
     CreateSoftwareAssetView,
     ListAssetsView,
+    PhysicalAssetView,
+    SoftwareAssetView,
     UpdatePhysicalAssetView,
     UpdateSoftwareAssetView,
     update_asset,
@@ -17,7 +19,12 @@ urlpatterns = [
         name="create_physical_asset",
     ),
     path(
-        "physical/update/<int:pk>/",
+        "physical/<int:pk>/detail/",
+        PhysicalAssetView.as_view(),
+        name="physical_asset",
+    ),
+    path(
+        "physical/<int:pk>/update/",
         UpdatePhysicalAssetView.as_view(),
         name="update_physical_asset",
     ),
@@ -27,7 +34,12 @@ urlpatterns = [
         name="create_software_asset",
     ),
     path(
-        "software/update/<int:pk>/",
+        "software/<int:pk>/detail/",
+        SoftwareAssetView.as_view(),
+        name="software_asset",
+    ),
+    path(
+        "software/<int:pk>/update/",
         UpdateSoftwareAssetView.as_view(),
         name="update_software_asset",
     ),

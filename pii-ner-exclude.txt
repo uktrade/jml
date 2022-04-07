@@ -48,6 +48,8 @@ Convert a Queryset
 Convert Request Data
 Create ActivityStream
 Create Leaving Request
+Create Physical Asset
+Create Software Asset
 create_physical_asset
 Create/Update Staff ES
 crispy_forms_gds

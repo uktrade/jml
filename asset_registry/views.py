@@ -12,16 +12,16 @@ from django.db.models import QuerySet
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, FormView, UpdateView
+from django.views.generic import CreateView, DetailView, FormView, UpdateView
 
 from core.utils.helpers import queryset_to_specific
 
 
 def update_asset(request: HttpResponse, pk: int) -> HttpResponse:
     if PhysicalAsset.objects.filter(pk=pk).exists():
-        return redirect(reverse("update_physical_asset", args=[pk]))
+        return redirect(reverse("physical_asset", args=[pk]))
     elif SoftwareAsset.objects.filter(pk=pk).exists():
-        return redirect(reverse("update_software_asset", args=[pk]))
+        return redirect(reverse("software_asset", args=[pk]))
 
     raise Http404
 
@@ -55,11 +55,19 @@ class CreatePhysicalAssetView(CreateView):
     success_url = reverse_lazy("list_assets")
 
 
+class PhysicalAssetView(UpdateView):
+    model = PhysicalAsset
+    template_name = "asset_registry/physical/detail.html"
+    success_url = reverse_lazy("list_assets")
+
+
 class UpdatePhysicalAssetView(UpdateView):
     model = PhysicalAsset
     template_name = "asset_registry/physical/update.html"
     form_class = PhysicalAssetUpdateForm
-    success_url = reverse_lazy("list_assets")
+
+    def get_success_url(self) -> str:
+        return reverse("physical_asset", args=[self.object.pk])
 
 
 class CreateSoftwareAssetView(CreateView):
@@ -69,8 +77,16 @@ class CreateSoftwareAssetView(CreateView):
     success_url = reverse_lazy("list_assets")
 
 
+class SoftwareAssetView(DetailView):
+    model = SoftwareAsset
+    template_name = "asset_registry/software/detail.html"
+    success_url = reverse_lazy("list_assets")
+
+
 class UpdateSoftwareAssetView(UpdateView):
     model = SoftwareAsset
     template_name = "asset_registry/software/update.html"
     form_class = SoftwareAssetUpdateForm
-    success_url = reverse_lazy("list_assets")
+
+    def get_success_url(self) -> str:
+        return reverse("software_asset", args=[self.object.pk])

@@ -1,8 +1,9 @@
 from asset_registry.models import PhysicalAsset, SoftwareAsset
 from crispy_forms_gds.fields import DateInputField
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import Field, Layout, Submit
+from crispy_forms_gds.layout import HTML, Field, Layout, Submit
 from django import forms
+from django.urls import reverse
 
 
 class AssetSearchForm(forms.Form):
@@ -78,6 +79,13 @@ class PhysicalAssetUpdateForm(PhysicalAssetModelForm):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.helper.layout.append(Submit("submit", "Update physical asset"))
+        back_link = reverse("physical_asset", kwargs={"pk": self.instance.pk})
+        self.helper.layout.append(
+            HTML(
+                f"<a href='{back_link}' class='govuk-button govuk-button--secondary' "
+                "data-module='govuk-button'>Cancel</a>"
+            )
+        )
 
 
 class SoftwareAssetModelForm(forms.ModelForm):
@@ -119,3 +127,10 @@ class SoftwareAssetUpdateForm(SoftwareAssetModelForm):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.helper.layout.append(Submit("submit", "Update software asset"))
+        back_link = reverse("software_asset", kwargs={"pk": self.instance.pk})
+        self.helper.layout.append(
+            HTML(
+                f"<a href='{back_link}' class='govuk-button govuk-button--secondary' "
+                "data-module='govuk-button'>Cancel</a>"
+            )
+        )

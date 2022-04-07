@@ -5,8 +5,13 @@
     {% error_summary form %}
 
     <h1 class="govuk-heading-l">Assets</h1>
-    <a href="{% url 'create_physical_asset' %}">Create Physical Asset</a>
-    <a href="{% url 'create_software_asset' %}">Create Software Asset</a>
+
+    <a href="{% url 'create_physical_asset' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+        Create Physical Asset
+    </a>
+    <a href="{% url 'create_software_asset' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+        Create Software Asset
+    </a>
 
     <form novalidate method='post'>
         {% crispy form %}

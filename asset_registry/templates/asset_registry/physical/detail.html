@@ -1,0 +1,86 @@
+{% extends "asset_registry_base.html" %}
+{% load crispy_forms_tags crispy_forms_gds %}
+
+{% block content %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <a href="{% url 'list_assets' %}" class="govuk-back-link">Back</a>
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">{{ object }}</h1>
+            <a href="{% url 'update_physical_asset' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                Make changes
+            </a>
+
+            <table class="govuk-table">
+                <tbody class="govuk-table__body">
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Asset number</th>
+                        <td class="govuk-table__cell">{{ object.asset_number }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Finance asset number</th>
+                        <td class="govuk-table__cell">{{ object.finance_asset_number }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Category</th>
+                        <td class="govuk-table__cell">{{ object.category }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Status</th>
+                        <td class="govuk-table__cell">{{ object.status }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Manufacturer</th>
+                        <td class="govuk-table__cell">{{ object.manufacturer }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Model</th>
+                        <td class="govuk-table__cell">{{ object.model }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Serial number</th>
+                        <td class="govuk-table__cell">{{ object.serial_number }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Purchase date</th>
+                        <td class="govuk-table__cell">{{ object.purchase_date }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Cost</th>
+                        <td class="govuk-table__cell">{{ object.cost }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Warranty expire date</th>
+                        <td class="govuk-table__cell">{{ object.warranty_expire_date }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Location</th>
+                        <td class="govuk-table__cell">{{ object.location }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Address</th>
+                        <td class="govuk-table__cell">{{ object.address }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Date assigned</th>
+                        <td class="govuk-table__cell">{{ object.date_assigned }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Date returned</th>
+                        <td class="govuk-table__cell">{{ object.date_returned }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Last verified date</th>
+                        <td class="govuk-table__cell">{{ object.last_verified_date }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endblock %}
