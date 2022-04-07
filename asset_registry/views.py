@@ -60,6 +60,11 @@ class PhysicalAssetView(UpdateView):
     template_name = "asset_registry/physical/detail.html"
     success_url = reverse_lazy("list_assets")
 
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(user=self.object.users.first())
+        return context
+
 
 class UpdatePhysicalAssetView(UpdateView):
     model = PhysicalAsset
@@ -81,6 +86,11 @@ class SoftwareAssetView(DetailView):
     model = SoftwareAsset
     template_name = "asset_registry/software/detail.html"
     success_url = reverse_lazy("list_assets")
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(users=self.object.users.all())
+        return context
 
 
 class UpdateSoftwareAssetView(UpdateView):

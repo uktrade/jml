@@ -7,7 +7,7 @@ from django.urls import reverse
 
 
 class AssetSearchForm(forms.Form):
-    search_terms = forms.CharField(label="")
+    search_terms = forms.CharField(label="Search for an asset")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
