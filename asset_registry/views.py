@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Any, Dict, Optional
+from uuid import UUID
 
 from asset_registry.forms import (
     AssetSearchForm,
@@ -28,6 +29,7 @@ else:
 
 ADD_USER_SUCCESS_SESSION_KEY = "add_user_success"
 ADD_USER_ERROR_SESSION_KEY = "add_user_error"
+REMOVE_USER_SUCCESS_SESSION_KEY = "remove_user_success"
 
 
 def view_asset(request: HttpResponse, pk: int) -> HttpResponse:
@@ -102,10 +104,28 @@ class SoftwareAssetView(DetailView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
+
+        success_message: Optional[str] = None
+        add_user_success: Optional[str] = self.request.session.get(
+            ADD_USER_SUCCESS_SESSION_KEY
+        )
+        remove_user_success: Optional[str] = self.request.session.get(
+            REMOVE_USER_SUCCESS_SESSION_KEY
+        )
+        if add_user_success or remove_user_success:
+            success_message = add_user_success or remove_user_success
+
+        error_message: Optional[str] = None
+        add_user_error: Optional[str] = self.request.session.get(
+            ADD_USER_ERROR_SESSION_KEY
+        )
+        if remove_user_success:
+            error_message = add_user_error
+
         context.update(
             users=self.object.users.all(),
-            add_user_success=self.request.session.get(ADD_USER_SUCCESS_SESSION_KEY),
-            add_user_error=self.request.session.get(ADD_USER_ERROR_SESSION_KEY),
+            success_message=success_message,
+            error_message=error_message,
         )
 
         # Clean up the session
@@ -113,6 +133,8 @@ class SoftwareAssetView(DetailView):
             del self.request.session[ADD_USER_SUCCESS_SESSION_KEY]
         if ADD_USER_ERROR_SESSION_KEY in self.request.session:
             del self.request.session[ADD_USER_ERROR_SESSION_KEY]
+        if REMOVE_USER_SUCCESS_SESSION_KEY in self.request.session:
+            del self.request.session[REMOVE_USER_SUCCESS_SESSION_KEY]
 
         return context
 
@@ -138,6 +160,22 @@ class AssetUserSearchView(StaffSearchView):
 
     def get_success_url(self) -> str:
         return reverse("add-user-to-asset", args=[self.asset.pk])
+
+
+def remove_user_from_asset(
+    request: HttpResponse, pk: int, asset_user_uuid: UUID
+) -> HttpResponse:
+    asset: Asset = get_object_or_404(Asset, pk=pk)
+    asset_user_activitystream_user: ActivityStreamStaffSSOUser = get_object_or_404(
+        ActivityStreamStaffSSOUser, identifier=asset_user_uuid
+    )
+
+    asset.users.remove(asset_user_activitystream_user)
+
+    request.session[
+        REMOVE_USER_SUCCESS_SESSION_KEY
+    ] = f"{asset_user_activitystream_user.first_name} is no longer associated with this asset."
+    return redirect(reverse("view-asset", args=[pk]))
 
 
 def add_user_to_asset(request: HttpResponse, pk: int) -> HttpResponse:

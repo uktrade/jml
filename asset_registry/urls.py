@@ -8,6 +8,7 @@ from asset_registry.views import (
     UpdatePhysicalAssetView,
     UpdateSoftwareAssetView,
     add_user_to_asset,
+    remove_user_from_asset,
     view_asset,
 )
 from django.urls import path
@@ -21,6 +22,11 @@ urlpatterns = [
     ),
     path("<int:pk>/", view_asset, name="view-asset"),
     path("<int:pk>/add-user/", add_user_to_asset, name="add-user-to-asset"),
+    path(
+        "<int:pk>/remove-user/<uuid:asset_user_uuid>/",
+        remove_user_from_asset,
+        name="remove-user-from-asset",
+    ),
     path(
         "physical/create/",
         CreatePhysicalAssetView.as_view(),
