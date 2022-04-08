@@ -9,6 +9,12 @@ from asset_registry.forms import (
     SoftwareAssetUpdateForm,
 )
 from asset_registry.models import Asset, PhysicalAsset, SoftwareAsset
+from asset_registry.utils import (
+    ADD_USER_ERROR_SESSION_KEY,
+    ADD_USER_SUCCESS_SESSION_KEY,
+    REMOVE_USER_SUCCESS_SESSION_KEY,
+    get_asset_user_action_messages,
+)
 from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.http import Http404, HttpRequest
@@ -26,10 +32,6 @@ if TYPE_CHECKING:
     from user.models import User
 else:
     User = get_user_model()
-
-ADD_USER_SUCCESS_SESSION_KEY = "add_user_success"
-ADD_USER_ERROR_SESSION_KEY = "add_user_error"
-REMOVE_USER_SUCCESS_SESSION_KEY = "remove_user_success"
 
 
 def view_asset(request: HttpResponse, pk: int) -> HttpResponse:
@@ -77,7 +79,15 @@ class PhysicalAssetView(UpdateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(user=self.object.users.first())
+
+        success_message, error_message = get_asset_user_action_messages(self.request)
+
+        context.update(
+            users=self.object.users.all(),
+            success_message=success_message,
+            error_message=error_message,
+        )
+
         return context
 
 
@@ -105,36 +115,13 @@ class SoftwareAssetView(DetailView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        success_message: Optional[str] = None
-        add_user_success: Optional[str] = self.request.session.get(
-            ADD_USER_SUCCESS_SESSION_KEY
-        )
-        remove_user_success: Optional[str] = self.request.session.get(
-            REMOVE_USER_SUCCESS_SESSION_KEY
-        )
-        if add_user_success or remove_user_success:
-            success_message = add_user_success or remove_user_success
-
-        error_message: Optional[str] = None
-        add_user_error: Optional[str] = self.request.session.get(
-            ADD_USER_ERROR_SESSION_KEY
-        )
-        if remove_user_success:
-            error_message = add_user_error
+        success_message, error_message = get_asset_user_action_messages(self.request)
 
         context.update(
             users=self.object.users.all(),
             success_message=success_message,
             error_message=error_message,
         )
-
-        # Clean up the session
-        if ADD_USER_SUCCESS_SESSION_KEY in self.request.session:
-            del self.request.session[ADD_USER_SUCCESS_SESSION_KEY]
-        if ADD_USER_ERROR_SESSION_KEY in self.request.session:
-            del self.request.session[ADD_USER_ERROR_SESSION_KEY]
-        if REMOVE_USER_SUCCESS_SESSION_KEY in self.request.session:
-            del self.request.session[REMOVE_USER_SUCCESS_SESSION_KEY]
 
         return context
 
