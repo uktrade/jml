@@ -5,16 +5,23 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <a href="{% url 'list_assets' %}" class="govuk-back-link">Back</a>
+            <a href="{% url 'list-assets' %}" class="govuk-back-link">Back</a>
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">{{ object }}</h1>
-            <a href="{% url 'update_physical_asset' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+            <a href="{% url 'update-physical-asset' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                 Make changes
             </a>
+
+            {% if add_user_success %}
+                {{ add_user_success }}
+            {% endif %}
+            {% if add_user_error %}
+                {{ add_user_error }}
+            {% endif %}
 
             <table class="govuk-table">
                 <tbody class="govuk-table__body">

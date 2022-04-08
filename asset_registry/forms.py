@@ -79,7 +79,7 @@ class PhysicalAssetUpdateForm(PhysicalAssetModelForm):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.helper.layout.append(Submit("submit", "Update physical asset"))
-        back_link = reverse("physical_asset", kwargs={"pk": self.instance.pk})
+        back_link = reverse("physical-asset", kwargs={"pk": self.instance.pk})
         self.helper.layout.append(
             HTML(
                 f"<a href='{back_link}' class='govuk-button govuk-button--secondary' "
@@ -127,7 +127,7 @@ class SoftwareAssetUpdateForm(SoftwareAssetModelForm):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.helper.layout.append(Submit("submit", "Update software asset"))
-        back_link = reverse("software_asset", kwargs={"pk": self.instance.pk})
+        back_link = reverse("software-asset", kwargs={"pk": self.instance.pk})
         self.helper.layout.append(
             HTML(
                 f"<a href='{back_link}' class='govuk-button govuk-button--secondary' "

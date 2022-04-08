@@ -6,10 +6,10 @@
 
     <h1 class="govuk-heading-l">Assets</h1>
 
-    <a href="{% url 'create_physical_asset' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+    <a href="{% url 'create-physical-asset' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
         Create Physical Asset
     </a>
-    <a href="{% url 'create_software_asset' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+    <a href="{% url 'create-software-asset' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
         Create Software Asset
     </a>
 
@@ -27,7 +27,7 @@
             <tbody class="govuk-table__body">
                 {% for asset in object_list %}
                     <tr class="govuk-table__row">
-                        <td class="govuk-table__cell"><a href="{% url 'update_asset' asset.pk %}">{{ asset }}</a></td>
+                        <td class="govuk-table__cell"><a href="{% url 'view-asset' asset.pk %}">{{ asset }}</a></td>
                     </tr>
                 {% endfor %}
             </tbody>

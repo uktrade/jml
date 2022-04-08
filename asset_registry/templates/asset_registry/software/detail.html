@@ -4,16 +4,23 @@
     
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <a href="{% url 'list_assets' %}" class="govuk-back-link">Back</a>
+            <a href="{% url 'list-assets' %}" class="govuk-back-link">Back</a>
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">{{ object }}</h1>
-            <a href="{% url 'update_software_asset' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+            <a href="{% url 'update-software-asset' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                 Make changes
             </a>
+            
+            {% if add_user_success %}
+                {{ add_user_success }}
+            {% endif %}
+            {% if add_user_error %}
+                {{ add_user_error }}
+            {% endif %}
 
             <table class="govuk-table">
                 <tbody class="govuk-table__body">
@@ -64,7 +71,7 @@
                                 <th scope="row" class="govuk-table__header">{{ user.name }}</th>
                                 <td class="govuk-table__cell">{{ user.email }}</td>
                                 <td class="govuk-table__cell">
-                                    <a href="{% url 'update_software_asset' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                                    <a href="{% url 'update-software-asset' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                                         Remove
                                     </a>
                                 </td>
@@ -73,7 +80,7 @@
                     </tbody>
                 {% endif %}
             </table>
-            <a href="{% url 'update_software_asset' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+            <a href="{% url 'asset-user-search' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                 Add a user
             </a>
         </div>

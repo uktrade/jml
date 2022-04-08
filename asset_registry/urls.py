@@ -1,4 +1,5 @@
 from asset_registry.views import (
+    AssetUserSearchView,
     CreatePhysicalAssetView,
     CreateSoftwareAssetView,
     ListAssetsView,
@@ -6,41 +7,48 @@ from asset_registry.views import (
     SoftwareAssetView,
     UpdatePhysicalAssetView,
     UpdateSoftwareAssetView,
-    update_asset,
+    add_user_to_asset,
+    view_asset,
 )
 from django.urls import path
 
 urlpatterns = [
-    path("", ListAssetsView.as_view(), name="list_assets"),
-    path("update/<int:pk>/", update_asset, name="update_asset"),
+    path("", ListAssetsView.as_view(), name="list-assets"),
+    path(
+        "<int:pk>/user-search/",
+        AssetUserSearchView.as_view(),
+        name="asset-user-search",
+    ),
+    path("<int:pk>/", view_asset, name="view-asset"),
+    path("<int:pk>/add-user/", add_user_to_asset, name="add-user-to-asset"),
     path(
         "physical/create/",
         CreatePhysicalAssetView.as_view(),
-        name="create_physical_asset",
+        name="create-physical-asset",
     ),
     path(
         "physical/<int:pk>/detail/",
         PhysicalAssetView.as_view(),
-        name="physical_asset",
+        name="physical-asset",
     ),
     path(
         "physical/<int:pk>/update/",
         UpdatePhysicalAssetView.as_view(),
-        name="update_physical_asset",
+        name="update-physical-asset",
     ),
     path(
         "software/create/",
         CreateSoftwareAssetView.as_view(),
-        name="create_software_asset",
+        name="create-software-asset",
     ),
     path(
         "software/<int:pk>/detail/",
         SoftwareAssetView.as_view(),
-        name="software_asset",
+        name="software-asset",
     ),
     path(
         "software/<int:pk>/update/",
         UpdateSoftwareAssetView.as_view(),
-        name="update_software_asset",
+        name="update-software-asset",
     ),
 ]

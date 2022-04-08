@@ -10,7 +10,7 @@ else:
 
 
 class Asset(models.Model):
-    users = models.ManyToManyField("user.User")
+    users = models.ManyToManyField("activity_stream.ActivityStreamStaffSSOUser")
 
     class Meta:
         verbose_name = "Asset"

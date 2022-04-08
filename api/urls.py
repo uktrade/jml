@@ -5,6 +5,6 @@ urlpatterns = [
     path(
         "detail-correction/",
         DetailCorrectionViewSet.as_view({"get": "list"}),
-        name="detail_correction",
+        name="detail-correction",
     ),
 ]
