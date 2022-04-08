@@ -212,6 +212,6 @@ class UserAssetView(DetailView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        assets = Asset.objects.filter(users__pk=self.object.pk)
+        assets = queryset_to_specific(Asset.objects.filter(users__pk=self.object.pk))
         context.update(assets=assets)
         return context
