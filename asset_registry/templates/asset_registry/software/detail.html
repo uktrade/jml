@@ -85,7 +85,7 @@
                     <tbody class="govuk-table__body">
                         {% for user in users %}
                             <tr class="govuk-table__row">
-                                <th scope="row" class="govuk-table__header">{{ user.name }}</th>
+                                <th scope="row" class="govuk-table__header"><a href="{% url 'user-assets' user.identifier %}" class="govuk-link">{{ user.name }}</a></th>
                                 <td class="govuk-table__cell">{{ user.email_address }}</td>
                                 <td class="govuk-table__cell">
                                     <a href="{% url 'remove-user-from-asset' object.pk user.identifier %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">

@@ -75,7 +75,6 @@ class CreatePhysicalAssetView(CreateView):
 class PhysicalAssetView(UpdateView):
     model = PhysicalAsset
     template_name = "asset_registry/physical/detail.html"
-    success_url = reverse_lazy("list-assets")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -110,7 +109,6 @@ class CreateSoftwareAssetView(CreateView):
 class SoftwareAssetView(DetailView):
     model = SoftwareAsset
     template_name = "asset_registry/software/detail.html"
-    success_url = reverse_lazy("list-assets")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -204,3 +202,16 @@ def add_user_to_asset(request: HttpResponse, pk: int) -> HttpResponse:
         ] = f"{asset_user_activitystream_user.first_name} is now associated with this asset."
 
     return return_redirect
+
+
+class UserAssetView(DetailView):
+    model = ActivityStreamStaffSSOUser
+    template_name = "asset_registry/user.html"
+    slug_field = "identifier"
+    slug_url_kwarg = "asset_user_uuid"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        assets = Asset.objects.filter(users__pk=self.object.pk)
+        context.update(assets=assets)
+        return context

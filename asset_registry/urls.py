@@ -7,6 +7,7 @@ from asset_registry.views import (
     SoftwareAssetView,
     UpdatePhysicalAssetView,
     UpdateSoftwareAssetView,
+    UserAssetView,
     add_user_to_asset,
     remove_user_from_asset,
     view_asset,
@@ -15,6 +16,7 @@ from django.urls import path
 
 urlpatterns = [
     path("", ListAssetsView.as_view(), name="list-assets"),
+    path("user/<uuid:asset_user_uuid>/", UserAssetView.as_view(), name="user-assets"),
     path(
         "<int:pk>/user-search/",
         AssetUserSearchView.as_view(),
