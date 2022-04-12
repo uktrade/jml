@@ -65,6 +65,7 @@ django==3.2.12
     #   crispy-forms-gds
     #   django-appconf
     #   django-celery-beat
+    #   django-health-check
     #   django-staff-sso-client
     #   django-stubs
     #   django-stubs-ext
@@ -86,6 +87,8 @@ django-crispy-forms==1.14.0
 django-elasticsearch-dsl==7.2.1
     # via -r requirements.in/base.in
 django-environ==0.8.1
+    # via -r requirements.in/base.in
+django-health-check==3.16.5
     # via -r requirements.in/base.in
 django-ipware==3.0.7
     # via django-log-formatter-ecs

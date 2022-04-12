@@ -57,6 +57,7 @@ django==3.2.12
     #   crispy-forms-gds
     #   django-appconf
     #   django-celery-beat
+    #   django-health-check
     #   django-staff-sso-client
     #   django-timezone-field
     #   django-workflow-engine
@@ -76,6 +77,8 @@ django-crispy-forms==1.14.0
 django-elasticsearch-dsl==7.2.1
     # via -r requirements.in/base.in
 django-environ==0.8.1
+    # via -r requirements.in/base.in
+django-health-check==3.16.5
     # via -r requirements.in/base.in
 django-ipware==3.0.7
     # via django-log-formatter-ecs
@@ -206,7 +209,7 @@ waitress==2.1.1
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
