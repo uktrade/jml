@@ -28,6 +28,10 @@ class CustomHealthCheckView(MainView):
 
 
 class WarningHealthCheckView(CustomHealthCheckView):
+    """
+    Display non critical healthcheck errors.
+    """
+
     title: str = "System warnings"
 
     @property
