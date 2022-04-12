@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "user",
     "core",
     "core.cookies",
+    "core.health_check.apps.HealthCheckConfig",
     "core.staff_search",
     "api",
     "activity_stream",

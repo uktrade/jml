@@ -154,6 +154,8 @@ Send Line
 Send OCS Email
 Sensitive and Personal
 Service
+Service Now
+Service Now Health Check
 Service Now.</p>
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID=1234567890

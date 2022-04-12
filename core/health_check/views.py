@@ -6,6 +6,8 @@ from health_check.views import MainView
 
 
 class CustomHealthCheckView(MainView):
+    template_name = "core_health_check/index.html"
+
     def render_to_response(
         self, context: Dict[str, Any], status: int, **response_kwargs: Any
     ) -> HttpResponse:

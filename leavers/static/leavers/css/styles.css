@@ -4811,6 +4811,12 @@
 .sre-leaving-requests-table .incomplete {
   color: #d4351c; }
 
+.healthcheck-table .success {
+  color: #00703c; }
+
+.healthcheck-table .failed {
+  color: #d4351c; }
+
 .leaver-image {
   width: 100%;
   margin-bottom: 26px;
