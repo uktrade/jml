@@ -16,9 +16,9 @@
             <table class="govuk-table">
                 <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
-                    <th scope="col" class="govuk-table__header">Service name</th>
-                    <th scope="col" class="govuk-table__header">Removed at</th>
-                    <th scope="col" class="govuk-table__header">Removed by</th>
+                        <th scope="col" class="govuk-table__header">Service name</th>
+                        <th scope="col" class="govuk-table__header">Removed at</th>
+                        <th scope="col" class="govuk-table__header">Removed by</th>
                     </tr>
                 </thead>
                 <tbody class="govuk-table__body">
@@ -28,7 +28,7 @@
                             <td class="govuk-table__cell">{{ access_removed_service.2.created_at }}</td>
                             <td class="govuk-table__cell">{{ access_removed_service.2.user }}</td>
                         </tr>
-                        {% empty %}
+                    {% empty %}
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">No services have had access removed</th>
                             <td class="govuk-table__cell"></td>

@@ -13,10 +13,14 @@
 # Joiners Movers Leavers
 # People Finder
 # Staff
+<<<<<<< HEAD
+=======
+>>>>>>> cb31aaa (Cleanup template formatting)
 | SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL_TEMPLATE_ID |
 | SLACK_SRE_CHANNEL_ID                                     | None                                       
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
 100px
+234px
 7.7-.2
 8.7 39.7 21.8l42.7-27.2A97.63
 activity_stream.activitystreamstaffssouser
@@ -123,7 +127,9 @@ manager_id
 migrate$(COLOUR_NONE
 minimum_should_match
 NAME
+name=
 None                                       
+object.current_task_record
 OCS
 OCS_EMAIL
 OpenSearch
@@ -143,6 +149,7 @@ python manage.py compilescss &&
 python manage.py migrate &&
 Reason for Leaving Resignation
 ReturnOptions
+role="alert
 ROSA
 ROSA Access Revoked
 ROSA Kit
@@ -172,6 +179,7 @@ SlackMessage.objects.create
 Split
 SRE
 sso_access_task_log
+staff_details.job_title %
 staff_id"
 STAFF_SSO_ACTIVITY_STREAM_ID
 Start Line

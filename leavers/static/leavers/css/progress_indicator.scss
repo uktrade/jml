@@ -17,7 +17,7 @@
             .progress-step-number {
                 display: none;
             }
-        } 
+        }
     }
 }
 
@@ -33,7 +33,7 @@
         max-width: 1200px;
         margin: 0;
         padding: 0 50px 75px 50px;
-        
+
         .progress-indicator {
             margin: 0;
             padding: 0;
@@ -89,7 +89,7 @@
                 height: 10px;
                 background: govuk-colour("mid-grey");
                 flex: 1;
-                
+
                 &.is-active,
                 &.is-complete {
                     background: govuk-colour("green");
