@@ -84,6 +84,7 @@ Finder Raises
 Flexi Impacting Pay
 for.</p
 Form
+form</h1
 Get the Leaver StaffDocument
 Get the Leaving Request for the Leaver
 Github
@@ -175,6 +176,7 @@ STAFF_SSO_ACTIVITY_STREAM_ID
 Start Line
 Store DSE
 StreamHandler
+target="_blank">here</a>.</li>
 Team Zendesk
 Templates
 Tests for `get_leaver_detail_updates` "
