@@ -15,9 +15,10 @@ from leavers.views import base
 class LeavingRequestListing(base.LeavingRequestListing):
     template_name = "leaving/security_team/listing.html"
 
-    complete_field: str = "security_team_complete"
-    confirmation_view: str = "security-team-confirmation"
-    summary_view: str = "security-team-summary"
+    complete_field = "security_team_complete"
+    confirmation_view = "security-team-confirmation"
+    summary_view = "security-team-summary"
+    page_title = "Security Team off-boarding"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -29,6 +30,7 @@ class TaskConfirmationView(base.TaskConfirmationView):
     template_name = "leaving/security_team/task_form.html"
     form_class = security_team_forms.SecurityTeamConfirmCompleteForm
     complete_field: str = "security_team_complete"
+    page_title = "Security Team off-boarding confirmation"
 
     # Field mapping from the Form field name to the LeavingRequest field name (with task messages)
     field_mapping: Dict[str, Tuple[str, str, str]] = {
@@ -93,6 +95,7 @@ class TaskSummaryView(
 ):
     template_name = "leaving/security_team/summary.html"
     leaving_request = None
+    page_title: str = "Security Team off-boarding summary"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -112,6 +115,7 @@ class TaskSummaryView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context.update(page_title=self.page_title)
 
         security_access_items: List[Tuple[str, str, TaskLog]] = [
             (
@@ -132,6 +136,7 @@ class TaskSummaryView(
 
 class ThankYouView(UserPassesTestMixin, TemplateView):
     template_name = "leaving/security_team/thank_you.html"
+    page_title: str = "Security Team off-boarding thank you"
 
     def test_func(self):
         return self.request.user.groups.filter(

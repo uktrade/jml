@@ -27,6 +27,7 @@ class LeavingRequestListing(
     show_incomplete: bool = False
     confirmation_view: str = ""
     summary_view: str = ""
+    page_title: str = ""
 
     def __init__(
         self,
@@ -69,6 +70,7 @@ class LeavingRequestListing(
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
+        context.update(page_title=self.page_title)
 
         # Set object type name
         object_type_name: str = "leaving requests"
@@ -130,6 +132,7 @@ class TaskConfirmationView(
 ):
     leaving_request = None
     complete_field: str = ""
+    page_title: str = ""
 
     # Field mapping from the Form field name to the LeavingRequest field name (with task messages)
     field_mapping: Dict[str, Tuple[str, str, str]] = {}
@@ -152,6 +155,7 @@ class TaskConfirmationView(
         context = super().get_context_data(**kwargs)
 
         context.update(
+            page_title=self.page_title,
             leaver_name=self.leaving_request.get_leaver_name(),
             leaving_date=self.leaving_request.last_day,
         )
