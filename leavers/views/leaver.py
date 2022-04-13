@@ -468,6 +468,11 @@ class LeaverProgressIndicator:
     def __init__(self, current_step: str) -> None:
         self.current_step = current_step
 
+    def get_current_step_label(self) -> str:
+        for step in self.steps:
+            if step[0] == self.current_step:
+                return step[1]
+
     def get_progress_steps(self) -> List[StepDict]:
         """
         Build the list of progress steps
@@ -529,6 +534,7 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context.update(page_title=self.progress_indicator.get_current_step_label())
         user = cast(User, self.request.user)
         user_email = cast(str, user.email)
 
@@ -538,7 +544,7 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         )
         leaver_first_name = display_leaver_details["first_name"]
         leaver_last_name = display_leaver_details["last_name"]
-        context.update(leaver_name=f"{leaver_first_name} {leaver_last_name}"),
+        context.update(leaver_name=f"{leaver_first_name} {leaver_last_name}")
 
         context.update(progress_steps=self.progress_indicator.get_progress_steps())
         return context
@@ -662,6 +668,7 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context.update(page_title=self.progress_indicator.get_current_step_label())
 
         # Add form instances to the context.
         for form_name, form_class in self.forms.items():
@@ -763,6 +770,7 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
+        context.update(page_title=self.progress_indicator.get_current_step_label())
 
         # Add form instances to the context.
         for form_name, form_class in self.forms.items():
@@ -806,7 +814,10 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(progress_steps=self.progress_indicator.get_progress_steps())
+        context.update(
+            page_title=self.progress_indicator.get_current_step_label(),
+            progress_steps=self.progress_indicator.get_progress_steps(),
+        )
         return context
 
 
@@ -845,6 +856,7 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context.update(
+            page_title=self.progress_indicator.get_current_step_label(),
             return_option=self.leaver_info.return_option,
             progress_steps=self.progress_indicator.get_progress_steps(),
         )
@@ -929,6 +941,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         user_email = cast(str, user.email)
 
         context.update(
+            page_title=self.progress_indicator.get_current_step_label(),
             progress_steps=self.progress_indicator.get_progress_steps(),
             has_dse=self.leaver_info.has_dse,
             cirrus_assets=self.leaver_info.cirrus_assets,
@@ -997,6 +1010,7 @@ class RequestReceivedView(LeaverInformationMixin, TemplateView):
 
         context = super().get_context_data(**kwargs)
         context.update(
-            leaver_info=self.get_leaver_information(email=user_email, requester=user)
+            page_title="Thank you",
+            leaver_info=self.get_leaver_information(email=user_email, requester=user),
         )
         return context

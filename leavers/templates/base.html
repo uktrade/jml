@@ -3,8 +3,8 @@
 <html lang="en" class="govuk-template app-html-class">
 
 <head>
-    <meta charset="utf-8" />
-    <title>{{ SITE_NAME }}</title>
+    <meta charset="utf-8">
+    <title>{% block title %}{% if page_title %}{{ page_title }} - {% endif %}{{ SERVICE_NAME }}{% endblock %}</title>
     <meta name="robots" content="noindex" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="blue">
@@ -63,11 +63,13 @@
                 </a>
             </div>
             <div class="govuk-header__content">
-                <a href="" class="govuk-header__link govuk-header__link--service-name">{{ SITE_NAME }}</a>
+                <a href="" class="govuk-header__link govuk-header__link--service-name">{{ SERVICE_NAME }}</a>
                 <!-- <button type="button" class="govuk-header__menu-button govuk-js-header-toggle" aria-controls="navigation"
                             aria-label="Show or hide navigation menu">Menu
                     </button> -->
-                {% block nav %}{% endblock %}
+                {% block nav %}
+                {% include "includes/menu.html" with user=user %}
+                {% endblock %}
             </div>
         </div>
     </header>

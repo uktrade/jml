@@ -11,7 +11,7 @@ def global_context(request):
     """
 
     global_context = {
-        "SITE_NAME": "Leaving DIT",
+        "SERVICE_NAME": "Leaving DIT",
         "COOKIE_RESPONSE": request.COOKIES.get("cookie_banner_response"),
         "DEV_LINKS": [],
     }

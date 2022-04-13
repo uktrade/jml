@@ -2,32 +2,33 @@
 {% load static %}
 
 {% block content %}
-    <h1 class="govuk-heading-l">Leaving DIT: line manager's actions</h1>
-    <p class="govuk-body">To complete the off-boarding of <em>{{ leaver_name }}</em> from HR, security and payroll you must confirm:</p>
-    <ul class="govuk-list govuk-list--bullet">
-        <li>who will receive the leaver's data</li>
-        <li>their leaving date</li>
-        <li>their last working day</li>
-        <li>their security clearance level</li>
-        <li>if they have a <a class="govuk-link" href="#">government procurement card</a></li>
-        <li>if they have <a class="govuk-link" href="#">ROSA kit</a></li>
-    </ul>
-    <p class="govuk-body">You will also be asked to:</p>
-    <ul class="govuk-list govuk-list--bullet">
-        <li>complete the "leaver's notification form" on UKSBS</li>
-        <li>download it in PDF format and then upload the PDF where requested</li>
-    </ul>
-    <p class="govuk-body">This will usually take you between 10 and 20 minutes to complete.</p>
-    <a class="govuk-button" data-module="govuk-button" href="{{ start_url }}">
-        Start now
-    </a>
-    <h2 class="govuk-heading-m">Before you start</h2>
-    <p class="govuk-body">Make sure you know:</p>
-    <ul class="govuk-list govuk-list--bullet">
-        <li>their leaving date</li>
-        <li>their last working day</li>
-        <li>their security clearance level</li>
-        <li>if they have a <a class="govuk-link" href="#">government procurement card</a></li>
-        <li>if they have <a class="govuk-link" href="#">ROSA kit</a></li>
-    </ul>
+<h1 class="govuk-heading-l">{{ page_title }}</h1>
+<p class="govuk-body">To complete the off-boarding of <em>{{ leaver_name }}</em> from HR, security and payroll you must
+    confirm:</p>
+<ul class="govuk-list govuk-list--bullet">
+    <li>who will receive the leaver's data</li>
+    <li>their leaving date</li>
+    <li>their last working day</li>
+    <li>their security clearance level</li>
+    <li>if they have a <a class="govuk-link" href="#">government procurement card</a></li>
+    <li>if they have <a class="govuk-link" href="#">ROSA kit</a></li>
+</ul>
+<p class="govuk-body">You will also be asked to:</p>
+<ul class="govuk-list govuk-list--bullet">
+    <li>complete the "leaver's notification form" on UKSBS</li>
+    <li>download it in PDF format and then upload the PDF where requested</li>
+</ul>
+<p class="govuk-body">This will usually take you between 10 and 20 minutes to complete.</p>
+<a class="govuk-button" data-module="govuk-button" href="{{ start_url }}">
+    Start now
+</a>
+<h2 class="govuk-heading-m">Before you start</h2>
+<p class="govuk-body">Make sure you know:</p>
+<ul class="govuk-list govuk-list--bullet">
+    <li>their leaving date</li>
+    <li>their last working day</li>
+    <li>their security clearance level</li>
+    <li>if they have a <a class="govuk-link" href="#">government procurement card</a></li>
+    <li>if they have <a class="govuk-link" href="#">ROSA kit</a></li>
+</ul>
 {% endblock %}
