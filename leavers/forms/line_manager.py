@@ -111,7 +111,7 @@ class ConfirmLeavingDate(GovFormattedForm):
             Fieldset(
                 HTML(
                     "<p class='govuk-body'>This is the last day the leaver will "
-                    "be employed by the department and the last day the leaver will "
+                    "be employed by the department and the last day they will "
                     "be paid for.</p>"
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
@@ -122,8 +122,9 @@ class ConfirmLeavingDate(GovFormattedForm):
             Fieldset(
                 HTML(
                     "<p class='govuk-body'>This is the last day the leaver will "
-                    "be working at DIT. After this date the leaver will no longer "
-                    "have access to any DIT provided systems and buildings.</p>"
+                    "be working at DIT. After this date the leaver will no "
+                    "longer have access to any DIT provided systems and "
+                    "buildings.</p>"
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("last_day"),

@@ -29,25 +29,23 @@ class LeaverConfirmationForm(GovFormattedForm):
 
 class LeaverUpdateForm(GovFormattedForm):
     # Personal details
-    first_name = forms.CharField(label="First name")  # /PS-IGNORE
-    last_name = forms.CharField(label="Last name")  # /PS-IGNORE
-    contact_email_address = forms.EmailField(label="Personal email")
-    job_title = forms.CharField(label="Job title")
-    directorate = forms.ChoiceField(label="Directorate", choices=[])
-    staff_id = forms.CharField(label="Staff ID")
+    first_name = forms.CharField(label="")
+    last_name = forms.CharField(label="")
+    contact_email_address = forms.EmailField(label="")
+    job_title = forms.CharField(label="")
+    directorate = forms.ChoiceField(label="", choices=[])
+    staff_id = forms.CharField(label="")
     # Extra information
     security_clearance = forms.ChoiceField(
-        label="Security clearance type",
+        label="",
         choices=(
             [(None, "Select security clearance type")] + SecurityClearance.choices  # type: ignore
         ),
     )
-    locker_number = forms.CharField(label="Locker number")
-    has_gov_procurement_card = YesNoField(
-        label="Do you have a Government Procurement Card?"
-    )
-    has_rosa_kit = YesNoField(label="Do you have a ROSA kit?")
-    has_dse = YesNoField(label="Do you have any display screen equipment?")
+    locker_number = forms.CharField(label="")
+    has_gov_procurement_card = YesNoField(label="")
+    has_rosa_kit = YesNoField(label="")
+    has_dse = YesNoField(label="")
 
     leaving_date = DateInputField(
         label="",
@@ -70,22 +68,65 @@ class LeaverUpdateForm(GovFormattedForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("first_name"),
-            Field("last_name"),
-            Field("contact_email_address"),
-            Field("job_title"),
-            Field("directorate"),
-            Field("staff_id"),
-            Field("security_clearance"),
-            Field("locker_number"),
-            Field.radios("has_gov_procurement_card", inline=True),
-            Field.radios("has_rosa_kit", inline=True),
-            Field.radios("has_dse", inline=True),
+            Fieldset(
+                Field("first_name"),
+                legend="First name",  # /PS-IGNORE
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field("last_name"),
+                legend="Last name",  # /PS-IGNORE
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field("contact_email_address"),
+                legend="Personal email",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field("job_title"),
+                legend="Job title",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field("directorate"),
+                legend="Directorate",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field("staff_id"),
+                legend="Staff ID",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field("security_clearance"),
+                legend="Security clearance type",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field("locker_number"),
+                legend="Locker number",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field.radios("has_gov_procurement_card", inline=True),
+                legend="Do you have a Government Procurement Card?",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field.radios("has_rosa_kit", inline=True),
+                legend="Do you have a ROSA kit?",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field.radios("has_dse", inline=True),
+                legend="Do you have any display screen equipment?",
+                legend_size=Size.MEDIUM,
+            ),
             Fieldset(
                 HTML(
-                    "<p class='govuk-body'>This is the last day you will be "
-                    "employed by the department and the last day you will be "
-                    "paid for.</p>"
+                    "<p class='govuk-body'>This is the last day you will be employed "
+                    "by the department and the last day you will be paid for.</p>"
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("leaving_date"),
@@ -94,9 +135,9 @@ class LeaverUpdateForm(GovFormattedForm):
             ),
             Fieldset(
                 HTML(
-                    "<p class='govuk-body'>This is the last day vou will be "
-                    "working at DIT. After this date vou will no longer have "
-                    "access to any DIT provided systems and buildings.</p>"
+                    "<p class='govuk-body'>This is the last day you will be working "
+                    "at DIT. After this date you will no longer have access to any "
+                    "DIT provided systems and buildings.</p>"
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("last_day"),
