@@ -1,4 +1,5 @@
-Celery==5.2.3
+Celery==5.2.5
+Celery[redis]==5.2.5
 django-crispy-forms
 crispy-forms-gds
 django-celery-beat

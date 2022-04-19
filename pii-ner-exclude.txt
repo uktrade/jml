@@ -11,6 +11,8 @@
 " Task Logs
 @media
 # Joiners Movers Leavers
+# People Finder
+# Staff
 | SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL_TEMPLATE_ID |
 | SLACK_SRE_CHANNEL_ID                                     | None                                       
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
@@ -21,6 +23,7 @@ Annual Leave
 Annual Leave: "
 API
 AssetDetails
+Base
 below.</a>
 Build Staff Document
 Building Pass Access Revoked
@@ -53,6 +56,7 @@ directorate_id
 Discuss
 Display Screen Equipment
 DIT
+DjangoCelery
 DjangoTemplates
 DO NOT USE ON PRODUCTION
 Dockerfile.dev
@@ -82,6 +86,7 @@ govuk_paas_access_task_log
 Hours
 href="?page=
 INDEX_CURRENT_USER_MIDDLEWARE                            
+INFO
 information</h1
 Jira
 job_title"
@@ -118,7 +123,10 @@ People Finder
 PEOPLE_FINDER_HAWK_SECRET_KEY
 PEOPLE_FINDER_INTERFACE
 PEOPLE_FINDER_INTERFACE                                  |                                            
+PEOPLE_FINDER_INTERFACE=core.people_finder.interfaces
 Procurement Card
+python manage.py compilescss &&
+python manage.py migrate &&
 Reason for Leaving Resignation
 ReturnOptions
 ROSA
@@ -137,6 +145,7 @@ Sensitive and Personal
 Service
 Service Now.</p>
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
+SERVICE_NOW_DIT_DEPARTMENT_SYS_ID=1234567890
 SERVICE_NOW_INTERFACE
 Session
 Slack

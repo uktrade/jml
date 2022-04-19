@@ -480,11 +480,9 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
     form_class = line_manager_forms.LineManagerConfirmationForm
 
     def get_success_url(self) -> str:
-        return redirect(
-            reverse(
-                "line-manager-thank-you",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            )
+        return reverse(
+            "line-manager-thank-you",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
         )
 
     def get_leaver(self) -> ConsolidatedStaffDocument:
