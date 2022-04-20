@@ -31,3 +31,12 @@ class CreateUserForm(GovFormattedForm):
         queryset=Group.objects.all(),
         required=True,
     )
+
+    def clean_email(self):
+        """
+        Check if the email is already in use.
+        """
+        email = self.cleaned_data["email"]
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError(f"{email} is already in use.")
+        return email

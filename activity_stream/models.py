@@ -13,7 +13,7 @@ class ActivityStreamStaffSSOUser(models.Model):
     obj_type = models.CharField(max_length=255)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    email_address = models.EmailField(max_length=255)
+    email_address = models.EmailField(unique=True, max_length=255)
     user_id = models.CharField(max_length=255)
     status = models.CharField(max_length=255)
     last_accessed = models.DateTimeField()

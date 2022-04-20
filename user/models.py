@@ -10,6 +10,12 @@ class User(AbstractUser):
             ),
         ]
 
+    email = models.EmailField(
+        unique=True,
+        max_length=254,
+        verbose_name="email address",
+    )
+
     sso_contact_email = models.EmailField(
         blank=True,
         null=True,

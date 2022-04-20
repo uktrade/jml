@@ -22,7 +22,7 @@ def create_user(first_name: str, last_name: str, email: str, group: Group) -> Us
     )
     user.groups.add(group)
 
-    staff_sso_user = ActivityStreamStaffSSOUser.objects.get_or_create(
+    staff_sso_user, _ = ActivityStreamStaffSSOUser.objects.get_or_create(
         email_address=user.email,
         defaults={
             "identifier": str(uuid.uuid4()),
