@@ -72,7 +72,7 @@ class CreatePhysicalAssetView(CreateView):
     success_url = reverse_lazy("list-assets")
 
 
-class PhysicalAssetView(UpdateView):
+class PhysicalAssetView(DetailView):
     model = PhysicalAsset
     template_name = "asset_registry/physical/detail.html"
 

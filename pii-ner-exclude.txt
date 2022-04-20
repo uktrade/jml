@@ -12,6 +12,8 @@
 " Store Extra
 " Store the Correction
 " Task Logs
+"Lost/Stolen"
+"Lost/Stolen"
 @media
 # Joiners Movers Leavers
 # People Finder
@@ -31,6 +33,7 @@ API
 aria-label="Show
 aria-labelledby="govuk
 AssetDetails
+AV Equipment'
 Base
 before.</td>
 below.</a>
@@ -67,6 +70,7 @@ DB
 Department 1
 Department 2
 Department of International Trade
+Desktop'
 Dev
 Dev Tools
 Developed Vetting
@@ -76,6 +80,8 @@ directorate_id
 Discuss
 Display non
 Display Screen Equipment
+Disposed Of"
+Disposed Of"
 DIT
 DjangoCelery
 DjangoTemplates
@@ -98,6 +104,8 @@ f"sys_id={sys_id
 f"sys_id={sys_id'
 f"Thank
 F401
+Faulty"
+Faulty"
 Finder Raises
 Flexi Impacting Pay
 for.</p
@@ -113,6 +121,8 @@ GOVUK_NOTIFY_API_KEY
 govuk_paas_access_task_log
 height="17
 height="30" width="36">
+Home Use"
+Home Use"
 Hours
 href="?page=
 href="{%
@@ -128,6 +138,7 @@ Joe Bloggs
 Joe"
 kit</th
 know:</p
+Laptop
 Leaver's Notification Form
 LeaversWorkflow
 Leaving Request
@@ -138,11 +149,15 @@ Line
 LINE_MANAGER_NOTIFICATION_EMAIL_TEMPLATE_ID
 LINE_MANAGER_REMINDER_EMAIL
 LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID                  
+Loan Pool'
+Lost/Stolen'
 LSD_ZENDESK_EMAIL                                        
 LSD_ZENDESK_TOKEN
 manager_id
+Mi-Fi Device'
 migrate$(COLOUR_NONE
 minimum_should_match
+Mobile
 NAME
 name=
 None                                       
@@ -163,6 +178,9 @@ PEOPLE_FINDER_INTERFACE                                  |
 PEOPLE_FINDER_INTERFACE=core.people_finder.interfaces
 Physical Asset
 PhysicalAsset
+Port Replicator
+Port Replicator
+Port Replicator'
 Procurement Card
 python manage.py compilescss &&
 python manage.py migrate &&
@@ -198,6 +216,9 @@ slack_access_task_log
 SLACK_SRE_CHANNEL_ID
 SlackMessage.objects.create
 Software Asset
+Sound Bar'
+Sound Bar"
+Sound Bar"
 Split
 SRE
 sso_access_task_log

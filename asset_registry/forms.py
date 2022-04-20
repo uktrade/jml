@@ -24,7 +24,7 @@ class PhysicalAssetModelForm(forms.ModelForm):
     cost = forms.CharField()
     warranty_expire_date = DateInputField()
     date_assigned = DateInputField()
-    date_returned = DateInputField()
+    date_returned = DateInputField(required=False)
     last_verified_date = DateInputField()
 
     class Meta:

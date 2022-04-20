@@ -25,7 +25,17 @@ class PysicalAssetCategories(models.TextChoices):
     Physical Asset Categories
     """
 
-    pass
+    AV_EQUIPMENT = "av_equipment", "AV Equipment"
+    CAMERA = "camera", "Camera"
+    DESKTOP = "desktop", "Desktop"
+    LAPTOP = "laptop", "Laptop"
+    MIFI_DEVICE = "mifi_device", "Mi-Fi Device"
+    MOBILE_SCREEN = "mobile_screen", "Mobile Screen"
+    MONITOR = "monitor", "Monitor"
+    PORT_REPLICATOR = "port_replicator", "Port Replicator"
+    PRINTER = "printer", "Printer"
+    SOUND_BAR = "sound_bar", "Sound Bar"
+    SPEAKER = "speaker", "Speaker"
 
 
 class PysicalAssetStatuses(models.TextChoices):
@@ -33,7 +43,14 @@ class PysicalAssetStatuses(models.TextChoices):
     Physical Asset Statuses
     """
 
-    pass
+    DEPLOYED = "deployed", "Deployed"
+    DISPOSED_OF = "disposed_of", "Disposed Of"
+    FAULTY = "faulty", "Faulty"
+    HOME_USE = "honme_use", "Home Use"
+    LOAN_POOL = "loan_pool", "Loan Pool"
+    LOST_STOLEN = "lost_stolen", "Lost/Stolen"
+    STOCK = "stock", "Stock"
+    WRITTEN_OFF = "written_off", "Written Off Life Expectancy"
 
 
 class PhysicalAsset(Asset):
@@ -50,7 +67,7 @@ class PhysicalAsset(Asset):
     location = models.CharField(max_length=50)
     address = models.CharField(max_length=50)
     date_assigned = models.DateField()
-    date_returned = models.DateField()
+    date_returned = models.DateField(null=True)
     last_verified_date = models.DateField()
 
     class Meta:
