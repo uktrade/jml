@@ -22,19 +22,21 @@ def create_user(first_name: str, last_name: str, email: str, group: Group) -> Us
     )
     user.groups.add(group)
 
-    staff_sso_user = ActivityStreamStaffSSOUser.objects.create(
-        identifier=str(uuid.uuid4()),
+    staff_sso_user = ActivityStreamStaffSSOUser.objects.get_or_create(
         email_address=user.email,
-        name=f"{user.first_name} {user.last_name}",
-        obj_type="",
-        first_name=user.first_name,
-        last_name=user.last_name,
-        user_id=user.pk,
-        status="active",
-        last_accessed=timezone.now(),
-        joined=timezone.now(),
-        contact_email_address=user.email,
-        available=True,
+        defaults={
+            "identifier": str(uuid.uuid4()),
+            "name": f"{user.first_name} {user.last_name}",
+            "obj_type": "",
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "user_id": user.pk,
+            "status": "active",
+            "last_accessed": timezone.now(),
+            "joined": timezone.now(),
+            "contact_email_address": user.email,
+            "available": True,
+        },
     )
 
     # Add the user into the Staff Index
