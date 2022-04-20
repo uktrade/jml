@@ -35,6 +35,9 @@ checkbox
 Cirrus
 Cirrus Equipment
 class="govuk-button__start
+COLOUR_GREEN=\033[32;01
+COLOUR_YELLOW=\033[33;01
+Compile SCSS
 Convert
 Convert Request Data
 Create ActivityStream
@@ -114,6 +117,7 @@ LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID
 LSD_ZENDESK_EMAIL                                        
 LSD_ZENDESK_TOKEN
 manager_id
+migrate$(COLOUR_NONE
 minimum_should_match
 NAME
 None                                       
