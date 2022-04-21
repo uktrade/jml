@@ -42,7 +42,11 @@ class TestDataRecipientSearchView(ViewAccessTest, TestCase):
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
 
-    def test_search_no_results(self):
+    @mock.patch(
+        "core.staff_search.views.search_staff_index",
+        return_value=[],
+    )
+    def test_search_no_results(self, mock_search_staff_index):
         self.client.force_login(self.authenticated_user)
         response = self.client.post(self.get_url(), {"search_terms": "bad search"})
 
