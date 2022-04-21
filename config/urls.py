@@ -4,7 +4,7 @@ from django.urls import include, path
 
 from core.utils.urls import decorate_urlpatterns
 
-sso_protected_urlpatterns = decorate_urlpatterns(
+private_urlpatterns = decorate_urlpatterns(
     [
         path("auth/", include("authbroker_client.urls", namespace="authbroker")),
         path("admin/", admin.site.urls),
@@ -16,7 +16,9 @@ sso_protected_urlpatterns = decorate_urlpatterns(
     login_required,
 )
 
-urlpatterns = sso_protected_urlpatterns + [
+public_url_patterns = [
     path("dit-activity-stream/", include("dit_activity_stream.urls")),
     path("healthcheck/", include("core.health_check.urls")),
 ]
+
+urlpatterns = private_urlpatterns + public_url_patterns
