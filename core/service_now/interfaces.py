@@ -24,6 +24,10 @@ class ServiceNowUserNotFound(Exception):
 
 class ServiceNowBase(ABC):
     @abstractmethod
+    def get_asset_by_tag(self, asset_tag: str) -> types.AssetDetails:
+        raise NotImplementedError
+
+    @abstractmethod
     def get_assets_for_user(self, email: str) -> List[types.AssetDetails]:
         raise NotImplementedError
 
@@ -58,6 +62,16 @@ class ServiceNowBase(ABC):
 
 
 class ServiceNowStubbed(ServiceNowBase):
+    def get_asset_by_tag(self, asset_tag: str) -> List[types.AssetDetails]:
+        logger.info(f"Getting an asset with the tag {asset_tag}")
+        return [
+            {
+                "sys_id": "111",
+                "tag": asset_tag,
+                "name": "Asset 1",
+            },
+        ]
+
     def get_assets_for_user(self, email: str) -> List[types.AssetDetails]:
         logger.info("Getting assets for a user")
         return [
@@ -134,6 +148,14 @@ class ServiceNowStubbed(ServiceNowBase):
         logger.info(assets)
 
 
+class AssetNotFound(Exception):
+    pass
+
+
+class TooManyAssetsReturned(Exception):
+    pass
+
+
 class ServiceNowInterface(ServiceNowBase):
     def __init__(self, *args, **kwargs):
         self.GET_USER_PATH = settings.SERVICE_NOW_GET_USER_PATH
@@ -141,6 +163,42 @@ class ServiceNowInterface(ServiceNowBase):
         self.GET_DIRECTORATE_PATH = settings.SERVICE_NOW_GET_DIRECTORATE_PATH
         self.POST_LEAVER_REQUEST = settings.SERVICE_NOW_POST_LEAVER_REQUEST
         self.client = ServiceNowClient()
+
+    def get_asset_by_tag(self, asset_tag: str) -> types.AssetDetails:
+        # Check if there is a cached result
+        cache_key: str = f"asset_{asset_tag}"
+        cached_result = cache.get(cache_key)
+        if cached_result:
+            return cached_result
+
+        # Get all data from Service Now /PS-IGNORE
+        service_now_assets: List[types.ServiceNowAsset] = self.client.get_results(
+            path=self.GET_ASSET_PATH,
+            sysparm_query=f"asset_tag={asset_tag}",
+            sysparm_fields=[
+                "sys_id",
+                "asset_tag",
+                "display_name",
+            ],
+        )
+        asset_count = len(service_now_assets)
+
+        if asset_count == 0:
+            raise AssetNotFound
+        if asset_count != 1:
+            raise TooManyAssetsReturned
+
+        # Convert to AssetDetails
+
+        asset_details: types.AssetDetails = {
+            "sys_id": service_now_assets[0]["sys_id"],
+            "tag": service_now_assets[0]["asset_tag"],
+            "name": service_now_assets[0]["display_name"],
+        }
+
+        # Store the result in the cache
+        cache.set(cache_key, asset_details)
+        return asset_details
 
     def get_assets_for_user(self, email: str) -> List[types.AssetDetails]:
         # Check if there is a cached result
