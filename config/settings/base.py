@@ -258,8 +258,6 @@ if DEV_TOOLS_ENABLED:
     ]
 
     LOGIN_URL = reverse_lazy("dev_tools:index")
-
-    MIDDLEWARE.append("dev_tools.middleware.DevToolsLoginRequiredMiddleware")
 else:
     AUTHBROKER_ANONYMOUS_PATHS = [
         "/admin/",
