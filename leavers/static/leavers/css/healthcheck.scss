@@ -1,0 +1,9 @@
+.healthcheck-table {
+    .success {
+        color: $govuk-success-colour;
+    }
+
+    .failed {
+        color: $govuk-error-colour;
+    }
+}

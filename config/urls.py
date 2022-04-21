@@ -8,4 +8,5 @@ urlpatterns = [
     path("leavers/", include("leavers.urls")),
     path("dev-tools/", include("dev_tools.urls")),
     path("cookie/", include("core.cookies.urls")),
+    path("healthcheck/", include("core.health_check.urls")),
 ]
