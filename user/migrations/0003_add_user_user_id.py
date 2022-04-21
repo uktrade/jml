@@ -15,7 +15,7 @@ def add_user_ids(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("user", "0001_initial"),
+        ("user", "0002_alter_user_email"),
     ]
 
     operations = [
