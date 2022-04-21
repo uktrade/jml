@@ -16,7 +16,7 @@ jobs:
           command: make build
       - run:
           name: launch containers
-        command: make up
+          command: make up
       - run:
           name: check for missing migrations
           command: make checkmigrations
@@ -36,4 +36,4 @@ jobs:
             bash ./codecov.sh -t ${CODECOV_TOKEN} -s test-reports -f "*.xml"
       - run:
           name: stop containers
-            command: make down
+          command: make down
