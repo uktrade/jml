@@ -65,8 +65,6 @@ services:
       - redis
       - opensearch
     restart: always
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.local
 
   celery:
     build:
@@ -81,8 +79,6 @@ services:
     depends_on:
       - db
       - redis
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.local
 
   celery-beat:
     build:
@@ -95,5 +91,3 @@ services:
     depends_on:
       - db
       - redis
-    environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.local
