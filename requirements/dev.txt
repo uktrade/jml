@@ -59,7 +59,7 @@ crispy-forms-gds==0.2.3
     # via -r requirements.in/base.in
 deprecated==1.2.13
     # via redis
-django==3.2.12
+django==3.2.13
     # via
     #   -r requirements.in/base.in
     #   crispy-forms-gds
