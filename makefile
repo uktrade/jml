@@ -33,7 +33,10 @@ utils-build:
 	docker-compose -f docker-compose.yml -f docker-compose.utils.yml build utils
 
 up:
-	docker-compose up -d leavers db opensearch
+	docker-compose up
+
+up-detached:
+	docker-compose up -d
 
 down:
 	docker-compose down

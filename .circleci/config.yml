@@ -16,7 +16,7 @@ jobs:
           command: make build
       - run:
           name: launch containers
-          command: make up
+          command: make up-detached
       - run:
           name: check for missing migrations
           command: make checkmigrations
