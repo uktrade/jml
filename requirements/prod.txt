@@ -20,7 +20,7 @@ billiard==3.6.4.0
     # via celery
 cachetools==5.0.0
     # via zenpy
-celery[redis]==5.2.3
+celery[redis]==5.2.5
     # via
     #   -r requirements.in/base.in
     #   django-celery-beat
@@ -51,7 +51,7 @@ crispy-forms-gds==0.2.3
     # via -r requirements.in/base.in
 deprecated==1.2.13
     # via redis
-django==3.2.12
+django==3.2.13
     # via
     #   -r requirements.in/base.in
     #   crispy-forms-gds
@@ -220,7 +220,7 @@ waitress==2.1.1
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated

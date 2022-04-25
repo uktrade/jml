@@ -24,7 +24,7 @@ black==21.11b1
     # via -r requirements.in/dev.in
 cachetools==5.0.0
     # via zenpy
-celery[redis]==5.2.3
+celery[redis]==5.2.5
     # via
     #   -r requirements.in/base.in
     #   django-celery-beat
@@ -59,7 +59,7 @@ crispy-forms-gds==0.2.3
     # via -r requirements.in/base.in
 deprecated==1.2.13
     # via redis
-django==3.2.12
+django==3.2.13
     # via
     #   -r requirements.in/base.in
     #   crispy-forms-gds
@@ -319,7 +319,7 @@ wcwidth==0.2.5
     # via prompt-toolkit
 wheel==0.37.0
     # via pip-tools
-whitenoise==5.2.0
+whitenoise==5.2
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated

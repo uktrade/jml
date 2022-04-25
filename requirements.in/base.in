@@ -11,7 +11,7 @@ django-log-formatter-ecs
 django-sass-processor>=1.0.1
 django-staff-sso-client
 django-workflow-engine==0.0.20
-django==3.2.12
+django==3.2.13
 djangorestframework
 libsass==0.20.0
 mohawk
