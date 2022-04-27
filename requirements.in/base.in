@@ -2,6 +2,8 @@ Celery==5.2.5
 Celery[redis]==5.2.5
 django-crispy-forms
 crispy-forms-gds
+dit-activity-stream==0.0.1
+django-crispy-forms
 django-celery-beat
 django-celery-results
 django-compressor

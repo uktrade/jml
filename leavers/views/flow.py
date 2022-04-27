@@ -14,7 +14,7 @@ class LeaverBaseView(UserPassesTestMixin):
         return self.request.user.groups.filter(
             name__in=(
                 "SRE",
-                "HR",
+                "Security Team",
             ),
         ).first()
 

@@ -82,6 +82,7 @@ Display Screen Equipment
 Disposed Of"
 DIT
 DjangoCelery
+DIT Activity
 DjangoTemplates
 DO NOT USE ON PRODUCTION
 Dockerfile.dev
@@ -119,6 +120,8 @@ govuk_paas_access_task_log
 height="17
 height="30" width="36">
 Home Use"
+HAWK_INCOMING_ACCESS_KEY
+HAWK_INCOMING_SECRET_KEY
 Hours
 href="?page=
 href="{%

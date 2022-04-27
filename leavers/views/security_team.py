@@ -23,7 +23,7 @@ class LeavingRequestListing(base.LeavingRequestListing):
     def test_func(self):
         return self.request.user.groups.filter(
             name="Security Team",
-        ).first()
+        ).exists()
 
 
 class TaskConfirmationView(base.TaskConfirmationView):
@@ -54,7 +54,7 @@ class TaskConfirmationView(base.TaskConfirmationView):
     def test_func(self):
         return self.request.user.groups.filter(
             name="Security Team",
-        ).first()
+        ).exists()
 
     def get_success_url(self) -> str:
         assert self.leaving_request
@@ -100,7 +100,7 @@ class TaskSummaryView(
     def test_func(self):
         return self.request.user.groups.filter(
             name="Security Team",
-        ).first()
+        ).exists()
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         self.leaving_request = get_object_or_404(
@@ -141,7 +141,7 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
     def test_func(self):
         return self.request.user.groups.filter(
             name="Security Team",
-        ).first()
+        ).exists()
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         self.leaving_request = get_object_or_404(
