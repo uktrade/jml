@@ -214,7 +214,7 @@ pyjwt==2.3.0
     # via notifications-python-client
 pyparsing==3.0.6
     # via packaging
-pypdf2==1.26.0
+pypdf2==1.27.5
     # via -r requirements.in/base.in
 pytest==6.2.5
     # via
@@ -329,7 +329,7 @@ wcwidth==0.2.5
     # via prompt-toolkit
 wheel==0.37.0
     # via pip-tools
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated

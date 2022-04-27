@@ -18,7 +18,7 @@ djangorestframework
 libsass==0.20.0
 mohawk
 psycopg2>=2.8.5,<3
-PyPDF2==1.26.0
+PyPDF2==1.27.5
 redis
 sentry-sdk>=1.1.0
 slack_sdk
