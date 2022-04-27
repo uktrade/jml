@@ -17,6 +17,7 @@
 | SLACK_SRE_CHANNEL_ID                                     | None                                       
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
 100px
+234px
 7.7-.2
 8.7 39.7 21.8l42.7-27.2A97.63
 activity_stream.activitystreamstaffssouser
@@ -27,6 +28,7 @@ API
 aria-label="Show
 AssetDetails
 Base
+before.</td>
 below.</a>
 Build Staff Document
 Building Pass Access Revoked
@@ -42,6 +44,7 @@ Compile SCSS
 Convert
 Convert Request Data
 Create ActivityStream
+Create Leaving Request
 Create/Update Staff ES
 crispy_forms_gds
 Crown
@@ -59,6 +62,8 @@ Department of International Trade
 Dev
 Dev Tools
 Developed Vetting
+Digital
+Digital Workspace
 directorate_id
 Discuss
 Display non
@@ -73,6 +78,7 @@ E501
 Elastic
 Email Templates
 email_id
+ends.</td
 Enhanced Security Check
 Example Building
 Example Grade
@@ -89,6 +95,8 @@ form</h1
 Get the Leaver StaffDocument
 Get the Leaving Request for the Leaver
 Github
+Google
+Google Analytics
 GOVUK PAAS
 GOVUK_NOTIFY_API_KEY
 govuk_paas_access_task_log
@@ -110,6 +118,7 @@ kit</th
 know:</p
 Leaver's Notification Form
 LeaversWorkflow
+Leaving Request
 LeavingRequest
 LEGACY_PEOPLE_FINDER_ES_INDEX
 li class="progress-step{%
@@ -123,7 +132,9 @@ manager_id
 migrate$(COLOUR_NONE
 minimum_should_match
 NAME
+name=
 None                                       
+object.current_task_record
 OCS
 OCS_EMAIL
 OpenSearch
@@ -143,6 +154,7 @@ python manage.py compilescss &&
 python manage.py migrate &&
 Reason for Leaving Resignation
 ReturnOptions
+role="alert
 ROSA
 ROSA Access Revoked
 ROSA Kit
@@ -160,10 +172,12 @@ Service
 Service Now
 Service Now Health Check
 Service Now.</p>
+SERVICE_NAME
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID=1234567890
 SERVICE_NOW_INTERFACE
 Session
+session.</p
 sizes="152x152
 Slack
 slack_access_task_log
@@ -172,6 +186,7 @@ SlackMessage.objects.create
 Split
 SRE
 sso_access_task_log
+staff_details.job_title %
 staff_id"
 STAFF_SSO_ACTIVITY_STREAM_ID
 Start Line
@@ -197,6 +212,7 @@ the DB Creates
 the Health and Safety Team</h2
 the Leaver Activity Stream
 the Leaver Form's
+the Leaving DIT
 the OCS Team                            
 the Security Team
 the Security Team User Group
@@ -209,8 +225,11 @@ UKSBS Leavers
 Unit of Measurement
 Unit of Measurement Hours
 Updated Personal Email
+users.</td
 viewBox="0 0 483.2
+visit</li>
 vpn_access_task_log
 WhiteNoiseMiddleware
 x.groups.first
+yet.</p
 you.</p

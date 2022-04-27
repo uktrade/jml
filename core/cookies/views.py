@@ -6,7 +6,9 @@ from django.template.response import TemplateResponse
 
 
 def cookie_notice(request):
-    return TemplateResponse(request, "cookies/notice.html", {})
+    context = {}
+    context.update(page_title="Cookie Notice")
+    return TemplateResponse(request, "cookies/notice.html", context)
 
 
 def cookie_response(request: HttpRequest, response: Literal["accept", "reject"]):

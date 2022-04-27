@@ -118,6 +118,7 @@ class StartView(LineManagerViewMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         context.update(
+            page_title="Confirmation of leavers details",
             start_url=reverse(
                 "line-manager-leaver-confirmation",
                 kwargs={"leaving_request_uuid": str(self.leaving_request.uuid)},
@@ -272,6 +273,7 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
         context = super().get_context_data(**kwargs)
 
         context.update(
+            page_title="Title of page",
             leaver=self.leaver,
             leaver_name=f"{self.leaver['first_name']} {self.leaver['last_name']}",
             data_recipient=self.data_recipient or self.manager,
@@ -346,6 +348,7 @@ class UksbsHandoverView(LineManagerViewMixin, FormView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
+        context.update(page_title="UKSBS handover")
 
         # TODO: Remove Staff Index search from this view.
         # Load the leaver from the Staff index.
@@ -469,6 +472,7 @@ class DetailsView(LineManagerViewMixin, FormView):
         context = super().get_context_data(**kwargs)
 
         context.update(
+            page_title="Confirm the Leaver's information",
             leaver_name=self.leaving_request.get_leaver_name(),
         )
 
@@ -540,6 +544,7 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
         context = super().get_context_data(**kwargs)
 
         context.update(
+            page_title="Confirm all the information",
             leaver_name=self.leaving_request.get_leaver_name(),
             leaver=self.leaver,
             data_recipient=self.data_recipient,
@@ -598,5 +603,8 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(leaver_name=self.leaving_request.get_leaver_name())
+        context.update(
+            page_title="Application complete",
+            leaver_name=self.leaving_request.get_leaver_name(),
+        )
         return context

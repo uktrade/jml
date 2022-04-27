@@ -16,9 +16,10 @@ from leavers.views import base
 class LeavingRequestListing(base.LeavingRequestListing):
     template_name = "leaving/sre/listing.html"
 
-    complete_field: str = "sre_complete"
-    confirmation_view: str = "sre-confirmation"
-    summary_view: str = "sre-summary"
+    complete_field = "sre_complete"
+    confirmation_view = "sre-confirmation"
+    summary_view = "sre-summary"
+    page_title = "SRE access removal"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -29,7 +30,8 @@ class LeavingRequestListing(base.LeavingRequestListing):
 class TaskConfirmationView(base.TaskConfirmationView):
     template_name = "leaving/sre/task_form.html"
     form_class = sre_forms.SREConfirmCompleteForm
-    complete_field: str = "sre_complete"
+    complete_field = "sre_complete"
+    page_title = "SRE access removal confirmation"
 
     # Field mapping from the Form field name to the LeavingRequest field name (with task messages)
     field_mapping: Dict[str, Tuple[str, str, str]] = {
@@ -114,6 +116,7 @@ class TaskSummaryView(
 ):
     template_name = "leaving/sre/summary.html"
     leaving_request = None
+    page_title: str = "SRE access removal summary"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -133,6 +136,7 @@ class TaskSummaryView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context.update(page_title=self.page_title)
 
         access_removed_services: List[Tuple[str, str, TaskLog]] = [
             (
@@ -153,6 +157,7 @@ class TaskSummaryView(
 
 class ThankYouView(UserPassesTestMixin, TemplateView):
     template_name = "leaving/sre/thank_you.html"
+    page_title: str = "SRE access removal thank you"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -170,6 +175,7 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         context.update(
+            page_title=self.page_title,
             leaver_name=self.leaving_request.get_leaver_name(),
             leaving_request=self.leaving_request,
             access_removed_services=[

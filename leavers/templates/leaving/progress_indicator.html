@@ -5,20 +5,20 @@
                 <div class="progress-step-line{% if step.completed %} is-complete{% endif %}{% if step.active %} is-active{% endif %}"></div>
             {% endif %}
             <li class="progress-step{% if step.completed %} is-complete{% endif %}{% if step.active %} is-active{% endif %}" {% if step.active%}aria-current="true"{% endif %}>
-                
-                    <span class="progress-step-number govuk-body govuk-!-font-weight-bold">{{ step.number }}</span>
-                    {% if step.completed %}
-                        <span class="govuk-visually-hidden">completed</span>
-                    {% elif step.active %}
-                        <span class="govuk-visually-hidden">current step</span>
-                    {% else %}
-                        <span class="govuk-visually-hidden">not completed</span>
-                    {% endif %}
-                    <p class="govuk-body govuk-!-font-weight-bold">
-                        {% if step.link %}<a href="{{ step.link }}">{% endif %}
-                            {{ step.name }}
-                        {% if step.link %}</a>{% endif %}
-                    </p>
+
+                <span class="progress-step-number govuk-body govuk-!-font-weight-bold">{{ step.number }}</span>
+                {% if step.completed %}
+                    <span class="govuk-visually-hidden">completed</span>
+                {% elif step.active %}
+                    <span class="govuk-visually-hidden">current step</span>
+                {% else %}
+                    <span class="govuk-visually-hidden">not completed</span>
+                {% endif %}
+                <p class="govuk-body govuk-!-font-weight-bold">
+                    {% if step.link %}<a href="{{ step.link }}">{% endif %}
+                    {{ step.name }}
+                    {% if step.link %}</a>{% endif %}
+                </p>
             </li>
             {% if not forloop.last %}
                 <div class="progress-step-line{% if step.completed %} is-complete{% endif %}{% if step.active %} is-active{% endif %}"></div>
