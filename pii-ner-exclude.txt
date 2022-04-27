@@ -1,14 +1,18 @@
 -O codecov.sh https://codecov.io/bash
+'Tests for `get_leaver_details_with_updates`
 " Get Service Now
 " Leavers Workflow This can be triggered in 2
 " Line Manager
 " Local Development Settings
 " Methods "
+" Physical Asset Categories "
+" Physical Asset Statuses "
 " Send Leaver
 " Send SRE Team
 " Store Extra
 " Store the Correction
 " Task Logs
+"Lost/Stolen"
 @media
 # Joiners Movers Leavers
 # People Finder
@@ -26,7 +30,9 @@ Annual Leave
 Annual Leave: "
 API
 aria-label="Show
+aria-labelledby="govuk
 AssetDetails
+AV Equipment'
 Base
 before.</td>
 below.</a>
@@ -42,9 +48,13 @@ COLOUR_GREEN=\033[32;01
 COLOUR_YELLOW=\033[33;01
 Compile SCSS
 Convert
+Convert a Queryset
 Convert Request Data
 Create ActivityStream
 Create Leaving Request
+Create Physical Asset
+Create Software Asset
+create_physical_asset
 Create/Update Staff ES
 crispy_forms_gds
 Crown
@@ -59,6 +69,7 @@ DB
 Department 1
 Department 2
 Department of International Trade
+Desktop'
 Dev
 Dev Tools
 Developed Vetting
@@ -68,6 +79,7 @@ directorate_id
 Discuss
 Display non
 Display Screen Equipment
+Disposed Of"
 DIT
 DjangoCelery
 DjangoTemplates
@@ -82,11 +94,15 @@ ends.</td
 Enhanced Security Check
 Example Building
 Example Grade
+f"Asset
 f"Gsuite
+f"Physical Asset
+f"Software Asset
 f"sys_id={sys_id
 f"sys_id={sys_id'
 f"Thank
 F401
+Faulty"
 Finder Raises
 Flexi Impacting Pay
 for.</p
@@ -102,8 +118,10 @@ GOVUK_NOTIFY_API_KEY
 govuk_paas_access_task_log
 height="17
 height="30" width="36">
+Home Use"
 Hours
 href="?page=
+href="{%
 href="https://www.nationalarchives.gov.uk
 IE
 INDEX_CURRENT_USER_MIDDLEWARE                            
@@ -116,6 +134,7 @@ Joe Bloggs
 Joe"
 kit</th
 know:</p
+Laptop
 Leaver's Notification Form
 LeaversWorkflow
 Leaving Request
@@ -126,11 +145,15 @@ Line
 LINE_MANAGER_NOTIFICATION_EMAIL_TEMPLATE_ID
 LINE_MANAGER_REMINDER_EMAIL
 LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID                  
+Loan Pool'
+Lost/Stolen'
 LSD_ZENDESK_EMAIL                                        
 LSD_ZENDESK_TOKEN
 manager_id
+Mi-Fi Device'
 migrate$(COLOUR_NONE
 minimum_should_match
+Mobile
 NAME
 name=
 None                                       
@@ -149,6 +172,10 @@ PEOPLE_FINDER_HAWK_SECRET_KEY
 PEOPLE_FINDER_INTERFACE
 PEOPLE_FINDER_INTERFACE                                  |                                            
 PEOPLE_FINDER_INTERFACE=core.people_finder.interfaces
+Physical Asset
+PhysicalAsset
+Port Replicator
+Port Replicator'
 Procurement Card
 python manage.py compilescss &&
 python manage.py migrate &&
@@ -183,6 +210,9 @@ Slack
 slack_access_task_log
 SLACK_SRE_CHANNEL_ID
 SlackMessage.objects.create
+Software Asset
+Sound Bar'
+Sound Bar"
 Split
 SRE
 sso_access_task_log

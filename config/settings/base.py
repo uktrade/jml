@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "notifications_python_client",
     "authbroker_client",
     "rest_framework",
+    "asset_registry",
     "leavers",
     "user",
     "core",
