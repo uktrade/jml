@@ -149,8 +149,8 @@ class LeaverUpdateForm(GovFormattedForm):
 
 
 class ReturnOptions(TextChoices):
-    OFFICE = "office", "Return at the office"
-    HOME = "home", "Collection from home"
+    OFFICE = "office", "Return to the office"
+    HOME = "home", "Home collection"
 
 
 RETURN_OPTIONS = [
@@ -158,17 +158,18 @@ RETURN_OPTIONS = [
         ReturnOptions.OFFICE.value,
         ReturnOptions.OFFICE.label,
         hint=(
-            "You will need to bring in all your equipment on your last day in the "
-            "office and return it to the Cirrus Tech Bar."
+            "On your last working day, return all your equipment to the Cirrus "
+            "tech bar in Old Admiralty Building. Located on the 3rd floor the "
+            "tech bar is open from 9am to 5pm."
         ),
     ),
     Choice(
         ReturnOptions.HOME.value,
         ReturnOptions.HOME.label,
         hint=(
-            "We will send you a box to return your laptop, iPhone, chargers and "
-            "building security pass. This will be collected by a courier, "
-            "instructions will be included in the box"
+            "We will send you a box to return your cirrus kit and building security "
+            "pass. This will be collected by a courier, instructions will be "
+            "included in the box."
         ),
     ),
 ]
