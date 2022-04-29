@@ -15,11 +15,11 @@ X_ROBOTS_TAG = [
     "nofollow",
 ]
 
-# sentry_sdk.init(
-#     os.environ.get("SENTRY_DSN"),
-#     environment=os.environ.get("SENTRY_ENVIRONMENT"),
-#     integrations=[DjangoIntegration()],
-# )
+sentry_sdk.init(
+    os.environ.get("SENTRY_DSN"),
+    environment=os.environ.get("SENTRY_ENVIRONMENT"),
+    integrations=[DjangoIntegration()],
+)
 
 # Django staff SSO user migration process requries the following
 MIGRATE_EMAIL_USER_ON_LOGIN = True
