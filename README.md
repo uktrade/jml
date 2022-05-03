@@ -62,5 +62,4 @@
 | INDEX_CURRENT_USER_MIDDLEWARE                            | false                                      |                                                                     |
 | UKSBS_INTERFACE                                          | None                                       |                                                                     |
 | UKSBS_API_URL                                            | None                                       |                                                                     |
-| UKSBS_ACCESS_URL                                         | None                                       |                                                                     |
 | UKSBS_GET_PEOPLE_HIERARCHY                               | None                                       | UK SBS People Hierarchy path                                        |
