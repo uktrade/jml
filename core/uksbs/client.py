@@ -1,41 +1,14 @@
 import logging
 from datetime import datetime
-from typing import Any, List, Optional, TypedDict
+from typing import List, Optional
 
 from django.conf import settings
 from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 
+from core.uksbs.types import AccessToken, LeavingData, PersonHierarchyData
+
 logger = logging.getLogger(__name__)
-
-
-class AccessToken(TypedDict):
-    access_token: str
-    expires_at: float
-    expires_in: int
-    scope: List[str]
-    token_type: str
-
-
-class PersonData(TypedDict):
-    person_id: int
-    username: Optional[Any]
-    full_name: str
-    first_name: str
-    last_name: str
-    employee_number: str
-    department: str
-    position: str
-    email_address: str
-    job_id: int
-    work_phone: Optional[str]
-    work_mobile: Optional[str]
-
-
-class PersonHierarchyData(TypedDict):
-    manager: List[PersonData]
-    employee: List[PersonData]
-    report: List[PersonData]
 
 
 class UKSBSUnexpectedResponse(Exception):
@@ -123,3 +96,17 @@ class UKSBSClient:
             raise UKSBSPersonNotFound("Person not found")
 
         return item
+
+    def post_leaver_form(self, data: LeavingData) -> None:
+        if not settings.UKSBS_POST_LEAVER_SUBMISSION:
+            raise ValueError("UKSBS_POST_LEAVER_SUBMISSION is not set")
+        path: str = settings.UKSBS_POST_LEAVER_SUBMISSION
+        full_api_url = self.url + path
+
+        oauth_session = self.get_oauth_session()
+        response = oauth_session.post(full_api_url)
+
+        if response.status_code != 200:
+            raise UKSBSUnexpectedResponse(
+                f"UK SBS API returned status code {response.status_code}"
+            )

@@ -1,4 +1,33 @@
-from typing import List, Optional, TypedDict
+from typing import Any, List, Optional, TypedDict
+
+
+class AccessToken(TypedDict):
+    access_token: str
+    expires_at: float
+    expires_in: int
+    scope: List[str]
+    token_type: str
+
+
+class PersonData(TypedDict):
+    person_id: int
+    username: Optional[Any]
+    full_name: str
+    first_name: str
+    last_name: str
+    employee_number: str
+    department: str
+    position: str
+    email_address: str
+    job_id: int
+    work_phone: Optional[str]
+    work_mobile: Optional[str]
+
+
+class PersonHierarchyData(TypedDict):
+    manager: List[PersonData]
+    employee: List[PersonData]
+    report: List[PersonData]
 
 
 class DirectReport(TypedDict):

@@ -1,9 +1,8 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
 
 from core.uksbs.client import UKSBSClient
-from core.uksbs.types import LeavingData
+from core.uksbs.types import LeavingData, PersonHierarchyData
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +13,7 @@ class UKSBSUserNotFound(Exception):
 
 class UKSBSBase(ABC):
     @abstractmethod
-    def get_user(self, email: str) -> Any:
+    def get_user_hierarchy(self, oracle_id: str) -> PersonHierarchyData:
         raise NotImplementedError
 
     @abstractmethod
@@ -23,8 +22,12 @@ class UKSBSBase(ABC):
 
 
 class UKSBSStubbed(UKSBSBase):
-    def get_user(self, email: str) -> Any:
-        return None
+    def get_user_hierarchy(self, email: str) -> PersonHierarchyData:
+        return {
+            "manager": [],
+            "employee": [],
+            "report": [],
+        }
 
     def submit_leaver_form(self, data: LeavingData) -> None:
         pass
@@ -34,8 +37,8 @@ class UKSBSInterface(UKSBSBase):
     def __init__(self, *args, **kwargs):
         self.client = UKSBSClient()
 
-    def get_user(self, email: str) -> Any:
-        return None
+    def get_user_hierarchy(self, oracle_id: str) -> PersonHierarchyData:
+        return self.client.get_people_hierarchy(person_id=oracle_id)
 
     def submit_leaver_form(self, data: LeavingData) -> None:
-        pass
+        self.client.post_leaver_form(data=data)
