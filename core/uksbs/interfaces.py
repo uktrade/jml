@@ -24,9 +24,68 @@ class UKSBSBase(ABC):
 class UKSBSStubbed(UKSBSBase):
     def get_user_hierarchy(self, email: str) -> PersonHierarchyData:
         return {
-            "manager": [],
-            "employee": [],
-            "report": [],
+            "manager": [
+                {
+                    "person_id": 1,
+                    "username": None,
+                    "full_name": "Manager 1",
+                    "first_name": "Manager",
+                    "last_name": "1",
+                    "employee_number": "1",
+                    "department": "Department 1",
+                    "position": "Position 1",
+                    "email_address": "manager1@example.com",  # /PS-IGNORE
+                    "job_id": 1,
+                    "work_phone": None,
+                    "work_mobile": None,
+                }
+            ],
+            "employee": [
+                {
+                    "person_id": 2,
+                    "username": None,
+                    "full_name": "Employee 1",
+                    "first_name": "Employee",
+                    "last_name": "1",
+                    "employee_number": "2",
+                    "department": "Department 1",
+                    "position": "Position 2",
+                    "email_address": "employee1@example.com",  # /PS-IGNORE
+                    "job_id": 2,
+                    "work_phone": None,
+                    "work_mobile": None,
+                }
+            ],
+            "report": [
+                {
+                    "person_id": 3,
+                    "username": None,
+                    "full_name": "Report 1",
+                    "first_name": "Report",
+                    "last_name": "1",
+                    "employee_number": "3",
+                    "department": "Department 1",
+                    "position": "Position 3",
+                    "email_address": "report1@example.com",  # /PS-IGNORE
+                    "job_id": 3,
+                    "work_phone": None,
+                    "work_mobile": None,
+                },
+                {
+                    "person_id": 4,
+                    "username": None,
+                    "full_name": "Report 2",
+                    "first_name": "Report",
+                    "last_name": "2",
+                    "employee_number": "4",
+                    "department": "Department 1",
+                    "position": "Position 4",
+                    "email_address": "report2@example.com",  # /PS-IGNORE
+                    "job_id": 4,
+                    "work_phone": None,
+                    "work_mobile": None,
+                },
+            ],
         }
 
     def submit_leaver_form(self, data: LeavingData) -> None:
