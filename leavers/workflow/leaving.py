@@ -75,11 +75,19 @@ LeaversWorkflow = Workflow(
             step_id="thank_line_manager",
             task_name="notification_email",
             targets=[
-                "setup_scheduled_tasks",
+                "send_uksbs_leaver_details",
             ],
             task_info={
                 "email_id": EmailIds.LINE_MANAGER_THANKYOU.value,
             },
+        ),
+        # UK SBS
+        Step(
+            step_id="send_uksbs_leaver_details",
+            task_name="send_uksbs_leaver_details",
+            targets=[
+                "setup_scheduled_tasks",
+            ],
         ),
         # Split flow
         Step(
