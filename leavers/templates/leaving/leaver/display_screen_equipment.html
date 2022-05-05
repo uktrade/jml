@@ -12,16 +12,20 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-l">Display screen equipment</h1>
-            <h2 class="govuk-heading-m">Items issued to you by the Health and Safety Team</h2>
-            <p class="govuk-body">Please confirm, update or add any display screen equipment that has been issued to you.</p>
+            <h1 class="govuk-heading-l">IT equipment</h1>
+            <p class="govuk-body">Please confirm, update or add any IT equipment that has been issued to you.</p>
+            <p class="govuk-body">Items like chairs, monitors, or ergonomic keyboards do not have to be returned, unless purchased specifically for you and for more than £150.</p>
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Equipment currently assigned to you</h2>
-            <p class="govuk-body">If you no longer have the items listed, click delete to remove them.</p>
+            <h2 class="govuk-heading-m">IT equipment currently assigned to you</h2>
+            {% if dse_assets %}
+                <p class="govuk-body">If the equipment listed below is incorrect, either change it, or if you no longer have the item delete it to remove it from the list.</p>
+            {% else %}
+                <p class="govuk-body">You currently have no IT equipment assigned to you.</p>
+            {% endif %}
             {% for asset in dse_assets %}
                 <dl class="govuk-summary-list">
                     <div class="govuk-summary-list__row">
@@ -43,7 +47,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">Add additional equipment:</h2>
-            <p class="govuk-body">Add any display screen items you have which are not listed above.</p>
+            <p class="govuk-body">Add any IT equipment you have which are not listed above.</p>
             <form novalidate method='post'>
                 {% csrf_token %}
                 <input type="hidden" name="form_name" value="add_asset_form">

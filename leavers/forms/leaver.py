@@ -79,26 +79,27 @@ class LeaverUpdateForm(GovFormattedForm):
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
-                Field("contact_email_address"),
-                legend="Personal email",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
                 Field("job_title"),
                 legend="Job title",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
-                Field("directorate"),
-                legend="Directorate",
+                HTML(
+                    "<p class='govuk-body'>Please provide an email address where "
+                    "we can contact you after your last working day. We will "
+                    "only do this to send you information about your leaving the "
+                    "department.</p>"
+                ),
+                Field("contact_email_address"),
+                legend="Contact email",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
-                Field("staff_id"),
-                legend="Staff ID",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
+                HTML(
+                    "<p class='govuk-body'>Security guidance: this only applies "
+                    "if you have security clearance above level Baseline "
+                    "Personnel Security Standard (BPSS).</p>"
+                ),
                 Field("security_clearance"),
                 legend="Security clearance type",
                 legend_size=Size.MEDIUM,
@@ -108,25 +109,36 @@ class LeaverUpdateForm(GovFormattedForm):
                 legend="Locker number",
                 legend_size=Size.MEDIUM,
             ),
+            # STAFF TYPE
             Fieldset(
+                HTML(
+                    "<p class='govuk-body'>A government procurement card is a "
+                    "payment card issued by DIT.</p>"
+                ),
                 Field.radios("has_gov_procurement_card", inline=True),
-                legend="Do you have a Government Procurement Card?",
+                legend="Do you have a government procurement card?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
+                HTML(
+                    "<p class='govuk-body'>ROSA is a secure IT system platform "
+                    "for managing work classified at official, sensitive, "
+                    "secret or top secret level.</p>"
+                ),
                 Field.radios("has_rosa_kit", inline=True),
                 legend="Do you have a ROSA kit?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
                 Field.radios("has_dse", inline=True),
-                legend="Do you have any display screen equipment?",
+                legend="Do you have any IT equipment?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
                 HTML(
-                    "<p class='govuk-body'>This is the last day you will be employed "
-                    "by the department and the last day you will be paid for.</p>"
+                    "<p class='govuk-body'>This is the last day you will be "
+                    "employed by the department and the last day you will "
+                    "be paid for.</p>"
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("leaving_date"),
@@ -135,9 +147,9 @@ class LeaverUpdateForm(GovFormattedForm):
             ),
             Fieldset(
                 HTML(
-                    "<p class='govuk-body'>This is the last day you will be working "
-                    "at DIT. After this date you will no longer have access to any "
-                    "DIT provided systems and buildings.</p>"
+                    "<p class='govuk-body'>This is the last day you will be "
+                    "working at DIT. After this date you will no longer have "
+                    "access to any DIT provided systems and buildings.</p>"
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("last_day"),
@@ -145,6 +157,17 @@ class LeaverUpdateForm(GovFormattedForm):
                 legend_size=Size.MEDIUM,
             ),
             Submit("submit", "Save and continue"),
+            # TO DELETE?
+            Fieldset(
+                Field("staff_id"),
+                legend="Staff ID",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field("directorate"),
+                legend="Directorate",
+                legend_size=Size.MEDIUM,
+            ),
         )
 
 
@@ -273,7 +296,7 @@ class CorrectionForm(GovFormattedForm):
             HTML.p(
                 "If you have made any changes, Service Now may contact you to confirm."
             ),
-            Submit("submit", "Submit"),
+            Submit("submit", "Save and continue"),
         )
 
     def clean_whats_incorrect(self) -> str:

@@ -452,14 +452,14 @@ class LeaverProgressIndicator:
     steps: List[Tuple[str, str, str]] = [
         ("your_details", "Your details", reverse_lazy("leaver-update-details")),
         (
-            "display_screen_equipment",
-            "Display Screen Equipment",
-            reverse_lazy("leaver-display-screen-equipment"),
+            "cirrus_equipment",
+            "Cirrus kit",
+            reverse_lazy("leaver-cirrus-equipment"),
         ),
         (
-            "cirrus_equipment",
-            "Cirrus Equipment",
-            reverse_lazy("leaver-cirrus-equipment"),
+            "display_screen_equipment",
+            "IT equipment",
+            reverse_lazy("leaver-display-screen-equipment"),
         ),
         ("confirmation", "Confirmation", reverse_lazy("leaver-confirm-details")),
     ]
@@ -502,7 +502,7 @@ class LeaverProgressIndicator:
 class UpdateDetailsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/update_details.html"
     form_class = leaver_forms.LeaverUpdateForm
-    success_url = reverse_lazy("leaver-display-screen-equipment")
+    success_url = reverse_lazy("leaver-cirrus-equipment")
 
     progress_indicator = LeaverProgressIndicator("your_details")
 
@@ -581,101 +581,6 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             leaving_date=form.cleaned_data["leaving_date"],
         )
         return super().form_valid(form)
-
-
-def delete_dse_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
-    if "dse_assets" in request.session:
-        for asset in request.session["dse_assets"]:
-            if asset["uuid"] == str(kit_uuid):
-                request.session["dse_assets"].remove(asset)
-                request.session.save()
-                break
-    return redirect("leaver-display-screen-equipment")
-
-
-class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
-    forms: Dict[str, Type[Form]] = {
-        "add_asset_form": leaver_forms.AddDisplayScreenEquipmentAssetForm,
-        "submission_form": leaver_forms.SubmissionForm,
-    }
-    template_name = "leaving/leaver/display_screen_equipment.html"
-    success_url = reverse_lazy("leaver-cirrus-equipment")
-
-    progress_indicator = LeaverProgressIndicator("display_screen_equipment")
-
-    def dispatch(self, request, *args, **kwargs):
-        user = cast(User, self.request.user)
-        user_email = cast(str, user.email)
-
-        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
-
-        # If the leaver doesn't have DSE, skip this step.
-        if not self.leaver_info.has_dse:
-            return redirect("leaver-cirrus-equipment")
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
-        session = request.session
-        if "dse_assets" not in session:
-            session["dse_assets"] = []
-
-        # Add asset to session
-        asset: types.DisplayScreenEquipmentAsset = {
-            "uuid": str(uuid.uuid4()),
-            "name": form.cleaned_data["asset_name"],
-        }
-        session["dse_assets"].append(asset)
-        session.save()
-
-        # Redirect to the GET method
-        return redirect("leaver-display-screen-equipment")
-
-    def post_submission_form(self, request: HttpRequest, form: Form, *args, **kwargs):
-        user = cast(User, self.request.user)
-        user_email = cast(str, user.email)
-
-        # Store dse assets into the leaver details
-        self.store_display_screen_equipment(
-            email=user_email,
-            requester=user,
-            dse_assets=request.session.get("dse_assets", []),
-        )
-
-        return redirect(self.success_url)
-
-    def post(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        if "form_name" in request.POST:
-            form_name = request.POST["form_name"]
-            if form_name in self.forms:
-                form = self.forms[form_name](request.POST)
-                if form.is_valid():
-                    # Call the "post_{form_name}" method to handle the form POST logic.
-                    return getattr(self, f"post_{form_name}")(
-                        request, form, *args, **kwargs
-                    )
-                else:
-                    context[form_name] = form
-        return self.render_to_response(context)
-
-    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        if "dse_assets" not in request.session:
-            request.session["dse_assets"] = []
-        return super().get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(page_title=self.progress_indicator.get_current_step_label())
-
-        # Add form instances to the context.
-        for form_name, form_class in self.forms.items():
-            context[form_name] = form_class()
-        if "dse_assets" in self.request.session:
-            context["dse_assets"] = self.request.session["dse_assets"]
-
-        context.update(progress_steps=self.progress_indicator.get_progress_steps())
-        return context
 
 
 def delete_cirrus_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
@@ -821,7 +726,7 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
 class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/cirrus/equipment_information.html"
     form_class = leaver_forms.ReturnInformationForm
-    success_url = reverse_lazy("leaver-confirm-details")
+    success_url = reverse_lazy("leaver-display-screen-equipment")
 
     progress_indicator = LeaverProgressIndicator("cirrus_equipment")
 
@@ -884,6 +789,101 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
         )
 
         return super().form_valid(form)
+
+
+def delete_dse_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
+    if "dse_assets" in request.session:
+        for asset in request.session["dse_assets"]:
+            if asset["uuid"] == str(kit_uuid):
+                request.session["dse_assets"].remove(asset)
+                request.session.save()
+                break
+    return redirect("leaver-display-screen-equipment")
+
+
+class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
+    forms: Dict[str, Type[Form]] = {
+        "add_asset_form": leaver_forms.AddDisplayScreenEquipmentAssetForm,
+        "submission_form": leaver_forms.SubmissionForm,
+    }
+    template_name = "leaving/leaver/display_screen_equipment.html"
+    success_url = reverse_lazy("leaver-confirm-details")
+
+    progress_indicator = LeaverProgressIndicator("display_screen_equipment")
+
+    def dispatch(self, request, *args, **kwargs):
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
+        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+
+        # If the leaver doesn't have DSE, skip this step.
+        if not self.leaver_info.has_dse:
+            return redirect("leaver-cirrus-equipment")
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
+        session = request.session
+        if "dse_assets" not in session:
+            session["dse_assets"] = []
+
+        # Add asset to session
+        asset: types.DisplayScreenEquipmentAsset = {
+            "uuid": str(uuid.uuid4()),
+            "name": form.cleaned_data["asset_name"],
+        }
+        session["dse_assets"].append(asset)
+        session.save()
+
+        # Redirect to the GET method
+        return redirect("leaver-display-screen-equipment")
+
+    def post_submission_form(self, request: HttpRequest, form: Form, *args, **kwargs):
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
+        # Store dse assets into the leaver details
+        self.store_display_screen_equipment(
+            email=user_email,
+            requester=user,
+            dse_assets=request.session.get("dse_assets", []),
+        )
+
+        return redirect(self.success_url)
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        if "form_name" in request.POST:
+            form_name = request.POST["form_name"]
+            if form_name in self.forms:
+                form = self.forms[form_name](request.POST)
+                if form.is_valid():
+                    # Call the "post_{form_name}" method to handle the form POST logic.
+                    return getattr(self, f"post_{form_name}")(
+                        request, form, *args, **kwargs
+                    )
+                else:
+                    context[form_name] = form
+        return self.render_to_response(context)
+
+    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        if "dse_assets" not in request.session:
+            request.session["dse_assets"] = []
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(page_title=self.progress_indicator.get_current_step_label())
+
+        # Add form instances to the context.
+        for form_name, form_class in self.forms.items():
+            context[form_name] = form_class()
+        if "dse_assets" in self.request.session:
+            context["dse_assets"] = self.request.session["dse_assets"]
+
+        context.update(progress_steps=self.progress_indicator.get_progress_steps())
+        return context
 
 
 class ConfirmDetailsView(LeaverInformationMixin, FormView):
