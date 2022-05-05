@@ -160,6 +160,29 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
     )
 
 
+def send_line_manager_correction_email(leaving_request: LeavingRequest):
+    """
+    Send ??? an email to get them to update the Line manager in UK SBS to match the LeavingRequest.
+    """
+
+    if not leaving_request.is_rosa_user:
+        raise LeaverDoesNotHaveRosaKit()
+
+    assert leaving_request.manager_activitystream_user
+    manager_as_user: ActivityStreamStaffSSOUser = (
+        leaving_request.manager_activitystream_user
+    )
+
+    notify.email(
+        email_address=manager_as_user.email_address,
+        template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "manager_name": leaving_request.get_line_manager_name(),
+        },
+    )
+
+
 def send_line_manager_notification_email(leaving_request: LeavingRequest):
     """
     Send Line Manager an email to notify them of a Leaver they need to process.

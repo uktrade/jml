@@ -13,13 +13,33 @@ This can be triggered in 2 places:
 LeaversWorkflow = Workflow(
     name="leaving",
     steps=[
+        # Leaver
         Step(
             step_id="setup_leaving",
             task_name="basic_task",
             start=True,
             targets=[
+                "check_uksbs_line_manager",
+            ],
+        ),
+        Step(
+            step_id="check_uksbs_line_manager",
+            task_name="check_uksbs_line_manager",
+            targets=[
+                "send_line_manager_correction_reminder",
                 "notify_line_manager",
             ],
+        ),
+        Step(
+            step_id="send_line_manager_correction_reminder",
+            task_name="reminder_email",
+            targets=[
+                "check_uksbs_line_manager",
+            ],
+            break_flow=True,
+            task_info={
+                "email_id": EmailIds.LINE_MANAGER_CORRECTION.value,
+            },
         ),
         # Line manager
         Step(
@@ -55,11 +75,19 @@ LeaversWorkflow = Workflow(
             step_id="thank_line_manager",
             task_name="notification_email",
             targets=[
-                "setup_scheduled_tasks",
+                "send_uksbs_leaver_details",
             ],
             task_info={
                 "email_id": EmailIds.LINE_MANAGER_THANKYOU.value,
             },
+        ),
+        # UK SBS
+        Step(
+            step_id="send_uksbs_leaver_details",
+            task_name="send_uksbs_leaver_details",
+            targets=[
+                "setup_scheduled_tasks",
+            ],
         ),
         # Split flow
         Step(

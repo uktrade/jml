@@ -1,15 +1,19 @@
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, List, Optional
 
 from django.conf import settings
 from django.utils import timezone
 from django_workflow_engine import Task
 
+from activity_stream.models import ActivityStreamStaffSSOUser
+from core.uksbs import get_uksbs_interface
+from core.uksbs.types import LeavingData, PersonData
 from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_message
 from leavers.models import LeavingRequest, SlackMessage, TaskLog
 from leavers.utils import (
     send_csu4_leaver_email,
+    send_line_manager_correction_email,
     send_line_manager_notification_email,
     send_line_manager_reminder_email,
     send_line_manager_thankyou_email,
@@ -41,9 +45,126 @@ class BasicTask(LeavingRequestTask):
         return None, {}, True
 
 
+class CheckUKSBSLineManager(LeavingRequestTask):
+    abstract = False
+    task_name = "check_uksbs_line_manager"
+    auto = True
+
+    def execute(self, task_info):
+        uksbs_interface = get_uksbs_interface()
+        assert self.leaving_request
+
+        # Not sure if this is the Oracle ID
+        leaver_oracle_id = self.leaving_request.leaver_activitystream_user.user_id
+        line_manager_oracle_id = (
+            self.leaving_request.manager_activitystream_user.user_id
+        )
+
+        uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
+            oracle_id=leaver_oracle_id,
+        )
+
+        uksbs_leaver_managers: List[PersonData] = uksbs_leaver_hierarchy.get(
+            "manager", []
+        )
+        uksbs_leaver_manager_oracle_ids: List[str] = [
+            uksbs_leaver_manager["person_id"]
+            for uksbs_leaver_manager in uksbs_leaver_managers
+        ]
+
+        if line_manager_oracle_id in uksbs_leaver_manager_oracle_ids:
+            return ["notify_line_manager"], {}, True
+
+        return ["uksbs_line_manager_correction"], {}, False
+
+
+class UKSBSSendLeaverDetails(LeavingRequestTask):
+    abstract = False
+    task_name = "send_uksbs_leaver_details"
+    auto = True
+
+    def execute(self, task_info):
+        uksbs_interface = get_uksbs_interface()
+        assert self.leaving_request
+
+        leaver_as: ActivityStreamStaffSSOUser = (
+            self.leaving_request.manager_activitystream_user
+        )
+        manager_as: ActivityStreamStaffSSOUser = (
+            self.leaving_request.manager_activitystream_user
+        )
+
+        # Not sure if this is the Oracle ID
+        leaver_oracle_id = leaver_as.user_id
+        line_manager_oracle_id = manager_as.user_id
+
+        uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
+            oracle_id=leaver_oracle_id,
+        )
+
+        uksbs_leaver: PersonData = uksbs_leaver_hierarchy["employee"][0]
+
+        uksbs_leaver_managers: List[PersonData] = uksbs_leaver_hierarchy.get(
+            "manager", []
+        )
+        uksbs_leaver_manager: Optional[PersonData] = None
+        for ulm in uksbs_leaver_managers:
+            if ulm["person_id"] == line_manager_oracle_id:
+                uksbs_leaver_manager = ulm
+                break
+
+        if not uksbs_leaver_manager:
+            return ["uksbs_line_manager_correction"], {}, False
+
+        leaving_data: LeavingData = {
+            # Line manager data
+            "submitterName": uksbs_leaver_manager["full_name"],
+            "submitterEmail": uksbs_leaver_manager["email_address"],
+            "submitterOracleID": uksbs_leaver_manager["person_id"],
+            "submitterDate": timezone.now().strftime("%d/%m/%Y %H:%M"),
+            "submitterSelectedLineManager": uksbs_leaver_manager["full_name"],
+            "submitterSelectedLineManagerEmail": uksbs_leaver_manager["email_address"],
+            "submitterSelectedLineManagerOracleID": uksbs_leaver_manager["person_id"],
+            "submitterSelectedLineManagerEmployeeNumber": uksbs_leaver_manager[
+                "employee_number"
+            ],
+            # Leaver data
+            "leaverName": uksbs_leaver["full_name"],
+            "leaverEmail": uksbs_leaver["email_address"],
+            "leaverOracleID": uksbs_leaver["person_id"],
+            "leaverEmployeeNumber": uksbs_leaver["employee_number"],
+            # Missing data
+            "leaverPaidUnpaid": "str",
+            "leaverReasonForLeaving": "str",
+            "leaverLastDay": "str",
+            "annualLeaveUom": "str",
+            "annualLeavePaidOrDeducted": "str",
+            "annualLeaveDaysPaid": "int",
+            "annualLeaveHoursPaid": "int",
+            "annualLeaveDaysDeducted": "int",
+            "annualLeaveHoursDeducted": "int",
+            "flexiPaidOrDeducted": "str",
+            "flexiHoursPaid": "int",
+            "flexiHoursDeducted": "int",
+            "newCorrEmail": "Optional[str]",
+            "newCorrAddressLine1": "Optional[str]",
+            "newCorrAddressLine2": "Optional[str]",
+            "newCorrAddressLine3": "Optional[str]",
+            "newCorrCounty": "Optional[str]",
+            "newCorrPostcode": "Optional[str]",
+            "newCorrPhone": "Optional[str]",
+            "directReports": "List[DirectReport]",
+        }
+
+        uksbs_interface.submit_leaver_form(data=leaving_data)
+
+        return ["setup_scheduled_tasks"], {}, True
+
+
 class EmailIds(Enum):
     LEAVER_ROSA_REMINDER = "leaver_rosa_reminder"
     LINE_MANAGER_ROSA_REMINDER = "line_manager_rosa_reminder"
+    LINE_MANAGER_CORRECTION = "line_manager_correction"
     LINE_MANAGER_NOTIFICATION = "line_manager_notification"
     LINE_MANAGER_REMINDER = "line_manager_reminder"
     LINE_MANAGER_THANKYOU = "line_manager_thankyou"
@@ -57,6 +178,7 @@ class EmailIds(Enum):
 EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LEAVER_ROSA_REMINDER: send_rosa_leaver_reminder_email,
     EmailIds.LINE_MANAGER_ROSA_REMINDER: send_rosa_line_manager_reminder_email,
+    EmailIds.LINE_MANAGER_CORRECTION: send_line_manager_correction_email,
     EmailIds.LINE_MANAGER_NOTIFICATION: send_line_manager_notification_email,
     EmailIds.LINE_MANAGER_REMINDER: send_line_manager_reminder_email,
     EmailIds.LINE_MANAGER_THANKYOU: send_line_manager_thankyou_email,
