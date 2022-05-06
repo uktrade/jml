@@ -7,7 +7,9 @@ ADD_USER_ERROR_SESSION_KEY = "add_user_error"
 REMOVE_USER_SUCCESS_SESSION_KEY = "remove_user_success"
 
 
-def get_asset_user_action_messages(request: HttpRequest) -> Tuple[str, str]:
+def get_asset_user_action_messages(
+    request: HttpRequest,
+) -> Tuple[Optional[str], Optional[str]]:
     success_message: Optional[str] = None
     add_user_success: Optional[str] = request.session.get(ADD_USER_SUCCESS_SESSION_KEY)
     remove_user_success: Optional[str] = request.session.get(

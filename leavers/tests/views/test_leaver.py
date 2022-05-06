@@ -423,7 +423,6 @@ class TestConfirmDetailsView(TestCase):
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "staff_id": "Updated Staff ID",
             "contact_email_address": "Updated Personal Email",
         }
         factories.LeaverInformationFactory(
@@ -444,7 +443,6 @@ class TestConfirmDetailsView(TestCase):
                 "contact_email_address": updates["contact_email_address"],
                 "job_title": updates["job_title"],
                 "directorate": "Directorate 2",
-                "staff_id": updates["staff_id"],
                 "photo": "",
             },
         )
@@ -468,7 +466,6 @@ class TestConfirmDetailsView(TestCase):
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "staff_id": "Updated Staff ID",
             "contact_email_address": "new.personal.email@example.com",  # /PS-IGNORE
         }
         factories.LeaverInformationFactory(
@@ -526,7 +523,6 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(form.initial["first_name"], "Joe")  # /PS-IGNORE
         self.assertEqual(form.initial["job_title"], "Job title")
         self.assertEqual(form.initial["last_name"], "Bloggs")  # /PS-IGNORE
-        self.assertEqual(form.initial["staff_id"], "")
         self.assertEqual(form.initial["contact_email_address"], "")
         self.assertEqual(form.initial["photo"], "")
 
@@ -536,7 +532,6 @@ class TestUpdateDetailsView(TestCase):
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "staff_id": "Updated Staff ID",
             "contact_email_address": "Updated Personal Email",
         }
         factories.LeaverInformationFactory(
@@ -566,7 +561,6 @@ class TestUpdateDetailsView(TestCase):
                 "first_name": updates["first_name"],
                 "job_title": updates["job_title"],
                 "last_name": updates["last_name"],
-                "staff_id": updates["staff_id"],
                 "contact_email_address": updates["contact_email_address"],
                 "has_dse": None,
                 "has_gov_procurement_card": None,
@@ -641,7 +635,6 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(leaver_updates["first_name"], "FirstName")  # /PS-IGNORE
         self.assertEqual(leaver_updates["job_title"], "Job Title")
         self.assertEqual(leaver_updates["last_name"], "LastName")  # /PS-IGNORE
-        self.assertEqual(leaver_updates["staff_id"], "Staff ID")
 
         self.assertEqual(
             leaver_updates["contact_email_address"],

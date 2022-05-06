@@ -166,7 +166,6 @@ class LeaverInformationMixin:
         leaver_info.personal_email = updates.get("contact_email_address", "")
         leaver_info.job_title = updates.get("job_title", "")
         leaver_info.directorate_id = updates.get("directorate", "")
-        leaver_info.staff_id = updates.get("staff_id", "")
 
         # Save the leaver info
         leaver_info.save(
@@ -471,6 +470,7 @@ class LeaverProgressIndicator:
         for step in self.steps:
             if step[0] == self.current_step:
                 return step[1]
+        return ""
 
     def get_progress_steps(self) -> List[StepDict]:
         """
@@ -557,7 +557,6 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             "contact_email_address": form.cleaned_data["contact_email_address"],
             "job_title": form.cleaned_data["job_title"],
             "directorate": form.cleaned_data["directorate"],
-            "staff_id": form.cleaned_data["staff_id"],
         }
 
         self.store_leaver_detail_updates(

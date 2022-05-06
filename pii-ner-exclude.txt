@@ -1,5 +1,4 @@
 -O codecov.sh https://codecov.io/bash
-'Tests for `get_leaver_details_with_updates`
 " Get Service Now
 " Leavers Workflow This can be triggered in 2
 " Line Manager
@@ -241,6 +240,7 @@ Team Zendesk
 Templates
 Tests for `get_leaver_detail_updates` "
 Tests for `get_leaver_details_with_updates`
+Tests for `get_leaver_details_with_updates`
 Tests for `get_leaver_details` "
 Tests for `get_leaver_information`
 Tests for `store_cirrus_kit_information`
@@ -267,6 +267,7 @@ UKSBS
 UKSBS Connect
 UKSBS Leavers
 UKSBS_INTERFACE
+UKSBS_POST_LEAVER_SUBMISSION                             
 UKSBSBase
 UKSBSStubbed
 Unit of Measurement

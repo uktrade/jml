@@ -34,7 +34,6 @@ class LeaverUpdateForm(GovFormattedForm):
     contact_email_address = forms.EmailField(label="")
     job_title = forms.CharField(label="")
     directorate = forms.ChoiceField(label="", choices=[])
-    staff_id = forms.CharField(label="")
     # Extra information
     security_clearance = forms.ChoiceField(
         label="",
@@ -158,11 +157,6 @@ class LeaverUpdateForm(GovFormattedForm):
             ),
             Submit("submit", "Save and continue"),
             # TO DELETE?
-            Fieldset(
-                Field("staff_id"),
-                legend="Staff ID",
-                legend_size=Size.MEDIUM,
-            ),
             Fieldset(
                 Field("directorate"),
                 legend="Directorate",

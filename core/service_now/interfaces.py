@@ -62,15 +62,13 @@ class ServiceNowBase(ABC):
 
 
 class ServiceNowStubbed(ServiceNowBase):
-    def get_asset_by_tag(self, asset_tag: str) -> List[types.AssetDetails]:
+    def get_asset_by_tag(self, asset_tag: str) -> types.AssetDetails:
         logger.info(f"Getting an asset with the tag {asset_tag}")
-        return [
-            {
-                "sys_id": "111",
-                "tag": asset_tag,
-                "name": "Asset 1",
-            },
-        ]
+        return {
+            "sys_id": "111",
+            "tag": asset_tag,
+            "name": "Asset 1",
+        }
 
     def get_assets_for_user(self, email: str) -> List[types.AssetDetails]:
         logger.info("Getting assets for a user")

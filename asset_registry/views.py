@@ -34,7 +34,7 @@ else:
     User = get_user_model()
 
 
-def view_asset(request: HttpResponse, pk: int) -> HttpResponse:
+def view_asset(request: HttpRequest, pk: int) -> HttpResponse:
     if PhysicalAsset.objects.filter(pk=pk).exists():
         return redirect(reverse("physical-asset", args=[pk]))
     elif SoftwareAsset.objects.filter(pk=pk).exists():
@@ -77,12 +77,13 @@ class PhysicalAssetView(DetailView):
     template_name = "asset_registry/physical/detail.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        obj = self.object  # type: ignore
         context = super().get_context_data(**kwargs)
 
         success_message, error_message = get_asset_user_action_messages(self.request)
 
         context.update(
-            users=self.object.users.all(),
+            users=obj.users.all(),
             success_message=success_message,
             error_message=error_message,
         )
@@ -96,7 +97,8 @@ class UpdatePhysicalAssetView(UpdateView):
     form_class = PhysicalAssetUpdateForm
 
     def get_success_url(self) -> str:
-        return reverse("physical-asset", args=[self.object.pk])
+        obj = self.object  # type: ignore
+        return reverse("physical-asset", args=[obj.pk])
 
 
 class CreateSoftwareAssetView(CreateView):
@@ -111,12 +113,13 @@ class SoftwareAssetView(DetailView):
     template_name = "asset_registry/software/detail.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        obj = self.object  # type: ignore
         context = super().get_context_data(**kwargs)
 
         success_message, error_message = get_asset_user_action_messages(self.request)
 
         context.update(
-            users=self.object.users.all(),
+            users=obj.users.all(),
             success_message=success_message,
             error_message=error_message,
         )
@@ -130,7 +133,8 @@ class UpdateSoftwareAssetView(UpdateView):
     form_class = SoftwareAssetUpdateForm
 
     def get_success_url(self) -> str:
-        return reverse("software-asset", args=[self.object.pk])
+        obj = self.object  # type: ignore
+        return reverse("software-asset", args=[obj.pk])
 
 
 class AssetUserSearchView(StaffSearchView):
@@ -148,7 +152,7 @@ class AssetUserSearchView(StaffSearchView):
 
 
 def remove_user_from_asset(
-    request: HttpResponse, pk: int, asset_user_uuid: UUID
+    request: HttpRequest, pk: int, asset_user_uuid: UUID
 ) -> HttpResponse:
     asset: Asset = get_object_or_404(Asset, pk=pk)
     asset_user_activitystream_user: ActivityStreamStaffSSOUser = get_object_or_404(
@@ -163,7 +167,7 @@ def remove_user_from_asset(
     return redirect(reverse("view-asset", args=[pk]))
 
 
-def add_user_to_asset(request: HttpResponse, pk: int) -> HttpResponse:
+def add_user_to_asset(request: HttpRequest, pk: int) -> HttpResponse:
     return_redirect = redirect(reverse("view-asset", args=[pk]))
     asset = get_object_or_404(Asset, pk=pk)
 
@@ -211,7 +215,8 @@ class UserAssetView(DetailView):
     slug_url_kwarg = "asset_user_uuid"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        obj = self.object  # type: ignore
         context = super().get_context_data(**kwargs)
-        assets = queryset_to_specific(Asset.objects.filter(users__pk=self.object.pk))
+        assets = queryset_to_specific(Asset.objects.filter(users__pk=obj.pk))
         context.update(assets=assets)
         return context
