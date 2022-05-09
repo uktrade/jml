@@ -5,6 +5,7 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {% include "leaving/progress_indicator.html" with steps=progress_steps %}
             {% error_summary form %}
         </div>
     </div>
@@ -12,13 +13,12 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
-            <p class="govuk-body">{{ leaver_name }} is leaving and has reviewed and updated their details.</p>
-            <p class="govuk-body">This is your final check of their details and leaving date, and the last action you must complete on the service before the process moves on to IT, HR and Security.</p>
+            <p class="govuk-body">As their line manager you need to confirm your details, updating when necessary.</p>
 
-            <h2 class="govuk-heading-m">Personal information</h2>
+            <h2 class="govuk-heading-m">{{ possessive_leaver_name }} information</h2>
             {% include "staff_search/staff_result.html" with staff_details=leaver %}
 
-            <h2 class="govuk-heading-m">Leaver's data transfer</h2>
+            <h2 class="govuk-heading-m">{{ possessive_leaver_name }} data transfer</h2>
             <p class="govuk-body">Who should your leaver's data be transferred to?</p>
             {% include "staff_search/staff_result.html" with staff_details=data_recipient %}
             <a href="{{ data_recipient_search }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Change recipient for leaver's data.</a>

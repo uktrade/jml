@@ -1,9 +1,5 @@
-import os
-from typing import Any, Dict, Optional, cast
+from typing import Any, Dict, List, Optional, Tuple, cast
 
-from django.conf import settings
-from django.core.files.storage import default_storage
-from django.core.files.uploadedfile import UploadedFile
 from django.http import HttpResponseForbidden, HttpResponseNotFound
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
@@ -15,8 +11,7 @@ from django.views.generic.edit import FormView
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.staff_search.views import StaffSearchView
-from core.utils.helpers import bool_to_yes_no
-from core.utils.pdf import parse_leaver_pdf
+from core.utils.helpers import make_possessive
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
     StaffDocument,
@@ -25,9 +20,29 @@ from core.utils.staff_index import (
 )
 from leavers.forms import line_manager as line_manager_forms
 from leavers.models import LeaverInformation, LeavingRequest
+from leavers.progress_indicator import ProgressIndicator
 from user.models import User
 
 DATA_RECIPIENT_SEARCH_PARAM = "data_recipient_id"
+
+
+class LineManagerProgressIndicator(ProgressIndicator):
+
+    steps: List[Tuple[str, str, str]] = [
+        ("leaver_details", "Leaver's details", "line-manager-leaver-confirmation"),
+        ("hr_payroll", "HR and payroll", "line-manager-details"),
+        ("confirmation", "Confirmation", "line-manager-confirmation"),
+    ]
+
+    def __init__(self, current_step: str, leaving_request_uuid: str) -> None:
+        super().__init__(current_step)
+        self.leaving_request_uuid = leaving_request_uuid
+
+    def get_step_link(self, step) -> str:
+        return reverse_lazy(
+            step[2],
+            kwargs={"leaving_request_uuid": self.leaving_request_uuid},
+        )
 
 
 class LineManagerViewMixin:
@@ -117,13 +132,16 @@ class StartView(LineManagerViewMixin, TemplateView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
+        leaver_name = self.leaving_request.get_leaver_name()
+
         context.update(
-            page_title="Confirmation of leavers details",
+            page_title="Leaving DIT: line manager's actions",
             start_url=reverse(
                 "line-manager-leaver-confirmation",
                 kwargs={"leaving_request_uuid": str(self.leaving_request.uuid)},
             ),
-            leaver_name=self.leaving_request.get_leaver_name(),
+            leaver_name=leaver_name,
+            possessive_leaver_name=make_possessive(leaver_name),
         )
 
         return context
@@ -133,9 +151,16 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
     template_name = "leaving/line_manager/leaver_confirmation.html"
     form_class = line_manager_forms.ConfirmLeavingDate
 
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update(
+            leaver=self.get_leaver(),
+        )
+        return form_kwargs
+
     def get_success_url(self) -> str:
         return reverse(
-            "line-manager-uksbs-handover",
+            "line-manager-details",
             kwargs={"leaving_request_uuid": self.leaving_request.uuid},
         )
 
@@ -224,6 +249,10 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
+        self.progress_indicator = LineManagerProgressIndicator(
+            current_step="leaver_details",
+            leaving_request_uuid=self.leaving_request.uuid,
+        )
 
         if self.leaving_request.line_manager_complete:
             return redirect(
@@ -267,20 +296,28 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
             initial["leaving_date"] = self.leaving_request.leaving_date
         elif leaver_information and leaver_information.leaving_date:
             initial["leaving_date"] = leaver_information.leaving_date
+        if self.leaving_request.reason_for_leaving:
+            initial["reason_for_leaving"] = self.leaving_request.reason_for_leaving
         return initial
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+
         context = super().get_context_data(**kwargs)
 
+        leaver_name = f"{self.leaver['first_name']} {self.leaver['last_name']}"
+        possessive_leaver_name = make_possessive(leaver_name)
+
         context.update(
-            page_title="Title of page",
+            page_title=f"{possessive_leaver_name} details",
             leaver=self.leaver,
-            leaver_name=f"{self.leaver['first_name']} {self.leaver['last_name']}",
+            leaver_name=leaver_name,
+            possessive_leaver_name=possessive_leaver_name,
             data_recipient=self.data_recipient or self.manager,
             data_recipient_search=reverse(
                 "line-manager-data-recipient-search",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
+            progress_steps=self.progress_indicator.get_progress_steps(),
         )
         return context
 
@@ -294,102 +331,9 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
         # Store the leaving date against the LeavingRequest.
         self.leaving_request.last_day = form.cleaned_data["last_day"]
         self.leaving_request.leaving_date = form.cleaned_data["leaving_date"]
-        self.leaving_request.save()
-
-        return super().form_valid(form)
-
-
-class UksbsHandoverView(LineManagerViewMixin, FormView):
-    template_name = "leaving/line_manager/uksbs-handover.html"
-    form_class = line_manager_forms.UksbsPdfForm
-
-    def get_success_url(self) -> str:
-        return reverse(
-            "line-manager-details",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
-
-    def dispatch(self, request, *args, **kwargs):
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-
-        if self.leaving_request.line_manager_complete:
-            return redirect(
-                reverse(
-                    "line-manager-thank-you",
-                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                )
-            )
-
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
-        ):
-            return HttpResponseForbidden()
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
-
-        if self.leaving_request.uksbs_pdf_data:
-            # TODO: Discuss, the assumption here is that if the data is already in the
-            # LeavingRequest, we will just redirect users to the details step.
-            # Perhaps this isn't the intended behaviour, instead we might want to show
-            # a message to inform the user that they have already uploaded the form.
-            return redirect(self.get_success_url())
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self) -> Dict[str, Any]:
-        form_kwargs = super().get_form_kwargs()
-        if self.request.POST:
-            form_kwargs["files"] = self.request.FILES
-        return form_kwargs
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(page_title="UKSBS handover")
-
-        # TODO: Remove Staff Index search from this view.
-        # Load the leaver from the Staff index.
-        leaver_staff_document: StaffDocument = get_staff_document_from_staff_index(
-            staff_id=self.leaving_request.leaver_activitystream_user.identifier,
-        )
-        leaver: ConsolidatedStaffDocument = consolidate_staff_documents(
-            staff_documents=[leaver_staff_document],
-        )[0]
-
-        leaver_information: LeaverInformation = (
-            self.leaving_request.leaver_information.first()
-        )
-        if not leaver_information:
-            raise Exception("Unable to find leaver information.")
-
-        # Update context with leaver information.
-        context.update(
-            leaver_name=f"{leaver['first_name']} {leaver['last_name']}",
-            leaver_email=leaver_information.leaver_email,
-            leaver_address=leaver_information.display_address,
-            leaver_phone=leaver_information.return_personal_phone,
-        )
-        return context
-
-    def form_valid(self, form):
-        uksbs_pdf: UploadedFile = form.cleaned_data["uksbs_pdf"]
-        date_time = timezone.now().strftime("%Y-%m-%d-%H-%M-%S")
-
-        # Store file to disk
-        pdf_path = os.path.join(
-            settings.MEDIA_ROOT,
-            default_storage.save(
-                name=f"tmp/{date_time}-{uksbs_pdf.name}",
-                content=uksbs_pdf.file,
-            ),
-        )
-
-        # Store parsed data against the LeavingRequest.
-        parsed_pdf = parse_leaver_pdf(filename=pdf_path)
-        self.leaving_request.uksbs_pdf_data = parsed_pdf
+        self.leaving_request.reason_for_leaving = form.cleaned_data[
+            "reason_for_leaving"
+        ]
         self.leaving_request.save()
 
         return super().form_valid(form)
@@ -407,31 +351,22 @@ class DetailsView(LineManagerViewMixin, FormView):
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
-        if self.leaving_request:
-            # Security Clearance
-            if self.leaving_request.security_clearance:
-                initial["security_clearance"] = self.leaving_request.security_clearance
-            # ROSA user
-            is_rosa_user = self.leaving_request.is_rosa_user
-            if is_rosa_user is not None:
-                rosa_user_yes_no = bool_to_yes_no(is_rosa_user)
-                initial["rosa_user"] = rosa_user_yes_no
-            # Government Procurement Card
-            holds_government_procurement_card = (
-                self.leaving_request.holds_government_procurement_card
-            )
-            if holds_government_procurement_card is not None:
-                holds_government_procurement_card_yes_no = (
-                    "yes" if holds_government_procurement_card else "no"
-                )
-                initial[
-                    "holds_government_procurement_card"
-                ] = holds_government_procurement_card_yes_no
+        initial.update(
+            annual_leave=self.leaving_request.annual_leave,
+            annual_leave_measurement=self.leaving_request.annual_leave_measurement,
+            flexi_leave=self.leaving_request.flexi_leave,
+            annual_number=self.leaving_request.annual_number,
+            flexi_number=self.leaving_request.flexi_number,
+        )
         return initial
 
     def dispatch(self, request, *args, **kwargs):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
+        )
+        self.progress_indicator = LineManagerProgressIndicator(
+            current_step="hr_payroll",
+            leaving_request_uuid=self.leaving_request.uuid,
         )
 
         if self.leaving_request.line_manager_complete:
@@ -455,15 +390,18 @@ class DetailsView(LineManagerViewMixin, FormView):
 
     def form_valid(self, form) -> HttpResponse:
         # Store the details against the LeavingRequest.
-        self.leaving_request.security_clearance = form.cleaned_data[
-            "security_clearance"
+        self.leaving_request.annual_leave = form.cleaned_data["annual_leave"]
+        self.leaving_request.annual_leave_measurement = form.cleaned_data[
+            "annual_leave_measurement"
         ]
-        self.leaving_request.is_rosa_user = bool(
-            form.cleaned_data["rosa_user"] == "yes"
-        )
-        self.leaving_request.holds_government_procurement_card = bool(
-            form.cleaned_data["holds_government_procurement_card"] == "yes"
-        )
+        self.leaving_request.flexi_leave = form.cleaned_data["flexi_leave"]
+
+        if form.cleaned_data["annual_number"]:
+            self.leaving_request.annual_number = float(
+                form.cleaned_data["annual_number"]
+            )
+        if form.cleaned_data["flexi_number"]:
+            self.leaving_request.flexi_number = float(form.cleaned_data["flexi_number"])
         self.leaving_request.save()
 
         return super().form_valid(form)
@@ -472,8 +410,9 @@ class DetailsView(LineManagerViewMixin, FormView):
         context = super().get_context_data(**kwargs)
 
         context.update(
-            page_title="Confirm the Leaver's information",
+            page_title="HR and payroll",
             leaver_name=self.leaving_request.get_leaver_name(),
+            progress_steps=self.progress_indicator.get_progress_steps(),
         )
 
         return context
@@ -517,6 +456,10 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
+        self.progress_indicator = LineManagerProgressIndicator(
+            current_step="confirmation",
+            leaving_request_uuid=self.leaving_request.uuid,
+        )
 
         if self.leaving_request.line_manager_complete:
             return redirect(
@@ -543,19 +486,44 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name = make_possessive(leaver_name)
+
+        reason_for_leaving: Optional[str] = None
+        if self.leaving_request.reason_for_leaving:
+            reason_for_leaving = line_manager_forms.ReasonForleaving(
+                self.leaving_request.reason_for_leaving
+            ).label
+        annual_leave: Optional[str] = None
+        if self.leaving_request.annual_leave:
+            annual_leave = line_manager_forms.PaidOrDeducted(
+                self.leaving_request.annual_leave
+            ).label
+        annual_leave_measurement: Optional[str] = None
+        if self.leaving_request.annual_leave_measurement:
+            annual_leave_measurement = line_manager_forms.DaysHours(
+                self.leaving_request.annual_leave_measurement
+            ).label
+        flexi_leave: Optional[str] = None
+        if self.leaving_request.flexi_leave:
+            flexi_leave = line_manager_forms.PaidOrDeducted(
+                self.leaving_request.flexi_leave
+            ).label
+
         context.update(
             page_title="Confirm all the information",
-            leaver_name=self.leaving_request.get_leaver_name(),
+            leaver_name=leaver_name,
+            possessive_leaver_name=possessive_leaver_name,
             leaver=self.leaver,
             data_recipient=self.data_recipient,
             last_day=self.leaving_request.last_day.date(),
             leaving_date=self.leaving_request.leaving_date.date(),
-            uksbs_pdf_data=self.leaving_request.uksbs_pdf_data,
-            has_security_clearance=self.leaving_request.get_security_clearance_display(),
-            is_rosa_user=bool_to_yes_no(self.leaving_request.is_rosa_user).title(),
-            holds_government_procurement_card=bool_to_yes_no(
-                self.leaving_request.holds_government_procurement_card
-            ).title(),
+            reason_for_leaving=reason_for_leaving,
+            annual_leave=annual_leave,
+            annual_leave_measurement=annual_leave_measurement,
+            annual_number=self.leaving_request.annual_number,
+            flexi_leave=flexi_leave,
+            flexi_number=self.leaving_request.flexi_number,
             leaver_confirmation_view_url=reverse_lazy(
                 "line-manager-leaver-confirmation",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
@@ -564,10 +532,7 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
                 "line-manager-details",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
-            uksbs_upload_view_url=reverse_lazy(
-                "line-manager-uksbs-handover",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
+            progress_steps=self.progress_indicator.get_progress_steps(),
         )
 
         return context

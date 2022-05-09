@@ -19,6 +19,7 @@
 | SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL_TEMPLATE_ID |
 | SLACK_SRE_CHANNEL_ID                                     | None                                       
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
+0032_leavingrequest_reason_for_leaving
 100px
 234px
 7.7-.2
@@ -67,6 +68,7 @@ CSU4_EMAIL_TEMPLATE_ID
 Dashboard</a>
 Data
 date_of_birth
+Days"
 DB
 Department 1
 Department 2

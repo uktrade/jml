@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.utils.staff_index import StaffDocument
-from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
+from leavers.factories import LeavingRequestFactory
 from leavers.tests.views.include import ViewAccessTest
 
 EMPTY_STAFF_DOCUMENT: StaffDocument = {
@@ -196,182 +196,6 @@ class TestLeaverConfirmationView(ViewAccessTest, TestCase):
         )
 
 
-@mock.patch(
-    "leavers.views.line_manager.get_staff_document_from_staff_index",
-    return_value=EMPTY_STAFF_DOCUMENT,
-)
-class TestUksbsHandoverView(ViewAccessTest, TestCase):
-    view_name = "line-manager-uksbs-handover"
-    allowed_methods = ["get", "post", "put"]
-
-    def setUp(self):
-        super().setUp()
-        self.leaving_request = LeavingRequestFactory(
-            leaver_complete=timezone.now(),
-            manager_activitystream_user__email_address=self.authenticated_user.email,
-        )
-        self.leaver_information = LeaverInformationFactory(
-            leaving_request=self.leaving_request
-        )
-        self.view_kwargs = {"args": [self.leaving_request.uuid]}
-        self.leaver_as_sso_user = self.leaving_request.leaver_activitystream_user
-
-    def test_unauthenticated_user_get(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-        super().test_unauthenticated_user_get()
-
-    def test_unauthenticated_user_post(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-        super().test_unauthenticated_user_post()
-
-    def test_unauthenticated_user_patch(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-        super().test_unauthenticated_user_patch()
-
-    def test_unauthenticated_user_put(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-        super().test_unauthenticated_user_put()
-
-    def test_authenticated_user_get(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-        super().test_authenticated_user_get()
-
-    def test_authenticated_user_post(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-        super().test_authenticated_user_post()
-
-    def test_authenticated_user_patch(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-        super().test_authenticated_user_patch()
-
-    def test_authenticated_user_put(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-        super().test_authenticated_user_put()
-
-    """
-    Functionality tests
-    """
-
-    def test_get_context(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_first_name"
-        ] = self.leaver_as_sso_user.first_name
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_last_name"
-        ] = self.leaver_as_sso_user.last_name
-
-        self.leaver_information.leaver_email = self.leaver_as_sso_user.email_address
-        self.leaver_information.return_personal_phone = "0123456789"
-        self.leaver_information.return_address_building_and_street = "Building name"
-        self.leaver_information.return_address_city = "City name"
-        self.leaver_information.return_address_county = "County name"
-        self.leaver_information.return_address_postcode = "PO57 C0D3"
-        self.leaver_information.save()
-
-        self.client.force_login(self.authenticated_user)
-        response = self.client.get(self.get_url())
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.context["leaver_name"],
-            f"{self.leaver_as_sso_user.first_name} {self.leaver_as_sso_user.last_name}",
-        )
-        self.assertEqual(
-            response.context["leaver_email"],
-            self.leaver_as_sso_user.email_address,
-        )
-        self.assertEqual(
-            response.context["leaver_address"],
-            "Building name, \nCity name, \nCounty name, \nPO57 C0D3",
-        )
-        self.assertEqual(
-            response.context["leaver_phone"],
-            "0123456789",
-        )
-
-    def test_post_no_pdf(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-
-        self.client.force_login(self.authenticated_user)
-        response = self.client.post(self.get_url(), {})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "This field is required.")
-        self.assertIsNone(self.leaving_request.uksbs_pdf_data)
-
-    def test_post_with_pdf(self, mock_get_staff_document_from_staff_index):
-        from django.core.files.uploadedfile import SimpleUploadedFile
-
-        pdf_file_contents = open(
-            "leavers/tests/views/data/example-empty.pdf", "rb"
-        ).read()
-        pdf_file = SimpleUploadedFile(
-            "test.pdf", pdf_file_contents, content_type="application/pdf"
-        )
-
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-
-        self.client.force_login(self.authenticated_user)
-        response = self.client.post(self.get_url(), {"uksbs_pdf": pdf_file})
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-            response.url,
-            reverse(
-                "line-manager-details",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
-        )
-
-        self.leaving_request.refresh_from_db()
-        self.assertEqual(
-            self.leaving_request.uksbs_pdf_data,
-            {
-                "Completed on": "",
-                "Email": "",
-                "Employee Number": "",
-                "Last Day of Employment": "",
-                "Line Manager": "",
-                "Line Manager's Email": "",
-                "Line Manager's Employee Number": "",
-                "Line Manager's Oracle ID": "",
-                "Name": "",
-                "Number of Days to be Deducted": "",
-                "Number of Days to be Paid": "",
-                "Number of Hours to be Deducted": "",
-                "Number of Hours to be Paid": "",
-                "Oracle ID": "",
-                "Paid or Deducted?": "",
-                "Paid or Unpaid?": "",
-                "Reason for Leaving": "",
-                "Unit of Measurement": "",
-            },
-        )
-
-
 class TestDetailsView(ViewAccessTest, TestCase):
     view_name = "line-manager-details"
     allowed_methods = ["get", "post", "put"]
@@ -402,7 +226,6 @@ class TestDetailsView(ViewAccessTest, TestCase):
             {
                 "security_clearance": "ctc",
                 "rosa_user": "yes",
-                "holds_government_procurement_card": "yes",
             },
         )
 

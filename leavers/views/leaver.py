@@ -1,6 +1,6 @@
 import uuid
 from datetime import date
-from typing import Any, Dict, List, Optional, Tuple, Type, TypedDict, cast
+from typing import Any, Dict, List, Optional, Tuple, Type, cast
 
 from django.forms import Form
 from django.http.request import HttpRequest
@@ -29,6 +29,7 @@ from leavers import types
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation, LeavingRequest
+from leavers.progress_indicator import ProgressIndicator
 from leavers.utils import (
     get_or_create_leaving_workflow,
     update_or_create_leaving_request,
@@ -438,65 +439,22 @@ class LeaverInformationMixin:
         )
 
 
-class StepDict(TypedDict):
-    completed: bool
-    active: bool
-    name: str
-    number: int
-    link: Optional[str]
-
-
-class LeaverProgressIndicator:
+class LeaverProgressIndicator(ProgressIndicator):
 
     steps: List[Tuple[str, str, str]] = [
-        ("your_details", "Your details", reverse_lazy("leaver-update-details")),
+        ("your_details", "Your details", "leaver-update-details"),
         (
             "cirrus_equipment",
             "Cirrus kit",
-            reverse_lazy("leaver-cirrus-equipment"),
+            "leaver-cirrus-equipment",
         ),
         (
             "display_screen_equipment",
             "IT equipment",
-            reverse_lazy("leaver-display-screen-equipment"),
+            "leaver-display-screen-equipment",
         ),
-        ("confirmation", "Confirmation", reverse_lazy("leaver-confirm-details")),
+        ("confirmation", "Confirmation", "leaver-confirm-details"),
     ]
-
-    def __init__(self, current_step: str) -> None:
-        self.current_step = current_step
-
-    def get_current_step_label(self) -> str:
-        for step in self.steps:
-            if step[0] == self.current_step:
-                return step[1]
-        return ""
-
-    def get_progress_steps(self) -> List[StepDict]:
-        """
-        Build the list of progress steps
-        """
-
-        progress_steps: List[StepDict] = []
-        completed: bool = True
-
-        for index, step in enumerate(self.steps):
-            # Check if the step is the current step.
-            active: bool = step[0] == self.current_step
-            # If we are on the active step, all future steps are not completed yet.
-            if active:
-                completed = False
-            # Build the step and add it to the list.
-            progress_step: StepDict = {
-                "completed": completed,
-                "active": active,
-                "name": step[1],
-                "number": index + 1,
-                "link": step[2] if completed else None,
-            }
-            progress_steps.append(progress_step)
-
-        return progress_steps
 
 
 class UpdateDetailsView(LeaverInformationMixin, FormView):

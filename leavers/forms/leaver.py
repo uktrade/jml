@@ -46,12 +46,8 @@ class LeaverUpdateForm(GovFormattedForm):
     has_rosa_kit = YesNoField(label="")
     has_dse = YesNoField(label="")
 
-    leaving_date = DateInputField(
-        label="",
-    )
-    last_day = DateInputField(
-        label="",
-    )
+    leaving_date = DateInputField(label="")
+    last_day = DateInputField(label="")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

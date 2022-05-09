@@ -4,6 +4,7 @@
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {% include "leaving/progress_indicator.html" with steps=progress_steps %}
             {% error_summary form %}
         </div>
     </div>
@@ -11,73 +12,77 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
-            <p class="govuk-body">Before confirming and sending information, please review all the following.</p>
+            <p class="govuk-body">Before confirming and sending information, please review all the following and edit if incorrect.</p>
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Personal information</h2>
+            <h2 class="govuk-heading-m">{{ possessive_leaver_name }} information</h2>
             {% include "staff_search/staff_result.html" with staff_details=leaver %}
-
-            <h2 class="govuk-heading-m">Leaver's data transfer</h2>
-            {% include "staff_search/staff_result.html" with staff_details=data_recipient %}
-            <a href="{{ leaver_confirmation_view_url }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
-        </div>
-    </div>
-
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Last day</h2>
-            <p class="govuk-body">{{ last_day }}</p>
-            <a href="{{ leaver_confirmation_view_url }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
-        </div>
-    </div>
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Leaving date</h2>
-            <p class="govuk-body">{{ leaving_date }}</p>
-            <a href="{{ leaver_confirmation_view_url }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
-        </div>
-    </div>
-
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Leaver's UKSBS Form</h2>
 
             <table class="govuk-table">
                 <tbody class="govuk-table__body">
-                    {% for key, value in uksbs_pdf_data.items %}
-                        <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header">{{ key }}</th>
-                            <td class="govuk-table__cell">{{ value }}</td>
-                        </tr>
-                    {% endfor %}
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Leaver data transfer</th>
+                        <td class="govuk-table__cell">{{ data_recipient.first_name }} {{ data_recipient.last_name }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Leaving date</th>
+                        <td class="govuk-table__cell">{{ leaving_date }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Last working day</th>
+                        <td class="govuk-table__cell">{{ last_day }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Reason for leaving</th>
+                        <td class="govuk-table__cell">{{ reason_for_leaving }}</td>
+                    </tr>
                 </tbody>
             </table>
 
-            <a href="{{ uksbs_upload_view_url }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
+            <a href="{{ leaver_confirmation_view_url }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Security information</h2>
+            <h2 class="govuk-heading-m">HR and payroll</h2>
 
             <table class="govuk-table">
+                <caption class="govuk-table__caption govuk-table__caption--s">Annual leave</caption>
                 <tbody class="govuk-table__body">
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Security clearance</th>
-                        <td class="govuk-table__cell">{{ has_security_clearance }}</td>
+                        <th scope="row" class="govuk-table__header">Is there leave to be deducted or paid?</th>
+                        <td class="govuk-table__cell">{{ annual_leave }}</td>
                     </tr>
+                    {% if annual_leave %}
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">How is it measured?</th>
+                            <td class="govuk-table__cell">{{ annual_leave_measurement }}</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Quantity</th>
+                            <td class="govuk-table__cell">{{ annual_number }}</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+
+            <table class="govuk-table">
+                <caption class="govuk-table__caption govuk-table__caption--s">Flexi leave</caption>
+                <tbody class="govuk-table__body">
                     <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Government Procurement Card</th>
-                        <td class="govuk-table__cell">{{ is_rosa_user }}</td>
+                        <th scope="row" class="govuk-table__header">Is there leave to be deducted or paid?</th>
+                        <td class="govuk-table__cell">{{ flexi_leave }}</td>
                     </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">ROSA kit</th>
-                        <td class="govuk-table__cell">{{ holds_government_procurement_card }}</td>
-                    </tr>
+                    {% if flexi_leave %}
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Number of hours</th>
+                            <td class="govuk-table__cell">{{ flexi_number }}</td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
 
