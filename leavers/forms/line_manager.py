@@ -57,6 +57,7 @@ class LineManagerDetailsForm(GovFormattedForm):
         label="",
         choices=DaysHours.choices,
         widget=forms.RadioSelect,
+        required=False,
     )
     annual_number = forms.CharField(
         label="",
@@ -107,15 +108,40 @@ class LineManagerDetailsForm(GovFormattedForm):
             Submit("submit", "Save and continue"),
         )
 
+    def clean_annual_leave_measurement(self):
+        if self.cleaned_data["annual_leave"] not in [
+            PaidOrDeducted.PAID.value,
+            PaidOrDeducted.DEDUCTED.value,
+        ]:
+            if self.cleaned_data["annual_leave_measurement"]:
+                raise ValidationError(
+                    "This field shouldn't have a value if there is no annual leave"
+                )
+        else:
+            if not self.cleaned_data["annual_leave_measurement"]:
+                raise ValidationError(
+                    "This field should have a value if there is annual leave "
+                    "to be paid or deducted"
+                )
+
+        return self.cleaned_data["annual_leave_measurement"]
+
     def clean_annual_number(self):
-        if (
-            self.cleaned_data["annual_leave"]
-            not in [PaidOrDeducted.PAID.value, PaidOrDeducted.DEDUCTED.value]
-            and self.cleaned_data["annual_number"]
-        ):
-            raise ValidationError(
-                "This field shouldn't have a value if there is no annual leave"
-            )
+        if self.cleaned_data["annual_leave"] not in [
+            PaidOrDeducted.PAID.value,
+            PaidOrDeducted.DEDUCTED.value,
+        ]:
+            if self.cleaned_data["annual_number"]:
+                raise ValidationError(
+                    "This field shouldn't have a value if there is no annual leave"
+                )
+        else:
+            if not self.cleaned_data["annual_number"]:
+                raise ValidationError(
+                    "This field should have a value if there is annual leave "
+                    "to be paid or deducted"
+                )
+
         try:
             float(self.cleaned_data["annual_number"])
         except ValueError:
@@ -123,14 +149,21 @@ class LineManagerDetailsForm(GovFormattedForm):
         return self.cleaned_data["annual_number"]
 
     def clean_flexi_number(self):
-        if (
-            self.cleaned_data["flexi_leave"]
-            not in [PaidOrDeducted.PAID.value, PaidOrDeducted.DEDUCTED.value]
-            and self.cleaned_data["flexi_number"]
-        ):
-            raise ValidationError(
-                "This field shouldn't have a value if there is no flexi leave"
-            )
+        if self.cleaned_data["flexi_leave"] not in [
+            PaidOrDeducted.PAID.value,
+            PaidOrDeducted.DEDUCTED.value,
+        ]:
+            if self.cleaned_data["flexi_number"]:
+                raise ValidationError(
+                    "This field shouldn't have a value if there is no flexi leave"
+                )
+        else:
+            if not self.cleaned_data["flexi_number"]:
+                raise ValidationError(
+                    "This field should have a value if there is flexi leave "
+                    "to be paid or deducted"
+                )
+
         try:
             float(self.cleaned_data["flexi_number"])
         except ValueError:
