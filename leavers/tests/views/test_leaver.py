@@ -440,6 +440,7 @@ class TestConfirmDetailsView(TestCase):
             {
                 "first_name": updates["first_name"],
                 "last_name": updates["last_name"],
+                "staff_id": "",
                 "contact_email_address": updates["contact_email_address"],
                 "job_title": updates["job_title"],
                 "directorate": "Directorate 2",
@@ -559,6 +560,7 @@ class TestUpdateDetailsView(TestCase):
                 "photo": "",
                 "directorate": updates["directorate"],
                 "first_name": updates["first_name"],
+                "staff_id": "",
                 "job_title": updates["job_title"],
                 "last_name": updates["last_name"],
                 "contact_email_address": updates["contact_email_address"],
@@ -620,10 +622,8 @@ class TestUpdateDetailsView(TestCase):
             },
         )
 
-        self.assertEqual(response.context["form"].errors, 1)
-
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-display-screen-equipment"))
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
 
         leaver_updates_obj = models.LeaverInformation.objects.get(
             leaver_email=self.leaver.email,
