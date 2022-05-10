@@ -101,7 +101,7 @@ class LineManagerDetailsForm(GovFormattedForm):
             ),
             Fieldset(
                 "flexi_number",
-                legend="Number of ??? to be ???",
+                legend="Number of hours to be ???",
                 legend_size=Size.MEDIUM,
             ),
             Submit("submit", "Save and continue"),
