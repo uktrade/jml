@@ -74,7 +74,7 @@ class LineManagerDetailsForm(GovFormattedForm):
         required=False,
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, leaver_name: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
@@ -95,6 +95,11 @@ class LineManagerDetailsForm(GovFormattedForm):
                 legend_size=Size.MEDIUM,
             ),
             HTML("<h2 class='govuk-heading-l'>Flexi leave dates</h2>"),
+            HTML(
+                f"<p class='govuk-body'>If {leaver_name} has built up any "
+                "additional Flexi Leave, please indicate how that leave "
+                "should be handled.</p>"
+            ),
             Fieldset(
                 "flexi_leave",
                 legend="Is there flexi leave to be paid or deducted?",
@@ -233,7 +238,7 @@ class ConfirmLeavingDate(GovFormattedForm):
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("leaving_date"),
-                legend=f"Leaving date - prepopulated by {leaver_name}",
+                legend=f"Confirm the leaving date provided by {leaver_name}",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
@@ -245,7 +250,7 @@ class ConfirmLeavingDate(GovFormattedForm):
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("last_day"),
-                legend=f"Last working day - prepopulated by {leaver_name}",
+                legend=f"Confirm the last working day provided by {leaver_name}",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(

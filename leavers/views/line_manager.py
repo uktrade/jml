@@ -135,7 +135,7 @@ class StartView(LineManagerViewMixin, TemplateView):
         leaver_name = self.leaving_request.get_leaver_name()
 
         context.update(
-            page_title="Leaving DIT: line manager's actions",
+            page_title="Leaving DIT: line manager's off-boarding actions",
             start_url=reverse(
                 "line-manager-leaver-confirmation",
                 kwargs={"leaving_request_uuid": str(self.leaving_request.uuid)},
@@ -387,6 +387,11 @@ class DetailsView(LineManagerViewMixin, FormView):
             return HttpResponseNotFound()
 
         return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update(leaver_name=self.leaving_request.get_leaver_name())
+        return form_kwargs
 
     def form_valid(self, form) -> HttpResponse:
         # Store the details against the LeavingRequest.
