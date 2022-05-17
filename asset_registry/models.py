@@ -3,6 +3,8 @@ from typing import TYPE_CHECKING, Optional
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from activity_stream.models import ActivityStreamStaffSSOUser
+
 if TYPE_CHECKING:
     from user.models import User
 else:
@@ -78,7 +80,7 @@ class PhysicalAsset(Asset):
         return f"Physical Asset {self.id} - {self.asset_number}"
 
     @property
-    def user(self) -> Optional[User]:
+    def user(self) -> Optional[ActivityStreamStaffSSOUser]:
         return self.users.first()
 
 

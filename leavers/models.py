@@ -6,6 +6,7 @@ from django.db import models
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from leavers.forms.leaver import ReturnOptions, SecurityClearance
+from leavers.forms.line_manager import DaysHours, PaidOrDeducted, ReasonForleaving
 from leavers.forms.security_team import SecurityPassChoices
 
 
@@ -61,6 +62,14 @@ class LeavingRequest(models.Model):
         blank=True,
         null=True,
     )
+    is_rosa_user = models.BooleanField(null=True, blank=True)
+    holds_government_procurement_card = models.BooleanField(null=True, blank=True)
+    security_clearance = models.CharField(
+        choices=SecurityClearance.choices,
+        max_length=255,
+        blank=True,
+        null=True,
+    )
 
     leaver_complete = models.DateTimeField(null=True, blank=True)
 
@@ -77,16 +86,34 @@ class LeavingRequest(models.Model):
     """
     Line Manager
     """
-
-    uksbs_pdf_data = models.JSONField(null=True, blank=True)
-    security_clearance = models.CharField(
-        choices=SecurityClearance.choices,
+    reason_for_leaving = models.CharField(
+        choices=ReasonForleaving.choices,
         max_length=255,
         blank=True,
         null=True,
     )
-    is_rosa_user = models.BooleanField(null=True, blank=True)
-    holds_government_procurement_card = models.BooleanField(null=True, blank=True)
+    annual_leave = models.CharField(
+        choices=PaidOrDeducted.choices + [(None, "No annual leave")],
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    annual_leave_measurement = models.CharField(
+        choices=DaysHours.choices,
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    annual_number = models.FloatField(null=True, blank=True)
+    flexi_leave = models.CharField(
+        choices=PaidOrDeducted.choices + [(None, "No flexi leave")],
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    flexi_number = models.FloatField(null=True, blank=True)
+
+    uksbs_pdf_data = models.JSONField(null=True, blank=True)
 
     line_manager_complete = models.DateTimeField(null=True, blank=True)
 

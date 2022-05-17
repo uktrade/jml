@@ -16,3 +16,4 @@ pytest-xdist
 types-certifi
 types-freezegun
 types-requests
+types-oauthlib

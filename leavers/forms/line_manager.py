@@ -4,9 +4,10 @@ from crispy_forms_gds.layout import HTML, Field, Fieldset, Layout, Size, Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
+from django.db.models.enums import TextChoices
 
-from core.forms import GovFormattedForm, YesNoField
-from leavers.forms.leaver import SecurityClearance
+from core.forms import GovFormattedForm
+from core.utils.staff_index import ConsolidatedStaffDocument
 
 
 class PdfFileField(forms.FileField):
@@ -35,54 +36,159 @@ class UksbsPdfForm(GovFormattedForm):
         )
 
 
+class PaidOrDeducted(TextChoices):
+    DEDUCTED = "deducted", "Deducted"
+    PAID = "paid", "Paid"
+
+
+class DaysHours(TextChoices):
+    DAYS = "days", "Days"
+    HOURS = "hours", "Hours"
+
+
 class LineManagerDetailsForm(GovFormattedForm):
-    security_clearance = forms.ChoiceField(
+
+    annual_leave = forms.ChoiceField(
         label="",
-        choices=(
-            [(None, "Select security clearance type")] + SecurityClearance.choices  # type: ignore
-        ),
+        choices=PaidOrDeducted.choices + [(None, "No annual leave")],
+        widget=forms.RadioSelect,
     )
-    holds_government_procurement_card = YesNoField(
+    annual_leave_measurement = forms.ChoiceField(
         label="",
+        choices=DaysHours.choices,
+        widget=forms.RadioSelect,
+        required=False,
     )
-    rosa_user = YesNoField(
+    annual_number = forms.CharField(
         label="",
+        required=False,
     )
 
-    def __init__(self, *args, **kwargs):
+    flexi_leave = forms.ChoiceField(
+        label="",
+        choices=PaidOrDeducted.choices + [(None, "No flexi leave")],
+        widget=forms.RadioSelect,
+    )
+    flexi_number = forms.CharField(
+        label="",
+        required=False,
+    )
+
+    def __init__(self, leaver_name: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                Field.select("security_clearance"),
-                legend="Security clearance",
+                "annual_leave",
+                legend="Is there annual leave to be paid or deducted?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
-                HTML(
-                    "<p class='govuk-body'>Government procurement card is a "
-                    "payment card issued by DIT.</p>"
-                ),
-                Field.radios(
-                    "holds_government_procurement_card",
-                    inline=True,
-                ),
-                legend="Do they have a Government Procurement Card?",
+                Field.radios("annual_leave_measurement", inline=True),
+                legend="How is this measured?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
-                HTML(
-                    "<p class='govuk-body'>ROSA is a secure IT system platform for "
-                    "managing work classified at official, sensitive, secret or top "
-                    "secret level.</p>"
-                ),
-                Field.radios("rosa_user", inline=True),
-                legend="Do they have ROSA kit?",
+                "annual_number",
+                legend="Number of ??? to be ???",
+                legend_size=Size.MEDIUM,
+            ),
+            HTML("<h2 class='govuk-heading-l'>Flexi leave dates</h2>"),
+            HTML(
+                f"<p class='govuk-body'>If {leaver_name} has built up any "
+                "additional Flexi Leave, please indicate how that leave "
+                "should be handled.</p>"
+            ),
+            Fieldset(
+                "flexi_leave",
+                legend="Is there flexi leave to be paid or deducted?",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                "flexi_number",
+                legend="Number of hours to be ???",
                 legend_size=Size.MEDIUM,
             ),
             Submit("submit", "Save and continue"),
         )
+
+    def annual_leave_selected(self) -> bool:
+        if "annual_leave" not in self.cleaned_data:
+            return False
+
+        if self.cleaned_data["annual_leave"] not in [
+            PaidOrDeducted.PAID.value,
+            PaidOrDeducted.DEDUCTED.value,
+        ]:
+            return False
+
+        return True
+
+    def flexi_leave_selected(self) -> bool:
+        if "flexi_leave" not in self.cleaned_data:
+            return False
+
+        if self.cleaned_data["flexi_leave"] not in [
+            PaidOrDeducted.PAID.value,
+            PaidOrDeducted.DEDUCTED.value,
+        ]:
+            return False
+
+        return True
+
+    def clean_annual_leave_measurement(self):
+        if self.annual_leave_selected():
+            if not self.cleaned_data["annual_leave_measurement"]:
+                raise ValidationError(
+                    "This field should have a value if there is annual leave "
+                    "to be paid or deducted"
+                )
+        else:
+            if self.cleaned_data["annual_leave_measurement"]:
+                raise ValidationError(
+                    "This field shouldn't have a value if there is no annual leave"
+                )
+
+        return self.cleaned_data["annual_leave_measurement"]
+
+    def clean_annual_number(self):
+        if self.annual_leave_selected():
+            if not self.cleaned_data["annual_number"]:
+                raise ValidationError(
+                    "This field should have a value if there is annual leave "
+                    "to be paid or deducted"
+                )
+        else:
+            if self.cleaned_data["annual_number"]:
+                raise ValidationError(
+                    "This field shouldn't have a value if there is no annual leave"
+                )
+
+        try:
+            float(self.cleaned_data["annual_number"])
+        except ValueError:
+            raise ValidationError("This field must be a number")
+        return self.cleaned_data["annual_number"]
+
+    def clean_flexi_number(self):
+        if self.flexi_leave_selected():
+            if not self.cleaned_data["flexi_number"]:
+                raise ValidationError(
+                    "This field should have a value if there is flexi leave "
+                    "to be paid or deducted"
+                )
+        else:
+            if self.cleaned_data["flexi_number"]:
+                raise ValidationError(
+                    "This field shouldn't have a value if there is no flexi leave"
+                )
+
+        try:
+            float(self.cleaned_data["flexi_number"])
+        except ValueError:
+            raise ValidationError("This field must be a number")
+        return self.cleaned_data["flexi_number"]
 
 
 class LineManagerConfirmationForm(GovFormattedForm):
@@ -95,6 +201,15 @@ class LineManagerConfirmationForm(GovFormattedForm):
         )
 
 
+class ReasonForleaving(TextChoices):
+    """
+    Reason for leaving choices.
+    """
+
+    RESIGNATION = "resignation", "Resignation"
+    END_OF_CONTRACT = "end_of_contract", "End of contract"
+
+
 class ConfirmLeavingDate(GovFormattedForm):
     leaving_date = DateInputField(
         label="",
@@ -102,9 +217,16 @@ class ConfirmLeavingDate(GovFormattedForm):
     last_day = DateInputField(
         label="",
     )
+    reason_for_leaving = forms.ChoiceField(
+        label="",
+        widget=forms.RadioSelect,
+        choices=ReasonForleaving.choices,
+    )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, leaver: ConsolidatedStaffDocument, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        leaver_name: str = leaver["first_name"] + " " + leaver["last_name"]
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -116,7 +238,7 @@ class ConfirmLeavingDate(GovFormattedForm):
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("leaving_date"),
-                legend="Leaving date",
+                legend=f"Confirm the leaving date provided by {leaver_name}",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
@@ -128,7 +250,12 @@ class ConfirmLeavingDate(GovFormattedForm):
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("last_day"),
-                legend="Last working day",
+                legend=f"Confirm the last working day provided by {leaver_name}",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field("reason_for_leaving"),
+                legend="What's their reason for leaving?",
                 legend_size=Size.MEDIUM,
             ),
             Submit("submit", "Save and continue"),

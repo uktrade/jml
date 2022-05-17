@@ -9,6 +9,12 @@ def bool_to_yes_no(value: Optional[bool] = None) -> Literal["yes", "no"]:
     return "no"
 
 
+def make_possessive(word: str) -> str:
+    if word.endswith("s"):
+        return word + "'"
+    return word + "'s"
+
+
 def queryset_to_specific(initial_queryset: QuerySet) -> Iterable[Type[Model]]:
     """
     Convert a Queryset to a list of specific models.

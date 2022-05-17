@@ -2,21 +2,25 @@
 {% load static crispy_forms_tags crispy_forms_gds %}
 
 {% block content %}
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <a href="{% url 'who' %}" class="govuk-back-link">Back</a>
-        {% error_summary form %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% include "leaving/progress_indicator.html" with steps=progress_steps %}
+            {% error_summary form %}
+        </div>
     </div>
-</div>
 
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-l">{{ page_title }}</h1>
-        <p class="govuk-body">As the line manager of <em>{{ leaver_name }}</em> we need you to confirm the following:
-        </p>
-        <form novalidate method="post" enctype="multipart/form-data">
-            {% crispy form %}
-        </form>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">{{ page_title }}</h1>
+            <p class="govuk-body">The information provided on this page will ensure that {{ leaver_name }} is paid correctly
+                and on time. Please visit the
+                <a class="govuk-link"
+                    href="https://workspace.trade.gov.uk/working-at-dit/policies-and-guidance/policies/payment-of-salary/">payment
+                    of salary policy</a> for more information.
+            </p>
+            <form novalidate method="post" enctype="multipart/form-data">
+                {% crispy form %}
+            </form>
+        </div>
     </div>
-</div>
 {% endblock %}

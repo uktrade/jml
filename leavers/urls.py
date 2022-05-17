@@ -51,16 +51,6 @@ urlpatterns = [
         name="leaver-confirm-details",
     ),
     path(
-        "leaver/display-screen-equipment/",
-        leaver_views.DisplayScreenEquipmentView.as_view(),
-        name="leaver-display-screen-equipment",
-    ),
-    path(
-        "leaver/display-screen-equipment/delete/<uuid:kit_uuid>",
-        leaver_views.delete_dse_equipment,
-        name="leaver-display-screen-equipment-delete",
-    ),
-    path(
         "leaver/cirrus-equipment/",
         leaver_views.CirrusEquipmentView.as_view(),
         name="leaver-cirrus-equipment",
@@ -74,6 +64,16 @@ urlpatterns = [
         "leaver/cirrus-equipment/return/",
         leaver_views.CirrusEquipmentReturnOptionsView.as_view(),
         name="leaver-return-options",
+    ),
+    path(
+        "leaver/display-screen-equipment/",
+        leaver_views.DisplayScreenEquipmentView.as_view(),
+        name="leaver-display-screen-equipment",
+    ),
+    path(
+        "leaver/display-screen-equipment/delete/<uuid:kit_uuid>",
+        leaver_views.delete_dse_equipment,
+        name="leaver-display-screen-equipment-delete",
     ),
     path(
         "leaver/return-information/",
@@ -100,11 +100,6 @@ urlpatterns = [
         "line-manager/<uuid:leaving_request_uuid>/leaver-confirmation/",
         line_manager_views.LeaverConfirmationView.as_view(),
         name="line-manager-leaver-confirmation",
-    ),
-    path(
-        "line-manager/<uuid:leaving_request_uuid>/uksbs-handover/",
-        line_manager_views.UksbsHandoverView.as_view(),
-        name="line-manager-uksbs-handover",
     ),
     path(
         "line-manager/<uuid:leaving_request_uuid>/details/",

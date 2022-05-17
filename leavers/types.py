@@ -18,7 +18,6 @@ class LeaverDetailUpdates(TypedDict, total=False):
     contact_email_address: str
     job_title: str
     directorate: str
-    staff_id: str
 
 
 class DisplayScreenEquipmentAsset(TypedDict):

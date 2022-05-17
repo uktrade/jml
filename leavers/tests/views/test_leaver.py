@@ -423,7 +423,6 @@ class TestConfirmDetailsView(TestCase):
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "staff_id": "Updated Staff ID",
             "contact_email_address": "Updated Personal Email",
         }
         factories.LeaverInformationFactory(
@@ -441,10 +440,10 @@ class TestConfirmDetailsView(TestCase):
             {
                 "first_name": updates["first_name"],
                 "last_name": updates["last_name"],
+                "staff_id": "",
                 "contact_email_address": updates["contact_email_address"],
                 "job_title": updates["job_title"],
                 "directorate": "Directorate 2",
-                "staff_id": updates["staff_id"],
                 "photo": "",
             },
         )
@@ -468,7 +467,6 @@ class TestConfirmDetailsView(TestCase):
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "staff_id": "Updated Staff ID",
             "contact_email_address": "new.personal.email@example.com",  # /PS-IGNORE
         }
         factories.LeaverInformationFactory(
@@ -526,7 +524,6 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(form.initial["first_name"], "Joe")  # /PS-IGNORE
         self.assertEqual(form.initial["job_title"], "Job title")
         self.assertEqual(form.initial["last_name"], "Bloggs")  # /PS-IGNORE
-        self.assertEqual(form.initial["staff_id"], "")
         self.assertEqual(form.initial["contact_email_address"], "")
         self.assertEqual(form.initial["photo"], "")
 
@@ -536,7 +533,6 @@ class TestUpdateDetailsView(TestCase):
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "staff_id": "Updated Staff ID",
             "contact_email_address": "Updated Personal Email",
         }
         factories.LeaverInformationFactory(
@@ -564,9 +560,9 @@ class TestUpdateDetailsView(TestCase):
                 "photo": "",
                 "directorate": updates["directorate"],
                 "first_name": updates["first_name"],
+                "staff_id": "",
                 "job_title": updates["job_title"],
                 "last_name": updates["last_name"],
-                "staff_id": updates["staff_id"],
                 "contact_email_address": updates["contact_email_address"],
                 "has_dse": None,
                 "has_gov_procurement_card": None,
@@ -588,7 +584,6 @@ class TestUpdateDetailsView(TestCase):
                 "first_name": "",
                 "job_title": "",
                 "last_name": "",
-                "staff_id": "",
                 "contact_email_address": "",
             },
         )
@@ -598,7 +593,6 @@ class TestUpdateDetailsView(TestCase):
         self.assertFormError(response, "form", "first_name", "This field is required.")
         self.assertFormError(response, "form", "job_title", "This field is required.")
         self.assertFormError(response, "form", "last_name", "This field is required.")
-        self.assertFormError(response, "form", "staff_id", "This field is required.")
         self.assertFormError(
             response, "form", "contact_email_address", "This field is required."
         )
@@ -614,23 +608,22 @@ class TestUpdateDetailsView(TestCase):
                 "contact_email_address": "someone@example.com",  # /PS-IGNORE
                 "job_title": "Job Title",
                 "directorate": "1",
-                "staff_id": "Staff ID",
                 "security_clearance": "sc",
                 "locker_number": "123",
                 "has_gov_procurement_card": "yes",
                 "has_rosa_kit": "yes",
                 "has_dse": "yes",
-                "last_day_0": 15,
-                "last_day_1": 12,
-                "last_day_2": 2022,
                 "leaving_date_0": 30,
                 "leaving_date_1": 12,
                 "leaving_date_2": 2022,
+                "last_day_0": 15,
+                "last_day_1": 12,
+                "last_day_2": 2022,
             },
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-display-screen-equipment"))
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
 
         leaver_updates_obj = models.LeaverInformation.objects.get(
             leaver_email=self.leaver.email,
@@ -641,7 +634,6 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(leaver_updates["first_name"], "FirstName")  # /PS-IGNORE
         self.assertEqual(leaver_updates["job_title"], "Job Title")
         self.assertEqual(leaver_updates["last_name"], "LastName")  # /PS-IGNORE
-        self.assertEqual(leaver_updates["staff_id"], "Staff ID")
 
         self.assertEqual(
             leaver_updates["contact_email_address"],
@@ -894,7 +886,7 @@ class TestDisplayScreenEquipmentView(TestCase):
             )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
+        self.assertEqual(response.url, reverse("leaver-confirm-details"))
 
         mock_store_display_screen_equipment.assert_called_once_with(
             email=self.leaver.email,
@@ -1125,7 +1117,7 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-confirm-details"))
+        self.assertEqual(response.url, reverse("leaver-display-screen-equipment"))
 
         mock_store_return_information.assert_called_once_with(
             email=self.leaver.email,

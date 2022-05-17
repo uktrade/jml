@@ -15,16 +15,15 @@
         <div class="govuk-grid-column-two-thirds">
             {% include "includes/govt_error_summary.html" with errors=errors %}
             {% if return_option == "office" %}
-                <h1 class="govuk-heading-l">Returning IT equipment to the office</h1>
-                <p class="govuk-body">Please bring in all your equipment on your last day in the office and return it to the Cirrus Tech Bar.</p>
-                <p class="govuk-body">Once you have left, you will not have access to your DIT work phone or emails. Your personal phone and email is needed should we need to contact you about your return.</p>
+                <h1 class="govuk-heading-l">Returning Cirrus kit to the office</h1>
+                <p class="govuk-body">Return all your equipment to the Cirrus tech bar on your last working day.</p>
+                <p class="govuk-body">The Cirrus tech bar team can be found on the 3rd floor of Old Admiralty Building. It is open from 9am to 5pm. You can contact them by email at __email_address__ or by calling __phone_number__</p>
                 <h2 class="govuk-heading-m">Contact information for return to the office</h2>
             {% else %}
-                <h1 class="govuk-heading-l">Home collection of IT equipment</h1>
-                <p class="govuk-body">To collect your equipment from home we need a collection address.</p>
-                <p class="govuk-body">Once you have left, you will not have access to your works phone or emails, so your personal phone and email is needed should we need to contact you about your return.</p>
+                <h1 class="govuk-heading-l">Home collection of Cirrus kit</h1>
                 <h2 class="govuk-heading-m">Contact information for collection</h2>
             {% endif %}
+            <p class="govuk-body">This information is required to arrange for the return of your equipment. It will only be used for DIT off-boarding processes.</p>
             <form novalidate method='post'>
                 {% crispy form %}
             </form>
