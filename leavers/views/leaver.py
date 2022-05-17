@@ -232,6 +232,7 @@ class LeaverInformationMixin:
             "has_rosa_kit": has_rosa_kit,
             "has_gov_procurement_card": has_gov_procurement_card,
             "has_dse": has_dse,
+            "staff_type": leaving_request.staff_type,
         }
 
     def store_leaver_extra_details(
@@ -243,6 +244,7 @@ class LeaverInformationMixin:
         has_gov_procurement_card: bool,
         has_rosa_kit: bool,
         has_dse: bool,
+        staff_type: str,
     ) -> None:
         """
         Store Extra details for the Leaver.
@@ -258,11 +260,13 @@ class LeaverInformationMixin:
         leaver_info.leaving_request.holds_government_procurement_card = (
             has_gov_procurement_card
         )
+        leaver_info.leaving_request.staff_type = staff_type
         leaver_info.leaving_request.save(
             update_fields=[
                 "security_clearance",
                 "is_rosa_user",
                 "holds_government_procurement_card",
+                "staff_type",
             ]
         )
 
@@ -530,6 +534,7 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             ),
             has_rosa_kit=bool(form.cleaned_data["has_rosa_kit"] == "yes"),
             has_dse=bool(form.cleaned_data["has_dse"] == "yes"),
+            staff_type=form.cleaned_data["staff_type"],
         )
         self.store_leaving_dates(
             email=user_email,
