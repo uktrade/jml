@@ -7,10 +7,12 @@ from django.utils import timezone
 from django_workflow_engine import Task
 
 from activity_stream.models import ActivityStreamStaffSSOUser
+from core.service_now import get_service_now_interface
+from core.service_now.types import AssetDetails
 from core.uksbs import get_uksbs_interface
 from core.uksbs.types import LeavingData, PersonData
 from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_message
-from leavers.models import LeavingRequest, SlackMessage, TaskLog
+from leavers.models import LeaverInformation, LeavingRequest, SlackMessage, TaskLog
 from leavers.utils import (
     send_csu4_leaver_email,
     send_line_manager_correction_email,
@@ -24,6 +26,7 @@ from leavers.utils import (
     send_security_team_offboard_leaver_reminder_email,
     send_sre_reminder_email,
 )
+from leavers.utils.leaving_request import get_leaver_details
 
 
 class LeavingRequestTask(Task):
@@ -76,6 +79,44 @@ class CheckUKSBSLineManager(LeavingRequestTask):
             return ["notify_line_manager"], {}, True
 
         return ["uksbs_line_manager_correction"], {}, False
+
+
+class ServiceNowSendLeaverDetails(LeavingRequestTask):
+    abstract = False
+    task_name = "send_service_now_leaver_details"
+    auto = True
+
+    def execute(self, task_info):
+        assert self.leaving_request
+
+        leaver_details = get_leaver_details(leaving_request=self.leaving_request)
+
+        # email: str, requester: User, assets: List[service_now_types.AssetDetails]
+        leaver_information: Optional[
+            LeaverInformation
+        ] = self.leaving_request.leaver_information.first()
+
+        if not leaver_information:
+            raise ValueError("leaver_information is not set")
+
+        leaver_details.update(**leaver_information.updates)
+
+        service_now_assets: List[AssetDetails] = []
+
+        for cirrus_asset in leaver_information.cirrus_assets:
+            asset_details: AssetDetails = {
+                "sys_id": cirrus_asset["sys_id"],
+                "tag": cirrus_asset["tag"],
+                "name": cirrus_asset["name"],
+            }
+            service_now_assets.append(asset_details)
+
+        service_now_interface = get_service_now_interface()
+        service_now_interface.submit_leaver_request(
+            leaver_info=leaver_information,
+            leaver_details=leaver_details,
+            assets=service_now_assets,
+        )
 
 
 class UKSBSSendLeaverDetails(LeavingRequestTask):

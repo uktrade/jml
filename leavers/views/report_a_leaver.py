@@ -19,10 +19,8 @@ from core.utils.staff_index import (
 )
 from leavers.forms import leaver as leaver_forms
 from leavers.models import LeavingRequest
-from leavers.utils import (
-    get_or_create_leaving_workflow,
-    update_or_create_leaving_request,
-)
+from leavers.utils.leaving_request import update_or_create_leaving_request
+from leavers.workflow.utils import get_or_create_leaving_workflow
 from user.models import User
 
 LEAVER_SEARCH_PARAM = "leaver_uuid"

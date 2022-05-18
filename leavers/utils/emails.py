@@ -1,51 +1,11 @@
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from django.conf import settings
 from django.urls import reverse
-from django_workflow_engine.models import Flow
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core import notify
 from leavers.models import LeaverInformation, LeavingRequest
-
-if TYPE_CHECKING:
-    from user.models import User
-
-
-def get_or_create_leaving_workflow(
-    *, leaving_request: LeavingRequest, executed_by: "User"
-) -> Flow:
-    """
-    Get or create a workflow for a leaver.
-
-    This workflow is used to track the progress of a leaver's leaving request.
-    """
-
-    if not leaving_request.flow:
-        flow = Flow.objects.create(
-            workflow_name="leaving",
-            executed_by=executed_by,
-            flow_name=f"{leaving_request.get_leaver_name()} is leaving",
-        )
-        leaving_request.flow = flow
-        leaving_request.save()
-
-    return flow
-
-
-def update_or_create_leaving_request(
-    *, leaver: ActivityStreamStaffSSOUser, user_requesting: "User", **kwargs
-) -> LeavingRequest:
-    defaults = {
-        "user_requesting": user_requesting,
-    }
-    defaults.update(**kwargs)
-
-    leaving_request, _ = LeavingRequest.objects.prefetch_related().update_or_create(
-        leaver_activitystream_user=leaver,
-        defaults=defaults,
-    )
-    return leaving_request
 
 
 def send_csu4_leaver_email(leaving_request: LeavingRequest):
