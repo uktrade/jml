@@ -14,7 +14,7 @@ from core.uksbs.types import LeavingData, PersonData
 from core.utils.lsd import inform_lsd_team_of_leaver
 from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_message
 from leavers.models import LeaverInformation, LeavingRequest, SlackMessage, TaskLog
-from leavers.utils import (
+from leavers.utils.emails import (
     send_csu4_leaver_email,
     send_line_manager_correction_email,
     send_line_manager_notification_email,
