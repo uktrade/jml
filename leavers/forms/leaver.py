@@ -27,6 +27,13 @@ class LeaverConfirmationForm(GovFormattedForm):
     pass
 
 
+class StaffType(TextChoices):
+    CIVIL_SERVANT = "civil_servant", "Civil servant"
+    FAST_STREAMERS = "fast_streamers", "Fast streamers"
+    CONTRACTOR = "contractor", "Contractor such as Green Park"
+    BENCH_CONTRACTOR = "bench_contractor", "Bench contractor such as Profusion"
+
+
 class LeaverUpdateForm(GovFormattedForm):
     # Personal details
     first_name = forms.CharField(label="")
@@ -41,7 +48,12 @@ class LeaverUpdateForm(GovFormattedForm):
             [(None, "Select security clearance type")] + SecurityClearance.choices  # type: ignore
         ),
     )
-    locker_number = forms.CharField(label="")
+    locker_number = forms.CharField(label="", required=False)
+    staff_type = forms.ChoiceField(
+        label="",
+        widget=forms.RadioSelect,
+        choices=StaffType.choices,
+    )
     has_gov_procurement_card = YesNoField(label="")
     has_rosa_kit = YesNoField(label="")
     has_dse = YesNoField(label="")
@@ -101,10 +113,14 @@ class LeaverUpdateForm(GovFormattedForm):
             ),
             Fieldset(
                 Field("locker_number"),
-                legend="Locker number",
+                legend="Locker number if applicable",
                 legend_size=Size.MEDIUM,
             ),
-            # STAFF TYPE
+            Fieldset(
+                Field.radios("staff_type"),
+                legend="What staff type are you?",
+                legend_size=Size.MEDIUM,
+            ),
             Fieldset(
                 HTML(
                     "<p class='govuk-body'>A government procurement card is a "

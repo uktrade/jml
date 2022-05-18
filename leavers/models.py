@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 from activity_stream.models import ActivityStreamStaffSSOUser
-from leavers.forms.leaver import ReturnOptions, SecurityClearance
+from leavers.forms.leaver import ReturnOptions, SecurityClearance, StaffType
 from leavers.forms.line_manager import DaysHours, PaidOrDeducted, ReasonForleaving
 from leavers.forms.security_team import SecurityPassChoices
 
@@ -66,6 +66,12 @@ class LeavingRequest(models.Model):
     holds_government_procurement_card = models.BooleanField(null=True, blank=True)
     security_clearance = models.CharField(
         choices=SecurityClearance.choices,
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    staff_type = models.CharField(
+        choices=StaffType.choices,
         max_length=255,
         blank=True,
         null=True,
