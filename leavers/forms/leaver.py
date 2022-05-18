@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import List, Literal, Optional
 
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.fields import DateInputField
@@ -306,8 +306,9 @@ class CorrectionForm(GovFormattedForm):
         )
 
     def clean_whats_incorrect(self) -> str:
-        is_correct: Literal["yes", "no"] = self.cleaned_data["is_correct"]
-        whats_incorrect: str = self.cleaned_data["whats_incorrect"]
+        whats_incorrect: Optional[str] = self.cleaned_data.get("whats_incorrect")
+
+        is_correct: Optional[Literal["yes", "no"]] = self.cleaned_data.get("is_correct")
 
         if is_correct == "yes":
             whats_incorrect = ""
