@@ -118,6 +118,8 @@ class ServiceNowSendLeaverDetails(LeavingRequestTask):
             assets=service_now_assets,
         )
 
+        return None, {}, True
+
 
 class UKSBSSendLeaverDetails(LeavingRequestTask):
     abstract = False
