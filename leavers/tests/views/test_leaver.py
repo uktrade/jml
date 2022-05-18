@@ -13,7 +13,7 @@ from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from core.service_now.interfaces import ServiceNowStubbed
 from core.utils.staff_index import StaffDocument
 from leavers import factories, models, types
-from leavers.forms.leaver import ReturnOptions
+from leavers.forms.leaver import ReturnOptions, StaffType
 from leavers.views.leaver import LeaverInformationMixin
 from user.test.factories import UserFactory
 
@@ -560,7 +560,6 @@ class TestUpdateDetailsView(TestCase):
                 "photo": "",
                 "directorate": updates["directorate"],
                 "first_name": updates["first_name"],
-                "staff_id": "",
                 "job_title": updates["job_title"],
                 "last_name": updates["last_name"],
                 "contact_email_address": updates["contact_email_address"],
@@ -571,6 +570,8 @@ class TestUpdateDetailsView(TestCase):
                 "locker_number": None,
                 "last_day": None,
                 "leaving_date": None,
+                "staff_id": "",
+                "staff_type": None,
             },
         )
 
@@ -619,6 +620,7 @@ class TestUpdateDetailsView(TestCase):
                 "last_day_0": 15,
                 "last_day_1": 12,
                 "last_day_2": 2022,
+                "staff_type": StaffType.CONTRACTOR.value,
             },
         )
 
