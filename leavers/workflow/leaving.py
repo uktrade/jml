@@ -81,14 +81,6 @@ LeaversWorkflow = Workflow(
                 "email_id": EmailIds.LINE_MANAGER_THANKYOU.value,
             },
         ),
-        # Service Now
-        Step(
-            step_id="send_service_now_leaver_details",
-            task_name="send_service_now_leaver_details",
-            targets=[
-                "send_uksbs_leaver_details",
-            ],
-        ),
         # UK SBS
         Step(
             step_id="send_uksbs_leaver_details",
@@ -102,10 +94,29 @@ LeaversWorkflow = Workflow(
             step_id="setup_scheduled_tasks",
             task_name="basic_task",
             targets=[
+                "send_service_now_leaver_details",
+                "send_lsd_team_leaver_details",
+                "notify_csu4_of_leaving",
                 "notify_csu4_of_leaving",
                 "notify_ocs_of_leaving",
                 "send_security_notification",
                 "is_it_leaving_date_plus_x",
+            ],
+        ),
+        # Service Now
+        Step(
+            step_id="send_service_now_leaver_details",
+            task_name="send_service_now_leaver_details",
+            targets=[
+                "are_all_tasks_complete",
+            ],
+        ),
+        # LSD
+        Step(
+            step_id="send_lsd_team_leaver_details",
+            task_name="send_lsd_team_leaver_details",
+            targets=[
+                "are_all_tasks_complete",
             ],
         ),
         # CSU4
