@@ -1,3 +1,4 @@
+from datetime import timedelta
 from unittest import mock
 
 from django.contrib.auth.models import Group
@@ -5,6 +6,7 @@ from django.test.testcases import TestCase
 from django.utils import timezone
 
 from leavers.factories import LeavingRequestFactory, SlackMessageFactory
+from leavers.forms.leaver import SecurityClearance
 from leavers.models import TaskLog
 from leavers.tests.views.include import ViewAccessTest
 
@@ -20,7 +22,13 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.authenticated_user.groups.add(sre_group.id)
 
     def test_pagination_one_page(self) -> None:
-        LeavingRequestFactory.create_batch(19, line_manager_complete=timezone.now())
+        LeavingRequestFactory.create_batch(
+            19,
+            line_manager_complete=timezone.now(),
+            leaving_date=timezone.now() + timedelta(days=1),
+            last_day=timezone.now() + timedelta(days=1),
+            security_clearance=SecurityClearance.SC.value,
+        )
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
@@ -33,7 +41,13 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertNotContains(response, '<nav class="pagination')
 
     def test_pagination_multiple_pages_page_1(self) -> None:
-        LeavingRequestFactory.create_batch(50, line_manager_complete=timezone.now())
+        LeavingRequestFactory.create_batch(
+            50,
+            line_manager_complete=timezone.now(),
+            leaving_date=timezone.now() + timedelta(days=1),
+            last_day=timezone.now() + timedelta(days=1),
+            security_clearance=SecurityClearance.SC.value,
+        )
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
@@ -47,7 +61,13 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertContains(response, '<nav class="pagination')
 
     def test_pagination_multiple_pages_page_2(self) -> None:
-        LeavingRequestFactory.create_batch(50, line_manager_complete=timezone.now())
+        LeavingRequestFactory.create_batch(
+            50,
+            line_manager_complete=timezone.now(),
+            leaving_date=timezone.now() + timedelta(days=1),
+            last_day=timezone.now() + timedelta(days=1),
+            security_clearance=SecurityClearance.SC.value,
+        )
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url() + "?page=2")
@@ -61,9 +81,18 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertContains(response, '<nav class="pagination')
 
     def test_search(self) -> None:
-        LeavingRequestFactory.create_batch(50, line_manager_complete=timezone.now())
+        LeavingRequestFactory.create_batch(
+            50,
+            line_manager_complete=timezone.now(),
+            leaving_date=timezone.now() + timedelta(days=1),
+            last_day=timezone.now() + timedelta(days=1),
+            security_clearance=SecurityClearance.SC.value,
+        )
         LeavingRequestFactory(
             line_manager_complete=timezone.now(),
+            leaving_date=timezone.now() + timedelta(days=1),
+            last_day=timezone.now() + timedelta(days=1),
+            security_clearance=SecurityClearance.SC.value,
             leaver_activitystream_user__first_name="Joe",
             leaver_activitystream_user__last_name="Bloggs",
         )
@@ -90,7 +119,12 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
 
     def test_pagination_one_page(self) -> None:
         LeavingRequestFactory.create_batch(
-            19, line_manager_complete=timezone.now(), sre_complete=timezone.now()
+            19,
+            line_manager_complete=timezone.now(),
+            sre_complete=timezone.now(),
+            leaving_date=timezone.now() + timedelta(days=1),
+            last_day=timezone.now() + timedelta(days=1),
+            security_clearance=SecurityClearance.SC.value,
         )
 
         self.client.force_login(self.authenticated_user)
@@ -105,7 +139,12 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
 
     def test_pagination_multiple_pages_page_1(self) -> None:
         LeavingRequestFactory.create_batch(
-            50, line_manager_complete=timezone.now(), sre_complete=timezone.now()
+            50,
+            line_manager_complete=timezone.now(),
+            sre_complete=timezone.now(),
+            leaving_date=timezone.now() + timedelta(days=1),
+            last_day=timezone.now() + timedelta(days=1),
+            security_clearance=SecurityClearance.SC.value,
         )
 
         self.client.force_login(self.authenticated_user)
@@ -121,7 +160,12 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
 
     def test_pagination_multiple_pages_page_2(self) -> None:
         LeavingRequestFactory.create_batch(
-            50, line_manager_complete=timezone.now(), sre_complete=timezone.now()
+            50,
+            line_manager_complete=timezone.now(),
+            sre_complete=timezone.now(),
+            leaving_date=timezone.now() + timedelta(days=1),
+            last_day=timezone.now() + timedelta(days=1),
+            security_clearance=SecurityClearance.SC.value,
         )
 
         self.client.force_login(self.authenticated_user)
@@ -137,11 +181,19 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
 
     def test_search(self) -> None:
         LeavingRequestFactory.create_batch(
-            50, line_manager_complete=timezone.now(), sre_complete=timezone.now()
+            50,
+            line_manager_complete=timezone.now(),
+            sre_complete=timezone.now(),
+            leaving_date=timezone.now() + timedelta(days=1),
+            last_day=timezone.now() + timedelta(days=1),
+            security_clearance=SecurityClearance.SC.value,
         )
         LeavingRequestFactory(
             line_manager_complete=timezone.now(),
             sre_complete=timezone.now(),
+            leaving_date=timezone.now() + timedelta(days=1),
+            last_day=timezone.now() + timedelta(days=1),
+            security_clearance=SecurityClearance.SC.value,
             leaver_activitystream_user__first_name="Joe",
             leaver_activitystream_user__last_name="Bloggs",
         )
@@ -164,7 +216,10 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
         super().setUp()
         # Create Leaving Request (with initial Slack message)
         self.leaving_request = LeavingRequestFactory(
-            line_manager_complete=timezone.now()
+            line_manager_complete=timezone.now(),
+            leaving_date=timezone.now() + timedelta(days=1),
+            last_day=timezone.now() + timedelta(days=1),
+            security_clearance=SecurityClearance.SC.value,
         )
         SlackMessageFactory(leaving_request=self.leaving_request)
         # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE
@@ -180,7 +235,7 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
         leaver_name = self.leaving_request.get_leaver_name()
         self.assertEqual(response.context["leaver_name"], leaver_name)
         self.assertEqual(
-            response.context["leaving_date"], self.leaving_request.last_day
+            response.context["leaving_date"], self.leaving_request.last_day.date()
         )
 
     @mock.patch("leavers.views.sre.send_sre_complete_message")
