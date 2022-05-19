@@ -6,7 +6,11 @@ from django.utils import timezone
 
 from core.utils.staff_index import StaffDocument
 from leavers.factories import LeavingRequestFactory
-from leavers.forms.line_manager import DaysHours, PaidOrDeducted
+from leavers.forms.line_manager import (
+    AnnualLeavePaidOrDeducted,
+    DaysHours,
+    FlexiLeavePaidOrDeducted,
+)
 from leavers.tests.views.include import ViewAccessTest
 
 EMPTY_STAFF_DOCUMENT: StaffDocument = {
@@ -225,10 +229,10 @@ class TestDetailsView(ViewAccessTest, TestCase):
         response = self.client.post(
             self.get_url(),
             {
-                "annual_leave": PaidOrDeducted.PAID.value,
+                "annual_leave": AnnualLeavePaidOrDeducted.PAID.value,
                 "annual_leave_measurement": DaysHours.DAYS.value,
                 "annual_number": "1",
-                "flexi_leave": PaidOrDeducted.DEDUCTED.value,
+                "flexi_leave": FlexiLeavePaidOrDeducted.DEDUCTED.value,
                 "flexi_number": "2.5",
             },
         )

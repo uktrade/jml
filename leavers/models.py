@@ -6,7 +6,12 @@ from django.db import models
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from leavers.forms.leaver import ReturnOptions, SecurityClearance, StaffType
-from leavers.forms.line_manager import DaysHours, PaidOrDeducted, ReasonForleaving
+from leavers.forms.line_manager import (
+    AnnualLeavePaidOrDeducted,
+    DaysHours,
+    FlexiLeavePaidOrDeducted,
+    ReasonForleaving,
+)
 from leavers.forms.security_team import SecurityPassChoices
 
 
@@ -99,7 +104,7 @@ class LeavingRequest(models.Model):
         null=True,
     )
     annual_leave = models.CharField(
-        choices=PaidOrDeducted.choices + [(None, "No annual leave")],
+        choices=AnnualLeavePaidOrDeducted.choices,
         max_length=255,
         blank=True,
         null=True,
@@ -112,7 +117,7 @@ class LeavingRequest(models.Model):
     )
     annual_number = models.FloatField(null=True, blank=True)
     flexi_leave = models.CharField(
-        choices=PaidOrDeducted.choices + [(None, "No flexi leave")],
+        choices=FlexiLeavePaidOrDeducted.choices,
         max_length=255,
         blank=True,
         null=True,

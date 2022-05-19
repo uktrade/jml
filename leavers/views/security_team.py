@@ -3,8 +3,8 @@ from typing import Any, Dict, List, Tuple
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 
 from leavers.forms import security_team as security_team_forms
@@ -18,7 +18,7 @@ class LeavingRequestListing(base.LeavingRequestListing):
     complete_field = "security_team_complete"
     confirmation_view = "security-team-confirmation"
     summary_view = "security-team-summary"
-    page_title = "Security Team off-boarding"
+    service_name = "Leaving DIT: Security actions"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -55,6 +55,14 @@ class TaskConfirmationView(base.TaskConfirmationView):
         return self.request.user.groups.filter(
             name="Security Team",
         ).exists()
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update(
+            completed=getattr(self.leaving_request, self.complete_field),
+            leaver_name=self.leaving_request.get_leaver_name(),
+        )
+        return form_kwargs
 
     def get_success_url(self) -> str:
         assert self.leaving_request
@@ -107,15 +115,13 @@ class TaskSummaryView(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
         )
-        if not self.leaving_request.sre_complete:
-            return redirect(
-                reverse("security-team-confirmation", args=[self.leaving_request.uuid])
-            )
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(page_title=self.page_title)
+        context.update(
+            page_title=self.page_title,
+        )
 
         security_access_items: List[Tuple[str, str, TaskLog]] = [
             (
@@ -128,6 +134,7 @@ class TaskSummaryView(
         ]
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
+            leaving_request_uuid=self.leaving_request.uuid,
             security_access_items=security_access_items,
         )
 
@@ -154,6 +161,8 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
         context = super().get_context_data(**kwargs)
 
         context.update(
+            page_title=self.page_title,
+            leaving_request_uuid=self.leaving_request.uuid,
             leaver_name=self.leaving_request.get_leaver_name(),
             line_manager_name=self.leaving_request.get_line_manager_name(),
             security_access=[

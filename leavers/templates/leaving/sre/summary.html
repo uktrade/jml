@@ -37,6 +37,10 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <a href="{% url 'sre-confirmation' leaving_request_uuid %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                Edit
+            </a>
+            <br />
             <a class="govuk-link" href="{% url 'sre-listing-complete' %}">Return to SRE access removal Dashboard</a>
         </div>
     </div>

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from crispy_forms_gds.fields import DateInputField
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import HTML, Field, Fieldset, Layout, Size, Submit
@@ -36,9 +38,16 @@ class UksbsPdfForm(GovFormattedForm):
         )
 
 
-class PaidOrDeducted(TextChoices):
+class AnnualLeavePaidOrDeducted(TextChoices):
     DEDUCTED = "deducted", "Deducted"
     PAID = "paid", "Paid"
+    NO_ANNUAL_LEAVE = None, "No annual leave"
+
+
+class FlexiLeavePaidOrDeducted(TextChoices):
+    DEDUCTED = "deducted", "Deducted"
+    PAID = "paid", "Paid"
+    NO_FLEXI_LEAVE = None, "No flexi leave"
 
 
 class DaysHours(TextChoices):
@@ -50,7 +59,7 @@ class LineManagerDetailsForm(GovFormattedForm):
 
     annual_leave = forms.ChoiceField(
         label="",
-        choices=PaidOrDeducted.choices + [(None, "No annual leave")],
+        choices=AnnualLeavePaidOrDeducted.choices,
         widget=forms.RadioSelect,
     )
     annual_leave_measurement = forms.ChoiceField(
@@ -66,7 +75,7 @@ class LineManagerDetailsForm(GovFormattedForm):
 
     flexi_leave = forms.ChoiceField(
         label="",
-        choices=PaidOrDeducted.choices + [(None, "No flexi leave")],
+        choices=FlexiLeavePaidOrDeducted.choices,
         widget=forms.RadioSelect,
     )
     flexi_number = forms.CharField(
@@ -118,8 +127,8 @@ class LineManagerDetailsForm(GovFormattedForm):
             return False
 
         if self.cleaned_data["annual_leave"] not in [
-            PaidOrDeducted.PAID.value,
-            PaidOrDeducted.DEDUCTED.value,
+            AnnualLeavePaidOrDeducted.PAID.value,
+            AnnualLeavePaidOrDeducted.DEDUCTED.value,
         ]:
             return False
 
@@ -130,8 +139,8 @@ class LineManagerDetailsForm(GovFormattedForm):
             return False
 
         if self.cleaned_data["flexi_leave"] not in [
-            PaidOrDeducted.PAID.value,
-            PaidOrDeducted.DEDUCTED.value,
+            FlexiLeavePaidOrDeducted.PAID.value,
+            FlexiLeavePaidOrDeducted.DEDUCTED.value,
         ]:
             return False
 
@@ -153,42 +162,48 @@ class LineManagerDetailsForm(GovFormattedForm):
         return self.cleaned_data["annual_leave_measurement"]
 
     def clean_annual_number(self):
+        annual_number: Optional[str] = self.cleaned_data.get("annual_number")
         if self.annual_leave_selected():
-            if not self.cleaned_data["annual_number"]:
+            if not annual_number:
                 raise ValidationError(
                     "This field should have a value if there is annual leave "
                     "to be paid or deducted"
                 )
+
+            try:
+                float(annual_number)
+            except ValueError:
+                raise ValidationError("This field must be a number")
         else:
-            if self.cleaned_data["annual_number"]:
+            if annual_number:
                 raise ValidationError(
                     "This field shouldn't have a value if there is no annual leave"
                 )
+            annual_number = None
 
-        try:
-            float(self.cleaned_data["annual_number"])
-        except ValueError:
-            raise ValidationError("This field must be a number")
-        return self.cleaned_data["annual_number"]
+        return annual_number
 
     def clean_flexi_number(self):
+        flexi_number: Optional[str] = self.cleaned_data.get("flexi_number")
         if self.flexi_leave_selected():
-            if not self.cleaned_data["flexi_number"]:
+            if not flexi_number:
                 raise ValidationError(
                     "This field should have a value if there is flexi leave "
                     "to be paid or deducted"
                 )
+
+            try:
+                float(flexi_number)
+            except ValueError:
+                raise ValidationError("This field must be a number")
         else:
-            if self.cleaned_data["flexi_number"]:
+            if flexi_number:
                 raise ValidationError(
                     "This field shouldn't have a value if there is no flexi leave"
                 )
+            flexi_number = None
 
-        try:
-            float(self.cleaned_data["flexi_number"])
-        except ValueError:
-            raise ValidationError("This field must be a number")
-        return self.cleaned_data["flexi_number"]
+        return flexi_number
 
 
 class LineManagerConfirmationForm(GovFormattedForm):

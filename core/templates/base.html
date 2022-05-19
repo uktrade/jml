@@ -63,7 +63,7 @@
                     </a>
                 </div>
                 <div class="govuk-header__content">
-                    <a href="" class="govuk-header__link govuk-header__link--service-name">{{ SERVICE_NAME }}</a>
+                    <a href="" class="govuk-header__link govuk-header__link--service-name">{% if service_name %}{{ service_name }}{% else %}{{ SERVICE_NAME }}{% endif %}</a>
                     <!-- <button type="button" class="govuk-header__menu-button govuk-js-header-toggle" aria-controls="navigation"
                             aria-label="Show or hide navigation menu">Menu
                     </button> -->

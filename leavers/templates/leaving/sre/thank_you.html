@@ -22,6 +22,9 @@
                     {% endfor %}
                 </ul>
             {% endif %}
+            <a href="{% url 'sre-confirmation' leaving_request_uuid %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                Edit
+            </a>
             {% if complete %}
                 <h2 class="govuk-heading-m">What happens next?</h2>
                 <p class="govuk-body">An email has been sent to (Leaver's Line manager) to confirm access has been removed.</p>

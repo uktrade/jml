@@ -499,21 +499,28 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
             reason_for_leaving = line_manager_forms.ReasonForleaving(
                 self.leaving_request.reason_for_leaving
             ).label
+
         annual_leave: Optional[str] = None
         if self.leaving_request.annual_leave:
-            annual_leave = line_manager_forms.PaidOrDeducted(
+            annual_leave_enum = line_manager_forms.AnnualLeavePaidOrDeducted(
                 self.leaving_request.annual_leave
-            ).label
+            )
+            annual_leave = annual_leave_enum.label
+        has_annual_leave = bool(annual_leave_enum.value != "None")
+
         annual_leave_measurement: Optional[str] = None
         if self.leaving_request.annual_leave_measurement:
             annual_leave_measurement = line_manager_forms.DaysHours(
                 self.leaving_request.annual_leave_measurement
             ).label
+
         flexi_leave: Optional[str] = None
         if self.leaving_request.flexi_leave:
-            flexi_leave = line_manager_forms.PaidOrDeducted(
+            flexi_leave_enum = line_manager_forms.FlexiLeavePaidOrDeducted(
                 self.leaving_request.flexi_leave
-            ).label
+            )
+            flexi_leave = flexi_leave_enum.label
+        has_flexi_leave = bool(flexi_leave_enum.value != "None")
 
         context.update(
             page_title="Confirm all the information",
@@ -525,9 +532,11 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
             leaving_date=self.leaving_request.leaving_date.date(),
             reason_for_leaving=reason_for_leaving,
             annual_leave=annual_leave,
+            has_annual_leave=has_annual_leave,
             annual_leave_measurement=annual_leave_measurement,
             annual_number=self.leaving_request.annual_number,
             flexi_leave=flexi_leave,
+            has_flexi_leave=has_flexi_leave,
             flexi_number=self.leaving_request.flexi_number,
             leaver_confirmation_view_url=reverse_lazy(
                 "line-manager-leaver-confirmation",

@@ -10,12 +10,12 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-l"><em>{{ leaver_name }}</em> ROSA Kit retrieved</h1>
-            <p class="govuk-body">Confirmation that the ROSA kit assigned to <em>{{ leaver_name }}</em> has been retrieved.</p>
+            <h1 class="govuk-heading-l">Summary of items received from <em>{{ leaver_name }}</em></h1>
+            <p class="govuk-body">This is confirmation that the security pass and ROSA kit for <em>{{ leaver_name }}</em> has been received.</p>
             <table class="govuk-table">
                 <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
-                        <th scope="col" class="govuk-table__header">ROSA kit</th>
+                        <th scope="col" class="govuk-table__header">Security items</th>
                         <th scope="col" class="govuk-table__header">Removed at</th>
                         <th scope="col" class="govuk-table__header">Removed by</th>
                     </tr>
@@ -36,6 +36,10 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <a href="{% url 'security-team-confirmation' leaving_request_uuid %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                Edit
+            </a>
+            <br />
             <a class="govuk-link" href="{% url 'security-team-listing-complete' %}">Return to completed leaving requests dashboard</a>
         </div>
     </div>

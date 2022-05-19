@@ -11,15 +11,18 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-l">{{ page_title }}</h1>
-            <p class="govuk-body">Select the leaver to confirm removal of their access from tools and services.</p>
+            <h1 class="govuk-heading-l">{{ object_type_name|capfirst }}</h1>
+            {% if show_complete and not show_incomplete %}
+                <p class="govuk-body">Select the leaver to confirm removal of their access from tools and services.</p>
+            {% elif show_incomplete and not show_complete %}
+                <p class="govuk-body">Select the leaver to view a summary of their removal of access from tools and services</p>
+            {% endif %}
 
-            <h2 class="govuk-heading-m">{{ object_type_name|capfirst }}</h2>
+            <h2 class="govuk-heading-m"></h2>
             <form action="" method="post">
                 {% crispy form %}
             </form>
-
-            {% include "leaving/includes/leaving_request_table.html" with object_type_name=object_type_name page=page pagination_pages=pagination_pages %}
         </div>
     </div>
+    {% include "leaving/includes/leaving_request_table.html" with object_type_name=object_type_name page=page pagination_pages=pagination_pages %}
 {% endblock %}

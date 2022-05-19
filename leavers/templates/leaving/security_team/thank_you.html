@@ -7,7 +7,7 @@
             <div class="govuk-grid-column-two-thirds">
                 <div class="govuk-panel govuk-panel--confirmation">
                     <h1 class="govuk-panel__title">
-                        Security has been cleared
+                        Security team actions recorded
                     </h1>
                 </div>
             </div>
@@ -24,6 +24,9 @@
                     {% endfor %}
                 </ul>
             {% endif %}
+            <a href="{% url 'security-team-confirmation' leaving_request_uuid %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                Edit
+            </a>
             {% if complete %}
                 <h2 class="govuk-heading-m">What happens next?</h2>
                 <p class="govuk-body">An email has been sent to <em>{{ line_manager_name }}</em> to confirm <em>{{ leaver_name }}</em> has returned the items listed above.</p>
