@@ -6,7 +6,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <div class="govuk-panel govuk-panel--confirmation">
-                    <h1 class="govuk-panel__title">SRE access has been removed</h1>
+                    <h1 class="govuk-panel__title">SRE team actions recorded</h1>
                 </div>
             </div>
         </div>
@@ -15,7 +15,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {% if access_removed_services %}
-                <p class="govuk-body">Access has been removed for {{ leaver_name }} from the following services:</p>
+                <p class="govuk-body">You have confirmed {{ leaver_name }}'s access to the following tools and services has been removed:</p>
                 <ul class="govuk-list govuk-list--bullet">
                     {% for service in access_removed_services %}
                         <li>{{ service }}</li>
@@ -27,10 +27,11 @@
             </a>
             {% if complete %}
                 <h2 class="govuk-heading-m">What happens next?</h2>
-                <p class="govuk-body">An email has been sent to (Leaver's Line manager) to confirm access has been removed.</p>
+                <p class="govuk-body">An email has been sent to <em>{{ line_manager_name }}</em> to confirm access has been removed.</p>
             {% else %}
                 {% comment %} TODO: Messaging around submitting this. {% endcomment %}
             {% endif %}
+            <br />
             <a class="govuk-link" href="{% url 'sre-listing-incomplete' %}">Return to SRE access removal Dashboard</a>
         </div>
     </div>

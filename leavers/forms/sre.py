@@ -38,7 +38,7 @@ class SREConfirmCompleteForm(GovFormattedForm):
         required=True,
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, completed: bool = False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         required_message_replacement: Dict[str, str] = {
             "vpn": "VPN",
@@ -64,14 +64,22 @@ class SREConfirmCompleteForm(GovFormattedForm):
             Field.checkbox("sso"),
             Field.checkbox("aws"),
             Field.checkbox("jira"),
-            HTML.p(
-                "Select Confirm and Send only when you have removed access to all "
-                "the tools and services for {{ leaver_name }}."
-            ),
-            Submit(
-                "save",
-                "Save and continue later",
-                css_class="govuk-button--secondary",
-            ),
-            Submit("submit", "Confirm and send"),
         )
+
+        if completed:
+            self.helper.layout.append(Submit("save", "Save changes"))
+        else:
+            self.helper.layout.append(
+                HTML.p(
+                    "Select Confirm and Send only when you have removed access to all "
+                    "the tools and services for {{ leaver_name }}."
+                )
+            )
+            self.helper.layout.append(
+                Submit(
+                    "save",
+                    "Save and continue later",
+                    css_class="govuk-button--secondary",
+                )
+            )
+            self.helper.layout.append(Submit("submit", "Confirm and send"))
