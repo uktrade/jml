@@ -94,7 +94,7 @@ class LeavingRequestListing(
         if self.show_complete and not self.show_incomplete:
             object_type_name = "complete leaving requests"
         if self.show_incomplete and not self.show_complete:
-            object_type_name = "incomplete leaving requests"
+            object_type_name = "outstanding leaving requests"
         context.update(object_type_name=object_type_name)
 
         # Build the results
