@@ -30,6 +30,16 @@ class LeavingRequestListing(
     confirmation_view: str = ""
     summary_view: str = ""
     service_name: Optional[str] = None
+    fields: List[str] = [
+        "leaver_name",
+        "security_clearance",
+        "work_email",
+        "leaving_date",
+        "last_working_day",
+        "days_until_last_working_day",
+        "reported_on",
+        "complete",
+    ]
 
     def __init__(
         self,
@@ -76,6 +86,7 @@ class LeavingRequestListing(
             service_name=self.service_name,
             show_complete=self.show_complete,
             show_incomplete=self.show_incomplete,
+            fields=self.fields,
         )
 
         # Set object type name

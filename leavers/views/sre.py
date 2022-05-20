@@ -21,6 +21,15 @@ class LeavingRequestListing(base.LeavingRequestListing):
     summary_view = "sre-summary"
     page_title = "SRE access removal"
     service_name = "Leaving DIT: SRE actions"
+    fields = [
+        "leaver_name",
+        "work_email",
+        "leaving_date",
+        "last_working_day",
+        "days_until_last_working_day",
+        "reported_on",
+        "complete",
+    ]
 
     def test_func(self):
         return self.request.user.groups.filter(
