@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -5,12 +6,13 @@ from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic.edit import FormView
 
 from leavers.forms import data_processor as data_processor_forms
+from leavers.forms.leaver import SecurityClearance
 from leavers.models import LeavingRequest, TaskLog
 from user.models import User
 
@@ -27,7 +29,7 @@ class LeavingRequestListing(
     show_incomplete: bool = False
     confirmation_view: str = ""
     summary_view: str = ""
-    page_title: str = ""
+    service_name: Optional[str] = None
 
     def __init__(
         self,
@@ -70,7 +72,11 @@ class LeavingRequestListing(
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(page_title=self.page_title)
+        context.update(
+            service_name=self.service_name,
+            show_complete=self.show_complete,
+            show_incomplete=self.show_incomplete,
+        )
 
         # Set object type name
         object_type_name: str = "leaving requests"
@@ -92,12 +98,22 @@ class LeavingRequestListing(
                     self.summary_view, kwargs={"leaving_request_id": lr.uuid}
                 )
 
+            days_until_last_working_day: timedelta = (
+                lr.last_day.date() - timezone.now().date()
+            )
+
             lr_results_data.append(
                 {
                     "link": link,
-                    "last_day": lr.last_day,
                     "leaver_name": lr.get_leaver_name(),
-                    "leaver_email": lr.get_leaver_email(),
+                    "security_clearance": SecurityClearance(
+                        lr.security_clearance
+                    ).label,
+                    "work_email": lr.get_leaver_email(),
+                    "leaving_date": lr.leaving_date.date(),
+                    "last_working_day": lr.last_day.date(),
+                    "days_until_last_working_day": days_until_last_working_day.days,
+                    "reported_on": lr.line_manager_complete.date(),
                     "complete": bool(getattr(lr, self.complete_field)),
                 }
             )
@@ -145,10 +161,6 @@ class TaskConfirmationView(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
         )
-        complete: bool = getattr(self.leaving_request, self.complete_field)
-        if complete:
-            # TODO: Update with link to the summary page
-            return redirect(self.get_success_url())
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -157,7 +169,10 @@ class TaskConfirmationView(
         context.update(
             page_title=self.page_title,
             leaver_name=self.leaving_request.get_leaver_name(),
-            leaving_date=self.leaving_request.last_day,
+            leaver_email=self.leaving_request.get_leaver_email(),
+            leaving_date=self.leaving_request.leaving_date.date(),
+            last_day=self.leaving_request.last_day.date(),
+            complete=bool(getattr(self.leaving_request, self.complete_field)),
         )
 
         return context

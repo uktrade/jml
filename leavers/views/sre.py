@@ -3,8 +3,8 @@ from typing import Dict, List, Literal, Tuple
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 
 from core.utils.sre_messages import send_sre_complete_message
@@ -20,6 +20,7 @@ class LeavingRequestListing(base.LeavingRequestListing):
     confirmation_view = "sre-confirmation"
     summary_view = "sre-summary"
     page_title = "SRE access removal"
+    service_name = "Leaving DIT: SRE actions"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -128,10 +129,6 @@ class TaskSummaryView(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
         )
-        if not self.leaving_request.sre_complete:
-            return redirect(
-                reverse("sre-confirmation", args=[self.leaving_request.uuid])
-            )
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -149,6 +146,7 @@ class TaskSummaryView(
         ]
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
+            leaving_request_uuid=self.leaving_request.uuid,
             access_removed_services=access_removed_services,
         )
 
@@ -176,6 +174,7 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
 
         context.update(
             page_title=self.page_title,
+            leaving_request_uuid=self.leaving_request.uuid,
             leaver_name=self.leaving_request.get_leaver_name(),
             leaving_request=self.leaving_request,
             access_removed_services=[

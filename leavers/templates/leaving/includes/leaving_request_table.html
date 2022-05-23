@@ -1,9 +1,13 @@
 <table class="govuk-table sre-leaving-requests-table">
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-            <th scope="col" class="govuk-table__header">Leaver name</th>
+            <th scope="col" class="govuk-table__header">Name surname</th>
+            <th scope="col" class="govuk-table__header">Security Clearance level</th>
             <th scope="col" class="govuk-table__header">Work email</th>
             <th scope="col" class="govuk-table__header">Leaving date</th>
+            <th scope="col" class="govuk-table__header">Last working day</th>
+            <th scope="col" class="govuk-table__header">Days until last working day</th>
+            <th scope="col" class="govuk-table__header">Reported on</th>
             <th scope="col" class="govuk-table__header">Status</th>
         </tr>
     </thead>
@@ -15,8 +19,12 @@
                         {{ object.leaver_name }}
                     </a>
                 </th>
-                <td class="govuk-table__cell">{{ object.leaver_email }}</td>
-                <td class="govuk-table__cell">{{ object.last_day }}</td>
+                <td class="govuk-table__cell">{{ object.security_clearance }}</td>
+                <td class="govuk-table__cell">{{ object.work_email }}</td>
+                <td class="govuk-table__cell">{{ object.leaving_date }}</td>
+                <td class="govuk-table__cell">{{ object.last_working_day }}</td>
+                <td class="govuk-table__cell">{{ object.days_until_last_working_day }}</td>
+                <td class="govuk-table__cell">{{ object.reported_on }}</td>
                 <td class="govuk-table__cell">
                     {% if object.complete %}
                         <span class="complete">Complete</span>

@@ -58,7 +58,7 @@
                         <th scope="row" class="govuk-table__header">Is there leave to be deducted or paid?</th>
                         <td class="govuk-table__cell">{{ annual_leave }}</td>
                     </tr>
-                    {% if annual_leave %}
+                    {% if has_annual_leave %}
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">How is it measured?</th>
                             <td class="govuk-table__cell">{{ annual_leave_measurement }}</td>
@@ -78,7 +78,7 @@
                         <th scope="row" class="govuk-table__header">Is there leave to be deducted or paid?</th>
                         <td class="govuk-table__cell">{{ flexi_leave }}</td>
                     </tr>
-                    {% if flexi_leave %}
+                    {% if has_flexi_leave %}
                         <tr class="govuk-table__row">
                             <th scope="row" class="govuk-table__header">Number of hours</th>
                             <td class="govuk-table__cell">{{ flexi_number }}</td>
