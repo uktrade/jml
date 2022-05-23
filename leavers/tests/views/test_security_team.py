@@ -36,7 +36,7 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            "Showing <b>1</b> to <b>19</b> of <b>19</b> incomplete leaving requests",
+            "Showing <b>1</b> to <b>19</b> of <b>19</b> outstanding leaving requests",
         )
         self.assertNotContains(response, '<nav class="pagination')
 
@@ -56,7 +56,7 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
 
         self.assertContains(
             response,
-            "Showing <b>1</b> to <b>20</b> of <b>50</b> incomplete leaving requests",
+            "Showing <b>1</b> to <b>20</b> of <b>50</b> outstanding leaving requests",
         )
         self.assertContains(response, '<nav class="pagination')
 
@@ -76,7 +76,7 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
 
         self.assertContains(
             response,
-            "Showing <b>21</b> to <b>40</b> of <b>50</b> incomplete leaving requests",
+            "Showing <b>21</b> to <b>40</b> of <b>50</b> outstanding leaving requests",
         )
         self.assertContains(response, '<nav class="pagination')
 
@@ -104,7 +104,7 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
 
         self.assertContains(response, "Joe")
         self.assertContains(response, "Bloggs")
-        self.assertContains(response, "Incomplete")
+        self.assertContains(response, "Outstanding")
 
 
 class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):

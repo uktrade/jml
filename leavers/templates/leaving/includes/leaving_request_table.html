@@ -1,37 +1,69 @@
 <table class="govuk-table sre-leaving-requests-table">
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-            <th scope="col" class="govuk-table__header">Name surname</th>
-            <th scope="col" class="govuk-table__header">Security Clearance level</th>
-            <th scope="col" class="govuk-table__header">Work email</th>
-            <th scope="col" class="govuk-table__header">Leaving date</th>
-            <th scope="col" class="govuk-table__header">Last working day</th>
-            <th scope="col" class="govuk-table__header">Days until last working day</th>
-            <th scope="col" class="govuk-table__header">Reported on</th>
-            <th scope="col" class="govuk-table__header">Status</th>
+            {% if "leaver_name" in fields %}
+                <th scope="col" class="govuk-table__header">Name surname</th>
+            {% endif %}
+            {% if "security_clearance" in fields %}
+                <th scope="col" class="govuk-table__header">Security Clearance level</th>
+            {% endif %}
+            {% if "work_email" in fields %}
+                <th scope="col" class="govuk-table__header">Work email</th>
+            {% endif %}
+            {% if "leaving_date" in fields %}
+                <th scope="col" class="govuk-table__header">Leaving date</th>
+            {% endif %}
+            {% if "last_working_day" in fields %}
+                <th scope="col" class="govuk-table__header">Last working day</th>
+            {% endif %}
+            {% if "days_until_last_working_day" in fields %}
+                <th scope="col" class="govuk-table__header">Days until last working day</th>
+            {% endif %}
+            {% if "reported_on" in fields %}
+                <th scope="col" class="govuk-table__header">Reported on</th>
+            {% endif %}
+            {% if "complete" in fields %}
+                <th scope="col" class="govuk-table__header">Status</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody class="govuk-table__body">
         {% for object in page.object_list %}
             <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header">
-                    <a class="govuk-link" href="{{ object.link }}">
-                        {{ object.leaver_name }}
-                    </a>
-                </th>
-                <td class="govuk-table__cell">{{ object.security_clearance }}</td>
-                <td class="govuk-table__cell">{{ object.work_email }}</td>
-                <td class="govuk-table__cell">{{ object.leaving_date }}</td>
-                <td class="govuk-table__cell">{{ object.last_working_day }}</td>
-                <td class="govuk-table__cell">{{ object.days_until_last_working_day }}</td>
-                <td class="govuk-table__cell">{{ object.reported_on }}</td>
-                <td class="govuk-table__cell">
-                    {% if object.complete %}
-                        <span class="complete">Complete</span>
-                    {% else %}
-                        <span class="incomplete">Incomplete</span>
-                    {% endif %}
-                </td>
+                {% if "leaver_name" in fields %}
+                    <th scope="row" class="govuk-table__header">
+                        <a class="govuk-link" href="{{ object.link }}">
+                            {{ object.leaver_name }}
+                        </a>
+                    </th>
+                {% endif %}
+                {% if "security_clearance" in fields %}
+                    <td class="govuk-table__cell">{{ object.security_clearance }}</td>
+                {% endif %}
+                {% if "work_email" in fields %}
+                    <td class="govuk-table__cell">{{ object.work_email }}</td>
+                {% endif %}
+                {% if "leaving_date" in fields %}
+                    <td class="govuk-table__cell">{{ object.leaving_date }}</td>
+                {% endif %}
+                {% if "last_working_day" in fields %}
+                    <td class="govuk-table__cell">{{ object.last_working_day }}</td>
+                {% endif %}
+                {% if "days_until_last_working_day" in fields %}
+                    <td class="govuk-table__cell">{{ object.days_until_last_working_day }}</td>
+                {% endif %}
+                {% if "reported_on" in fields %}
+                    <td class="govuk-table__cell">{{ object.reported_on }}</td>
+                {% endif %}
+                {% if "complete" in fields %}
+                    <td class="govuk-table__cell">
+                        {% if object.complete %}
+                            <span class="complete">Complete</span>
+                        {% else %}
+                            <span class="incomplete">To Do</span>
+                        {% endif %}
+                    </td>
+                {% endif %}
             </tr>
         {% endfor %}
     </tbody>
