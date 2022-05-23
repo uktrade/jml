@@ -196,7 +196,7 @@ RETURN_OPTIONS = [
         ReturnOptions.HOME.value,
         ReturnOptions.HOME.label,
         hint=(
-            "We will send you a box to return your cirrus kit. This will be "
+            "We will send you a box to return your Cirrus kit. This will be "
             "collected by a courier, instructions will be included in the box."
         ),
     ),
