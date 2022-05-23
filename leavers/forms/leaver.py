@@ -221,8 +221,8 @@ class ReturnOptionForm(GovFormattedForm):
 
 
 class ReturnInformationForm(GovFormattedForm):
-    personal_phone = forms.CharField(label="Personal phone", max_length=16)
-    contact_email = forms.EmailField(label="Contact email for collection")
+    personal_phone = forms.CharField(label="Contact phone", max_length=16)
+    contact_email = forms.EmailField(label="Contact email")
     address_building = forms.CharField(
         label="Building and street",
     )
@@ -240,12 +240,12 @@ class ReturnInformationForm(GovFormattedForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("personal_phone"),
-            Field("contact_email"),
             Field("address_building"),
             Field("address_city"),
             Field("address_county"),
             Field("address_postcode"),
+            Field("personal_phone"),
+            Field("contact_email"),
             Submit("submit", "Save and continue"),
         )
 
