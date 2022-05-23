@@ -20,23 +20,22 @@ def send_sre_alert_message(*, leaving_request: LeavingRequest) -> SlackResponse:
         )
 
         leaver_name = leaving_request.get_leaver_name()
+        leaving_date = leaving_request.leaving_date.strftime("%d/%m/%Y")
 
-        if leaving_request.last_day:
-            leaving_date = leaving_request.last_day.strftime("%d/%m/%Y")
-
-            message_content = (
-                f"{leaver_name} is leaving DIT on the {leaving_date}, please"
-                f"remove their access from tools and services. "
-                f"Confirm removal on "
-                f"{settings.SITE_URL}{leaving_request_path}."
-            )
-        else:
-            # TODO: Discuss this messaging?
-            message_content = (
-                f"{leaver_name} is leaving DIT, please remove their "
-                "access from tools and services. Confirm removal on "
-                f"{settings.SITE_URL}{leaving_request_path}."
-            )
+        message_content = (
+            f"{leaver_name} is leaving DIT\n"
+            "\n"
+            "*Actions required:*\n"
+            f"We need you to confirm that {leaver_name}'s access to tools "
+            "and services has been managed. This will complete their "
+            f"off-boarding. ({settings.SITE_URL}{leaving_request_path}).\n"
+            "\n"
+            f"*Deadline: {leaving_date}*\n"
+            f"Please action this request by {leaver_name}’s last working "
+            f"day in the department which is {leaving_date}.\n"
+            "\n"
+            "DIT Leavers Service"
+        )
 
         return send_slack_message(
             channel_id=settings.SLACK_SRE_CHANNEL_ID,
