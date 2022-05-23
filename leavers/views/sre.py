@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Tuple
+from typing import Any, Dict, List, Literal, Tuple
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http.request import HttpRequest
@@ -82,6 +82,13 @@ class TaskConfirmationView(base.TaskConfirmationView):
         return self.request.user.groups.filter(
             name="SRE",
         ).exists()
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update(
+            completed=getattr(self.leaving_request, self.complete_field),
+        )
+        return form_kwargs
 
     def get_success_url(self) -> str:
         assert self.leaving_request
@@ -176,6 +183,7 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
             page_title=self.page_title,
             leaving_request_uuid=self.leaving_request.uuid,
             leaver_name=self.leaving_request.get_leaver_name(),
+            line_manager_name=self.leaving_request.get_line_manager_name(),
             leaving_request=self.leaving_request,
             access_removed_services=[
                 sre_service[1]
