@@ -1,8 +1,13 @@
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 
 from django.utils import timezone
+from django_workflow_engine.models import Flow
 
 from leavers.models import LeavingRequest
+
+if TYPE_CHECKING:
+    from user.models import User
 
 # Payroll is always the 10th of the month.
 PAYROLL_DAY_OF_MONTH = 10
@@ -58,3 +63,24 @@ def is_it_leaving_date_plus_x_days(
     # Check to see if the last_day is X days in the past.
     today = timezone.now().date()
     return bool(today == leaving_date_plus_x_days)
+
+
+def get_or_create_leaving_workflow(
+    *, leaving_request: LeavingRequest, executed_by: "User"
+) -> Flow:
+    """
+    Get or create a workflow for a leaver.
+
+    This workflow is used to track the progress of a leaver's leaving request.
+    """
+
+    if not leaving_request.flow:
+        flow = Flow.objects.create(
+            workflow_name="leaving",
+            executed_by=executed_by,
+            flow_name=f"{leaving_request.get_leaver_name()} is leaving",
+        )
+        leaving_request.flow = flow
+        leaving_request.save()
+
+    return flow

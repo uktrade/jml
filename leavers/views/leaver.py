@@ -30,10 +30,8 @@ from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation, LeavingRequest
 from leavers.progress_indicator import ProgressIndicator
-from leavers.utils import (
-    get_or_create_leaving_workflow,
-    update_or_create_leaving_request,
-)
+from leavers.utils.leaving_request import update_or_create_leaving_request
+from leavers.workflow.utils import get_or_create_leaving_workflow
 from user.models import User
 
 MANAGER_SEARCH_PARAM = "manager_id"
@@ -417,22 +415,6 @@ class LeaverInformationMixin:
                 "return_address_county",
                 "return_address_postcode",
             ]
-        )
-
-    def submit_to_service_now(
-        self, email: str, requester: User, assets: List[service_now_types.AssetDetails]
-    ) -> None:
-        # Note: When this is called, make sure the assets have been cleared
-        # from the Session.
-        leaver_info = self.get_leaver_information(email=email, requester=requester)
-        leaver_details = self.get_leaver_details_with_updates(
-            email=email, requester=requester
-        )
-        service_now_interface = get_service_now_interface()
-        service_now_interface.submit_leaver_request(
-            leaver_info=leaver_info,
-            leaver_details=leaver_details,
-            assets=assets,
         )
 
     def create_workflow(self, email: str, requester: User):
