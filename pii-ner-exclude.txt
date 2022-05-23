@@ -215,6 +215,7 @@ ROSA Access Revoked
 ROSA Kit
 ROSA Kit retrieved</h1
 ROSA kit.</p
+Rosa kit</li>
 rosa_laptop_returned_task_log
 ROSA_LEAVER_REMINDER_EMAIL_TEMPLATE_ID
 Security
