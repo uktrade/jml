@@ -12,12 +12,49 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-l">Please remove access from the following tools and services for {{ leaver_name }}{% if leaving_date %} on {{ leaving_date }}{% endif %}.</h1>
-            <p class="govuk-body">Select only those services and tools from the list below, that {{ leaver_name }} has access to and has been removed from.</p>
-            <form method='post'>
+            <h1 class="govuk-heading-l"><em>{{ leaver_name }}</em> SRE off-boarding</h1>
+            <table class="govuk-table">
+                <tbody class="govuk-table__body">
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Leaver's name</th>
+                        <td class="govuk-table__cell">{{ leaver_name }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Work email</th>
+                        <td class="govuk-table__cell">{{ leaver_email }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Last working day</th>
+                        <td class="govuk-table__cell">{{ last_day }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Leaving date</th>
+                        <td class="govuk-table__cell">{{ leaving_date }}</td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <th scope="row" class="govuk-table__header">Status</th>
+                        <td class="govuk-table__cell">
+                            {% if object.complete %}
+                                <span class="complete">Complete</span>
+                            {% else %}
+                                <span class="incomplete">Incomplete</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">List services and tools removed</h2>
+            <p class="govuk-body">Select only those tools and services from the list, that <em>{{ leaver_name }}</em> had access to and has been removed from:</p>
+            <form novalidate method='post'>
                 <input type="hidden" name="uuid" value="{{ flow.current_task_record.uuid }}">
                 {% crispy form %}
             </form>
         </div>
     </div>
+
 {% endblock %}
