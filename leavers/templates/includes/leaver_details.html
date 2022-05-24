@@ -21,6 +21,27 @@
     </div>
     <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
+            Contact phone
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {% firstof leaver_info.contact_phone "Not provided" %}
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Contact address
+        </dt>
+        <dd class="govuk-summary-list__value">
+            <address>
+                <p>{{ leaver_info.contact_address_line1 }}</p>
+                <p>{{ leaver_info.contact_address_line2 }}</p>
+                <p>{{ leaver_info.contact_address_town }}</p>
+                <p>{{ leaver_info.contact_address_postcode }}</p>
+            </address>
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
             Security clearance
         </dt>
         <dd class="govuk-summary-list__value">

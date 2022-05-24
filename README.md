@@ -64,7 +64,8 @@
 | SEARCH_STAFF_INDEX_NAME                                  | staff                                      |                                                                     |
 | INDEX_CURRENT_USER_MIDDLEWARE                            | false                                      |                                                                     |
 | UKSBS_INTERFACE                                          | None                                       |                                                                     |
-| UKSBS_API_URL                                            | None                                       |                                                                     |
+| UKSBS_HIERARCHY_API_URL                                  | None                                       | UK SBS People Hierarchy URL                                         |
 | UKSBS_GET_PEOPLE_HIERARCHY                               | None                                       | UK SBS People Hierarchy path                                        |
-| UKSBS_POST_LEAVER_SUBMISSION                             | None                                       |                                                                     |
+| UKSBS_LEAVER_SUBMISSION_API_URL                          | None                                       | UK SBS Leaver Submission URL                                        |
+| UKSBS_POST_LEAVER_SUBMISSION                             | None                                       | UK SBS Leaver Submission path                                       |
 | PROCESS_LEAVING_REQUEST                                  | true                                       | Set to 'false' if you want to prevent sending leaving request data to the processors. |

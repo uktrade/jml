@@ -388,6 +388,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     """
     Build Staff Document
     """
+
     staff_document = StaffDocument.from_dict(
         {
             "uuid": str(uuid.uuid4()),

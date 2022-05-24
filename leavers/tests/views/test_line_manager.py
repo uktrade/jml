@@ -10,6 +10,7 @@ from leavers.forms.line_manager import (
     AnnualLeavePaidOrDeducted,
     DaysHours,
     FlexiLeavePaidOrDeducted,
+    LeaverPaidUnpaid,
 )
 from leavers.tests.views.include import ViewAccessTest
 
@@ -240,6 +241,7 @@ class TestDetailsView(ViewAccessTest, TestCase):
         response = self.client.post(
             self.get_url(),
             {
+                "leaver_paid_unpaid": LeaverPaidUnpaid.PAID.value,
                 "annual_leave": AnnualLeavePaidOrDeducted.PAID.value,
                 "annual_leave_measurement": DaysHours.DAYS.value,
                 "annual_number": "1",
@@ -252,7 +254,7 @@ class TestDetailsView(ViewAccessTest, TestCase):
         self.assertEqual(
             response.url,
             reverse(
-                "line-manager-confirmation",
+                "line-manager-leaver-line-reports",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
         )

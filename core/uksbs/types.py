@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, TypedDict
+from typing import Any, List, Literal, Optional, TypedDict
 
 
 class AccessToken(TypedDict):
@@ -30,6 +30,18 @@ class PersonHierarchyData(TypedDict):
     report: List[PersonData]
 
 
+class ServiceRequestDataContact(TypedDict):
+    contactNumber: str
+    contactType: Literal["EMPLOYEE"]
+    contactTypePoint: Literal["EMAIL"]
+    contactPrimaryFlag: Literal["Y", "N"]
+
+
+class ServiceRequestData(TypedDict):
+    problemSummary: str
+    contacts: List[ServiceRequestDataContact]
+
+
 class DirectReport(TypedDict):
     OracleID: str
     EmployeeID: str
@@ -40,15 +52,22 @@ class DirectReport(TypedDict):
     Effectivedate: str  # 15/03/2022
 
 
-class LeavingData(TypedDict):
-    submitterName: str
-    submitterEmail: str
-    submitterOracleID: str
-    submitterDate: str  # "16/03/2022 14:59"
-    submitterSelectedLineManager: str
-    submitterSelectedLineManagerEmail: str
-    submitterSelectedLineManagerOracleID: str
-    submitterSelectedLineManagerEmployeeNumber: str
+class TemplateData(TypedDict):
+    additionalDirectReports: List[DirectReport]
+    directReports: List[DirectReport]
+
+    # Payroll Details
+    annualLeaveUom: Literal["days", "hours"]
+    annualLeavePaidOrDeducted: Literal["paid", "deducted"]
+    annualLeaveDaysPaid: int
+    annualLeaveHoursPaid: int
+    annualLeaveDaysDeducted: int
+    annualLeaveHoursDeducted: int
+    flexiPaidOrDeducted: Literal["paid", "deducted"]
+    flexiHoursPaid: int
+    flexiHoursDeducted: int
+
+    # Leaver Details
     leaverName: str
     leaverEmail: str
     leaverOracleID: str
@@ -56,15 +75,8 @@ class LeavingData(TypedDict):
     leaverPaidUnpaid: str
     leaverReasonForLeaving: str
     leaverLastDay: str
-    annualLeaveUom: str
-    annualLeavePaidOrDeducted: str
-    annualLeaveDaysPaid: int
-    annualLeaveHoursPaid: int
-    annualLeaveDaysDeducted: int
-    annualLeaveHoursDeducted: int
-    flexiPaidOrDeducted: str
-    flexiHoursPaid: int
-    flexiHoursDeducted: int
+
+    # Leaver Correspondance Details
     newCorrEmail: Optional[str]
     newCorrAddressLine1: Optional[str]
     newCorrAddressLine2: Optional[str]
@@ -72,4 +84,18 @@ class LeavingData(TypedDict):
     newCorrCounty: Optional[str]
     newCorrPostcode: Optional[str]
     newCorrPhone: Optional[str]
-    directReports: List[DirectReport]
+
+    # Submitter Details
+    submitterName: str
+    submitterEmail: str
+    submitterOracleID: str
+    submitterDate: str
+    submitterSelectedLineManager: str
+    submitterSelectedLineManagerEmail: str
+    submitterSelectedLineManagerOracleID: str
+    submitterSelectedLineManagerEmployeeNumber: str
+
+
+class LeavingData(TypedDict):
+    serviceRequestData: ServiceRequestData
+    templateData: TemplateData

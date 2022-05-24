@@ -13,7 +13,7 @@ urlpatterns = [
     path("", leaving_views.LeaversStartView.as_view(), name="start"),
     path("start/", leaving_views.LeaversStartView.as_view(), name="start"),
     path("who/", leaving_views.WhoIsLeavingView.as_view(), name="who"),
-    # Report a leaver
+    # Report a leaver (UNUSED ATM)
     path(
         "report-a-leaver/leaver-search/",
         report_a_leaver_views.LeaverSearchView.as_view(),
@@ -71,6 +71,11 @@ urlpatterns = [
         name="leaver-return-options",
     ),
     path(
+        "leaver/cirrus-equipment/return-information/",
+        leaver_views.CirrusEquipmentReturnInformationView.as_view(),
+        name="leaver-return-information",
+    ),
+    path(
         "leaver/display-screen-equipment/",
         leaver_views.DisplayScreenEquipmentView.as_view(),
         name="leaver-display-screen-equipment",
@@ -79,11 +84,6 @@ urlpatterns = [
         "leaver/display-screen-equipment/delete/<uuid:kit_uuid>",
         leaver_views.delete_dse_equipment,
         name="leaver-display-screen-equipment-delete",
-    ),
-    path(
-        "leaver/return-information/",
-        leaver_views.CirrusEquipmentReturnInformationView.as_view(),
-        name="leaver-return-information",
     ),
     path(
         "leaver/request-received/",
@@ -95,6 +95,16 @@ urlpatterns = [
         "line-manager/data-recipient-search/<uuid:leaving_request_uuid>/",
         line_manager_views.DataRecipientSearchView.as_view(),
         name="line-manager-data-recipient-search",
+    ),
+    path(
+        "line-manager/<uuid:leaving_request_uuid>/line-reports/line-report-search/",
+        line_manager_views.NewLineReportSearchView.as_view(),
+        name="line-manager-new-line-report-search",
+    ),
+    path(
+        "line-manager/<uuid:leaving_request_uuid>/line-reports/line-manager-search/",
+        line_manager_views.LineReportNewLineManagerSearchView.as_view(),
+        name="line-manager-line-report-new-line-manager-search",
     ),
     path(
         "line-manager/<uuid:leaving_request_uuid>/information/",
@@ -110,6 +120,22 @@ urlpatterns = [
         "line-manager/<uuid:leaving_request_uuid>/details/",
         line_manager_views.DetailsView.as_view(),
         name="line-manager-details",
+    ),
+    path(
+        "line-manager/<uuid:leaving_request_uuid>/line-reports/",
+        line_manager_views.LeaverLineReportsView.as_view(),
+        name="line-manager-leaver-line-reports",
+    ),
+    path(
+        "line-manager/<uuid:leaving_request_uuid>/line-reports/new/",
+        line_manager_views.add_missing_line_report,
+        name="add-missing-line-report",
+    ),
+    path(
+        "line-manager/<uuid:leaving_request_uuid>/line-reports/"
+        "set-line-manager/<uuid:line_report_uuid>/",
+        line_manager_views.line_report_set_new_manager,
+        name="line-reports-set-new-manager",
     ),
     path(
         "line-manager/<uuid:leaving_request_uuid>/confirm/",

@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from crispy_forms_gds.fields import DateInputField
 from crispy_forms_gds.helper import FormHelper
@@ -10,6 +10,9 @@ from django.db.models.enums import TextChoices
 
 from core.forms import GovFormattedForm
 from core.utils.staff_index import ConsolidatedStaffDocument
+
+if TYPE_CHECKING:
+    from leavers.models import LeavingRequest
 
 
 class PdfFileField(forms.FileField):
@@ -38,6 +41,11 @@ class UksbsPdfForm(GovFormattedForm):
         )
 
 
+class LeaverPaidUnpaid(TextChoices):
+    UNPAID = "unpaid", "Unpaid - not on UK SBS Payroll"
+    PAID = "paid", "Paid - on UK SBS Payroll"
+
+
 class AnnualLeavePaidOrDeducted(TextChoices):
     DEDUCTED = "deducted", "Deducted"
     PAID = "paid", "Paid"
@@ -57,6 +65,15 @@ class DaysHours(TextChoices):
 
 class LineManagerDetailsForm(GovFormattedForm):
 
+    leaver_paid_unpaid = forms.ChoiceField(
+        label="",
+        choices=LeaverPaidUnpaid.choices,
+        widget=forms.RadioSelect,
+        help_text=(
+            "A paid individual is on the UK SBS Payroll, an unpaid individual "
+            "is not on the UK SBS Payroll"
+        ),
+    )
     annual_leave = forms.ChoiceField(
         label="",
         choices=AnnualLeavePaidOrDeducted.choices,
@@ -89,6 +106,11 @@ class LineManagerDetailsForm(GovFormattedForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
+                "leaver_paid_unpaid",
+                legend="Is the leaver Paid or Unpaid?",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
                 "annual_leave",
                 legend="Is there annual leave to be paid or deducted?",
                 legend_size=Size.MEDIUM,
@@ -102,6 +124,7 @@ class LineManagerDetailsForm(GovFormattedForm):
                 "annual_number",
                 legend="Number of ??? to be ???",
                 legend_size=Size.MEDIUM,
+                css_id="annual_number_fieldset",
             ),
             HTML("<h2 class='govuk-heading-l'>Flexi leave dates</h2>"),
             HTML(
@@ -118,6 +141,7 @@ class LineManagerDetailsForm(GovFormattedForm):
                 "flexi_number",
                 legend="Number of hours to be ???",
                 legend_size=Size.MEDIUM,
+                css_id="flexi_number_fieldset",
             ),
             Submit("submit", "Save and continue"),
         )
@@ -204,6 +228,28 @@ class LineManagerDetailsForm(GovFormattedForm):
             flexi_number = None
 
         return flexi_number
+
+
+class LineReportConfirmationForm(GovFormattedForm):
+    def __init__(self, leaving_request: "LeavingRequest", *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.leaving_request = leaving_request
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Submit("submit", "Confirm and send"),
+        )
+
+    def clean(self) -> Optional[Dict[str, Any]]:
+        # Check that all line reports have a line manager selected.
+        line_reports = self.leaving_request.line_reports
+        for line_report in line_reports:
+            if not line_report["line_manager"]:
+                raise ValidationError(
+                    f"Line report {line_report['name']} has no line manager selected."
+                )
+        return super().clean()
 
 
 class LineManagerConfirmationForm(GovFormattedForm):

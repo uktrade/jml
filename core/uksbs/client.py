@@ -21,12 +21,9 @@ class UKSBSPersonNotFound(Exception):
 
 class UKSBSClient:
     token: Optional[AccessToken] = None
+    scope: List[str] = ["team-hierarchy-DIT-scope", "leaver-submission-scope"]
 
     def __init__(self) -> None:
-        if not settings.UKSBS_API_URL:
-            raise ValueError("UKSBS_API_URL is not set")
-        self.url = settings.UKSBS_API_URL
-
         if not settings.UKSBS_TOKEN_URL:
             raise ValueError("UKSBS_TOKEN_URL is not set")
         self.token_url = settings.UKSBS_TOKEN_URL
@@ -40,7 +37,6 @@ class UKSBSClient:
         self.client_secret = settings.UKSBS_CLIENT_SECRET
 
     def get_oauth_session(self) -> OAuth2Session:
-        scope = ["team-hierarchy-DIT-scope"]
         client = BackendApplicationClient(client_id=self.client_id)
 
         if self.token:
@@ -49,12 +45,12 @@ class UKSBSClient:
                 return OAuth2Session(
                     client=client,
                     token=self.token,
-                    scope=scope,
+                    scope=self.scope,
                 )
 
         oauth = OAuth2Session(
             client=client,
-            scope=scope,
+            scope=self.scope,
         )
         self.token = oauth.fetch_token(
             token_url=self.token_url,
@@ -64,10 +60,13 @@ class UKSBSClient:
         return self.get_oauth_session()
 
     def get_people_hierarchy(self, person_id: str) -> PersonHierarchyData:
+        if not settings.UKSBS_HIERARCHY_API_URL:
+            raise ValueError("UKSBS_HIERARCHY_API_URL is not set")
+        hierarchy_url = settings.UKSBS_HIERARCHY_API_URL
         if not settings.UKSBS_GET_PEOPLE_HIERARCHY:
             raise ValueError("UKSBS_GET_PEOPLE_HIERARCHY is not set")
         path: str = settings.UKSBS_GET_PEOPLE_HIERARCHY
-        full_api_url = self.url + path.format(person_id=person_id)
+        full_api_url = hierarchy_url + path.format(person_id=person_id)
 
         oauth_session = self.get_oauth_session()
         response = oauth_session.get(full_api_url)
@@ -98,15 +97,27 @@ class UKSBSClient:
         return item
 
     def post_leaver_form(self, data: LeavingData) -> None:
+        if not settings.UKSBS_LEAVER_API_URL:
+            raise ValueError("UKSBS_LEAVER_API_URL is not set")
+        leaver_submission_url = settings.UKSBS_LEAVER_API_URL
         if not settings.UKSBS_POST_LEAVER_SUBMISSION:
             raise ValueError("UKSBS_POST_LEAVER_SUBMISSION is not set")
         path: str = settings.UKSBS_POST_LEAVER_SUBMISSION
-        full_api_url = self.url + path
+        full_api_url = leaver_submission_url + path
 
         oauth_session = self.get_oauth_session()
-        response = oauth_session.post(full_api_url)
+        response = oauth_session.post(full_api_url, json=data)
 
         if response.status_code != 200:
             raise UKSBSUnexpectedResponse(
                 f"UK SBS API returned status code {response.status_code}"
             )
+
+        try:
+            data = response.json()
+            request_number = data["requestnumber"]
+        except Exception:
+            # Don't worry about this as we are just trying to log the response
+            pass
+        else:
+            logger.debug(f"UK SBS Leaver submission created: {request_number}")

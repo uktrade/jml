@@ -24,7 +24,7 @@ class UKSBSBase(ABC):
 
 
 class UKSBSStubbed(UKSBSBase):
-    def get_user_hierarchy(self, email: str) -> PersonHierarchyData:
+    def get_user_hierarchy(self, oracle_id: str) -> PersonHierarchyData:
         return {
             "manager": [
                 {
@@ -95,7 +95,8 @@ class UKSBSStubbed(UKSBSBase):
 
 
 class UKSBSInterface(UKSBSBase):
-    def __init__(self, *args, **kwargs):
+    def __init__(self) -> None:
+        super().__init__()
         self.client = UKSBSClient()
 
     def get_user_hierarchy(self, oracle_id: str) -> PersonHierarchyData:

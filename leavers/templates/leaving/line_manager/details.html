@@ -18,9 +18,39 @@
                     href="https://workspace.trade.gov.uk/working-at-dit/policies-and-guidance/policies/payment-of-salary/">payment
                     of salary policy</a> for more information.
             </p>
-            <form novalidate method="post" enctype="multipart/form-data">
+            <form id="hr_payroll_form" novalidate method="post" enctype="multipart/form-data">
                 {% crispy form %}
             </form>
         </div>
     </div>
+
+    <script type="text/javascript">
+        let hrPayrollForm = document.getElementById("hr_payroll_form");
+        let annualNumberFieldset = document.getElementById("annual_number_fieldset");
+        let flexiNumberFieldset = document.getElementById("flexi_number_fieldset");
+
+        function updateForm() {
+            let annualLeave = hrPayrollForm.elements["annual_leave"].value;
+            let annualLeaveMeasurement = hrPayrollForm.elements["annual_leave_measurement"].value;
+            annualNumberFieldset.children.item(0).innerText = "Number of " + annualLeaveMeasurement + " to be " + annualLeave;
+
+            if (annualLeave != "None" && annualLeaveMeasurement) {
+                annualNumberFieldset.style.display = "";
+            } else {
+                annualNumberFieldset.style.display = "none";
+                hrPayrollForm.elements["annual_number"].value = "";
+            }
+
+            let flexiLeave = hrPayrollForm.elements["flexi_leave"].value;
+            flexiNumberFieldset.children.item(0).innerText = "Number of hours to be " + flexiLeave;
+            if (flexiLeave != "None") {
+                flexiNumberFieldset.style.display = "";
+            } else {
+                flexiNumberFieldset.style.display = "none";
+                hrPayrollForm.elements["flexi_number"].value = "";
+            }
+        }
+        updateForm();
+        hrPayrollForm.addEventListener("change", updateForm);
+    </script>
 {% endblock %}

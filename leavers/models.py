@@ -10,6 +10,7 @@ from leavers.forms.line_manager import (
     AnnualLeavePaidOrDeducted,
     DaysHours,
     FlexiLeavePaidOrDeducted,
+    LeaverPaidUnpaid,
     ReasonForleaving,
 )
 
@@ -103,6 +104,12 @@ class LeavingRequest(models.Model):
         blank=True,
         null=True,
     )
+    leaver_paid_unpaid = models.CharField(
+        choices=LeaverPaidUnpaid.choices,
+        max_length=255,
+        blank=True,
+        null=True,
+    )
     annual_leave = models.CharField(
         choices=AnnualLeavePaidOrDeducted.choices,
         max_length=255,
@@ -124,7 +131,7 @@ class LeavingRequest(models.Model):
     )
     flexi_number = models.FloatField(null=True, blank=True)
 
-    uksbs_pdf_data = models.JSONField(null=True, blank=True)
+    line_reports = models.JSONField(null=True, blank=True)
 
     line_manager_complete = models.DateTimeField(null=True, blank=True)
 
@@ -372,6 +379,13 @@ class LeaverInformation(models.Model):
     # Extra information
     has_locker = models.BooleanField(null=True, blank=True)
     has_dse = models.BooleanField(null=True, blank=True)
+
+    # Leaver contact informtion
+    contact_phone = models.CharField(max_length=1000, null=True, blank=True)
+    contact_address_line1 = models.CharField(max_length=1000, null=True, blank=True)
+    contact_address_line2 = models.CharField(max_length=1000, null=True, blank=True)
+    contact_address_town = models.CharField(max_length=1000, null=True, blank=True)
+    contact_address_postcode = models.CharField(max_length=10, null=True, blank=True)
 
     # Display Screen Equipment
     dse_assets = models.JSONField(null=True, blank=True)

@@ -13,6 +13,7 @@ pytest
 pytest-cov
 pytest-django
 pytest-xdist
+responses
 types-certifi
 types-freezegun
 types-requests
