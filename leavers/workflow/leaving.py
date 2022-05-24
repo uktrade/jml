@@ -75,7 +75,7 @@ LeaversWorkflow = Workflow(
             step_id="thank_line_manager",
             task_name="notification_email",
             targets=[
-                "send_service_now_leaver_details",
+                "send_uksbs_leaver_details",
             ],
             task_info={
                 "email_id": EmailIds.LINE_MANAGER_THANKYOU.value,
