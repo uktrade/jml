@@ -582,8 +582,12 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
+
+        leaver_name = self.leaving_request.get_leaver_name()
+
         context.update(
-            page_title="Application complete",
-            leaver_name=self.leaving_request.get_leaver_name(),
+            page_title="Line manager's off-boarding actions completed",
+            leaver_name=leaver_name,
+            possessive_leaver_name=make_possessive(leaver_name),
         )
         return context

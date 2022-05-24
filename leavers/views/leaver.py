@@ -953,5 +953,6 @@ class RequestReceivedView(LeaverInformationMixin, TemplateView):
         context.update(
             page_title="Thank you",
             leaver_info=self.get_leaver_information(email=user_email, requester=user),
+            leaving_request=self.get_leaving_request(email=user_email, requester=user),
         )
         return context
