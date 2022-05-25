@@ -161,7 +161,7 @@ psycogreen==1.0.2
     # via -r requirements.in/prod.in
 psycopg2==2.9.2
     # via -r requirements.in/base.in
-pyjwt==2.3.0
+pyjwt==2.4.0
     # via notifications-python-client
 pypdf2==1.27.5
     # via -r requirements.in/base.in

@@ -210,7 +210,7 @@ pycodestyle==2.8.0
     # via flake8
 pyflakes==2.4.0
     # via flake8
-pyjwt==2.3.0
+pyjwt==2.4.0
     # via notifications-python-client
 pyparsing==3.0.6
     # via packaging
