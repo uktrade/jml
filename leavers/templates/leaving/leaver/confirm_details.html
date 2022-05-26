@@ -14,7 +14,7 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">Confirm your information</h1>
             {% include "includes/govt_error_summary.html" with errors=errors %}
-            <p class="govuk-body">Please review if all the information is correct and add any missing information.</p>
+            <p class="govuk-body">Please review and edit your details if needed.</p>
         </div>
     </div>
 
@@ -121,7 +121,7 @@
         </div>
     {% endif %}
 
-    <div class="govuk-grid-row">
+    <div class="govuk-grid-row {% if not manager %}govuk-form-group--error{% endif %}">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">Your line manager</h2>
             {% if manager %}
