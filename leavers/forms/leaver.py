@@ -282,7 +282,7 @@ class CorrectionForm(GovFormattedForm):
     )
     whats_incorrect = forms.CharField(
         required=False,
-        label="Please tell us what's wrong",
+        label="If no, please use the text box to provide further information",
         widget=forms.Textarea(),
         max_length=1000,
     )
