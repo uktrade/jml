@@ -95,7 +95,7 @@ all-requirements:
 	docker-compose run --rm leavers pip-compile --output-file requirements/prod.txt requirements.in/prod.in
 
 pytest:
-	docker-compose run --rm leavers pytest --ds=config.settings.test -raP --capture=sys --ignore=node_modules --ignore=front_end --ignore=features --ignore=staticfiles -n 4
+	docker-compose run --rm leavers pytest --cov --cov-report xml --ds=config.settings.test -raP --capture=sys --ignore=node_modules --ignore=front_end --ignore=features --ignore=staticfiles -n 4
 
 superuser:
 	docker-compose run --rm leavers python manage.py createsuperuser
