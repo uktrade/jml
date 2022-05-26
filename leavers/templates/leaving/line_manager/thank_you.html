@@ -7,9 +7,22 @@
             <div class="govuk-panel govuk-panel--confirmation">
                 <h1 class="govuk-panel__title">{{ page_title }}</h1>
             </div>
-            <p class="govuk-body">You have now finished the off-boarding process for <em>{{ leaver_name }}</em>.</p>
-            <p class="govuk-body">No further changes can now be made to the information supplied</p>
-        </div>
-    </div>
+
+            <p class="govuk-body">Thank you for confirming all the information. You have now finished the line manager's off-boarding process for <em>{{ leaver_name }}</em>.</p>
+            <p class="govuk-body">We have sent you an email confirming you have submitted information about:</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li><em>{{ possessive_leaver_name }}</em> details</li>
+                <li>their annual and Flexi leave</li>
+                <ul>
+                </div>
+            </div>
+
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <h2 class="govuk-heading-m">What happens next</h2>
+                    <p class="govuk-body">The HR, Security and SRE teams will use the information you provided to complete <em>{{ possessive_leaver_name }}</em> off-boarding.</p>
+                </div>
+            </div>
 
 {% endblock %}

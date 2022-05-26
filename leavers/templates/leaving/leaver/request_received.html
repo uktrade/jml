@@ -8,19 +8,15 @@
             <div class="govuk-panel govuk-panel--confirmation">
                 <h1 class="govuk-panel__title">Thank you for completing the form</h1>
             </div>
-        </div>
-    </div>
 
-
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
             <p class="govuk-body">We have sent you an email confirming you have submitted information about:</p>
+
             <ul class="govuk-list govuk-list--bullet">
                 <li>your details</li>
-                <li>government procurement card</li>
-                <li>Rosa kit</li>
-                <li>Cirrus kit</li>
-                <li>IT equipment</li>
+                {% if leaving_request.holds_government_procurement_card %}<li>government procurement card</li>{% endif %}
+                {% if leaving_request.is_rosa_user %}<li>Rosa kit</li>{% endif %}
+                {% if leaving_request.cirrus_assets %}<li>Cirrus kit</li>{% endif %}
+                {% if leaving_request.dse_assets %}<li>IT equipment</li>{% endif %}
             </ul>
             <p class="govuk-body">This email will also contain information about what to do with your security pass if you have one.</p>
             <p class="govuk-body">Please visit <a class="govuk-link" href="https://workspace.trade.gov.uk/working-at-dit/topics/leaving-dit/#if-you-are-leaving-dit">digital workspace</a> for more actions you may need to complete before leaving DIT.</p>
@@ -30,6 +26,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">What happens next</h2>
+
             <p class="govuk-body">Your request has been sent to your line manager to confirm your leaving date and your last working day. They will use this information to ensure:</p>
             <ul class="govuk-list govuk-list--bullet">
                 <li>you are paid correctly</li>

@@ -299,3 +299,6 @@ WhiteNoiseMiddleware
 x.groups.first
 yet.</p
 you.</p
+leaving_request.holds_government_procurement_card
+card</li>{%
+leaving_request.is_rosa_user
