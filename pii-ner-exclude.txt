@@ -43,6 +43,7 @@ Bench
 Build Staff Document
 Building Pass Access Revoked
 building_pass_access_task_log
+card</li>{%
 channel_id
 checkbox
 Cirrus
@@ -163,6 +164,8 @@ Leaver's Notification Form
 leaverLastDay
 LeaversWorkflow
 Leaving Request
+leaving_request.holds_government_procurement_card
+leaving_request.is_rosa_user
 LeavingRequest
 LEGACY_PEOPLE_FINDER_ES_INDEX
 li class="progress-step{%
@@ -195,6 +198,7 @@ PAAS
 ParsedUKSBSPDF
 ParsedUKSBSPDF"
 People Finder
+people_finder_email
 PEOPLE_FINDER_HAWK_SECRET_KEY
 PEOPLE_FINDER_INTERFACE
 PEOPLE_FINDER_INTERFACE                                  |                                            
@@ -299,6 +303,3 @@ WhiteNoiseMiddleware
 x.groups.first
 yet.</p
 you.</p
-leaving_request.holds_government_procurement_card
-card</li>{%
-leaving_request.is_rosa_user
