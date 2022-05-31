@@ -35,6 +35,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "service_now_department_name": {"type": "text"},
             "service_now_directorate_id": {"type": "text"},
             "service_now_directorate_name": {"type": "text"},
+            "people_data_staff_ids": {"type": "text"}, # TODO Needs to use correct type
         },
     },
 }
@@ -60,6 +61,7 @@ class StaffDocument(TypedDict):
     service_now_department_name: str
     service_now_directorate_id: str
     service_now_directorate_name: str
+    staff_ids: List[str]
 
 
 class ConsolidatedStaffDocument(TypedDict):
@@ -79,6 +81,7 @@ class ConsolidatedStaffDocument(TypedDict):
     job_title: str
     staff_id: str
     manager: str
+    oracle_id: str
 
 
 def get_search_connection() -> OpenSearch:
@@ -299,7 +302,7 @@ def consolidate_staff_documents(
             "department": staff_document["service_now_department_id"] or "",
             "department_name": staff_document["service_now_department_name"] or "",
             "job_title": staff_document["people_finder_job_title"] or "",
-            "staff_id": "",
+            "staff_ids": staff_document["people_data_staff_ids"] or [],
             "manager": "",
         }
         consolidated_staff_documents.append(consolidated_staff_document)
@@ -307,10 +310,12 @@ def consolidate_staff_documents(
 
 
 def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
+    from core.people_data.interfaces import get_people_data_interface
     from core.people_finder import get_people_finder_interface
     from core.service_now import get_service_now_interface
     from core.service_now.interfaces import ServiceNowUserNotFound
 
+    people_data_search = get_people_data_interface()
     people_finder_search = get_people_finder_interface()
     service_now_interface = get_service_now_interface()
 
@@ -326,6 +331,14 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
             if pf_result["email"] == staff_sso_user.email_address:
                 people_finder_result = pf_result
     people_finder_directorate: Optional[str] = people_finder_result.get("directorate")
+
+    """
+    Get People report data
+    """
+    people_data_results = people_data_search.get_people_data(
+        sso_legacy_id=staff_sso_user.user_id,
+    )
+    # TODO - add people data to index
 
     """
     Get Service Now data

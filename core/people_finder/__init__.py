@@ -13,6 +13,6 @@ def get_people_finder_interface() -> PeopleFinderBase:
 
     interface_class = import_string(settings.PEOPLE_FINDER_INTERFACE)
     if not issubclass(interface_class, PeopleFinderBase):
-        raise ValueError("PEOPLE_FINDER_INTERFACE must inherit from StaffSSOBase")
+        raise ValueError("PEOPLE_FINDER_INTERFACE must inherit from PeopleFinderBase")
 
     return interface_class()

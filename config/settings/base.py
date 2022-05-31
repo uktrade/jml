@@ -85,6 +85,17 @@ else:
 
 DATABASES = {"default": env.db()}
 
+# People Data report
+PEOPLE_DATA_INTERFACE = env("PEOPLE_DATA_POSTGRES_HOST")
+
+DATABASES["people_data"]: {
+    "HOST": env("PEOPLE_DATA_POSTGRES_HOST"),
+    "NAME": env("PEOPLE_DATA_POSTGRES_DATABASE"),
+    "ENGINE": "django.db.backends.postgresql",
+    "USER": env("PEOPLE_DATA_POSTGRES_USERNAME"),
+    "PASSWORD": env("PEOPLE_DATA_POSTGRES_PASSWORD")
+}
+
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 LOGGING = {
