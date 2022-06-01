@@ -35,7 +35,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "service_now_department_name": {"type": "text"},
             "service_now_directorate_id": {"type": "text"},
             "service_now_directorate_name": {"type": "text"},
-            "people_data_staff_ids": {"type": "text"}, # TODO Needs to use correct type
+            "people_data_employee_number": {"type": "text"},
         },
     },
 }
@@ -61,7 +61,7 @@ class StaffDocument(TypedDict):
     service_now_department_name: str
     service_now_directorate_id: str
     service_now_directorate_name: str
-    employee_numbers: List[str]
+    people_data_employee_number: str
 
 
 class ConsolidatedStaffDocument(TypedDict):
@@ -79,7 +79,7 @@ class ConsolidatedStaffDocument(TypedDict):
     department: str
     department_name: str
     job_title: str
-    staff_ids: []
+    staff_id: str
     manager: str
 
 
@@ -301,7 +301,7 @@ def consolidate_staff_documents(
             "department": staff_document["service_now_department_id"] or "",
             "department_name": staff_document["service_now_department_name"] or "",
             "job_title": staff_document["people_finder_job_title"] or "",
-            "staff_ids": staff_document["employee_numbers"] or [],
+            "staff_id": staff_document["employee_number"] or "",
             "manager": "",
         }
         consolidated_staff_documents.append(consolidated_staff_document)
@@ -337,6 +337,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     people_data_results = people_data_search.get_people_data(
         sso_legacy_id=staff_sso_user.user_id,
     )
+    employee_number = people_data_results["employee_numbers"][0]
 
     """
     Get Service Now data
@@ -397,7 +398,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         "service_now_directorate_id": service_now_directorate_id,
         "service_now_directorate_name": service_now_directorate_name,
         # People Data
-        "employee_numbers": people_data_results.get("employee_numbers"),
+        "people_data_employee_number": employee_number,
     }
     return staff_document
 
