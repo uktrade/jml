@@ -1,9 +1,8 @@
 from typing import Optional, TypedDict
 
 
-class StaffIDs(TypedDict):
+class PeopleData(TypedDict):
     """
-    List of staff ids available in People Data report
+    People Data report fields
     """
-    sso_user_id: str # Legacy format
-    employee_numbers: List[str]
+    employee_numbers: Optional[List[str]]

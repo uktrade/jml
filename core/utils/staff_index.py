@@ -61,7 +61,7 @@ class StaffDocument(TypedDict):
     service_now_department_name: str
     service_now_directorate_id: str
     service_now_directorate_name: str
-    staff_ids: List[str]
+    employee_numbers: List[str]
 
 
 class ConsolidatedStaffDocument(TypedDict):
@@ -79,9 +79,8 @@ class ConsolidatedStaffDocument(TypedDict):
     department: str
     department_name: str
     job_title: str
-    staff_id: str
+    staff_ids: []
     manager: str
-    oracle_id: str
 
 
 def get_search_connection() -> OpenSearch:
@@ -302,7 +301,7 @@ def consolidate_staff_documents(
             "department": staff_document["service_now_department_id"] or "",
             "department_name": staff_document["service_now_department_name"] or "",
             "job_title": staff_document["people_finder_job_title"] or "",
-            "staff_ids": staff_document["people_data_staff_ids"] or [],
+            "staff_ids": staff_document["employee_numbers"] or [],
             "manager": "",
         }
         consolidated_staff_documents.append(consolidated_staff_document)
@@ -338,7 +337,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     people_data_results = people_data_search.get_people_data(
         sso_legacy_id=staff_sso_user.user_id,
     )
-    # TODO - add people data to index
 
     """
     Get Service Now data
@@ -398,6 +396,8 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         "service_now_department_name": service_now_department_name,
         "service_now_directorate_id": service_now_directorate_id,
         "service_now_directorate_name": service_now_directorate_name,
+        # People Data
+        "employee_numbers": people_data_results.get("employee_numbers"),
     }
     return staff_document
 
