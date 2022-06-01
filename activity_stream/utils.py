@@ -7,8 +7,7 @@ def ingest_activity_stream():
     created_updated_ids: List[int] = []
 
     # Create and Update Activity Stream SSO objects
-    activity_stream_objects = staff_sso.get_activity_stream()
-    for activity_stream_object in activity_stream_objects:
+    for activity_stream_object in staff_sso.StaffSSOActivityStreamIterator():
         # Only create objects with type of "dit:StaffSSO:User"
         if activity_stream_object["object"]["type"] != "dit:StaffSSO:User":
             continue
