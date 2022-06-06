@@ -36,7 +36,6 @@ class PeopleFinderStubbed(PeopleFinderBase):
                 "email": "joe.bloggs@example.com",  # /PS-IGNORE
                 "phone": "0123456789",
                 "grade": "Example Grade",
-                "image": "",
             },
         ]
 

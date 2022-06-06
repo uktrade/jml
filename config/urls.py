@@ -16,7 +16,7 @@ private_urlpatterns = decorate_urlpatterns(private_urlpatterns, login_required)
 public_url_patterns = [
     path("dev-tools/", include("dev_tools.urls")),
     path("dit-activity-stream/", include("dit_activity_stream.urls")),
-    path("healthcheck/", include("core.health_check.urls")),
+    path("", include("core.urls")),
 ]
 
 urlpatterns = private_urlpatterns + public_url_patterns
