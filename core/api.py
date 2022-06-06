@@ -1,3 +1,6 @@
+import json
+from typing import Optional
+
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 
@@ -11,17 +14,32 @@ def people_finder_update(request: HttpRequest) -> HttpResponse:
     Update the people finder data.
     """
     if request.method == "POST":
-        people_finder_data: PersonDetail = request.POST.get("people_finder_data")
+        people_finder_data: PersonDetail = json.loads(request.body)
+        people_finder_email: Optional[str] = people_finder_data.get("email")
+        # Validate the data
+        if not people_finder_email:
+            return HttpResponse(
+                "No email address found in the people finder data",
+                status=400,
+            )
+
+        for key, _ in people_finder_data.items():
+            if key not in PersonDetail.__required_keys__:
+                return HttpResponse(
+                    "Invalid key found in the people finder data: {}".format(key),
+                    status=400,
+                )
 
         # Check if the email has been ingested from the Activity Stream:
         email_in_activity_stream: bool = ActivityStreamStaffSSOUser.objects.filter(
-            email=people_finder_data["email"]
+            email=people_finder_email
         ).exists()
         if not email_in_activity_stream:
             # If we can filter the Staff SSO Activity Stream by email,
             # then we should try to do that and ingest the user.
             return HttpResponse(
-                "User not found in our stored Staff SSO Activity Stream results"
+                "User not found in our stored Staff SSO Activity Stream results",
+                status=200,
             )
 
         # Update the People Finder details in the Staff index.
@@ -32,5 +50,5 @@ def people_finder_update(request: HttpRequest) -> HttpResponse:
             # someone is updated in People Finder that doesn't exist in the
             # staff index.
             pass
-        return HttpResponse("OK")
+        return HttpResponse("OK", status=200)
     return HttpResponse(status=400)
