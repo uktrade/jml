@@ -1,30 +1,7 @@
 {% extends "asset_registry_base.html" %}
 
 {% block content %}
-    {% if success_message %}
-        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
-            <div class="govuk-notification-banner__header">
-                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                    Success
-                </h2>
-            </div>
-            <div class="govuk-notification-banner__content">
-                <h3 class="govuk-notification-banner__heading">
-                    {{ success_message }}
-                </h3>
-            </div>
-        </div>
-    {% endif %}
-    {% if error_message %}
-        <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
-            <h2 class="govuk-error-summary__title" id="error-summary-title">
-                There is a problem
-            </h2>
-            <div class="govuk-error-summary__body">
-                {{ error_message }}
-            </div>
-        </div>
-    {% endif %}
+    {% include "asset_registry/includes/asset_detail_messages.html" %}
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -72,34 +49,7 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <table class="govuk-table">
-                <caption class="govuk-table__caption govuk-table__caption--m">Users</caption>
-                {% if users %}
-                    <thead class="govuk-table__head">
-                        <tr class="govuk-table__row">
-                            <th scope="col" class="govuk-table__header">Name</th>
-                            <th scope="col" class="govuk-table__header">Email</th>
-                            <th scope="col" class="govuk-table__header"></th>
-                        </tr>
-                    </thead>
-                    <tbody class="govuk-table__body">
-                        {% for user in users %}
-                            <tr class="govuk-table__row">
-                                <th scope="row" class="govuk-table__header"><a href="{% url 'user-assets' user.identifier %}" class="govuk-link">{{ user.name }}</a></th>
-                                <td class="govuk-table__cell">{{ user.email_address }}</td>
-                                <td class="govuk-table__cell">
-                                    <a href="{% url 'remove-user-from-asset' object.pk user.identifier %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                                        Remove
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                {% endif %}
-            </table>
-            <a href="{% url 'asset-user-search' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                Add a user
-            </a>
+            {% include "asset_registry/includes/asset_detail_user_table.html" %}
         </div>
     </div>
 

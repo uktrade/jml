@@ -2,31 +2,7 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 
 {% block content %}
-
-    {% if success_message %}
-        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
-            <div class="govuk-notification-banner__header">
-                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
-                    Success
-                </h2>
-            </div>
-            <div class="govuk-notification-banner__content">
-                <h3 class="govuk-notification-banner__heading">
-                    {{ success_message }}
-                </h3>
-            </div>
-        </div>
-    {% endif %}
-    {% if error_message %}
-        <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" data-module="govuk-error-summary">
-            <h2 class="govuk-error-summary__title" id="error-summary-title">
-                There is a problem
-            </h2>
-            <div class="govuk-error-summary__body">
-                {{ error_message }}
-            </div>
-        </div>
-    {% endif %}
+    {% include "asset_registry/includes/asset_detail_messages.html" %}
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -43,10 +19,6 @@
 
             <table class="govuk-table">
                 <tbody class="govuk-table__body">
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">User</th>
-                        <td class="govuk-table__cell">{% if user %}{{ user.name }} {{ user.email }}{% else %}No user assigned{% endif %}</td>
-                    </tr>
                     <tr class="govuk-table__row">
                         <th scope="row" class="govuk-table__header">Asset number</th>
                         <td class="govuk-table__cell">{{ object.asset_number }}</td>
@@ -109,6 +81,12 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% include "asset_registry/includes/asset_detail_user_table.html" %}
         </div>
     </div>
 

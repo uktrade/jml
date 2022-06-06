@@ -20,7 +20,7 @@ def get_asset_user_action_messages(
 
     error_message: Optional[str] = None
     add_user_error: Optional[str] = request.session.get(ADD_USER_ERROR_SESSION_KEY)
-    if remove_user_success:
+    if add_user_error:
         error_message = add_user_error
 
     # Clean up the session

@@ -1,0 +1,28 @@
+<table class="govuk-table">
+    <caption class="govuk-table__caption govuk-table__caption--m">Users</caption>
+    {% if users %}
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header">Name</th>
+                <th scope="col" class="govuk-table__header">Email</th>
+                <th scope="col" class="govuk-table__header"></th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for user in users %}
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header"><a href="{% url 'user-assets' user.identifier %}" class="govuk-link">{{ user.name }}</a></th>
+                    <td class="govuk-table__cell">{{ user.email_address }}</td>
+                    <td class="govuk-table__cell">
+                        <a href="{% url 'remove-user-from-asset' object.pk user.identifier %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                            Remove
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    {% endif %}
+</table>
+<a href="{% url 'asset-user-search' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+    Add a user
+</a>

@@ -185,7 +185,15 @@ def add_user_to_asset(request: HttpRequest, pk: int) -> HttpResponse:
     except ActivityStreamStaffSSOUser.DoesNotExist:
         raise Exception("Unable to find user in the Staff SSO ActivityStream.")
 
-    if PhysicalAsset.objects.filter(pk=pk).exists() and asset.users.count() > 1:
+    if asset.users.filter(pk=asset_user_activitystream_user.pk).exists():
+        # If the asset already has the user, do nothing.
+        request.session[
+            ADD_USER_SUCCESS_SESSION_KEY
+        ] = f"{asset_user_activitystream_user.first_name} is already associated with this asset."
+
+        return return_redirect
+
+    if PhysicalAsset.objects.filter(pk=pk).exists() and asset.users.count() >= 1:
         # If the asset is a PhysicalAsset, there can only be one user.
         request.session[ADD_USER_ERROR_SESSION_KEY] = (
             "Physical assets can only have one user. Please remove the current "
@@ -194,16 +202,10 @@ def add_user_to_asset(request: HttpRequest, pk: int) -> HttpResponse:
 
         return return_redirect
 
-    if asset.users.filter(pk=asset_user_activitystream_user.pk).exists():
-        # If the asset already has the user, do nothing.
-        request.session[
-            ADD_USER_SUCCESS_SESSION_KEY
-        ] = f"{asset_user_activitystream_user.first_name} is already associated with this asset."
-    else:
-        asset.users.add(asset_user_activitystream_user)
-        request.session[
-            ADD_USER_SUCCESS_SESSION_KEY
-        ] = f"{asset_user_activitystream_user.first_name} is now associated with this asset."
+    asset.users.add(asset_user_activitystream_user)
+    request.session[
+        ADD_USER_SUCCESS_SESSION_KEY
+    ] = f"{asset_user_activitystream_user.first_name} is now associated with this asset."
 
     return return_redirect
 
