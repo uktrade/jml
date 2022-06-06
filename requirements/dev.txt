@@ -192,7 +192,7 @@ pathspec==0.9.0
     # via black
 pep517==0.12.0
     # via pip-tools
-pip-tools==6.5.1
+pip-tools==6.6.2
     # via -r requirements.in/dev.in
 platformdirs==2.4.0
     # via black
@@ -327,13 +327,13 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-waitress==2.1.1
+waitress==2.1.2
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
 wheel==0.37.0
     # via pip-tools
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated

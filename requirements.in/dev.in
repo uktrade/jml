@@ -8,7 +8,7 @@ flake8
 freezegun
 isort
 mypy
-pip-tools>=6.5.1
+pip-tools>=6.6.2
 pytest
 pytest-cov
 pytest-django
