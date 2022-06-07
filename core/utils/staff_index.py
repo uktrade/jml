@@ -54,6 +54,7 @@ class StaffDocument(TypedDict):
     people_finder_directorate: str
     people_finder_phone: str
     people_finder_grade: str
+    people_finder_email: str
     service_now_user_id: str
     service_now_department_id: str
     service_now_department_name: str
@@ -131,13 +132,27 @@ def staff_index_mapping_changed() -> bool:
 
 def index_staff_document(*, staff_document: StaffDocument):
     """
-    Add a Staff document to the Staff index.
+    Add or Update a Staff document in the Staff index.
     """
     search_client = get_search_connection()
-    search_client.index(
-        index=STAFF_INDEX_NAME,
-        body=staff_document,
-    )
+    if search_client.exists(index=STAFF_INDEX_NAME, id=staff_document["uuid"]):
+        search_client.update(
+            index=STAFF_INDEX_NAME,
+            id=staff_document["uuid"],
+            body=staff_document,
+        )
+    else:
+        search_client.index(
+            index=STAFF_INDEX_NAME,
+            body=staff_document,
+        )
+
+
+def get_all_staff_documents() -> List[StaffDocument]:
+    """
+    Get all Staff documents from the Staff index.
+    """
+    return search_staff_index(query="")
 
 
 def search_staff_index(
@@ -363,6 +378,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         "people_finder_directorate": people_finder_result.get("directorate", ""),
         "people_finder_phone": people_finder_result.get("phone", ""),
         "people_finder_grade": people_finder_result.get("grade", ""),
+        "people_finder_email": people_finder_result.get("email", ""),
         # Service Now
         "service_now_user_id": service_now_user_id,
         "service_now_department_id": service_now_department_id,

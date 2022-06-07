@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, TypedDict
+from typing import Any, Iterator, List, Optional, TypedDict
 
 import requests
 from django.conf import settings
@@ -53,29 +53,64 @@ class ActivityStreamOrderedItems(TypedDict):
     published: str
 
 
-def get_activity_stream(
-    *,
-    url: Optional[str] = None,
-) -> List[ActivityStreamOrderedItems]:
-    if url is None:
-        url = URL
-    sender = get_sender(url=url)
+class StaffSSOActivityStreamIterator(Iterator):
+    current_index: int = 0
+    items: List[ActivityStreamOrderedItems] = []
+    current_url: Optional[str] = None
+    next_url: Optional[str] = None
 
-    response = requests.get(
-        url,
-        data="",
-        headers={"Authorization": sender.request_header, "Content-Type": CONTENT_TYPE},
-    )
+    def __iter__(self) -> Iterator:
+        # Initialize the iterator by making the first call to the API.
+        self.current_url = URL
+        self.call_api()
+        return self
 
-    if response.status_code != 200:
-        raise FailedToGetActivityStream()
+    def __next__(self) -> ActivityStreamOrderedItems:
+        value = self.get_next_item()
+        self.current_index += 1
+        return value
 
-    data = response.json()
-    activity_stream = data.get("orderedItems", [])
+    def get_next_item(self):
+        # If there are no items in the object, stop the iteration.
+        if len(self.items) == 0:
+            raise StopIteration
 
-    # If there is a "next" URL, we need to recursively call this function unless
-    # the next URL is the current URL
-    if "next" in data and data["next"] != url:
-        activity_stream += get_activity_stream(url=data["next"])
+        # Get the next item from the object.
+        try:
+            value = self.items[self.current_index]
+        except IndexError:
+            # If the index is out of range, move to the next page.
+            self.next_page()
+            self.call_api()
+            value = self.get_next_item()
 
-    return activity_stream
+        return value
+
+    def next_page(self):
+        if not self.next_url or self.current_url == self.next_url:
+            raise StopIteration
+        self.current_url = self.next_url
+
+    def call_api(self):
+        if not self.current_url:
+            raise StopIteration
+
+        self.current_index = 0
+
+        sender = get_sender(url=self.current_url)
+
+        response = requests.get(
+            self.current_url,
+            data="",
+            headers={
+                "Authorization": sender.request_header,
+                "Content-Type": CONTENT_TYPE,
+            },
+        )
+
+        if response.status_code != 200:
+            raise FailedToGetActivityStream()
+
+        data = response.json()
+        self.items = data.get("orderedItems", [])
+        self.next_url = data.get("next")

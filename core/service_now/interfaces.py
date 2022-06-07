@@ -1,7 +1,7 @@
 import json
 import logging
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Iterable, List, Optional
 
 from django.conf import settings
 from django.core.cache import cache
@@ -170,7 +170,7 @@ class ServiceNowInterface(ServiceNowBase):
             return cached_result
 
         # Get all data from Service Now /PS-IGNORE
-        service_now_assets: List[types.ServiceNowAsset] = self.client.get_results(
+        service_now_assets: Iterable[types.ServiceNowAsset] = self.client.get_results(
             path=self.GET_ASSET_PATH,
             sysparm_query=f"asset_tag={asset_tag}",
             sysparm_fields=[
@@ -179,24 +179,28 @@ class ServiceNowInterface(ServiceNowBase):
                 "display_name",
             ],
         )
-        asset_count = len(service_now_assets)
+        # Convert to a list of AssetDetails
+        asset_details: List[types.AssetDetails] = [
+            {
+                "sys_id": service_now_asset["sys_id"],
+                "tag": service_now_asset["asset_tag"],
+                "name": service_now_asset["display_name"],
+            }
+            for service_now_asset in service_now_assets
+        ]
+
+        asset_count = len(asset_details)
 
         if asset_count == 0:
             raise AssetNotFound
         if asset_count != 1:
             raise TooManyAssetsReturned
 
-        # Convert to AssetDetails
-
-        asset_details: types.AssetDetails = {
-            "sys_id": service_now_assets[0]["sys_id"],
-            "tag": service_now_assets[0]["asset_tag"],
-            "name": service_now_assets[0]["display_name"],
-        }
+        asset_detail: types.AssetDetails = asset_details[0]
 
         # Store the result in the cache
-        cache.set(cache_key, asset_details)
-        return asset_details
+        cache.set(cache_key, asset_detail)
+        return asset_detail
 
     def get_assets_for_user(self, email: str) -> List[types.AssetDetails]:
         # Check if there is a cached result
@@ -206,7 +210,7 @@ class ServiceNowInterface(ServiceNowBase):
             return cached_result
 
         # Get all data from Service Now /PS-IGNORE
-        service_now_assets: List[types.ServiceNowAsset] = self.client.get_results(
+        service_now_assets: Iterable[types.ServiceNowAsset] = self.client.get_results(
             path=self.GET_ASSET_PATH,
             sysparm_query=f"assigned_to.email={email}",
             sysparm_fields=[
@@ -237,7 +241,7 @@ class ServiceNowInterface(ServiceNowBase):
             return cached_result
 
         # Get all data from Service Now /PS-IGNORE
-        service_now_users: List[types.ServiceNowUser] = self.client.get_results(
+        service_now_users: Iterable[types.ServiceNowUser] = self.client.get_results(
             path=self.GET_USER_PATH,
             sysparm_query=f"email={email}",
             sysparm_fields=[
@@ -318,7 +322,7 @@ class ServiceNowInterface(ServiceNowBase):
             query = f"name={name}"
 
         # Get all data from Service Now /PS-IGNORE
-        service_now_directorates: List[
+        service_now_directorates: Iterable[
             types.ServiceNowDirectorate
         ] = self.client.get_results(
             path=self.GET_DIRECTORATE_PATH,
