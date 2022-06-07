@@ -763,7 +763,7 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
 
         # If the leaver doesn't have DSE, skip this step.
         if not self.leaver_info.has_dse:
-            return redirect("leaver-cirrus-equipment")
+            return redirect(self.success_url)
 
         return super().dispatch(request, *args, **kwargs)
 
