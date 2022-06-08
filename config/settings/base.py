@@ -94,7 +94,7 @@ DATABASES["people_data"] = {
     "PORT": env("PEOPLE_DATA_POSTGRES_PORT", default=5432),
     "ENGINE": "django.db.backends.postgresql",
     "USER": env("PEOPLE_DATA_POSTGRES_USERNAME"),
-    "PASSWORD": env("PEOPLE_DATA_POSTGRES_PASSWORD")
+    "PASSWORD": env("PEOPLE_DATA_POSTGRES_PASSWORD"),
 }
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

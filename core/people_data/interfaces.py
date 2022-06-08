@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import psycopg2
 
 from django.db import connections
 
@@ -16,7 +15,9 @@ class PeopleDataStubbed(PeopleDataBase):
     def get_people_data(self, sso_legacy_id: str) -> types.PeopleData:
         return {
             # Legacy style SSO user ids
-            "employee_numbers": [1, ],
+            "employee_numbers": [
+                1,
+            ],
         }
 
 
@@ -27,7 +28,10 @@ class PeopleDataInterface(PeopleDataBase):
                 "employee_numbers": [],
             }
             # No speech marks in query to avoid SQL injection
-            cursor.execute("SELECT employee_numbers FROM dit.people_data__identities WHERE sso_user_id = %s", [sso_legacy_id])
+            cursor.execute(
+                "SELECT employee_numbers FROM dit.people_data__identities WHERE sso_user_id = %s",
+                [sso_legacy_id],
+            )
             rows = cursor.fetchone()
 
         if rows:
