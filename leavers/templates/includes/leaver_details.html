@@ -29,10 +29,10 @@
     </div>
     <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
-            Locker number
+            Has locker
         </dt>
         <dd class="govuk-summary-list__value">
-            {% firstof leaver_info.locker_number "Not provided" %}
+            {{ leaver_info.has_locker|yesno:"Yes,No"}}
         </dd>
     </div>
     <div class="govuk-summary-list__row">

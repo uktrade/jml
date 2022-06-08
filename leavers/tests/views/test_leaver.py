@@ -476,7 +476,7 @@ class TestConfirmDetailsView(TestCase):
             leaving_request__is_rosa_user=True,
             leaving_request__holds_government_procurement_card=True,
             updates=updates,
-            locker_number="123",
+            has_locker=True,
             has_dse=True,
         )
         self.client.force_login(self.leaver)
@@ -567,7 +567,7 @@ class TestUpdateDetailsView(TestCase):
                 "has_gov_procurement_card": None,
                 "has_rosa_kit": None,
                 "security_clearance": None,
-                "locker_number": None,
+                "has_locker": None,
                 "last_day": None,
                 "leaving_date": None,
                 "staff_id": "",
@@ -610,7 +610,7 @@ class TestUpdateDetailsView(TestCase):
                 "job_title": "Job Title",
                 "directorate": "1",
                 "security_clearance": "sc",
-                "locker_number": "123",
+                "has_locker": "yes",
                 "has_gov_procurement_card": "yes",
                 "has_rosa_kit": "yes",
                 "has_dse": "yes",
