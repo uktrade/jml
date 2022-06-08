@@ -47,7 +47,7 @@
 | GOVUK_NOTIFY_API_KEY                                     | None                                       |                                                                     |
 | CSU4_EMAIL_TEMPLATE_ID                                   | None                                       |                                                                     |
 | OCS_LEAVER_EMAIL_TEMPLATE_ID                             | None                                       |                                                                     |
-| OCS_OAB_LOCKER_EMAIL_TEMPLATE_ID                         | None                                       |                                                                     |
+| TEMPLATE_ID_OCS_OAB_LOCKER_EMAIL                         | None                                       |                                                                     |
 | ROSA_LEAVER_REMINDER_EMAIL_TEMPLATE_ID                   | None                                       |                                                                     |
 | ROSA_LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID             | None                                       |                                                                     |
 | SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL_TEMPLATE_ID          | None                                       |                                                                     |
