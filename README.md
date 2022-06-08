@@ -44,6 +44,7 @@
 | SECURITY_TEAM_EMAIL                                      | None                                       | Email address for the Security Team                                 |
 | SRE_EMAIL                                                | None                                       | Email address for the SRE Team                                      |
 | GOVUK_NOTIFY_API_KEY                                     | None                                       |                                                                     |
+| LEAVER_THANK_YOU_EMAIL_TEMPLATE_ID                       | None                                       |                                                                     |
 | CSU4_EMAIL_TEMPLATE_ID                                   | None                                       |                                                                     |
 | OCS_LEAVER_EMAIL_TEMPLATE_ID                             | None                                       |                                                                     |
 | ROSA_LEAVER_REMINDER_EMAIL_TEMPLATE_ID                   | None                                       |                                                                     |

@@ -9,6 +9,7 @@
 " Physical Asset Statuses "
 " Send Leaver
 " Send SRE Team
+" Send the Leaver
 " Store Extra
 " Store the Correction
 " Task Logs

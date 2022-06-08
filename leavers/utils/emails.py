@@ -8,6 +8,26 @@ from core import notify
 from leavers.models import LeaverInformation, LeavingRequest
 
 
+def send_leaver_thank_you_email(leaving_request: LeavingRequest):
+    """
+    Send the Leaver an email to thank them, and inform them of the next steps
+    in the process.
+    """
+    assert leaving_request.leaver_activitystream_user
+    leaver_as_user: ActivityStreamStaffSSOUser = (
+        leaving_request.leaver_activitystream_user
+    )
+
+    notify.email(
+        email_address=leaver_as_user.email_address,
+        template_id=notify.EmailTemplates.LEAVER_THANK_YOU_EMAIL,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "contact_us_link": "",  # TODO: Update when we have a contact form.
+        },
+    )
+
+
 def send_csu4_leaver_email(leaving_request: LeavingRequest):
     """
     Send Cluster 4 Email to notify of a new leaver.
