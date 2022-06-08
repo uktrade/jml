@@ -19,9 +19,9 @@
 # Joiners Movers Leavers
 # People Finder
 # Staff
-| SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL_TEMPLATE_ID |
 | SLACK_SRE_CHANNEL_ID                                     | None                                       
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
+| TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL |
 0032_leavingrequest_reason_for_leaving
 100px
 234px
@@ -70,7 +70,6 @@ CRSF
 CssFinder
 CSU4_EMAIL
 CSU4_EMAIL                                               |                                             
-CSU4_EMAIL_TEMPLATE_ID
 Dashboard</a>
 Data
 date_of_birth
@@ -171,10 +170,7 @@ LeavingRequest
 LEGACY_PEOPLE_FINDER_ES_INDEX
 li class="progress-step{%
 Line
-LINE_MANAGER_CORRECTION_EMAIL_TEMPLATE_ID
-LINE_MANAGER_NOTIFICATION_EMAIL_TEMPLATE_ID
 LINE_MANAGER_REMINDER_EMAIL
-LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID                  
 Loan Pool'
 Lost/Stolen'
 LSD_ZENDESK_EMAIL                                        
@@ -223,7 +219,6 @@ ROSA Kit retrieved</h1
 ROSA kit.</p
 Rosa kit</li>
 rosa_laptop_returned_task_log
-ROSA_LEAVER_REMINDER_EMAIL_TEMPLATE_ID
 Security
 SECURITY
 Security Team
@@ -261,6 +256,15 @@ Store DSE
 StreamHandler
 target="_blank">here</a>.</li>
 Team Zendesk
+TEMPLATE_ID_CSU4_EMAIL
+TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL
+TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL
+TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  
+TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                                       
+TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL
+TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL                  
+TEMPLATE_ID_ROSA_LEAVER_REMINDER_EMAIL
+TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL
 Templates
 Tests for `get_leaver_detail_updates` "
 Tests for `get_leaver_details_with_updates`
