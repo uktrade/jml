@@ -21,6 +21,7 @@ from leavers.utils.emails import (
     send_line_manager_reminder_email,
     send_line_manager_thankyou_email,
     send_ocs_leaver_email,
+    send_ocs_oab_locker_email,
     send_rosa_leaver_reminder_email,
     send_rosa_line_manager_reminder_email,
     send_security_team_offboard_leaver_email,
@@ -240,6 +241,7 @@ class EmailIds(Enum):
     SRE_REMINDER = "sre_reminder"
     CSU4_EMAIL = "csu4_email"
     OCS_EMAIL = "ocs_email"
+    OCS_OAB_LOCKER_EMAIL = "ocs_oab_locker_email"
 
 
 EMAIL_MAPPING: Dict[EmailIds, Callable] = {
@@ -254,6 +256,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.SRE_REMINDER: send_sre_reminder_email,
     EmailIds.CSU4_EMAIL: send_csu4_leaver_email,
     EmailIds.OCS_EMAIL: send_ocs_leaver_email,
+    EmailIds.OCS_OAB_LOCKER_EMAIL: send_ocs_oab_locker_email,
 }
 
 

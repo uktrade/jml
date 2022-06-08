@@ -99,6 +99,7 @@ LeaversWorkflow = Workflow(
                 "notify_csu4_of_leaving",
                 "notify_csu4_of_leaving",
                 "notify_ocs_of_leaving",
+                "notify_ocs_of_oab_locker",
                 "send_security_notification",
                 "is_it_leaving_date_plus_x",
             ],
@@ -139,6 +140,17 @@ LeaversWorkflow = Workflow(
             ],
             task_info={
                 "email_id": EmailIds.OCS_EMAIL.value,
+            },
+        ),
+        # OCS OAB Lockers
+        Step(
+            step_id="notify_ocs_of_oab_locker",
+            task_name="notification_email",
+            targets=[
+                "are_all_tasks_complete",
+            ],
+            task_info={
+                "email_id": EmailIds.OCS_OAB_LOCKER_EMAIL.value,
             },
         ),
         # SECURITY
