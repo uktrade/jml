@@ -19,6 +19,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
         "properties": {
             "uuid": {"type": "text"},
             "staff_sso_activity_stream_id": {"type": "text"},
+            "staff_sso_legacy_id": {"type": "text"},
             "staff_sso_first_name": {"type": "text"},
             "staff_sso_last_name": {"type": "text"},
             "staff_sso_email_address": {"type": "text"},
@@ -44,6 +45,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
 class StaffDocument(TypedDict):
     uuid: str
     staff_sso_activity_stream_id: str
+    staff_sso_legacy_id: str
     staff_sso_first_name: str
     staff_sso_last_name: str
     staff_sso_email_address: str
@@ -309,7 +311,7 @@ def consolidate_staff_documents(
 
 
 def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
-    from core.people_data.interfaces import get_people_data_interface
+    from core.people_data import get_people_data_interface
     from core.people_finder import get_people_finder_interface
     from core.service_now import get_service_now_interface
     from core.service_now.interfaces import ServiceNowUserNotFound
@@ -337,6 +339,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     people_data_results = people_data_search.get_people_data(
         sso_legacy_id=staff_sso_user.user_id,
     )
+    # Assuming first id is correct
     employee_number = people_data_results["employee_numbers"][0]
 
     """

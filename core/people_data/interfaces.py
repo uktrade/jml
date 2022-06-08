@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import psycopg2
 
-from django.db import connection
+from django.db import connections
 
 from core.people_data import types
 
@@ -23,14 +23,14 @@ class PeopleDataStubbed(PeopleDataBase):
 class PeopleDataInterface(PeopleDataBase):
     def get_people_data(self, sso_legacy_id: str) -> types.PeopleData:
         with connections["people_data"].cursor() as cursor:
+            result = {
+                "employee_numbers": [],
+            }
             # No speech marks in query to avoid SQL injection
             cursor.execute("SELECT employee_numbers FROM dit.people_data__identities WHERE sso_user_id = %s", [sso_legacy_id])
-            if cursor.rowcount > 0:
-                row = cursor.fetchone()
-                return {
-                    "employee_numbers": row["employee_numbers"]
-                }
+            rows = cursor.fetchone()
 
-        return {
-            "employee_numbers": [],
-        }
+        if rows:
+            result["employee_numbers"] = rows[0]
+
+        return result

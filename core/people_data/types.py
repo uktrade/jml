@@ -1,4 +1,4 @@
-from typing import Optional, TypedDict
+from typing import List, Optional, TypedDict
 
 
 class PeopleData(TypedDict):

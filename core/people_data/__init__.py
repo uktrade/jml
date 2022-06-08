@@ -4,7 +4,7 @@ from django.utils.module_loading import import_string
 from core.people_data.interfaces import PeopleDataBase, PeopleDataStubbed
 
 
-def get_people_data_interface() -> PeopleFinderBase:
+def get_people_data_interface() -> PeopleDataBase:
     """
     Get the People Data report interface from the PEOPLE_DATA_INTERFACE setting
     """
