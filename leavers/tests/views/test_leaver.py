@@ -646,14 +646,24 @@ class TestUpdateDetailsView(TestCase):
 class TestCirrusEquipmentView(TestCase):
     view_name = "leaver-cirrus-equipment"
 
+    def setUp(self) -> None:
+        self.leaver = UserFactory()
+        self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
+            email_address=self.leaver.email,
+        )
+        self.leaver_information = factories.LeaverInformationFactory(
+            leaver_email=self.leaver.email,
+            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
+            leaving_request__user_requesting=self.leaver,
+        )
+
     def test_unauthenticated_user(self) -> None:
         response = self.client.get(reverse(self.view_name))
 
         self.assertEqual(response.status_code, 302)
 
     def test_authenticated_user(self) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
         response = self.client.get(reverse(self.view_name))
 
@@ -684,8 +694,7 @@ class TestCirrusEquipmentView(TestCase):
     def test_with_assets_in_session(self, mock_get_service_now_interface) -> None:
         mock_get_service_now_interface.get_assets_for_user.return_value = []
 
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
         self.add_kit_to_session("Test Asset 1", "Test Tag 1")
         self.add_kit_to_session("Test Asset 2", "Test Tag 2")
@@ -706,8 +715,7 @@ class TestCirrusEquipmentView(TestCase):
         return_value=ServiceNowStubbed(),
     )
     def test_with_assets_from_service_now(self, mock_get_service_now_interface) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
         response = self.client.get(reverse(self.view_name))
 
@@ -716,19 +724,17 @@ class TestCirrusEquipmentView(TestCase):
         self.assertEqual(response.context["cirrus_assets"][0]["tag"], "1")
 
     def test_post_no_form_name(self) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(5):
+        with self.assertNumQueries(16):
             response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 200)
 
     def test_post_add_asset_form(self) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(19):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -747,10 +753,9 @@ class TestCirrusEquipmentView(TestCase):
         "leavers.views.leaver.LeaverInformationMixin.store_cirrus_kit_information"
     )
     def test_post_correction_form(self, mock_store_cirrus_kit_information) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(2):
+        with self.assertNumQueries(13):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -764,8 +769,8 @@ class TestCirrusEquipmentView(TestCase):
         self.assertEqual(response.url, reverse("leaver-return-options"))
 
         mock_store_cirrus_kit_information.assert_called_once_with(
-            email=user.email,
-            requester=user,
+            email=self.leaver.email,
+            requester=self.leaver,
             information_is_correct=False,
             additional_information="Some additional information",
             cirrus_assets=[],
@@ -801,7 +806,7 @@ class TestDisplayScreenEquipmentView(TestCase):
         response = self.client.get(reverse(self.view_name))
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
+        self.assertEqual(response.url, reverse("leaver-confirm-details"))
 
     def test_no_dse(self) -> None:
         self.client.force_login(self.leaver)
