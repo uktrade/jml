@@ -169,6 +169,11 @@ urlpatterns = [
         name="security-team-building-pass-destroy",
     ),
     path(
+        "leaver/security-team/<uuid:leaving_request_id>/building-pass/not-returned/",
+        security_team_views.BuildingPassNotReturnedView.as_view(),
+        name="security-team-building-pass-not-returned",
+    ),
+    path(
         "leaver/security-team/<uuid:leaving_request_id>/summary/",
         security_team_views.TaskSummaryView.as_view(),
         name="security-team-summary",

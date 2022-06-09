@@ -109,7 +109,7 @@
                     </a>
                 {% endif %}
                 {% if can_mark_as_not_returned %}
-                    <a href="" class="govuk-button govuk-button--secondary">
+                    <a href="{% url 'security-team-building-pass-not-returned' leaving_request_uuid %}" class="govuk-button govuk-button--secondary">
                         Mark pass as not returned
                     </a>
                 {% endif %}
