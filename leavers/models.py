@@ -198,13 +198,20 @@ class LeavingRequest(models.Model):
     sre_complete = models.DateTimeField(null=True, blank=True)
 
     """
-    Security Team Access
+    Security Team
     """
 
-    security_pass = models.OneToOneField(
+    security_pass_destroyed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
-        related_name="security_pass_task_log",
+        related_name="security_pass_destroyed_task_log",
+        null=True,
+        blank=True,
+    )
+    security_pass_not_returned = models.OneToOneField(
+        TaskLog,
+        on_delete=models.CASCADE,
+        related_name="security_pass_not_returned_task_log",
         null=True,
         blank=True,
     )
@@ -229,7 +236,7 @@ class LeavingRequest(models.Model):
 
     @property
     def security_team_complete(self) -> bool:
-        if self.security_pass and self.security_team_building_pass_complete:
+        if self.security_pass_destroyed and self.security_team_building_pass_complete:
             return True
         return False
 

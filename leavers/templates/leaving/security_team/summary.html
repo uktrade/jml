@@ -10,8 +10,61 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-l">Summary of items received from <em>{{ leaver_name }}</em></h1>
-            <p class="govuk-body">This is confirmation that the security pass and ROSA kit for <em>{{ leaver_name }}</em> has been received.</p>
+            <h1 class="govuk-heading-l">Summary of <em>{{ possessive_leaver_name }}</em> security offboarding</h1>
+
+            <table class="govuk-table">
+                <caption class="govuk-table__caption govuk-table__caption--m">Offboarding tasks</caption>
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th scope="col" class="govuk-table__header">Task</th>
+                        <th scope="col" class="govuk-table__header">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">Destroy building pass</td>
+                        <td class="govuk-table__cell">
+                            {% if pass_destroyed %}
+                                <strong class="govuk-tag govuk-tag--green">
+                                    Destroyed
+                                </strong>
+                            {% elif pass_not_returned %}
+                                <strong class="govuk-tag govuk-tag--red">
+                                    Marked as not returned
+                                </strong>
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Pending
+                                </strong>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">Retrieve ROSA Mobile</td>
+                        <td class="govuk-table__cell">
+                            <strong class="govuk-tag govuk-tag--green">
+                                Returned
+                            </strong>
+                        </td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">Retrieve ROSA Laptop</td>
+                        <td class="govuk-table__cell">
+                            <strong class="govuk-tag govuk-tag--blue">
+                                Pending
+                            </strong>
+                        </td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">Retrieve ROSA Key</td>
+                        <td class="govuk-table__cell">
+                            <strong class="govuk-tag govuk-tag--green">
+                                Returned
+                            </strong>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
             <a class="govuk-link" href="{% url 'security-team-listing-complete' %}">Return to completed leaving requests dashboard</a>
         </div>

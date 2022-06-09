@@ -164,6 +164,11 @@ urlpatterns = [
         name="security-team-building-pass-confirmation",
     ),
     path(
+        "leaver/security-team/<uuid:leaving_request_id>/building-pass/destroy/",
+        security_team_views.BuildingPassDestroyView.as_view(),
+        name="security-team-building-pass-destroy",
+    ),
+    path(
         "leaver/security-team/<uuid:leaving_request_id>/summary/",
         security_team_views.TaskSummaryView.as_view(),
         name="security-team-summary",

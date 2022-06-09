@@ -103,13 +103,20 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <div class="govuk-button-group">
-                <a href="" class="govuk-button govuk-button--warning">
-                    Mark pass as destroyed
-                </a>
+                {% if not pass_destroyed %}
+                    <a href="{% url 'security-team-building-pass-destroy' leaving_request_uuid %}" class="govuk-button govuk-button--warning">
+                        Mark pass as destroyed
+                    </a>
+                {% endif %}
                 {% if can_mark_as_not_returned %}
                     <a href="" class="govuk-button govuk-button--secondary">
                         Mark pass as not returned
                     </a>
+                {% endif %}
+                {% if pass_destroyed %}
+                    <strong class="govuk-tag govuk-tag--green">
+                        Building pass destroyed
+                    </strong>
                 {% endif %}
             </div>
         </div>
