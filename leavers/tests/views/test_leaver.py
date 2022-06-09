@@ -36,6 +36,7 @@ STAFF_DOCUMENT: StaffDocument = {
     "staff_sso_email_address": "joe.bloggs@example.com",  # /PS-IGNORE
     "staff_sso_first_name": "Joe",  # /PS-IGNORE
     "staff_sso_last_name": "Bloggs",
+    "people_data_employee_number": "12345",
 }
 STAFF_INDEX_RETURN_VALUE: List[StaffDocument] = [STAFF_DOCUMENT]
 
