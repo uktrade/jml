@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable, List
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.utils.staff_index import (
@@ -7,10 +7,11 @@ from core.utils.staff_index import (
     consolidate_staff_documents,
     get_staff_document_from_staff_index,
 )
-from leavers.models import LeavingRequest
+from leavers.models import LeavingRequest, TaskLog
 from leavers.types import LeaverDetails
 
 if TYPE_CHECKING:
+    from leavers.workflow.tasks import EmailIds
     from user.models import User
 
 
@@ -51,3 +52,14 @@ def get_leaver_details(leaving_request: LeavingRequest) -> LeaverDetails:
         "photo": consolidated_staff_document["photo"],
     }
     return leaver_details
+
+
+def get_email_task_logs(
+    *, leaving_request: LeavingRequest, email_id: "EmailIds"
+) -> List[TaskLog]:
+    all_email_task_logs: Iterable[TaskLog] = leaving_request.email_task_logs.all()
+    email_task_logs: List[TaskLog] = []
+    for email_task in all_email_task_logs:
+        if email_id.value == email_task.task_name:
+            email_task_logs.append(email_task)
+    return email_task_logs

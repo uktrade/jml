@@ -154,9 +154,14 @@ urlpatterns = [
         name="security-team-listing-incomplete",
     ),
     path(
-        "leaver/security-team/<uuid:leaving_request_id>/",
-        security_team_views.TaskConfirmationView.as_view(),
-        name="security-team-confirmation",
+        "leaver/security-team/<uuid:leaving_request_id>/rosa-kit/",
+        security_team_views.BuildingPassConfirmationView.as_view(),
+        name="security-team-rosa-kit-confirmation",
+    ),
+    path(
+        "leaver/security-team/<uuid:leaving_request_id>/building-pass/",
+        security_team_views.BuildingPassConfirmationView.as_view(),
+        name="security-team-building-pass-confirmation",
     ),
     path(
         "leaver/security-team/<uuid:leaving_request_id>/summary/",

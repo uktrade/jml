@@ -12,7 +12,6 @@ from leavers.forms.line_manager import (
     FlexiLeavePaidOrDeducted,
     ReasonForleaving,
 )
-from leavers.forms.security_team import SecurityPassChoices
 
 
 class TaskLog(models.Model):
@@ -283,6 +282,17 @@ class LeavingRequest(models.Model):
 
         return None
 
+    def get_line_manager_email(self) -> Optional[str]:
+        """
+        Get the Line manager's email.
+        """
+
+        manager_activitystream_user = self.manager_activitystream_user
+        if manager_activitystream_user:
+            return manager_activitystream_user.email_address
+
+        return None
+
     def sre_services(self) -> List[Tuple[str, str, bool]]:
         """
         Returns a list of the SRE services and if access has been removed.
@@ -304,34 +314,6 @@ class LeavingRequest(models.Model):
             access_removed: bool = getattr(self, service_field) is not None
             sre_services.append((service_field, service_label, access_removed))
         return sre_services
-
-    def security_access(self) -> List[Tuple[str, str, bool]]:
-        """
-        Returns a list of the Security tasks and if they have been collected
-        Tuple: (field_name, service_name, item_received)
-        """
-
-        security_team_label_mapping: List[Tuple[str, str]] = [
-            ("security_pass", "Security pass {value}"),
-            ("rosa_laptop_returned", "ROSA laptop"),
-            ("rosa_key_returned", "ROSA log-in key"),
-        ]
-        security_items: List[Tuple[str, str, bool]] = []
-        for field_name, service_name in security_team_label_mapping:
-            item_received: bool = getattr(self, field_name) is not None
-            if field_name == "security_pass":
-                field_value = getattr(self, field_name)
-                for security_pass_choice in SecurityPassChoices:
-                    if (
-                        field_value
-                        and security_pass_choice.value in field_value.task_name
-                    ):
-                        service_name = service_name.format(
-                            value=security_pass_choice.value
-                        )
-                        break
-            security_items.append((field_name, service_name, item_received))
-        return security_items
 
 
 class SlackMessage(models.Model):

@@ -102,11 +102,11 @@ class LeavingRequestListing(
         lr_results_data = []
         for lr in leaving_requests:
             link = reverse_lazy(
-                self.confirmation_view, kwargs={"leaving_request_id": lr.uuid}
+                self.get_confirmation_view(), kwargs={"leaving_request_id": lr.uuid}
             )
             if lr.security_team_complete:
                 link = reverse_lazy(
-                    self.summary_view, kwargs={"leaving_request_id": lr.uuid}
+                    self.get_summary_view(), kwargs={"leaving_request_id": lr.uuid}
                 )
 
             days_until_last_working_day: timedelta = (
@@ -147,6 +147,12 @@ class LeavingRequestListing(
         context.update(page=page, pagination_pages=pagination_pages)
 
         return context
+
+    def get_summary_view(self) -> str:
+        return self.summary_view
+
+    def get_confirmation_view(self) -> str:
+        return self.confirmation_view
 
     def form_valid(self, form: Any) -> HttpResponse:
         self.query = form.cleaned_data["query"]

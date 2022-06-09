@@ -1,0 +1,117 @@
+{% extends "leaving/leaving_base.html" %}
+{% load crispy_forms_tags crispy_forms_gds %}
+
+{% block content %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <a href="{% url 'security-team-listing-incomplete' %}" class="govuk-back-link">Back</a>
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">{{ page_title }}</h1>
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Leaver name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ leaver_name }}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Leaver email
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ leaver_email }}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Leaver's last working day
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ last_working_day }}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Leaver's leaving date
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ leaving_date }}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Line manager name
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ manager_name }}
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Line manager email
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ manager_email }}
+                    </dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <table class="govuk-table">
+                <caption class="govuk-table__caption govuk-table__caption--m">Reminders</caption>
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th scope="col" class="govuk-table__header">Status</th>
+                        <th scope="col" class="govuk-table__header">Name</th>
+                        <th scope="col" class="govuk-table__header">Last sent</th>
+                    </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                    {% for notification in notifications %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">
+                                {% if notification.sent %}
+                                    <strong class="govuk-tag govuk-tag--green">
+                                        Sent
+                                    </strong>
+                                {% else %}
+                                    <strong class="govuk-tag govuk-tag--red">
+                                        Not sent
+                                    </strong>
+                                {% endif %}
+                            </td>
+                            <td class="govuk-table__cell">{{ notification.name }}</td>
+                            <td class="govuk-table__cell">{% firstof notification.last_sent "N/A" %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-button-group">
+                <a href="" class="govuk-button govuk-button--warning">
+                    Mark pass as destroyed
+                </a>
+                {% if can_mark_as_not_returned %}
+                    <a href="" class="govuk-button govuk-button--secondary">
+                        Mark pass as not returned
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

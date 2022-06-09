@@ -1,22 +1,55 @@
-from typing import Any, Dict, List, Tuple
+from datetime import datetime
+from enum import Enum
+from typing import Dict, List, Optional
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic import TemplateView
 
-from leavers.forms import security_team as security_team_forms
 from leavers.models import LeavingRequest, TaskLog
+from leavers.utils.leaving_request import get_email_task_logs
 from leavers.views import base
+from leavers.workflow.tasks import EmailIds
+
+
+class SecuritySubRole(Enum):
+    BUILDING_PASS = "bp"
+    ROSA_KIT = "rk"
+
+
+def get_security_role(request: HttpRequest) -> SecuritySubRole:
+    """
+    Get the security role from the URL or Session.
+
+    If there is no role set yet, default to the Building Pass role.
+    """
+    role_value: Optional[str] = request.session.get("security_role", None)
+    url_value: Optional[str] = request.GET.get("security-role")
+    if url_value:
+        role_value = url_value
+
+    role: SecuritySubRole = SecuritySubRole.BUILDING_PASS
+    if role_value:
+        try:
+            role = SecuritySubRole(role_value)
+        except ValueError:
+            pass
+
+        request.session["security_role"] = role.value
+        request.session.save()
+
+    return role
 
 
 class LeavingRequestListing(base.LeavingRequestListing):
     template_name = "leaving/security_team/listing.html"
 
     complete_field = "security_team_complete"
-    confirmation_view = "security-team-confirmation"
+    building_pass_confirmation_view = "security-team-building-pass-confirmation"
+    rosa_kit_confirmation_view = "security-team-rosa-kit-confirmation"
     summary_view = "security-team-summary"
     service_name = "Leaving DIT: Security actions"
 
@@ -25,76 +58,105 @@ class LeavingRequestListing(base.LeavingRequestListing):
             name="Security Team",
         ).exists()
 
+    def get_confirmation_view(self) -> str:
+        role = get_security_role(self.request)
+        if role == SecuritySubRole.BUILDING_PASS:
+            return self.building_pass_confirmation_view
+        elif role == SecuritySubRole.ROSA_KIT:
+            return self.rosa_kit_confirmation_view
 
-class TaskConfirmationView(base.TaskConfirmationView):
-    template_name = "leaving/security_team/task_form.html"
-    form_class = security_team_forms.SecurityTeamConfirmCompleteForm
-    complete_field: str = "security_team_complete"
-    page_title = "Security Team off-boarding confirmation"
+        raise Exception("Unknown security role")
 
-    # Field mapping from the Form field name to the LeavingRequest field name (with task messages)
-    field_mapping: Dict[str, Tuple[str, str, str]] = {
-        "security_pass": (
-            "security_pass",
-            "Security pass {action} confirmed",
-            "Security pass {action} uncomfirmed",
-        ),
-        "rosa_laptop_returned": (
-            "rosa_laptop_returned",
-            "ROSA laptop return confirmed",
-            "ROSA laptop return uncomfirmed",
-        ),
-        "rosa_key_returned": (
-            "rosa_key_returned",
-            "ROSA key return confirmed",
-            "ROSA key return unconfirmed",
-        ),
-    }
+
+class BuildingPassConfirmationView(
+    UserPassesTestMixin,
+    TemplateView,
+):
+    template_name = "leaving/security_team/confirmation/building_pass.html"
+    page_title: str = "Security Team off-boarding building pass confirmation"
 
     def test_func(self):
         return self.request.user.groups.filter(
             name="Security Team",
         ).exists()
 
-    def get_form_kwargs(self) -> Dict[str, Any]:
-        form_kwargs = super().get_form_kwargs()
-        form_kwargs.update(
-            completed=getattr(self.leaving_request, self.complete_field),
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest,
+            uuid=self.kwargs.get("leaving_request_id", None),
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            page_title=self.page_title,
+        )
+
+        context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
+            leaver_email=self.leaving_request.get_leaver_email(),
+            manager_name=self.leaving_request.get_line_manager_name(),
+            manager_email=self.leaving_request.get_line_manager_email(),
+            last_working_day=self.leaving_request.last_day.date(),
+            leaving_date=self.leaving_request.leaving_date.date(),
+            leaving_request_uuid=self.leaving_request.uuid,
+            notifications=self.get_notifications(),
+            can_mark_as_not_returned=bool(
+                self.leaving_request.leaving_date < timezone.now()
+            ),
         )
-        return form_kwargs
 
-    def get_success_url(self) -> str:
-        assert self.leaving_request
-        return reverse_lazy("security-team-thank-you", args=[self.leaving_request.uuid])
+        return context
 
-    def get_initial(self) -> Dict[str, Any]:
-        initial = super().get_initial()
+    def get_notifications(self) -> List[Dict[str, str]]:
+        notifications = []
 
-        for key, value in self.field_mapping.items():
-            leaving_request_value: TaskLog = getattr(self.leaving_request, value[0])
-            if key == "security_pass":
-                for security_pass_choice in security_team_forms.SecurityPassChoices:
-                    if (
-                        leaving_request_value
-                        and security_pass_choice.value
-                        in leaving_request_value.task_name
-                    ):
-                        initial[key] = security_pass_choice.value
-                        break
-            else:
-                initial[key] = bool(leaving_request_value)
-
-        return initial
-
-    def format_task_name(self, field_key: str, task_name: str, field_value: Any) -> str:
-        if field_key == "security_pass":
-            return task_name.format(action=field_value)
-        return super().format_task_name(
-            field_key=field_key,
-            task_name=task_name,
-            field_value=field_value,
+        # Reminder sent to Line manager
+        # TODO: Update to be the right email_id
+        line_manager_reminder_emails: List[TaskLog] = get_email_task_logs(
+            leaving_request=self.leaving_request,
+            email_id=EmailIds.LINE_MANAGER_REMINDER,
         )
+        line_manager_last_sent: Optional[datetime] = None
+        for line_manager_reminder_email in line_manager_reminder_emails:
+            if (
+                not line_manager_last_sent
+                or line_manager_last_sent < line_manager_reminder_email.created_at
+            ):
+                line_manager_last_sent = line_manager_reminder_email.created_at
+
+        notifications.append(
+            {
+                "sent": bool(line_manager_reminder_emails),
+                "name": "Automated reminder sent to Line manager",
+                "last_sent": line_manager_last_sent,
+            }
+        )
+
+        # Reminder sent to Leaver
+        # TODO: Update to be the right email_id
+        leaver_reminder_emails: List[TaskLog] = get_email_task_logs(
+            leaving_request=self.leaving_request,
+            email_id=EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER,
+        )
+        leaver_last_sent: Optional[datetime] = None
+        for leaver_reminder_email in leaver_reminder_emails:
+            if (
+                not leaver_last_sent
+                or leaver_last_sent < leaver_reminder_email.created_at
+            ):
+                leaver_last_sent = leaver_reminder_email.created_at
+
+        notifications.append(
+            {
+                "sent": bool(leaver_reminder_emails),
+                "name": "Automated reminder sent to Leaver",
+                "last_sent": leaver_last_sent,
+            }
+        )
+
+        return notifications
 
 
 class TaskSummaryView(
@@ -102,7 +164,6 @@ class TaskSummaryView(
     TemplateView,
 ):
     template_name = "leaving/security_team/summary.html"
-    leaving_request = None
     page_title: str = "Security Team off-boarding summary"
 
     def test_func(self):
@@ -123,19 +184,9 @@ class TaskSummaryView(
             page_title=self.page_title,
         )
 
-        security_access_items: List[Tuple[str, str, TaskLog]] = [
-            (
-                security_access_item[0],
-                security_access_item[1],
-                getattr(self.leaving_request, security_access_item[0]),
-            )
-            for security_access_item in self.leaving_request.security_access()
-            if security_access_item[2]
-        ]
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
             leaving_request_uuid=self.leaving_request.uuid,
-            security_access_items=security_access_items,
         )
 
         return context
@@ -165,11 +216,6 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
             leaving_request_uuid=self.leaving_request.uuid,
             leaver_name=self.leaving_request.get_leaver_name(),
             line_manager_name=self.leaving_request.get_line_manager_name(),
-            security_access=[
-                security_item[1]
-                for security_item in self.leaving_request.security_access()
-                if security_item[2]
-            ],
             complete=bool(self.leaving_request.security_team_complete),
         )
 
