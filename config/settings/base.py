@@ -88,7 +88,7 @@ DATABASES = {"default": env.db()}
 # People Data report
 PEOPLE_DATA_INTERFACE = env("PEOPLE_DATA_INTERFACE")
 
-if env("PEOPLE_DATA_POSTGRES_HOST", default=None):
+if env("PEOPLE_DATA_ON", default=False):
     DATABASES["people_data"] = {
         "HOST": env("PEOPLE_DATA_POSTGRES_HOST"),
         "NAME": env("PEOPLE_DATA_POSTGRES_DATABASE"),

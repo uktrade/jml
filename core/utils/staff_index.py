@@ -66,6 +66,7 @@ class StaffDocument(TypedDict):
     people_data_employee_number: str
 
 
+
 class ConsolidatedStaffDocument(TypedDict):
     uuid: str
     staff_sso_activity_stream_id: str
@@ -303,7 +304,7 @@ def consolidate_staff_documents(
             "department": staff_document["service_now_department_id"] or "",
             "department_name": staff_document["service_now_department_name"] or "",
             "job_title": staff_document["people_finder_job_title"] or "",
-            "staff_id": staff_document["employee_number"] or "",
+            "staff_id": staff_document["people_data_employee_number"] or "",
             "manager": "",
         }
         consolidated_staff_documents.append(consolidated_staff_document)
