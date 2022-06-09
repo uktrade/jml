@@ -119,7 +119,8 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         LeavingRequestFactory.create_batch(
             19,
             line_manager_complete=timezone.now(),
-            security_team_complete=timezone.now(),
+            security_team_building_pass_complete=timezone.now(),
+            security_team_rosa_kit_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
             security_clearance=SecurityClearance.SC.value,
@@ -139,7 +140,8 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         LeavingRequestFactory.create_batch(
             50,
             line_manager_complete=timezone.now(),
-            security_team_complete=timezone.now(),
+            security_team_building_pass_complete=timezone.now(),
+            security_team_rosa_kit_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
             security_clearance=SecurityClearance.SC.value,
@@ -160,7 +162,8 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         LeavingRequestFactory.create_batch(
             50,
             line_manager_complete=timezone.now(),
-            security_team_complete=timezone.now(),
+            security_team_building_pass_complete=timezone.now(),
+            security_team_rosa_kit_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
             security_clearance=SecurityClearance.SC.value,
@@ -181,14 +184,16 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         LeavingRequestFactory.create_batch(
             50,
             line_manager_complete=timezone.now(),
-            security_team_complete=timezone.now(),
+            security_team_building_pass_complete=timezone.now(),
+            security_team_rosa_kit_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
             security_clearance=SecurityClearance.SC.value,
         )
         LeavingRequestFactory(
             line_manager_complete=timezone.now(),
-            security_team_complete=timezone.now(),
+            security_team_building_pass_complete=timezone.now(),
+            security_team_rosa_kit_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
             security_clearance=SecurityClearance.SC.value,

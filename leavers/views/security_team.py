@@ -47,7 +47,6 @@ def get_security_role(request: HttpRequest) -> SecuritySubRole:
 class LeavingRequestListing(base.LeavingRequestListing):
     template_name = "leaving/security_team/listing.html"
 
-    complete_field = "security_team_complete"
     building_pass_confirmation_view = "security-team-building-pass-confirmation"
     rosa_kit_confirmation_view = "security-team-rosa-kit-confirmation"
     summary_view = "security-team-summary"
@@ -57,6 +56,15 @@ class LeavingRequestListing(base.LeavingRequestListing):
         return self.request.user.groups.filter(
             name="Security Team",
         ).exists()
+
+    def get_complete_field(self) -> str:
+        role = get_security_role(self.request)
+        if role == SecuritySubRole.BUILDING_PASS:
+            return "security_team_building_pass_complete"
+        elif role == SecuritySubRole.ROSA_KIT:
+            return "security_team_rosa_kit_complete"
+
+        raise Exception("Unknown security role")
 
     def get_confirmation_view(self) -> str:
         role = get_security_role(self.request)
@@ -216,7 +224,7 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
             leaving_request_uuid=self.leaving_request.uuid,
             leaver_name=self.leaving_request.get_leaver_name(),
             line_manager_name=self.leaving_request.get_line_manager_name(),
-            complete=bool(self.leaving_request.security_team_complete),
+            complete=self.leaving_request.security_team_complete,
         )
 
         return context

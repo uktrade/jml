@@ -208,6 +208,7 @@ class LeavingRequest(models.Model):
         null=True,
         blank=True,
     )
+    security_team_building_pass_complete = models.DateTimeField(null=True, blank=True)
 
     rosa_laptop_returned = models.OneToOneField(
         TaskLog,
@@ -224,8 +225,13 @@ class LeavingRequest(models.Model):
         null=True,
         blank=True,
     )
+    security_team_rosa_kit_complete = models.DateTimeField(null=True, blank=True)
 
-    security_team_complete = models.DateTimeField(null=True, blank=True)
+    @property
+    def security_team_complete(self) -> bool:
+        if self.security_pass and self.security_team_building_pass_complete:
+            return True
+        return False
 
     """
     Methods

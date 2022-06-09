@@ -41,6 +41,7 @@ before.</td>
 below.</a>
 Bench
 Build Staff Document
+Building Pass
 Building Pass Access Revoked
 building_pass_access_task_log
 card</li>{%
@@ -230,6 +231,7 @@ rosa_laptop_returned_task_log
 Security
 SECURITY
 Security Team
+security_team_building_pass_complete
 Send
 Send Line
 Send OCS Email
@@ -323,4 +325,3 @@ yet.</p
 You Email
 You Email*
 you.</p
-Building Pass
