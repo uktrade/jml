@@ -36,6 +36,7 @@ STAFF_DOCUMENT: StaffDocument = {
     "staff_sso_email_address": "joe.bloggs@example.com",  # /PS-IGNORE
     "staff_sso_first_name": "Joe",  # /PS-IGNORE
     "staff_sso_last_name": "Bloggs",
+    "people_data_employee_number": "12345",
 }
 STAFF_INDEX_RETURN_VALUE: List[StaffDocument] = [STAFF_DOCUMENT]
 
@@ -407,7 +408,7 @@ class TestConfirmDetailsView(TestCase):
         self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
         self.assertEqual(leaver_details["job_title"], "Job title")
         self.assertEqual(leaver_details["last_name"], "Bloggs")
-        self.assertEqual(leaver_details["staff_id"], "")
+        self.assertEqual(leaver_details["staff_id"], "12345")
         self.assertEqual(leaver_details["contact_email_address"], "")
         self.assertEqual(leaver_details["photo"], "")
 
@@ -440,7 +441,7 @@ class TestConfirmDetailsView(TestCase):
             {
                 "first_name": updates["first_name"],
                 "last_name": updates["last_name"],
-                "staff_id": "",
+                "staff_id": "12345",
                 "contact_email_address": updates["contact_email_address"],
                 "job_title": updates["job_title"],
                 "directorate": "Directorate 2",
@@ -570,7 +571,7 @@ class TestUpdateDetailsView(TestCase):
                 "locker_number": None,
                 "last_day": None,
                 "leaving_date": None,
-                "staff_id": "",
+                "staff_id": "12345",
                 "staff_type": None,
             },
         )

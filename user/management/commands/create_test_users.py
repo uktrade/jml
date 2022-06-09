@@ -59,6 +59,7 @@ class Command(BaseCommand):
                 is_staff=True,
                 is_superuser=True,
             )
+            user.legacy_sso_user_id = uuid.uuid4()
             user.set_password("password")
             user.save()
             self.stdout.write(f"{username} created")
@@ -77,7 +78,7 @@ class Command(BaseCommand):
                 "obj_type": "dit:StaffSSO:User",
                 "first_name": first_name,
                 "last_name": last_name,
-                "user_id": user.id,
+                "user_id": user.legacy_sso_user_id,
                 "status": "active",
                 "last_accessed": timezone.now(),
                 "joined": timezone.now(),

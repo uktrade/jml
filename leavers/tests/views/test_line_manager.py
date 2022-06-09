@@ -32,6 +32,7 @@ EMPTY_STAFF_DOCUMENT: StaffDocument = {
     "service_now_department_name": "",
     "service_now_directorate_id": "",
     "service_now_directorate_name": "",
+    "people_data_employee_number": "",
 }
 
 

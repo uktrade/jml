@@ -19,6 +19,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
         "properties": {
             "uuid": {"type": "text"},
             "staff_sso_activity_stream_id": {"type": "text"},
+            "staff_sso_legacy_id": {"type": "text"},
             "staff_sso_first_name": {"type": "text"},
             "staff_sso_last_name": {"type": "text"},
             "staff_sso_email_address": {"type": "text"},
@@ -35,6 +36,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "service_now_department_name": {"type": "text"},
             "service_now_directorate_id": {"type": "text"},
             "service_now_directorate_name": {"type": "text"},
+            "people_data_employee_number": {"type": "text"},
         },
     },
 }
@@ -43,6 +45,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
 class StaffDocument(TypedDict):
     uuid: str
     staff_sso_activity_stream_id: str
+    staff_sso_legacy_id: str
     staff_sso_first_name: str
     staff_sso_last_name: str
     staff_sso_email_address: str
@@ -60,6 +63,8 @@ class StaffDocument(TypedDict):
     service_now_department_name: str
     service_now_directorate_id: str
     service_now_directorate_name: str
+    people_data_employee_number: str
+
 
 
 class ConsolidatedStaffDocument(TypedDict):
@@ -299,7 +304,7 @@ def consolidate_staff_documents(
             "department": staff_document["service_now_department_id"] or "",
             "department_name": staff_document["service_now_department_name"] or "",
             "job_title": staff_document["people_finder_job_title"] or "",
-            "staff_id": "",
+            "staff_id": staff_document["people_data_employee_number"] or "",
             "manager": "",
         }
         consolidated_staff_documents.append(consolidated_staff_document)
@@ -307,10 +312,12 @@ def consolidate_staff_documents(
 
 
 def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
+    from core.people_data import get_people_data_interface
     from core.people_finder import get_people_finder_interface
     from core.service_now import get_service_now_interface
     from core.service_now.interfaces import ServiceNowUserNotFound
 
+    people_data_search = get_people_data_interface()
     people_finder_search = get_people_finder_interface()
     service_now_interface = get_service_now_interface()
 
@@ -326,6 +333,15 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
             if pf_result["email"] == staff_sso_user.email_address:
                 people_finder_result = pf_result
     people_finder_directorate: Optional[str] = people_finder_result.get("directorate")
+
+    """
+    Get People report data
+    """
+    people_data_results = people_data_search.get_people_data(
+        sso_legacy_id=staff_sso_user.user_id,
+    )
+    # Assuming first id is correct
+    employee_number = people_data_results["employee_numbers"][0]
 
     """
     Get Service Now data
@@ -385,6 +401,8 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         "service_now_department_name": service_now_department_name,
         "service_now_directorate_id": service_now_directorate_id,
         "service_now_directorate_name": service_now_directorate_name,
+        # People Data
+        "people_data_employee_number": employee_number,
     }
     return staff_document
 

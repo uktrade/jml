@@ -47,6 +47,7 @@ first-use:
 	docker-compose run --rm leavers python manage.py createcachetable
 	docker-compose run --rm leavers python manage.py migrate
 	docker-compose run --rm leavers python manage.py create_test_users
+	docker-compose run --rm leavers python manage.py seed_employee_ids
 	docker-compose run --rm leavers python manage.py update_staff_index
 	docker-compose up
 
@@ -102,3 +103,6 @@ superuser:
 
 test-users:
 	docker-compose run --rm leavers python manage.py create_test_users
+
+seed-employee-ids:
+	docker-compose run --rm leavers python manage.py seed_employee_ids
