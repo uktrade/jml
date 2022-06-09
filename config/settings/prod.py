@@ -6,6 +6,18 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 from .base import *  # type: ignore # noqa
 
+# People Data report
+PEOPLE_DATA_INTERFACE = env("PEOPLE_DATA_INTERFACE")
+
+DATABASES["people_data"] = {
+    "HOST": env("PEOPLE_DATA_POSTGRES_HOST"),
+    "NAME": env("PEOPLE_DATA_POSTGRES_DATABASE"),
+    "PORT": env("PEOPLE_DATA_POSTGRES_PORT", default=5432),
+    "ENGINE": "django.db.backends.postgresql",
+    "USER": env("PEOPLE_DATA_POSTGRES_USERNAME"),
+    "PASSWORD": env("PEOPLE_DATA_POSTGRES_PASSWORD"),
+}
+
 # SSO requirement
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
