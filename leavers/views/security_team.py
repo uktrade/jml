@@ -15,6 +15,7 @@ from leavers.forms.security_team import (
     BuildingPassDestroyedForm,
     BuildingPassNotReturnedForm,
     RosaKit,
+    RosaKitCloseRecordForm,
     RosaKitForm,
 )
 from leavers.models import LeavingRequest, TaskLog
@@ -202,9 +203,7 @@ class BuildingPassDestroyView(
 
     def get_success_url(self) -> str:
         assert self.leaving_request
-        return reverse_lazy(
-            "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
-        )
+        return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         assert self.leaving_request
@@ -397,11 +396,11 @@ class RosaKitConfirmationView(
     def form_valid(self, form):
         assert self.leaving_request
         user = cast(User, self.request.user)
+        self.leaving_request.rosa_kit_form_data = form.cleaned_data
 
         submission_type: Literal["close", "save"] = "save"
         if "save" in form.data:
             submission_type = "save"
-            self.leaving_request.rosa_kit_form_data = form.cleaned_data
         elif "close" in form.data:
             submission_type = "close"
             if RosaKit.MOBILE.value in form.cleaned_data["user_returned"]:
@@ -425,7 +424,6 @@ class RosaKitConfirmationView(
                         task_name="ROSA Key returned",
                     )
                 )
-            self.leaving_request.security_team_rosa_kit_complete = timezone.now()
 
         self.leaving_request.save()
 
@@ -436,7 +434,61 @@ class RosaKitConfirmationView(
                     kwargs={"leaving_request_id": self.leaving_request.uuid},
                 )
             )
+        elif submission_type == "close":
+            return redirect(
+                reverse(
+                    "security-team-rosa-kit-confirmation-close",
+                    kwargs={"leaving_request_id": self.leaving_request.uuid},
+                )
+            )
         return super().form_valid(form)
+
+
+class RosaKitConfirmationCloseView(
+    UserPassesTestMixin,
+    FormView,
+):
+    template_name = "leaving/security_team/confirmation/rosa_kit_action.html"
+    page_title: str = "Security Team off-boarding: ROSA Kit confirmation"
+    form_class = RosaKitCloseRecordForm
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="Security Team",
+        ).exists()
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest,
+            uuid=self.kwargs.get("leaving_request_id", None),
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self) -> str:
+        assert self.leaving_request
+        return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        assert self.leaving_request
+
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
+
+        return form_kwargs
+
+    def form_valid(self, form):
+        assert self.leaving_request
+        self.leaving_request.security_team_rosa_kit_complete = timezone.now()
+        self.leaving_request.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(
+            leaving_request_uuid=self.leaving_request.uuid,
+            page_title=self.page_title,
+        )
+        return context
 
 
 class TaskSummaryView(

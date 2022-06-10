@@ -163,3 +163,29 @@ class RosaKitForm(GovFormattedForm):
             )
 
         return cleaned_data
+
+
+class RosaKitCloseRecordForm(GovFormattedForm):
+    def __init__(self, leaving_request_uuid: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        cancel_url = reverse(
+            "security-team-rosa-kit-confirmation",
+            args=[leaving_request_uuid],
+        )
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Submit(
+                    "save",
+                    "Close record",
+                    css_class="govuk-button--warning",
+                ),
+                HTML(
+                    f"<a href='{cancel_url}' class='govuk-button "
+                    "govuk-button--secondary'>Cancel</a>"
+                ),
+                css_class="govuk-button-group",
+            ),
+        )

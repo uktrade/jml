@@ -174,6 +174,11 @@ urlpatterns = [
         name="security-team-rosa-kit-confirmation",
     ),
     path(
+        "leaver/security-team/<uuid:leaving_request_id>/rosa-kit/confirm/",
+        security_team_views.RosaKitConfirmationCloseView.as_view(),
+        name="security-team-rosa-kit-confirmation-close",
+    ),
+    path(
         "leaver/security-team/<uuid:leaving_request_id>/summary/",
         security_team_views.TaskSummaryView.as_view(),
         name="security-team-summary",
