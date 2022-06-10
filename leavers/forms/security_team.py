@@ -37,6 +37,7 @@ class BuildingPassNotReturnedForm(GovFormattedForm):
     notes = forms.CharField(
         label="Additional notes (optional)",
         required=False,
+        max_length=1000,
     )
 
     def __init__(self, leaving_request_uuid: str, *args, **kwargs):
@@ -169,6 +170,7 @@ class RosaKitCloseRecordForm(GovFormattedForm):
     notes = forms.CharField(
         label="Additional notes (optional)",
         required=False,
+        max_length=1000,
     )
 
     def __init__(self, leaving_request_uuid: str, *args, **kwargs):
