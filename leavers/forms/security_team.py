@@ -166,6 +166,11 @@ class RosaKitForm(GovFormattedForm):
 
 
 class RosaKitCloseRecordForm(GovFormattedForm):
+    notes = forms.CharField(
+        label="Additional notes (optional)",
+        required=False,
+    )
+
     def __init__(self, leaving_request_uuid: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -176,6 +181,7 @@ class RosaKitCloseRecordForm(GovFormattedForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            Field.textarea("notes"),
             Div(
                 Submit(
                     "save",
