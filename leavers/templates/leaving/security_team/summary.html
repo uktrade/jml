@@ -39,30 +39,16 @@
                             {% endif %}
                         </td>
                     </tr>
-                    <tr class="govuk-table__row">
-                        <td class="govuk-table__cell">Retrieve ROSA Mobile</td>
-                        <td class="govuk-table__cell">
-                            <strong class="govuk-tag govuk-tag--green">
-                                Returned
-                            </strong>
-                        </td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <td class="govuk-table__cell">Retrieve ROSA Laptop</td>
-                        <td class="govuk-table__cell">
-                            <strong class="govuk-tag govuk-tag--blue">
-                                Pending
-                            </strong>
-                        </td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <td class="govuk-table__cell">Retrieve ROSA Key</td>
-                        <td class="govuk-table__cell">
-                            <strong class="govuk-tag govuk-tag--green">
-                                Returned
-                            </strong>
-                        </td>
-                    </tr>
+                    {% for rosa_kit_task in rosa_kit_tasks %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">{{ rosa_kit_task.name }}</td>
+                            <td class="govuk-table__cell">
+                                <strong class="govuk-tag govuk-tag--{{ rosa_kit_task.status.colour }}">
+                                    {{ rosa_kit_task.status.text }}
+                                </strong>
+                            </td>
+                        </tr>
+                    {% endfor%}
                 </tbody>
             </table>
 

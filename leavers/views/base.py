@@ -101,10 +101,11 @@ class LeavingRequestListing(
         leaving_requests = self.get_leaving_requests()
         lr_results_data = []
         for lr in leaving_requests:
+            is_complete = getattr(lr, self.get_complete_field())
             link = reverse_lazy(
                 self.get_confirmation_view(), kwargs={"leaving_request_id": lr.uuid}
             )
-            if lr.security_team_complete:
+            if is_complete:
                 link = reverse_lazy(
                     self.get_summary_view(), kwargs={"leaving_request_id": lr.uuid}
                 )

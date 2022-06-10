@@ -227,7 +227,9 @@ ROSA Kit
 ROSA Kit retrieved</h1
 ROSA kit.</p
 Rosa kit</li>
+ROSA Laptop
 ROSA Line
+ROSA Mobile
 rosa_laptop_returned_task_log
 Security
 SECURITY

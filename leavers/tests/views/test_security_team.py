@@ -209,27 +209,3 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertContains(response, "Joe")
         self.assertContains(response, "Bloggs")
         self.assertContains(response, "Complete")
-
-
-class TestThankYouView(ViewAccessTest, TestCase):
-    view_name = "security-team-thank-you"
-    allowed_methods = ["get"]
-
-    def setUp(self):
-        super().setUp()
-        # Create Leaving Request (with initial Slack message)
-        self.leaving_request = LeavingRequestFactory(
-            line_manager_complete=timezone.now()
-        )
-        # Add the Security Team User Group (and add the authenticated user to it)  /PS-IGNORE
-        security_team_group, _ = Group.objects.get_or_create(name="Security Team")
-        self.authenticated_user.groups.add(security_team_group.id)
-        # Update the view_kwargs to pass the leaving_request ID to the view.
-        self.view_kwargs = {"args": [self.leaving_request.uuid]}
-
-    def test_page_contents(self):
-        self.client.force_login(self.authenticated_user)
-        response = self.client.get(self.get_url())
-
-        leaver_name = self.leaving_request.get_leaver_name()
-        self.assertEqual(response.context["leaver_name"], leaver_name)
