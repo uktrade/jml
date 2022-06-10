@@ -111,6 +111,10 @@ class BuildingPassConfirmationView(
             page_title=self.page_title,
         )
 
+        notes: Optional[str] = None
+        if self.leaving_request.security_pass_not_returned:
+            notes = self.leaving_request.security_pass_not_returned.notes
+
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
             leaver_email=self.leaving_request.get_leaver_email(),
@@ -127,6 +131,7 @@ class BuildingPassConfirmationView(
                 self.leaving_request.leaving_date < timezone.now()
                 and not self.leaving_request.security_team_building_pass_complete
             ),
+            notes=notes,
         )
 
         return context
@@ -546,6 +551,10 @@ class TaskSummaryView(
             page_title=self.page_title,
         )
 
+        building_pass_notes: Optional[str] = None
+        if self.leaving_request.security_pass_not_returned:
+            building_pass_notes = self.leaving_request.security_pass_not_returned.notes
+
         rosa_kit_statuses = self.get_rosa_kit_statuses()
         rosa_kit_tasks = []
 
@@ -575,10 +584,12 @@ class TaskSummaryView(
                 self.leaving_request.security_team_building_pass_complete
             ),
             pass_not_returned=bool(self.leaving_request.security_pass_not_returned),
+            building_pass_notes=building_pass_notes,
             rosa_kit_tasks=rosa_kit_tasks,
             rosa_kit_complete=bool(
                 self.leaving_request.security_team_rosa_kit_complete
             ),
+            rosa_kit_notes=self.leaving_request.rosa_kit_form_data.get("notes"),
         )
 
         return context

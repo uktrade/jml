@@ -52,6 +52,16 @@
                 </tbody>
             </table>
 
+            {% if building_pass_notes %}
+                <h2 class="govuk-heading-m">Building Pass notes</h2>
+                <p class="govuk-body">{{ building_pass_notes }}</p>
+            {% endif %}
+
+            {% if rosa_kit_notes %}
+                <h2 class="govuk-heading-m">ROSA Kit notes</h2>
+                <p class="govuk-body">{{ rosa_kit_notes }}</p>
+            {% endif %}
+
             <a class="govuk-link" href="{% url 'security-team-listing-complete' %}">Return to completed leaving requests dashboard</a>
         </div>
     </div>

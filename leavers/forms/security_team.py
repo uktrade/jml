@@ -87,6 +87,11 @@ class RosaKitForm(GovFormattedForm):
         widget=forms.CheckboxSelectMultiple,
         required=False,
     )
+    notes = forms.CharField(
+        label="Additional notes (optional)",
+        required=False,
+        max_length=1000,
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -100,6 +105,11 @@ class RosaKitForm(GovFormattedForm):
             Field.checkboxes(
                 "user_returned",
                 legend_size=Size.LARGE,
+            ),
+            Field.textarea(
+                "notes",
+                label_size=Size.MEDIUM,
+                rows=3,
             ),
             Div(
                 Submit(
@@ -167,12 +177,6 @@ class RosaKitForm(GovFormattedForm):
 
 
 class RosaKitCloseRecordForm(GovFormattedForm):
-    notes = forms.CharField(
-        label="Additional notes (optional)",
-        required=False,
-        max_length=1000,
-    )
-
     def __init__(self, leaving_request_uuid: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -183,7 +187,6 @@ class RosaKitCloseRecordForm(GovFormattedForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field.textarea("notes"),
             Div(
                 Submit(
                     "save",

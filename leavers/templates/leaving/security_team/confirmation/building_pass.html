@@ -102,6 +102,11 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {% if notes %}
+                <h2 class="govuk-heading-m">Notes</h2>
+                <p class="govuk-body">{{ notes }}</p>
+            {% endif %}
+
             <div class="govuk-button-group">
                 {% if not pass_destroyed %}
                     <a href="{% url 'security-team-building-pass-destroy' leaving_request_uuid %}" class="govuk-button govuk-button--warning">
