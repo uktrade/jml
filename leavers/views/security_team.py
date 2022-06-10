@@ -280,6 +280,7 @@ class BuildingPassNotReturnedView(
             self.leaving_request.task_logs.create(
                 user=user,
                 task_name="Building pass not returned",
+                notes=form.cleaned_data.get("notes", ""),
             )
         )
         self.leaving_request.save()

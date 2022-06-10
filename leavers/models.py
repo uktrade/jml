@@ -22,6 +22,7 @@ class TaskLog(models.Model):
         on_delete=models.CASCADE,
         related_name="task_logs",
     )
+    notes = models.CharField(max_length=1000, blank=True, null=True)
 
 
 class LeavingRequest(models.Model):
