@@ -46,17 +46,17 @@
 | SRE_EMAIL                                                | None                                       | Email address for the SRE Team                                      |
 | GOVUK_NOTIFY_API_KEY                                     | None                                       |                                                                     |
 | TEMPLATE_ID_LEAVER_THANK_YOU_EMAIL                       | None                                       |                                                                     |
-| CSU4_EMAIL_TEMPLATE_ID                                   | None                                       |                                                                     |
-| OCS_LEAVER_EMAIL_TEMPLATE_ID                             | None                                       |                                                                     |
+| TEMPLATE_ID_CSU4_EMAIL                                   | None                                       |                                                                     |
+| TEMPLATE_ID_OCS_LEAVER_EMAIL                             | None                                       |                                                                     |
 | TEMPLATE_ID_OCS_OAB_LOCKER_EMAIL                         | None                                       |                                                                     |
-| ROSA_LEAVER_REMINDER_EMAIL_TEMPLATE_ID                   | None                                       |                                                                     |
-| ROSA_LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID             | None                                       |                                                                     |
-| SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL_TEMPLATE_ID          | None                                       |                                                                     |
-| SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL_TEMPLATE_ID | None                                       |                                                                     |
-| SRE_REMINDER_EMAIL_TEMPLATE_ID                           | None                                       |                                                                     |
-| LINE_MANAGER_NOTIFICATION_EMAIL_TEMPLATE_ID              | None                                       |                                                                     |
-| LINE_MANAGER_REMINDER_EMAIL_TEMPLATE_ID                  | None                                       |                                                                     |
-| LINE_MANAGER_THANKYOU_EMAIL_TEMPLATE_ID                  | None                                       |                                                                     |
+| TEMPLATE_ID_ROSA_LEAVER_REMINDER_EMAIL                   | None                                       |                                                                     |
+| TEMPLATE_ID_ROSA_LINE_MANAGER_REMINDER_EMAIL             | None                                       |                                                                     |
+| TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL          | None                                       |                                                                     |
+| TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL | None                                       |                                                                     |
+| TEMPLATE_ID_SRE_REMINDER_EMAIL                           | None                                       |                                                                     |
+| TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL              | None                                       |                                                                     |
+| TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                                       |                                                                     |
+| TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL                  | None                                       |                                                                     |
 | LSD_ZENDESK_EMAIL                                        |                                            | LSD Team Zendesk email address                                      |
 | LSD_ZENDESK_TOKEN                                        |                                            |                                                                     |
 | LSD_ZENDESK_SUBDOMAIN                                    |                                            |                                                                     |
