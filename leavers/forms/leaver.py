@@ -48,7 +48,7 @@ class LeaverUpdateForm(GovFormattedForm):
             [(None, "Select security clearance type")] + SecurityClearance.choices  # type: ignore
         ),
     )
-    locker_number = forms.CharField(label="", required=False)
+    has_locker = YesNoField(label="")
     staff_type = forms.ChoiceField(
         label="",
         widget=forms.RadioSelect,
@@ -112,8 +112,8 @@ class LeaverUpdateForm(GovFormattedForm):
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
-                Field("locker_number"),
-                legend="Locker number if applicable",
+                Field.radios("has_locker", inline=True),
+                legend="Do you have a locker?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
