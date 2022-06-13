@@ -106,3 +106,6 @@ test-users:
 
 seed-employee-ids:
 	docker-compose run --rm leavers python manage.py seed_employee_ids
+
+model-graphs:
+	docker-compose run --rm leavers python manage.py graph_models -a -g -o jml_data_model.png
