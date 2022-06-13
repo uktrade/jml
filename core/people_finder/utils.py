@@ -15,16 +15,21 @@ def index_people_finder_result(people_finder_result: PersonDetail):
 
     staff_index_result = staff_index_results[0].to_dict()
 
-    staff_index_result.update(
-        people_finder_image=people_finder_result.get("image", ""),
-        people_finder_first_name=people_finder_result.get("first_name", ""),
-        people_finder_last_name=people_finder_result.get("last_name", ""),
-        people_finder_job_title=people_finder_result.get("job_title", ""),
-        people_finder_directorate=people_finder_result.get("directorate", ""),
-        people_finder_phone=people_finder_result.get("phone", ""),
-        people_finder_grade=people_finder_result.get("grade", ""),
-        people_finder_email=people_finder_result.get("email", ""),
-    )
+    mapped_data = {
+        "people_finder_image": people_finder_result.image,
+        "people_finder_first_name": people_finder_result.first_name,
+        "people_finder_last_name": people_finder_result.last_name,
+        "people_finder_job_title": people_finder_result.job_title,
+        "people_finder_directorate": people_finder_result.directorate,
+        "people_finder_phone": people_finder_result.phone,
+        "people_finder_grade": people_finder_result.grade,
+        "people_finder_email": people_finder_result.email,
+    }
+
+    # Only update values that have data.
+    for key, value in mapped_data.items():
+        if value:
+            staff_index_result[key] = value
 
     index_staff_document(staff_document=StaffDocument.from_dict(staff_index_result))
 

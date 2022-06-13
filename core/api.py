@@ -1,6 +1,8 @@
-import json
+from dataclasses import dataclass
 from typing import Optional
 
+from dataclasses_json import DataClassJsonMixin
+from django.http import HttpResponseBadRequest
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.utils.decorators import decorator_from_middleware
@@ -11,6 +13,15 @@ from rest_framework.views import APIView
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.people_finder.interfaces import PersonDetail
 from core.people_finder.utils import index_people_finder_result
+
+
+@dataclass
+class IncomingPeopleFinderDetail(DataClassJsonMixin):
+    email: str
+    first_name: str
+    last_name: str
+    primary_phone_number: Optional[str]
+    grade: Optional[str]
 
 
 class PeopleFinderUpdateView(APIView):
@@ -27,26 +38,22 @@ class PeopleFinderUpdateView(APIView):
             return HttpResponse(status=401)
 
         # Get the data
-        people_finder_data: PersonDetail = json.loads(request.body)
-        people_finder_email: Optional[str] = people_finder_data.get("email")
+        try:
+            people_finder_data = IncomingPeopleFinderDetail.from_json(request.body)
+        except Exception:
+            return HttpResponseBadRequest("Invalid JSON")
+
+        people_finder_email: Optional[str] = people_finder_data.email
 
         # Validate the data
         if not people_finder_email:
-            return HttpResponse(
+            return HttpResponseBadRequest(
                 "No email address found in the people finder data",
-                status=400,
             )
-
-        for key, _ in people_finder_data.items():
-            if key not in PersonDetail.__required_keys__:
-                return HttpResponse(
-                    "Invalid key found in the people finder data: {}".format(key),
-                    status=400,
-                )
 
         # Check if the email has been ingested from the Activity Stream:
         email_in_activity_stream: bool = ActivityStreamStaffSSOUser.objects.filter(
-            email=people_finder_email
+            email_address=people_finder_email
         ).exists()
         if not email_in_activity_stream:
             # If we can filter the Staff SSO Activity Stream by email,
@@ -56,9 +63,21 @@ class PeopleFinderUpdateView(APIView):
                 status=200,
             )
 
+        # Build PersonDetail to be indexed
+        person_detail = PersonDetail(
+            first_name=people_finder_data.first_name,
+            last_name=people_finder_data.last_name,
+            image="",
+            job_title="",
+            directorate="",
+            email=people_finder_data.email,
+            phone=people_finder_data.primary_phone_number,
+            grade=people_finder_data.grade,
+        )
+
         # Update the People Finder details in the Staff index.
         try:
-            index_people_finder_result(people_finder_result=people_finder_data)
+            index_people_finder_result(people_finder_result=person_detail)
         except Exception:
             # We don't mind if the indexing fails as it is possible that
             # someone is updated in People Finder that doesn't exist in the

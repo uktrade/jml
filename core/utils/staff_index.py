@@ -1,6 +1,6 @@
 import uuid
 from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping, Optional, TypedDict, Union
+from typing import Any, List, Mapping, Optional, TypedDict
 
 from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
@@ -304,41 +304,71 @@ def consolidate_staff_documents(
     return consolidated_staff_documents
 
 
+def get_people_finder_data(*, staff_sso_user: ActivityStreamStaffSSOUser):
+    from core.people_finder import get_people_finder_interface
+
+    people_finder_data = {
+        "people_finder_image": "",
+        "people_finder_first_name": "",
+        "people_finder_last_name": "",
+        "people_finder_job_title": "",
+        "people_finder_directorate": "",
+        "people_finder_phone": "",
+        "people_finder_grade": "",
+        "people_finder_email": "",
+    }
+
+    people_finder_search = get_people_finder_interface()
+
+    people_finder_results = people_finder_search.get_search_results(
+        search_term=staff_sso_user.email_address,
+    )
+    people_finder_result: Optional[PersonDetail] = None
+    if len(people_finder_results) > 0:
+        for pf_result in people_finder_results:
+            if pf_result.email == staff_sso_user.email_address:
+                people_finder_result = pf_result
+
+    if people_finder_result:
+        people_finder_data["people_finder_image"] = people_finder_result.image
+        people_finder_data["people_finder_first_name"] = people_finder_result.first_name
+        people_finder_data["people_finder_last_name"] = people_finder_result.last_name
+        people_finder_data["people_finder_job_title"] = people_finder_result.job_title
+        people_finder_data[
+            "people_finder_directorate"
+        ] = people_finder_result.directorate
+        people_finder_data["people_finder_phone"] = people_finder_result.phone
+        people_finder_data["people_finder_grade"] = people_finder_result.grade
+        people_finder_data["people_finder_email"] = people_finder_result.email
+
+    return people_finder_data
+
+
 def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     from core.people_data import get_people_data_interface
-    from core.people_finder import get_people_finder_interface
     from core.service_now import get_service_now_interface
     from core.service_now.interfaces import ServiceNowUserNotFound
 
-    people_data_search = get_people_data_interface()
-    people_finder_search = get_people_finder_interface()
-    service_now_interface = get_service_now_interface()
+    staff_sso_data = {
+        "staff_sso_activity_stream_id": staff_sso_user.identifier,
+        "staff_sso_first_name": staff_sso_user.first_name,
+        "staff_sso_last_name": staff_sso_user.last_name,
+        "staff_sso_email_address": staff_sso_user.email_address,
+        "staff_sso_contact_email_address": staff_sso_user.contact_email_address or "",
+    }
 
     """
     Get People Finder data
     """
-    people_finder_results = people_finder_search.get_search_results(
-        search_term=staff_sso_user.email_address,
-    )
-    people_finder_result: Union[Dict, PersonDetail] = {}
-    if len(people_finder_results) > 0:
-        for pf_result in people_finder_results:
-            if pf_result["email"] == staff_sso_user.email_address:
-                people_finder_result = pf_result
-    people_finder_directorate: Optional[str] = people_finder_result.get("directorate")
 
-    """
-    Get People report data
-    """
-    people_data_results = people_data_search.get_people_data(
-        sso_legacy_id=staff_sso_user.user_id,
-    )
-    # Assuming first id is correct
-    employee_number = people_data_results["employee_numbers"][0]
+    people_finder_data = get_people_finder_data(staff_sso_user=staff_sso_user)
 
     """
     Get Service Now data
     """
+
+    service_now_interface = get_service_now_interface()
+
     # Get Service Now User data
     service_now_user_id: str = ""
     try:
@@ -360,46 +390,50 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     # Get Service Now Directorate data
     service_now_directorate_id: str = ""
     service_now_directorate_name: str = ""
-    if people_finder_directorate:
+    if people_finder_data["people_finder_directorate"]:
         service_now_directorates = service_now_interface.get_directorates(
-            name=people_finder_directorate,
+            name=people_finder_data["people_finder_directorate"],
         )
         if len(service_now_directorates) == 1:
             service_now_directorate_id = service_now_directorates[0]["sys_id"]
             service_now_directorate_name = service_now_directorates[0]["name"]
 
+    service_now_data = {
+        "service_now_user_id": service_now_user_id,
+        "service_now_department_id": service_now_department_id,
+        "service_now_department_name": service_now_department_name,
+        "service_now_directorate_id": service_now_directorate_id,
+        "service_now_directorate_name": service_now_directorate_name,
+    }
+
+    """
+    Get People report data
+    """
+
+    people_data_search = get_people_data_interface()
+
+    people_data_results = people_data_search.get_people_data(
+        sso_legacy_id=staff_sso_user.user_id,
+    )
+    # Assuming first id is correct
+    employee_number = people_data_results["employee_numbers"][0]
+
     """
     Build Staff Document
     """
-    staff_document = StaffDocument.from_dict(
-        {
-            "uuid": str(uuid.uuid4()),
-            # Staff SSO
-            "staff_sso_activity_stream_id": staff_sso_user.identifier,
-            "staff_sso_first_name": staff_sso_user.first_name,
-            "staff_sso_last_name": staff_sso_user.last_name,
-            "staff_sso_email_address": staff_sso_user.email_address,
-            "staff_sso_contact_email_address": staff_sso_user.contact_email_address
-            or "",
-            # People Finder
-            "people_finder_image": people_finder_result.get("image", ""),
-            "people_finder_first_name": people_finder_result.get("first_name", ""),
-            "people_finder_last_name": people_finder_result.get("last_name", ""),
-            "people_finder_job_title": people_finder_result.get("job_title", ""),
-            "people_finder_directorate": people_finder_result.get("directorate", ""),
-            "people_finder_phone": people_finder_result.get("phone", ""),
-            "people_finder_grade": people_finder_result.get("grade", ""),
-            "people_finder_email": people_finder_result.get("email", ""),
-            # Service Now
-            "service_now_user_id": service_now_user_id,
-            "service_now_department_id": service_now_department_id,
-            "service_now_department_name": service_now_department_name,
-            "service_now_directorate_id": service_now_directorate_id,
-            "service_now_directorate_name": service_now_directorate_name,
-            # People Data
-            "people_data_employee_number": employee_number,
-        }
-    )
+
+    staff_document: StaffDocument = {
+        "uuid": str(uuid.uuid4()),
+        # Staff SSO
+        **staff_sso_data,
+        # People Finder
+        **people_finder_data,
+        # Service Now
+        **service_now_data,
+        # People Data
+        "people_data_employee_number": employee_number,
+    }
+
     return staff_document
 
 

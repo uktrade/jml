@@ -1,13 +1,12 @@
-Celery==5.2.7
 Celery[redis]==5.2.7
-django-crispy-forms
+Celery==5.2.7
 crispy-forms-gds
 dataclasses-json==0.5.7
 dit-activity-stream==0.0.1
-django-crispy-forms
 django-celery-beat
 django-celery-results
 django-compressor
+django-crispy-forms
 django-environ
 django-health-check==3.16.5
 django-log-formatter-ecs

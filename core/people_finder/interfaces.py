@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import List, TypedDict
+from dataclasses import dataclass
+from typing import List
 
 from core.people_finder.search import get_search_results
 from core.people_finder.search_legacy import (
@@ -7,7 +8,8 @@ from core.people_finder.search_legacy import (
 )
 
 
-class PersonDetail(TypedDict):
+@dataclass
+class PersonDetail:
     image: str
     first_name: str
     last_name: str
@@ -27,16 +29,16 @@ class PeopleFinderBase(ABC):
 class PeopleFinderStubbed(PeopleFinderBase):
     def get_search_results(self, search_term: str) -> List[PersonDetail]:
         return [
-            {
-                "first_name": "Joe",  # /PS-IGNORE
-                "last_name": "Bloggs",
-                "image": "",
-                "job_title": "Job title",
-                "directorate": "Directorate name",
-                "email": "joe.bloggs@example.com",  # /PS-IGNORE
-                "phone": "0123456789",
-                "grade": "Example Grade",
-            },
+            PersonDetail(
+                first_name="Joe",  # /PS-IGNORE
+                last_name="Bloggs",
+                image="",
+                job_title="Job title",
+                directorate="Directorate name",
+                email="joe.bloggs@example.com",  # /PS-IGNORE
+                phone="0123456789",
+                grade="Example Grade",
+            ),
         ]
 
 
@@ -55,16 +57,16 @@ class PeopleFinder(PeopleFinderBase):
                 image = search_result["photo"]
 
             results.append(
-                {
-                    "first_name": search_result["first_name"],
-                    "last_name": search_result["last_name"],
-                    "image": image,
-                    "job_title": job_title,
-                    "directorate": directorate,
-                    "email": search_result["email"],
-                    "phone": search_result["primary_phone_number"],
-                    "grade": search_result["grade"],
-                }
+                PersonDetail(
+                    first_name=search_result["first_name"],
+                    last_name=search_result["last_name"],
+                    image=image,
+                    job_title=job_title,
+                    directorate=directorate,
+                    email=search_result["email"],
+                    phone=search_result["primary_phone_number"],
+                    grade=search_result["grade"],
+                )
             )
         return results
 
@@ -75,16 +77,16 @@ class PeopleFinderLegacy(PeopleFinderBase):
 
         results = []
         for hit in search_results.hits:
-            personal_detail: PersonDetail = {
-                "first_name": hit["name"],
-                "last_name": hit["name"],
-                "image": "",
-                "job_title": hit["role_and_group"],
-                "directorate": "",
-                "email": hit["contact_email_or_email"],
-                "phone": hit["phone_number_variations"],
-                "grade": "",
-            }
+            personal_detail = PersonDetail(
+                first_name=hit["name"],
+                last_name=hit["name"],
+                image="",
+                job_title=hit["role_and_group"],
+                directorate="",
+                email=hit["contact_email_or_email"],
+                phone=hit["phone_number_variations"],
+                grade="",
+            )
             results.append(personal_detail)
 
         return results
