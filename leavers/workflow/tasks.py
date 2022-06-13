@@ -16,6 +16,7 @@ from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_
 from leavers.models import LeaverInformation, LeavingRequest, SlackMessage, TaskLog
 from leavers.utils.emails import (
     send_csu4_leaver_email,
+    send_leaver_thank_you_email,
     send_line_manager_correction_email,
     send_line_manager_notification_email,
     send_line_manager_reminder_email,
@@ -230,6 +231,7 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
 
 
 class EmailIds(Enum):
+    LEAVER_THANK_YOU_EMAIL = "leaver_thank_you_email"
     LEAVER_ROSA_REMINDER = "leaver_rosa_reminder"
     LINE_MANAGER_ROSA_REMINDER = "line_manager_rosa_reminder"
     LINE_MANAGER_CORRECTION = "line_manager_correction"
@@ -245,6 +247,7 @@ class EmailIds(Enum):
 
 
 EMAIL_MAPPING: Dict[EmailIds, Callable] = {
+    EmailIds.LEAVER_THANK_YOU_EMAIL: send_leaver_thank_you_email,
     EmailIds.LEAVER_ROSA_REMINDER: send_rosa_leaver_reminder_email,
     EmailIds.LINE_MANAGER_ROSA_REMINDER: send_rosa_line_manager_reminder_email,
     EmailIds.LINE_MANAGER_CORRECTION: send_line_manager_correction_email,
