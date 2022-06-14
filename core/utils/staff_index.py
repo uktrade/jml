@@ -412,6 +412,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         # People Data
         "people_data_employee_number": employee_number,
     }
+
     return staff_document
 
 
