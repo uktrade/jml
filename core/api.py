@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, List, Optional
 
 from dataclasses_json import DataClassJsonMixin
 from django.http import HttpResponseBadRequest
@@ -22,6 +22,8 @@ class IncomingPeopleFinderDetail(DataClassJsonMixin):
     last_name: str
     primary_phone_number: Optional[str]
     grade: Optional[str]
+    roles: List[Any]
+    photo: Optional[str]
 
 
 class PeopleFinderUpdateView(APIView):
@@ -39,7 +41,9 @@ class PeopleFinderUpdateView(APIView):
 
         # Get the data
         try:
-            people_finder_data = IncomingPeopleFinderDetail.from_json(request.body)
+            people_finder_data: IncomingPeopleFinderDetail = (
+                IncomingPeopleFinderDetail.from_json(request.body)
+            )
         except Exception:
             return HttpResponseBadRequest("Invalid JSON")
 
@@ -63,13 +67,19 @@ class PeopleFinderUpdateView(APIView):
                 status=200,
             )
 
+        job_title: str = ""
+        directorate: str = ""
+        if people_finder_data.roles:
+            job_title = people_finder_data.roles[0]["job_title"]
+            directorate = people_finder_data.roles[0]["team"]["name"]
+
         # Build PersonDetail to be indexed
         person_detail = PersonDetail(
             first_name=people_finder_data.first_name,
             last_name=people_finder_data.last_name,
-            image="",
-            job_title="",
-            directorate="",
+            image=people_finder_data.photo,
+            job_title=job_title,
+            directorate=directorate,
             email=people_finder_data.email,
             phone=people_finder_data.primary_phone_number,
             grade=people_finder_data.grade,

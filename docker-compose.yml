@@ -31,7 +31,6 @@ services:
   opensearch:
     image: opensearchproject/opensearch:1.2.3
     networks:
-      - default
       - inside
     ports:
       - "9200:9200"
