@@ -927,9 +927,6 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
                 )[0],
             )
 
-        print("MANAGER", flush=True)
-        print(manager, flush=True)
-
         return manager
 
     def get_context_data(self, **kwargs):
