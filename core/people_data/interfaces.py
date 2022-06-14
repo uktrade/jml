@@ -25,7 +25,7 @@ class PeopleDataInterface(PeopleDataBase):
     def get_people_data(self, sso_legacy_id: str) -> types.PeopleData:
         with connections["people_data"].cursor() as cursor:
             result = {
-                "employee_numbers": [],
+                "employee_numbers": [None,],
             }
             # No speech marks in query to avoid SQL injection
             cursor.execute(

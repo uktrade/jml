@@ -6,10 +6,11 @@ from core.utils.staff_index import (
 )
 
 
+# TODO refactor to use all staff PF endpoint
 def ingest_people_finder():
-    people_finder_search = get_people_finder_interface()
+    people_finder = get_people_finder_interface()
 
-    people_finder_results = people_finder_search.get_search_results(search_term="")
+    people_finder_results = people_finder.get_details(search_term="")
 
     for people_finder_result in people_finder_results:
         staff_index_results = search_staff_index(query=people_finder_result["email"])

@@ -5,25 +5,25 @@ import requests
 from django.conf import settings
 from mohawk import Sender
 
+
 CONTENT_TYPE = "application/json"
 
 
-class SearchResult(TypedDict):
+class Person(TypedDict):
     first_name: str
     last_name: str
     photo: Optional[str]
+    photo_small: Optional[str]
     email: str
     grade: str
     primary_phone_number: str
     roles: List[Any]
-    manager: str
 
 
-def get_search_results(search_term) -> List[SearchResult]:
-    safe_search_term = urllib.parse.quote_plus(search_term)
+def get_details(legacy_sso_user_id) -> Person:
+    safe_id = urllib.parse.quote_plus(legacy_sso_user_id)
     url = (
-        f"{settings.PEOPLE_FINDER_URL}/api/people-search/"
-        f"?search_query={safe_search_term}"
+        f"{settings.PEOPLE_FINDER_URL}/peoplefinder/api/person-api/{safe_id}/"
     )
     sender = Sender(
         {
