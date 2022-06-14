@@ -29,14 +29,14 @@
 ### When a line manager confirms a leaving request
 - Send the line manager the **Line Manager Thank You Email**.
 
-## Reminder Email Matrix
-### Reminder 
+## Reminder emails
+### Reminder types
 - 2 weeks away - Send 2 weeks before the leaving date
 - Daily for last week - Send daily for the week leading to up to the leaving date
 - Last working day - Send on the leaver's last working day
 - Leaving date - Send on the day of the leaving date
 - Daily after leaving date - Send daily after the leaving date
-
+### Reminder matrix
 | Email | 2 weeks away | Daily for last week | Last working day | Leaving date | Daily after leaving date |
 | ----- | ----- | ----- | ----- | ----- | ----- |
 | Line Manager Reminder Email | X | X |  | X | X |
