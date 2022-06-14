@@ -1,4 +1,3 @@
-
 -O codecov.sh https://codecov.io/bash
 " Get Service Now
 " Leavers Workflow This can be triggered in 2
@@ -160,6 +159,7 @@ Kit
 kit</th
 know:</p
 Laptop
+Leaver Email
 Leaver's Notification Form
 leaverLastDay
 LeaversWorkflow
@@ -179,10 +179,13 @@ manager_id
 Mi-Fi Device'
 migrate$(COLOUR_NONE
 minimum_should_match
+Mismatch Email
 Mobile
 NAME
 name=
 None                                       
+Notification Email
+OAB
 object.current_task_record
 OCS
 OCS_EMAIL
@@ -209,6 +212,8 @@ python manage.py compilescss &&
 python manage.py migrate &&
 Reason for Leaving Resignation
 recorded</h1
+Reminder Email
+Reminder Email*
 Report 2
 ReturnOptions
 role="alert
@@ -218,6 +223,7 @@ ROSA Kit
 ROSA Kit retrieved</h1
 ROSA kit.</p
 Rosa kit</li>
+ROSA Line
 rosa_laptop_returned_task_log
 Security
 SECURITY
@@ -247,6 +253,7 @@ Sound Bar'
 Sound Bar"
 Split
 SRE
+SRE Reminder Email
 sso_access_task_log
 staff_details.job_title %
 staff_id"
@@ -263,7 +270,9 @@ TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL
 TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                                       
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL                  
+TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL |  |
 TEMPLATE_ID_ROSA_LEAVER_REMINDER_EMAIL
+TEMPLATE_ID_ROSA_LEAVER_REMINDER_EMAIL |  |
 TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL
 Templates
 Tests for `get_leaver_detail_updates` "
@@ -309,4 +318,6 @@ vpn_access_task_log
 WhiteNoiseMiddleware
 x.groups.first
 yet.</p
+You Email
+You Email*
 you.</p
