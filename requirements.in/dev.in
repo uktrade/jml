@@ -17,3 +17,11 @@ types-certifi
 types-freezegun
 types-requests
 types-oauthlib
+
+# Extensions
+django-extensions
+
+# Graphs
+pygraphviz
+pyparsing
+pydot

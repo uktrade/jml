@@ -68,6 +68,7 @@ django==3.2.13
     #   dit-activity-stream
     #   django-appconf
     #   django-celery-beat
+    #   django-extensions
     #   django-hawk
     #   django-health-check
     #   django-staff-sso-client
@@ -92,6 +93,8 @@ django-elasticsearch-dsl==7.2.1
     # via -r requirements.in/base.in
 django-environ==0.8.1
     # via -r requirements.in/base.in
+django-extensions==3.1.5
+    # via -r requirements.in/dev.in
 django-hawk==0.0.2
     # via dit-activity-stream
 django-health-check==3.16.5
@@ -208,14 +211,21 @@ py==1.11.0
     #   pytest-forked
 pycodestyle==2.8.0
     # via flake8
+pydot==1.4.2
+    # via -r requirements.in/dev.in
 pyflakes==2.4.0
     # via flake8
+pygraphviz==1.9
+    # via -r requirements.in/dev.in
 pyjwt==2.4.0
     # via
     #   -r requirements.in/base.in
     #   notifications-python-client
 pyparsing==3.0.6
-    # via packaging
+    # via
+    #   -r requirements.in/dev.in
+    #   packaging
+    #   pydot
 pytest==6.2.5
     # via
     #   -r requirements.in/dev.in
@@ -333,7 +343,7 @@ wcwidth==0.2.5
     # via prompt-toolkit
 wheel==0.37.0
     # via pip-tools
-whitenoise==5.2.0
+whitenoise==5.2
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
