@@ -1,6 +1,7 @@
 import json
 import logging
 from abc import ABC, abstractmethod
+from random import choice
 from typing import TYPE_CHECKING, Iterable, List, Optional
 
 from django.conf import settings
@@ -72,13 +73,21 @@ class ServiceNowStubbed(ServiceNowBase):
 
     def get_assets_for_user(self, email: str) -> List[types.AssetDetails]:
         logger.info("Getting assets for a user")
-        return [
-            {
-                "sys_id": "111",
-                "tag": "1",
-                "name": "Asset 1",
-            },
-        ]
+        assets = []
+
+        asset_count = choice([0, 1, 2])
+
+        while len(assets) < asset_count:
+            i = len(assets) + 1
+            assets.append(
+                {
+                    "sys_id": f"sys_id_{i}",
+                    "tag": f"asset_tag_{i}",
+                    "name": f"Asset {i}",
+                }
+            )
+
+        return assets
 
     def get_users(self, email: str) -> List[types.UserDetails]:
         logger.info("Getting users")

@@ -646,7 +646,7 @@ class TestUpdateDetailsView(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
+        self.assertEqual(response.url, reverse("leaver-has-cirrus-equipment"))
 
         leaver_updates_obj = models.LeaverInformation.objects.get(
             personal_email="someone@example.com",
@@ -738,24 +738,42 @@ class TestCirrusEquipmentView(TestCase):
         "leavers.views.leaver.get_service_now_interface",
         return_value=ServiceNowStubbed(),
     )
-    def test_with_assets_from_service_now(self, mock_get_service_now_interface) -> None:
+    @mock.patch(
+        "core.service_now.interfaces.ServiceNowStubbed.get_assets_for_user",
+        return_value=[
+            {
+                "sys_id": "sys_id_1",
+                "tag": "asset_tag_1",
+                "name": "Asset 1",
+            }
+        ],
+    )
+    def test_with_assets_from_service_now(
+        self,
+        mock_get_assets_for_user,
+        mock_get_service_now_interface,
+    ) -> None:
         self.client.force_login(self.leaver)
 
         response = self.client.get(reverse(self.view_name))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context["cirrus_assets"][0]["name"], "Asset 1")
-        self.assertEqual(response.context["cirrus_assets"][0]["tag"], "1")
+        self.assertEqual(response.context["cirrus_assets"][0]["tag"], "asset_tag_1")
 
     def test_post_no_form_name(self) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(16):
+        with self.assertNumQueries(19):
             response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 200)
 
-    def test_post_add_asset_form(self) -> None:
+    @mock.patch(
+        "core.service_now.interfaces.ServiceNowStubbed.get_assets_for_user",
+        return_value=[],
+    )
+    def test_post_add_asset_form(self, mock_get_assets_for_user) -> None:
         self.client.force_login(self.leaver)
 
         with self.assertNumQueries(19):
@@ -776,10 +794,24 @@ class TestCirrusEquipmentView(TestCase):
     @mock.patch(
         "leavers.views.leaver.LeaverInformationMixin.store_cirrus_kit_information"
     )
-    def test_post_correction_form(self, mock_store_cirrus_kit_information) -> None:
+    @mock.patch(
+        "core.service_now.interfaces.ServiceNowStubbed.get_assets_for_user",
+        return_value=[
+            {
+                "sys_id": "sys_id_1",
+                "tag": "asset_tag_1",
+                "name": "Asset 1",
+            }
+        ],
+    )
+    def test_post_correction_form(
+        self,
+        mock_get_assets_for_user,
+        mock_store_cirrus_kit_information,
+    ) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(13):
+        with self.assertNumQueries(16):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -797,7 +829,7 @@ class TestCirrusEquipmentView(TestCase):
             requester=self.leaver,
             information_is_correct=False,
             additional_information="Some additional information",
-            cirrus_assets=[],
+            cirrus_assets=response.wsgi_request.session["cirrus_assets"],
         )
 
 

@@ -260,6 +260,23 @@ class ReturnInformationForm(GovFormattedForm):
                 self.fields[field_name].widget = forms.HiddenInput()
 
 
+class HasCirrusKitForm(forms.Form):
+    has_cirrus_kit = YesNoField(label="")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.radios(
+                "has_cirrus_kit",
+                legend_size=Size.MEDIUM,
+                inline=True,
+            ),
+            Submit("submit", "Continue"),
+        )
+
+
 class AddCirrusAssetForm(GovFormattedForm):
     asset_name = forms.CharField(label="Add asset")
 
