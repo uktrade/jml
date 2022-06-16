@@ -334,3 +334,8 @@ yet.</p
 You Email
 You Email*
 you.</p
+staff_sso_legacy_id
+people_finder_result["email
+staff_sso_legacy_id
+People Data
+SQL

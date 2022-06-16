@@ -1,7 +1,7 @@
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping, Optional, TypedDict, Union
+from typing import Any, List, Mapping, Optional, TypedDict, cast
 
 from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
@@ -11,8 +11,6 @@ from opensearchpy import OpenSearch
 from opensearchpy.exceptions import NotFoundError
 
 from activity_stream.models import ActivityStreamStaffSSOUser
-from core.people_finder.interfaces import Person
-
 
 logger = logging.getLogger(__name__)
 
@@ -338,7 +336,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     #     people_finder_result = pf_result
     people_finder_directorate: Optional[str] = people_finder_result.get("directorate")
 
-
     """
     Get People report data
     """
@@ -432,8 +429,10 @@ def index_all_staff() -> int:
         try:
             staff_document = build_staff_document(staff_sso_user=staff_sso_user)
             staff_documents.append(staff_document)
-        except:
-            logger.exception(f"Could not build index entry for '{staff_sso_user}''", exc_info=True)
+        except Exception:
+            logger.exception(
+                f"Could not build index entry for '{staff_sso_user}''", exc_info=True
+            )
     indexed_count = 0
     for staff_document in staff_documents:
         index_staff_document(staff_document=staff_document)
