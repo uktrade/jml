@@ -20,7 +20,7 @@ billiard==3.6.4.0
     # via celery
 cachetools==5.0.0
     # via zenpy
-celery[redis]==5.2.5
+celery[redis]==5.2.7
     # via
     #   -r requirements.in/base.in
     #   django-celery-beat
@@ -221,7 +221,7 @@ waitress==2.1.2
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2.0
+whitenoise==5.2
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated

@@ -1,5 +1,5 @@
-Celery==5.2.5
-Celery[redis]==5.2.5
+Celery==5.2.7
+Celery[redis]==5.2.7
 django-crispy-forms
 crispy-forms-gds
 dit-activity-stream==0.0.1
