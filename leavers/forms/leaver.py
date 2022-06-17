@@ -305,7 +305,7 @@ class CorrectionForm(GovFormattedForm):
         )
 
     def clean_whats_incorrect(self) -> str:
-        whats_incorrect: Optional[str] = self.cleaned_data.get("whats_incorrect")
+        whats_incorrect: str = self.cleaned_data.get("whats_incorrect", "")
 
         is_correct: Optional[Literal["yes", "no"]] = self.cleaned_data.get("is_correct")
 

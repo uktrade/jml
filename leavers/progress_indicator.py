@@ -27,7 +27,7 @@ class ProgressIndicator:
     def get_step_link(self, step) -> str:
         return reverse_lazy(step[2])
 
-    def get_progress_steps(self) -> List[StepDict]:
+    def get_progress_steps(self, *args, **kwargs) -> List[StepDict]:
         """
         Build the list of progress steps
         """

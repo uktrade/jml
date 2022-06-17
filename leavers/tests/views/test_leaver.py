@@ -29,7 +29,6 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
         "people_finder_directorate": "",
         "people_finder_first_name": "Joe",  # /PS-IGNORE
         "people_finder_grade": "Example Grade",
-        "people_finder_image": "",
         "people_finder_job_title": "Job title",
         "people_finder_last_name": "Bloggs",
         "people_finder_phone": "0123456789",

@@ -100,6 +100,10 @@ class LeavingRequestListing(
         leaving_requests = self.get_leaving_requests()
         lr_results_data = []
         for lr in leaving_requests:
+            assert lr.last_day
+            assert lr.leaving_date
+            assert lr.line_manager_complete
+
             is_complete = getattr(lr, self.get_complete_field())
             link = reverse_lazy(
                 self.get_confirmation_view(), kwargs={"leaving_request_id": lr.uuid}
@@ -159,7 +163,7 @@ class LeavingRequestListing(
             object_type_name = "outstanding leaving requests"
         return object_type_name
 
-    def get_service_name(self) -> str:
+    def get_service_name(self) -> Optional[str]:
         return self.service_name
 
     def get_summary_view(self) -> str:

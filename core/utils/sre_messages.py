@@ -11,6 +11,8 @@ class FailedToSendSREAlertMessage(Exception):
 
 
 def send_sre_alert_message(*, leaving_request: LeavingRequest) -> SlackResponse:
+    assert leaving_request.leaving_date
+
     if not settings.SLACK_SRE_CHANNEL_ID:
         raise FailedToSendSREAlertMessage("SLACK_SRE_CHANNEL_ID is not set")
 

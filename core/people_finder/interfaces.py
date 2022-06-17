@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Iterator, TypedDict
+from typing import Iterable, Optional, TypedDict
 
 from core.people_finder.client import PeopleFinderIterator, get_details
 
@@ -12,8 +12,8 @@ class Person(TypedDict):
     email: str
     phone: str
     grade: str
-    photo: str
-    photo_small: str
+    photo: Optional[str]
+    photo_small: Optional[str]
 
 
 class PeopleFinderBase(ABC):
@@ -22,7 +22,7 @@ class PeopleFinderBase(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_all(self) -> Iterator[Person]:
+    def get_all(self) -> Iterable[Person]:
         raise NotImplementedError
 
 
@@ -31,7 +31,6 @@ class PeopleFinderStubbed(PeopleFinderBase):
         return {
             "first_name": "Joe",  # /PS-IGNORE
             "last_name": "Bloggs",
-            "image": "",
             "job_title": "Job title",
             "directorate": "Directorate name",
             "email": "joe.bloggs@example.com",  # /PS-IGNORE
@@ -41,31 +40,33 @@ class PeopleFinderStubbed(PeopleFinderBase):
             "photo_small": "",
         }
 
-    def get_all(self) -> Iterator[Person]:
-        return [
-            {
-                "first_name": "Joe",  # /PS-IGNORE
-                "last_name": "Bloggs",
-                "job_title": "Job title",
-                "directorate": "Directorate name",
-                "email": "joe.bloggs@example.com",  # /PS-IGNORE
-                "phone": "0123456789",
-                "grade": "Example Grade",
-                "photo": "",
-                "photo_small": "",
-            },
-            {
-                "first_name": "Jane",  # /PS-IGNORE
-                "last_name": "Doe",
-                "job_title": "Job title",
-                "directorate": "Directorate name",
-                "email": "jane.doe@example.com",  # /PS-IGNORE
-                "phone": "0987654321",
-                "grade": "Example Grade",
-                "photo": "",
-                "photo_small": "",
-            },
-        ]
+    def get_all(self) -> Iterable[Person]:
+        return iter(
+            [
+                {
+                    "first_name": "Joe",  # /PS-IGNORE
+                    "last_name": "Bloggs",
+                    "job_title": "Job title",
+                    "directorate": "Directorate name",
+                    "email": "joe.bloggs@example.com",  # /PS-IGNORE
+                    "phone": "0123456789",
+                    "grade": "Example Grade",
+                    "photo": "",
+                    "photo_small": "",
+                },
+                {
+                    "first_name": "Jane",  # /PS-IGNORE
+                    "last_name": "Doe",
+                    "job_title": "Job title",
+                    "directorate": "Directorate name",
+                    "email": "jane.doe@example.com",  # /PS-IGNORE
+                    "phone": "0987654321",
+                    "grade": "Example Grade",
+                    "photo": "",
+                    "photo_small": "",
+                },
+            ]
+        )
 
 
 class PeopleFinder(PeopleFinderBase):
@@ -91,5 +92,5 @@ class PeopleFinder(PeopleFinderBase):
             "photo_small": person["photo_small"],
         }
 
-    def get_all(self) -> Iterator[Person]:
+    def get_all(self) -> Iterable[Person]:
         return PeopleFinderIterator()

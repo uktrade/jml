@@ -443,16 +443,16 @@ class LeaverProgressIndicator(ProgressIndicator):
             ("confirmation", "Confirmation", "leaver-confirm-details"),
         ]
 
-    def get_progress_steps(self, leaver_info: LeaverInformation) -> List[StepDict]:
+    def get_progress_steps(self, *args, **kwargs) -> List[StepDict]:
         """
         Build the list of progress steps
         """
-
+        leaver_info: LeaverInformation = kwargs["leaver_info"]
         for step in self.steps:
             if not leaver_info.has_dse and step[0] == "display_screen_equipment":
                 self.steps.remove(step)
 
-        return super().get_progress_steps()
+        return super().get_progress_steps(*args, **kwargs)
 
 
 class UpdateDetailsView(LeaverInformationMixin, FormView):

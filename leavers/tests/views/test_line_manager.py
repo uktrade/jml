@@ -22,7 +22,6 @@ EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
         "staff_sso_last_name": "",
         "staff_sso_email_address": "",
         "staff_sso_contact_email_address": "",
-        "people_finder_image": "",
         "people_finder_first_name": "",
         "people_finder_last_name": "",
         "people_finder_job_title": "",
