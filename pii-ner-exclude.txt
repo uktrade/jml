@@ -29,6 +29,7 @@
 8.7 39.7 21.8l42.7-27.2A97.63
 activity_stream.activitystreamstaffssouser
 ActivityStream
+admin@opensearch:9200
 Annual Leave
 Annual Leave: "
 API
