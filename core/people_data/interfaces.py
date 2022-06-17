@@ -25,18 +25,16 @@ class PeopleDataInterface(PeopleDataBase):
     def get_people_data(self, sso_legacy_id: str) -> types.PeopleData:
         with connections["people_data"].cursor() as cursor:
             result = {
-                "employee_numbers": [
-                    None,
-                ],
+                "employee_numbers": [],
             }
             # No speech marks in query to avoid SQL injection
             cursor.execute(
                 "SELECT employee_numbers FROM dit.people_data__identities WHERE sso_user_id = %s",
                 [sso_legacy_id],
             )
-            rows = cursor.fetchone()
+            row = cursor.fetchone()
 
-        if rows:
-            result["employee_numbers"] = rows[0]
+        if row:
+            result["employee_numbers"] = row[0]
 
         return result

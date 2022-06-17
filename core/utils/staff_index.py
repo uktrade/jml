@@ -330,10 +330,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     people_finder_result = people_finder.get_details(
         legacy_sso_user_id=staff_sso_user.user_id,
     )
-
-    # TODO - discuss why the below is required (I don't think it is)
-    # if people_finder_result["email"] == staff_sso_user.email_address:
-    #     people_finder_result = pf_result
     people_finder_directorate: Optional[str] = people_finder_result.get("directorate")
 
     """
@@ -343,7 +339,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         sso_legacy_id=staff_sso_user.user_id,
     )
     # Assuming first id is correct
-    employee_number = people_data_results["employee_numbers"][0]
+    employee_number = next(iter(people_data_results["employee_numbers"]), None)
 
     """
     Get Service Now data
