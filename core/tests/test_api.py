@@ -60,6 +60,8 @@ PEOPLE_FINDER_EXAMPLE_POST = {
     "slug": "aaaa1aa1-1aa1-1aaa-1a11-1a111a111a11",
     "manager_slug": None,
     "legacy_people_finder_slug": None,
+    "photo": None,
+    "photo_small": None,
 }
 
 
