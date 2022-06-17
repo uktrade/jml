@@ -232,6 +232,7 @@ ROSA Laptop
 ROSA Line
 ROSA Mobile
 rosa_laptop_returned_task_log
+rosa_mobile_returned_task_log
 Security
 SECURITY
 Security Team
