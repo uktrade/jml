@@ -15,6 +15,7 @@ CONTENT_TYPE = "application/json"
 HAWK_AUTH = HawkAuth(
     id=settings.PEOPLE_FINDER_HAWK_ACCESS_ID,
     key=settings.PEOPLE_FINDER_HAWK_SECRET_KEY,
+    always_hash_content=False,
 )
 
 

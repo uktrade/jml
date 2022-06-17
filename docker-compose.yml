@@ -90,6 +90,8 @@ services:
     networks:
       - inside
     env_file: .env
+    volumes:
+      - ./:/app/
     command: celery -A core.celery beat -l INFO
     depends_on:
       - db

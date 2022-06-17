@@ -28,20 +28,18 @@ class PeopleFinderBase(ABC):
 
 class PeopleFinderStubbed(PeopleFinderBase):
     def get_details(self, legacy_sso_user_id: str) -> Person:
-        return [
-            {
-                "first_name": "Joe",  # /PS-IGNORE
-                "last_name": "Bloggs",
-                "image": "",
-                "job_title": "Job title",
-                "directorate": "Directorate name",
-                "email": "joe.bloggs@example.com",  # /PS-IGNORE
-                "phone": "0123456789",
-                "grade": "Example Grade",
-                "photo": "",
-                "photo_small": "",
-            },
-        ]
+        return {
+            "first_name": "Joe",  # /PS-IGNORE
+            "last_name": "Bloggs",
+            "image": "",
+            "job_title": "Job title",
+            "directorate": "Directorate name",
+            "email": "joe.bloggs@example.com",  # /PS-IGNORE
+            "phone": "0123456789",
+            "grade": "Example Grade",
+            "photo": "",
+            "photo_small": "",
+        }
 
     def get_all(self) -> Iterator[Person]:
         return [
@@ -72,7 +70,6 @@ class PeopleFinderStubbed(PeopleFinderBase):
 
 class PeopleFinder(PeopleFinderBase):
     def get_details(self, legacy_sso_user_id: str) -> Person:
-
         person = get_details(legacy_sso_user_id)
 
         job_title = ""
