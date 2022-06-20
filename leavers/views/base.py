@@ -57,11 +57,11 @@ class LeavingRequestListing(
         )
         if not self.show_complete:
             leaving_requests = leaving_requests.exclude(
-                **{self.complete_field + "__isnull": False}
+                **{self.get_complete_field() + "__isnull": False}
             )
         if not self.show_incomplete:
             leaving_requests = leaving_requests.exclude(
-                **{self.complete_field + "__isnull": True}
+                **{self.get_complete_field() + "__isnull": True}
             )
 
         # Search
@@ -101,12 +101,13 @@ class LeavingRequestListing(
         leaving_requests = self.get_leaving_requests()
         lr_results_data = []
         for lr in leaving_requests:
+            is_complete = getattr(lr, self.get_complete_field())
             link = reverse_lazy(
-                self.confirmation_view, kwargs={"leaving_request_id": lr.uuid}
+                self.get_confirmation_view(), kwargs={"leaving_request_id": lr.uuid}
             )
-            if lr.security_team_complete:
+            if is_complete:
                 link = reverse_lazy(
-                    self.summary_view, kwargs={"leaving_request_id": lr.uuid}
+                    self.get_summary_view(), kwargs={"leaving_request_id": lr.uuid}
                 )
 
             days_until_last_working_day: timedelta = (
@@ -125,7 +126,7 @@ class LeavingRequestListing(
                     "last_working_day": lr.last_day.date(),
                     "days_until_last_working_day": days_until_last_working_day.days,
                     "reported_on": lr.line_manager_complete.date(),
-                    "complete": bool(getattr(lr, self.complete_field)),
+                    "complete": bool(getattr(lr, self.get_complete_field())),
                 }
             )
 
@@ -147,6 +148,15 @@ class LeavingRequestListing(
         context.update(page=page, pagination_pages=pagination_pages)
 
         return context
+
+    def get_summary_view(self) -> str:
+        return self.summary_view
+
+    def get_confirmation_view(self) -> str:
+        return self.confirmation_view
+
+    def get_complete_field(self) -> str:
+        return self.complete_field
 
     def form_valid(self, form: Any) -> HttpResponse:
         self.query = form.cleaned_data["query"]

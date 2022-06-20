@@ -51,7 +51,6 @@
             <h2 class="govuk-heading-m">List services and tools removed</h2>
             <p class="govuk-body">Select only those tools and services from the list, that <em>{{ leaver_name }}</em> had access to and has been removed from:</p>
             <form novalidate method='post'>
-                <input type="hidden" name="uuid" value="{{ flow.current_task_record.uuid }}">
                 {% crispy form %}
             </form>
         </div>

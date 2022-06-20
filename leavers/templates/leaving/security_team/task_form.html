@@ -51,7 +51,6 @@
             <p class="govuk-body">Select the items that <em>{{ leaver_name }}</em> has returned.</p>
             <form novalidate method='post'>
                 <fieldset class="govuk-fieldset">
-                    <input type="hidden" name="uuid" value="{{ flow.current_task_record.uuid }}">
                     {% crispy form %}
                 </fieldset>
             </form>

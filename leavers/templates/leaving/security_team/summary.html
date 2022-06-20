@@ -10,36 +10,58 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-l">Summary of items received from <em>{{ leaver_name }}</em></h1>
-            <p class="govuk-body">This is confirmation that the security pass and ROSA kit for <em>{{ leaver_name }}</em> has been received.</p>
+            <h1 class="govuk-heading-l">Summary of <em>{{ possessive_leaver_name }}</em> security offboarding</h1>
+
             <table class="govuk-table">
+                <caption class="govuk-table__caption govuk-table__caption--m">Offboarding tasks</caption>
                 <thead class="govuk-table__head">
                     <tr class="govuk-table__row">
-                        <th scope="col" class="govuk-table__header">Security items</th>
-                        <th scope="col" class="govuk-table__header">Removed at</th>
-                        <th scope="col" class="govuk-table__header">Removed by</th>
+                        <th scope="col" class="govuk-table__header">Task</th>
+                        <th scope="col" class="govuk-table__header">Status</th>
                     </tr>
                 </thead>
                 <tbody class="govuk-table__body">
-                    {% for security_access_item in security_access_items %}
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">Destroy building pass</td>
+                        <td class="govuk-table__cell">
+                            {% if pass_destroyed %}
+                                <strong class="govuk-tag govuk-tag--green">
+                                    Destroyed
+                                </strong>
+                            {% elif pass_not_returned %}
+                                <strong class="govuk-tag govuk-tag--red">
+                                    Marked as not returned
+                                </strong>
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">
+                                    Pending
+                                </strong>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% for rosa_kit_task in rosa_kit_tasks %}
                         <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header">{{ security_access_item.1 }}</th>
-                            <td class="govuk-table__cell">{{ security_access_item.2.created_at }}</td>
-                            <td class="govuk-table__cell">{{ security_access_item.2.user }}</td>
+                            <td class="govuk-table__cell">{{ rosa_kit_task.name }}</td>
+                            <td class="govuk-table__cell">
+                                <strong class="govuk-tag govuk-tag--{{ rosa_kit_task.status.colour }}">
+                                    {{ rosa_kit_task.status.text }}
+                                </strong>
+                            </td>
                         </tr>
-                    {% empty %}
-                        <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header">No kit has been retrieved.</th>
-                            <td class="govuk-table__cell"></td>
-                            <td class="govuk-table__cell"></td>
-                        </tr>
-                    {% endfor %}
+                    {% endfor%}
                 </tbody>
             </table>
-            <a href="{% url 'security-team-confirmation' leaving_request_uuid %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                Edit
-            </a>
-            <br />
+
+            {% if building_pass_notes %}
+                <h2 class="govuk-heading-m">Building Pass notes</h2>
+                <p class="govuk-body">{{ building_pass_notes }}</p>
+            {% endif %}
+
+            {% if rosa_kit_notes %}
+                <h2 class="govuk-heading-m">ROSA Kit notes</h2>
+                <p class="govuk-body">{{ rosa_kit_notes }}</p>
+            {% endif %}
+
             <a class="govuk-link" href="{% url 'security-team-listing-complete' %}">Return to completed leaving requests dashboard</a>
         </div>
     </div>

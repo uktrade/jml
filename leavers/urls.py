@@ -154,19 +154,34 @@ urlpatterns = [
         name="security-team-listing-incomplete",
     ),
     path(
-        "leaver/security-team/<uuid:leaving_request_id>/",
-        security_team_views.TaskConfirmationView.as_view(),
-        name="security-team-confirmation",
+        "leaver/security-team/<uuid:leaving_request_id>/building-pass/",
+        security_team_views.BuildingPassConfirmationView.as_view(),
+        name="security-team-building-pass-confirmation",
+    ),
+    path(
+        "leaver/security-team/<uuid:leaving_request_id>/building-pass/destroy/",
+        security_team_views.BuildingPassDestroyView.as_view(),
+        name="security-team-building-pass-destroy",
+    ),
+    path(
+        "leaver/security-team/<uuid:leaving_request_id>/building-pass/not-returned/",
+        security_team_views.BuildingPassNotReturnedView.as_view(),
+        name="security-team-building-pass-not-returned",
+    ),
+    path(
+        "leaver/security-team/<uuid:leaving_request_id>/rosa-kit/",
+        security_team_views.RosaKitConfirmationView.as_view(),
+        name="security-team-rosa-kit-confirmation",
+    ),
+    path(
+        "leaver/security-team/<uuid:leaving_request_id>/rosa-kit/confirm/",
+        security_team_views.RosaKitConfirmationCloseView.as_view(),
+        name="security-team-rosa-kit-confirmation-close",
     ),
     path(
         "leaver/security-team/<uuid:leaving_request_id>/summary/",
         security_team_views.TaskSummaryView.as_view(),
         name="security-team-summary",
-    ),
-    path(
-        "leaver/security-team/thank-you/<uuid:leaving_request_id>/",
-        security_team_views.ThankYouView.as_view(),
-        name="security-team-thank-you",
     ),
     # Django workflow
     path(
