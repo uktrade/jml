@@ -42,7 +42,7 @@ Once the Line manager has processed a Leaving request, the following processors 
 
 - Security building pass team
 - Security ROSA kit team
-- SRE team
+- SRE team (no Line manager emails)
 - IT Ops team
 
 Emails are sent at the following points:
@@ -64,6 +64,7 @@ Only send these reminders if the ROSA kit tasks haven't been marked as completed
 
 #### SRE team
 Only send these reminders if the SRE tasks haven't been marked as completed.
+There is no need to send any of the emails to the Line manager for SRE.
 
 #### IT Ops team
 Only send these reminders if the Leaver has assets that are considered "risky" (Laptop, mobile phone, etc).
