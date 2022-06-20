@@ -57,6 +57,8 @@ coverage[toml]==6.2
     # via pytest-cov
 crispy-forms-gds==0.2.3
     # via -r requirements.in/base.in
+dataclasses-json==0.5.7
+    # via -r requirements.in/base.in
 deprecated==1.2.13
     # via redis
 dit-activity-stream==0.0.1
@@ -160,7 +162,12 @@ kubi-ecs-logger==0.1.0
 libsass==0.20.0
     # via -r requirements.in/base.in
 marshmallow==3.6.1
-    # via kubi-ecs-logger
+    # via
+    #   dataclasses-json
+    #   kubi-ecs-logger
+    #   marshmallow-enum
+marshmallow-enum==1.5.1
+    # via dataclasses-json
 mccabe==0.6.1
     # via flake8
 mohawk==1.1.0
@@ -179,6 +186,7 @@ mypy-extensions==0.4.3
     # via
     #   black
     #   mypy
+    #   typing-inspect
 notifications-python-client==6.3.0
     # via -r requirements.in/base.in
 oauthlib==3.2.0
@@ -326,6 +334,9 @@ typing-extensions==4.0.1
     #   django-stubs
     #   django-stubs-ext
     #   mypy
+    #   typing-inspect
+typing-inspect==0.7.1
+    # via dataclasses-json
 urllib3==1.26.7
     # via
     #   elasticsearch
@@ -343,7 +354,7 @@ wcwidth==0.2.5
     # via prompt-toolkit
 wheel==0.37.0
     # via pip-tools
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated

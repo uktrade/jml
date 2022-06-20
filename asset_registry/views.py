@@ -180,7 +180,7 @@ def add_user_to_asset(request: HttpRequest, pk: int) -> HttpResponse:
     )
     try:
         asset_user_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
-            identifier=asset_user_staff_document["staff_sso_activity_stream_id"],
+            identifier=asset_user_staff_document.staff_sso_activity_stream_id,
         )
     except ActivityStreamStaffSSOUser.DoesNotExist:
         raise Exception("Unable to find user in the Staff SSO ActivityStream.")

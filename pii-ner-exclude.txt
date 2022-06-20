@@ -98,6 +98,7 @@ DjangoCelery
 DjangoTemplates
 DO NOT USE ON PRODUCTION
 Dockerfile.dev
+Drop
 DSE
 E501
 Elastic
@@ -269,6 +270,7 @@ sso_access_task_log
 staff_details.job_title %
 staff_id"
 STAFF_SSO_ACTIVITY_STREAM_ID
+staff_sso_legacy_id
 Start Line
 Store DSE
 StreamHandler

@@ -902,7 +902,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
 
             try:
                 manager = ActivityStreamStaffSSOUser.objects.get(
-                    identifier=manager_staff_document["staff_sso_activity_stream_id"],
+                    identifier=manager_staff_document.staff_sso_activity_stream_id,
                 )
             except ActivityStreamStaffSSOUser.DoesNotExist:
                 raise Exception(
@@ -917,7 +917,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
     def get_manager(self) -> Optional[ConsolidatedStaffDocument]:
         manager: Optional[ConsolidatedStaffDocument] = None
         if self.leaver_info.leaving_request.manager_activitystream_user:
-            manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
+            manager_staff_document = get_staff_document_from_staff_index(
                 staff_id=self.leaver_info.leaving_request.manager_activitystream_user.identifier,
             )
             manager = cast(

@@ -372,7 +372,7 @@ class ServiceNowInterface(ServiceNowBase):
         manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
             staff_id=manager.identifier,
         )
-        manager_service_now_id = manager_staff_document["service_now_user_id"]
+        manager_service_now_id = manager_staff_document.service_now_user_id
 
         service_now_request_data = {
             "sysparm_quantity": "1",
