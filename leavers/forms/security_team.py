@@ -159,7 +159,7 @@ class RosaKitForm(GovFormattedForm):
                 raise forms.ValidationError(
                     {
                         "user_returned": (
-                            "User has a Key mobile, but it isn't marked as " "returned."
+                            "User has a ROSA Key, but it isn't marked as returned."
                         )
                     }
                 )
