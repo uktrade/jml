@@ -83,19 +83,18 @@ class LeavingRequestListing(
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context.update(
-            service_name=self.service_name,
+            service_name=self.get_service_name(),
             show_complete=self.show_complete,
             show_incomplete=self.show_incomplete,
             fields=self.fields,
         )
 
         # Set object type name
-        object_type_name: str = "leaving requests"
-        if self.show_complete and not self.show_incomplete:
-            object_type_name = "complete leaving requests"
-        if self.show_incomplete and not self.show_complete:
-            object_type_name = "outstanding leaving requests"
-        context.update(object_type_name=object_type_name)
+        object_type_name = self.get_object_type_name()
+        context.update(
+            object_type_name=object_type_name,
+            page_title=self.get_page_title(object_type_name),
+        )
 
         # Build the results
         leaving_requests = self.get_leaving_requests()
@@ -148,6 +147,20 @@ class LeavingRequestListing(
         context.update(page=page, pagination_pages=pagination_pages)
 
         return context
+
+    def get_page_title(self, object_type_name: str) -> str:
+        return object_type_name.title()
+
+    def get_object_type_name(self) -> str:
+        object_type_name: str = "leaving requests"
+        if self.show_complete and not self.show_incomplete:
+            object_type_name = "complete leaving requests"
+        if self.show_incomplete and not self.show_complete:
+            object_type_name = "outstanding leaving requests"
+        return object_type_name
+
+    def get_service_name(self) -> str:
+        return self.service_name
 
     def get_summary_view(self) -> str:
         return self.summary_view

@@ -1,5 +1,4 @@
 from datetime import datetime
-from enum import Enum
 from typing import Any, Dict, List, Literal, Optional, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -20,38 +19,14 @@ from leavers.forms.security_team import (
 )
 from leavers.models import LeavingRequest, TaskLog
 from leavers.utils.leaving_request import get_email_task_logs
+from leavers.utils.security_team import (
+    SecuritySubRole,
+    get_security_role,
+    set_security_role,
+)
 from leavers.views import base
 from leavers.workflow.tasks import EmailIds
 from user.models import User
-
-
-class SecuritySubRole(Enum):
-    BUILDING_PASS = "bp"
-    ROSA_KIT = "rk"
-
-
-def get_security_role(request: HttpRequest) -> SecuritySubRole:
-    """
-    Get the security role from the URL or Session.
-
-    If there is no role set yet, default to the Building Pass role.
-    """
-    role_value: Optional[str] = request.session.get("security_role", None)
-    url_value: Optional[str] = request.GET.get("security-role")
-    if url_value:
-        role_value = url_value
-
-    role: SecuritySubRole = SecuritySubRole.BUILDING_PASS
-    if role_value:
-        try:
-            role = SecuritySubRole(role_value)
-        except ValueError:
-            pass
-
-        request.session["security_role"] = role.value
-        request.session.save()
-
-    return role
 
 
 class LeavingRequestListing(base.LeavingRequestListing):
@@ -60,27 +35,43 @@ class LeavingRequestListing(base.LeavingRequestListing):
     building_pass_confirmation_view = "security-team-building-pass-confirmation"
     rosa_kit_confirmation_view = "security-team-rosa-kit-confirmation"
     summary_view = "security-team-summary"
-    service_name = "Leaving DIT: Security actions"
 
     def test_func(self):
         return self.request.user.groups.filter(
             name="Security Team",
         ).exists()
 
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.role = get_security_role(request)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_page_title(self, object_type_name: str) -> str:
+        if self.role == SecuritySubRole.BUILDING_PASS:
+            return f"Building Pass: {object_type_name.title()}"
+        elif self.role == SecuritySubRole.ROSA_KIT:
+            return f"ROSA Kit: {object_type_name.title()}"
+        raise Exception("Unknown security role")
+
+    def get_service_name(self) -> str:
+        if self.role == SecuritySubRole.BUILDING_PASS:
+            return "Leaving DIT: Building pass actions"
+        elif self.role == SecuritySubRole.ROSA_KIT:
+            return "Leaving DIT: ROSA Kit actions"
+
+        raise Exception("Unknown security role")
+
     def get_complete_field(self) -> str:
-        role = get_security_role(self.request)
-        if role == SecuritySubRole.BUILDING_PASS:
+        if self.role == SecuritySubRole.BUILDING_PASS:
             return "security_team_building_pass_complete"
-        elif role == SecuritySubRole.ROSA_KIT:
+        elif self.role == SecuritySubRole.ROSA_KIT:
             return "security_team_rosa_kit_complete"
 
         raise Exception("Unknown security role")
 
     def get_confirmation_view(self) -> str:
-        role = get_security_role(self.request)
-        if role == SecuritySubRole.BUILDING_PASS:
+        if self.role == SecuritySubRole.BUILDING_PASS:
             return self.building_pass_confirmation_view
-        elif role == SecuritySubRole.ROSA_KIT:
+        elif self.role == SecuritySubRole.ROSA_KIT:
             return self.rosa_kit_confirmation_view
 
         raise Exception("Unknown security role")
@@ -103,6 +94,7 @@ class BuildingPassConfirmationView(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
         )
+        set_security_role(request=request, role=SecuritySubRole.BUILDING_PASS)
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -322,6 +314,7 @@ class RosaKitConfirmationView(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
         )
+        set_security_role(request=request, role=SecuritySubRole.ROSA_KIT)
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
