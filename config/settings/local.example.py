@@ -33,20 +33,8 @@ LOGGING["loggers"] = {
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
-# People Data report
-PEOPLE_DATA_INTERFACE = env("PEOPLE_DATA_INTERFACE")
-
-DATABASES["people_data"] = {
-    "HOST": env("PEOPLE_DATA_POSTGRES_HOST"),
-    "NAME": env("PEOPLE_DATA_POSTGRES_DATABASE"),
-    "PORT": env("PEOPLE_DATA_POSTGRES_PORT", default=5432),
-    "ENGINE": "django.db.backends.postgresql",
-    "USER": env("PEOPLE_DATA_POSTGRES_USERNAME"),
-    "PASSWORD": env("PEOPLE_DATA_POSTGRES_PASSWORD"),
-}
-
 # Data visualisation
 GRAPH_MODELS = {
-  'all_applications': True,
-  'group_models': True,
+    "all_applications": True,
+    "group_models": True,
 }
