@@ -63,51 +63,51 @@ class TestConfirmationView(ViewAccessTest, TestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_unauthenticated_user_get(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_unauthenticated_user_get()
 
     def test_unauthenticated_user_post(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_unauthenticated_user_post()
 
     def test_unauthenticated_user_patch(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_unauthenticated_user_patch()
 
     def test_unauthenticated_user_put(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_unauthenticated_user_put()
 
     def test_authenticated_user_get(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_authenticated_user_get()
 
     def test_authenticated_user_post(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_authenticated_user_post()
 
     def test_authenticated_user_patch(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_authenticated_user_patch()
 
     def test_authenticated_user_put(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_authenticated_user_put()
 
 

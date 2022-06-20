@@ -17,27 +17,31 @@ from leavers.forms.leaver import ReturnOptions, StaffType
 from leavers.views.leaver import LeaverInformationMixin
 from user.test.factories import UserFactory
 
-STAFF_DOCUMENT: StaffDocument = {
-    "uuid": "",
-    "people_finder_directorate": "",
-    "people_finder_first_name": "Joe",  # /PS-IGNORE
-    "people_finder_grade": "Example Grade",
-    "people_finder_image": "",
-    "people_finder_job_title": "Job title",
-    "people_finder_last_name": "Bloggs",
-    "people_finder_phone": "0123456789",
-    "service_now_user_id": "",
-    "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
-    "service_now_department_name": "Department of International Trade",
-    "service_now_directorate_id": "",
-    "service_now_directorate_name": "",
-    "staff_sso_activity_stream_id": "1",
-    "staff_sso_contact_email_address": "",
-    "staff_sso_email_address": "joe.bloggs@example.com",  # /PS-IGNORE
-    "staff_sso_first_name": "Joe",  # /PS-IGNORE
-    "staff_sso_last_name": "Bloggs",
-    "people_data_employee_number": "12345",
-}
+STAFF_DOCUMENT = StaffDocument.from_dict(
+    {
+        "uuid": "",
+        "staff_sso_activity_stream_id": "1",
+        "staff_sso_legacy_id": "123",
+        "staff_sso_contact_email_address": "",
+        "staff_sso_email_address": "joe.bloggs@example.com",  # /PS-IGNORE
+        "staff_sso_first_name": "Joe",  # /PS-IGNORE
+        "staff_sso_last_name": "Bloggs",
+        "people_finder_directorate": "",
+        "people_finder_first_name": "Joe",  # /PS-IGNORE
+        "people_finder_grade": "Example Grade",
+        "people_finder_image": "",
+        "people_finder_job_title": "Job title",
+        "people_finder_last_name": "Bloggs",
+        "people_finder_phone": "0123456789",
+        "people_finder_email": "joe.bloggs@example.com",  # /PS-IGNORE
+        "service_now_user_id": "",
+        "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
+        "service_now_department_name": "Department of International Trade",
+        "service_now_directorate_id": "",
+        "service_now_directorate_name": "",
+        "people_data_employee_number": "12345",
+    }
+)
 STAFF_INDEX_RETURN_VALUE: List[StaffDocument] = [STAFF_DOCUMENT]
 
 

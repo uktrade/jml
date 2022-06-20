@@ -13,27 +13,31 @@ from leavers.forms.line_manager import (
 )
 from leavers.tests.views.include import ViewAccessTest
 
-EMPTY_STAFF_DOCUMENT: StaffDocument = {
-    "uuid": "",
-    "staff_sso_activity_stream_id": "",
-    "staff_sso_first_name": "",
-    "staff_sso_last_name": "",
-    "staff_sso_email_address": "",
-    "staff_sso_contact_email_address": "",
-    "people_finder_image": "",
-    "people_finder_first_name": "",
-    "people_finder_last_name": "",
-    "people_finder_job_title": "",
-    "people_finder_directorate": "",
-    "people_finder_phone": "",
-    "people_finder_grade": "",
-    "service_now_user_id": "",
-    "service_now_department_id": "",
-    "service_now_department_name": "",
-    "service_now_directorate_id": "",
-    "service_now_directorate_name": "",
-    "people_data_employee_number": "",
-}
+EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
+    {
+        "uuid": "",
+        "staff_sso_activity_stream_id": "",
+        "staff_sso_legacy_id": "",
+        "staff_sso_first_name": "",
+        "staff_sso_last_name": "",
+        "staff_sso_email_address": "",
+        "staff_sso_contact_email_address": "",
+        "people_finder_image": "",
+        "people_finder_first_name": "",
+        "people_finder_last_name": "",
+        "people_finder_job_title": "",
+        "people_finder_directorate": "",
+        "people_finder_phone": "",
+        "people_finder_grade": "",
+        "people_finder_email": "",
+        "service_now_user_id": "",
+        "service_now_department_id": "",
+        "service_now_department_name": "",
+        "service_now_directorate_id": "",
+        "service_now_directorate_name": "",
+        "people_data_employee_number": "",
+    }
+)
 
 
 class TestDataRecipientSearchView(ViewAccessTest, TestCase):
@@ -115,51 +119,51 @@ class TestLeaverConfirmationView(ViewAccessTest, TestCase):
         self.leaver_as_sso_user = self.leaving_request.leaver_activitystream_user
 
     def test_unauthenticated_user_get(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_unauthenticated_user_get()
 
     def test_unauthenticated_user_post(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_unauthenticated_user_post()
 
     def test_unauthenticated_user_patch(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_unauthenticated_user_patch()
 
     def test_unauthenticated_user_put(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_unauthenticated_user_put()
 
     def test_authenticated_user_get(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_authenticated_user_get()
 
     def test_authenticated_user_post(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_authenticated_user_post()
 
     def test_authenticated_user_patch(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_authenticated_user_patch()
 
     def test_authenticated_user_put(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
         super().test_authenticated_user_put()
 
     """
@@ -167,15 +171,15 @@ class TestLeaverConfirmationView(ViewAccessTest, TestCase):
     """
 
     def test_get_context(self, mock_get_staff_document_from_staff_index):
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_activity_stream_id"
-        ] = self.leaver_as_sso_user.identifier
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_first_name"
-        ] = self.leaver_as_sso_user.first_name
-        mock_get_staff_document_from_staff_index.return_value[
-            "staff_sso_last_name"
-        ] = self.leaver_as_sso_user.last_name
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_activity_stream_id = (
+            self.leaver_as_sso_user.identifier
+        )
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_first_name = (
+            self.leaver_as_sso_user.first_name
+        )
+        mock_get_staff_document_from_staff_index.return_value.staff_sso_last_name = (
+            self.leaver_as_sso_user.last_name
+        )
 
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
