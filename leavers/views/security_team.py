@@ -524,8 +524,11 @@ class TaskSummaryView(
             },
         }
 
-        user_has = self.leaving_request.rosa_kit_form_data["user_has"]
-        user_returned = self.leaving_request.rosa_kit_form_data["user_has"]
+        user_has = []
+        user_returned = []
+        if self.leaving_request.rosa_kit_form_data:
+            user_has = self.leaving_request.rosa_kit_form_data["user_has"]
+            user_returned = self.leaving_request.rosa_kit_form_data["user_has"]
 
         for key, status in rosa_kit_statuses.items():
             if key not in user_has:
