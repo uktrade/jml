@@ -41,7 +41,7 @@ class IndexCurrentUser:
 
             # Check if the ActivityStreamStaffSSOUser already exists
             as_users = ActivityStreamStaffSSOUser.objects.filter(
-                user_id=user.id, email_address=user.email
+                email_address=user.email,
             )
             if not as_users.exists():
                 # Create ActivityStream object

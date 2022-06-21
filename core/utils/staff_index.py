@@ -1,8 +1,11 @@
 import uuid
-from typing import Any, Dict, List, Mapping, Optional, TypedDict, Union, cast
+from dataclasses import dataclass
+from typing import Any, Dict, List, Mapping, Optional, TypedDict, Union
 
+from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
 from opensearch_dsl import Search
+from opensearch_dsl.response import Hit
 from opensearchpy import OpenSearch
 from opensearchpy.exceptions import NotFoundError
 
@@ -42,7 +45,8 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
 }
 
 
-class StaffDocument(TypedDict):
+@dataclass
+class StaffDocument(DataClassJsonMixin):
     uuid: str
     staff_sso_activity_stream_id: str
     staff_sso_legacy_id: str
@@ -64,7 +68,6 @@ class StaffDocument(TypedDict):
     service_now_directorate_id: str
     service_now_directorate_name: str
     people_data_employee_number: str
-
 
 
 class ConsolidatedStaffDocument(TypedDict):
@@ -140,16 +143,16 @@ def index_staff_document(*, staff_document: StaffDocument):
     Add or Update a Staff document in the Staff index.
     """
     search_client = get_search_connection()
-    if search_client.exists(index=STAFF_INDEX_NAME, id=staff_document["uuid"]):
+    if search_client.exists(index=STAFF_INDEX_NAME, id=staff_document.uuid):
         search_client.update(
             index=STAFF_INDEX_NAME,
-            id=staff_document["uuid"],
-            body=staff_document,
+            id=staff_document.uuid,
+            body=staff_document.to_dict(),
         )
     else:
         search_client.index(
             index=STAFF_INDEX_NAME,
-            body=staff_document,
+            body=staff_document.to_dict(),
         )
 
 
@@ -204,14 +207,10 @@ def search_staff_index(
     staff_documents = []
     for hit in search_results.hits:
         if hit["staff_sso_activity_stream_id"] not in exclude_staff_ids:
-            staff_document = cast(
-                StaffDocument,
-                {
-                    field_name: hit[field_name]
-                    for field_name in StaffDocument.__annotations__
-                },
+            # TODO: Drop infer_missing=True once we have plugged into all live data
+            staff_documents.append(
+                StaffDocument.from_dict(hit.to_dict(), infer_missing=True)
             )
-            staff_documents.append(staff_document)
 
     return staff_documents
 
@@ -267,14 +266,10 @@ def get_staff_document_from_staff_index(
     if len(search_results) == 0:
         raise StaffDocumentNotFound()
 
-    staff_document = cast(
-        StaffDocument,
-        {
-            field_name: search_results.hits[0][field_name]
-            for field_name in StaffDocument.__annotations__
-        },
-    )
-    return staff_document
+    hit: Hit = search_results.hits[0]
+
+    # TODO: Drop infer_missing=True once we have plugged into all live data
+    return StaffDocument.from_dict(hit.to_dict(), infer_missing=True)
 
 
 def consolidate_staff_documents(
@@ -283,28 +278,26 @@ def consolidate_staff_documents(
     consolidated_staff_documents: List[ConsolidatedStaffDocument] = []
     for staff_document in staff_documents:
         consolidated_staff_document: ConsolidatedStaffDocument = {
-            "uuid": staff_document["uuid"],
-            "staff_sso_activity_stream_id": staff_document[
-                "staff_sso_activity_stream_id"
-            ],
-            "first_name": staff_document["staff_sso_first_name"]
-            or staff_document["people_finder_first_name"]
+            "uuid": staff_document.uuid,
+            "staff_sso_activity_stream_id": staff_document.staff_sso_activity_stream_id,
+            "first_name": staff_document.staff_sso_first_name
+            or staff_document.people_finder_first_name
             or "",
-            "last_name": staff_document["staff_sso_last_name"]
-            or staff_document["people_finder_last_name"]
+            "last_name": staff_document.staff_sso_last_name
+            or staff_document.people_finder_last_name
             or "",
-            "email_address": staff_document["staff_sso_email_address"] or "",
-            "contact_email_address": staff_document["staff_sso_contact_email_address"]
+            "email_address": staff_document.staff_sso_email_address or "",
+            "contact_email_address": staff_document.staff_sso_contact_email_address
             or "",
-            "contact_phone": staff_document["people_finder_phone"] or "",
-            "photo": staff_document["people_finder_image"] or "",
-            "grade": staff_document["people_finder_grade"] or "",
-            "directorate": staff_document["service_now_directorate_id"] or "",
-            "directorate_name": staff_document["service_now_directorate_name"] or "",
-            "department": staff_document["service_now_department_id"] or "",
-            "department_name": staff_document["service_now_department_name"] or "",
-            "job_title": staff_document["people_finder_job_title"] or "",
-            "staff_id": staff_document["people_data_employee_number"] or "",
+            "contact_phone": staff_document.people_finder_phone or "",
+            "photo": staff_document.people_finder_image or "",
+            "grade": staff_document.people_finder_grade or "",
+            "directorate": staff_document.service_now_directorate_id or "",
+            "directorate_name": staff_document.service_now_directorate_name or "",
+            "department": staff_document.service_now_department_id or "",
+            "department_name": staff_document.service_now_department_name or "",
+            "job_title": staff_document.people_finder_job_title or "",
+            "staff_id": staff_document.people_data_employee_number or "",
             "manager": "",
         }
         consolidated_staff_documents.append(consolidated_staff_document)
@@ -378,32 +371,35 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     """
     Build Staff Document
     """
-    staff_document: StaffDocument = {
-        "uuid": str(uuid.uuid4()),
-        # Staff SSO
-        "staff_sso_activity_stream_id": staff_sso_user.identifier,
-        "staff_sso_first_name": staff_sso_user.first_name,
-        "staff_sso_last_name": staff_sso_user.last_name,
-        "staff_sso_email_address": staff_sso_user.email_address,
-        "staff_sso_contact_email_address": staff_sso_user.contact_email_address or "",
-        # People Finder
-        "people_finder_image": people_finder_result.get("image", ""),
-        "people_finder_first_name": people_finder_result.get("first_name", ""),
-        "people_finder_last_name": people_finder_result.get("last_name", ""),
-        "people_finder_job_title": people_finder_result.get("job_title", ""),
-        "people_finder_directorate": people_finder_result.get("directorate", ""),
-        "people_finder_phone": people_finder_result.get("phone", ""),
-        "people_finder_grade": people_finder_result.get("grade", ""),
-        "people_finder_email": people_finder_result.get("email", ""),
-        # Service Now
-        "service_now_user_id": service_now_user_id,
-        "service_now_department_id": service_now_department_id,
-        "service_now_department_name": service_now_department_name,
-        "service_now_directorate_id": service_now_directorate_id,
-        "service_now_directorate_name": service_now_directorate_name,
-        # People Data
-        "people_data_employee_number": employee_number,
-    }
+    staff_document = StaffDocument.from_dict(
+        {
+            "uuid": str(uuid.uuid4()),
+            # Staff SSO
+            "staff_sso_activity_stream_id": staff_sso_user.identifier,
+            "staff_sso_first_name": staff_sso_user.first_name,
+            "staff_sso_last_name": staff_sso_user.last_name,
+            "staff_sso_email_address": staff_sso_user.email_address,
+            "staff_sso_contact_email_address": staff_sso_user.contact_email_address
+            or "",
+            # People Finder
+            "people_finder_image": people_finder_result.get("image", ""),
+            "people_finder_first_name": people_finder_result.get("first_name", ""),
+            "people_finder_last_name": people_finder_result.get("last_name", ""),
+            "people_finder_job_title": people_finder_result.get("job_title", ""),
+            "people_finder_directorate": people_finder_result.get("directorate", ""),
+            "people_finder_phone": people_finder_result.get("phone", ""),
+            "people_finder_grade": people_finder_result.get("grade", ""),
+            "people_finder_email": people_finder_result.get("email", ""),
+            # Service Now
+            "service_now_user_id": service_now_user_id,
+            "service_now_department_id": service_now_department_id,
+            "service_now_department_name": service_now_department_name,
+            "service_now_directorate_id": service_now_directorate_id,
+            "service_now_directorate_name": service_now_directorate_name,
+            # People Data
+            "people_data_employee_number": employee_number,
+        }
+    )
     return staff_document
 
 

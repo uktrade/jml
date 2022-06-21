@@ -1,5 +1,9 @@
 from core.people_finder import get_people_finder_interface
-from core.utils.staff_index import index_staff_document, search_staff_index
+from core.utils.staff_index import (
+    StaffDocument,
+    index_staff_document,
+    search_staff_index,
+)
 
 
 def ingest_people_finder():
@@ -11,7 +15,7 @@ def ingest_people_finder():
         staff_index_results = search_staff_index(query=people_finder_result["email"])
         if len(staff_index_results) == 0:
             continue
-        staff_index_result = staff_index_results[0]
+        staff_index_result = staff_index_results[0].to_dict()
 
         staff_index_result.update(
             people_finder_image=people_finder_result.get("image", ""),
@@ -24,4 +28,4 @@ def ingest_people_finder():
             people_finder_email=people_finder_result.get("email", ""),
         )
 
-        index_staff_document(staff_document=staff_index_result)
+        index_staff_document(staff_document=StaffDocument.from_dict(staff_index_result))

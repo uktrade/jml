@@ -49,6 +49,8 @@ click-repl==0.2.0
     # via celery
 crispy-forms-gds==0.2.3
     # via -r requirements.in/base.in
+dataclasses-json==0.5.7
+    # via -r requirements.in/base.in
 deprecated==1.2.13
     # via redis
 dit-activity-stream==0.0.1
@@ -127,7 +129,12 @@ kubi-ecs-logger==0.1.0
 libsass==0.20.0
     # via -r requirements.in/base.in
 marshmallow==3.6.1
-    # via kubi-ecs-logger
+    # via
+    #   dataclasses-json
+    #   kubi-ecs-logger
+    #   marshmallow-enum
+marshmallow-enum==1.5.1
+    # via dataclasses-json
 mohawk==1.1.0
     # via
     #   -r requirements.in/base.in
@@ -136,6 +143,8 @@ multidict==5.2.0
     # via
     #   aiohttp
     #   yarl
+mypy-extensions==0.4.3
+    # via typing-inspect
 notifications-python-client==6.3.0
     # via -r requirements.in/base.in
 oauthlib==3.2.0
@@ -205,7 +214,11 @@ slackclient==2.9.3
 sqlparse==0.4.2
     # via django
 typing-extensions==4.0.1
-    # via async-timeout
+    # via
+    #   async-timeout
+    #   typing-inspect
+typing-inspect==0.7.1
+    # via dataclasses-json
 urllib3==1.26.7
     # via
     #   elasticsearch
@@ -221,7 +234,7 @@ waitress==2.1.2
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
