@@ -50,7 +50,7 @@ Emails are sent at the following points:
 | When | Condition | Purpose | Recipient |
 | ----- | ----- | ----- | ----- |
 | Day after the last working day | ALWAYS | Notification email to inform the Processor of the tasks | Processor |
-| 2 days after the last working day | IF NOT PROCESSED | Notification email to infomr the Line manager of the tasks | Line manager |
+| 2 days after the last working day | IF NOT PROCESSED | Notification email to inform the Line manager of the tasks | Line manager |
 | On the leaving date | IF NOT PROCESSED | URGENT: Inform the Line manager that the tasks need to be performed | Line manager |
 | 1 day after the leaving date | IF NOT PROCESSED | Inform the Processor that the tasks need to be performed | Processor |
 | 2 days after the leaving date | IF NOT PROCESSED | Inform the Line manager that the tasks need to be performed by end of the day otherwise escalation | Line manager |
