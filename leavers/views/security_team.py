@@ -573,6 +573,10 @@ class TaskSummaryView(
             }
         )
 
+        rosa_kit_notes = None
+        if self.leaving_request.rosa_kit_form_data:
+            rosa_kit_notes = self.leaving_request.rosa_kit_form_data.get("notes")
+
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
             leaving_request_uuid=self.leaving_request.uuid,
@@ -585,7 +589,7 @@ class TaskSummaryView(
             rosa_kit_complete=bool(
                 self.leaving_request.security_team_rosa_kit_complete
             ),
-            rosa_kit_notes=self.leaving_request.rosa_kit_form_data.get("notes"),
+            rosa_kit_notes=rosa_kit_notes,
         )
 
         return context
