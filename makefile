@@ -111,4 +111,4 @@ model-graphs:
 	docker-compose run --rm leavers python manage.py graph_models -a -g -o jml_data_model.png
 
 ingest-activity-stream:
-	docker-compose run --rm leavers python manage.py ingest_activity_stream
+	docker-compose run --rm leavers python manage.py ingest_activity_stream --limit=10

@@ -1,3 +1,4 @@
+import json
 from typing import Any, Iterator, List, Optional, TypedDict
 
 import requests
@@ -8,18 +9,30 @@ URL = settings.STAFF_SSO_ACTIVITY_STREAM_URL
 CONTENT_TYPE = "application/json"
 
 
-def get_sender(*, url: Optional[str] = None) -> Sender:
-    return Sender(
+def hawk_request(method, url, body):
+    header = Sender(
         {
             "id": settings.STAFF_SSO_ACTIVITY_STREAM_ID,
             "key": settings.STAFF_SSO_ACTIVITY_STREAM_SECRET,
             "algorithm": "sha256",
         },
         url,
-        "GET",
-        content="",
-        content_type=CONTENT_TYPE,
+        method,
+        content_type="application/json",
+        content=body,
+    ).request_header
+
+    response = requests.request(
+        method,
+        url,
+        data=body,
+        headers={
+            "Authorization": header,
+            "Content-Type": "application/json",
+        },
     )
+    response.raise_for_status()
+    return response.json()
 
 
 class FailedToGetActivityStream(Exception):
@@ -47,7 +60,7 @@ OrderedItem = TypedDict(
 )
 
 
-class ActivityStreamOrderedItems(TypedDict):
+class ActivityStreamOrderedItem(TypedDict):
     id: str
     object: OrderedItem
     published: str
@@ -55,9 +68,8 @@ class ActivityStreamOrderedItems(TypedDict):
 
 class StaffSSOActivityStreamIterator(Iterator):
     current_index: int = 0
-    items: List[ActivityStreamOrderedItems] = []
-    current_url: Optional[str] = None
-    next_url: Optional[str] = None
+    items: List[ActivityStreamOrderedItem] = []
+    search_after = {}
 
     def __iter__(self) -> Iterator:
         # Initialize the iterator by making the first call to the API.
@@ -65,7 +77,7 @@ class StaffSSOActivityStreamIterator(Iterator):
         self.call_api()
         return self
 
-    def __next__(self) -> ActivityStreamOrderedItems:
+    def __next__(self) -> ActivityStreamOrderedItem:
         value = self.get_next_item()
         self.current_index += 1
         return value
@@ -77,19 +89,13 @@ class StaffSSOActivityStreamIterator(Iterator):
 
         # Get the next item from the object.
         try:
-            value = self.items[self.current_index]
+            value = self.items[self.current_index]["_source"]
         except IndexError:
             # If the index is out of range, move to the next page.
-            self.next_page()
             self.call_api()
             value = self.get_next_item()
 
         return value
-
-    def next_page(self):
-        if not self.next_url or self.current_url == self.next_url:
-            raise StopIteration
-        self.current_url = self.next_url
 
     def call_api(self):
         if not self.current_url:
@@ -97,20 +103,23 @@ class StaffSSOActivityStreamIterator(Iterator):
 
         self.current_index = 0
 
-        sender = get_sender(url=self.current_url)
-
-        response = requests.get(
+        response = hawk_request(
+            "GET",
             self.current_url,
-            data="",
-            headers={
-                "Authorization": sender.request_header,
-                "Content-Type": CONTENT_TYPE,
-            },
+            json.dumps(
+                {
+                    "size": 1000,
+                    "query": {
+                        "match": {"object.type": "dit:StaffSSO:User"},
+                    },
+                    "sort": [{"published": "asc"}, {"id": "asc"}],
+                    **self.search_after,
+                }
+            ),
         )
 
-        if response.status_code != 200:
-            raise FailedToGetActivityStream()
+        if not response["hits"]["hits"]:
+            raise StopIteration
 
-        data = response.json()
-        self.items = data.get("orderedItems", [])
-        self.next_url = data.get("next")
+        self.search_after = {"search_after": response["hits"]["hits"][-1]["sort"]}
+        self.items = response["hits"]["hits"]
