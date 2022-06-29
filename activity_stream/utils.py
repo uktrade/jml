@@ -17,7 +17,8 @@ def ingest_activity_stream(limit: Optional[int] = None) -> None:
     # Create and Update Activity Stream SSO objects
     for activity_stream_object in staff_sso.StaffSSOActivityStreamIterator():
         # Break out if we hit processing limit
-        if limit and len(created_updated_ids) > limit:
+
+        if limit and len(created_updated_ids) >= limit:
             logger.info(f"Reached limit for activity stream: {limit}")
             break
 
