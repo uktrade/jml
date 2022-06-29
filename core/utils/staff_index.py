@@ -1,6 +1,7 @@
+import logging
 import uuid
 from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping, Optional, TypedDict, Union
+from typing import Any, List, Mapping, Optional, TypedDict, cast
 
 from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
@@ -10,7 +11,9 @@ from opensearchpy import OpenSearch
 from opensearchpy.exceptions import NotFoundError
 
 from activity_stream.models import ActivityStreamStaffSSOUser
-from core.people_finder.interfaces import PersonDetail
+
+logger = logging.getLogger(__name__)
+
 
 MAX_RESULTS = 100
 MIN_SCORE = 0.02
@@ -34,6 +37,8 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "people_finder_directorate": {"type": "text"},
             "people_finder_phone": {"type": "text"},
             "people_finder_grade": {"type": "text"},
+            "people_finder_photo": {"type": "text"},
+            "people_finder_photo_small": {"type": "text"},
             "service_now_user_id": {"type": "text"},
             "service_now_department_id": {"type": "text"},
             "service_now_department_name": {"type": "text"},
@@ -62,6 +67,8 @@ class StaffDocument(DataClassJsonMixin):
     people_finder_phone: str
     people_finder_grade: str
     people_finder_email: str
+    people_finder_photo: str
+    people_finder_photo_small: str
     service_now_user_id: str
     service_now_department_id: str
     service_now_department_name: str
@@ -87,6 +94,8 @@ class ConsolidatedStaffDocument(TypedDict):
     job_title: str
     staff_id: str
     manager: str
+    photo: str
+    photo_small: str
 
 
 def get_search_connection() -> OpenSearch:
@@ -289,15 +298,16 @@ def consolidate_staff_documents(
             "email_address": staff_document.staff_sso_email_address or "",
             "contact_email_address": staff_document.staff_sso_contact_email_address
             or "",
-            "contact_phone": staff_document.people_finder_phone or "",
-            "photo": staff_document.people_finder_image or "",
-            "grade": staff_document.people_finder_grade or "",
-            "directorate": staff_document.service_now_directorate_id or "",
-            "directorate_name": staff_document.service_now_directorate_name or "",
-            "department": staff_document.service_now_department_id or "",
-            "department_name": staff_document.service_now_department_name or "",
-            "job_title": staff_document.people_finder_job_title or "",
-            "staff_id": staff_document.people_data_employee_number or "",
+            "contact_phone": staff_document["people_finder_phone"] or "",
+            "grade": staff_document["people_finder_grade"] or "",
+            "directorate": staff_document["service_now_directorate_id"] or "",
+            "directorate_name": staff_document["service_now_directorate_name"] or "",
+            "department": staff_document["service_now_department_id"] or "",
+            "department_name": staff_document["service_now_department_name"] or "",
+            "job_title": staff_document["people_finder_job_title"] or "",
+            "staff_id": staff_document["people_data_employee_number"] or "",
+            "photo": staff_document["people_finder_photo"] or "",
+            "photo_small": staff_document["people_finder_photo_small"] or "",
             "manager": "",
         }
         consolidated_staff_documents.append(consolidated_staff_document)
@@ -311,20 +321,15 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     from core.service_now.interfaces import ServiceNowUserNotFound
 
     people_data_search = get_people_data_interface()
-    people_finder_search = get_people_finder_interface()
+    people_finder = get_people_finder_interface()
     service_now_interface = get_service_now_interface()
 
     """
     Get People Finder data
     """
-    people_finder_results = people_finder_search.get_search_results(
-        search_term=staff_sso_user.email_address,
+    people_finder_result = people_finder.get_details(
+        legacy_sso_user_id=staff_sso_user.user_id,
     )
-    people_finder_result: Union[Dict, PersonDetail] = {}
-    if len(people_finder_results) > 0:
-        for pf_result in people_finder_results:
-            if pf_result["email"] == staff_sso_user.email_address:
-                people_finder_result = pf_result
     people_finder_directorate: Optional[str] = people_finder_result.get("directorate")
 
     """
@@ -334,7 +339,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         sso_legacy_id=staff_sso_user.user_id,
     )
     # Assuming first id is correct
-    employee_number = people_data_results["employee_numbers"][0]
+    employee_number = next(iter(people_data_results["employee_numbers"]), None)
 
     """
     Get Service Now data
@@ -371,35 +376,36 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     """
     Build Staff Document
     """
-    staff_document = StaffDocument.from_dict(
-        {
-            "uuid": str(uuid.uuid4()),
-            # Staff SSO
-            "staff_sso_activity_stream_id": staff_sso_user.identifier,
-            "staff_sso_first_name": staff_sso_user.first_name,
-            "staff_sso_last_name": staff_sso_user.last_name,
-            "staff_sso_email_address": staff_sso_user.email_address,
-            "staff_sso_contact_email_address": staff_sso_user.contact_email_address
-            or "",
-            # People Finder
-            "people_finder_image": people_finder_result.get("image", ""),
-            "people_finder_first_name": people_finder_result.get("first_name", ""),
-            "people_finder_last_name": people_finder_result.get("last_name", ""),
-            "people_finder_job_title": people_finder_result.get("job_title", ""),
-            "people_finder_directorate": people_finder_result.get("directorate", ""),
-            "people_finder_phone": people_finder_result.get("phone", ""),
-            "people_finder_grade": people_finder_result.get("grade", ""),
-            "people_finder_email": people_finder_result.get("email", ""),
-            # Service Now
-            "service_now_user_id": service_now_user_id,
-            "service_now_department_id": service_now_department_id,
-            "service_now_department_name": service_now_department_name,
-            "service_now_directorate_id": service_now_directorate_id,
-            "service_now_directorate_name": service_now_directorate_name,
-            # People Data
-            "people_data_employee_number": employee_number,
-        }
-    )
+    staff_document: StaffDocument = {
+        "uuid": str(uuid.uuid4()),
+        # Staff SSO
+        "staff_sso_legacy_id": staff_sso_user.user_id,
+        "staff_sso_activity_stream_id": staff_sso_user.identifier,
+        "staff_sso_first_name": staff_sso_user.first_name,
+        "staff_sso_last_name": staff_sso_user.last_name,
+        "staff_sso_email_address": staff_sso_user.email_address,
+        "staff_sso_contact_email_address": staff_sso_user.contact_email_address or "",
+        # People Finder
+        "people_finder_image": people_finder_result.get("image", ""),
+        "people_finder_first_name": people_finder_result.get("first_name", ""),
+        "people_finder_last_name": people_finder_result.get("last_name", ""),
+        "people_finder_job_title": people_finder_result.get("job_title", ""),
+        "people_finder_directorate": people_finder_result.get("directorate", ""),
+        "people_finder_phone": people_finder_result.get("phone", ""),
+        "people_finder_grade": people_finder_result.get("grade", ""),
+        "people_finder_email": people_finder_result.get("email", ""),
+        "people_finder_photo": people_finder_result.get("photo", ""),
+        "people_finder_photo_small": people_finder_result.get("photo_small", ""),
+        # Service Now
+        "service_now_user_id": service_now_user_id,
+        "service_now_department_id": service_now_department_id,
+        "service_now_department_name": service_now_department_name,
+        "service_now_directorate_id": service_now_directorate_id,
+        "service_now_directorate_name": service_now_directorate_name,
+        # People Data
+        "people_data_employee_number": employee_number,
+    }
+
     return staff_document
 
 
@@ -416,8 +422,13 @@ def index_all_staff() -> int:
     staff_documents: List[StaffDocument] = []
     # Add documents to the index
     for staff_sso_user in ActivityStreamStaffSSOUser.objects.all():
-        staff_document = build_staff_document(staff_sso_user=staff_sso_user)
-        staff_documents.append(staff_document)
+        try:
+            staff_document = build_staff_document(staff_sso_user=staff_sso_user)
+            staff_documents.append(staff_document)
+        except Exception:
+            logger.exception(
+                f"Could not build index entry for '{staff_sso_user}''", exc_info=True
+            )
     indexed_count = 0
     for staff_document in staff_documents:
         index_staff_document(staff_document=staff_document)

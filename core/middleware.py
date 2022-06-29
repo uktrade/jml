@@ -54,7 +54,7 @@ class IndexCurrentUser:
                         "first_name": user.first_name,
                         "last_name": user.last_name,
                         "email_address": user.email,
-                        "user_id": user.id,
+                        "user_id": user.id,  # Would be legacy SSO id
                         "status": "active",
                         "last_accessed": timezone.now(),
                         "joined": timezone.now(),
