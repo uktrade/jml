@@ -3,7 +3,7 @@ from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
 
 from activity_stream.utils import ingest_activity_stream
-from core.celery import celery_app
+from config.celery import celery_app
 from core.people_finder.utils import ingest_people_finder
 from core.service_now.utils import ingest_service_now
 
