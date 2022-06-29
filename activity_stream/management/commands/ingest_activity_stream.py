@@ -6,5 +6,9 @@ from activity_stream.utils import ingest_activity_stream
 class Command(BaseCommand):
     help = "Ingest Staff SSO Activity Stream"
 
+    def add_arguments(self, parser):
+        parser.add_argument("--limit", type=int, nargs="?")
+
     def handle(self, *args, **options):
-        ingest_activity_stream()
+        limit = options["limit"]
+        ingest_activity_stream(limit)
