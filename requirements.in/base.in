@@ -38,5 +38,3 @@ opensearch-py==1.0.0
 opensearch-dsl==1.0.0
 # GovUK Notify
 notifications-python-client
-requests-hawk
-

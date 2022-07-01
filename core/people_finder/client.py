@@ -1,22 +1,16 @@
+import logging
 import urllib.parse
 from typing import Any, Iterator, List, Optional, TypedDict
 
 import requests
 from django.conf import settings
-from requests_hawk import HawkAuth
+from mohawk import Sender
+
+logger = logging.getLogger(__name__)
 
 
 class FailedToGetPeopleRecords(Exception):
     pass
-
-
-CONTENT_TYPE = "application/json"
-
-HAWK_AUTH = HawkAuth(
-    id=settings.PEOPLE_FINDER_HAWK_ACCESS_ID,
-    key=settings.PEOPLE_FINDER_HAWK_SECRET_KEY,
-    always_hash_content=False,
-)
 
 
 class Person(TypedDict):
@@ -28,6 +22,21 @@ class Person(TypedDict):
     grade: str
     primary_phone_number: str
     roles: List[Any]
+
+
+def get_sender(url):
+    return Sender(
+        {
+            "id": settings.PEOPLE_FINDER_HAWK_ACCESS_ID,
+            "key": settings.PEOPLE_FINDER_HAWK_SECRET_KEY,
+            "algorithm": "sha256",
+        },
+        url,
+        "GET",
+        content="",
+        content_type="",
+        always_hash_content=False,
+    )
 
 
 class PeopleFinderIterator(Iterator):
@@ -74,15 +83,16 @@ class PeopleFinderIterator(Iterator):
 
         self.current_index = 0
 
+        sender = get_sender(self.current_url)
         response = requests.get(
             self.current_url,
-            auth=HAWK_AUTH,
-            headers={
-                "Content-Type": CONTENT_TYPE,
-            },
+            headers={"Authorization": sender.request_header, "Content-Type": ""},
         )
 
         if response.status_code != 200:
+            logger.error(
+                f"{response.status_code} response from People Finder API - '{self.current_url}'"
+            )
             raise FailedToGetPeopleRecords()
 
         data = response.json()
@@ -94,15 +104,16 @@ def get_details(legacy_sso_user_id) -> Person:
     safe_id = urllib.parse.quote_plus(legacy_sso_user_id)
     url = f"{settings.PEOPLE_FINDER_URL}/peoplefinder/api/person-api/{safe_id}/"
 
+    sender = get_sender(url)
     response = requests.get(
         url,
-        auth=HAWK_AUTH,
-        headers={
-            "Content-Type": CONTENT_TYPE,
-        },
+        headers={"Authorization": sender.request_header, "Content-Type": ""},
     )
 
     if response.status_code != 200:
+        logger.error(
+            f"{response.status_code} response from People Finder API - '{url}'"
+        )
         raise FailedToGetPeopleRecords()
 
     return response.json()

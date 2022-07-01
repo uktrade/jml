@@ -1,7 +1,7 @@
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import Any, List, Mapping, Optional, TypedDict, cast
+from typing import Any, List, Mapping, Optional, TypedDict
 
 from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
@@ -298,16 +298,16 @@ def consolidate_staff_documents(
             "email_address": staff_document.staff_sso_email_address or "",
             "contact_email_address": staff_document.staff_sso_contact_email_address
             or "",
-            "contact_phone": staff_document["people_finder_phone"] or "",
-            "grade": staff_document["people_finder_grade"] or "",
-            "directorate": staff_document["service_now_directorate_id"] or "",
-            "directorate_name": staff_document["service_now_directorate_name"] or "",
-            "department": staff_document["service_now_department_id"] or "",
-            "department_name": staff_document["service_now_department_name"] or "",
-            "job_title": staff_document["people_finder_job_title"] or "",
-            "staff_id": staff_document["people_data_employee_number"] or "",
-            "photo": staff_document["people_finder_photo"] or "",
-            "photo_small": staff_document["people_finder_photo_small"] or "",
+            "contact_phone": staff_document.people_finder_phone or "",
+            "grade": staff_document.people_finder_grade or "",
+            "directorate": staff_document.service_now_directorate_id or "",
+            "directorate_name": staff_document.service_now_directorate_name or "",
+            "department": staff_document.service_now_department_id or "",
+            "department_name": staff_document.service_now_department_name or "",
+            "job_title": staff_document.people_finder_job_title or "",
+            "staff_id": staff_document.people_data_employee_number or "",
+            "photo": staff_document.people_finder_photo or "",
+            "photo_small": staff_document.people_finder_photo_small or "",
             "manager": "",
         }
         consolidated_staff_documents.append(consolidated_staff_document)
