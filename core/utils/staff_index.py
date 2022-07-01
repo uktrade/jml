@@ -1,7 +1,7 @@
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import Any, List, Mapping, Optional, TypedDict, cast
+from typing import Any, List, Mapping, Optional, TypedDict
 
 from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
