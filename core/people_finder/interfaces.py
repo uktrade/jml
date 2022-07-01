@@ -76,8 +76,8 @@ class PeopleFinder(PeopleFinderBase):
         directorate = ""
 
         if "roles" in person and len(person["roles"]) > 0:
-            job_title = person["roles"][0]["job_title"]
-            directorate = person["roles"][0]["team"]["name"]
+            job_title = person["roles"][0]["role"]
+            directorate = person["roles"][0]["team_name"]
 
         return {
             "first_name": person["first_name"],
