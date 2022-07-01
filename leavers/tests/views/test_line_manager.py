@@ -30,6 +30,8 @@ EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
         "people_finder_phone": "",
         "people_finder_grade": "",
         "people_finder_email": "",
+        "people_finder_photo": "",
+        "people_finder_photo_small": "",
         "service_now_user_id": "",
         "service_now_department_id": "",
         "service_now_department_name": "",
