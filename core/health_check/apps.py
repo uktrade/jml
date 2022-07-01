@@ -9,10 +9,9 @@ class HealthCheckConfig(AppConfig):
     verbose_name = "Core health check"
 
     def ready(self):
-        from core.health_check.backends import (
-            PeopleFinderHealthCheck,
+        from core.health_check.backends import (  # PeopleFinderHealthCheck, TODO - reinstate
             ServiceNowHealthCheck,
         )
 
         plugin_dir.register(ServiceNowHealthCheck)
-        plugin_dir.register(PeopleFinderHealthCheck)
+        # plugin_dir.register(PeopleFinderHealthCheck) TODO - reinstate
