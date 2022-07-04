@@ -126,7 +126,8 @@ class StaffSSOActivityStreamIterator(Iterator):
 
         if response.status_code != 200:
             logger.error(
-                f"{response.status_code} response from Staff SSO Activity Stream - '{self.current_url}'"
+                f"{response.status_code} response from Staff SSO Activity Stream - "
+                f"'{self.current_url}'"
             )
             raise FailedToGetActivityStream()
 
