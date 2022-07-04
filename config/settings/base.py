@@ -250,7 +250,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
 # Dev tools & Authbroker
-DEV_TOOLS_ENABLED = env("DEV_TOOLS_ENABLED", default="false") == "true"
+DEV_TOOLS_ENABLED = env.bool("DEV_TOOLS_ENABLED", default=False)
 
 if DEV_TOOLS_ENABLED:
     INSTALLED_APPS += [
@@ -259,13 +259,8 @@ if DEV_TOOLS_ENABLED:
 
     LOGIN_URL = reverse_lazy("dev_tools:index")
 else:
-    AUTHBROKER_ANONYMOUS_PATHS = [
-        "/admin/",
-        "/admin/login/",
-    ]
     AUTHENTICATION_BACKENDS.append("user.backends.CustomAuthbrokerBackend")
     MIDDLEWARE.append("authbroker_client.middleware.ProtectAllViewsMiddleware")
-
 
 # Slack
 SLACK_API_TOKEN = env("SLACK_API_TOKEN", default=None)
