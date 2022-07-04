@@ -59,7 +59,7 @@ class Command(BaseCommand):
                 is_staff=True,
                 is_superuser=True,
             )
-            user.legacy_sso_user_id = uuid.uuid4()
+            user.legacy_sso_user_id = str(uuid.uuid4())
             user.set_password("password")
             user.save()
             self.stdout.write(f"{username} created")

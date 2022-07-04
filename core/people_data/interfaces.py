@@ -13,18 +13,19 @@ class PeopleDataBase(ABC):
 
 class PeopleDataStubbed(PeopleDataBase):
     def get_people_data(self, sso_legacy_id: str) -> types.PeopleData:
-        return {
+        result: types.PeopleData = {
             # Legacy style SSO user ids
             "employee_numbers": [
-                1,
+                "1",
             ],
         }
+        return result
 
 
 class PeopleDataInterface(PeopleDataBase):
     def get_people_data(self, sso_legacy_id: str) -> types.PeopleData:
         with connections["people_data"].cursor() as cursor:
-            result = {
+            result: types.PeopleData = {
                 "employee_numbers": [],
             }
             # No speech marks in query to avoid SQL injection

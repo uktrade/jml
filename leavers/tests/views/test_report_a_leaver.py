@@ -7,27 +7,32 @@ from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from core.utils.staff_index import StaffDocument
 from leavers.tests.views.include import ViewAccessTest
 
-EMPTY_STAFF_DOCUMENT: StaffDocument = {
-    "uuid": "",
-    "staff_sso_activity_stream_id": "",
-    "staff_sso_first_name": "",
-    "staff_sso_last_name": "",
-    "staff_sso_email_address": "",
-    "staff_sso_contact_email_address": "",
-    "people_finder_image": "",
-    "people_finder_first_name": "",
-    "people_finder_last_name": "",
-    "people_finder_job_title": "",
-    "people_finder_directorate": "",
-    "people_finder_phone": "",
-    "people_finder_grade": "",
-    "service_now_user_id": "",
-    "service_now_department_id": "",
-    "service_now_department_name": "",
-    "service_now_directorate_id": "",
-    "service_now_directorate_name": "",
-    "people_data_employee_number": "",
-}
+EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
+    {
+        "uuid": "",
+        "staff_sso_activity_stream_id": "",
+        "staff_sso_contact_email_address": "",
+        "staff_sso_email_address": "",
+        "staff_sso_first_name": "",
+        "staff_sso_last_name": "",
+        "staff_sso_legacy_id": "",
+        "people_finder_directorate": "",
+        "people_finder_email": "",
+        "people_finder_first_name": "",
+        "people_finder_grade": "",
+        "people_finder_job_title": "",
+        "people_finder_last_name": "",
+        "people_finder_phone": "",
+        "people_finder_photo_small": "",
+        "people_finder_photo": "",
+        "service_now_department_id": "",
+        "service_now_department_name": "",
+        "service_now_directorate_id": "",
+        "service_now_directorate_name": "",
+        "service_now_user_id": "",
+        "people_data_employee_number": "",
+    }
+)
 
 
 @skip("Report a leaver journey is no longer in use")

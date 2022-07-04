@@ -128,7 +128,7 @@ class BuildingPassConfirmationView(
 
         return context
 
-    def get_notifications(self) -> List[Dict[str, str]]:
+    def get_notifications(self) -> List[Dict[str, Any]]:
         notifications = []
 
         # Reminder sent to Line manager
@@ -336,7 +336,7 @@ class RosaKitConfirmationView(
 
         return context
 
-    def get_notifications(self) -> List[Dict[str, str]]:
+    def get_notifications(self) -> List[Dict[str, Any]]:
         notifications = []
 
         # Reminder sent to Line manager

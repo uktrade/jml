@@ -18,7 +18,8 @@ def ingest_people_finder():
         staff_index_result = staff_index_results[0].to_dict()
 
         staff_index_result.update(
-            people_finder_image=people_finder_result.get("image", ""),
+            people_finder_photo=people_finder_result.get("photo", ""),
+            people_finder_photo_small=people_finder_result.get("photo_small", ""),
             people_finder_first_name=people_finder_result.get("first_name", ""),
             people_finder_last_name=people_finder_result.get("last_name", ""),
             people_finder_job_title=people_finder_result.get("job_title", ""),

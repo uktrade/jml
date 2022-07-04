@@ -28,13 +28,15 @@ class ServiceNowResults(Iterator):
     current_url: Optional[str] = None
     next_url: Optional[str] = None
 
-    def __iter__(
+    def __init__(
         self,
         url: str,
         path: str,
         sysparm_query: Optional[str] = None,
         sysparm_fields: Optional[List[str]] = None,
-    ) -> Iterator:
+    ) -> None:
+        super().__init__()
+
         self.url = url
         self.path = path
         # Initialize the iterator by making the first call to the API.
@@ -48,6 +50,9 @@ class ServiceNowResults(Iterator):
         if sysparm_query:
             self.query["sysparm_query"] = sysparm_query
 
+    def __iter__(
+        self,
+    ):
         # Build the current URL
         self.url_parts[4] = urlencode(self.query)
         self.current_url = urlunparse(self.url_parts)

@@ -1,5 +1,5 @@
 import json
-from typing import Any, Iterator, List, Optional, TypedDict
+from typing import Any, Dict, Iterator, List, Optional, TypedDict
 
 import requests
 from django.conf import settings
@@ -69,7 +69,7 @@ class ActivityStreamOrderedItem(TypedDict):
 class StaffSSOActivityStreamIterator(Iterator):
     current_index: int = 0
     items: List[ActivityStreamOrderedItem] = []
-    search_after = {}
+    search_after: Dict[Any, Any] = {}
 
     def __iter__(self) -> Iterator:
         # Initialize the iterator by making the first call to the API.
