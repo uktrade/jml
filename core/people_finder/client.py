@@ -48,7 +48,10 @@ class PeopleFinderIterator(Iterator):
     def __iter__(self) -> Iterator:
         # Initialize the iterator by making the first call to the API.
         self.current_url = f"{settings.PEOPLE_FINDER_URL}/peoplefinder/api/person-api/"
-        self.call_api()
+        try:
+            self.call_api()
+        except StopIteration:
+            pass
         return self
 
     def __next__(self) -> Person:

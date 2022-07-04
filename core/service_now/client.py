@@ -50,14 +50,14 @@ class ServiceNowResults(Iterator):
         if sysparm_query:
             self.query["sysparm_query"] = sysparm_query
 
-    def __iter__(
-        self,
-    ):
+    def __iter__(self):
         # Build the current URL
         self.url_parts[4] = urlencode(self.query)
         self.current_url = urlunparse(self.url_parts)
-
-        self.call_api()
+        try:
+            self.call_api()
+        except StopIteration:
+            pass
         return self
 
     def __next__(self) -> Any:
@@ -107,11 +107,7 @@ class ServiceNowResults(Iterator):
             raise service_now_exception
 
         content = response.json()
-        content_results = content.get("result", [])
-        if not content_results:
-            raise StopIteration
-
-        self.items = content_results
+        self.items = content.get("result", [])
 
         # Build the next URL
         self.query["sysparm_offset"] += 100

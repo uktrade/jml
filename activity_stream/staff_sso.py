@@ -1,9 +1,12 @@
 import json
+import logging
 from typing import Any, Dict, Iterator, List, Optional, TypedDict
 
 import requests
 from django.conf import settings
 from mohawk import Sender
+
+logger = logging.getLogger(__name__)
 
 URL = settings.STAFF_SSO_ACTIVITY_STREAM_URL
 CONTENT_TYPE = "application/json"
@@ -74,7 +77,10 @@ class StaffSSOActivityStreamIterator(Iterator):
     def __iter__(self) -> Iterator:
         # Initialize the iterator by making the first call to the API.
         self.current_url = URL
-        self.call_api()
+        try:
+            self.call_api()
+        except StopIteration:
+            pass
         return self
 
     def __next__(self) -> ActivityStreamOrderedItem:
@@ -118,8 +124,17 @@ class StaffSSOActivityStreamIterator(Iterator):
             ),
         )
 
-        if not response["hits"]["hits"]:
+        if response.status_code != 200:
+            logger.error(
+                f"{response.status_code} response from Staff SSO Activity Stream - '{self.current_url}'"
+            )
+            raise FailedToGetActivityStream()
+
+        data = response.json()
+        hits = data.get("hits", {})
+        self.items = hits.get("hits", [])
+
+        if not self.items:
             raise StopIteration
 
-        self.search_after = {"search_after": response["hits"]["hits"][-1]["sort"]}
-        self.items = response["hits"]["hits"]
+        self.search_after = {"search_after": self.items[-1]["sort"]}
