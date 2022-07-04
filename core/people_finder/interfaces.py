@@ -1,7 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Iterable, Optional, TypedDict
 
-from core.people_finder.client import PeopleFinderIterator, get_details
+from core.people_finder.client import (
+    FailedToGetPeopleRecords,
+    PeopleFinderIterator,
+    get_details,
+)
 
 
 class Person(TypedDict):
@@ -69,9 +73,16 @@ class PeopleFinderStubbed(PeopleFinderBase):
         )
 
 
+class PeopleFinderPersonNotFound(Exception):
+    pass
+
+
 class PeopleFinder(PeopleFinderBase):
     def get_details(self, legacy_sso_user_id: str) -> Person:
-        person = get_details(legacy_sso_user_id)
+        try:
+            person = get_details(legacy_sso_user_id)
+        except FailedToGetPeopleRecords:
+            raise PeopleFinderPersonNotFound()
 
         job_title = ""
         directorate = ""

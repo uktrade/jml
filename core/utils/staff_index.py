@@ -1,7 +1,7 @@
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import Any, List, Mapping, Optional, TypedDict
+from typing import Any, Dict, List, Mapping, Optional, TypedDict, Union
 
 from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
@@ -11,6 +11,7 @@ from opensearchpy import OpenSearch
 from opensearchpy.exceptions import NotFoundError
 
 from activity_stream.models import ActivityStreamStaffSSOUser
+from core.people_finder.interfaces import PeopleFinderPersonNotFound, Person
 
 logger = logging.getLogger(__name__)
 
@@ -324,10 +325,18 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     """
     Get People Finder data
     """
-    people_finder_result = people_finder.get_details(
-        legacy_sso_user_id=staff_sso_user.user_id,
-    )
-    people_finder_directorate: Optional[str] = people_finder_result.get("directorate")
+    people_finder_result: Union[Person, Dict[Any, Any]] = {}
+    people_finder_directorate: Optional[str] = None
+    try:
+        people_finder_result = people_finder.get_details(
+            legacy_sso_user_id=staff_sso_user.user_id,
+        )
+    except PeopleFinderPersonNotFound:
+        logger.exception(
+            f"Could not find '{staff_sso_user}' in People Finder", exc_info=True
+        )
+    else:
+        people_finder_directorate = people_finder_result.get("directorate")
 
     """
     Get People report data
@@ -348,7 +357,9 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
             email=staff_sso_user.email_address,
         )
     except ServiceNowUserNotFound:
-        pass
+        logger.exception(
+            f"Could not find '{staff_sso_user}' in Service Now", exc_info=True
+        )
     else:
         service_now_user_id = service_now_user["sys_id"]
     # Get Service Now Department data
