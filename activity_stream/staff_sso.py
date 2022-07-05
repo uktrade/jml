@@ -34,8 +34,7 @@ def hawk_request(method, url, body):
             "Content-Type": "application/json",
         },
     )
-    response.raise_for_status()
-    return response.json()
+    return response
 
 
 class FailedToGetActivityStream(Exception):
