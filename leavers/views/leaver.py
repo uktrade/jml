@@ -468,7 +468,7 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
         user = cast(User, self.request.user)
-        user_email = cast(str, user.email)
+        user_email = cast(str, user.sso_contact_email)
         leaving_request = self.get_leaving_request(email=user_email, requester=user)
         self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
         if leaving_request and leaving_request.leaver_complete:
@@ -607,7 +607,7 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
         user = cast(User, self.request.user)
-        user_email = cast(str, user.email)
+        user_email = cast(str, user.sso_contact_email)
         self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
         leaving_request = self.get_leaving_request(email=user_email, requester=user)
         if leaving_request and leaving_request.leaver_complete:
@@ -979,7 +979,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         Check we have all the required information before we continue.
         """
         user = cast(User, self.request.user)
-        user_email = cast(str, user.email)
+        user_email = cast(str, user.sso_contact_email)
 
         # Check if a manager has been selected.
         if not self.get_manager():
@@ -1002,7 +1002,7 @@ class RequestReceivedView(LeaverInformationMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         user = cast(User, self.request.user)
-        user_email = cast(str, user.email)
+        user_email = cast(str, user.sso_contact_email)
 
         context = super().get_context_data(**kwargs)
         context.update(

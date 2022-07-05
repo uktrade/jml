@@ -23,6 +23,10 @@ class ActivityStreamStaffSSOUserFactory(DjangoModelFactory):
     class Meta:
         model = ActivityStreamStaffSSOUser
 
+    @factory.post_generation
+    def add_emails(self, create, how_many, **kwargs):
+        ActivityStreamStaffSSOUserEmailFactory(staff_sso_user=self)
+
     identifier = factory.fuzzy.FuzzyText(length=255)
     name = factory.fuzzy.FuzzyText(length=255)
     obj_type = factory.fuzzy.FuzzyText(length=255)
@@ -44,6 +48,3 @@ class ActivityStreamStaffSSOUserFactory(DjangoModelFactory):
         start_dt=timezone.now() - timedelta(days=10),
     )
     available = True
-    activitystreamstaffssouseremail_set = factory.SubFactory(
-        ActivityStreamStaffSSOUserEmailFactory,
-    )

@@ -62,7 +62,6 @@ class TestLeaverInformationMixin(TestCase):
         )
 
     def test_get_leaver_information_new(self, mock_get_search_results) -> None:
-
         LeaverInformationMixin().get_leaver_information(
             email=self.leaver_email,
             requester=UserFactory(),
@@ -392,7 +391,7 @@ class TestConfirmDetailsView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
-            contact_email_address=self.leaver.email,
+            contact_email_address=self.leaver.sso_contact_email,
         )
 
     def test_unauthenticated_user(self, mock_get_search_results) -> None:
@@ -431,7 +430,7 @@ class TestConfirmDetailsView(TestCase):
             "contact_email_address": "Updated Personal Email",
         }
         factories.LeaverInformationFactory(
-            leaver_email=self.leaver.email,
+            leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
             updates=updates,
         )
@@ -475,7 +474,7 @@ class TestConfirmDetailsView(TestCase):
             "contact_email_address": "new.personal.email@example.com",  # /PS-IGNORE
         }
         factories.LeaverInformationFactory(
-            leaver_email=self.leaver.email,
+            leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
             leaving_request__security_clearance="sc",
             leaving_request__is_rosa_user=True,
@@ -505,7 +504,7 @@ class TestUpdateDetailsView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
-            contact_email_address=self.leaver.email,
+            contact_email_address=self.leaver.sso_contact_email,
         )
 
     def test_unauthenticated_user(self, mock_get_search_results) -> None:
@@ -541,7 +540,7 @@ class TestUpdateDetailsView(TestCase):
             "contact_email_address": "Updated Personal Email",
         }
         factories.LeaverInformationFactory(
-            leaver_email=self.leaver.email,
+            leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
             updates=updates,
         )
@@ -633,7 +632,7 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
 
         leaver_updates_obj = models.LeaverInformation.objects.get(
-            leaver_email=self.leaver.email,
+            leaver_email=self.leaver.sso_contact_email,
         )
         leaver_updates: types.LeaverDetailUpdates = leaver_updates_obj.updates
 
@@ -654,10 +653,10 @@ class TestCirrusEquipmentView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
-            email_address=self.leaver.email,
+            contact_email_address=self.leaver.sso_contact_email,
         )
         self.leaver_information = factories.LeaverInformationFactory(
-            leaver_email=self.leaver.email,
+            leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
             leaving_request__user_requesting=self.leaver,
         )
@@ -774,7 +773,7 @@ class TestCirrusEquipmentView(TestCase):
         self.assertEqual(response.url, reverse("leaver-return-options"))
 
         mock_store_cirrus_kit_information.assert_called_once_with(
-            email=self.leaver.email,
+            email=self.leaver.sso_contact_email,
             requester=self.leaver,
             information_is_correct=False,
             additional_information="Some additional information",
@@ -788,10 +787,10 @@ class TestDisplayScreenEquipmentView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
-            email_address=self.leaver.email,
+            contact_email_address=self.leaver.sso_contact_email,
         )
         self.leaver_information = factories.LeaverInformationFactory(
-            leaver_email=self.leaver.email,
+            leaver_email=self.leaver.sso_contact_email,
             has_dse=True,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
             leaving_request__user_requesting=self.leaver,
@@ -901,7 +900,7 @@ class TestDisplayScreenEquipmentView(TestCase):
         self.assertEqual(response.url, reverse("leaver-confirm-details"))
 
         mock_store_display_screen_equipment.assert_called_once_with(
-            email=self.leaver.email,
+            email=self.leaver.sso_contact_email,
             requester=self.leaver,
             dse_assets=[],
         )
@@ -981,10 +980,10 @@ class TestCirrusEquipmentReturnOptionsView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
-            email_address=self.leaver.email,
+            contact_email_address=self.leaver.sso_contact_email,
         )
         self.leaver_information = factories.LeaverInformationFactory(
-            leaver_email=self.leaver.email,
+            leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
             leaving_request__user_requesting=self.leaver,
         )
@@ -1015,7 +1014,7 @@ class TestCirrusEquipmentReturnOptionsView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("leaver-return-information"))
         mock_store_return_option.assert_called_once_with(
-            email=self.leaver.email,
+            email=self.leaver.sso_contact_email,
             requester=self.leaver,
             return_option=ReturnOptions.HOME.value,
         )
@@ -1034,7 +1033,7 @@ class TestCirrusEquipmentReturnOptionsView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("leaver-return-information"))
         mock_store_return_option.assert_called_once_with(
-            email=self.leaver.email,
+            email=self.leaver.sso_contact_email,
             requester=self.leaver,
             return_option=ReturnOptions.OFFICE.value,
         )
@@ -1058,7 +1057,7 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
-            email_address=self.leaver.email,
+            contact_email_address=self.leaver.sso_contact_email,
         )
 
     def test_unauthenticated_user(self) -> None:
@@ -1076,7 +1075,7 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
     def test_home(self) -> None:
         self.client.force_login(self.leaver)
         factories.LeaverInformationFactory(
-            leaver_email=self.leaver.email,
+            leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
             return_option=ReturnOptions.HOME.value,
         )
@@ -1093,7 +1092,7 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
     def test_office(self) -> None:
         self.client.force_login(self.leaver)
         factories.LeaverInformationFactory(
-            leaver_email=self.leaver.email,
+            leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
             return_option=ReturnOptions.OFFICE.value,
         )
@@ -1111,7 +1110,7 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
     def test_post(self, mock_store_return_information) -> None:
         self.client.force_login(self.leaver)
         factories.LeaverInformationFactory(
-            leaver_email=self.leaver.email,
+            leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
             return_option=ReturnOptions.HOME.value,
         )
