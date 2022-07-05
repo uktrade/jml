@@ -412,7 +412,9 @@ class TestConfirmDetailsView(TestCase):
         self.assertEqual(leaver_details["job_title"], "Job title")
         self.assertEqual(leaver_details["last_name"], "Bloggs")
         self.assertEqual(leaver_details["staff_id"], "12345")
-        self.assertEqual(leaver_details["contact_email_address"], "")
+        self.assertEqual(
+            leaver_details["contact_email_address"], "joe.bloggs@example.com"
+        )  # /PS-IGNORE
         self.assertEqual(leaver_details["photo"], "")
 
     @mock.patch(
@@ -528,7 +530,9 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(form.initial["first_name"], "Joe")  # /PS-IGNORE
         self.assertEqual(form.initial["job_title"], "Job title")
         self.assertEqual(form.initial["last_name"], "Bloggs")  # /PS-IGNORE
-        self.assertEqual(form.initial["contact_email_address"], "")
+        self.assertEqual(
+            form.initial["contact_email_address"], "joe.bloggs@example.com"
+        )  # /PS-IGNORE
         self.assertEqual(form.initial["photo"], "")
 
     def test_existing_updates(self, mock_get_search_results) -> None:
@@ -1131,7 +1135,7 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
         self.assertEqual(response.url, reverse("leaver-display-screen-equipment"))
 
         mock_store_return_information.assert_called_once_with(
-            email=self.leaver.email,
+            email=self.leaver.sso_contact_email,
             requester=self.leaver,
             personal_phone="0123123123",  # /PS-IGNORE
             contact_email="joe.bloggs@example.com",  # /PS-IGNORE
