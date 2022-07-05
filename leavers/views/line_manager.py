@@ -59,7 +59,7 @@ class LineManagerViewMixin:
             return False
 
         # Check if the user viewing the page is the Line manager
-        if user.email != manager_activitystream_user.email_address:
+        if user.sso_contact_email != manager_activitystream_user.contact_email_address:
             return False
 
         return True

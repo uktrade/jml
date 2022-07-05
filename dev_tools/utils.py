@@ -26,7 +26,7 @@ def create_user(first_name: str, last_name: str, email: str, group: Group) -> "U
     user.groups.add(group)
 
     staff_sso_user, _ = ActivityStreamStaffSSOUser.objects.get_or_create(
-        email_address=user.email,
+        contact_email_address=user.sso_contact_email,
         defaults={
             "identifier": str(uuid.uuid4()),
             "name": f"{user.first_name} {user.last_name}",
@@ -37,7 +37,7 @@ def create_user(first_name: str, last_name: str, email: str, group: Group) -> "U
             "status": "active",
             "last_accessed": timezone.now(),
             "joined": timezone.now(),
-            "contact_email_address": user.email,
+            "contact_email_address": user.sso_contact_email,
             "available": True,
         },
     )

@@ -1,25 +1,37 @@
 from datetime import timedelta
 
-import factory
 import factory.fuzzy
 from django.utils import timezone
 from factory.django import DjangoModelFactory
 
-from activity_stream.models import ActivityStreamStaffSSOUser
+from activity_stream.models import (
+    ActivityStreamStaffSSOUser,
+    ActivityStreamStaffSSOUserEmail,
+)
+
+
+class ActivityStreamStaffSSOUserEmailFactory(DjangoModelFactory):
+    class Meta:
+        model = ActivityStreamStaffSSOUserEmail
+
+    email_address = factory.Sequence(
+        lambda n: f"activity_stream_staff_sso_user_{n}@example.com"  # /PS-IGNORE
+    )
 
 
 class ActivityStreamStaffSSOUserFactory(DjangoModelFactory):
     class Meta:
         model = ActivityStreamStaffSSOUser
 
+    @factory.post_generation
+    def add_emails(self, create, how_many, **kwargs):
+        ActivityStreamStaffSSOUserEmailFactory(staff_sso_user=self)
+
     identifier = factory.fuzzy.FuzzyText(length=255)
     name = factory.fuzzy.FuzzyText(length=255)
     obj_type = factory.fuzzy.FuzzyText(length=255)
     first_name = factory.fuzzy.FuzzyText(length=50)
     last_name = factory.fuzzy.FuzzyText(length=50)
-    email_address = factory.Sequence(
-        lambda n: f"activity_stream_staff_sso_user_{n}@example.com"  # /PS-IGNORE
-    )
     user_id = factory.fuzzy.FuzzyText(length=255)
     status = factory.fuzzy.FuzzyText(length=255)
     last_accessed = factory.fuzzy.FuzzyDateTime(

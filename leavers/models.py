@@ -285,7 +285,7 @@ class LeavingRequest(models.Model):
             return leaver_information.leaver_email
 
         if self.leaver_activitystream_user:
-            return self.leaver_activitystream_user.email_address
+            return self.leaver_activitystream_user.contact_email_address
 
         return None
 
@@ -310,7 +310,7 @@ class LeavingRequest(models.Model):
 
         manager_activitystream_user = self.manager_activitystream_user
         if manager_activitystream_user:
-            return manager_activitystream_user.email_address
+            return manager_activitystream_user.contact_email_address
 
         return None
 

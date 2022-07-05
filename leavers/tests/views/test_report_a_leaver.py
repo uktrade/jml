@@ -12,7 +12,6 @@ EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
         "uuid": "",
         "staff_sso_activity_stream_id": "",
         "staff_sso_contact_email_address": "",
-        "staff_sso_email_address": "",
         "staff_sso_first_name": "",
         "staff_sso_last_name": "",
         "staff_sso_legacy_id": "",
@@ -49,7 +48,7 @@ class TestConfirmationView(ViewAccessTest, TestCase):
         super().setUp()
         self.leaver_email = "joe.bloggs@example.com"  # /PS-IGNORE
         self.leaver_as_sso_user = ActivityStreamStaffSSOUserFactory(
-            email_address=self.leaver_email
+            contact_email_address=self.leaver_email
         )
         self.manager_as_sso_user = ActivityStreamStaffSSOUserFactory()
         self.url_query_params = f"manager_uuid={self.manager_as_sso_user.identifier}"

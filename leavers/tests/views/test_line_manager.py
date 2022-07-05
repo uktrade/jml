@@ -20,7 +20,6 @@ EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
         "staff_sso_legacy_id": "",
         "staff_sso_first_name": "",
         "staff_sso_last_name": "",
-        "staff_sso_email_address": "",
         "staff_sso_contact_email_address": "",
         "people_finder_first_name": "",
         "people_finder_last_name": "",
@@ -47,9 +46,10 @@ class TestDataRecipientSearchView(ViewAccessTest, TestCase):
 
     def setUp(self):
         super().setUp()
+        email = self.authenticated_user.sso_contact_email
         self.leaving_request = LeavingRequestFactory(
             leaver_complete=timezone.now(),
-            manager_activitystream_user__email_address=self.authenticated_user.email,
+            manager_activitystream_user__contact_email_address=email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
 
@@ -82,9 +82,10 @@ class TestStartView(ViewAccessTest, TestCase):
 
     def setUp(self):
         super().setUp()
+        email = self.authenticated_user.sso_contact_email
         self.leaving_request = LeavingRequestFactory(
             leaver_complete=timezone.now(),
-            manager_activitystream_user__email_address=self.authenticated_user.email,
+            manager_activitystream_user__contact_email_address=email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
 
@@ -112,9 +113,10 @@ class TestLeaverConfirmationView(ViewAccessTest, TestCase):
 
     def setUp(self):
         super().setUp()
+        email = self.authenticated_user.sso_contact_email
         self.leaving_request = LeavingRequestFactory(
             leaver_complete=timezone.now(),
-            manager_activitystream_user__email_address=self.authenticated_user.email,
+            manager_activitystream_user__contact_email_address=email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
         self.leaver_as_sso_user = self.leaving_request.leaver_activitystream_user
@@ -213,9 +215,10 @@ class TestDetailsView(ViewAccessTest, TestCase):
 
     def setUp(self):
         super().setUp()
+        email = self.authenticated_user.sso_contact_email
         self.leaving_request = LeavingRequestFactory(
             leaver_complete=timezone.now(),
-            manager_activitystream_user__email_address=self.authenticated_user.email,
+            manager_activitystream_user__contact_email_address=email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
 
@@ -259,9 +262,10 @@ class TestThankYouView(ViewAccessTest, TestCase):
 
     def setUp(self):
         super().setUp()
+        email = self.authenticated_user.sso_contact_email
         self.leaving_request = LeavingRequestFactory(
             leaver_complete=timezone.now(),
-            manager_activitystream_user__email_address=self.authenticated_user.email,
+            manager_activitystream_user__contact_email_address=email,
             line_manager_complete=timezone.now(),
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}

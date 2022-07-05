@@ -16,7 +16,7 @@ def ingest_service_now():
         service_now_user_id: str = ""
         try:
             service_now_user = service_now_interface.get_user(
-                email=staff_document.staff_sso_email_address,
+                email=staff_document.staff_sso_contact_email_address,
             )
         except ServiceNowUserNotFound:
             continue
