@@ -43,7 +43,6 @@ def ingest_activity_stream(limit: Optional[int] = None) -> None:
                 "last_name": activity_stream_object["object"][
                     "dit:lastName"  # /PS-IGNORE
                 ],
-                "email_address": activity_stream_object["object"]["dit:emailAddress"],
                 "user_id": activity_stream_object["object"]["dit:StaffSSO:User:userId"],
                 "status": activity_stream_object["object"]["dit:StaffSSO:User:status"],
                 "last_accessed": activity_stream_object["object"][
@@ -61,6 +60,13 @@ def ingest_activity_stream(limit: Optional[int] = None) -> None:
                 ],
             },
         )
+
+        for email in activity_stream_object["object"]["dit:emailAddress"]:
+            models.ActivityStreamStaffSSOUserEmail.objects.update_or_create(
+                email_address=email,
+                staff_sso_user=as_staff_sso_user,
+            )
+
         created_updated_ids.append(as_staff_sso_user.id)
         logger.info(
             f"Added SSO activity stream record for '{as_staff_sso_user.id}'",

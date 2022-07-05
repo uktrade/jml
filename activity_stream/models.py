@@ -13,7 +13,6 @@ class ActivityStreamStaffSSOUser(models.Model):
     obj_type = models.CharField(max_length=255)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    email_address = models.EmailField(unique=True, max_length=255)
     user_id = models.CharField(max_length=255)  # Legacy SSO id
     status = models.CharField(max_length=255)
     last_accessed = models.DateTimeField(null=True, blank=True)
@@ -29,3 +28,10 @@ class ActivityStreamStaffSSOUser(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ActivityStreamStaffSSOUserEmail(models.Model):
+    staff_sso_user = models.ForeignKey(
+        ActivityStreamStaffSSOUser, on_delete=models.CASCADE
+    )
+    email_address = models.EmailField(unique=True, max_length=255)
