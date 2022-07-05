@@ -16,7 +16,7 @@ class ActivityStreamStaffSSOUser(models.Model):
     email_address = models.EmailField(unique=True, max_length=255)
     user_id = models.CharField(max_length=255)  # Legacy SSO id
     status = models.CharField(max_length=255)
-    last_accessed = models.DateTimeField()
+    last_accessed = models.DateTimeField(null=True, blank=True)
     joined = models.DateTimeField()
     email_user_id = models.CharField(max_length=255)  # Current SSO id
     contact_email_address = models.EmailField(null=True, max_length=255)
