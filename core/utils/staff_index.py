@@ -29,7 +29,6 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "staff_sso_legacy_id": {"type": "text"},
             "staff_sso_first_name": {"type": "text"},
             "staff_sso_last_name": {"type": "text"},
-            "staff_sso_email_address": {"type": "text"},
             "staff_sso_contact_email_address": {"type": "text"},
             "people_finder_first_name": {"type": "text"},
             "people_finder_last_name": {"type": "text"},
@@ -57,7 +56,6 @@ class StaffDocument(DataClassJsonMixin):
     staff_sso_legacy_id: str
     staff_sso_first_name: str
     staff_sso_last_name: str
-    staff_sso_email_address: str
     staff_sso_contact_email_address: str
     people_finder_first_name: str
     people_finder_last_name: str
@@ -81,7 +79,6 @@ class ConsolidatedStaffDocument(TypedDict):
     staff_sso_activity_stream_id: str
     first_name: str
     last_name: str
-    email_address: str
     contact_email_address: str
     contact_phone: str
     grade: str
@@ -188,7 +185,10 @@ def search_staff_index(
                     {"match": {"staff_sso_last_name": {"query": query, "boost": 5.0}}},
                     {
                         "match": {
-                            "staff_sso_email_address": {"query": query, "boost": 10.0}
+                            "staff_sso_contact_email_address": {
+                                "query": query,
+                                "boost": 10.0,
+                            }
                         }
                     },
                     {"multi_match": {"query": query, "analyzer": "standard"}},
@@ -293,7 +293,6 @@ def consolidate_staff_documents(
             "last_name": staff_document.staff_sso_last_name
             or staff_document.people_finder_last_name
             or "",
-            "email_address": staff_document.staff_sso_email_address or "",
             "contact_email_address": staff_document.staff_sso_contact_email_address
             or "",
             "contact_phone": staff_document.people_finder_phone or "",
@@ -354,7 +353,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     service_now_user_id: str = ""
     try:
         service_now_user = service_now_interface.get_user(
-            email=staff_sso_user.email_address,
+            email=staff_sso_user.contact_email_address,
         )
     except ServiceNowUserNotFound:
         logger.exception(
@@ -392,7 +391,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
             "staff_sso_activity_stream_id": staff_sso_user.identifier,
             "staff_sso_first_name": staff_sso_user.first_name,
             "staff_sso_last_name": staff_sso_user.last_name,
-            "staff_sso_email_address": staff_sso_user.email_address,
             "staff_sso_contact_email_address": staff_sso_user.contact_email_address
             or "",
             # People Finder

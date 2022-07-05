@@ -48,7 +48,7 @@ class MyManagerSearchView(StaffSearchView):
         user = cast(User, self.request.user)
         try:
             leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
-                email_address=user.email,
+                contact_email_address=user.sso_contact_email,
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:
             raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")
@@ -67,7 +67,7 @@ class LeaverInformationMixin:
 
         try:
             leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
-                email_address=email,
+                contact_email_address=email,
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:
             raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")

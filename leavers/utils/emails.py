@@ -162,7 +162,7 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
     )
 
     notify.email(
-        email_address=manager_as_user.email_address,
+        email_address=manager_as_user.contact_email_address,
         template_id=notify.EmailTemplates.ROSA_LINE_MANAGER_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -185,7 +185,7 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
     )
 
     notify.email(
-        email_address=manager_as_user.email_address,
+        email_address=manager_as_user.contact_email_address,
         template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -204,7 +204,7 @@ def send_line_manager_notification_email(leaving_request: LeavingRequest):
     )
 
     notify.email(
-        email_address=manager_as_user.email_address,
+        email_address=manager_as_user.contact_email_address,
         template_id=notify.EmailTemplates.LINE_MANAGER_NOTIFICATION_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -226,7 +226,7 @@ def send_line_manager_reminder_email(leaving_request: LeavingRequest):
     )
 
     notify.email(
-        email_address=manager_as_user.email_address,
+        email_address=manager_as_user.contact_email_address,
         template_id=notify.EmailTemplates.LINE_MANAGER_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -248,7 +248,7 @@ def send_line_manager_thankyou_email(leaving_request: LeavingRequest):
     )
 
     notify.email(
-        email_address=manager_as_user.email_address,
+        email_address=manager_as_user.contact_email_address,
         template_id=notify.EmailTemplates.LINE_MANAGER_THANKYOU_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),

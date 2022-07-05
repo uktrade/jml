@@ -26,8 +26,6 @@ def ingest_activity_stream(limit: Optional[int] = None) -> None:
         if activity_stream_object["object"]["type"] != "dit:StaffSSO:User":
             continue
 
-        logger.error(activity_stream_object["object"])
-
         (
             as_staff_sso_user,
             _,

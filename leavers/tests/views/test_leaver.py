@@ -22,8 +22,7 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
         "uuid": "",
         "staff_sso_activity_stream_id": "1",
         "staff_sso_legacy_id": "123",
-        "staff_sso_contact_email_address": "",
-        "staff_sso_email_address": "joe.bloggs@example.com",  # /PS-IGNORE
+        "staff_sso_contact_email_address": "joe.bloggs@example.com",  # /PS-IGNORE
         "staff_sso_first_name": "Joe",  # /PS-IGNORE
         "staff_sso_last_name": "Bloggs",
         "people_finder_directorate": "",
@@ -59,7 +58,7 @@ class TestLeaverInformationMixin(TestCase):
     def setUp(self) -> None:
         self.leaver_email = "joe.bloggs@example.com"  # /PS-IGNORE
         self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
-            email_address=self.leaver_email
+            contact_email_address=self.leaver_email
         )
 
     def test_get_leaver_information_new(self, mock_get_search_results) -> None:
@@ -393,7 +392,7 @@ class TestConfirmDetailsView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
-            email_address=self.leaver.email,
+            contact_email_address=self.leaver.email,
         )
 
     def test_unauthenticated_user(self, mock_get_search_results) -> None:
@@ -506,7 +505,7 @@ class TestUpdateDetailsView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
-            email_address=self.leaver.email,
+            contact_email_address=self.leaver.email,
         )
 
     def test_unauthenticated_user(self, mock_get_search_results) -> None:

@@ -72,7 +72,7 @@ class LeavingRequestListing(
                     "leaver_information__leaver_last_name",
                     "leaver_activitystream_user__first_name",
                     "leaver_activitystream_user__last_name",
-                    "leaver_activitystream_user__email_address",
+                    "leaver_activitystream_user__contact_email_address",
                 )
             )
             leaving_requests = leaving_requests.filter(search=self.query)
