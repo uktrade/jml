@@ -485,7 +485,7 @@ def index_all_staff() -> int:
     """
     staff_documents: List[StaffDocument] = []
     # Add documents to the index
-    for staff_sso_user in ActivityStreamStaffSSOUser.objects.all():
+    for staff_sso_user in ActivityStreamStaffSSOUser.objects.filter(is_active=True):
         try:
             staff_document = build_staff_document(staff_sso_user=staff_sso_user)
             staff_documents.append(staff_document)

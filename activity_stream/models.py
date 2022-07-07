@@ -21,7 +21,6 @@ class ActivityStreamStaffSSOUser(models.Model):
     contact_email_address = models.EmailField(null=True, max_length=255)
     became_inactive_on = models.DateTimeField(null=True)
     is_active = models.BooleanField(default=False)
-    last_accessed = models.DateTimeField(null=True, blank=True)
 
     # Used to denote if the user is still returned by the ActivityStream API.
     available = models.BooleanField(default=False)
