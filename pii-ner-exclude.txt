@@ -350,3 +350,4 @@ f"ActivityStreamStaffSSOUser
 f"user{n
 sso_email_user_id
 0003_add_user_user_id
+0007_activitystreamstaffssouser_is_active
