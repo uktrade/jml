@@ -493,7 +493,7 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
         leaving_request = self.get_leaving_request(
             sso_email_user_id=sso_email_user_id, requester=user
         )
@@ -506,7 +506,7 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
 
     def get_initial(self) -> Dict[str, Any]:
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
 
         initial = super().get_initial()
         initial.update(
@@ -531,7 +531,7 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         context = super().get_context_data(**kwargs)
         context.update(page_title=self.progress_indicator.get_current_step_label())
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
 
         display_leaver_details = self.get_leaver_details_with_updates_for_display(
             sso_email_user_id=sso_email_user_id,
@@ -550,7 +550,7 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
 
     def form_valid(self, form) -> HttpResponse:
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
         updates: types.LeaverDetailUpdates = {
             "first_name": form.cleaned_data["first_name"],
             "last_name": form.cleaned_data["last_name"],
@@ -672,7 +672,7 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
 
         if "cirrus_assets" not in request.session:
             service_now_interface = get_service_now_interface()
@@ -718,7 +718,7 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
         )
@@ -731,7 +731,7 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
 
     def form_valid(self, form):
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
 
         self.store_return_option(
             sso_email_user_id=sso_email_user_id,
@@ -763,7 +763,7 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
         )
@@ -850,7 +850,7 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
 
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
@@ -880,7 +880,7 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
 
     def post_submission_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
 
         # Store dse assets into the leaver details
         self.store_display_screen_equipment(
@@ -940,7 +940,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
         )
@@ -983,7 +983,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
 
         context.update(
             page_title=self.progress_indicator.get_current_step_label(),
@@ -1030,7 +1030,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         Check we have all the required information before we continue.
         """
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
 
         # Check if a manager has been selected.
         if not self.get_manager():
@@ -1055,7 +1055,7 @@ class RequestReceivedView(LeaverInformationMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = user.sso_email_user_id
 
         context = super().get_context_data(**kwargs)
         context.update(
