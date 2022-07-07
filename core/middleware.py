@@ -41,7 +41,7 @@ class IndexCurrentUser:
 
             # Check if the ActivityStreamStaffSSOUser already exists
             as_users = ActivityStreamStaffSSOUser.objects.filter(
-                contact_email_address=user.sso_contact_email,
+                email_user_id=user.sso_email_user_id,
             )
             if not as_users.exists():
                 # Create ActivityStream object
@@ -53,11 +53,11 @@ class IndexCurrentUser:
                         "obj_type": "dit:StaffSSO:User",
                         "first_name": user.first_name,
                         "last_name": user.last_name,
-                        "user_id": user.id,  # Would be legacy SSO id
+                        "user_id": user.sso_legacy_user_id,
                         "status": "active",
                         "last_accessed": timezone.now(),
                         "joined": timezone.now(),
-                        "email_user_id": "",
+                        "email_user_id": user.sso_email_user_id,
                         "contact_email_address": user.sso_contact_email,
                         "became_inactive_on": None,
                     },
@@ -66,9 +66,7 @@ class IndexCurrentUser:
                 as_user = as_users.first()
 
             try:
-                staff_document = get_staff_document_from_staff_index(
-                    staff_id=as_user.identifier
-                )
+                get_staff_document_from_staff_index(staff_id=as_user.identifier)
             except StaffDocumentNotFound:
                 # Index ActivityStream object
                 staff_document = build_staff_document(staff_sso_user=as_user)

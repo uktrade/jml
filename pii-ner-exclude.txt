@@ -348,3 +348,5 @@ unique_sso_legacy_user_id
 Raises
 f"ActivityStreamStaffSSOUser
 f"user{n
+sso_email_user_id
+0003_add_user_user_id
