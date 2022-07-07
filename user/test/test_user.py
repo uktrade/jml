@@ -45,6 +45,6 @@ class TestSSOUserProfile(TestCase):
             self.sso_profile["last_name"],
         )
         self.assertEqual(
-            user.legacy_sso_user_id,
+            user.sso_legacy_user_id,
             self.sso_profile["user_id"],
         )

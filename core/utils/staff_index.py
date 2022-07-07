@@ -26,10 +26,12 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
         "properties": {
             "uuid": {"type": "text"},
             "staff_sso_activity_stream_id": {"type": "text"},
+            "staff_sso_email_user_id": {"type": "text"},
             "staff_sso_legacy_id": {"type": "text"},
             "staff_sso_first_name": {"type": "text"},
             "staff_sso_last_name": {"type": "text"},
             "staff_sso_contact_email_address": {"type": "text"},
+            "staff_sso_email_addresses": {"type": "array"},
             "people_finder_first_name": {"type": "text"},
             "people_finder_last_name": {"type": "text"},
             "people_finder_job_title": {"type": "text"},
@@ -53,10 +55,12 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
 class StaffDocument(DataClassJsonMixin):
     uuid: str
     staff_sso_activity_stream_id: str
+    staff_sso_email_user_id: str
     staff_sso_legacy_id: str
     staff_sso_first_name: str
     staff_sso_last_name: str
     staff_sso_contact_email_address: str
+    staff_sso_email_addresses: List
     people_finder_first_name: str
     people_finder_last_name: str
     people_finder_job_title: str
@@ -77,9 +81,11 @@ class StaffDocument(DataClassJsonMixin):
 class ConsolidatedStaffDocument(TypedDict):
     uuid: str
     staff_sso_activity_stream_id: str
+    staff_sso_email_user_id: str
     first_name: str
     last_name: str
     contact_email_address: str
+    email_addresses: List
     contact_phone: str
     grade: str
     directorate: str
@@ -167,6 +173,51 @@ def get_all_staff_documents() -> List[StaffDocument]:
     return search_staff_index(query="")
 
 
+def search_by_sso_email_user_id(*, sso_email_user_id: str) -> List[StaffDocument]:
+    """
+    Search the Staff index for a given SSO id.
+    """
+    search_client = get_search_connection()
+    search_dict = {
+        "query": {
+            "bool": {
+                "should": [
+                    {
+                        "match": {
+                            "staff_sso_email_user_id": {
+                                "query": sso_email_user_id,
+                                "boost": 10.0,
+                            }
+                        }
+                    },
+                ],
+                "minimum_should_match": 1,
+                "boost": 1.0,
+            }
+        },
+        "sort": {
+            "_score": {"order": "desc"},
+        },
+        "size": MAX_RESULTS,
+        "min_score": MIN_SCORE,
+    }
+
+    search = (
+        Search(index=STAFF_INDEX_NAME)
+        .using(search_client)
+        .update_from_dict(search_dict)
+    )
+    search_results = search.execute()
+
+    staff_documents = []
+    for hit in search_results.hits:
+        staff_documents.append(
+            StaffDocument.from_dict(hit.to_dict(), infer_missing=True)
+        )
+
+    return staff_documents
+
+
 def search_staff_index(
     *, query: str, exclude_staff_ids: Optional[List[str]] = None
 ) -> List[StaffDocument]:
@@ -185,7 +236,7 @@ def search_staff_index(
                     {"match": {"staff_sso_last_name": {"query": query, "boost": 5.0}}},
                     {
                         "match": {
-                            "staff_sso_contact_email_address": {
+                            "staff_sso_email_addresses": {
                                 "query": query,
                                 "boost": 10.0,
                             }
@@ -295,6 +346,7 @@ def consolidate_staff_documents(
             or "",
             "contact_email_address": staff_document.staff_sso_contact_email_address
             or "",
+            "email_addresses": staff_document.staff_sso_email_addresses or "",
             "contact_phone": staff_document.people_finder_phone or "",
             "grade": staff_document.people_finder_grade or "",
             "directorate": staff_document.service_now_directorate_id or "",
@@ -328,7 +380,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     people_finder_directorate: Optional[str] = None
     try:
         people_finder_result = people_finder.get_details(
-            legacy_sso_user_id=staff_sso_user.user_id,
+            sso_legacy_user_id=staff_sso_user.user_id,
         )
     except PeopleFinderPersonNotFound:
         logger.exception(
@@ -349,36 +401,40 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     """
     Get Service Now data
     """
-    # Get Service Now User data
+    # Iterate through all emails and check for Service Now record
     service_now_user_id: str = ""
-    try:
-        service_now_user = service_now_interface.get_user(
-            email=staff_sso_user.contact_email_address,
-        )
-    except ServiceNowUserNotFound:
-        logger.exception(
-            f"Could not find '{staff_sso_user}' in Service Now", exc_info=True
-        )
-    else:
-        service_now_user_id = service_now_user["sys_id"]
-    # Get Service Now Department data
-    service_now_department_id: str = settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
-    service_now_department_name: str = ""
-    service_now_departments = service_now_interface.get_departments(
-        sys_id=service_now_department_id,
-    )
-    if len(service_now_departments) == 1:
-        service_now_department_name = service_now_departments[0]["name"]
-    # Get Service Now Directorate data
-    service_now_directorate_id: str = ""
-    service_now_directorate_name: str = ""
-    if people_finder_directorate:
-        service_now_directorates = service_now_interface.get_directorates(
-            name=people_finder_directorate,
-        )
-        if len(service_now_directorates) == 1:
-            service_now_directorate_id = service_now_directorates[0]["sys_id"]
-            service_now_directorate_name = service_now_directorates[0]["name"]
+    for email in staff_sso_user.sso_emails:
+        try:
+            service_now_user = service_now_interface.get_user(
+                email=email,
+            )
+        except ServiceNowUserNotFound:
+            continue
+        else:
+            service_now_user_id = service_now_user["sys_id"]
+            # Get Service Now Department data
+            service_now_department_id: str = settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
+            service_now_department_name: str = ""
+            service_now_departments = service_now_interface.get_departments(
+                sys_id=service_now_department_id,
+            )
+            if len(service_now_departments) == 1:
+                service_now_department_name = service_now_departments[0]["name"]
+            # Get Service Now Directorate data
+            service_now_directorate_id: str = ""
+            service_now_directorate_name: str = ""
+            if people_finder_directorate:
+                service_now_directorates = service_now_interface.get_directorates(
+                    name=people_finder_directorate,
+                )
+                if len(service_now_directorates) == 1:
+                    service_now_directorate_id = service_now_directorates[0]["sys_id"]
+                    service_now_directorate_name = service_now_directorates[0]["name"]
+
+            break
+
+    if not service_now_user_id:
+        logger.error(f"Could not find '{staff_sso_user}' in Service Now")
 
     """
     Build Staff Document
@@ -393,6 +449,9 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
             "staff_sso_last_name": staff_sso_user.last_name,
             "staff_sso_contact_email_address": staff_sso_user.contact_email_address
             or "",
+            "staff_sso_email_addresses": staff_sso_user.sso_emails.values_list(
+                "email_address", flat=True
+            ),
             # People Finder
             "people_finder_first_name": people_finder_result.get("first_name", ""),
             "people_finder_last_name": people_finder_result.get("last_name", ""),

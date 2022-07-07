@@ -103,8 +103,8 @@ class PeopleFinderIterator(Iterator):
         self.next_url = data.get("next")
 
 
-def get_details(legacy_sso_user_id) -> Person:
-    safe_id = urllib.parse.quote_plus(legacy_sso_user_id)
+def get_details(sso_legacy_user_id) -> Person:
+    safe_id = urllib.parse.quote_plus(sso_legacy_user_id)
     url = f"{settings.PEOPLE_FINDER_URL}/peoplefinder/api/person-api/{safe_id}/"
 
     sender = get_sender(url)

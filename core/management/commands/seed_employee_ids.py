@@ -8,7 +8,7 @@ class Command(BaseCommand):
     help = "Seed employee ids"
 
     def handle(self, *args, **options):
-        users = User.objects.filter(legacy_sso_user_id__isnull=False)
+        users = User.objects.filter(sso_legacy_user_id__isnull=False)
 
         employee_id_1 = 10000000
         employee_id_2 = 100000
@@ -18,7 +18,7 @@ class Command(BaseCommand):
                 cursor.execute(
                     "INSERT INTO dit.people_data__identities "
                     "(sso_user_id, employee_numbers) VALUES(%s, %s)",
-                    (user.legacy_sso_user_id, [employee_id_1, employee_id_2]),
+                    (user.sso_legacy_user_id, [employee_id_1, employee_id_2]),
                 )
                 employee_id_1 += 1
                 employee_id_2 += 1

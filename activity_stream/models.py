@@ -34,6 +34,7 @@ class ActivityStreamStaffSSOUserEmail(models.Model):
     staff_sso_user = models.ForeignKey(
         ActivityStreamStaffSSOUser,
         on_delete=models.CASCADE,
+        related_name="sso_emails",
     )
     email_address = models.EmailField(
         unique=True,

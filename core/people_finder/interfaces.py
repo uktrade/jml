@@ -22,7 +22,7 @@ class Person(TypedDict):
 
 class PeopleFinderBase(ABC):
     @abstractmethod
-    def get_details(self, *, legacy_sso_user_id: str) -> Person:
+    def get_details(self, *, sso_legacy_user_id: str) -> Person:
         raise NotImplementedError
 
     @abstractmethod
@@ -31,7 +31,7 @@ class PeopleFinderBase(ABC):
 
 
 class PeopleFinderStubbed(PeopleFinderBase):
-    def get_details(self, legacy_sso_user_id: str) -> Person:
+    def get_details(self, sso_legacy_user_id: str) -> Person:
         return {
             "first_name": "Joe",  # /PS-IGNORE
             "last_name": "Bloggs",
@@ -78,9 +78,9 @@ class PeopleFinderPersonNotFound(Exception):
 
 
 class PeopleFinder(PeopleFinderBase):
-    def get_details(self, legacy_sso_user_id: str) -> Person:
+    def get_details(self, sso_legacy_user_id: str) -> Person:
         try:
-            person = get_details(legacy_sso_user_id)
+            person = get_details(sso_legacy_user_id)
         except FailedToGetPeopleRecords:
             raise PeopleFinderPersonNotFound()
 

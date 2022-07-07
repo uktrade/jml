@@ -1,5 +1,3 @@
-import uuid
-
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -8,7 +6,7 @@ class User(AbstractUser):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["legacy_sso_user_id"], name="unique_legacy_sso_user_id"
+                fields=["sso_legacy_user_id"], name="unique_sso_legacy_user_id"
             ),
         ]
 
@@ -22,13 +20,16 @@ class User(AbstractUser):
         blank=True,
         null=True,
     )
-    legacy_sso_user_id = models.CharField(
+    sso_legacy_user_id = models.CharField(
         max_length=255,
         null=True,
         blank=True,
     )
-
-    user_id = models.CharField(max_length=255, unique=True, default=uuid.uuid4)
+    sso_email_user_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     last_modified = models.DateTimeField(auto_now=True)
 
     def __str__(self):
