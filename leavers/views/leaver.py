@@ -72,7 +72,9 @@ class LeaverInformationMixin:
                 email_user_id=sso_email_user_id,
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:
-            raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")
+            raise Exception(
+                f"Unable to find leaver '{sso_email_user_id}' in the Staff SSO ActivityStream."
+            )
 
         leaving_request = update_or_create_leaving_request(
             leaver=leaver_activitystream_user,
