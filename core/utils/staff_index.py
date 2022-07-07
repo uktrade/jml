@@ -403,10 +403,10 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     """
     # Iterate through all emails and check for Service Now record
     service_now_user_id: str = ""
-    for email in staff_sso_user.sso_emails.all():
+    for sso_email_record in staff_sso_user.sso_emails.all():
         try:
             service_now_user = service_now_interface.get_user(
-                email=email,
+                email=sso_email_record.email_address,
             )
         except ServiceNowUserNotFound:
             continue
