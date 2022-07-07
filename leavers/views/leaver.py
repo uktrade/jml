@@ -106,7 +106,9 @@ class LeaverInformationMixin:
         Raises an exception if Index doesn't have a record.
         """
 
-        staff_documents = search_by_sso_email_user_id(query=sso_email_user_id)
+        staff_documents = search_by_sso_email_user_id(
+            sso_email_user_id=sso_email_user_id
+        )
         consolidated_staff_document: Optional[ConsolidatedStaffDocument] = None
 
         if len(staff_documents) == 0:
