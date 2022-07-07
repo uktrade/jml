@@ -58,9 +58,6 @@ def ingest_activity_stream(limit: Optional[int] = None) -> None:
                 "became_inactive_on": activity_stream_object["object"][
                     "dit:StaffSSO:User:becameInactiveOn"
                 ],
-                "is_active": activity_stream_object["object"][
-                    "dit:StaffSSO:User:is_active"
-                ],
             },
         )
 
