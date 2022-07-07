@@ -52,6 +52,7 @@ OrderedItem = TypedDict(
         "dit:StaffSSO:User:permittedApplications": List[Any],
         "dit:StaffSSO:User:status": str,
         "dit:StaffSSO:User:userId": str,
+        "dit:StaffSSO:User:is_active": bool,
         "dit:emailAddress": str,
         "dit:lastName": str,  # /PS-IGNORE
         "dit:firstName": str,  # /PS-IGNORE
