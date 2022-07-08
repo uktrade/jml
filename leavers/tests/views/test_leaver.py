@@ -426,8 +426,9 @@ class TestConfirmDetailsView(TestCase):
         self.assertEqual(leaver_details["last_name"], "Bloggs")
         self.assertEqual(leaver_details["staff_id"], "12345")
         self.assertEqual(
-            leaver_details["contact_email_address"], "joe.bloggs@example.com"
-        )  # /PS-IGNORE
+            leaver_details["contact_email_address"],
+            "joe.bloggs@example.com",  # /PS-IGNORE
+        )
         self.assertEqual(leaver_details["photo"], "")
 
     @mock.patch(
@@ -544,8 +545,9 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(form.initial["job_title"], "Job title")
         self.assertEqual(form.initial["last_name"], "Bloggs")  # /PS-IGNORE
         self.assertEqual(
-            form.initial["contact_email_address"], "joe.bloggs@example.com"
-        )  # /PS-IGNORE
+            form.initial["contact_email_address"],
+            "joe.bloggs@example.com",  # /PS-IGNORE
+        )
         self.assertEqual(form.initial["photo"], "")
 
     def test_existing_updates(self, mock_get_search_results) -> None:
