@@ -219,7 +219,7 @@ class LeaverInformationMixin:
         requester: User,
     ) -> Dict[str, Any]:
         leaver_info = self.get_leaver_information(
-            email=sso_email_user_id,
+            sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
         leaving_request: LeavingRequest = leaver_info.leaving_request
