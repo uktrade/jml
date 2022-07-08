@@ -627,7 +627,7 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
 
     def post_correction_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = cast(str, user.sso_email_user_id)
 
         form_data = form.cleaned_data
 
@@ -646,7 +646,7 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = cast(str, user.sso_email_user_id)
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
         )
@@ -803,7 +803,7 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
 
     def form_valid(self, form):
         user = cast(User, self.request.user)
-        sso_email_user_id = cast(str, user.user_id)
+        sso_email_user_id = cast(str, user.sso_email_user_id)
         leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=self.request.user
         )
