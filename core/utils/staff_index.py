@@ -10,7 +10,7 @@ from opensearch_dsl.response import Hit
 from opensearchpy import OpenSearch
 from opensearchpy.exceptions import NotFoundError
 
-from activity_stream.models import ActivityStreamStaffSSOUser
+from activity_stream.models import ActivityStreamStaffSSOUser, ServiceEmailAddress
 from core.people_finder.interfaces import PeopleFinderPersonNotFound, Person
 
 logger = logging.getLogger(__name__)
@@ -411,6 +411,10 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         except ServiceNowUserNotFound:
             continue
         else:
+            ServiceEmailAddress.objects.update_or_create(
+                staff_sso_user=staff_sso_user,
+                service_now_email_address=sso_email_record.email_address,
+            )
             service_now_user_id = service_now_user["sys_id"]
             break
 

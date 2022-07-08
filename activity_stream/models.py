@@ -40,3 +40,15 @@ class ActivityStreamStaffSSOUserEmail(models.Model):
         unique=True,
         max_length=255,
     )
+
+
+class ServiceEmailAddress(models.Model):
+    staff_sso_user = models.ForeignKey(
+        ActivityStreamStaffSSOUser,
+        on_delete=models.CASCADE,
+        related_name="service_emails",
+    )
+    service_now_email_address = models.EmailField(
+        unique=True,
+        max_length=255,
+    )

@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
-from activity_stream.models import ActivityStreamStaffSSOUser
+from activity_stream.models import ActivityStreamStaffSSOUser, ServiceEmailAddress
 from core.people_finder import get_people_finder_interface
 from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
@@ -674,21 +674,30 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         user = cast(User, self.request.user)
-        sso_email_user_id = user.sso_email_user_id
 
-        if "cirrus_assets" not in request.session:
-            service_now_interface = get_service_now_interface()
-            request.session["cirrus_assets"] = [
-                {
-                    "uuid": str(uuid.uuid4()),
-                    "sys_id": asset["sys_id"],
-                    "tag": asset["tag"],
-                    "name": asset["name"],
-                }
-                for asset in service_now_interface.get_assets_for_user(
-                    sso_email_user_id=sso_email_user_id
-                )
-            ]
+        staff_sso_user = ActivityStreamStaffSSOUser.objects.get(
+            email_user_id=user.sso_email_user_id
+        )
+
+        service_now_email = ServiceEmailAddress.objects.first(
+            staff_sso_user=staff_sso_user,
+        )
+
+        if service_now_email:
+            if "cirrus_assets" not in request.session:
+                service_now_interface = get_service_now_interface()
+                request.session["cirrus_assets"] = [
+                    {
+                        "uuid": str(uuid.uuid4()),
+                        "sys_id": asset["sys_id"],
+                        "tag": asset["tag"],
+                        "name": asset["name"],
+                    }
+                    for asset in service_now_interface.get_assets_for_user(
+                        email=service_now_email
+                    )
+                ]
+
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
