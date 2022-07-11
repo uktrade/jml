@@ -66,7 +66,9 @@ class IndexCurrentUser:
                 as_user = as_users.first()
 
             try:
-                get_staff_document_from_staff_index(staff_id=as_user.identifier)
+                get_staff_document_from_staff_index(
+                    sso_email_user_id=as_user.email_user_id
+                )
             except StaffDocumentNotFound:
                 # Index ActivityStream object
                 staff_document = build_staff_document(staff_sso_user=as_user)
