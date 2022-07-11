@@ -679,9 +679,9 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
             email_user_id=user.sso_email_user_id
         )
 
-        service_now_email = ServiceEmailAddress.objects.first(
+        service_now_email = ServiceEmailAddress.objects.filter(
             staff_sso_user=staff_sso_user,
-        )
+        ).first()
 
         if service_now_email:
             if "cirrus_assets" not in request.session:
