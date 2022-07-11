@@ -25,6 +25,10 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
         "staff_sso_contact_email_address": "joe.bloggs@example.com",  # /PS-IGNORE
         "staff_sso_first_name": "Joe",  # /PS-IGNORE
         "staff_sso_last_name": "Bloggs",
+        "staff_sso_email_user_id": "joe.bloggs@example.com",  # /PS-IGNORE
+        "staff_sso_email_addresses": [
+            "joe.bloggs@example.com",  # /PS-IGNORE
+        ],
         "people_finder_directorate": "",
         "people_finder_first_name": "Joe",  # /PS-IGNORE
         "people_finder_grade": "Example Grade",
@@ -42,12 +46,11 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
         "people_data_employee_number": "12345",
     }
 )
-STAFF_INDEX_RETURN_VALUE: List[StaffDocument] = [STAFF_DOCUMENT]
 
 
 @mock.patch(
-    "leavers.views.leaver.search_staff_index",
-    return_value=STAFF_INDEX_RETURN_VALUE,
+    "leavers.views.leaver.get_staff_document_from_staff_index",
+    return_value=STAFF_DOCUMENT,
 )
 class TestLeaverInformationMixin(TestCase):
 
@@ -56,14 +59,15 @@ class TestLeaverInformationMixin(TestCase):
     """
 
     def setUp(self) -> None:
-        self.leaver_email = "joe.bloggs@example.com"  # /PS-IGNORE
+        self.leaver = UserFactory()
+        self.leaver_email = self.leaver.sso_email_user_id
         self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
-            contact_email_address=self.leaver_email
+            email_user_id=self.leaver_email
         )
 
     def test_get_leaver_information_new(self, mock_get_search_results) -> None:
         LeaverInformationMixin().get_leaver_information(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
         )
 
@@ -72,7 +76,10 @@ class TestLeaverInformationMixin(TestCase):
             models.LeaverInformation, models.LeaverInformation.objects.first()
         )
 
-        self.assertEqual(leaver_info_obj.leaver_email, self.leaver_email)
+        self.assertEqual(
+            leaver_info_obj.leaving_request.leaver_activitystream_user.email_user_id,
+            self.leaver_email,
+        )
 
     def test_get_leaver_information_existing(self, mock_get_search_results) -> None:
         leaver_info = factories.LeaverInformationFactory(
@@ -81,7 +88,7 @@ class TestLeaverInformationMixin(TestCase):
         )
 
         LeaverInformationMixin().get_leaver_information(
-            email=leaver_info.leaver_email, requester=UserFactory()
+            sso_email_user_id=leaver_info.leaver_email, requester=UserFactory()
         )
 
         self.assertEqual(models.LeaverInformation.objects.count(), 1)
@@ -98,15 +105,15 @@ class TestLeaverInformationMixin(TestCase):
     ) -> None:
         factories.LeaverInformationFactory.create_batch(5)
 
-        LeaverInformationMixin().get_leaver_information(
-            email=self.leaver_email,
+        leaver_info = LeaverInformationMixin().get_leaver_information(
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
         )
 
         self.assertEqual(models.LeaverInformation.objects.count(), 6)
         self.assertEqual(
             models.LeaverInformation.objects.filter(
-                leaver_email=self.leaver_email,
+                leaving_request=leaver_info.leaving_request,
             ).count(),
             1,
         )
@@ -116,15 +123,19 @@ class TestLeaverInformationMixin(TestCase):
     """
 
     def test_get_leaver_details_no_results(self, mock_get_search_results) -> None:
+        non_indexed_user_activity_stream = ActivityStreamStaffSSOUserFactory()
         mock_get_search_results.return_value = []
-        with self.assertRaisesMessage(
-            Exception, "Unable to find leaver in the Staff Index."
-        ):
-            LeaverInformationMixin().get_leaver_details(email="")
+        leaver_details = LeaverInformationMixin().get_leaver_details(
+            sso_email_user_id=non_indexed_user_activity_stream.email_user_id,
+        )
+        self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
+        self.assertEqual(leaver_details["last_name"], "Bloggs")
+        self.assertEqual(leaver_details["job_title"], "Job title")
+        self.assertEqual(leaver_details["directorate"], "")
 
     def test_get_leaver_details_with_result(self, mock_get_search_results) -> None:
         leaver_details = LeaverInformationMixin().get_leaver_details(
-            email=self.leaver_email
+            sso_email_user_id=self.leaver_email
         )
         self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
         self.assertEqual(leaver_details["last_name"], "Bloggs")
@@ -139,7 +150,7 @@ class TestLeaverInformationMixin(TestCase):
         )
 
         leaver_details = LeaverInformationMixin().get_leaver_details(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
         )
         self.assertNotEqual(leaver_details["first_name"], "Joey")  # /PS-IGNORE
 
@@ -151,7 +162,7 @@ class TestLeaverInformationMixin(TestCase):
         self, mock_get_search_results
     ) -> None:
         leaver_detail_updates = LeaverInformationMixin().get_leaver_detail_updates(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
         )
         self.assertEqual(leaver_detail_updates, {})
@@ -167,7 +178,7 @@ class TestLeaverInformationMixin(TestCase):
         )
 
         leaver_detail_updates = LeaverInformationMixin().get_leaver_detail_updates(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
         )
         self.assertEqual(leaver_detail_updates, {"first_name": "Joey"})  # /PS-IGNORE
@@ -209,7 +220,7 @@ class TestLeaverInformationMixin(TestCase):
         self, mock_get_search_results
     ) -> None:
         leaver_details = LeaverInformationMixin().get_leaver_details_with_updates(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
         )
         self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
@@ -223,7 +234,7 @@ class TestLeaverInformationMixin(TestCase):
             updates={"first_name": "Joey"},  # /PS-IGNORE
         )
         leaver_details = LeaverInformationMixin().get_leaver_details_with_updates(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
         )
         self.assertEqual(leaver_details["first_name"], "Joey")  # /PS-IGNORE
@@ -238,7 +249,7 @@ class TestLeaverInformationMixin(TestCase):
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
         )
         LeaverInformationMixin().store_leaving_dates(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
             last_day=date(2021, 11, 15),
             leaving_date=date(2021, 11, 30),
@@ -263,7 +274,7 @@ class TestLeaverInformationMixin(TestCase):
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
         )
         LeaverInformationMixin().store_cirrus_kit_information(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
             cirrus_assets=[],
             information_is_correct=False,
@@ -277,7 +288,7 @@ class TestLeaverInformationMixin(TestCase):
         )
 
         LeaverInformationMixin().store_cirrus_kit_information(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
             cirrus_assets=[],
             information_is_correct=True,
@@ -299,7 +310,7 @@ class TestLeaverInformationMixin(TestCase):
         )
 
         LeaverInformationMixin().store_return_option(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
             return_option=ReturnOptions.HOME.value,
         )
@@ -314,7 +325,7 @@ class TestLeaverInformationMixin(TestCase):
         )
 
         LeaverInformationMixin().store_return_option(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
             return_option=ReturnOptions.OFFICE.value,
         )
@@ -332,7 +343,7 @@ class TestLeaverInformationMixin(TestCase):
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
         )
         LeaverInformationMixin().store_return_information(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
             personal_phone="0123451234",
             contact_email=self.leaver_email,
@@ -354,7 +365,7 @@ class TestLeaverInformationMixin(TestCase):
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
         )
         LeaverInformationMixin().store_return_information(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
             personal_phone="0123451234",
             contact_email=self.leaver_email,
@@ -382,8 +393,8 @@ class TestLeaverInformationMixin(TestCase):
 
 
 @mock.patch(
-    "leavers.views.leaver.search_staff_index",
-    return_value=STAFF_INDEX_RETURN_VALUE,
+    "leavers.views.leaver.get_staff_document_from_staff_index",
+    return_value=STAFF_DOCUMENT,
 )
 class TestConfirmDetailsView(TestCase):
     view_name = "leaver-confirm-details"
@@ -391,7 +402,7 @@ class TestConfirmDetailsView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
-            contact_email_address=self.leaver.sso_contact_email,
+            email_user_id=self.leaver.sso_email_user_id,
         )
 
     def test_unauthenticated_user(self, mock_get_search_results) -> None:
@@ -497,8 +508,8 @@ class TestConfirmDetailsView(TestCase):
 
 
 @mock.patch(
-    "leavers.views.leaver.search_staff_index",
-    return_value=STAFF_INDEX_RETURN_VALUE,
+    "leavers.views.leaver.get_staff_document_from_staff_index",
+    return_value=STAFF_DOCUMENT,
 )
 class TestUpdateDetailsView(TestCase):
     view_name = "leaver-update-details"
@@ -506,7 +517,7 @@ class TestUpdateDetailsView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
-            contact_email_address=self.leaver.sso_contact_email,
+            email_user_id=self.leaver.sso_email_user_id,
         )
 
     def test_unauthenticated_user(self, mock_get_search_results) -> None:
@@ -636,7 +647,7 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
 
         leaver_updates_obj = models.LeaverInformation.objects.get(
-            leaver_email=self.leaver.sso_contact_email,
+            personal_email="someone@example.com",
         )
         leaver_updates: types.LeaverDetailUpdates = leaver_updates_obj.updates
 
@@ -657,7 +668,7 @@ class TestCirrusEquipmentView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
-            contact_email_address=self.leaver.sso_contact_email,
+            email_user_id=self.leaver.sso_email_user_id,
         )
         self.leaver_information = factories.LeaverInformationFactory(
             leaver_email=self.leaver.sso_contact_email,
@@ -777,7 +788,7 @@ class TestCirrusEquipmentView(TestCase):
         self.assertEqual(response.url, reverse("leaver-return-options"))
 
         mock_store_cirrus_kit_information.assert_called_once_with(
-            email=self.leaver.sso_contact_email,
+            sso_email_user_id=self.leaver.sso_email_user_id,
             requester=self.leaver,
             information_is_correct=False,
             additional_information="Some additional information",
@@ -791,7 +802,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
-            contact_email_address=self.leaver.sso_contact_email,
+            email_user_id=self.leaver.sso_email_user_id,
         )
         self.leaver_information = factories.LeaverInformationFactory(
             leaver_email=self.leaver.sso_contact_email,
@@ -904,7 +915,7 @@ class TestDisplayScreenEquipmentView(TestCase):
         self.assertEqual(response.url, reverse("leaver-confirm-details"))
 
         mock_store_display_screen_equipment.assert_called_once_with(
-            email=self.leaver.sso_contact_email,
+            sso_email_user_id=self.leaver.sso_email_user_id,
             requester=self.leaver,
             dse_assets=[],
         )
@@ -984,7 +995,7 @@ class TestCirrusEquipmentReturnOptionsView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
-            contact_email_address=self.leaver.sso_contact_email,
+            email_user_id=self.leaver.sso_email_user_id,
         )
         self.leaver_information = factories.LeaverInformationFactory(
             leaver_email=self.leaver.sso_contact_email,
@@ -1018,7 +1029,7 @@ class TestCirrusEquipmentReturnOptionsView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("leaver-return-information"))
         mock_store_return_option.assert_called_once_with(
-            email=self.leaver.sso_contact_email,
+            sso_email_user_id=self.leaver.sso_email_user_id,
             requester=self.leaver,
             return_option=ReturnOptions.HOME.value,
         )
@@ -1037,7 +1048,7 @@ class TestCirrusEquipmentReturnOptionsView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, reverse("leaver-return-information"))
         mock_store_return_option.assert_called_once_with(
-            email=self.leaver.sso_contact_email,
+            sso_email_user_id=self.leaver.sso_email_user_id,
             requester=self.leaver,
             return_option=ReturnOptions.OFFICE.value,
         )
@@ -1061,7 +1072,7 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
     def setUp(self) -> None:
         self.leaver = UserFactory()
         self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
-            contact_email_address=self.leaver.sso_contact_email,
+            email_user_id=self.leaver.sso_email_user_id,
         )
 
     def test_unauthenticated_user(self) -> None:
@@ -1135,7 +1146,7 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
         self.assertEqual(response.url, reverse("leaver-display-screen-equipment"))
 
         mock_store_return_information.assert_called_once_with(
-            email=self.leaver.sso_contact_email,
+            sso_email_user_id=self.leaver.sso_email_user_id,
             requester=self.leaver,
             personal_phone="0123123123",  # /PS-IGNORE
             contact_email="joe.bloggs@example.com",  # /PS-IGNORE

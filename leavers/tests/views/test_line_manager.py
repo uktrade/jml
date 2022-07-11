@@ -21,6 +21,8 @@ EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
         "staff_sso_first_name": "",
         "staff_sso_last_name": "",
         "staff_sso_contact_email_address": "",
+        "staff_sso_email_user_id": "",
+        "staff_sso_email_addresses": [],
         "people_finder_first_name": "",
         "people_finder_last_name": "",
         "people_finder_job_title": "",
@@ -46,10 +48,10 @@ class TestDataRecipientSearchView(ViewAccessTest, TestCase):
 
     def setUp(self):
         super().setUp()
-        email = self.authenticated_user.sso_contact_email
+        email = self.authenticated_user.sso_email_user_id
         self.leaving_request = LeavingRequestFactory(
             leaver_complete=timezone.now(),
-            manager_activitystream_user__contact_email_address=email,
+            manager_activitystream_user__email_user_id=email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
 
@@ -82,10 +84,10 @@ class TestStartView(ViewAccessTest, TestCase):
 
     def setUp(self):
         super().setUp()
-        email = self.authenticated_user.sso_contact_email
+        email = self.authenticated_user.sso_email_user_id
         self.leaving_request = LeavingRequestFactory(
             leaver_complete=timezone.now(),
-            manager_activitystream_user__contact_email_address=email,
+            manager_activitystream_user__email_user_id=email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
 
@@ -113,10 +115,10 @@ class TestLeaverConfirmationView(ViewAccessTest, TestCase):
 
     def setUp(self):
         super().setUp()
-        email = self.authenticated_user.sso_contact_email
+        email = self.authenticated_user.sso_email_user_id
         self.leaving_request = LeavingRequestFactory(
             leaver_complete=timezone.now(),
-            manager_activitystream_user__contact_email_address=email,
+            manager_activitystream_user__email_user_id=email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
         self.leaver_as_sso_user = self.leaving_request.leaver_activitystream_user
@@ -215,10 +217,10 @@ class TestDetailsView(ViewAccessTest, TestCase):
 
     def setUp(self):
         super().setUp()
-        email = self.authenticated_user.sso_contact_email
+        email = self.authenticated_user.sso_email_user_id
         self.leaving_request = LeavingRequestFactory(
             leaver_complete=timezone.now(),
-            manager_activitystream_user__contact_email_address=email,
+            manager_activitystream_user__email_user_id=email,
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
 
@@ -262,10 +264,10 @@ class TestThankYouView(ViewAccessTest, TestCase):
 
     def setUp(self):
         super().setUp()
-        email = self.authenticated_user.sso_contact_email
+        email = self.authenticated_user.sso_email_user_id
         self.leaving_request = LeavingRequestFactory(
             leaver_complete=timezone.now(),
-            manager_activitystream_user__contact_email_address=email,
+            manager_activitystream_user__email_user_id=email,
             line_manager_complete=timezone.now(),
         )
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
