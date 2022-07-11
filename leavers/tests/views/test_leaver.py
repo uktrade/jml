@@ -9,7 +9,10 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from activity_stream.factories import ActivityStreamStaffSSOUserFactory
+from activity_stream.factories import (
+    ActivityStreamStaffSSOUserFactory,
+    ServiceEmailAddressFactory,
+)
 from core.service_now.interfaces import ServiceNowStubbed
 from core.utils.staff_index import StaffDocument
 from leavers import factories, models, types
@@ -124,7 +127,6 @@ class TestLeaverInformationMixin(TestCase):
 
     def test_get_leaver_details_no_results(self, mock_get_search_results) -> None:
         non_indexed_user_activity_stream = ActivityStreamStaffSSOUserFactory()
-        mock_get_search_results.return_value = []
         leaver_details = LeaverInformationMixin().get_leaver_details(
             sso_email_user_id=non_indexed_user_activity_stream.email_user_id,
         )
@@ -674,6 +676,9 @@ class TestCirrusEquipmentView(TestCase):
             leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
             leaving_request__user_requesting=self.leaver,
+        )
+        ServiceEmailAddressFactory(
+            staff_sso_user=self.leaver_activity_stream_staff_sso,
         )
 
     def test_unauthenticated_user(self) -> None:
