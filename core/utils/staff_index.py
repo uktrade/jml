@@ -173,38 +173,6 @@ def get_all_staff_documents() -> List[StaffDocument]:
     return search_staff_index(query="")
 
 
-def search_by_sso_email_user_id(*, sso_email_user_id: str) -> List[StaffDocument]:
-    """
-    Search the Staff index for a given SSO id.
-    """
-    search_client = get_search_connection()
-
-    search_dict = {
-        "query": {
-            "match_phrase": {
-                "staff_sso_email_user_id": {
-                    "query": sso_email_user_id,
-                },
-            }
-        }
-    }
-
-    search = (
-        Search(index=STAFF_INDEX_NAME)
-        .using(search_client)
-        .update_from_dict(search_dict)
-    )
-    search_results = search.execute()
-
-    staff_documents = []
-    for hit in search_results.hits:
-        staff_documents.append(
-            StaffDocument.from_dict(hit.to_dict(), infer_missing=True)
-        )
-
-    return staff_documents
-
-
 def search_staff_index(
     *, query: str, exclude_staff_ids: Optional[List[str]] = None
 ) -> List[StaffDocument]:
@@ -284,19 +252,12 @@ def get_staff_document_from_staff_index(
 
     search_dict = {
         "query": {
-            "bool": {
-                "should": [
-                    {"match": {search_field: {"query": search_value}}},
-                ],
-                "minimum_should_match": 1,
-                "boost": 1.0,
-            },
-        },
-        "sort": {
-            "_score": {"order": "desc"},
-        },
-        "size": MAX_RESULTS,
-        "min_score": MIN_SCORE,
+            "match_phrase": {
+                search_field: {
+                    "query": search_value,
+                },
+            }
+        }
     }
 
     search_client = get_search_connection()

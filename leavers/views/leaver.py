@@ -21,9 +21,11 @@ from core.utils.helpers import bool_to_yes_no
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
     StaffDocument,
+    StaffDocumentNotFound,
+    build_staff_document,
     consolidate_staff_documents,
     get_staff_document_from_staff_index,
-    search_by_sso_email_user_id,
+    index_staff_document,
 )
 from leavers import types
 from leavers.forms import leaver as leaver_forms
@@ -60,13 +62,9 @@ class MyManagerSearchView(StaffSearchView):
 class LeaverInformationMixin:
     people_finder_search = get_people_finder_interface()
 
-    def get_leaving_request(
-        self, sso_email_user_id: str, requester: User
-    ) -> LeavingRequest:
-        """
-        Get the Leaving Request for the Leaver
-        """
-
+    def get_leaver_activitystream_user(
+        self, sso_email_user_id: str
+    ) -> ActivityStreamStaffSSOUser:
         try:
             leaver_activity_stream_user = ActivityStreamStaffSSOUser.objects.get(
                 email_user_id=sso_email_user_id,
@@ -75,6 +73,18 @@ class LeaverInformationMixin:
             raise Exception(
                 f"Unable to find leaver '{sso_email_user_id}' in the Staff SSO ActivityStream."
             )
+        return leaver_activity_stream_user
+
+    def get_leaving_request(
+        self, sso_email_user_id: str, requester: User
+    ) -> LeavingRequest:
+        """
+        Get the Leaving Request for the Leaver
+        """
+
+        leaver_activity_stream_user = self.get_leaver_activitystream_user(
+            sso_email_user_id=sso_email_user_id,
+        )
 
         leaving_request = update_or_create_leaving_request(
             leaver=leaver_activity_stream_user,
@@ -106,16 +116,25 @@ class LeaverInformationMixin:
         Raises an exception if Index doesn't have a record.
         """
 
-        staff_documents = search_by_sso_email_user_id(
-            sso_email_user_id=sso_email_user_id
+        leaver_activity_stream_user = self.get_leaver_activitystream_user(
+            sso_email_user_id=sso_email_user_id,
         )
-        consolidated_staff_document: Optional[ConsolidatedStaffDocument] = None
 
-        if len(staff_documents) == 0:
-            raise Exception("Unable to find leaver in the Staff Index.")
+        # TODO: Discuss - I don't think we should be buiding the document here. This
+        # will increase the User's request and risks timeouts.
+        try:
+            staff_document = get_staff_document_from_staff_index(
+                sso_email_user_id=sso_email_user_id
+            )
+        except StaffDocumentNotFound:
+            # Index ActivityStream object
+            staff_document = build_staff_document(
+                staff_sso_user=leaver_activity_stream_user
+            )
+            index_staff_document(staff_document=staff_document)
 
         consolidated_staff_document = consolidate_staff_documents(
-            staff_documents=[staff_documents[0]]
+            staff_documents=[staff_document]
         )[0]
         leaver_details: types.LeaverDetails = {
             # Personal details
