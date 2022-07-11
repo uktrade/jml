@@ -211,7 +211,9 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
                 self.leaving_request.data_recipient_activitystream_user
             )
             data_recipient_staff_document: StaffDocument = get_staff_document_from_staff_index(
-                sso_email_user_id=self.leaving_request.data_recipient_activitystream_user.email_user_id
+                sso_email_user_id=(
+                    self.leaving_request.data_recipient_activitystream_user.email_user_id
+                ),
             )
 
         # Load the data recipient from the Staff index.

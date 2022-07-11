@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from typing import List, cast
+from typing import cast
 from unittest import mock
 
 from django.conf import settings
