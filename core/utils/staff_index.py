@@ -278,19 +278,19 @@ class StaffDocumentNotFound(Exception):
 
 
 def get_staff_document_from_staff_index(
-    *, staff_id: Optional[str] = None, staff_uuid: Optional[str] = None
+    *, sso_email_user_id: Optional[str] = None, staff_uuid: Optional[str] = None
 ) -> StaffDocument:
     """
     Get a Staff document from the Staff index.
     """
-    if not staff_id and not staff_uuid or staff_id and staff_uuid:
+    if not sso_email_user_id and not staff_uuid or sso_email_user_id and staff_uuid:
         raise ValueError("One of staff_id or staff_uuid must be provided, not both")
 
     search_field: str = ""
     search_value: str = ""
-    if staff_id:
-        search_field = "staff_sso_activity_stream_id"
-        search_value = staff_id
+    if sso_email_user_id:
+        search_field = "staff_sso_email_user_id"
+        search_value = sso_email_user_id
     elif staff_uuid:
         search_field = "uuid"
         search_value = staff_uuid

@@ -68,7 +68,7 @@ class LeaverInformationMixin:
         """
 
         try:
-            leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
+            leaver_activity_stream_user = ActivityStreamStaffSSOUser.objects.get(
                 email_user_id=sso_email_user_id,
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:
@@ -77,7 +77,7 @@ class LeaverInformationMixin:
             )
 
         leaving_request = update_or_create_leaving_request(
-            leaver=leaver_activitystream_user,
+            leaver=leaver_activity_stream_user,
             user_requesting=requester,
         )
         return leaving_request
