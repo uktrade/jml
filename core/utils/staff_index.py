@@ -178,28 +178,15 @@ def search_by_sso_email_user_id(*, sso_email_user_id: str) -> List[StaffDocument
     Search the Staff index for a given SSO id.
     """
     search_client = get_search_connection()
+
     search_dict = {
         "query": {
-            "bool": {
-                "should": [
-                    {
-                        "match": {
-                            "staff_sso_email_user_id": {
-                                "query": sso_email_user_id,
-                                "boost": 10.0,
-                            }
-                        }
-                    },
-                ],
-                "minimum_should_match": 1,
-                "boost": 1.0,
+            "match_phrase": {
+                "staff_sso_email_user_id": {
+                    "query": sso_email_user_id,
+                },
             }
-        },
-        "sort": {
-            "_score": {"order": "desc"},
-        },
-        "size": MAX_RESULTS,
-        "min_score": MIN_SCORE,
+        }
     }
 
     search = (
