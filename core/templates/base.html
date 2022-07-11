@@ -27,6 +27,8 @@
         <![endif]-->
 
         <meta property="og:image" content="govuk-frontend/govuk/assets/images/govuk-opengraph-image.png">
+
+        {% include "gtm-head.html" %}
     </head>
 
     <body class="govuk-template__body app-body-class" data-test="My value" data-other="report:details">
@@ -145,9 +147,7 @@
         <script src="/static/cytoscape/dist/cytoscape.min.js"></script>
         <script src="https://unpkg.com/dagre@0.7.4/dist/dagre.js"></script><!-- /PS-IGNORE -->
         <script src="/static/cytoscape-dagre/cytoscape-dagre.js"></script>
-        {% if COOKIE_RESPONSE == "accept" %}
-            {# Add GA script #}
-        {% endif %}
+        {% include "gtm-body.html" %}
         {% block scripts %}{% endblock %}
     </body>
 
