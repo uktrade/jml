@@ -978,10 +978,10 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
 
     def get_manager(self) -> Optional[ConsolidatedStaffDocument]:
         manager: Optional[ConsolidatedStaffDocument] = None
-        sso_email_user_id = (
-            self.leaver_info.leaving_request.manager_activitystream_user.email_user_id
-        )
         if self.leaver_info.leaving_request.manager_activitystream_user:
+            sso_email_user_id = (
+                self.leaver_info.leaving_request.manager_activitystream_user.email_user_id
+            )
             manager_staff_document = get_staff_document_from_staff_index(
                 sso_email_user_id=sso_email_user_id,
             )
