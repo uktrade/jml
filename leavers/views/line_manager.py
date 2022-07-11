@@ -170,7 +170,7 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
         """
         # Load the leaver from the Staff index.
         leaver_staff_document: StaffDocument = get_staff_document_from_staff_index(
-            staff_id=self.leaving_request.leaver_activitystream_user.identifier,
+            sso_email_user_id=self.leaving_request.leaver_activitystream_user.email_user_id,
         )
         return consolidate_staff_documents(
             staff_documents=[leaver_staff_document],
@@ -182,7 +182,7 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
         """
         # Load the line manager from the Staff index.
         manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
-            staff_id=self.leaving_request.manager_activitystream_user.identifier,
+            sso_email_user_id=self.leaving_request.manager_activitystream_user.email_user_id,
         )
         return consolidate_staff_documents(
             staff_documents=[manager_staff_document],
@@ -211,7 +211,7 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
                 self.leaving_request.data_recipient_activitystream_user
             )
             data_recipient_staff_document: StaffDocument = get_staff_document_from_staff_index(
-                staff_id=self.leaving_request.data_recipient_activitystream_user.identifier
+                sso_email_user_id=self.leaving_request.data_recipient_activitystream_user.email_user_id
             )
 
         # Load the data recipient from the Staff index.
@@ -439,7 +439,7 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
         """
         # Load the leaver from the Staff index.
         leaver_staff_document: StaffDocument = get_staff_document_from_staff_index(
-            staff_id=self.leaving_request.leaver_activitystream_user.identifier,
+            sso_email_user_id=self.leaving_request.leaver_activitystream_user.email_user_id,
         )
         return consolidate_staff_documents(
             staff_documents=[leaver_staff_document],
@@ -451,7 +451,7 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
         """
         # Load the Data Recipient from the Staff index.
         data_recipient_staff_document: StaffDocument = get_staff_document_from_staff_index(
-            staff_id=self.leaving_request.data_recipient_activitystream_user.identifier,
+            sso_email_user_id=self.leaving_request.data_recipient_activitystream_user.email_user_id,
         )
         return consolidate_staff_documents(
             staff_documents=[data_recipient_staff_document],

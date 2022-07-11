@@ -67,7 +67,7 @@ class IndexCurrentUser:
 
             try:
                 get_staff_document_from_staff_index(
-                    sso_email_user_id=as_user.email_user_id
+                    sso_email_user_id=as_user.email_user_id,
                 )
             except StaffDocumentNotFound:
                 # Index ActivityStream object
