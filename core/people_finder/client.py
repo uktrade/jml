@@ -14,6 +14,10 @@ class FailedToGetPeopleRecords(Exception):
     pass
 
 
+class FailedToGetPersonRecord(Exception):
+    pass
+
+
 class Person(TypedDict):
     first_name: str
     last_name: str
@@ -123,6 +127,6 @@ def get_details(sso_legacy_user_id) -> Person:
     try:
         return response.json()
     except json.decoder.JSONDecodeError:
-        raise FailedToGetPeopleRecords(
+        raise FailedToGetPersonRecord(
             f"Could not parse JSON, response content: {response.content}",
         )

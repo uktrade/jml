@@ -1,6 +1,7 @@
 import logging
 import uuid
 from dataclasses import dataclass
+from datetime import date, timedelta
 from typing import Any, Dict, List, Mapping, Optional, TypedDict, Union
 
 from dataclasses_json import DataClassJsonMixin
@@ -11,6 +12,7 @@ from opensearchpy import OpenSearch
 from opensearchpy.exceptions import NotFoundError
 
 from activity_stream.models import ActivityStreamStaffSSOUser, ServiceEmailAddress
+from core.people_finder.client import FailedToGetPersonRecord
 from core.people_finder.interfaces import PeopleFinderPersonNotFound, Person
 
 logger = logging.getLogger(__name__)
@@ -437,13 +439,22 @@ def index_all_staff() -> int:
     - Using asyncronous tasks
     """
     staff_documents: List[StaffDocument] = []
+    current_date = date.today()
+    days_ago = 6 * 30
+    last_accessed_datetime = current_date - timedelta(days=days_ago)
     # Add documents to the index
     for staff_sso_user in ActivityStreamStaffSSOUser.objects.filter(
         became_inactive_on__isnull=True,
+        last_accessed__isnull=False,
+        last_accessed__gte=last_accessed_datetime,
     ):
         try:
             staff_document = build_staff_document(staff_sso_user=staff_sso_user)
             staff_documents.append(staff_document)
+        except FailedToGetPersonRecord:
+            logger.error(
+                f"No People Finder record could be accessed for '{staff_sso_user}'"
+            )
         except Exception:
             logger.exception(
                 f"Could not build index entry for '{staff_sso_user}''", exc_info=True
