@@ -659,7 +659,7 @@ def get_cirrus_assets(request: HttpRequest) -> List[types.CirrusAsset]:
                     email=service_now_email
                 )
             ]
-    return request.session["cirrus_assets"]
+    return request.session.get("cirrus_assets", [])
 
 
 class HasCirrusEquipmentView(LeaverInformationMixin, FormView):
@@ -673,9 +673,11 @@ class HasCirrusEquipmentView(LeaverInformationMixin, FormView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
-        user_email = cast(str, user.email)
 
-        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+        sso_email_user_id = user.sso_email_user_id
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
         user_assets = get_cirrus_assets(request=request)
 
         if not user_assets:
