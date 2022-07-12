@@ -119,6 +119,7 @@ class LineManagerDetailsForm(GovFormattedForm):
                 Field.radios("annual_leave_measurement", inline=True),
                 legend="How is this measured?",
                 legend_size=Size.MEDIUM,
+                css_id="annual_leave_measurement_fieldset",
             ),
             Fieldset(
                 "annual_number",

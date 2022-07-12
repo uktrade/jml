@@ -148,15 +148,18 @@ class NewLineReportSearchView(LineManagerViewMixin, StaffSearchView):
         self.exclude_staff_ids = [
             self.leaving_request.leaver_activitystream_user.identifier
         ]
-        for line_report in self.leaving_request.line_reports:
-            try:
-                line_report_as_user = ActivityStreamStaffSSOUser.objects.get(
-                    email_address=line_report["email"]
-                )
-            except ActivityStreamStaffSSOUser.DoesNotExist:
-                continue
 
-            self.exclude_staff_ids.append(line_report_as_user.identifier)
+        # TODO: Fix so that you can't accidentally set the new line manager to
+        # be the same as the line report.
+        # for line_report in self.leaving_request.line_reports:
+        #     try:
+        #         line_report_as_user = ActivityStreamStaffSSOUser.objects.get(
+        #             email_address=line_report["email"]
+        #         )
+        #     except ActivityStreamStaffSSOUser.DoesNotExist:
+        #         continue
+
+        #     self.exclude_staff_ids.append(line_report_as_user.identifier)
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -200,17 +203,19 @@ class LineReportNewLineManagerSearchView(LineManagerViewMixin, StaffSearchView):
             self.leaving_request.leaver_activitystream_user.identifier
         ]
 
-        line_report_uuid = self.request.GET["line_report_uuid"]
+        # line_report_uuid = self.request.GET["line_report_uuid"]
 
-        for line_report in self.leaving_request.line_reports:
-            if line_report["uuid"] == line_report_uuid:
-                try:
-                    line_report_as_user = ActivityStreamStaffSSOUser.objects.get(
-                        email_address=line_report["email"]
-                    )
-                except ActivityStreamStaffSSOUser.DoesNotExist:
-                    continue
-                self.exclude_staff_ids.append(line_report_as_user.identifier)
+        # TODO: Fix so that you can't accidentally set the new line manager to
+        # be the same as the line report.
+        # for line_report in self.leaving_request.line_reports:
+        #     if line_report["uuid"] == line_report_uuid:
+        #         try:
+        #             line_report_as_user = ActivityStreamStaffSSOUser.objects.get(
+        #                 email_address=line_report["email"]
+        #             )
+        #         except ActivityStreamStaffSSOUser.DoesNotExist:
+        #             continue
+        #         self.exclude_staff_ids.append(line_report_as_user.identifier)
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -579,7 +584,7 @@ def add_missing_line_report(
             )[0]
         )
 
-        line_report_email: str = consolidated_staff_document["email_address"]
+        line_report_email: str = consolidated_staff_document["email_addresses"][0]
 
         # Check if the line report already exists.
         for line_report in line_reports:
@@ -641,7 +646,7 @@ def line_report_set_new_manager(
             + " "
             + consolidated_staff_document["last_name"]
         )
-        line_manager_email = consolidated_staff_document["email_address"]
+        line_manager_email = consolidated_staff_document["email_addresses"][0]
         for line_report in line_reports:
             if line_report["uuid"] == str(line_report_uuid):
                 line_report["line_manager"] = {

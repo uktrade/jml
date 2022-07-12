@@ -246,6 +246,7 @@ recorded</h1
 Reminder Email
 Reminder Email*
 Report 2
+return_contact_email
 ReturnOptions
 role="alert
 ROSA
