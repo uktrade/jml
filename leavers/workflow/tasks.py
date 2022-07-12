@@ -264,7 +264,8 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.OCS_OAB_LOCKER_EMAIL: send_ocs_oab_locker_email,
 }
 
-# A list of emails that skip the PROCESS_LEAVING_REQUEST check. (Should not contain any emails to data processors)
+# A list of emails that skip the PROCESS_LEAVING_REQUEST check.
+# (Should not contain any emails to data processors)
 LEAVING_REQUEST_PROGRESS_EMAILS: List[str] = [
     EmailIds.LEAVER_THANK_YOU_EMAIL,
     EmailIds.LEAVER_ROSA_REMINDER,
