@@ -146,6 +146,7 @@ GOVUK_NOTIFY_API_KEY
 govuk_paas_access_task_log
 Graphs
 Green Park
+gtm-head.html
 has_cirrus_kit
 HAWK_INCOMING_ACCESS_KEY
 HAWK_INCOMING_SECRET_KEY
@@ -342,6 +343,7 @@ unique_sso_legacy_user_id
 Unit of Measurement
 Unit of Measurement Hours
 Updated Personal Email
+User
 users.</td
 viewBox="0 0 483.2
 visit</li>

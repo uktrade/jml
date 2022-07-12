@@ -58,5 +58,5 @@ class ServiceEmailAddressFactory(DjangoModelFactory):
 
     staff_sso_user = factory.SubFactory(ActivityStreamStaffSSOUserFactory)
     service_now_email_address = factory.Sequence(
-        lambda n: f"service.email.address{n}@example.com",
+        lambda n: f"service.email.address{n}@example.com",  # /PS-IGNORE
     )
