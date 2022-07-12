@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
-from activity_stream.models import ActivityStreamStaffSSOUser
+from activity_stream.models import ActivityStreamStaffSSOUser, ServiceEmailAddress
 from core.people_finder import get_people_finder_interface
 from core.service_now import get_service_now_interface
 from core.service_now import types as service_now_types
@@ -21,9 +21,11 @@ from core.utils.helpers import bool_to_yes_no
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
     StaffDocument,
+    StaffDocumentNotFound,
+    build_staff_document,
     consolidate_staff_documents,
     get_staff_document_from_staff_index,
-    search_staff_index,
+    index_staff_document,
 )
 from leavers import types
 from leavers.forms import leaver as leaver_forms
@@ -48,7 +50,7 @@ class MyManagerSearchView(StaffSearchView):
         user = cast(User, self.request.user)
         try:
             leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
-                contact_email_address=user.sso_contact_email,
+                email_user_id=user.sso_email_user_id,
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:
             raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")
@@ -60,52 +62,79 @@ class MyManagerSearchView(StaffSearchView):
 class LeaverInformationMixin:
     people_finder_search = get_people_finder_interface()
 
-    def get_leaving_request(self, email: str, requester: User) -> LeavingRequest:
+    def get_leaver_activitystream_user(
+        self, sso_email_user_id: str
+    ) -> ActivityStreamStaffSSOUser:
+        try:
+            leaver_activity_stream_user = ActivityStreamStaffSSOUser.objects.get(
+                email_user_id=sso_email_user_id,
+            )
+        except ActivityStreamStaffSSOUser.DoesNotExist:
+            raise Exception(
+                f"Unable to find leaver '{sso_email_user_id}' in the Staff SSO ActivityStream."
+            )
+        return leaver_activity_stream_user
+
+    def get_leaving_request(
+        self, sso_email_user_id: str, requester: User
+    ) -> LeavingRequest:
         """
         Get the Leaving Request for the Leaver
         """
 
-        try:
-            leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
-                contact_email_address=email,
-            )
-        except ActivityStreamStaffSSOUser.DoesNotExist:
-            raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")
+        leaver_activity_stream_user = self.get_leaver_activitystream_user(
+            sso_email_user_id=sso_email_user_id,
+        )
 
         leaving_request = update_or_create_leaving_request(
-            leaver=leaver_activitystream_user,
+            leaver=leaver_activity_stream_user,
             user_requesting=requester,
         )
         return leaving_request
 
-    def get_leaver_information(self, email: str, requester: User) -> LeaverInformation:
+    def get_leaver_information(
+        self, sso_email_user_id: str, requester: User
+    ) -> LeaverInformation:
         """
         Get the Leaver information stored in the DB
         Creates a new model if one doesn't exist.
         """
-        leaving_request = self.get_leaving_request(email=email, requester=requester)
+        leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id,
+            requester=requester,
+        )
 
         leaver_info, _ = LeaverInformation.objects.prefetch_related().get_or_create(
             leaving_request=leaving_request,
-            leaver_email=email,
             defaults={"updates": {}},
         )
         return leaver_info
 
-    def get_leaver_details(self, email: str) -> types.LeaverDetails:
+    def get_leaver_details(self, sso_email_user_id: str) -> types.LeaverDetails:
         """
-        Get the Leaver details from People Finder
-        Raises an exception People Finder doesn't return a result.
+        Get the Leaver details from Index
+        Raises an exception if Index doesn't have a record.
         """
 
-        staff_documents = search_staff_index(query=email)
-        consolidated_staff_document: Optional[ConsolidatedStaffDocument] = None
+        leaver_activity_stream_user = self.get_leaver_activitystream_user(
+            sso_email_user_id=sso_email_user_id,
+        )
 
-        if len(staff_documents) == 0:
-            raise Exception("Unable to find leaver in the Staff Index.")
+        # TODO: Discuss - I don't think we should be buiding the document here. This
+        # will increase the User's request and risks timeouts.
+        try:
+            staff_document = get_staff_document_from_staff_index(
+                sso_email_user_id=sso_email_user_id
+            )
+        except StaffDocumentNotFound:
+            # Index ActivityStream object
+            staff_document = build_staff_document(
+                staff_sso_user=leaver_activity_stream_user
+            )
+            index_staff_document(staff_document=staff_document)
 
         consolidated_staff_document = consolidate_staff_documents(
-            staff_documents=[staff_documents[0]]
+            staff_documents=[staff_document]
         )[0]
         leaver_details: types.LeaverDetails = {
             # Personal details
@@ -124,33 +153,36 @@ class LeaverInformationMixin:
         return leaver_details
 
     def get_leaver_detail_updates(
-        self, email: str, requester: User
+        self, sso_email_user_id: str, requester: User
     ) -> types.LeaverDetailUpdates:
         """
         Get the stored updates for the Leaver.
         """
 
         leaver_info = self.get_leaver_information(
-            email=email,
+            sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
         updates: types.LeaverDetailUpdates = leaver_info.updates
         return updates
 
     def store_leaver_detail_updates(
-        self, email: str, requester: User, updates: types.LeaverDetailUpdates
+        self,
+        sso_email_user_id: str,
+        requester: User,
+        updates: types.LeaverDetailUpdates,
     ) -> None:
         """
         Store updates for the Leaver.
         """
 
         leaver_info = self.get_leaver_information(
-            email=email,
+            sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
 
         # Work out what information is new and only store that.
-        existing_data = self.get_leaver_details(email=email)
+        existing_data = self.get_leaver_details(sso_email_user_id=sso_email_user_id)
         new_data: types.LeaverDetailUpdates = {}
         for key, value in updates.items():
             if key not in existing_data or existing_data.get(key) != value:
@@ -181,11 +213,11 @@ class LeaverInformationMixin:
 
     def get_leaving_dates(
         self,
-        email: str,
+        sso_email_user_id: str,
         requester: User,
     ) -> Dict[str, Any]:
         leaver_info = self.get_leaver_information(
-            email=email,
+            sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
         last_day: Optional[date] = None
@@ -202,11 +234,11 @@ class LeaverInformationMixin:
 
     def get_leaver_extra_details(
         self,
-        email: str,
+        sso_email_user_id: str,
         requester: User,
     ) -> Dict[str, Any]:
         leaver_info = self.get_leaver_information(
-            email=email,
+            sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
         leaving_request: LeavingRequest = leaver_info.leaving_request
@@ -235,7 +267,7 @@ class LeaverInformationMixin:
 
     def store_leaver_extra_details(
         self,
-        email: str,
+        sso_email_user_id: str,
         requester: User,
         security_clearance: str,
         has_locker: bool,
@@ -249,7 +281,7 @@ class LeaverInformationMixin:
         """
 
         leaver_info = self.get_leaver_information(
-            email=email,
+            sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
 
@@ -278,22 +310,22 @@ class LeaverInformationMixin:
         )
 
     def get_leaver_details_with_updates(
-        self, email: str, requester: User
+        self, sso_email_user_id: str, requester: User
     ) -> types.LeaverDetails:
-        leaver_details = self.get_leaver_details(email=email)
+        leaver_details = self.get_leaver_details(sso_email_user_id=sso_email_user_id)
         leaver_details_updates = self.get_leaver_detail_updates(
-            email=email, requester=requester
+            sso_email_user_id=sso_email_user_id, requester=requester
         )
         leaver_details.update(**leaver_details_updates)  # type: ignore
         return leaver_details
 
     def get_leaver_details_with_updates_for_display(
         self,
-        email: str,
+        sso_email_user_id: str,
         requester: User,
     ) -> types.LeaverDetails:
         leaver_details = self.get_leaver_details_with_updates(
-            email=email, requester=requester
+            sso_email_user_id=sso_email_user_id, requester=requester
         )
         # Get data from Service Now /PS-IGNORE
         service_now_interface = get_service_now_interface()
@@ -310,14 +342,18 @@ class LeaverInformationMixin:
         return leaver_details
 
     def store_leaving_dates(
-        self, email: str, requester: User, last_day: date, leaving_date: date
+        self,
+        sso_email_user_id: str,
+        requester: User,
+        last_day: date,
+        leaving_date: date,
     ) -> None:
         """
         Store the leaving date
         """
 
         leaver_info = self.get_leaver_information(
-            email=email,
+            sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
         leaver_info.last_day = last_day
@@ -331,7 +367,7 @@ class LeaverInformationMixin:
 
     def store_display_screen_equipment(
         self,
-        email: str,
+        sso_email_user_id: str,
         requester: User,
         dse_assets: List[types.DisplayScreenEquipmentAsset],
     ) -> None:
@@ -339,13 +375,15 @@ class LeaverInformationMixin:
         Store DSE assets
         """
 
-        leaver_info = self.get_leaver_information(email=email, requester=requester)
+        leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=requester
+        )
         leaver_info.dse_assets = dse_assets
         leaver_info.save(update_fields=["dse_assets"])
 
     def store_cirrus_kit_information(
         self,
-        email: str,
+        sso_email_user_id: str,
         requester: User,
         information_is_correct: bool,
         additional_information: str,
@@ -355,7 +393,9 @@ class LeaverInformationMixin:
         Store the Correction information
         """
 
-        leaver_info = self.get_leaver_information(email=email, requester=requester)
+        leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=requester
+        )
         leaver_info.cirrus_assets = cirrus_assets
         leaver_info.information_is_correct = information_is_correct
         leaver_info.additional_information = additional_information
@@ -368,26 +408,30 @@ class LeaverInformationMixin:
         )
 
     def store_return_option(
-        self, email: str, requester: User, return_option: str
+        self, sso_email_user_id: str, requester: User, return_option: str
     ) -> None:
         """
         Store the selected return option.
 
         return_option is a value from ReturnOptions.
         """
-        leaver_info = self.get_leaver_information(email=email, requester=requester)
+        leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=requester
+        )
         leaver_info.return_option = return_option
         leaver_info.save(update_fields=["return_option"])
 
     def store_return_information(
         self,
-        email: str,
+        sso_email_user_id: str,
         requester: User,
         personal_phone: str,
         contact_email: str,
         address: Optional[service_now_types.Address],
     ) -> None:
-        leaver_info = self.get_leaver_information(email=email, requester=requester)
+        leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=requester
+        )
         leaver_info.return_personal_phone = personal_phone
         leaver_info.return_contact_email = contact_email
 
@@ -417,8 +461,10 @@ class LeaverInformationMixin:
             ]
         )
 
-    def create_workflow(self, email: str, requester: User):
-        leaving_request = self.get_leaving_request(email=email, requester=requester)
+    def create_workflow(self, sso_email_user_id: str, requester: User):
+        leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=requester
+        )
         get_or_create_leaving_workflow(
             leaving_request=leaving_request,
             executed_by=requester,
@@ -468,25 +514,37 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
-        leaving_request = self.get_leaving_request(email=user_email, requester=user)
-        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+        sso_email_user_id = user.sso_email_user_id
+        leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
         if leaving_request and leaving_request.leaver_complete:
             return redirect(reverse("leaver-request-received"))
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self) -> Dict[str, Any]:
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
+        sso_email_user_id = user.sso_email_user_id
 
         initial = super().get_initial()
         initial.update(
-            **self.get_leaver_details_with_updates(email=user_email, requester=user)
+            **self.get_leaver_details_with_updates(
+                sso_email_user_id=sso_email_user_id, requester=user
+            )
         )
         initial.update(
-            **self.get_leaver_extra_details(email=user_email, requester=user)
+            **self.get_leaver_extra_details(
+                sso_email_user_id=sso_email_user_id, requester=user
+            )
         )
-        initial.update(**self.get_leaving_dates(email=user_email, requester=user))
+        initial.update(
+            **self.get_leaving_dates(
+                sso_email_user_id=sso_email_user_id, requester=user
+            )
+        )
 
         return initial
 
@@ -494,10 +552,10 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         context = super().get_context_data(**kwargs)
         context.update(page_title=self.progress_indicator.get_current_step_label())
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
+        sso_email_user_id = user.sso_email_user_id
 
         display_leaver_details = self.get_leaver_details_with_updates_for_display(
-            email=user_email,
+            sso_email_user_id=sso_email_user_id,
             requester=user,
         )
         leaver_first_name = display_leaver_details["first_name"]
@@ -513,7 +571,7 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
 
     def form_valid(self, form) -> HttpResponse:
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
+        sso_email_user_id = user.sso_email_user_id
         updates: types.LeaverDetailUpdates = {
             "first_name": form.cleaned_data["first_name"],
             "last_name": form.cleaned_data["last_name"],
@@ -523,10 +581,10 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         }
 
         self.store_leaver_detail_updates(
-            email=user_email, requester=user, updates=updates
+            sso_email_user_id=sso_email_user_id, requester=user, updates=updates
         )
         self.store_leaver_extra_details(
-            email=user_email,
+            sso_email_user_id=sso_email_user_id,
             requester=user,
             security_clearance=form.cleaned_data["security_clearance"],
             has_locker=bool(form.cleaned_data["has_locker"] == "yes"),
@@ -538,7 +596,7 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             staff_type=form.cleaned_data["staff_type"],
         )
         self.store_leaving_dates(
-            email=user_email,
+            sso_email_user_id=sso_email_user_id,
             requester=user,
             last_day=form.cleaned_data["last_day"],
             leaving_date=form.cleaned_data["leaving_date"],
@@ -588,13 +646,13 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
 
     def post_correction_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
+        sso_email_user_id = cast(str, user.sso_email_user_id)
 
         form_data = form.cleaned_data
 
         # Store correction info and assets into the leaver details
         self.store_cirrus_kit_information(
-            email=user_email,
+            sso_email_user_id=sso_email_user_id,
             requester=user,
             information_is_correct=bool(form_data["is_correct"] == "yes"),
             additional_information=form_data["whats_incorrect"],
@@ -607,9 +665,13 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
-        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
-        leaving_request = self.get_leaving_request(email=user_email, requester=user)
+        sso_email_user_id = cast(str, user.sso_email_user_id)
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
         if leaving_request and leaving_request.leaver_complete:
             return redirect(reverse("leaver-request-received"))
         return super().dispatch(request, *args, **kwargs)
@@ -631,19 +693,30 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
 
-        if "cirrus_assets" not in request.session:
-            service_now_interface = get_service_now_interface()
-            request.session["cirrus_assets"] = [
-                {
-                    "uuid": str(uuid.uuid4()),
-                    "sys_id": asset["sys_id"],
-                    "tag": asset["tag"],
-                    "name": asset["name"],
-                }
-                for asset in service_now_interface.get_assets_for_user(email=user_email)
-            ]
+        staff_sso_user = ActivityStreamStaffSSOUser.objects.get(
+            email_user_id=user.sso_email_user_id
+        )
+
+        service_now_email = ServiceEmailAddress.objects.filter(
+            staff_sso_user=staff_sso_user,
+        ).first()
+
+        if service_now_email:
+            if "cirrus_assets" not in request.session:
+                service_now_interface = get_service_now_interface()
+                request.session["cirrus_assets"] = [
+                    {
+                        "uuid": str(uuid.uuid4()),
+                        "sys_id": asset["sys_id"],
+                        "tag": asset["tag"],
+                        "name": asset["name"],
+                    }
+                    for asset in service_now_interface.get_assets_for_user(
+                        email=service_now_email
+                    )
+                ]
+
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -675,8 +748,10 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
-        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+        sso_email_user_id = user.sso_email_user_id
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self) -> Dict[str, Any]:
@@ -686,10 +761,10 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
 
     def form_valid(self, form):
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
+        sso_email_user_id = user.sso_email_user_id
 
         self.store_return_option(
-            email=user_email,
+            sso_email_user_id=sso_email_user_id,
             requester=user,
             return_option=form.cleaned_data["return_option"],
         )
@@ -718,8 +793,10 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
-        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+        sso_email_user_id = user.sso_email_user_id
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self) -> Dict[str, Any]:
@@ -754,9 +831,9 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
 
     def form_valid(self, form):
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
+        sso_email_user_id = cast(str, user.sso_email_user_id)
         leaver_info = self.get_leaver_information(
-            email=user_email, requester=self.request.user
+            sso_email_user_id=sso_email_user_id, requester=self.request.user
         )
 
         address: Optional[service_now_types.Address] = None
@@ -769,7 +846,7 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
             }
 
         self.store_return_information(
-            email=user_email,
+            sso_email_user_id=sso_email_user_id,
             requester=user,
             personal_phone=form.cleaned_data["personal_phone"],
             contact_email=form.cleaned_data["contact_email"],
@@ -803,9 +880,11 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
+        sso_email_user_id = user.sso_email_user_id
 
-        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
 
         # If the leaver doesn't have DSE, skip this step.
         if not self.leaver_info.has_dse:
@@ -831,11 +910,11 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
 
     def post_submission_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
+        sso_email_user_id = user.sso_email_user_id
 
         # Store dse assets into the leaver details
         self.store_display_screen_equipment(
-            email=user_email,
+            sso_email_user_id=sso_email_user_id,
             requester=user,
             dse_assets=request.session.get("dse_assets", []),
         )
@@ -891,8 +970,10 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
-        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+        sso_email_user_id = user.sso_email_user_id
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
 
         manager_id: Optional[str] = request.GET.get(MANAGER_SEARCH_PARAM, None)
         if manager_id:
@@ -917,8 +998,11 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
     def get_manager(self) -> Optional[ConsolidatedStaffDocument]:
         manager: Optional[ConsolidatedStaffDocument] = None
         if self.leaver_info.leaving_request.manager_activitystream_user:
+            sso_email_user_id = (
+                self.leaver_info.leaving_request.manager_activitystream_user.email_user_id
+            )
             manager_staff_document = get_staff_document_from_staff_index(
-                staff_id=self.leaver_info.leaving_request.manager_activitystream_user.identifier,
+                sso_email_user_id=sso_email_user_id,
             )
             manager = cast(
                 ConsolidatedStaffDocument,
@@ -932,7 +1016,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
+        sso_email_user_id = user.sso_email_user_id
 
         context.update(
             page_title=self.progress_indicator.get_current_step_label(),
@@ -948,7 +1032,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
             return_address=self.leaver_info.display_address,
             leaver_info=self.leaver_info,
             leaver_details=self.get_leaver_details_with_updates_for_display(
-                email=user_email,
+                sso_email_user_id=sso_email_user_id,
                 requester=user,
             ),
         ),
@@ -979,20 +1063,22 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         Check we have all the required information before we continue.
         """
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
+        sso_email_user_id = user.sso_email_user_id
 
         # Check if a manager has been selected.
         if not self.get_manager():
             return self.form_invalid(form)
 
-        leaving_request = self.get_leaving_request(email=user_email, requester=user)
+        leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
         leaving_request.leaver_complete = timezone.now()
         leaving_request.save()
 
         # TODO: Send Leaver Thank you email
 
         # Create the workflow
-        self.create_workflow(email=user_email, requester=user)
+        self.create_workflow(sso_email_user_id=sso_email_user_id, requester=user)
 
         return super().form_valid(form)
 
@@ -1002,12 +1088,16 @@ class RequestReceivedView(LeaverInformationMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         user = cast(User, self.request.user)
-        user_email = cast(str, user.sso_contact_email)
+        sso_email_user_id = user.sso_email_user_id
 
         context = super().get_context_data(**kwargs)
         context.update(
             page_title="Thank you",
-            leaver_info=self.get_leaver_information(email=user_email, requester=user),
-            leaving_request=self.get_leaving_request(email=user_email, requester=user),
+            leaver_info=self.get_leaver_information(
+                sso_email_user_id=sso_email_user_id, requester=user
+            ),
+            leaving_request=self.get_leaving_request(
+                sso_email_user_id=sso_email_user_id, requester=user
+            ),
         )
         return context

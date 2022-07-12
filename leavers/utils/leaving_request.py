@@ -32,7 +32,7 @@ def update_or_create_leaving_request(
 
 def get_leaver_details(leaving_request: LeavingRequest) -> LeaverDetails:
     staff_document: StaffDocument = get_staff_document_from_staff_index(
-        staff_id=leaving_request.leaver_activitystream_user.identifier,
+        sso_email_user_id=leaving_request.leaver_activitystream_user.email_user_id,
     )
     consolidated_staff_document: ConsolidatedStaffDocument = (
         consolidate_staff_documents(

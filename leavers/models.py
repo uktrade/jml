@@ -359,7 +359,7 @@ class LeaverInformation(models.Model):
 
     last_day = models.DateTimeField(null=True, blank=True)
     leaving_date = models.DateTimeField(null=True, blank=True)
-    leaver_email = models.EmailField(unique=True)
+    leaver_email = models.EmailField(unique=True, null=True, blank=True)
 
     # Leaver information
     leaver_first_name = models.CharField(max_length=1000, null=True, blank=True)

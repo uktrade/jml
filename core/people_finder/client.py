@@ -1,3 +1,4 @@
+import json
 import logging
 import urllib.parse
 from typing import Any, Iterator, List, Optional, TypedDict
@@ -24,7 +25,7 @@ class Person(TypedDict):
     roles: List[Any]
 
 
-def get_sender(url):
+def get_sender(url, content_type):
     return Sender(
         {
             "id": settings.PEOPLE_FINDER_HAWK_ACCESS_ID,
@@ -34,8 +35,7 @@ def get_sender(url):
         url,
         "GET",
         content="",
-        content_type="",
-        always_hash_content=False,
+        content_type=content_type,
     )
 
 
@@ -103,14 +103,15 @@ class PeopleFinderIterator(Iterator):
         self.next_url = data.get("next")
 
 
-def get_details(legacy_sso_user_id) -> Person:
-    safe_id = urllib.parse.quote_plus(legacy_sso_user_id)
+def get_details(sso_legacy_user_id) -> Person:
+    safe_id = urllib.parse.quote_plus(sso_legacy_user_id)
     url = f"{settings.PEOPLE_FINDER_URL}/peoplefinder/api/person-api/{safe_id}/"
 
-    sender = get_sender(url)
+    content_type = "application/json"
+    sender = get_sender(url, content_type)
     response = requests.get(
         url,
-        headers={"Authorization": sender.request_header, "Content-Type": ""},
+        headers={"Authorization": sender.request_header, "Content-Type": content_type},
     )
 
     if response.status_code != 200:
@@ -119,4 +120,9 @@ def get_details(legacy_sso_user_id) -> Person:
         )
         raise FailedToGetPeopleRecords()
 
-    return response.json()
+    try:
+        return response.json()
+    except json.decoder.JSONDecodeError:
+        raise FailedToGetPeopleRecords(
+            f"Could not parse JSON, response content: {response.content}",
+        )

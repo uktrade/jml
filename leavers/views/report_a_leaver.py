@@ -142,7 +142,7 @@ class ConfirmationView(FormView):
                 self.leaving_request.manager_activitystream_user
             )
             manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
-                staff_id=self.leaving_request.manager_activitystream_user.identifier
+                sso_email_user_id=self.leaving_request.manager_activitystream_user.email_user_id
             )
 
         # Load the manager from the Staff index (if we haven't managed to load it yet)

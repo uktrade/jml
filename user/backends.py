@@ -18,13 +18,13 @@ class CustomAuthbrokerBackend(AuthbrokerBackend):
         user = User.objects.filter(username=profile["email_user_id"]).first()
 
         if user:
-            # Set email_user_id as username (it is now the preferred option)
             user.username = profile["email_user_id"]
             user.email = profile["email"]  # might change over time
             user.sso_contact_email = profile["contact_email"]  # might change over time
             user.first_name = profile["first_name"]  # might change over time
             user.last_name = profile["last_name"]  # might change over time
-            user.legacy_sso_user_id = profile["user_id"]
+            user.sso_legacy_user_id = profile["user_id"]
+            user.sso_email_user_id = profile["email_user_id"]
         else:
             user = User(
                 username=profile["email_user_id"],
@@ -32,7 +32,8 @@ class CustomAuthbrokerBackend(AuthbrokerBackend):
                 sso_contact_email=profile["contact_email"],
                 first_name=profile["first_name"],
                 last_name=profile["last_name"],
-                legacy_sso_user_id=profile["user_id"],
+                sso_legacy_user_id=profile["user_id"],
+                sso_email_user_id=profile["email_user_id"],
             )
 
         user.set_unusable_password()

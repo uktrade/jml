@@ -10,7 +10,7 @@ from opensearch_dsl.response import Hit
 from opensearchpy import OpenSearch
 from opensearchpy.exceptions import NotFoundError
 
-from activity_stream.models import ActivityStreamStaffSSOUser
+from activity_stream.models import ActivityStreamStaffSSOUser, ServiceEmailAddress
 from core.people_finder.interfaces import PeopleFinderPersonNotFound, Person
 
 logger = logging.getLogger(__name__)
@@ -26,10 +26,12 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
         "properties": {
             "uuid": {"type": "text"},
             "staff_sso_activity_stream_id": {"type": "text"},
+            "staff_sso_email_user_id": {"type": "text"},
             "staff_sso_legacy_id": {"type": "text"},
             "staff_sso_first_name": {"type": "text"},
             "staff_sso_last_name": {"type": "text"},
             "staff_sso_contact_email_address": {"type": "text"},
+            "staff_sso_email_addresses": {"type": "text"},  # Can accept list
             "people_finder_first_name": {"type": "text"},
             "people_finder_last_name": {"type": "text"},
             "people_finder_job_title": {"type": "text"},
@@ -53,10 +55,12 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
 class StaffDocument(DataClassJsonMixin):
     uuid: str
     staff_sso_activity_stream_id: str
+    staff_sso_email_user_id: str
     staff_sso_legacy_id: str
     staff_sso_first_name: str
     staff_sso_last_name: str
     staff_sso_contact_email_address: str
+    staff_sso_email_addresses: List[str]
     people_finder_first_name: str
     people_finder_last_name: str
     people_finder_job_title: str
@@ -77,9 +81,11 @@ class StaffDocument(DataClassJsonMixin):
 class ConsolidatedStaffDocument(TypedDict):
     uuid: str
     staff_sso_activity_stream_id: str
+    staff_sso_email_user_id: str
     first_name: str
     last_name: str
     contact_email_address: str
+    email_addresses: List
     contact_phone: str
     grade: str
     directorate: str
@@ -185,7 +191,7 @@ def search_staff_index(
                     {"match": {"staff_sso_last_name": {"query": query, "boost": 5.0}}},
                     {
                         "match": {
-                            "staff_sso_contact_email_address": {
+                            "staff_sso_email_addresses": {
                                 "query": query,
                                 "boost": 10.0,
                             }
@@ -227,38 +233,31 @@ class StaffDocumentNotFound(Exception):
 
 
 def get_staff_document_from_staff_index(
-    *, staff_id: Optional[str] = None, staff_uuid: Optional[str] = None
+    *, sso_email_user_id: Optional[str] = None, staff_uuid: Optional[str] = None
 ) -> StaffDocument:
     """
     Get a Staff document from the Staff index.
     """
-    if not staff_id and not staff_uuid or staff_id and staff_uuid:
+    if not sso_email_user_id and not staff_uuid or sso_email_user_id and staff_uuid:
         raise ValueError("One of staff_id or staff_uuid must be provided, not both")
 
     search_field: str = ""
     search_value: str = ""
-    if staff_id:
-        search_field = "staff_sso_activity_stream_id"
-        search_value = staff_id
+    if sso_email_user_id:
+        search_field = "staff_sso_email_user_id"
+        search_value = sso_email_user_id
     elif staff_uuid:
         search_field = "uuid"
         search_value = staff_uuid
 
     search_dict = {
         "query": {
-            "bool": {
-                "should": [
-                    {"match": {search_field: {"query": search_value}}},
-                ],
-                "minimum_should_match": 1,
-                "boost": 1.0,
-            },
-        },
-        "sort": {
-            "_score": {"order": "desc"},
-        },
-        "size": MAX_RESULTS,
-        "min_score": MIN_SCORE,
+            "match_phrase": {
+                search_field: {
+                    "query": search_value,
+                },
+            }
+        }
     }
 
     search_client = get_search_connection()
@@ -295,6 +294,7 @@ def consolidate_staff_documents(
             or "",
             "contact_email_address": staff_document.staff_sso_contact_email_address
             or "",
+            "email_addresses": staff_document.staff_sso_email_addresses or [],
             "contact_phone": staff_document.people_finder_phone or "",
             "grade": staff_document.people_finder_grade or "",
             "directorate": staff_document.service_now_directorate_id or "",
@@ -328,7 +328,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     people_finder_directorate: Optional[str] = None
     try:
         people_finder_result = people_finder.get_details(
-            legacy_sso_user_id=staff_sso_user.user_id,
+            sso_legacy_user_id=staff_sso_user.user_id,
         )
     except PeopleFinderPersonNotFound:
         logger.exception(
@@ -349,18 +349,23 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     """
     Get Service Now data
     """
-    # Get Service Now User data
+    # Iterate through all emails and check for Service Now record
     service_now_user_id: str = ""
-    try:
-        service_now_user = service_now_interface.get_user(
-            email=staff_sso_user.contact_email_address,
-        )
-    except ServiceNowUserNotFound:
-        logger.exception(
-            f"Could not find '{staff_sso_user}' in Service Now", exc_info=True
-        )
-    else:
-        service_now_user_id = service_now_user["sys_id"]
+    for sso_email_record in staff_sso_user.sso_emails.all():
+        try:
+            service_now_user = service_now_interface.get_user(
+                email=sso_email_record.email_address,
+            )
+        except ServiceNowUserNotFound:
+            continue
+        else:
+            ServiceEmailAddress.objects.update_or_create(
+                staff_sso_user=staff_sso_user,
+                service_now_email_address=sso_email_record.email_address,
+            )
+            service_now_user_id = service_now_user["sys_id"]
+            break
+
     # Get Service Now Department data
     service_now_department_id: str = settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
     service_now_department_name: str = ""
@@ -388,11 +393,15 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
             "uuid": str(uuid.uuid4()),
             # Staff SSO
             "staff_sso_legacy_id": staff_sso_user.user_id,
+            "staff_sso_email_user_id": staff_sso_user.email_user_id,
             "staff_sso_activity_stream_id": staff_sso_user.identifier,
             "staff_sso_first_name": staff_sso_user.first_name,
             "staff_sso_last_name": staff_sso_user.last_name,
             "staff_sso_contact_email_address": staff_sso_user.contact_email_address
             or "",
+            "staff_sso_email_addresses": list(
+                staff_sso_user.sso_emails.values_list("email_address", flat=True)
+            ),
             # People Finder
             "people_finder_first_name": people_finder_result.get("first_name", ""),
             "people_finder_last_name": people_finder_result.get("last_name", ""),
@@ -428,7 +437,9 @@ def index_all_staff() -> int:
     """
     staff_documents: List[StaffDocument] = []
     # Add documents to the index
-    for staff_sso_user in ActivityStreamStaffSSOUser.objects.all():
+    for staff_sso_user in ActivityStreamStaffSSOUser.objects.filter(
+        became_inactive_on__isnull=True,
+    ):
         try:
             staff_document = build_staff_document(staff_sso_user=staff_sso_user)
             staff_documents.append(staff_document)
