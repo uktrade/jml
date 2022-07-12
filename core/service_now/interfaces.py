@@ -351,6 +351,12 @@ class ServiceNowInterface(ServiceNowBase):
         leaver_details: leavers_types.LeaverDetails,
         assets: List[types.AssetDetails],
     ):
+        if not settings.PROCESS_LEAVING_REQUEST:
+            raise Exception(
+                "Leaving requests are not currently allowed to be processed, look "
+                "at the PROCESS_LEAVING_REQUEST setting for more info."
+            )
+
         # Convert Request Data to what the Service Now API expects
         assets_confirmation = bool_to_yes_no(leaver_info.information_is_correct).title()
 

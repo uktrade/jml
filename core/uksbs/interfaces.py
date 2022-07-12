@@ -1,6 +1,8 @@
 import logging
 from abc import ABC, abstractmethod
 
+from django.conf import settings
+
 from core.uksbs.client import UKSBSClient
 from core.uksbs.types import LeavingData, PersonHierarchyData
 
@@ -100,4 +102,9 @@ class UKSBSInterface(UKSBSBase):
         return self.client.get_people_hierarchy(person_id=oracle_id)
 
     def submit_leaver_form(self, data: LeavingData) -> None:
+        if not settings.PROCESS_LEAVING_REQUEST:
+            raise Exception(
+                "Leaving requests are not currently allowed to be processed, look "
+                "at the PROCESS_LEAVING_REQUEST setting for more info."
+            )
         self.client.post_leaver_form(data=data)

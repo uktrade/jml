@@ -5,6 +5,8 @@ from typing import Callable, Dict, List, Optional
 from django.conf import settings
 from django.utils import timezone
 from django_workflow_engine import Task
+from django_workflow_engine.dataclass import Step
+from django_workflow_engine.models import Flow, TaskRecord
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.service_now import get_service_now_interface
@@ -262,6 +264,18 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.OCS_OAB_LOCKER_EMAIL: send_ocs_oab_locker_email,
 }
 
+# A list of emails that skip the PROCESS_LEAVING_REQUEST check.
+# (Should not contain any emails to data processors)
+LEAVING_REQUEST_PROGRESS_EMAILS: List[str] = [
+    EmailIds.LEAVER_THANK_YOU_EMAIL,
+    EmailIds.LEAVER_ROSA_REMINDER,
+    EmailIds.LINE_MANAGER_ROSA_REMINDER,
+    EmailIds.LINE_MANAGER_CORRECTION,
+    EmailIds.LINE_MANAGER_NOTIFICATION,
+    EmailIds.LINE_MANAGER_REMINDER,
+    EmailIds.LINE_MANAGER_THANKYOU,
+]
+
 
 class EmailTask(LeavingRequestTask):
     abstract = True
@@ -283,6 +297,14 @@ class EmailTask(LeavingRequestTask):
 
     def execute(self, task_info):
         email_id: EmailIds = EmailIds(task_info["email_id"])
+
+        if not settings.PROCESS_LEAVING_REQUEST:
+            if email_id not in LEAVING_REQUEST_PROGRESS_EMAILS:
+                raise Exception(
+                    "Leaving requests are not currently allowed to be processed, look "
+                    "at the PROCESS_LEAVING_REQUEST setting for more info."
+                )
+
         send_email_method: Optional[Callable] = EMAIL_MAPPING.get(email_id, None)
 
         if not send_email_method:
@@ -374,9 +396,7 @@ class HasLineManagerCompleted(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        # TODO: Define the conditional logic to check if the line manager has
-        # completed their tasks.
-        if False:
+        if self.leaving_request.line_manager_complete:
             return ["thank_line_manager"], {}, True
         return ["send_line_manager_reminder"], {}, False
 
@@ -407,9 +427,7 @@ class HaveSecurityCarriedOutLeavingTasks(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        # TODO: Define the conditional logic to check if the Security Team have
-        # completed their tasks.
-        if False:
+        if self.leaving_request.security_team_complete:
             return ["are_all_tasks_complete"], {}, True
         return ["send_security_reminder"], {}, False
 
@@ -420,9 +438,7 @@ class HaveSRECarriedOutLeavingTasks(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        # TODO: Define the conditional logic to check if the SRE Team have
-        # completed their tasks.
-        if False:
+        if self.leaving_request.sre_complete:
             return ["are_all_tasks_complete"], {}, True
         return ["send_sre_reminder"], {}, False
 
@@ -454,7 +470,34 @@ class LeaverCompleteTask(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        # TODO: Add conditional logic to check if all previous steps are complete
-        if False:
+        task_record: TaskRecord = self.task_record
+        flow: Flow = self.flow
+
+        leaver_complete_step: Step = flow.workflow.get_step(task_record.step_id)
+
+        # Get all steps that point to the current step.
+        previous_steps: List[Step] = [
+            step
+            for step in flow.workflow.steps
+            if step.targets != "complete"
+            and leaver_complete_step.step_id in step.targets
+        ]
+
+        all_previous_steps_complete: bool = True
+
+        for previous_step in previous_steps:
+            try:
+                previous_step_task: TaskRecord = flow.tasks.get(
+                    step_id=previous_step.step_id
+                )
+            except TaskRecord.DoesNotExist:
+                all_previous_steps_complete = False
+                break
+
+            if not previous_step_task.done:
+                all_previous_steps_complete = False
+                break
+
+        if all_previous_steps_complete:
             return None, {}, True
         return None, {}, False
