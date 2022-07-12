@@ -1074,6 +1074,13 @@ class TestCirrusEquipmentReturnOptionsView(TestCase):
             leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
             leaving_request__user_requesting=self.leaver,
+            cirrus_assets=[
+                {
+                    "uuid": str(uuid.uuid4()),
+                    "tag": "Test Tag 1",
+                    "name": "Test Asset 1",
+                }
+            ],
         )
 
     def test_unauthenticated_user(self) -> None:
@@ -1154,6 +1161,18 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_authenticated_user(self) -> None:
+        factories.LeaverInformationFactory(
+            leaver_email=self.leaver.sso_contact_email,
+            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
+            cirrus_assets=[
+                {
+                    "uuid": str(uuid.uuid4()),
+                    "tag": "Test Tag 1",
+                    "name": "Test Asset 1",
+                }
+            ],
+        )
+
         self.client.force_login(self.leaver)
 
         response = self.client.get(reverse(self.view_name))
@@ -1165,6 +1184,13 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
         factories.LeaverInformationFactory(
             leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
+            cirrus_assets=[
+                {
+                    "uuid": str(uuid.uuid4()),
+                    "tag": "Test Tag 1",
+                    "name": "Test Asset 1",
+                }
+            ],
             return_option=ReturnOptions.HOME.value,
         )
 
@@ -1182,6 +1208,13 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
         factories.LeaverInformationFactory(
             leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
+            cirrus_assets=[
+                {
+                    "uuid": str(uuid.uuid4()),
+                    "tag": "Test Tag 1",
+                    "name": "Test Asset 1",
+                }
+            ],
             return_option=ReturnOptions.OFFICE.value,
         )
 
@@ -1200,6 +1233,13 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
         factories.LeaverInformationFactory(
             leaver_email=self.leaver.sso_contact_email,
             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
+            cirrus_assets=[
+                {
+                    "uuid": str(uuid.uuid4()),
+                    "tag": "Test Tag 1",
+                    "name": "Test Asset 1",
+                }
+            ],
             return_option=ReturnOptions.HOME.value,
         )
 
