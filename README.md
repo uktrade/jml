@@ -67,3 +67,4 @@
 | UKSBS_API_URL                                            | None                                       |                                                                     |
 | UKSBS_GET_PEOPLE_HIERARCHY                               | None                                       | UK SBS People Hierarchy path                                        |
 | UKSBS_POST_LEAVER_SUBMISSION                             | None                                       |                                                                     |
+| PROCESS_LEAVING_REQUEST                                  | true                                       | Set to 'false' if you want to prevent sending leaving request data to the processors. |

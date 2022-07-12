@@ -13,6 +13,12 @@ def get_zendesk_client() -> Zenpy:
 
 
 def inform_lsd_team_of_leaver(leaver_name: str, leaver_email: str) -> Ticket:
+    if not settings.PROCESS_LEAVING_REQUEST:
+        raise Exception(
+            "Leaving requests are not currently allowed to be processed, look "
+            "at the PROCESS_LEAVING_REQUEST setting for more info."
+        )
+
     client = get_zendesk_client()
     # Create a Zendesk Ticket /PS-IGNORE
     ticket: Ticket = client.tickets.create(
