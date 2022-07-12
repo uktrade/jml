@@ -269,6 +269,11 @@ class LeaverInformationMixin:
             "has_gov_procurement_card": has_gov_procurement_card,
             "has_dse": has_dse,
             "staff_type": leaving_request.staff_type,
+            "contact_phone": leaver_info.contact_phone,
+            "contact_address_line1": leaver_info.contact_address_line1,
+            "contact_address_line2": leaver_info.contact_address_line2,
+            "contact_address_town": leaver_info.contact_address_town,
+            "contact_address_postcode": leaver_info.contact_address_postcode,
         }
 
     def store_leaver_extra_details(
@@ -281,6 +286,11 @@ class LeaverInformationMixin:
         has_rosa_kit: bool,
         has_dse: bool,
         staff_type: str,
+        contact_phone: str,
+        contact_address_line1: str,
+        contact_address_line2: str,
+        contact_address_town: str,
+        contact_address_postcode: str,
     ) -> None:
         """
         Store Extra details for the Leaver.
@@ -308,10 +318,20 @@ class LeaverInformationMixin:
 
         leaver_info.has_locker = has_locker
         leaver_info.has_dse = has_dse
+        leaver_info.contact_phone = contact_phone
+        leaver_info.contact_address_line1 = contact_address_line1
+        leaver_info.contact_address_line2 = contact_address_line2
+        leaver_info.contact_address_town = contact_address_town
+        leaver_info.contact_address_postcode = contact_address_postcode
         leaver_info.save(
             update_fields=[
                 "has_locker",
                 "has_dse",
+                "contact_phone",
+                "contact_address_line1",
+                "contact_address_line2",
+                "contact_address_town",
+                "contact_address_postcode",
             ]
         )
 
@@ -600,6 +620,11 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             has_rosa_kit=bool(form.cleaned_data["has_rosa_kit"] == "yes"),
             has_dse=bool(form.cleaned_data["has_dse"] == "yes"),
             staff_type=form.cleaned_data["staff_type"],
+            contact_phone=form.cleaned_data["contact_phone"],
+            contact_address_line1=form.cleaned_data["contact_address_line1"],
+            contact_address_line2=form.cleaned_data["contact_address_line2"],
+            contact_address_town=form.cleaned_data["contact_address_town"],
+            contact_address_postcode=form.cleaned_data["contact_address_postcode"],
         )
         self.store_leaving_dates(
             sso_email_user_id=sso_email_user_id,

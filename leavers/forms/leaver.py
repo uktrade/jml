@@ -39,6 +39,11 @@ class LeaverUpdateForm(GovFormattedForm):
     first_name = forms.CharField(label="")
     last_name = forms.CharField(label="")
     contact_email_address = forms.EmailField(label="")
+    contact_phone = forms.CharField(label="")
+    contact_address_line1 = forms.CharField(label="Address line 1")
+    contact_address_line2 = forms.CharField(label="Address line 2")
+    contact_address_town = forms.CharField(label="Town or city")
+    contact_address_postcode = forms.CharField(label="Postcode")
     job_title = forms.CharField(label="")
     directorate = forms.ChoiceField(label="", choices=[])
     # Extra information
@@ -99,6 +104,19 @@ class LeaverUpdateForm(GovFormattedForm):
                 ),
                 Field("contact_email_address"),
                 legend="Contact email",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field("contact_phone"),
+                legend="Contact phone",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field("contact_address_line1"),
+                Field("contact_address_line2"),
+                Field("contact_address_town"),
+                Field("contact_address_postcode"),
+                legend="Contact address",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(

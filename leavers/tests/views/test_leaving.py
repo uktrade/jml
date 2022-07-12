@@ -1,3 +1,5 @@
+from unittest import skip
+
 from django.test.testcases import TestCase
 from django.urls import reverse
 
@@ -9,6 +11,7 @@ class TestLeaversStartView(ViewAccessTest, TestCase):
     allowed_methods = ["get"]
 
 
+@skip("Not currently in use")
 class TestWhoIsLeavingView(ViewAccessTest, TestCase):
     view_name = "who"
     allowed_methods = ["get", "post", "put"]

@@ -548,6 +548,11 @@ class TestUpdateDetailsView(TestCase):
             form.initial["contact_email_address"],
             "joe.bloggs@example.com",  # /PS-IGNORE
         )
+        self.assertEqual(form.initial["contact_phone"], None)
+        self.assertEqual(form.initial["contact_address_line1"], None)
+        self.assertEqual(form.initial["contact_address_line2"], None)
+        self.assertEqual(form.initial["contact_address_town"], None)
+        self.assertEqual(form.initial["contact_address_postcode"], None)
         self.assertEqual(form.initial["photo"], "")
 
     def test_existing_updates(self, mock_get_search_results) -> None:
@@ -556,7 +561,7 @@ class TestUpdateDetailsView(TestCase):
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
-            "contact_email_address": "Updated Personal Email",
+            "contact_email_address": "Updated Contact Email",
         }
         factories.LeaverInformationFactory(
             leaver_email=self.leaver.sso_contact_email,
@@ -586,6 +591,11 @@ class TestUpdateDetailsView(TestCase):
                 "job_title": updates["job_title"],
                 "last_name": updates["last_name"],
                 "contact_email_address": updates["contact_email_address"],
+                "contact_phone": None,
+                "contact_address_line1": None,
+                "contact_address_line2": None,
+                "contact_address_town": None,
+                "contact_address_postcode": None,
                 "has_dse": None,
                 "has_gov_procurement_card": None,
                 "has_rosa_kit": None,
@@ -609,6 +619,10 @@ class TestUpdateDetailsView(TestCase):
                 "job_title": "",
                 "last_name": "",
                 "contact_email_address": "",
+                "contact_address_line1": "",
+                "contact_address_line2": "",
+                "contact_address_town": "",
+                "contact_address_postcode": "",
             },
         )
 
@@ -620,6 +634,21 @@ class TestUpdateDetailsView(TestCase):
         self.assertFormError(
             response, "form", "contact_email_address", "This field is required."
         )
+        self.assertFormError(
+            response, "form", "contact_phone", "This field is required."
+        )
+        self.assertFormError(
+            response, "form", "contact_address_line1", "This field is required."
+        )
+        self.assertFormError(
+            response, "form", "contact_address_line2", "This field is required."
+        )
+        self.assertFormError(
+            response, "form", "contact_address_town", "This field is required."
+        )
+        self.assertFormError(
+            response, "form", "contact_address_postcode", "This field is required."
+        )
 
     def test_submit_contains_required_data(self, mock_get_search_results) -> None:
         self.client.force_login(self.leaver)
@@ -630,6 +659,11 @@ class TestUpdateDetailsView(TestCase):
                 "first_name": "FirstName",  # /PS-IGNORE
                 "last_name": "LastName",  # /PS-IGNORE
                 "contact_email_address": "someone@example.com",  # /PS-IGNORE
+                "contact_phone": "07123123123",
+                "contact_address_line1": "Example House Name",
+                "contact_address_line2": "Some street",
+                "contact_address_town": "London",
+                "contact_address_postcode": "AB1 2CD",  # /PS-IGNORE
                 "job_title": "Job Title",
                 "directorate": "1",
                 "security_clearance": "sc",

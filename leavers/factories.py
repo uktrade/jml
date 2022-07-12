@@ -22,6 +22,7 @@ class LeavingRequestFactory(DjangoModelFactory):
     data_recipient_activitystream_user = factory.SubFactory(
         ActivityStreamStaffSSOUserFactory
     )
+    line_reports = []
 
 
 class SlackMessageFactory(DjangoModelFactory):

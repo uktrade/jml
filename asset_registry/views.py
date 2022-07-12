@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from uuid import UUID
 
 from asset_registry.forms import (
@@ -16,6 +16,7 @@ from asset_registry.utils import (
     get_asset_user_action_messages,
 )
 from django.contrib.auth import get_user_model
+from django.contrib.postgres.search import SearchVector
 from django.db.models import QuerySet
 from django.http import Http404, HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
@@ -51,8 +52,43 @@ class ListAssetsView(FormView):
     def get_queryset(self) -> QuerySet:
         queryset = Asset.objects.all()
         if self.search_terms:
-            # TODO: implement search
-            pass
+            asset_ids: List[int] = []
+
+            physical_asset_queryset = PhysicalAsset.objects.all().annotate(
+                search=SearchVector(
+                    "users__name",
+                    "users__first_name",
+                    "users__last_name",
+                    "users__email_address",
+                    "asset_number",
+                    "finance_asset_number",
+                    "category",
+                    "status",
+                    "manufacturer",
+                    "model",
+                    "serial_number",
+                )
+            )
+            physical_asset_queryset = physical_asset_queryset.filter(
+                search=self.search_terms
+            )
+            asset_ids += physical_asset_queryset.values_list("id", flat=True)
+
+            software_asset_queryset = SoftwareAsset.objects.all().annotate(
+                search=SearchVector(
+                    "users__name",
+                    "users__first_name",
+                    "users__last_name",
+                    "users__email_address",
+                    "software_name",
+                    "licence_number",
+                )
+            )
+            software_asset_queryset = software_asset_queryset.filter(
+                search=self.search_terms
+            )
+            asset_ids += software_asset_queryset.values_list("id", flat=True)
+            queryset = queryset.filter(id__in=asset_ids)
         return queryset
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:

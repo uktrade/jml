@@ -1,0 +1,41 @@
+{% extends "leaving/leaving_base.html" %}
+{% load static crispy_forms_tags crispy_forms_gds %}
+
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% include "leaving/progress_indicator.html" with steps=progress_steps %}
+            {% error_summary form %}
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">{{ page_title }}</h1>
+            <p class="govuk-body">The leaver currently has line reports that will need to be reassigned to new Line managers.</p>
+
+            {% for line_report in line_reports %}
+                <h2 class="govuk-heading-m">{{ line_report.name }} - {{ line_report.email }}</h2>
+                {% if line_report.line_manager %}
+                    <p class="govuk-body">New line manager: {{ line_report.line_manager.name }} - {{ line_report.line_manager.email }}</p>
+                {% endif %}
+                <a href="{{ new_line_manager_search }}?line_report_uuid={{ line_report.uuid }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Select new line manager</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <a href="{{ new_line_report_search }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Add a missing Line Report</a>
+        </div>
+    </div>
+
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method="post" enctype="multipart/form-data">
+                {% crispy form %}
+            </form>
+        </div>
+    </div>
+{% endblock %}

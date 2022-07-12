@@ -57,7 +57,7 @@ Emails are sent at the following points:
 | 2 days after the leaving date | IF NOT PROCESSED | Inform the Processor that the tasks need to be performed by end of the day otherwise escalation | Processor |
 
 #### Security building pass team
-Only send these reminders if the Building pass hasn't been n marked as destroyed.
+Only send these reminders if the Building pass hasn't been marked as destroyed.
 
 #### Security ROSA kit team
 Only send these reminders if the ROSA kit tasks haven't been marked as completed/closed.

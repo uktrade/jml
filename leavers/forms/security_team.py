@@ -133,45 +133,33 @@ class RosaKitForm(GovFormattedForm):
         if "save" in self.data:
             return cleaned_data
 
+        errors = []
+
         # Validation for closing the record
         if RosaKit.MOBILE.value in user_has:
             if RosaKit.MOBILE.value not in user_returned:
-                raise forms.ValidationError(
-                    {
-                        "user_returned": (
-                            "User has a ROSA mobile, but it isn't marked "
-                            "as returned."
-                        )
-                    }
+                errors.append(
+                    "User has a ROSA mobile, but it isn't marked as returned."
                 )
         if RosaKit.LAPTOP.value in user_has:
             if RosaKit.LAPTOP.value not in user_returned:
-                raise forms.ValidationError(
-                    {
-                        "user_returned": (
-                            "User has a ROSA laptop, but it isn't marked "
-                            "as returned."
-                        )
-                    }
+                errors.append(
+                    "User has a ROSA laptop, but it isn't marked as returned."
                 )
         if RosaKit.KEY.value in user_has:
             if RosaKit.KEY.value not in user_returned:
-                raise forms.ValidationError(
-                    {
-                        "user_returned": (
-                            "User has a ROSA Key, but it isn't marked as returned."
-                        )
-                    }
+                errors.append("User has a ROSA key, but it isn't marked as returned.")
+
+        if not errors and user_has != user_returned:
+            errors.append(
+                (
+                    "There is a mismatch between the kit the user has "
+                    "and the kit that has been returned."
                 )
-        if user_has != user_returned:
-            raise forms.ValidationError(
-                {
-                    "user_returned": (
-                        "There is a mismatch between the kit the user has "
-                        "and the kit that has been returned."
-                    )
-                }
             )
+
+        if errors:
+            raise forms.ValidationError({"user_returned": errors})
 
         return cleaned_data
 
