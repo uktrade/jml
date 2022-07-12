@@ -764,7 +764,7 @@ class TestCirrusEquipmentView(TestCase):
     def test_post_no_form_name(self) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(19):
+        with self.assertNumQueries(21):
             response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 200)
@@ -776,7 +776,7 @@ class TestCirrusEquipmentView(TestCase):
     def test_post_add_asset_form(self, mock_get_assets_for_user) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(19):
+        with self.assertNumQueries(21):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -811,7 +811,7 @@ class TestCirrusEquipmentView(TestCase):
     ) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(16):
+        with self.assertNumQueries(18):
             response = self.client.post(
                 reverse(self.view_name),
                 {
