@@ -49,52 +49,60 @@
         </div>
     </div>
 
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Cirrus kit return option</h2>
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Return option
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {% if return_option == "home" %}
-                            Return to home
-                        {% elif return_option == "office" %}
-                            Return to the office
-                        {% endif %}
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Contact phone
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ return_personal_phone }}
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Contact email
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ return_contact_email }}
-                    </dd>
-                </div>
-                {% if return_option == "home" %}
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Return address
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {{ return_address }}
-                        </dd>
-                    </div>
-                {% endif %}
-            </dl>
-            <a href="{% url 'leaver-return-options' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
+    {% if return_option or return_personal_phone or return_contact_email or return_address %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h2 class="govuk-heading-m">Cirrus kit return option</h2>
+                <dl class="govuk-summary-list">
+                    {% if return_option %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Return option
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {% if return_option == "home" %}
+                                    Return to home
+                                {% elif return_option == "office" %}
+                                    Return to the office
+                                {% endif %}
+                            </dd>
+                        </div>
+                    {% endif %}
+                    {% if return_personal_phone %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Contact phone
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ return_personal_phone }}
+                            </dd>
+                        </div>
+                    {% endif %}
+                    {% if return_contact_email %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Contact email
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ return_contact_email }}
+                            </dd>
+                        </div>
+                    {% endif %}
+                    {% if return_option == "home" and return_address %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Return address
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                {{ return_address }}
+                            </dd>
+                        </div>
+                    {% endif %}
+                </dl>
+                <a href="{% url 'leaver-return-options' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
+            </div>
         </div>
-    </div>
+    {% endif %}
 
     {% if has_dse %}
         <div class="govuk-grid-row">

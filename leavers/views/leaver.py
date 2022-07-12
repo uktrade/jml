@@ -433,8 +433,23 @@ class LeaverInformationMixin:
             ]
         )
 
+        if not cirrus_assets:
+            # clear any existing cirrus kit information if there is no kit.
+            self.store_return_option(
+                sso_email_user_id=sso_email_user_id,
+                requester=requester,
+                return_option=None,
+            )
+            self.store_return_information(
+                sso_email_user_id=sso_email_user_id,
+                requester=requester,
+                personal_phone=None,
+                contact_email=None,
+                address=None,
+            )
+
     def store_return_option(
-        self, sso_email_user_id: str, requester: User, return_option: str
+        self, sso_email_user_id: str, requester: User, return_option: Optional[str]
     ) -> None:
         """
         Store the selected return option.
@@ -451,8 +466,8 @@ class LeaverInformationMixin:
         self,
         sso_email_user_id: str,
         requester: User,
-        personal_phone: str,
-        contact_email: str,
+        personal_phone: Optional[str],
+        contact_email: Optional[str],
         address: Optional[service_now_types.Address],
     ) -> None:
         leaver_info = self.get_leaver_information(
@@ -823,6 +838,8 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
         )
+        if not self.leaver_info.cirrus_assets:
+            return redirect(self.get_success_url())
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self) -> Dict[str, Any]:
@@ -868,6 +885,8 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
         )
+        if not self.leaver_info.cirrus_assets:
+            return redirect(self.get_success_url())
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self) -> Dict[str, Any]:
