@@ -76,7 +76,7 @@ services:
     networks:
       - inside
     env_file: .env
-    command: celery -A core.celery worker -l INFO
+    command: celery -A config.celery worker -l INFO
     volumes:
       - ./:/app/
     depends_on:
@@ -92,7 +92,7 @@ services:
     env_file: .env
     volumes:
       - ./:/app/
-    command: celery -A core.celery beat -l INFO
+    command: celery -A config.celery beat -l INFO
     depends_on:
       - db
       - redis
