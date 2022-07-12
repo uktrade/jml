@@ -139,6 +139,7 @@ GOVUK PAAS
 GOVUK_NOTIFY_API_KEY
 govuk_paas_access_task_log
 Green Park
+has_cirrus_kit
 HAWK_INCOMING_ACCESS_KEY
 HAWK_INCOMING_SECRET_KEY
 height="17

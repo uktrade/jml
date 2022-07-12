@@ -51,6 +51,11 @@ urlpatterns = [
         name="leaver-confirm-details",
     ),
     path(
+        "leaver/has-cirrus-equipment/",
+        leaver_views.HasCirrusEquipmentView.as_view(),
+        name="leaver-has-cirrus-equipment",
+    ),
+    path(
         "leaver/cirrus-equipment/",
         leaver_views.CirrusEquipmentView.as_view(),
         name="leaver-cirrus-equipment",

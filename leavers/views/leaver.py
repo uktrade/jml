@@ -1,6 +1,6 @@
 import uuid
 from datetime import date
-from typing import Any, Dict, List, Optional, Tuple, Type, cast
+from typing import Any, Dict, List, Literal, Optional, Tuple, Type, cast
 
 from django.forms import Form
 from django.http.request import HttpRequest
@@ -244,21 +244,27 @@ class LeaverInformationMixin:
         leaving_request: LeavingRequest = leaver_info.leaving_request
 
         # Convert yes/no to boolean values.
+        has_locker = None
+        if leaver_info.has_locker is not None:
+            has_locker = bool_to_yes_no(leaver_info.has_locker)
+
         has_rosa_kit = None
         if leaving_request.is_rosa_user is not None:
             has_rosa_kit = bool_to_yes_no(leaving_request.is_rosa_user)
+
         has_gov_procurement_card = None
         if leaving_request.holds_government_procurement_card is not None:
             has_gov_procurement_card = bool_to_yes_no(
                 leaving_request.holds_government_procurement_card
             )
+
         has_dse = None
         if leaver_info.has_dse is not None:
             has_dse = bool_to_yes_no(leaver_info.has_dse)
 
         return {
             "security_clearance": leaving_request.security_clearance,
-            "has_locker": leaver_info.has_locker,
+            "has_locker": has_locker,
             "has_rosa_kit": has_rosa_kit,
             "has_gov_procurement_card": has_gov_procurement_card,
             "has_dse": has_dse,
@@ -479,7 +485,7 @@ class LeaverProgressIndicator(ProgressIndicator):
             (
                 "cirrus_equipment",
                 "Cirrus kit",
-                "leaver-cirrus-equipment",
+                "leaver-has-cirrus-equipment",
             ),
             (
                 "display_screen_equipment",
@@ -504,7 +510,7 @@ class LeaverProgressIndicator(ProgressIndicator):
 class UpdateDetailsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/update_details.html"
     form_class = leaver_forms.LeaverUpdateForm
-    success_url = reverse_lazy("leaver-cirrus-equipment")
+    success_url = reverse_lazy("leaver-has-cirrus-equipment")
 
     def __init__(self) -> None:
         super().__init__()
@@ -604,6 +610,73 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         return super().form_valid(form)
 
 
+def get_cirrus_assets(request: HttpRequest) -> List[types.CirrusAsset]:
+    user = cast(User, request.user)
+
+    staff_sso_user = ActivityStreamStaffSSOUser.objects.get(
+        email_user_id=user.sso_email_user_id
+    )
+
+    service_now_email = ServiceEmailAddress.objects.filter(
+        staff_sso_user=staff_sso_user,
+    ).first()
+    if service_now_email:
+        if "cirrus_assets" not in request.session:
+            service_now_interface = get_service_now_interface()
+            request.session["cirrus_assets"] = [
+                {
+                    "uuid": str(uuid.uuid4()),
+                    "sys_id": asset["sys_id"],
+                    "tag": asset["tag"],
+                    "name": asset["name"],
+                }
+                for asset in service_now_interface.get_assets_for_user(
+                    email=service_now_email
+                )
+            ]
+    return request.session["cirrus_assets"]
+
+
+class HasCirrusEquipmentView(LeaverInformationMixin, FormView):
+    template_name = "leaving/leaver/cirrus/has_equipment.html"
+    form_class = leaver_forms.HasCirrusKitForm
+    success_url = reverse_lazy("leaver-display-screen-equipment")
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.progress_indicator = LeaverProgressIndicator("cirrus_equipment")
+
+    def dispatch(self, request, *args, **kwargs):
+        user = cast(User, self.request.user)
+        user_email = cast(str, user.email)
+
+        self.leaver_info = self.get_leaver_information(email=user_email, requester=user)
+        user_assets = get_cirrus_assets(request=request)
+
+        if not user_assets:
+            return super().dispatch(request, *args, **kwargs)
+
+        return redirect(self.success_url)
+
+    def form_valid(self, form):
+        has_cirrus_kit: Literal["yes", "no"] = form.cleaned_data["has_cirrus_kit"]
+
+        if has_cirrus_kit == "yes":
+            self.success_url = reverse_lazy("leaver-cirrus-equipment")
+
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(
+            page_title=self.progress_indicator.get_current_step_label(),
+            progress_steps=self.progress_indicator.get_progress_steps(
+                leaver_info=self.leaver_info
+            ),
+        )
+        return context
+
+
 def delete_cirrus_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
     if "cirrus_assets" in request.session:
         for asset in request.session["cirrus_assets"]:
@@ -691,34 +764,6 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
                     context[form_name] = form
         return self.render_to_response(context)
 
-    def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        user = cast(User, self.request.user)
-
-        staff_sso_user = ActivityStreamStaffSSOUser.objects.get(
-            email_user_id=user.sso_email_user_id
-        )
-
-        service_now_email = ServiceEmailAddress.objects.filter(
-            staff_sso_user=staff_sso_user,
-        ).first()
-
-        if service_now_email:
-            if "cirrus_assets" not in request.session:
-                service_now_interface = get_service_now_interface()
-                request.session["cirrus_assets"] = [
-                    {
-                        "uuid": str(uuid.uuid4()),
-                        "sys_id": asset["sys_id"],
-                        "tag": asset["tag"],
-                        "name": asset["name"],
-                    }
-                    for asset in service_now_interface.get_assets_for_user(
-                        email=service_now_email
-                    )
-                ]
-
-        return super().get(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context.update(page_title=self.progress_indicator.get_current_step_label())
@@ -726,13 +771,12 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
         # Add form instances to the context.
         for form_name, form_class in self.forms.items():
             context[form_name] = form_class()
-        if "cirrus_assets" in self.request.session:
-            context["cirrus_assets"] = self.request.session["cirrus_assets"]
 
         context.update(
+            cirrus_assets=get_cirrus_assets(request=self.request),
             progress_steps=self.progress_indicator.get_progress_steps(
                 leaver_info=self.leaver_info
-            )
+            ),
         )
         return context
 
