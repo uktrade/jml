@@ -6,6 +6,7 @@ class LeaverDetails(TypedDict):
     last_name: str
     contact_email_address: str
     job_title: str
+    directorate: str
     staff_id: str
     # Misc.
     photo: str

@@ -118,8 +118,6 @@ class ServiceNowSendLeaverDetails(LeavingRequestTask):
         assert self.leaving_request
 
         leaver_details = get_leaver_details(leaving_request=self.leaving_request)
-
-        # email: str, requester: User, assets: List[service_now_types.AssetDetails]
         leaver_information: Optional[
             LeaverInformation
         ] = self.leaving_request.leaver_information.first()
