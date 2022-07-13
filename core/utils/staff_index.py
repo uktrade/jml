@@ -419,7 +419,7 @@ def index_all_staff() -> int:
     - API rate limits/throttling?
     - Using asyncronous tasks
     """
-    staff_documents: List[StaffDocument] = []
+    indexed_count = 0
     current_date = date.today()
     days_ago = 6 * 30
     last_accessed_datetime = current_date - timedelta(days=days_ago)
@@ -431,7 +431,8 @@ def index_all_staff() -> int:
     ):
         try:
             staff_document = build_staff_document(staff_sso_user=staff_sso_user)
-            staff_documents.append(staff_document)
+            index_staff_document(staff_document=staff_document)
+            indexed_count += 1
         except FailedToGetPersonRecord:
             logger.error(
                 f"No People Finder record could be accessed for '{staff_sso_user}'"
@@ -440,9 +441,5 @@ def index_all_staff() -> int:
             logger.exception(
                 f"Could not build index entry for '{staff_sso_user}''", exc_info=True
             )
-    indexed_count = 0
-    for staff_document in staff_documents:
-        index_staff_document(staff_document=staff_document)
-        indexed_count += 1
 
     return indexed_count
