@@ -338,6 +338,8 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     # Assuming first id is correct
     employee_number = next(iter(people_data_results["employee_numbers"]), None)
 
+    print(f"Employee number found is {employee_number}")
+
     """
     Get Service Now data
     """
@@ -356,6 +358,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
                 service_now_email_address=sso_email_record.email_address,
             )
             service_now_user_id = service_now_user["sys_id"]
+            logger.info(f"Service Now id found: {service_now_user_id}")
             break
 
     # Get Service Now Department data

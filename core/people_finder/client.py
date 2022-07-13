@@ -125,6 +125,8 @@ def get_details(sso_legacy_user_id) -> Person:
         raise FailedToGetPeopleRecords()
 
     try:
+        logger.info("People Finder response: ")
+        logger.info(response.json())
         return response.json()
     except json.decoder.JSONDecodeError:
         raise FailedToGetPersonRecord(

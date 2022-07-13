@@ -263,14 +263,12 @@ class ServiceNowInterface(ServiceNowBase):
         # Convert to a list of UserDetails /PS-IGNORE
         users_details: List[types.UserDetails] = []
         for service_now_user in service_now_users:
-            users_manager = None
-            if service_now_user["manager"]:
-                users_manager = service_now_user["manager"]
+            logger.info(f"Service Now user found '{service_now_user}'")
             user_details: types.UserDetails = {
                 "sys_id": service_now_user["sys_id"],
                 "name": service_now_user["name"],
                 "email": service_now_user["email"],
-                "manager": users_manager,
+                "manager": service_now_user.get("manager"),
             }
             users_details.append(user_details)
 
