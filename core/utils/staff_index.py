@@ -146,23 +146,34 @@ def staff_index_mapping_changed() -> bool:
 
 def index_staff_document(*, staff_document: StaffDocument):
     """
-    Add or Update a Staff document in the Staff index.
+    Delete existing StaffDocument and create a new one in the Staff index.
     """
     search_client = get_search_connection()
-    if search_client.exists(
+    existing_document: Optional[StaffDocument] = None
+    try:
+        existing_document = get_staff_document_from_staff_index(
+            sso_email_user_id=staff_document.staff_sso_email_user_id
+        )
+    except StaffDocumentNotFound:
+        pass
+
+    if existing_document:
+        search_client.delete_by_query(
+            index=STAFF_INDEX_NAME,
+            body={
+                "query": {
+                    "match_phrase": {
+                        "staff_sso_email_user_id": existing_document.staff_sso_email_user_id
+                    }
+                }
+            },
+            ignore=400,
+        )
+
+    search_client.index(
         index=STAFF_INDEX_NAME,
-        staff_sso_email_user_id=staff_document.staff_sso_email_user_id,
-    ):
-        search_client.update(
-            index=STAFF_INDEX_NAME,
-            staff_sso_email_user_id=staff_document.staff_sso_email_user_id,
-            body=staff_document.to_dict(),
-        )
-    else:
-        search_client.index(
-            index=STAFF_INDEX_NAME,
-            body=staff_document.to_dict(),
-        )
+        body=staff_document.to_dict(),
+    )
 
 
 def get_all_staff_documents() -> List[StaffDocument]:

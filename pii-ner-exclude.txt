@@ -247,6 +247,7 @@ Port Replicator
 Port Replicator'
 process.</p
 Procurement Card
+Provide a comma
 python manage.py compilescss &&
 python manage.py migrate &&
 Raises
@@ -308,6 +309,7 @@ staff_details.job_title %
 staff_id"
 STAFF_SSO_ACTIVITY_STREAM_ID
 staff_sso_legacy_id
+StaffDocument
 Start Line
 Store DSE
 StreamHandler
@@ -376,4 +378,3 @@ yet.</p
 You Email
 You Email*
 you.</p
-Provide a comma
