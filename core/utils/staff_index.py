@@ -149,10 +149,13 @@ def index_staff_document(*, staff_document: StaffDocument):
     Add or Update a Staff document in the Staff index.
     """
     search_client = get_search_connection()
-    if search_client.exists(index=STAFF_INDEX_NAME, id=staff_document.uuid):
+    if search_client.exists(
+        index=STAFF_INDEX_NAME,
+        staff_sso_email_user_id=staff_document.staff_sso_email_user_id,
+    ):
         search_client.update(
             index=STAFF_INDEX_NAME,
-            id=staff_document.uuid,
+            staff_sso_email_user_id=staff_document.staff_sso_email_user_id,
             body=staff_document.to_dict(),
         )
     else:
