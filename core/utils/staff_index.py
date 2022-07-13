@@ -409,6 +409,23 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     return staff_document
 
 
+def index_staff_by_emails(emails: List[str]) -> None:
+    for staff_sso_user in ActivityStreamStaffSSOUser.objects.filter(
+        sso_emails__email_address__in=emails,
+    ):
+        try:
+            staff_document = build_staff_document(staff_sso_user=staff_sso_user)
+            index_staff_document(staff_document=staff_document)
+        except FailedToGetPersonRecord:
+            logger.error(
+                f"No People Finder record could be accessed for '{staff_sso_user}'"
+            )
+        except Exception:
+            logger.exception(
+                f"Could not build index entry for '{staff_sso_user}''", exc_info=True
+            )
+
+
 def index_all_staff() -> int:
     """
     Index all staff to the Staff Search Index
