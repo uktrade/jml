@@ -24,6 +24,8 @@
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
 | TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL |
 0003_add_user_user_id
+0003_add_user_user_id
+0007_activitystreamstaffssouser_is_active
 0007_activitystreamstaffssouser_is_active
 0032_leavingrequest_reason_for_leaving
 100px
@@ -172,6 +174,7 @@ JML_TEAM_CONTACT_EMAIL"
 job_title"
 Joe
 Joe Bloggs
+joe.bloggs@example.com
 Joe"
 JS
 Kit
@@ -181,7 +184,6 @@ Laptop
 Leaver Email
 Leaver Final Actions Email
 Leaver Final Actions Email |  | X |  | X |  |  |  |
-leaver_activitystream_user__contact_email_address
 leaver_activitystream_user__contact_email_address
 leaver_paid_unpaid
 Leaver's Notification Form
@@ -238,6 +240,7 @@ PEOPLE_FINDER_INTERFACE
 PEOPLE_FINDER_INTERFACE                                  |                                            
 PEOPLE_FINDER_INTERFACE=core.people_finder.interfaces
 people_finder_result["email
+people_finder_result["email
 Physical Asset
 PhysicalAsset
 Port Replicator
@@ -265,7 +268,6 @@ Rosa kit</li>
 ROSA Laptop
 ROSA Line
 ROSA Mobile
-rosa_laptop_returned_task_log
 rosa_mobile_returned_task_log
 Security
 SECURITY
@@ -295,6 +297,7 @@ Software Asset
 Sound Bar'
 Sound Bar"
 Split
+SQL
 SQL
 SRE
 SRE Reminder Email
@@ -360,6 +363,7 @@ Unit of Measurement Hours
 UNUSED ATM
 Updated Contact Email
 Updated Personal Email
+User
 User
 users.</td
 viewBox="0 0 483.2

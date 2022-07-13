@@ -45,8 +45,6 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "service_now_user_id": {"type": "text"},
             "service_now_department_id": {"type": "text"},
             "service_now_department_name": {"type": "text"},
-            "service_now_directorate_id": {"type": "text"},
-            "service_now_directorate_name": {"type": "text"},
             "people_data_employee_number": {"type": "text"},
         },
     },
@@ -75,8 +73,6 @@ class StaffDocument(DataClassJsonMixin):
     service_now_user_id: str
     service_now_department_id: str
     service_now_department_name: str
-    service_now_directorate_id: str
-    service_now_directorate_name: str
     people_data_employee_number: Optional[str]
 
 
@@ -90,8 +86,6 @@ class ConsolidatedStaffDocument(TypedDict):
     email_addresses: List
     contact_phone: str
     grade: str
-    directorate: str
-    directorate_name: str
     department: str
     department_name: str
     job_title: str
@@ -299,8 +293,6 @@ def consolidate_staff_documents(
             "email_addresses": staff_document.staff_sso_email_addresses or [],
             "contact_phone": staff_document.people_finder_phone or "",
             "grade": staff_document.people_finder_grade or "",
-            "directorate": staff_document.service_now_directorate_id or "",
-            "directorate_name": staff_document.service_now_directorate_name or "",
             "department": staff_document.service_now_department_id or "",
             "department_name": staff_document.service_now_department_name or "",
             "job_title": staff_document.people_finder_job_title or "",
@@ -327,7 +319,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     Get People Finder data
     """
     people_finder_result: Union[Person, Dict[Any, Any]] = {}
-    people_finder_directorate: Optional[str] = None
     try:
         people_finder_result = people_finder.get_details(
             sso_legacy_user_id=staff_sso_user.user_id,
@@ -336,8 +327,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         logger.exception(
             f"Could not find '{staff_sso_user}' in People Finder", exc_info=True
         )
-    else:
-        people_finder_directorate = people_finder_result.get("directorate")
 
     """
     Get People report data
@@ -376,16 +365,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     )
     if len(service_now_departments) == 1:
         service_now_department_name = service_now_departments[0]["name"]
-    # Get Service Now Directorate data
-    service_now_directorate_id: str = ""
-    service_now_directorate_name: str = ""
-    if people_finder_directorate:
-        service_now_directorates = service_now_interface.get_directorates(
-            name=people_finder_directorate,
-        )
-        if len(service_now_directorates) == 1:
-            service_now_directorate_id = service_now_directorates[0]["sys_id"]
-            service_now_directorate_name = service_now_directorates[0]["name"]
 
     """
     Build Staff Document
@@ -419,8 +398,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
             "service_now_user_id": service_now_user_id,
             "service_now_department_id": service_now_department_id,
             "service_now_department_name": service_now_department_name,
-            "service_now_directorate_id": service_now_directorate_id,
-            "service_now_directorate_name": service_now_directorate_name,
             # People Data
             "people_data_employee_number": employee_number,
         }

@@ -44,8 +44,6 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
         "service_now_user_id": "",
         "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
         "service_now_department_name": "Department of International Trade",
-        "service_now_directorate_id": "",
-        "service_now_directorate_name": "",
         "people_data_employee_number": "12345",
     }
 )

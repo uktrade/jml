@@ -145,7 +145,7 @@ class LeaverInformationMixin:
             ],
             # Professional details
             "job_title": consolidated_staff_document["job_title"],
-            "directorate": consolidated_staff_document["directorate"],
+            "directorate": "",  # TODO check
             "staff_id": consolidated_staff_document["staff_id"],
             # Misc.
             "photo": consolidated_staff_document["photo"],
