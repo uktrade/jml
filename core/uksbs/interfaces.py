@@ -104,8 +104,7 @@ class UKSBSInterface(UKSBSBase):
 
     def submit_leaver_form(self, data: LeavingData) -> None:
         if not settings.PROCESS_LEAVING_REQUEST:
-            raise Exception(
-                "Leaving requests are not currently allowed to be processed, look "
-                "at the PROCESS_LEAVING_REQUEST setting for more info."
-            )
+            leaver_name = data["templateData"]["leaverEmail"]
+            logger.warning(f"Submitting leaving data to UK SBS for {leaver_name}")
+            return None
         self.client.post_leaver_form(data=data)

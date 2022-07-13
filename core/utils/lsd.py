@@ -1,6 +1,9 @@
+import logging
+
 from django.conf import settings
 from zenpy import Zenpy
-from zenpy.lib.api_objects import Ticket
+
+logger = logging.getLogger(__name__)
 
 
 def get_zendesk_client() -> Zenpy:
@@ -12,16 +15,14 @@ def get_zendesk_client() -> Zenpy:
     return Zenpy(**creds)
 
 
-def inform_lsd_team_of_leaver(leaver_name: str, leaver_email: str) -> Ticket:
+def inform_lsd_team_of_leaver(leaver_name: str, leaver_email: str):
     if not settings.PROCESS_LEAVING_REQUEST:
-        raise Exception(
-            "Leaving requests are not currently allowed to be processed, look "
-            "at the PROCESS_LEAVING_REQUEST setting for more info."
-        )
+        logger.warning(f"Creating zendesk ticket for LSD team regarding {leaver_name}")
+        return None
 
     client = get_zendesk_client()
     # Create a Zendesk Ticket /PS-IGNORE
-    ticket: Ticket = client.tickets.create(
+    client.tickets.create(
         subject=f"{leaver_name} has left DIT",
         comment=(
             f"{leaver_name} has left DIT, please deactivate the "
@@ -32,4 +33,3 @@ def inform_lsd_team_of_leaver(leaver_name: str, leaver_email: str) -> Ticket:
         status="new",
         requester=client.users.me,
     )
-    return ticket

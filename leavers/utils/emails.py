@@ -22,7 +22,7 @@ def send_leaver_thank_you_email(leaving_request: LeavingRequest):
         raise ValueError("contact_email_address is not set")
 
     notify.email(
-        email_address=leaver_as_user.contact_email_address,
+        email_addresses=[leaver_as_user.contact_email_address],
         template_id=notify.EmailTemplates.LEAVER_THANK_YOU_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -53,7 +53,7 @@ def send_csu4_leaver_email(leaving_request: LeavingRequest):
         raise ValueError("leaver_information is not set")
 
     notify.email(
-        email_address=settings.CSU4_EMAIL,
+        email_addresses=[settings.CSU4_EMAIL],
         template_id=notify.EmailTemplates.CSU4_LEAVER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -85,7 +85,7 @@ def send_ocs_leaver_email(leaving_request: LeavingRequest):
         raise ValueError("leaver_information is not set")
 
     notify.email(
-        email_address=settings.OCS_EMAIL,
+        email_addresses=[settings.OCS_EMAIL],
         template_id=notify.EmailTemplates.OCS_LEAVER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -116,7 +116,7 @@ def send_ocs_oab_locker_email(leaving_request: LeavingRequest):
         raise ValueError("leaver_information is not set")
 
     notify.email(
-        email_address=settings.OCS_OAB_LOCKER_EMAIL,
+        email_addresses=[settings.OCS_OAB_LOCKER_EMAIL],
         template_id=notify.EmailTemplates.OCS_OAB_LOCKER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -148,7 +148,7 @@ def send_rosa_leaver_reminder_email(leaving_request: LeavingRequest):
         raise ValueError("leaver_email is not set")
 
     notify.email(
-        email_address=leaver_information.leaver_email,
+        email_addresses=[leaver_information.leaver_email],
         template_id=notify.EmailTemplates.ROSA_LEAVER_REMINDER_EMAIL,
         personalisation={"leaver_name": leaving_request.get_leaver_name()},
     )
@@ -171,7 +171,7 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
         raise ValueError("contact_email_address is not set")
 
     notify.email(
-        email_address=manager_as_user.contact_email_address,
+        email_addresses=[manager_as_user.contact_email_address],
         template_id=notify.EmailTemplates.ROSA_LINE_MANAGER_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -197,7 +197,7 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
         raise ValueError("contact_email_address is not set")
 
     notify.email(
-        email_address=manager_as_user.contact_email_address,
+        email_addresses=[manager_as_user.contact_email_address],
         template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -219,7 +219,7 @@ def send_line_manager_notification_email(leaving_request: LeavingRequest):
         raise ValueError("contact_email_address is not set")
 
     notify.email(
-        email_address=manager_as_user.contact_email_address,
+        email_addresses=[manager_as_user.contact_email_address],
         template_id=notify.EmailTemplates.LINE_MANAGER_NOTIFICATION_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -244,7 +244,7 @@ def send_line_manager_reminder_email(leaving_request: LeavingRequest):
         raise ValueError("contact_email_address is not set")
 
     notify.email(
-        email_address=manager_as_user.contact_email_address,
+        email_addresses=[manager_as_user.contact_email_address],
         template_id=notify.EmailTemplates.LINE_MANAGER_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -269,7 +269,7 @@ def send_line_manager_thankyou_email(leaving_request: LeavingRequest):
         raise ValueError("contact_email_address is not set")
 
     notify.email(
-        email_address=manager_as_user.contact_email_address,
+        email_addresses=[manager_as_user.contact_email_address],
         template_id=notify.EmailTemplates.LINE_MANAGER_THANKYOU_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -294,7 +294,7 @@ def send_security_team_offboard_leaver_email(leaving_request: LeavingRequest):
         raise ValueError("leaver_information is not set")
 
     notify.email(
-        email_address=settings.SECURITY_TEAM_EMAIL,
+        email_addresses=[settings.SECURITY_TEAM_EMAIL],
         template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -322,7 +322,7 @@ def send_security_team_offboard_leaver_reminder_email(leaving_request: LeavingRe
         raise ValueError("leaver_information is not set")
 
     notify.email(
-        email_address=settings.SECURITY_TEAM_EMAIL,
+        email_addresses=[settings.SECURITY_TEAM_EMAIL],
         template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -350,7 +350,7 @@ def send_sre_reminder_email(leaving_request: LeavingRequest):
         raise ValueError("leaver_information is not set")
 
     notify.email(
-        email_address=settings.SRE_EMAIL,
+        email_addresses=[settings.SRE_EMAIL],
         template_id=notify.EmailTemplates.SRE_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
