@@ -202,13 +202,13 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
 # A list of emails that skip the PROCESS_LEAVING_REQUEST check.
 # (Should not contain any emails to data processors)
 LEAVING_REQUEST_PROGRESS_EMAILS: List[str] = [
-    EmailIds.LEAVER_THANK_YOU_EMAIL,
-    EmailIds.LEAVER_ROSA_REMINDER,
-    EmailIds.LINE_MANAGER_ROSA_REMINDER,
-    EmailIds.LINE_MANAGER_CORRECTION,
-    EmailIds.LINE_MANAGER_NOTIFICATION,
-    EmailIds.LINE_MANAGER_REMINDER,
-    EmailIds.LINE_MANAGER_THANKYOU,
+    EmailIds.LEAVER_THANK_YOU_EMAIL.value,
+    EmailIds.LEAVER_ROSA_REMINDER.value,
+    EmailIds.LINE_MANAGER_ROSA_REMINDER.value,
+    EmailIds.LINE_MANAGER_CORRECTION.value,
+    EmailIds.LINE_MANAGER_NOTIFICATION.value,
+    EmailIds.LINE_MANAGER_REMINDER.value,
+    EmailIds.LINE_MANAGER_THANKYOU.value,
 ]
 
 

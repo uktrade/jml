@@ -73,7 +73,7 @@ class ServiceNowStubbed(ServiceNowBase):
 
     def get_assets_for_user(self, email: str) -> List[types.AssetDetails]:
         logger.info("Getting assets for a user")
-        assets = []
+        assets: List[types.AssetDetails] = []
 
         asset_count = choice([0, 1, 2])
 

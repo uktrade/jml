@@ -12,7 +12,7 @@ YESTERDAY = timezone.now() - timezone.timedelta(days=1)
 ONE_WEEK_FROM_NOW = TODAY + timezone.timedelta(days=7)
 
 FAKE_PERSON_DATA: PersonData = {
-    "person_id": "666",
+    "person_id": 666,
     "username": "fake_user_1",
     "full_name": "Fake User",
     "first_name": "Fake",

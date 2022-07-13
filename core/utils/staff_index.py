@@ -282,6 +282,7 @@ def consolidate_staff_documents(
         consolidated_staff_document: ConsolidatedStaffDocument = {
             "uuid": staff_document.uuid,
             "staff_sso_activity_stream_id": staff_document.staff_sso_activity_stream_id,
+            "staff_sso_email_user_id": staff_document.staff_sso_email_user_id,
             "first_name": staff_document.staff_sso_first_name
             or staff_document.people_finder_first_name
             or "",

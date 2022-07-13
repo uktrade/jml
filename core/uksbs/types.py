@@ -57,6 +57,7 @@ class TemplateData(TypedDict):
     directReports: List[DirectReport]
 
     # Payroll Details
+    leaverPaidUnpaid: str
     annualLeaveUom: Literal["days", "hours"]
     annualLeavePaidOrDeducted: Literal["paid", "deducted"]
     annualLeaveDaysPaid: int
@@ -72,7 +73,6 @@ class TemplateData(TypedDict):
     leaverEmail: str
     leaverOracleID: str
     leaverEmployeeNumber: str
-    leaverPaidUnpaid: str
     leaverReasonForLeaving: str
     leaverLastDay: str
 

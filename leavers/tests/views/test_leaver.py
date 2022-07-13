@@ -189,7 +189,7 @@ class TestLeaverInformationMixin(TestCase):
 
     def store_leaver_detail_updates_no_changes(self, mock_get_search_results) -> None:
         LeaverInformationMixin().store_leaver_detail_updates(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
             updates={},
         )
@@ -202,7 +202,7 @@ class TestLeaverInformationMixin(TestCase):
 
     def store_leaver_detail_updates_some_changes(self, mock_get_search_results) -> None:
         LeaverInformationMixin().store_leaver_detail_updates(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
             updates={"first_name": "Joey"},  # /PS-IGNORE
         )

@@ -128,5 +128,5 @@ def get_details(sso_legacy_user_id) -> Person:
         return response.json()
     except json.decoder.JSONDecodeError:
         raise FailedToGetPersonRecord(
-            f"Could not parse JSON, response content: {response.content}",
+            f"Could not parse JSON, response content: {str(response.content)}",
         )

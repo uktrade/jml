@@ -18,8 +18,11 @@ def send_leaver_thank_you_email(leaving_request: LeavingRequest):
         leaving_request.leaver_activitystream_user
     )
 
+    if not leaver_as_user.contact_email_address:
+        raise ValueError("contact_email_address is not set")
+
     notify.email(
-        email_address=leaver_as_user.email_address,
+        email_address=leaver_as_user.contact_email_address,
         template_id=notify.EmailTemplates.LEAVER_THANK_YOU_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -141,6 +144,9 @@ def send_rosa_leaver_reminder_email(leaving_request: LeavingRequest):
     if not leaver_information:
         raise ValueError("leaver_information is not set")
 
+    if not leaver_information.leaver_email:
+        raise ValueError("leaver_email is not set")
+
     notify.email(
         email_address=leaver_information.leaver_email,
         template_id=notify.EmailTemplates.ROSA_LEAVER_REMINDER_EMAIL,
@@ -160,6 +166,9 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
     manager_as_user: ActivityStreamStaffSSOUser = (
         leaving_request.manager_activitystream_user
     )
+
+    if not manager_as_user.contact_email_address:
+        raise ValueError("contact_email_address is not set")
 
     notify.email(
         email_address=manager_as_user.contact_email_address,
@@ -184,6 +193,9 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
         leaving_request.manager_activitystream_user
     )
 
+    if not manager_as_user.contact_email_address:
+        raise ValueError("contact_email_address is not set")
+
     notify.email(
         email_address=manager_as_user.contact_email_address,
         template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
@@ -202,6 +214,9 @@ def send_line_manager_notification_email(leaving_request: LeavingRequest):
     manager_as_user: ActivityStreamStaffSSOUser = (
         leaving_request.manager_activitystream_user
     )
+
+    if not manager_as_user.contact_email_address:
+        raise ValueError("contact_email_address is not set")
 
     notify.email(
         email_address=manager_as_user.contact_email_address,
@@ -225,6 +240,9 @@ def send_line_manager_reminder_email(leaving_request: LeavingRequest):
         leaving_request.manager_activitystream_user
     )
 
+    if not manager_as_user.contact_email_address:
+        raise ValueError("contact_email_address is not set")
+
     notify.email(
         email_address=manager_as_user.contact_email_address,
         template_id=notify.EmailTemplates.LINE_MANAGER_REMINDER_EMAIL,
@@ -246,6 +264,9 @@ def send_line_manager_thankyou_email(leaving_request: LeavingRequest):
     manager_as_user: ActivityStreamStaffSSOUser = (
         leaving_request.manager_activitystream_user
     )
+
+    if not manager_as_user.contact_email_address:
+        raise ValueError("contact_email_address is not set")
 
     notify.email(
         email_address=manager_as_user.contact_email_address,
