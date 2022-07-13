@@ -53,6 +53,7 @@ channel_id
 checkbox
 Cirrus
 Cirrus Equipment
+Civil Servant
 Civil Servants
 class="govuk-button__start
 class="incomplete">To Do</span
@@ -161,10 +162,13 @@ href="https://www.nationalarchives.gov.uk
 HSTS
 https://fake-uksbs.domain/hierarchy-api/1.0
 IE
+ill health</li>
+include:</p
 INDEX_CURRENT_USER_MIDDLEWARE                            
 INFO
 information</h1
 Jira
+JML_TEAM_CONTACT_EMAIL"
 job_title"
 Joe
 Joe Bloggs
@@ -182,6 +186,7 @@ leaver_activitystream_user__contact_email_address
 leaver_paid_unpaid
 Leaver's Notification Form
 leaverLastDay
+Leavers and Line Managers
 LeaversWorkflow
 Leaving Request
 leaving_request.holds_government_procurement_card
@@ -237,6 +242,7 @@ Physical Asset
 PhysicalAsset
 Port Replicator
 Port Replicator'
+process.</p
 Procurement Card
 python manage.py compilescss &&
 python manage.py migrate &&
@@ -254,6 +260,7 @@ ROSA Access Revoked
 ROSA Kit
 ROSA Kit retrieved</h1
 ROSA kit.</p
+Rosa kit</li
 Rosa kit</li>
 ROSA Laptop
 ROSA Line

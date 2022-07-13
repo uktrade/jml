@@ -5,6 +5,7 @@ from django.urls import include, path
 from core.utils.urls import decorate_urlpatterns
 
 private_urlpatterns = [
+    path("", include("core.landing_pages.urls")),
     path("admin/", admin.site.urls),
     path("assets/", include("asset_registry.urls")),
     path("leavers/", include("leavers.urls")),

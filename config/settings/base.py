@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "user",
     "core",
     "core.cookies",
+    "core.landing_pages",
     "core.health_check.apps.HealthCheckConfig",
     "core.staff_search",
     "activity_stream",
@@ -406,3 +407,5 @@ DJANGO_HAWK = {
 
 # Process leaving requests
 PROCESS_LEAVING_REQUEST = env.bool("PROCESS_LEAVING_REQUEST", default=True)
+
+JML_TEAM_CONTACT_EMAIL = env("JML_TEAM_CONTACT_EMAIL", default="")
