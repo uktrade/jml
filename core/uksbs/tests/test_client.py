@@ -6,6 +6,7 @@ from core.uksbs.client import UKSBSClient, UKSBSPersonNotFound
 from core.uksbs.types import LeavingData, PersonData
 from core.uksbs.utils import build_leaving_data_from_leaving_request
 from leavers.factories import LeavingRequestFactory
+from leavers.forms.line_manager import ReasonForleaving
 
 TODAY = timezone.now()
 YESTERDAY = timezone.now() - timezone.timedelta(days=1)
@@ -123,7 +124,11 @@ class TestUKSBSClient(TestCase):
 
     @responses.activate
     def test_post_leaver_form(self):
-        leaving_request = LeavingRequestFactory()
+        leaving_request = LeavingRequestFactory(
+            leaving_date=timezone.now(),
+            last_day=timezone.now(),
+            reason_for_leaving=ReasonForleaving.RESIGNATION.value,
+        )
         leaver = leaving_request.leaver_activitystream_user
         manager = leaving_request.manager_activitystream_user
         manager_person_data = FAKE_PERSON_DATA.copy()
