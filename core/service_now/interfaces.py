@@ -267,7 +267,7 @@ class ServiceNowInterface(ServiceNowBase):
             user_details: types.UserDetails = {
                 "sys_id": service_now_user["sys_id"],
                 "name": service_now_user["name"],
-                "email": service_now_user["email"],
+                "email": str(service_now_user["email"]).lower(),
                 "manager": service_now_user.get("manager"),
             }
             users_details.append(user_details)
