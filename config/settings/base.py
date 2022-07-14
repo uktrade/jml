@@ -263,9 +263,6 @@ else:
     AUTHENTICATION_BACKENDS.append("user.backends.CustomAuthbrokerBackend")
     MIDDLEWARE.append("authbroker_client.middleware.ProtectAllViewsMiddleware")
 
-# Google Tag Manager
-GOOGLE_TAG_MANAGER = env("GOOGLE_TAG_MANAGER", default=None)
-
 # Slack
 SLACK_API_TOKEN = env("SLACK_API_TOKEN", default=None)
 SLACK_SRE_CHANNEL_ID = env("SLACK_SRE_CHANNEL_ID", default=None)

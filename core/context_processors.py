@@ -14,8 +14,8 @@ def global_context(request):
 
     global_context = {
         "SERVICE_NAME": "Leaving DIT",
-        "GOOGLE_TAG_MANAGER": settings.GOOGLE_TAG_MANAGER,
         "COOKIE_RESPONSE": request.COOKIES.get("cookie_banner_response"),
+        "GTM_CODE": settings.GTM_CODE,
         "DEV_LINKS": [],
     }
 
