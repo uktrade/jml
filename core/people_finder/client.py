@@ -63,7 +63,7 @@ class PeopleFinderIterator(Iterator):
         self.current_index += 1
         return value
 
-    def get_next_item(self):
+    def get_next_item(self) -> Person:
         # If there are no items in the object, stop the iteration.
         if len(self.items) == 0:
             raise StopIteration
