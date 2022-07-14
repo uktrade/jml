@@ -27,14 +27,14 @@ def global_context(request):
             )
         )
 
-    global_context["DEV_LINKS"].append(
-        (
-            "Leaving Requests",
-            reverse("flow-list"),
-        )
-    )
-
     if request.user.is_authenticated:
+        if request.user.is_staff:
+            global_context["DEV_LINKS"].append(
+                (
+                    "Leaving Requests",
+                    reverse("flow-list"),
+                )
+            )
         user_group_names: List[str] = [g.name for g in request.user.groups.all()]
         if "SRE" in user_group_names:
             global_context["DEV_LINKS"].append(

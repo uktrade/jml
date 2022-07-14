@@ -11,12 +11,7 @@ class LeaverBaseView(UserPassesTestMixin):
     page_title: str = "Leaving Flow"
 
     def test_func(self):
-        return self.request.user.groups.filter(
-            name__in=(
-                "SRE",
-                "Security Team",
-            ),
-        ).first()
+        return self.request.user.is_staff
 
     def get_page_title(self) -> str:
         return self.page_title
