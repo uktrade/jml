@@ -171,23 +171,23 @@ class LeaverUpdateForm(GovFormattedForm):
             Fieldset(
                 HTML(
                     "<p class='govuk-body'>This is the last day you will be "
-                    "employed by the department and the last day you will "
-                    "be paid for.</p>"
-                ),
-                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
-                Field("leaving_date"),
-                legend="Leaving date",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                HTML(
-                    "<p class='govuk-body'>This is the last day you will be "
                     "working at DIT. After this date you will no longer have "
                     "access to any DIT provided systems and buildings.</p>"
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("last_day"),
                 legend="Last working day",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                HTML(
+                    "<p class='govuk-body'>This is the last day you will be "
+                    "employed by the department and the last day you will "
+                    "be paid for.</p>"
+                ),
+                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
+                Field("leaving_date"),
+                legend="Leaving date",
                 legend_size=Size.MEDIUM,
             ),
             Submit("submit", "Save and continue"),
