@@ -83,6 +83,8 @@ CTC
 Dashboard</a>
 Data
 date_of_birth
+date_of_birth_0"
+date_of_birth_2
 Days"
 DB
 Department 1

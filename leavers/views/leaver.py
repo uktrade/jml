@@ -247,6 +247,7 @@ class LeaverInformationMixin:
 
         return {
             "security_clearance": leaving_request.security_clearance,
+            "date_of_birth": leaver_info.leaver_date_of_birth,
             "has_locker": has_locker,
             "has_rosa_kit": has_rosa_kit,
             "has_gov_procurement_card": has_gov_procurement_card,
@@ -263,6 +264,7 @@ class LeaverInformationMixin:
         self,
         sso_email_user_id: str,
         requester: User,
+        date_of_birth: date,
         security_clearance: str,
         has_locker: bool,
         has_gov_procurement_card: bool,
@@ -299,6 +301,7 @@ class LeaverInformationMixin:
             ]
         )
 
+        leaver_info.leaver_date_of_birth = date_of_birth
         leaver_info.has_locker = has_locker
         leaver_info.has_dse = has_dse
         leaver_info.contact_phone = contact_phone
@@ -308,6 +311,7 @@ class LeaverInformationMixin:
         leaver_info.contact_address_postcode = contact_address_postcode
         leaver_info.save(
             update_fields=[
+                "leaver_date_of_birth",
                 "has_locker",
                 "has_dse",
                 "contact_phone",
@@ -622,6 +626,7 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         self.store_leaver_extra_details(
             sso_email_user_id=sso_email_user_id,
             requester=user,
+            date_of_birth=form.cleaned_data["date_of_birth"],
             security_clearance=form.cleaned_data["security_clearance"],
             has_locker=bool(form.cleaned_data["has_locker"] == "yes"),
             has_gov_procurement_card=bool(

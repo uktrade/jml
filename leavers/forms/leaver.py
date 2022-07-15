@@ -39,6 +39,7 @@ class LeaverUpdateForm(GovFormattedForm):
     # Personal details
     first_name = forms.CharField(label="")
     last_name = forms.CharField(label="")
+    date_of_birth = DateInputField(label="")
     contact_email_address = forms.EmailField(label="")
     contact_phone = forms.CharField(label="")
     contact_address_line1 = forms.CharField(label="Address line 1")
@@ -97,6 +98,22 @@ class LeaverUpdateForm(GovFormattedForm):
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
+                Field("security_clearance"),
+                legend="Security clearance type",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                HTML(
+                    "<p class='govuk-body'>In order to correctly identify "
+                    "you, the administrators of security clearance "
+                    "require your date of birth.</p>"
+                ),
+                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
+                Field("date_of_birth"),
+                legend="Date of birth",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
                 Field("directorate"),
                 legend="Directorate",
                 legend_size=Size.MEDIUM,
@@ -123,11 +140,6 @@ class LeaverUpdateForm(GovFormattedForm):
                 Field("contact_address_town"),
                 Field("contact_address_postcode"),
                 legend="Contact address",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                Field("security_clearance"),
-                legend="Security clearance type",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
