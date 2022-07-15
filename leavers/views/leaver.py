@@ -21,11 +21,8 @@ from core.utils.helpers import bool_to_yes_no
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
     StaffDocument,
-    StaffDocumentNotFound,
-    build_staff_document,
     consolidate_staff_documents,
     get_staff_document_from_staff_index,
-    index_staff_document,
 )
 from leavers import types
 from leavers.forms import leaver as leaver_forms
@@ -115,23 +112,9 @@ class LeaverInformationMixin:
         Get the Leaver details from Index
         Raises an exception if Index doesn't have a record.
         """
-
-        leaver_activity_stream_user = self.get_leaver_activitystream_user(
-            sso_email_user_id=sso_email_user_id,
+        staff_document = get_staff_document_from_staff_index(
+            sso_email_user_id=sso_email_user_id
         )
-
-        # TODO: Discuss - I don't think we should be buiding the document here. This
-        # will increase the User's request and risks timeouts.
-        try:
-            staff_document = get_staff_document_from_staff_index(
-                sso_email_user_id=sso_email_user_id
-            )
-        except StaffDocumentNotFound:
-            # Index ActivityStream object
-            staff_document = build_staff_document(
-                staff_sso_user=leaver_activity_stream_user
-            )
-            index_staff_document(staff_document=staff_document)
 
         consolidated_staff_document = consolidate_staff_documents(
             staff_documents=[staff_document]
@@ -145,7 +128,7 @@ class LeaverInformationMixin:
             ],
             # Professional details
             "job_title": consolidated_staff_document["job_title"],
-            "directorate": consolidated_staff_document["directorate"],
+            "directorate": "",
             "staff_id": consolidated_staff_document["staff_id"],
             # Misc.
             "photo": consolidated_staff_document["photo"],
@@ -555,6 +538,9 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
         leaving_request = self.get_leaving_request(
             sso_email_user_id=sso_email_user_id, requester=user
@@ -568,6 +554,9 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
 
     def get_initial(self) -> Dict[str, Any]:
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
 
         initial = super().get_initial()
@@ -593,6 +582,9 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
         context = super().get_context_data(**kwargs)
         context.update(page_title=self.progress_indicator.get_current_step_label())
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
 
         display_leaver_details = self.get_leaver_details_with_updates_for_display(
@@ -612,6 +604,9 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
 
     def form_valid(self, form) -> HttpResponse:
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
         updates: types.LeaverDetailUpdates = {
             "first_name": form.cleaned_data["first_name"],
@@ -657,7 +652,9 @@ def get_cirrus_assets(request: HttpRequest) -> List[types.CirrusAsset]:
         email_user_id=user.sso_email_user_id
     )
 
-    service_now_email = ServiceEmailAddress.objects.filter(
+    service_now_email: Optional[
+        ServiceEmailAddress
+    ] = ServiceEmailAddress.objects.filter(
         staff_sso_user=staff_sso_user,
     ).first()
     if service_now_email:
@@ -671,7 +668,7 @@ def get_cirrus_assets(request: HttpRequest) -> List[types.CirrusAsset]:
                     "name": asset["name"],
                 }
                 for asset in service_now_interface.get_assets_for_user(
-                    email=service_now_email
+                    email=service_now_email.service_now_email_address,
                 )
             ]
     return request.session.get("cirrus_assets", [])
@@ -688,6 +685,8 @@ class HasCirrusEquipmentView(LeaverInformationMixin, FormView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
 
         sso_email_user_id = user.sso_email_user_id
         self.leaver_info = self.get_leaver_information(
@@ -834,6 +833,9 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
@@ -849,6 +851,9 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
 
     def form_valid(self, form):
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
 
         self.store_return_option(
@@ -881,6 +886,9 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
@@ -970,6 +978,9 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
 
         self.leaver_info = self.get_leaver_information(
@@ -1000,6 +1011,9 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
 
     def post_submission_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
 
         # Store dse assets into the leaver details
@@ -1060,6 +1074,9 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
 
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
@@ -1106,6 +1123,9 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
 
         context.update(
@@ -1153,6 +1173,9 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         Check we have all the required information before we continue.
         """
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
 
         # Check if a manager has been selected.
@@ -1178,6 +1201,9 @@ class RequestReceivedView(LeaverInformationMixin, TemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
         sso_email_user_id = user.sso_email_user_id
 
         context = super().get_context_data(**kwargs)

@@ -1,5 +1,6 @@
 import uuid
 from datetime import timedelta
+from typing import Any, Dict, List
 
 import factory
 import factory.fuzzy
@@ -22,7 +23,7 @@ class LeavingRequestFactory(DjangoModelFactory):
     data_recipient_activitystream_user = factory.SubFactory(
         ActivityStreamStaffSSOUserFactory
     )
-    line_reports = []
+    line_reports: List[Dict[str, Any]] = []
 
 
 class SlackMessageFactory(DjangoModelFactory):

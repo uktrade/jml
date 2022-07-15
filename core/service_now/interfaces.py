@@ -73,7 +73,7 @@ class ServiceNowStubbed(ServiceNowBase):
 
     def get_assets_for_user(self, email: str) -> List[types.AssetDetails]:
         logger.info("Getting assets for a user")
-        assets = []
+        assets: List[types.AssetDetails] = []
 
         asset_count = choice([0, 1, 2])
 
@@ -263,14 +263,12 @@ class ServiceNowInterface(ServiceNowBase):
         # Convert to a list of UserDetails /PS-IGNORE
         users_details: List[types.UserDetails] = []
         for service_now_user in service_now_users:
-            users_manager = None
-            if service_now_user["manager"]:
-                users_manager = service_now_user["manager"]
+            logger.info(f"Service Now user found '{service_now_user}'")
             user_details: types.UserDetails = {
                 "sys_id": service_now_user["sys_id"],
                 "name": service_now_user["name"],
-                "email": service_now_user["email"],
-                "manager": users_manager,
+                "email": str(service_now_user["email"]).lower(),
+                "manager": service_now_user.get("manager"),
             }
             users_details.append(user_details)
 
@@ -361,10 +359,9 @@ class ServiceNowInterface(ServiceNowBase):
         assets: List[types.AssetDetails],
     ):
         if not settings.PROCESS_LEAVING_REQUEST:
-            raise Exception(
-                "Leaving requests are not currently allowed to be processed, look "
-                "at the PROCESS_LEAVING_REQUEST setting for more info."
-            )
+            full_name = leaver_details["first_name"] + " " + leaver_details["last_name"]
+            logger.warning(f"Submitting leaver request to Service Now for {full_name}")
+            return None
 
         # Convert Request Data to what the Service Now API expects
         assets_confirmation = bool_to_yes_no(leaver_info.information_is_correct).title()

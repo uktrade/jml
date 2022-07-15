@@ -73,7 +73,7 @@ class LeaverUpdateForm(GovFormattedForm):
         if not service_now_directorates:
             raise Exception("No directorates returned from Service Now")
 
-        self.fields["directorate"].choices = [
+        self.fields["directorate"].choices = [(None, "Select your directorate")] + [
             (directorate["sys_id"], directorate["name"])
             for directorate in service_now_directorates
         ]
@@ -93,6 +93,11 @@ class LeaverUpdateForm(GovFormattedForm):
             Fieldset(
                 Field("job_title"),
                 legend="Job title",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field("directorate"),
+                legend="Directorate",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
@@ -186,12 +191,6 @@ class LeaverUpdateForm(GovFormattedForm):
                 legend_size=Size.MEDIUM,
             ),
             Submit("submit", "Save and continue"),
-            # TO DELETE?
-            Fieldset(
-                Field("directorate"),
-                legend="Directorate",
-                legend_size=Size.MEDIUM,
-            ),
         )
 
 

@@ -242,7 +242,7 @@ class LineReportConfirmationForm(GovFormattedForm):
             Submit("submit", "Confirm and send"),
         )
 
-    def clean(self) -> Optional[Dict[str, Any]]:
+    def clean(self) -> Dict[str, Any]:
         # Check that all line reports have a line manager selected.
         line_reports = self.leaving_request.line_reports
         for line_report in line_reports:

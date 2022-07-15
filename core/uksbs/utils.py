@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import List, Literal, Optional, TypedDict, cast
 
 from django.utils import timezone
 
@@ -20,7 +20,20 @@ from leavers.forms.line_manager import (
 from leavers.models import LeavingRequest
 
 
-def get_leave_details(*, leaving_request: LeavingRequest) -> Dict[str, int]:
+class LeaveDetails(TypedDict):
+    leaverPaidUnpaid: str
+    annualLeaveUom: Literal["days", "hours"]
+    annualLeavePaidOrDeducted: Literal["paid", "deducted"]
+    annualLeaveDaysPaid: int
+    annualLeaveHoursPaid: int
+    annualLeaveDaysDeducted: int
+    annualLeaveHoursDeducted: int
+    flexiPaidOrDeducted: Literal["paid", "deducted"]
+    flexiHoursPaid: int
+    flexiHoursDeducted: int
+
+
+def get_leave_details(*, leaving_request: LeavingRequest) -> LeaveDetails:
     annual_leave_days_paid: int = 0
     annual_leave_hours_paid: int = 0
     annual_leave_days_deducted: int = 0
@@ -28,11 +41,13 @@ def get_leave_details(*, leaving_request: LeavingRequest) -> Dict[str, int]:
     flexi_hours_paid: int = 0
     flexi_hours_deducted: int = 0
 
-    leaver_paid_unpaid = leaving_request.leaver_paid_unpaid
+    leaver_paid_unpaid = cast(str, leaving_request.leaver_paid_unpaid)
 
     # ANNUAL LEAVE
-    annual_leave_uom = leaving_request.annual_leave
-    annual_leave_paid_or_deducted = leaving_request.annual_leave_measurement
+    annual_leave_uom = cast(Literal["days", "hours"], leaving_request.annual_leave)
+    annual_leave_paid_or_deducted = cast(
+        Literal["paid", "deducted"], leaving_request.annual_leave_measurement
+    )
     annual_leave_paid: bool = (
         annual_leave_paid_or_deducted == AnnualLeavePaidOrDeducted.PAID.value
     )
@@ -40,24 +55,29 @@ def get_leave_details(*, leaving_request: LeavingRequest) -> Dict[str, int]:
         annual_leave_paid_or_deducted == AnnualLeavePaidOrDeducted.DEDUCTED.value
     )
 
+    annual_number = cast(int, leaving_request.annual_number)
+
     if annual_leave_uom == DaysHours.DAYS.value:
         if annual_leave_paid:
-            annual_leave_days_paid = leaving_request.annual_number
+            annual_leave_days_paid = annual_number
         elif annual_leave_deducted:
-            annual_leave_days_deducted = leaving_request.annual_number
+            annual_leave_days_deducted = annual_number
     elif annual_leave_uom == DaysHours.HOURS.value:
         if annual_leave_paid:
-            annual_leave_hours_paid = leaving_request.annual_number
+            annual_leave_hours_paid = annual_number
         elif annual_leave_deducted:
-            annual_leave_hours_deducted = leaving_request.annual_number
+            annual_leave_hours_deducted = annual_number
 
     # FLEXI LEAVE
-    flexi_paid_or_deducted = leaving_request.flexi_leave
+    flexi_paid_or_deducted = cast(
+        Literal["paid", "deducted"], leaving_request.flexi_leave
+    )
+    flexi_number = cast(int, leaving_request.flexi_number)
 
     if flexi_paid_or_deducted == FlexiLeavePaidOrDeducted.PAID.value:
-        flexi_hours_paid = leaving_request.flexi_number
+        flexi_hours_paid = flexi_number
     elif flexi_paid_or_deducted == FlexiLeavePaidOrDeducted.DEDUCTED.value:
-        flexi_hours_deducted = leaving_request.flexi_number
+        flexi_hours_deducted = flexi_number
 
     return {
         "leaverPaidUnpaid": leaver_paid_unpaid,
@@ -77,6 +97,12 @@ def build_leaving_data_from_leaving_request(
     *, leaving_request: LeavingRequest
 ) -> LeavingData:
     uksbs_interface = get_uksbs_interface()
+
+    assert leaving_request.leaver_activitystream_user
+    assert leaving_request.manager_activitystream_user
+    assert leaving_request.leaving_date
+    assert leaving_request.last_day
+    assert leaving_request.reason_for_leaving
 
     leaver_as: ActivityStreamStaffSSOUser = leaving_request.leaver_activitystream_user
     manager_as: ActivityStreamStaffSSOUser = leaving_request.manager_activitystream_user
@@ -137,7 +163,7 @@ def build_leaving_data_from_leaving_request(
             "Email": line_report["email"],
             "NewManager": line_report["line_manager"]["name"],
             "NewManagerEmail": line_report["line_manager"]["email"],
-            "Effectivedate": leaving_request.leaving_date,
+            "Effectivedate": leaving_request.leaving_date.strftime("%d/%m/%Y %H:%M"),
         }
         if line_report["new_line_report"]:
             additional_direct_reports.append(direct_report)
@@ -148,14 +174,23 @@ def build_leaving_data_from_leaving_request(
         "additionalDirectReports": additional_direct_reports,
         "directReports": direct_reports,
         # Payroll Details
-        **leave_details,
+        "leaverPaidUnpaid": leave_details["leaverPaidUnpaid"],
+        "annualLeavePaidOrDeducted": leave_details["annualLeavePaidOrDeducted"],
+        "annualLeaveUom": leave_details["annualLeaveUom"],
+        "annualLeaveDaysPaid": leave_details["annualLeaveDaysPaid"],
+        "annualLeaveHoursPaid": leave_details["annualLeaveHoursPaid"],
+        "annualLeaveDaysDeducted": leave_details["annualLeaveDaysDeducted"],
+        "annualLeaveHoursDeducted": leave_details["annualLeaveHoursDeducted"],
+        "flexiPaidOrDeducted": leave_details["flexiPaidOrDeducted"],
+        "flexiHoursPaid": leave_details["flexiHoursPaid"],
+        "flexiHoursDeducted": leave_details["flexiHoursDeducted"],
         # Leaver Details
         "leaverName": leaver_full_name,
         "leaverEmail": uksbs_leaver["email_address"],
-        "leaverOracleID": uksbs_leaver["person_id"],
+        "leaverOracleID": str(uksbs_leaver["person_id"]),
         "leaverEmployeeNumber": uksbs_leaver["employee_number"],
         "leaverReasonForLeaving": leaving_request.reason_for_leaving,
-        "leaverLastDay": leaving_request.last_day,
+        "leaverLastDay": leaving_request.last_day.strftime("%d/%m/%Y %H:%M"),
         # Leaver Correspondance Details
         "newCorrEmail": "",
         "newCorrAddressLine1": "",
@@ -167,11 +202,11 @@ def build_leaving_data_from_leaving_request(
         # Submitter Details
         "submitterName": uksbs_leaver_manager["full_name"],
         "submitterEmail": uksbs_leaver_manager["email_address"],
-        "submitterOracleID": uksbs_leaver_manager["person_id"],
+        "submitterOracleID": str(uksbs_leaver_manager["person_id"]),
         "submitterDate": timezone.now().strftime("%d/%m/%Y %H:%M"),
         "submitterSelectedLineManager": uksbs_leaver_manager["full_name"],
         "submitterSelectedLineManagerEmail": uksbs_leaver_manager["email_address"],
-        "submitterSelectedLineManagerOracleID": uksbs_leaver_manager["person_id"],
+        "submitterSelectedLineManagerOracleID": str(uksbs_leaver_manager["person_id"]),
         "submitterSelectedLineManagerEmployeeNumber": uksbs_leaver_manager[
             "employee_number"
         ],

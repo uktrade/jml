@@ -13,12 +13,6 @@ class FailedToSendSREAlertMessage(Exception):
 def send_sre_alert_message(*, leaving_request: LeavingRequest) -> SlackResponse:
     assert leaving_request.leaving_date
 
-    if not settings.PROCESS_LEAVING_REQUEST:
-        raise Exception(
-            "Leaving requests are not currently allowed to be processed, look "
-            "at the PROCESS_LEAVING_REQUEST setting for more info."
-        )
-
     if not settings.SLACK_SRE_CHANNEL_ID:
         raise FailedToSendSREAlertMessage("SLACK_SRE_CHANNEL_ID is not set")
 
@@ -60,12 +54,6 @@ class FailedToSendSRECompleteMessage(Exception):
 def send_sre_complete_message(
     *, thread_ts: str, leaving_request: LeavingRequest
 ) -> SlackResponse:
-
-    if not settings.PROCESS_LEAVING_REQUEST:
-        raise Exception(
-            "Leaving requests are not currently allowed to be processed, look "
-            "at the PROCESS_LEAVING_REQUEST setting for more info."
-        )
 
     if not settings.SLACK_SRE_CHANNEL_ID:
         raise FailedToSendSRECompleteMessage("SLACK_SRE_CHANNEL_ID is not set")

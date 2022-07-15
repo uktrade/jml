@@ -118,8 +118,6 @@ class ServiceNowSendLeaverDetails(LeavingRequestTask):
         assert self.leaving_request
 
         leaver_details = get_leaver_details(leaving_request=self.leaving_request)
-
-        # email: str, requester: User, assets: List[service_now_types.AssetDetails]
         leaver_information: Optional[
             LeaverInformation
         ] = self.leaving_request.leaver_information.first()
@@ -199,18 +197,6 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.OCS_OAB_LOCKER_EMAIL: send_ocs_oab_locker_email,
 }
 
-# A list of emails that skip the PROCESS_LEAVING_REQUEST check.
-# (Should not contain any emails to data processors)
-LEAVING_REQUEST_PROGRESS_EMAILS: List[str] = [
-    EmailIds.LEAVER_THANK_YOU_EMAIL,
-    EmailIds.LEAVER_ROSA_REMINDER,
-    EmailIds.LINE_MANAGER_ROSA_REMINDER,
-    EmailIds.LINE_MANAGER_CORRECTION,
-    EmailIds.LINE_MANAGER_NOTIFICATION,
-    EmailIds.LINE_MANAGER_REMINDER,
-    EmailIds.LINE_MANAGER_THANKYOU,
-]
-
 
 class EmailTask(LeavingRequestTask):
     abstract = True
@@ -232,13 +218,6 @@ class EmailTask(LeavingRequestTask):
 
     def execute(self, task_info):
         email_id: EmailIds = EmailIds(task_info["email_id"])
-
-        if not settings.PROCESS_LEAVING_REQUEST:
-            if email_id not in LEAVING_REQUEST_PROGRESS_EMAILS:
-                raise Exception(
-                    "Leaving requests are not currently allowed to be processed, look "
-                    "at the PROCESS_LEAVING_REQUEST setting for more info."
-                )
 
         send_email_method: Optional[Callable] = EMAIL_MAPPING.get(email_id, None)
 

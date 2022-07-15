@@ -1,6 +1,7 @@
 import logging
 import uuid
 from dataclasses import dataclass
+from datetime import date, timedelta
 from typing import Any, Dict, List, Mapping, Optional, TypedDict, Union
 
 from dataclasses_json import DataClassJsonMixin
@@ -11,6 +12,7 @@ from opensearchpy import OpenSearch
 from opensearchpy.exceptions import NotFoundError
 
 from activity_stream.models import ActivityStreamStaffSSOUser, ServiceEmailAddress
+from core.people_finder.client import FailedToGetPersonRecord
 from core.people_finder.interfaces import PeopleFinderPersonNotFound, Person
 
 logger = logging.getLogger(__name__)
@@ -43,8 +45,6 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "service_now_user_id": {"type": "text"},
             "service_now_department_id": {"type": "text"},
             "service_now_department_name": {"type": "text"},
-            "service_now_directorate_id": {"type": "text"},
-            "service_now_directorate_name": {"type": "text"},
             "people_data_employee_number": {"type": "text"},
         },
     },
@@ -73,8 +73,6 @@ class StaffDocument(DataClassJsonMixin):
     service_now_user_id: str
     service_now_department_id: str
     service_now_department_name: str
-    service_now_directorate_id: str
-    service_now_directorate_name: str
     people_data_employee_number: Optional[str]
 
 
@@ -88,8 +86,6 @@ class ConsolidatedStaffDocument(TypedDict):
     email_addresses: List
     contact_phone: str
     grade: str
-    directorate: str
-    directorate_name: str
     department: str
     department_name: str
     job_title: str
@@ -150,20 +146,34 @@ def staff_index_mapping_changed() -> bool:
 
 def index_staff_document(*, staff_document: StaffDocument):
     """
-    Add or Update a Staff document in the Staff index.
+    Delete existing StaffDocument and create a new one in the Staff index.
     """
     search_client = get_search_connection()
-    if search_client.exists(index=STAFF_INDEX_NAME, id=staff_document.uuid):
-        search_client.update(
-            index=STAFF_INDEX_NAME,
-            id=staff_document.uuid,
-            body=staff_document.to_dict(),
+    existing_document: Optional[StaffDocument] = None
+    try:
+        existing_document = get_staff_document_from_staff_index(
+            sso_email_user_id=staff_document.staff_sso_email_user_id
         )
-    else:
-        search_client.index(
+    except StaffDocumentNotFound:
+        pass
+
+    if existing_document:
+        search_client.delete_by_query(
             index=STAFF_INDEX_NAME,
-            body=staff_document.to_dict(),
+            body={
+                "query": {
+                    "match_phrase": {
+                        "staff_sso_email_user_id": existing_document.staff_sso_email_user_id
+                    }
+                }
+            },
+            ignore=400,
         )
+
+    search_client.index(
+        index=STAFF_INDEX_NAME,
+        body=staff_document.to_dict(),
+    )
 
 
 def get_all_staff_documents() -> List[StaffDocument]:
@@ -286,6 +296,7 @@ def consolidate_staff_documents(
         consolidated_staff_document: ConsolidatedStaffDocument = {
             "uuid": staff_document.uuid,
             "staff_sso_activity_stream_id": staff_document.staff_sso_activity_stream_id,
+            "staff_sso_email_user_id": staff_document.staff_sso_email_user_id,
             "first_name": staff_document.staff_sso_first_name
             or staff_document.people_finder_first_name
             or "",
@@ -297,8 +308,6 @@ def consolidate_staff_documents(
             "email_addresses": staff_document.staff_sso_email_addresses or [],
             "contact_phone": staff_document.people_finder_phone or "",
             "grade": staff_document.people_finder_grade or "",
-            "directorate": staff_document.service_now_directorate_id or "",
-            "directorate_name": staff_document.service_now_directorate_name or "",
             "department": staff_document.service_now_department_id or "",
             "department_name": staff_document.service_now_department_name or "",
             "job_title": staff_document.people_finder_job_title or "",
@@ -325,7 +334,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     Get People Finder data
     """
     people_finder_result: Union[Person, Dict[Any, Any]] = {}
-    people_finder_directorate: Optional[str] = None
     try:
         people_finder_result = people_finder.get_details(
             sso_legacy_user_id=staff_sso_user.user_id,
@@ -334,8 +342,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         logger.exception(
             f"Could not find '{staff_sso_user}' in People Finder", exc_info=True
         )
-    else:
-        people_finder_directorate = people_finder_result.get("directorate")
 
     """
     Get People report data
@@ -345,6 +351,8 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     )
     # Assuming first id is correct
     employee_number = next(iter(people_data_results["employee_numbers"]), None)
+
+    print(f"Employee number found is {employee_number}")
 
     """
     Get Service Now data
@@ -364,6 +372,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
                 service_now_email_address=sso_email_record.email_address,
             )
             service_now_user_id = service_now_user["sys_id"]
+            logger.info(f"Service Now id found: {service_now_user_id}")
             break
 
     # Get Service Now Department data
@@ -374,16 +383,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     )
     if len(service_now_departments) == 1:
         service_now_department_name = service_now_departments[0]["name"]
-    # Get Service Now Directorate data
-    service_now_directorate_id: str = ""
-    service_now_directorate_name: str = ""
-    if people_finder_directorate:
-        service_now_directorates = service_now_interface.get_directorates(
-            name=people_finder_directorate,
-        )
-        if len(service_now_directorates) == 1:
-            service_now_directorate_id = service_now_directorates[0]["sys_id"]
-            service_now_directorate_name = service_now_directorates[0]["name"]
 
     """
     Build Staff Document
@@ -417,13 +416,28 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
             "service_now_user_id": service_now_user_id,
             "service_now_department_id": service_now_department_id,
             "service_now_department_name": service_now_department_name,
-            "service_now_directorate_id": service_now_directorate_id,
-            "service_now_directorate_name": service_now_directorate_name,
             # People Data
             "people_data_employee_number": employee_number,
         }
     )
     return staff_document
+
+
+def index_staff_by_emails(emails: List[str]) -> None:
+    for staff_sso_user in ActivityStreamStaffSSOUser.objects.filter(
+        sso_emails__email_address__in=emails,
+    ):
+        try:
+            staff_document = build_staff_document(staff_sso_user=staff_sso_user)
+            index_staff_document(staff_document=staff_document)
+        except FailedToGetPersonRecord:
+            logger.error(
+                f"No People Finder record could be accessed for '{staff_sso_user}'"
+            )
+        except Exception:
+            logger.exception(
+                f"Could not build index entry for '{staff_sso_user}''", exc_info=True
+            )
 
 
 def index_all_staff() -> int:
@@ -436,21 +450,27 @@ def index_all_staff() -> int:
     - API rate limits/throttling?
     - Using asyncronous tasks
     """
-    staff_documents: List[StaffDocument] = []
+    indexed_count = 0
+    current_date = date.today()
+    days_ago = 6 * 30
+    last_accessed_datetime = current_date - timedelta(days=days_ago)
     # Add documents to the index
     for staff_sso_user in ActivityStreamStaffSSOUser.objects.filter(
         became_inactive_on__isnull=True,
+        last_accessed__isnull=False,
+        last_accessed__gte=last_accessed_datetime,
     ):
         try:
             staff_document = build_staff_document(staff_sso_user=staff_sso_user)
-            staff_documents.append(staff_document)
+            index_staff_document(staff_document=staff_document)
+            indexed_count += 1
+        except FailedToGetPersonRecord:
+            logger.error(
+                f"No People Finder record could be accessed for '{staff_sso_user}'"
+            )
         except Exception:
             logger.exception(
                 f"Could not build index entry for '{staff_sso_user}''", exc_info=True
             )
-    indexed_count = 0
-    for staff_document in staff_documents:
-        index_staff_document(staff_document=staff_document)
-        indexed_count += 1
 
     return indexed_count

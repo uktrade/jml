@@ -114,8 +114,8 @@ class UKSBSClient:
             )
 
         try:
-            data = response.json()
-            request_number = data["requestnumber"]
+            response_data = response.json()
+            request_number = response_data["requestnumber"]
         except Exception:
             # Don't worry about this as we are just trying to log the response
             pass

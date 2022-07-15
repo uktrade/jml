@@ -44,8 +44,6 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
         "service_now_user_id": "",
         "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
         "service_now_department_name": "Department of International Trade",
-        "service_now_directorate_id": "",
-        "service_now_directorate_name": "",
         "people_data_employee_number": "12345",
     }
 )
@@ -191,7 +189,7 @@ class TestLeaverInformationMixin(TestCase):
 
     def store_leaver_detail_updates_no_changes(self, mock_get_search_results) -> None:
         LeaverInformationMixin().store_leaver_detail_updates(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
             updates={},
         )
@@ -204,7 +202,7 @@ class TestLeaverInformationMixin(TestCase):
 
     def store_leaver_detail_updates_some_changes(self, mock_get_search_results) -> None:
         LeaverInformationMixin().store_leaver_detail_updates(
-            email=self.leaver_email,
+            sso_email_user_id=self.leaver_email,
             requester=UserFactory(),
             updates={"first_name": "Joey"},  # /PS-IGNORE
         )

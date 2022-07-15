@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict
+from typing import Dict, List
 
 from django.conf import settings
 from notifications_python_client.notifications import NotificationsAPIClient
@@ -33,16 +33,22 @@ class EmailTemplates(Enum):
     SRE_REMINDER_EMAIL = settings.TEMPLATE_ID_SRE_REMINDER_EMAIL
 
 
-def email(email_address: str, template_id: EmailTemplates, personalisation: Dict):
+def email(
+    email_addresses: List[str], template_id: EmailTemplates, personalisation: Dict
+):
     # TODO: Test GOV UK Notify Integration
     notification_client = NotificationsAPIClient(
         settings.GOVUK_NOTIFY_API_KEY,
     )
 
-    message_response = notification_client.send_email_notification(
-        email_address=email_address,
-        template_id=template_id.value,
-        personalisation=personalisation,
-    )
+    if not settings.PROCESS_LEAVING_REQUEST:
+        email_addresses = settings.JML_TEAM_EMAILS
+
+    for email_address in email_addresses:
+        message_response = notification_client.send_email_notification(
+            email_address=email_address,
+            template_id=template_id.value,
+            personalisation=personalisation,
+        )
 
     return message_response
