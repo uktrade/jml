@@ -53,6 +53,17 @@ class BasicTask(LeavingRequestTask):
         return None, {}, True
 
 
+class PauseTask(LeavingRequestTask):
+    # To be used to stop the workflow from progressing.
+
+    abstract = False
+    task_name = "pause_task"
+    auto = True
+
+    def execute(self, task_info):
+        raise Exception("Pause workflow")
+
+
 class CheckUKSBSLineManager(LeavingRequestTask):
     abstract = False
     task_name = "check_uksbs_line_manager"
@@ -208,7 +219,8 @@ class EmailTask(LeavingRequestTask):
     ) -> bool:
         """
         Check if we should send the email.
-        This method can be used to prevent the task from sending the email.
+        This method can be used to preve
+        nt the task from sending the email.
 
         Example scenarios:
         - Email no longer needed
