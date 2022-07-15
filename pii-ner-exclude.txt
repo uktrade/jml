@@ -1,5 +1,6 @@
 -O codecov.sh https://codecov.io/bash
 'None" &&
+" Enum for the satisfaction options
 " Get Service Now
 " Leavers Workflow This can be triggered in 2
 " Line Manager
@@ -220,6 +221,7 @@ Mismatch Email
 Mobile
 NAME
 name=
+National Insurance
 new_line_report_id"
 None                                       
 None" &&

@@ -7,6 +7,7 @@ from core.utils.urls import decorate_urlpatterns
 private_urlpatterns = [
     path("", include("core.landing_pages.urls")),
     path("cookie/", include("core.cookies.urls")),
+    path("feedback/", include("core.feedback.urls")),
 ]
 private_urlpatterns = decorate_urlpatterns(private_urlpatterns, login_required)
 
