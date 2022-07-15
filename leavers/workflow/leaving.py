@@ -113,6 +113,16 @@ LeaversWorkflow = Workflow(
                 "are_all_tasks_complete",
             ],
         ),
+        # IT Ops
+        Step(
+            step_id="send_it_ops_leaver_details",
+            # TODO: Add a task to send the leaver details to IT Ops
+            # (likely an email)
+            task_name="pause_task",
+            targets=[
+                "are_all_tasks_complete",
+            ],
+        ),
         # LSD
         Step(
             step_id="send_lsd_team_leaver_details",
