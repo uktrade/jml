@@ -2,10 +2,11 @@ from django_workflow_engine.exceptions import WorkflowNotAuthError
 from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
 
-from activity_stream.utils import ingest_activity_stream
+# from activity_stream.utils import ingest_activity_stream
 from config.celery import celery_app
-from core.people_finder.utils import ingest_people_finder
-from core.service_now.utils import ingest_service_now
+
+# from core.people_finder.utils import ingest_people_finder
+# from core.service_now.utils import ingest_service_now
 
 logger = celery_app.log.get_default_logger()
 
@@ -38,19 +39,19 @@ def progress_workflow(self, flow_pk: str):
             logger.warning(f"{e}")
 
 
-@celery_app.task(bind=True)
-def update_staff_search_index_from_activity_stream(self):
-    logger.info("RUNNING update_staff_search_index_from_activity_stream")
-    ingest_activity_stream()
-
-
-@celery_app.task(bind=True)
-def update_staff_search_index_from_people_finder(self):
-    logger.info("RUNNING update_staff_search_index_from_people_finder")
-    ingest_people_finder()
-
-
-@celery_app.task(bind=True)
-def update_staff_search_index_from_service_now(self):
-    logger.info("RUNNING update_staff_search_index_from_service_now")
-    ingest_service_now()
+# @celery_app.task(bind=True)
+# def update_staff_search_index_from_activity_stream(self):
+#     logger.info("RUNNING update_staff_search_index_from_activity_stream")
+#     ingest_activity_stream()
+#
+#
+# @celery_app.task(bind=True)
+# def update_staff_search_index_from_people_finder(self):
+#     logger.info("RUNNING update_staff_search_index_from_people_finder")
+#     ingest_people_finder()
+#
+#
+# @celery_app.task(bind=True)
+# def update_staff_search_index_from_service_now(self):
+#     logger.info("RUNNING update_staff_search_index_from_service_now")
+#     ingest_service_now()
