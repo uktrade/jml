@@ -235,12 +235,22 @@ CACHES = {
 }
 
 # Redis
-REDIS_URL = os.environ.get("REDIS_URL")
+if "redis" in VCAP_SERVICES:
+    credentials = VCAP_SERVICES["redis"][0]["credentials"]
+    REDIS_URL = "rediss://:{}@{}:{}/0?ssl_cert_reqs=required".format(
+        credentials["password"],
+        credentials["host"],
+        credentials["port"],
+    )
+else:
+    REDIS_URL = os.environ.get("REDIS_URL")
 
 # Celery
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_RESULT_SERIALIZER = "json"
 
 # Crispy forms
 CRISPY_ALLOWED_TEMPLATE_PACKS = ["gds"]
