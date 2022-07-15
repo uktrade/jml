@@ -16,11 +16,12 @@ class SecurityClearance(TextChoices):
     Security Clearance levels
     """
 
-    CTC = "ctc", "Counter Terrorist Check"
+    BPSS = "bpss", "Baseline Personnel Security Standard (BPSS)"
+    CTC = "ctc", "Counter Terrorist Check (CTC)"
     SC = "sc", "Security Check"
-    ESC = "esc", "Enhanced Security Check"
-    DV = "dv", "Developed Vetting"
-    EDV = "edv", "Enhanced Developed Vetting"
+    ESC = "esc", "Enhanced Security Check (eSC)"
+    DV = "dv", "Developed Vetting (DV)"
+    EDV = "edv", "Enhanced Developed Vetting (eDV)"
 
 
 class LeaverConfirmationForm(GovFormattedForm):
@@ -125,11 +126,6 @@ class LeaverUpdateForm(GovFormattedForm):
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
-                HTML(
-                    "<p class='govuk-body'>Security guidance: this only applies "
-                    "if you have security clearance above level Baseline "
-                    "Personnel Security Standard (BPSS).</p>"
-                ),
                 Field("security_clearance"),
                 legend="Security clearance type",
                 legend_size=Size.MEDIUM,
