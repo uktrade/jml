@@ -104,6 +104,7 @@ class LSDSendLeaverDetails(LeavingRequestTask):
 
     def execute(self, task_info):
         assert self.leaving_request
+        assert self.leaving_request.leaving_date
 
         leaver_name = self.leaving_request.get_leaver_name()
         if not leaver_name:
@@ -115,6 +116,7 @@ class LSDSendLeaverDetails(LeavingRequestTask):
         inform_lsd_team_of_leaver(
             leaver_name=leaver_name,
             leaver_email=leaver_email,
+            leaving_date=self.leaving_request.leaving_date.strftime("%d/%m/%Y"),
         )
 
         return None, {}, True

@@ -92,6 +92,7 @@ Dev Tools
 Developed Vetting
 Digital
 Digital Workspace
+Digital Worskspace
 directorate_id
 Discuss
 Display non
@@ -169,6 +170,7 @@ include:</p
 INDEX_CURRENT_USER_MIDDLEWARE                            
 INFO
 information</h1
+ingest_activity_stream
 Jira
 JML_TEAM_CONTACT_EMAIL"
 job_title"
@@ -378,4 +380,3 @@ yet.</p
 You Email
 You Email*
 you.</p
-ingest_activity_stream
