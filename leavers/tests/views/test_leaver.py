@@ -542,6 +542,7 @@ class TestUpdateDetailsView(TestCase):
         self.assertEqual(form.initial["first_name"], "Joe")  # /PS-IGNORE
         self.assertEqual(form.initial["job_title"], "Job title")
         self.assertEqual(form.initial["last_name"], "Bloggs")  # /PS-IGNORE
+        self.assertEqual(form.initial["date_of_birth"], None)
         self.assertEqual(
             form.initial["contact_email_address"],
             "joe.bloggs@example.com",  # /PS-IGNORE
@@ -588,6 +589,7 @@ class TestUpdateDetailsView(TestCase):
                 "first_name": updates["first_name"],
                 "job_title": updates["job_title"],
                 "last_name": updates["last_name"],
+                "date_of_birth": None,
                 "contact_email_address": updates["contact_email_address"],
                 "contact_phone": None,
                 "contact_address_line1": None,
@@ -656,6 +658,9 @@ class TestUpdateDetailsView(TestCase):
             {
                 "first_name": "FirstName",  # /PS-IGNORE
                 "last_name": "LastName",  # /PS-IGNORE
+                "date_of_birth_0": 19,
+                "date_of_birth_1": 2,
+                "date_of_birth_2": 1997,
                 "contact_email_address": "someone@example.com",  # /PS-IGNORE
                 "contact_phone": "07123123123",
                 "contact_address_line1": "Example House Name",

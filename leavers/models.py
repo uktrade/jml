@@ -371,6 +371,7 @@ class LeaverInformation(models.Model):
     # Leaver information
     leaver_first_name = models.CharField(max_length=1000, null=True, blank=True)
     leaver_last_name = models.CharField(max_length=1000, null=True, blank=True)
+    leaver_date_of_birth = models.DateField(null=True, blank=True)
     personal_email = models.EmailField(null=True, blank=True)
     job_title = models.CharField(max_length=1000, null=True, blank=True)
     directorate_id = models.CharField(max_length=1000, null=True, blank=True)
