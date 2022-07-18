@@ -52,6 +52,9 @@ def send_csu4_leaver_email(leaving_request: LeavingRequest):
     if not leaver_information:
         raise ValueError("leaver_information is not set")
 
+    if not leaver_information.leaver_date_of_birth:
+        raise ValueError("leaver_date_of_birth is not set")
+
     notify.email(
         email_addresses=[settings.CSU4_EMAIL],
         template_id=notify.EmailTemplates.CSU4_LEAVER_EMAIL,
@@ -139,18 +142,13 @@ def send_rosa_leaver_reminder_email(leaving_request: LeavingRequest):
     if not leaving_request.is_rosa_user:
         raise LeaverDoesNotHaveRosaKit()
 
-    leaver_information: Optional[
-        LeaverInformation
-    ] = leaving_request.leaver_information.first()
+    leaver_email = leaving_request.get_leaver_email()
 
-    if not leaver_information:
-        raise ValueError("leaver_information is not set")
-
-    if not leaver_information.leaver_email:
+    if not leaver_email:
         raise ValueError("leaver_email is not set")
 
     notify.email(
-        email_addresses=[leaver_information.leaver_email],
+        email_addresses=[],
         template_id=notify.EmailTemplates.ROSA_LEAVER_REMINDER_EMAIL,
         personalisation={"leaver_name": leaving_request.get_leaver_name()},
     )

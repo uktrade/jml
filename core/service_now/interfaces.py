@@ -14,7 +14,7 @@ from core.utils.staff_index import StaffDocument, get_staff_document_from_staff_
 from leavers import types as leavers_types
 
 if TYPE_CHECKING:
-    from leavers.models import LeaverInformation
+    from leavers.models import LeaverInformation, LeavingRequest
 
 logger = logging.getLogger(__name__)
 
@@ -363,6 +363,12 @@ class ServiceNowInterface(ServiceNowBase):
             logger.warning(f"Submitting leaver request to Service Now for {full_name}")
             return None
 
+        leaving_request: "LeavingRequest" = leaver_info.leaving_request
+
+        leaver_email = leaving_request.get_leaver_email()
+        if not leaver_email:
+            raise Exception("Unable to get leaver's email")
+
         # Convert Request Data to what the Service Now API expects
         assets_confirmation = bool_to_yes_no(leaver_info.information_is_correct).title()
 
@@ -376,8 +382,15 @@ class ServiceNowInterface(ServiceNowBase):
             "county": leaver_info.return_address_county or "",
             "postcode": leaver_info.return_address_postcode or "",
         }
+        collection_address_str: str = ""
+        if collection_address["building_and_street"]:
+            collection_address_str += collection_address["building_and_street"] + "\n"
+        if collection_address["city"]:
+            collection_address_str += collection_address["city"] + "\n"
+        if collection_address["county"]:
+            collection_address_str += collection_address["county"]
 
-        leaver = leaver_info.leaving_request.leaver_activitystream_user
+        leaver = leaving_request.leaver_activitystream_user
         if not leaver:
             raise Exception("Unable to get leaver information")
         leaver_staff_document: StaffDocument = get_staff_document_from_staff_index(
@@ -385,7 +398,7 @@ class ServiceNowInterface(ServiceNowBase):
         )
         leaver_service_now_id = leaver_staff_document.service_now_user_id
 
-        manager = leaver_info.leaving_request.manager_activitystream_user
+        manager = leaving_request.manager_activitystream_user
         if not manager:
             raise Exception("Unable to get line manager information")
 
@@ -403,11 +416,7 @@ class ServiceNowInterface(ServiceNowBase):
                 "Additional_information": leaver_info.additional_information,
                 "contact_telephone_for_collection": leaver_info.return_personal_phone,
                 "contact_email_for_delivery_collection": leaver_info.return_contact_email,  # noqa E501
-                "collection_address_for_remote_leaver": (
-                    f"{collection_address['building_and_street']}\n"
-                    f"{collection_address['city']}\n"
-                    f"{collection_address['county']}"
-                ),
+                "collection_address_for_remote_leaver": collection_address_str,
                 "collection_postcode_for_remote_leaver": collection_address["postcode"],
                 "leaver_user": leaver_service_now_id,
                 "users_manager": manager_service_now_id,
@@ -423,7 +432,7 @@ class ServiceNowInterface(ServiceNowBase):
                         for asset_details in assets
                     ]
                 ),
-                "leaver_email": leaver_info.leaver_email,
+                "leaver_email": leaver_email,
             },
             "get_portal_messages": "true",
             "sysparm_no_validation": "true",

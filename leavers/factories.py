@@ -44,4 +44,3 @@ class LeaverInformationFactory(DjangoModelFactory):
 
     leaving_request = factory.SubFactory(LeavingRequestFactory)
     updates: types.LeaverDetailUpdates = {}
-    leaver_email = factory.Faker("email")
