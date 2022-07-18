@@ -377,6 +377,14 @@ class ServiceNowInterface(ServiceNowBase):
             "postcode": leaver_info.return_address_postcode or "",
         }
 
+        leaver = leaver_info.leaving_request.leaver_activitystream_user
+        if not leaver:
+            raise Exception("Unable to get leaver information")
+        leaver_staff_document: StaffDocument = get_staff_document_from_staff_index(
+            sso_email_user_id=leaver.email_user_id,
+        )
+        leaver_service_now_id = leaver_staff_document.service_now_user_id
+
         manager = leaver_info.leaving_request.manager_activitystream_user
         if not manager:
             raise Exception("Unable to get line manager information")
@@ -401,7 +409,7 @@ class ServiceNowInterface(ServiceNowBase):
                     f"{collection_address['county']}"
                 ),
                 "collection_postcode_for_remote_leaver": collection_address["postcode"],
-                "leaver_user": "",
+                "leaver_user": leaver_service_now_id,
                 "users_manager": manager_service_now_id,
                 "leaver_other_reason": "",
                 "leaver_dept": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
