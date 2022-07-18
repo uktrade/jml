@@ -1,10 +1,15 @@
-from typing import Optional
+from typing import List, Optional
 
 from django.conf import settings
 from django.urls import reverse
 
-from activity_stream.models import ActivityStreamStaffSSOUser
+from activity_stream.models import (
+    ActivityStreamStaffSSOUser,
+    ActivityStreamStaffSSOUserEmail,
+)
 from core import notify
+from core.uksbs import get_uksbs_interface
+from core.uksbs.types import PersonData
 from leavers.models import LeaverInformation, LeavingRequest
 
 
@@ -182,28 +187,52 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
 
 def send_line_manager_correction_email(leaving_request: LeavingRequest):
     """
-    Send ??? an email to get them to update the Line manager in UK SBS to match the LeavingRequest.
+    Send an email to all of the Leaver's direct manager as per the response
+    from UK SBS to get them to update the Line manager in UK SBS to match
+    the LeavingRequest.
     """
 
-    if not leaving_request.is_rosa_user:
-        raise LeaverDoesNotHaveRosaKit()
-
+    assert leaving_request.leaver_activitystream_user
     assert leaving_request.manager_activitystream_user
-    manager_as_user: ActivityStreamStaffSSOUser = (
-        leaving_request.manager_activitystream_user
+
+    uksbs_interface = get_uksbs_interface()
+
+    leaver_oracle_id = leaving_request.leaver_activitystream_user.user_id
+
+    uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
+        oracle_id=leaver_oracle_id,
     )
 
-    if not manager_as_user.contact_email_address:
-        raise ValueError("contact_email_address is not set")
+    uksbs_leaver_managers: List[PersonData] = uksbs_leaver_hierarchy.get("manager", [])
+    uksbs_leaver_manager_oracle_ids: List[str] = [
+        uksbs_leaver_manager["person_id"]
+        for uksbs_leaver_manager in uksbs_leaver_managers
+    ]
 
-    notify.email(
-        email_addresses=[manager_as_user.contact_email_address],
-        template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
-        personalisation={
-            "leaver_name": leaving_request.get_leaver_name(),
-            "manager_name": leaving_request.get_line_manager_name(),
-        },
-    )
+    current_manager_emails: List[str] = []
+
+    # TODO: Discuss, it is possible that UK SBS returns multiple managers,
+    # this code will send this email to ALL of them.
+
+    for current_manager_as_user in ActivityStreamStaffSSOUser.objects.filter(
+        user_id__in=uksbs_leaver_manager_oracle_ids
+    ):
+        current_manager_sso_email: ActivityStreamStaffSSOUserEmail = (
+            current_manager_as_user.sso_emails.first()
+        )
+
+        if current_manager_sso_email:
+            current_manager_emails.append(current_manager_sso_email.email_address)
+
+            notify.email(
+                email_addresses=[current_manager_sso_email.email_address],
+                template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
+                personalisation={
+                    "recipient_name": current_manager_as_user.full_name,
+                    "leaver_name": leaving_request.get_leaver_name(),
+                    "manager_name": leaving_request.get_line_manager_name(),
+                },
+            )
 
 
 def send_line_manager_notification_email(leaving_request: LeavingRequest):
