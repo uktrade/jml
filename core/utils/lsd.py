@@ -15,7 +15,7 @@ def get_zendesk_client() -> Zenpy:
     return Zenpy(**creds)
 
 
-def inform_lsd_team_of_leaver(leaver_name: str, leaver_email: str):
+def inform_lsd_team_of_leaver(leaver_name: str, leaver_email: str, leaving_date: str):
     if not settings.PROCESS_LEAVING_REQUEST:
         logger.warning(f"Creating zendesk ticket for LSD team regarding {leaver_name}")
         return None
@@ -23,10 +23,14 @@ def inform_lsd_team_of_leaver(leaver_name: str, leaver_email: str):
     client = get_zendesk_client()
     # Create a Zendesk Ticket /PS-IGNORE
     client.tickets.create(
-        subject=f"{leaver_name} has left DIT",
+        subject=f"Notification of Leaver: {leaver_name}",
         comment=(
-            f"{leaver_name} has left DIT, please deactivate the "
-            f"Gsuite account {leaver_email}."
+            "We have been informed that the following person is leaving/has left the department.\n"
+            f"Name: {leaver_name}\n"
+            f"Email: {leaver_email}\n"
+            f"Date if Leaving: {leaving_date}\n"
+            "Please ensure that permissions are removed for this user (where appropriate. SSO, "
+            "Datahub, Digital Worskspace, OKTA)."
         ),
         priority="normal",
         type="task",
