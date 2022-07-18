@@ -4,7 +4,10 @@ from typing import List, Optional, Tuple
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from activity_stream.models import ActivityStreamStaffSSOUser
+from activity_stream.models import (
+    ActivityStreamStaffSSOUser,
+    ActivityStreamStaffSSOUserEmail,
+)
 from leavers.forms.leaver import ReturnOptions, SecurityClearance, StaffType
 from leavers.forms.line_manager import (
     AnnualLeavePaidOrDeducted,
@@ -285,15 +288,12 @@ class LeavingRequest(models.Model):
         return None
 
     def get_leaver_email(self) -> Optional[str]:
-        leaver_information: Optional[
-            "LeaverInformation"
-        ] = self.leaver_information.first()
-        if leaver_information and leaver_information.leaver_email:
-            return leaver_information.leaver_email
-
         if self.leaver_activitystream_user:
-            return self.leaver_activitystream_user.contact_email_address
-
+            sso_email: Optional[
+                ActivityStreamStaffSSOUserEmail
+            ] = self.leaver_activitystream_user.sso_emails.first()
+            if sso_email:
+                return sso_email.email_address
         return None
 
     def get_line_manager_name(self) -> Optional[str]:
@@ -366,7 +366,6 @@ class LeaverInformation(models.Model):
 
     last_day = models.DateTimeField(null=True, blank=True)
     leaving_date = models.DateTimeField(null=True, blank=True)
-    leaver_email = models.EmailField(unique=True, null=True, blank=True)
 
     # Leaver information
     leaver_first_name = models.CharField(max_length=1000, null=True, blank=True)

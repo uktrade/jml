@@ -243,7 +243,7 @@ if "redis" in VCAP_SERVICES:
         credentials["port"],
     )
 else:
-    REDIS_URL = os.environ.get("REDIS_URL")
+    REDIS_URL = os.environ.get("REDIS_URL", "")
 
 # Celery
 CELERY_BROKER_URL = REDIS_URL

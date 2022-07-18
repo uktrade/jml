@@ -28,6 +28,7 @@
 0007_activitystreamstaffssouser_is_active
 0007_activitystreamstaffssouser_is_active
 0032_leavingrequest_reason_for_leaving
+0048_leaverinformation_leaver_date_of_birth
 100px
 234px
 7.7-.2
@@ -182,6 +183,7 @@ Joe
 Joe Bloggs
 joe.bloggs@example.com
 Joe"
+Joey
 JS
 Kit
 kit</th
