@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("leavers", "0046_auto_20220713_1048"),
+        ("leavers", "0047_alter_leavingrequest_security_clearance"),
     ]
 
     operations = [
