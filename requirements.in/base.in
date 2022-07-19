@@ -4,7 +4,7 @@ crispy-forms-gds
 dataclasses-json==0.5.7
 dit-activity-stream==0.0.1
 django-celery-beat
-django-celery-results
+django-celery-results==2.4.0
 django-compressor
 django-crispy-forms
 django-environ
