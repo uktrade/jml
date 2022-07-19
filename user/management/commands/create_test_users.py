@@ -17,6 +17,7 @@ USERS: List[Tuple[str, str, str]] = [
     ("Jane", "Doe", "SRE"),  # /PS-IGNORE
     ("Miss", "Marple", "HR"),  # /PS-IGNORE
     ("Thomas", "Anderson", "Security Team"),  # /PS-IGNORE
+    ("Charlotte", "Blackwood", "Asset Team"),  # /PS-IGNORE
 ]
 
 

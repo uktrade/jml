@@ -11,6 +11,7 @@ from core import notify
 from core.uksbs import get_uksbs_interface
 from core.uksbs.types import PersonData
 from leavers.models import LeaverInformation, LeavingRequest
+from leavers.types import DisplayScreenEquipmentAsset
 
 
 def send_leaver_thank_you_email(leaving_request: LeavingRequest):
@@ -385,5 +386,36 @@ def send_sre_reminder_email(leaving_request: LeavingRequest):
             "leaver_name": leaving_request.get_leaver_name(),
             "leaving_date": leaver_information.leaving_date,
             "sre_team_link": reverse("sre-confirmation", args=[leaving_request.uuid]),
+        },
+    )
+
+
+def send_it_ops_asset_email(leaving_request: LeavingRequest):
+    """
+    Send IT Ops team an email to inform them of a leaver and their reported Assets.
+    """
+
+    if not settings.IT_OPS_EMAIL:
+        raise ValueError("IT_OPS_EMAIL is not set")
+
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    if not leaver_information:
+        raise ValueError("leaver_information is not set")
+
+    dse_assets: List[DisplayScreenEquipmentAsset] = leaver_information.dse_assets
+    dse_assets_string = ""
+    for dse_asset in dse_assets:
+        dse_assets_string += f"* {dse_asset.name}\n"
+
+    notify.email(
+        email_addresses=[settings.IT_OPS_EMAIL],
+        template_id=notify.EmailTemplates.IT_OPS_ASSET_EMAIL,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+            "leaving_date": leaver_information.leaving_date,
+            "dse_assets": dse_assets_string,
         },
     )
