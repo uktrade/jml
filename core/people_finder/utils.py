@@ -2,18 +2,20 @@ from core.people_finder import get_people_finder_interface
 from core.people_finder.interfaces import PersonDetail
 from core.utils.staff_index import (
     StaffDocument,
+    StaffDocumentNotFound,
+    TooManyStaffDocumentsFound,
+    get_staff_document_from_staff_index,
     index_staff_document,
-    search_staff_index,
 )
 
 
-def index_people_finder_result(people_finder_result: PersonDetail):
-    staff_index_results = search_staff_index(query=people_finder_result.email)
-
-    if len(staff_index_results) == 0:
-        raise Exception("No staff index result found")
-
-    staff_index_result = staff_index_results[0].to_dict()
+def index_people_finder_result(people_finder_result: PersonDetail) -> None:
+    try:
+        staff_index_result = get_staff_document_from_staff_index(
+            sso_email_address=people_finder_result["email"]
+        ).to_dict()
+    except (StaffDocumentNotFound, TooManyStaffDocumentsFound):
+        return None
 
     mapped_data = {
         "people_finder_photo": people_finder_result.photo,
@@ -33,6 +35,8 @@ def index_people_finder_result(people_finder_result: PersonDetail):
             staff_index_result[key] = value
 
     index_staff_document(staff_document=StaffDocument.from_dict(staff_index_result))
+
+    return None
 
 
 def ingest_people_finder():
