@@ -64,7 +64,7 @@ class AssetViewMixin:
     ) -> HttpResponseBase:
         if not user_in_asset_group(request=request):
             return HttpResponseForbidden()
-        return super().dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)  # type: ignore
 
 
 class ListAssetsView(AssetViewMixin, FormView):

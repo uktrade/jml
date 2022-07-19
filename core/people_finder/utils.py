@@ -12,7 +12,7 @@ from core.utils.staff_index import (
 def index_people_finder_result(people_finder_result: PersonDetail) -> None:
     try:
         staff_index_result = get_staff_document_from_staff_index(
-            sso_email_address=people_finder_result["email"]
+            sso_email_address=people_finder_result.email,
         ).to_dict()
     except (StaffDocumentNotFound, TooManyStaffDocumentsFound):
         return None

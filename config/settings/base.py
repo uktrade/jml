@@ -339,6 +339,9 @@ LEGACY_PEOPLE_FINDER_ES_URL = env("LEGACY_PEOPLE_FINDER_ES_URL", default=None)
 # CSU4 Settings
 CSU4_EMAIL = env("CSU4_EMAIL", default=None)
 
+# IT OPS Settings
+IT_OPS_EMAIL = env("IT_OPS_EMAIL", default=None)
+
 # OCS Settings
 OCS_EMAIL = env("OCS_EMAIL", default=None)
 OCS_OAB_LOCKER_EMAIL = env("OCS_OAB_LOCKER_EMAIL", default=None)
