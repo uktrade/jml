@@ -1,10 +1,15 @@
+from typing import Optional
+
 from django.conf import settings
 
+from activity_stream.models import ActivityStreamStaffSSOUser, ServiceEmailAddress
 from core.service_now import get_service_now_interface
 from core.service_now.interfaces import ServiceNowUserNotFound
 from core.utils.staff_index import (
     StaffDocument,
-    get_all_staff_documents,
+    StaffDocumentNotFound,
+    TooManyStaffDocumentsFound,
+    get_staff_document_from_staff_index,
     index_staff_document,
 )
 
@@ -12,11 +17,25 @@ from core.utils.staff_index import (
 def ingest_service_now():
     service_now_interface = get_service_now_interface()
 
-    for staff_document in get_all_staff_documents():
+    for as_staff_sso_user in ActivityStreamStaffSSOUser.objects.all():
+        try:
+            staff_document = get_staff_document_from_staff_index(
+                sso_email_user_id=as_staff_sso_user.email_user_id,
+            )
+        except (StaffDocumentNotFound, TooManyStaffDocumentsFound):
+            continue
+
+        staff_sso_email: Optional[
+            ServiceEmailAddress
+        ] = as_staff_sso_user.service_emails.first()
+
+        if not staff_sso_email:
+            continue
+
         service_now_user_id: str = ""
         try:
             service_now_user = service_now_interface.get_user(
-                email=staff_document.staff_sso_contact_email_address,
+                email=staff_sso_email.service_now_email_address,
             )
         except ServiceNowUserNotFound:
             continue
