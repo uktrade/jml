@@ -18,7 +18,7 @@ from asset_registry.utils import (
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.search import SearchVector
 from django.db.models import QuerySet
-from django.http import Http404, HttpRequest
+from django.http import Http404, HttpRequest, HttpResponseForbidden
 from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -35,7 +35,21 @@ else:
     User = get_user_model()
 
 
+def user_in_asset_group(*, request: HttpRequest) -> bool:
+    if not request.user.is_authenticated:
+        return False
+
+    user_in_asset_team: bool = request.user.groups.filter(
+        name="Asset Team",
+    ).exists()
+
+    return user_in_asset_team
+
+
 def view_asset(request: HttpRequest, pk: int) -> HttpResponse:
+    if not user_in_asset_group(request=request):
+        return HttpResponseForbidden()
+
     if PhysicalAsset.objects.filter(pk=pk).exists():
         return redirect(reverse("physical-asset", args=[pk]))
     elif SoftwareAsset.objects.filter(pk=pk).exists():
@@ -44,7 +58,16 @@ def view_asset(request: HttpRequest, pk: int) -> HttpResponse:
     raise Http404
 
 
-class ListAssetsView(FormView):
+class AssetViewMixin:
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        if not user_in_asset_group(request=request):
+            return HttpResponseForbidden()
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ListAssetsView(AssetViewMixin, FormView):
     template_name = "asset_registry/list_assets.html"
     form_class = AssetSearchForm
     search_terms: Optional[str] = None
@@ -101,14 +124,14 @@ class ListAssetsView(FormView):
         return super().render_to_response(self.get_context_data(form=form))
 
 
-class CreatePhysicalAssetView(CreateView):
+class CreatePhysicalAssetView(AssetViewMixin, CreateView):
     model = PhysicalAsset
     template_name = "asset_registry/physical/create.html"
     form_class = PhysicalAssetCreateForm
     success_url = reverse_lazy("list-assets")
 
 
-class PhysicalAssetView(DetailView):
+class PhysicalAssetView(AssetViewMixin, DetailView):
     model = PhysicalAsset
     template_name = "asset_registry/physical/detail.html"
 
@@ -127,7 +150,7 @@ class PhysicalAssetView(DetailView):
         return context
 
 
-class UpdatePhysicalAssetView(UpdateView):
+class UpdatePhysicalAssetView(AssetViewMixin, UpdateView):
     model = PhysicalAsset
     template_name = "asset_registry/physical/update.html"
     form_class = PhysicalAssetUpdateForm
@@ -137,14 +160,14 @@ class UpdatePhysicalAssetView(UpdateView):
         return reverse("physical-asset", args=[obj.pk])
 
 
-class CreateSoftwareAssetView(CreateView):
+class CreateSoftwareAssetView(AssetViewMixin, CreateView):
     model = SoftwareAsset
     template_name = "asset_registry/software/create.html"
     form_class = SoftwareAssetCreateForm
     success_url = reverse_lazy("list-assets")
 
 
-class SoftwareAssetView(DetailView):
+class SoftwareAssetView(AssetViewMixin, DetailView):
     model = SoftwareAsset
     template_name = "asset_registry/software/detail.html"
 
@@ -163,7 +186,7 @@ class SoftwareAssetView(DetailView):
         return context
 
 
-class UpdateSoftwareAssetView(UpdateView):
+class UpdateSoftwareAssetView(AssetViewMixin, UpdateView):
     model = SoftwareAsset
     template_name = "asset_registry/software/update.html"
     form_class = SoftwareAssetUpdateForm
@@ -173,7 +196,7 @@ class UpdateSoftwareAssetView(UpdateView):
         return reverse("software-asset", args=[obj.pk])
 
 
-class AssetUserSearchView(StaffSearchView):
+class AssetUserSearchView(AssetViewMixin, StaffSearchView):
     query_param_name = "asset_user_uuid"
     search_name = "asset user"
 
@@ -195,6 +218,9 @@ def remove_user_from_asset(
         ActivityStreamStaffSSOUser, identifier=asset_user_uuid
     )
 
+    if not user_in_asset_group(request=request):
+        return HttpResponseForbidden()
+
     asset.users.remove(asset_user_activitystream_user)
 
     request.session[
@@ -206,6 +232,9 @@ def remove_user_from_asset(
 def add_user_to_asset(request: HttpRequest, pk: int) -> HttpResponse:
     return_redirect = redirect(reverse("view-asset", args=[pk]))
     asset = get_object_or_404(Asset, pk=pk)
+
+    if not user_in_asset_group(request=request):
+        return HttpResponseForbidden()
 
     asset_user_uuid: Optional[str] = request.GET.get("asset_user_uuid")
     if not asset_user_uuid:
@@ -246,7 +275,7 @@ def add_user_to_asset(request: HttpRequest, pk: int) -> HttpResponse:
     return return_redirect
 
 
-class UserAssetView(DetailView):
+class UserAssetView(AssetViewMixin, DetailView):
     model = ActivityStreamStaffSSOUser
     template_name = "asset_registry/user.html"
     slug_field = "identifier"

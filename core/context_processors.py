@@ -36,6 +36,13 @@ def global_context(request):
                 )
             )
         user_group_names: List[str] = [g.name for g in request.user.groups.all()]
+        if "Asset Team" in user_group_names:
+            global_context["DEV_LINKS"].append(
+                (
+                    "Asset Registry",
+                    reverse("list-assets"),
+                )
+            )
         if "SRE" in user_group_names:
             global_context["DEV_LINKS"].append(
                 (
