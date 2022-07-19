@@ -54,6 +54,7 @@
 | TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL          | None                                       |                                                                     |
 | TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL | None                                       |                                                                     |
 | TEMPLATE_ID_SRE_REMINDER_EMAIL                           | None                                       |                                                                     |
+| TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL                | None                                       |                                                                     |
 | TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL              | None                                       |                                                                     |
 | TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                                       |                                                                     |
 | TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL                  | None                                       |                                                                     |

@@ -29,6 +29,10 @@ class ActivityStreamStaffSSOUser(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
 
 class ActivityStreamStaffSSOUserEmail(models.Model):
     staff_sso_user = models.ForeignKey(
