@@ -175,24 +175,6 @@ def index_staff_document(*, staff_document: StaffDocument):
     )
 
 
-def get_all_staff_documents() -> List[StaffDocument]:
-    """
-    Get all Staff documents from the Staff index.
-    """
-    search_client = get_search_connection()
-    search = Search(index=STAFF_INDEX_NAME).using(search_client)
-    search_results = search.execute()
-
-    staff_documents = []
-    for hit in search_results.hits:
-        # TODO: Drop infer_missing=True once we have plugged into all live data
-        staff_documents.append(
-            StaffDocument.from_dict(hit.to_dict(), infer_missing=True)
-        )
-
-    return staff_documents
-
-
 def search_staff_index(
     *, query: str, exclude_staff_ids: Optional[List[str]] = None
 ) -> List[StaffDocument]:
