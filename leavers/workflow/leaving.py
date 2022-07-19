@@ -88,8 +88,8 @@ LeaversWorkflow = Workflow(
             targets=[
                 "send_uksbs_leaver_details",
                 "send_service_now_leaver_details",
+                "send_it_ops_leaver_details",
                 "send_lsd_team_leaver_details",
-                "notify_csu4_of_leaving",
                 "notify_csu4_of_leaving",
                 "notify_ocs_of_leaving",
                 "notify_ocs_of_oab_locker",
@@ -116,12 +116,13 @@ LeaversWorkflow = Workflow(
         # IT Ops
         Step(
             step_id="send_it_ops_leaver_details",
-            # TODO: Add a task to send the leaver details to IT Ops
-            # (likely an email)
-            task_name="pause_task",
+            task_name="notification_email",
             targets=[
                 "are_all_tasks_complete",
             ],
+            task_info={
+                "email_id": EmailIds.IT_OPS_ASSET_EMAIL.value,
+            },
         ),
         # LSD
         Step(

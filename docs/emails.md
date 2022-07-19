@@ -32,6 +32,7 @@ These are notification emails sent to the processor:
 | Email name | Template ID Environment Variable | Context/Notes |
 | ----- | ----- | ----- |
 | CSU4 Leaver Notification Email | TEMPLATE_ID_CSU4_EMAIL | This email is sent to CSU4 to inform them of the leaver. |
+| IT Ops Leaver Notification Email | TEMPLATE_ID_IT_OPS_ASSET_EMAIL | This email is sent to the IT Ops team to inform them of the leaver and their reported assets. |
 | OCS Leaver Notification Email | TEMPLATE_ID_OCS_LEAVER_EMAIL | This email is sent to OCS to inform them of the leaver. |
 | OCS Leaver OAB Locker Email | TEMPLATE_ID_OCS_OAB_LOCKER_EMAIL | This email is sent to the OAB Locker team to inform them of the leaver. |
 | SRE Reminder Email | TEMPLATE_ID_SRE_REMINDER_EMAIL |  |
