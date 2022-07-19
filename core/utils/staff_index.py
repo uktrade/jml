@@ -175,13 +175,6 @@ def index_staff_document(*, staff_document: StaffDocument):
     )
 
 
-def get_all_staff_documents() -> List[StaffDocument]:
-    """
-    Get all Staff documents from the Staff index.
-    """
-    return search_staff_index(query="")
-
-
 def search_staff_index(
     *, query: str, exclude_staff_ids: Optional[List[str]] = None
 ) -> List[StaffDocument]:
@@ -237,37 +230,68 @@ def search_staff_index(
     return staff_documents
 
 
+class TooManyStaffDocumentsFound(Exception):
+    pass
+
+
 class StaffDocumentNotFound(Exception):
     pass
 
 
 def get_staff_document_from_staff_index(
-    *, sso_email_user_id: Optional[str] = None, staff_uuid: Optional[str] = None
+    *,
+    sso_email_user_id: Optional[str] = None,
+    staff_uuid: Optional[str] = None,
+    sso_email_address: Optional[str] = None,
 ) -> StaffDocument:
     """
     Get a Staff document from the Staff index.
     """
-    if not sso_email_user_id and not staff_uuid or sso_email_user_id and staff_uuid:
-        raise ValueError("One of staff_id or staff_uuid must be provided, not both")
-
-    search_field: str = ""
-    search_value: str = ""
+    values = []
     if sso_email_user_id:
-        search_field = "staff_sso_email_user_id"
-        search_value = sso_email_user_id
-    elif staff_uuid:
-        search_field = "uuid"
-        search_value = staff_uuid
+        values.append(sso_email_user_id)
+    if staff_uuid:
+        values.append(staff_uuid)
+    if sso_email_address:
+        values.append(sso_email_address)
 
-    search_dict = {
-        "query": {
-            "match_phrase": {
-                search_field: {
-                    "query": search_value,
-                },
+    if len(values) != 1:
+        raise ValueError(
+            "One of staff_id, staff_uuid or sso_email_address must be provided, "
+            "not multiple/all."
+        )
+
+    search_dict = {}
+    if sso_email_user_id:
+        search_dict = {
+            "query": {
+                "match_phrase": {
+                    "staff_sso_email_user_id": {
+                        "query": sso_email_user_id,
+                    },
+                }
             }
         }
-    }
+    elif staff_uuid:
+        search_dict = {
+            "query": {
+                "match_phrase": {
+                    "uuid": {
+                        "query": staff_uuid,
+                    },
+                }
+            }
+        }
+    elif sso_email_address:
+        search_dict = {
+            "query": {
+                "match_phrase": {
+                    "staff_sso_email_addresses": {
+                        "query": sso_email_address,
+                    },
+                }
+            }
+        }
 
     search_client = get_search_connection()
 
@@ -280,6 +304,8 @@ def get_staff_document_from_staff_index(
 
     if len(search_results) == 0:
         raise StaffDocumentNotFound()
+    if len(search_results) > 1:
+        raise TooManyStaffDocumentsFound()
 
     hit: Hit = search_results.hits[0]
 

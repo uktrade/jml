@@ -206,7 +206,7 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
 
     uksbs_leaver_managers: List[PersonData] = uksbs_leaver_hierarchy.get("manager", [])
     uksbs_leaver_manager_oracle_ids: List[str] = [
-        uksbs_leaver_manager["person_id"]
+        str(uksbs_leaver_manager["person_id"])
         for uksbs_leaver_manager in uksbs_leaver_managers
     ]
 
@@ -218,9 +218,9 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
     for current_manager_as_user in ActivityStreamStaffSSOUser.objects.filter(
         user_id__in=uksbs_leaver_manager_oracle_ids
     ):
-        current_manager_sso_email: ActivityStreamStaffSSOUserEmail = (
-            current_manager_as_user.sso_emails.first()
-        )
+        current_manager_sso_email: Optional[
+            ActivityStreamStaffSSOUserEmail
+        ] = current_manager_as_user.sso_emails.first()
 
         if current_manager_sso_email:
             current_manager_emails.append(current_manager_sso_email.email_address)
@@ -408,7 +408,8 @@ def send_it_ops_asset_email(leaving_request: LeavingRequest):
     dse_assets: List[DisplayScreenEquipmentAsset] = leaver_information.dse_assets
     dse_assets_string = ""
     for dse_asset in dse_assets:
-        dse_assets_string += f"* {dse_asset.name}\n"
+        dse_asset_name = dse_asset["name"]
+        dse_assets_string += f"* {dse_asset_name}\n"
 
     notify.email(
         email_addresses=[settings.IT_OPS_EMAIL],
