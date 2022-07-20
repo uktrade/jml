@@ -376,17 +376,14 @@ class ServiceNowInterface(ServiceNowBase):
         if leaver_info.leaving_date:
             leaving_date = leaver_info.leaving_date.strftime("%d/%m/%Y")
 
-        collection_address: types.Address = {
-            "building_and_street": leaver_info.return_address_building_and_street or "",
-            "city": leaver_info.return_address_city or "",
-            "county": leaver_info.return_address_county or "",
-            "postcode": leaver_info.return_address_postcode or "",
-        }
+        collection_address = leaver_info.return_address
         collection_address_str: str = ""
-        if collection_address["building_and_street"]:
-            collection_address_str += collection_address["building_and_street"] + "\n"
-        if collection_address["city"]:
-            collection_address_str += collection_address["city"] + "\n"
+        if collection_address["line_1"]:
+            collection_address_str += collection_address["line_1"] + "\n"
+        if collection_address["line_2"]:
+            collection_address_str += collection_address["line_2"] + "\n"
+        if collection_address["town_or_city"]:
+            collection_address_str += collection_address["town_or_city"] + "\n"
         if collection_address["county"]:
             collection_address_str += collection_address["county"]
 

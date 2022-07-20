@@ -358,8 +358,9 @@ class TestLeaverInformationMixin(TestCase):
             personal_phone="0123451234",
             contact_email=self.leaver_email,
             address={
-                "building_and_street": "Example Building name",
-                "city": "Bristol",
+                "line_1": "Example Building name",
+                "line_2": "Example Street name",
+                "town_or_city": "Bristol",
                 "county": "Bristol",
                 "postcode": "AB1 2CD",  # /PS-IGNORE
             },
@@ -372,8 +373,12 @@ class TestLeaverInformationMixin(TestCase):
             self.leaver_email,
         )
         self.assertEqual(
-            leaver_info.return_address_building_and_street,
+            leaver_info.return_address_line_1,
             "Example Building name",
+        )
+        self.assertEqual(
+            leaver_info.return_address_line_2,
+            "Example Street name",
         )
         self.assertEqual(leaver_info.return_address_city, "Bristol")
         self.assertEqual(leaver_info.return_address_county, "Bristol")
@@ -534,9 +539,10 @@ class TestUpdateDetailsView(TestCase):
             "joe.bloggs@example.com",  # /PS-IGNORE
         )
         self.assertEqual(form.initial["contact_phone"], None)
-        self.assertEqual(form.initial["contact_address_line1"], None)
-        self.assertEqual(form.initial["contact_address_line2"], None)
-        self.assertEqual(form.initial["contact_address_town"], None)
+        self.assertEqual(form.initial["contact_address_line_1"], None)
+        self.assertEqual(form.initial["contact_address_line_2"], None)
+        self.assertEqual(form.initial["contact_address_city"], None)
+        self.assertEqual(form.initial["contact_address_county"], None)
         self.assertEqual(form.initial["contact_address_postcode"], None)
         self.assertEqual(form.initial["photo"], "")
 
@@ -577,9 +583,10 @@ class TestUpdateDetailsView(TestCase):
                 "date_of_birth": None,
                 "contact_email_address": updates["contact_email_address"],
                 "contact_phone": None,
-                "contact_address_line1": None,
-                "contact_address_line2": None,
-                "contact_address_town": None,
+                "contact_address_line_1": None,
+                "contact_address_line_2": None,
+                "contact_address_city": None,
+                "contact_address_county": None,
                 "contact_address_postcode": None,
                 "has_dse": None,
                 "has_gov_procurement_card": None,
@@ -604,9 +611,10 @@ class TestUpdateDetailsView(TestCase):
                 "job_title": "",
                 "last_name": "",
                 "contact_email_address": "",
-                "contact_address_line1": "",
-                "contact_address_line2": "",
-                "contact_address_town": "",
+                "contact_address_line_1": "",
+                "contact_address_line_2": "",
+                "contact_address_city": "",
+                "contact_address_county": "",
                 "contact_address_postcode": "",
             },
         )
@@ -623,13 +631,16 @@ class TestUpdateDetailsView(TestCase):
             response, "form", "contact_phone", "This field is required."
         )
         self.assertFormError(
-            response, "form", "contact_address_line1", "This field is required."
+            response, "form", "contact_address_line_1", "This field is required."
         )
         self.assertFormError(
-            response, "form", "contact_address_line2", "This field is required."
+            response, "form", "contact_address_line_2", "This field is required."
         )
         self.assertFormError(
-            response, "form", "contact_address_town", "This field is required."
+            response, "form", "contact_address_city", "This field is required."
+        )
+        self.assertFormError(
+            response, "form", "contact_address_county", "This field is required."
         )
         self.assertFormError(
             response, "form", "contact_address_postcode", "This field is required."
@@ -648,9 +659,10 @@ class TestUpdateDetailsView(TestCase):
                 "date_of_birth_2": 1997,
                 "contact_email_address": "someone@example.com",  # /PS-IGNORE
                 "contact_phone": "07123123123",
-                "contact_address_line1": "Example House Name",
-                "contact_address_line2": "Some street",
-                "contact_address_town": "London",
+                "contact_address_line_1": "Example House Name",
+                "contact_address_line_2": "Some street",
+                "contact_address_city": "London",
+                "contact_address_county": "Greater London",
                 "contact_address_postcode": "AB1 2CD",  # /PS-IGNORE
                 "job_title": "Job Title",
                 "directorate": "1",
@@ -1181,7 +1193,8 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         context_form = response.context["form"]
-        self.assertTrue(context_form.fields["address_building"].required)
+        self.assertTrue(context_form.fields["address_line_1"].required)
+        self.assertTrue(context_form.fields["address_line_2"].required)
         self.assertTrue(context_form.fields["address_city"].required)
         self.assertTrue(context_form.fields["address_county"].required)
         self.assertTrue(context_form.fields["address_postcode"].required)
@@ -1204,7 +1217,8 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         context_form = response.context["form"]
-        self.assertFalse(context_form.fields["address_building"].required)
+        self.assertFalse(context_form.fields["address_line_1"].required)
+        self.assertFalse(context_form.fields["address_line_2"].required)
         self.assertFalse(context_form.fields["address_city"].required)
         self.assertFalse(context_form.fields["address_county"].required)
         self.assertFalse(context_form.fields["address_postcode"].required)
@@ -1229,7 +1243,8 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
             {
                 "personal_phone": "0123123123",  # /PS-IGNORE
                 "contact_email": "joe.bloggs@example.com",  # /PS-IGNORE
-                "address_building": "Example Building name",  # /PS-IGNORE
+                "address_line_1": "Example Building name",  # /PS-IGNORE
+                "address_line_2": "Example Street name",  # /PS-IGNORE
                 "address_city": "Bristol",
                 "address_county": "Bristol",
                 "address_postcode": "AB1 2CD",  # /PS-IGNORE
@@ -1245,8 +1260,9 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
             personal_phone="0123123123",  # /PS-IGNORE
             contact_email="joe.bloggs@example.com",  # /PS-IGNORE
             address={
-                "building_and_street": "Example Building name",  # /PS-IGNORE
-                "city": "Bristol",
+                "line_1": "Example Building name",  # /PS-IGNORE
+                "line_2": "Example Street name",
+                "town_or_city": "Bristol",
                 "county": "Bristol",
                 "postcode": "AB1 2CD",  # /PS-IGNORE
             },

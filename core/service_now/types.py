@@ -46,16 +46,6 @@ class LineManagerDetails(TypedDict):
     name: str
 
 
-class Address(TypedDict):
-    # See: https://design-system.service.gov.uk/patterns/addresses/multiple/index.html
-    # We can alter this based on what data we take from the form and how
-    # Service Now expects the data.
-    building_and_street: str
-    city: str
-    county: str
-    postcode: str
-
-
 class DepartmentDetails(TypedDict):
     sys_id: str
     name: str

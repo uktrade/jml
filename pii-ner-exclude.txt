@@ -15,6 +15,9 @@
 " Store Extra
 " Store the Correction
 " Task Logs
+" The Asset's
+" The Service Now API Asset
+" The Service Now API User
 "Lost/Stolen"
 @media
 *Actions required:*\n
