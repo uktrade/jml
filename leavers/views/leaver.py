@@ -904,14 +904,28 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
-        initial["personal_phone"] = self.leaver_info.return_personal_phone
-        initial["contact_email"] = self.leaver_info.return_contact_email
-        initial[
-            "address_building"
-        ] = self.leaver_info.return_address_building_and_street
-        initial["address_city"] = self.leaver_info.return_address_city
-        initial["address_county"] = self.leaver_info.return_address_county
-        initial["address_postcode"] = self.leaver_info.return_address_postcode
+        initial["personal_phone"] = (
+            self.leaver_info.return_personal_phone or self.leaver_info.contact_phone
+        )
+        initial["contact_email"] = (
+            self.leaver_info.return_contact_email or self.leaver_info.personal_email
+        )
+        initial["address_building"] = (
+            self.leaver_info.return_address_building_and_street
+            or self.leaver_info.contact_address_line1
+        )
+        initial["address_city"] = (
+            self.leaver_info.return_address_city
+            or self.leaver_info.contact_address_line2
+        )
+        initial["address_county"] = (
+            self.leaver_info.return_address_county
+            or self.leaver_info.contact_address_town
+        )
+        initial["address_postcode"] = (
+            self.leaver_info.return_address_postcode
+            or self.leaver_info.contact_address_postcode
+        )
         return initial
 
     def get_form_kwargs(self) -> Dict[str, Any]:
