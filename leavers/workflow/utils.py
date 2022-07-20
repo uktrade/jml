@@ -76,7 +76,7 @@ def get_or_create_leaving_workflow(
 
     if not leaving_request.flow:
         flow = Flow.objects.create(
-            workflow_name="leaving",
+            workflow_name="Leaving",
             executed_by=executed_by,
             flow_name=f"{leaving_request.get_leaver_name()} is leaving",
         )
