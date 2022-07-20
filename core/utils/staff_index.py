@@ -149,12 +149,13 @@ def index_staff_document(*, staff_document: StaffDocument):
     """
     search_client = get_search_connection()
     existing_document: Optional[StaffDocument] = None
-    try:
-        existing_document = get_staff_document_from_staff_index(
-            sso_email_user_id=staff_document.staff_sso_email_user_id
-        )
-    except StaffDocumentNotFound:
-        pass
+    if staff_document.staff_sso_email_user_id:
+        try:
+            existing_document = get_staff_document_from_staff_index(
+                sso_email_user_id=staff_document.staff_sso_email_user_id
+            )
+        except StaffDocumentNotFound:
+            pass
 
     if existing_document:
         search_client.delete_by_query(
