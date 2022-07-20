@@ -1,9 +1,10 @@
 $govuk-page-width: 1800px;
+$govuk-assets-path: "/static/govuk-frontend/govuk/assets/";
 @import "./node_modules/govuk-frontend/govuk/all";
-@import "./leavers/static/leavers/css/pagination";
+@import "./core/static/css/healthcheck";
+@import "./core/static/css/pagination";
 @import "./leavers/static/leavers/css/progress_indicator";
 @import "./leavers/static/leavers/css/sre_leaving_requests_table";
-@import "./leavers/static/leavers/css/healthcheck";
 
 .leaver-image {
     width: 100%;
