@@ -687,7 +687,7 @@ def get_cirrus_assets(request: HttpRequest) -> List[types.CirrusAsset]:
 class HasCirrusEquipmentView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/cirrus/has_equipment.html"
     form_class = leaver_forms.HasCirrusKitForm
-    success_url = reverse_lazy("leaver-display-screen-equipment")
+    success_url = reverse_lazy("leaver-cirrus-equipment")
 
     def __init__(self) -> None:
         super().__init__()
@@ -706,14 +706,13 @@ class HasCirrusEquipmentView(LeaverInformationMixin, FormView):
 
         if not user_assets:
             return super().dispatch(request, *args, **kwargs)
-
         return redirect(self.success_url)
 
     def form_valid(self, form):
         has_cirrus_kit: Literal["yes", "no"] = form.cleaned_data["has_cirrus_kit"]
 
-        if has_cirrus_kit == "yes":
-            self.success_url = reverse_lazy("leaver-cirrus-equipment")
+        if has_cirrus_kit == "no":
+            self.success_url = reverse_lazy("leaver-display-screen-equipment")
 
         return super().form_valid(form)
 

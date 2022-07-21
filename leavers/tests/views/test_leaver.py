@@ -700,6 +700,81 @@ class TestUpdateDetailsView(TestCase):
         )
 
 
+class TestHasCirrusEquipmentView(TestCase):
+    view_name = "leaver-has-cirrus-equipment"
+
+    def setUp(self) -> None:
+        self.leaver = UserFactory()
+        self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.leaver.sso_email_user_id,
+        )
+        self.leaver_information = factories.LeaverInformationFactory(
+            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
+            leaving_request__user_requesting=self.leaver,
+        )
+        ServiceEmailAddressFactory(
+            staff_sso_user=self.leaver_activity_stream_staff_sso,
+        )
+
+    def test_unauthenticated_user(self) -> None:
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_authenticated_user(self) -> None:
+        self.client.force_login(self.leaver)
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
+
+    @mock.patch(
+        "leavers.views.leaver.get_cirrus_assets",
+        return_value=[
+            {
+                "uuid": str(uuid.uuid4()),
+                "sys_id": "sys_id",
+                "tag": "tag",
+                "name": "name",
+            }
+        ],
+    )
+    def test_user_has_assets(self, mock_get_cirrus_assets) -> None:
+        self.client.force_login(self.leaver)
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
+
+    @mock.patch("leavers.views.leaver.get_cirrus_assets", return_value=[])
+    def test_user_has_no_assets(self, mock_get_cirrus_assets) -> None:
+        self.client.force_login(self.leaver)
+
+        response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(response.status_code, 200)
+
+    @mock.patch("leavers.views.leaver.get_cirrus_assets", return_value=[])
+    def test_post_yes(self, mock_get_cirrus_assets) -> None:
+        self.client.force_login(self.leaver)
+
+        response = self.client.post(reverse(self.view_name), {"has_cirrus_kit": "yes"})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
+
+    @mock.patch("leavers.views.leaver.get_cirrus_assets", return_value=[])
+    def test_post_no(self, mock_get_cirrus_assets) -> None:
+        self.client.force_login(self.leaver)
+
+        response = self.client.post(reverse(self.view_name), {"has_cirrus_kit": "no"})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse("leaver-display-screen-equipment"))
+
+
 class TestCirrusEquipmentView(TestCase):
     view_name = "leaver-cirrus-equipment"
 
