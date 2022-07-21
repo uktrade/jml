@@ -272,10 +272,10 @@ class ReasonForleaving(TextChoices):
 
 
 class ConfirmLeavingDate(forms.Form):
-    leaving_date = DateInputField(
+    last_day = DateInputField(
         label="",
     )
-    last_day = DateInputField(
+    leaving_date = DateInputField(
         label="",
     )
     reason_for_leaving = forms.ChoiceField(
@@ -294,17 +294,6 @@ class ConfirmLeavingDate(forms.Form):
             Fieldset(
                 HTML(
                     "<p class='govuk-body'>This is the last day the leaver will "
-                    "be employed by the department and the last day they will "
-                    "be paid for.</p>"
-                ),
-                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
-                Field("leaving_date"),
-                legend=f"Confirm the leaving date provided by {leaver_name}",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                HTML(
-                    "<p class='govuk-body'>This is the last day the leaver will "
                     "be working at DIT. After this date the leaver will no "
                     "longer have access to any DIT provided systems and "
                     "buildings.</p>"
@@ -312,6 +301,17 @@ class ConfirmLeavingDate(forms.Form):
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("last_day"),
                 legend=f"Confirm the last working day provided by {leaver_name}",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                HTML(
+                    "<p class='govuk-body'>This is the last day the leaver will "
+                    "be employed by the department and the last day they will "
+                    "be paid for.</p>"
+                ),
+                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
+                Field("leaving_date"),
+                legend=f"Confirm the leaving date provided by {leaver_name}",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
