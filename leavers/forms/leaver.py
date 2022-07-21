@@ -18,7 +18,7 @@ class SecurityClearance(TextChoices):
 
     BPSS = "bpss", "Baseline Personnel Security Standard (BPSS)"
     CTC = "ctc", "Counter Terrorist Check (CTC)"
-    SC = "sc", "Security Check"
+    SC = "sc", "Security Check (SC)"
     ESC = "esc", "Enhanced Security Check (eSC)"
     DV = "dv", "Developed Vetting (DV)"
     EDV = "edv", "Enhanced Developed Vetting (eDV)"
