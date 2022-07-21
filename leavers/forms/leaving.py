@@ -1,10 +1,8 @@
 from django import forms
 from django.forms import RadioSelect
 
-from core.forms import GovFormattedForm
 
-
-class WhoIsLeavingForm(GovFormattedForm):
+class WhoIsLeavingForm(forms.Form):
     CHOICES = [
         ("me", "Me"),
         ("someone_else", "Someone Else"),

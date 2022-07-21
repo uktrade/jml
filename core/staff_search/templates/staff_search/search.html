@@ -1,14 +1,18 @@
 {% extends "leaving/leaving_base.html" %}
+{% load static crispy_forms_tags crispy_forms_gds %}
 
 {% block main_class_names %}back-link-format{% endblock %}
 
 {% block content %}
+
     <h2 class="govuk-heading-m">Search for the {{ search_name }}</h2>
+    {% error_summary form %}
+
     <form novalidate method="POST">
         {% csrf_token %}
-        {% include "includes/govt_uk_form.html" with form=form %}
-        <input type="submit" value="Search" class="govuk-button govuk-button" data-module="govuk-button"/>
+        {% crispy form %}
     </form>
+
     {% if search_term %}
         <h2 class="govuk-heading-m">{{ staff_results|length }} result{{ staff_results|pluralize }} for "{{ search_term }}"</h2>
         {% for staff_details in staff_results %}
@@ -16,4 +20,5 @@
             <a href="{{ success_url }}?{{ query_param_name }}={{ staff_details.uuid }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Select</a>
         {% endfor %}
     {% endif %}
+
 {% endblock %}

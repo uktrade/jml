@@ -7,7 +7,7 @@ from crispy_forms_gds.layout import HTML, Button, Field, Fieldset, Layout, Size,
 from django import forms
 from django.db.models.enums import TextChoices
 
-from core.forms import GovFormattedForm, YesNoField
+from core.forms import YesNoField
 from core.service_now import get_service_now_interface
 
 
@@ -335,8 +335,21 @@ class AddCirrusAssetForm(forms.Form):
         )
 
 
-class AddDisplayScreenEquipmentAssetForm(GovFormattedForm):
-    asset_name = forms.CharField(label="Add asset")
+class AddDisplayScreenEquipmentAssetForm(forms.Form):
+    asset_name = forms.CharField(label="Asset name")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("asset_name"),
+            Submit(
+                "submit",
+                "Add asset",
+                css_class="govuk-button--secondary",
+            ),
+        )
 
 
 class CorrectionForm(forms.Form):
@@ -384,5 +397,11 @@ class CorrectionForm(forms.Form):
         return whats_incorrect
 
 
-class SubmissionForm(GovFormattedForm):
-    pass
+class SubmissionForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Submit("submit", "Save and continue"),
+        )

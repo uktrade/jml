@@ -4,10 +4,8 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import HTML, Field, Layout, Submit
 from django import forms
 
-from core.forms import GovFormattedForm
 
-
-class SREConfirmCompleteForm(GovFormattedForm):
+class SREConfirmCompleteForm(forms.Form):
     vpn = forms.BooleanField(
         label="VPN",
         required=True,

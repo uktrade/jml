@@ -8,7 +8,6 @@ from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import UploadedFile
 from django.db.models.enums import TextChoices
 
-from core.forms import GovFormattedForm
 from core.utils.staff_index import ConsolidatedStaffDocument
 
 if TYPE_CHECKING:
@@ -22,7 +21,7 @@ class PdfFileField(forms.FileField):
             raise ValidationError("File must be a PDF")
 
 
-class UksbsPdfForm(GovFormattedForm):
+class UksbsPdfForm(forms.Form):
     uksbs_pdf = PdfFileField(
         label="",
     )
@@ -63,7 +62,7 @@ class DaysHours(TextChoices):
     HOURS = "hours", "Hours"
 
 
-class LineManagerDetailsForm(GovFormattedForm):
+class LineManagerDetailsForm(forms.Form):
 
     leaver_paid_unpaid = forms.ChoiceField(
         label="",
@@ -231,7 +230,7 @@ class LineManagerDetailsForm(GovFormattedForm):
         return flexi_number
 
 
-class LineReportConfirmationForm(GovFormattedForm):
+class LineReportConfirmationForm(forms.Form):
     def __init__(self, leaving_request: "LeavingRequest", *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -253,7 +252,7 @@ class LineReportConfirmationForm(GovFormattedForm):
         return super().clean()
 
 
-class LineManagerConfirmationForm(GovFormattedForm):
+class LineManagerConfirmationForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -272,7 +271,7 @@ class ReasonForleaving(TextChoices):
     END_OF_CONTRACT = "end_of_contract", "End of contract"
 
 
-class ConfirmLeavingDate(GovFormattedForm):
+class ConfirmLeavingDate(forms.Form):
     leaving_date = DateInputField(
         label="",
     )

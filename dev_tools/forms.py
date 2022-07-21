@@ -1,8 +1,8 @@
+from crispy_forms_gds.helper import FormHelper
+from crispy_forms_gds.layout import Field, Layout, Submit
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-
-from core.forms import GovFormattedForm
 
 User = get_user_model()
 
@@ -14,15 +14,24 @@ def get_user_choices():
     ]
 
 
-class ChangeUserForm(GovFormattedForm):
+class ChangeUserForm(forms.Form):
     user = forms.ChoiceField(
         label="Choose a user to impersonate",
         choices=get_user_choices,
         required=True,
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-class CreateUserForm(GovFormattedForm):
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("user"),
+            Submit("submit", "Select user"),
+        )
+
+
+class CreateUserForm(forms.Form):
     first_name = forms.CharField(max_length=100, required=True)
     last_name = forms.CharField(max_length=100, required=True)
     email = forms.EmailField(required=True)
@@ -31,6 +40,18 @@ class CreateUserForm(GovFormattedForm):
         queryset=Group.objects.all(),
         required=True,
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("first_name"),
+            Field("last_name"),
+            Field("email"),
+            Field("group"),
+            Submit("submit", "Create user"),
+        )
 
     def clean_email(self):
         """

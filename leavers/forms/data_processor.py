@@ -2,10 +2,8 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Fluid, Layout, Submit
 from django import forms
 
-from core.forms import GovFormattedForm
 
-
-class LeavingRequestListingSearchForm(GovFormattedForm):
+class LeavingRequestListingSearchForm(forms.Form):
     query = forms.CharField(
         label="",
         help_text="Search leaver by name or email",
