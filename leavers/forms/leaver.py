@@ -24,8 +24,14 @@ class SecurityClearance(TextChoices):
     EDV = "edv", "Enhanced Developed Vetting (eDV)"
 
 
-class LeaverConfirmationForm(GovFormattedForm):
-    pass
+class LeaverConfirmationForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Submit("submit", "Accept and send"),
+        )
 
 
 class StaffType(TextChoices):
@@ -35,7 +41,7 @@ class StaffType(TextChoices):
     BENCH_CONTRACTOR = "bench_contractor", "Bench contractor such as Profusion"
 
 
-class LeaverUpdateForm(GovFormattedForm):
+class LeaverUpdateForm(forms.Form):
     # Personal details
     first_name = forms.CharField(label="")
     last_name = forms.CharField(label="")
@@ -230,7 +236,7 @@ RETURN_OPTIONS = [
 ]
 
 
-class ReturnOptionForm(GovFormattedForm):
+class ReturnOptionForm(forms.Form):
     return_option = forms.ChoiceField(
         label="",
         choices=RETURN_OPTIONS,
@@ -246,7 +252,7 @@ class ReturnOptionForm(GovFormattedForm):
         )
 
 
-class ReturnInformationForm(GovFormattedForm):
+class ReturnInformationForm(forms.Form):
     personal_phone = forms.CharField(label="", max_length=16)
     contact_email = forms.EmailField(label="")
     address_line_1 = forms.CharField(label="Address line 1")
@@ -317,7 +323,7 @@ class HasCirrusKitForm(forms.Form):
         )
 
 
-class AddCirrusAssetForm(GovFormattedForm):
+class AddCirrusAssetForm(forms.Form):
     asset_name = forms.CharField(label="Add asset")
 
     def __init__(self, *args, **kwargs):
@@ -333,7 +339,7 @@ class AddDisplayScreenEquipmentAssetForm(GovFormattedForm):
     asset_name = forms.CharField(label="Add asset")
 
 
-class CorrectionForm(GovFormattedForm):
+class CorrectionForm(forms.Form):
     is_correct = YesNoField(
         label="Is this information correct?",
     )
