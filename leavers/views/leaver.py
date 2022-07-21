@@ -15,8 +15,8 @@ from django.views.generic.edit import FormView
 from activity_stream.models import ActivityStreamStaffSSOUser, ServiceEmailAddress
 from core.people_finder import get_people_finder_interface
 from core.service_now import get_service_now_interface
-from core.service_now import types as service_now_types
 from core.staff_search.views import StaffSearchView
+from core.types import Address
 from core.utils.helpers import bool_to_yes_no
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
@@ -254,9 +254,10 @@ class LeaverInformationMixin:
             "has_dse": has_dse,
             "staff_type": leaving_request.staff_type,
             "contact_phone": leaver_info.contact_phone,
-            "contact_address_line1": leaver_info.contact_address_line1,
-            "contact_address_line2": leaver_info.contact_address_line2,
-            "contact_address_town": leaver_info.contact_address_town,
+            "contact_address_line_1": leaver_info.contact_address_line_1,
+            "contact_address_line_2": leaver_info.contact_address_line_2,
+            "contact_address_city": leaver_info.contact_address_city,
+            "contact_address_county": leaver_info.contact_address_county,
             "contact_address_postcode": leaver_info.contact_address_postcode,
         }
 
@@ -272,9 +273,10 @@ class LeaverInformationMixin:
         has_dse: bool,
         staff_type: str,
         contact_phone: str,
-        contact_address_line1: str,
-        contact_address_line2: str,
-        contact_address_town: str,
+        contact_address_line_1: str,
+        contact_address_line_2: str,
+        contact_address_city: str,
+        contact_address_county: str,
         contact_address_postcode: str,
     ) -> None:
         """
@@ -305,9 +307,10 @@ class LeaverInformationMixin:
         leaver_info.has_locker = has_locker
         leaver_info.has_dse = has_dse
         leaver_info.contact_phone = contact_phone
-        leaver_info.contact_address_line1 = contact_address_line1
-        leaver_info.contact_address_line2 = contact_address_line2
-        leaver_info.contact_address_town = contact_address_town
+        leaver_info.contact_address_line_1 = contact_address_line_1
+        leaver_info.contact_address_line_2 = contact_address_line_2
+        leaver_info.contact_address_city = contact_address_city
+        leaver_info.contact_address_county = contact_address_county
         leaver_info.contact_address_postcode = contact_address_postcode
         leaver_info.save(
             update_fields=[
@@ -315,9 +318,10 @@ class LeaverInformationMixin:
                 "has_locker",
                 "has_dse",
                 "contact_phone",
-                "contact_address_line1",
-                "contact_address_line2",
-                "contact_address_town",
+                "contact_address_line_1",
+                "contact_address_line_2",
+                "contact_address_city",
+                "contact_address_county",
                 "contact_address_postcode",
             ]
         )
@@ -455,7 +459,7 @@ class LeaverInformationMixin:
         requester: User,
         personal_phone: Optional[str],
         contact_email: Optional[str],
-        address: Optional[service_now_types.Address],
+        address: Optional[Address],
     ) -> None:
         leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=requester
@@ -464,16 +468,15 @@ class LeaverInformationMixin:
         leaver_info.return_contact_email = contact_email
 
         # Reset address fields
-        leaver_info.return_address_building_and_street = None
+        leaver_info.return_address_line_1 = None
         leaver_info.return_address_city = None
         leaver_info.return_address_county = None
         leaver_info.return_address_postcode = None
 
         if address:
-            leaver_info.return_address_building_and_street = address[
-                "building_and_street"
-            ]
-            leaver_info.return_address_city = address["city"]
+            leaver_info.return_address_line_1 = address["line_1"]
+            leaver_info.return_address_line_2 = address["line_2"]
+            leaver_info.return_address_city = address["town_or_city"]
             leaver_info.return_address_county = address["county"]
             leaver_info.return_address_postcode = address["postcode"]
 
@@ -482,7 +485,8 @@ class LeaverInformationMixin:
             update_fields=[
                 "return_personal_phone",
                 "return_contact_email",
-                "return_address_building_and_street",
+                "return_address_line_1",
+                "return_address_line_2",
                 "return_address_city",
                 "return_address_county",
                 "return_address_postcode",
@@ -636,9 +640,10 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             has_dse=bool(form.cleaned_data["has_dse"] == "yes"),
             staff_type=form.cleaned_data["staff_type"],
             contact_phone=form.cleaned_data["contact_phone"],
-            contact_address_line1=form.cleaned_data["contact_address_line1"],
-            contact_address_line2=form.cleaned_data["contact_address_line2"],
-            contact_address_town=form.cleaned_data["contact_address_town"],
+            contact_address_line_1=form.cleaned_data["contact_address_line_1"],
+            contact_address_line_2=form.cleaned_data["contact_address_line_2"],
+            contact_address_city=form.cleaned_data["contact_address_city"],
+            contact_address_county=form.cleaned_data["contact_address_county"],
             contact_address_postcode=form.cleaned_data["contact_address_postcode"],
         )
         self.store_leaving_dates(
@@ -904,14 +909,32 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
-        initial["personal_phone"] = self.leaver_info.return_personal_phone
-        initial["contact_email"] = self.leaver_info.return_contact_email
-        initial[
-            "address_building"
-        ] = self.leaver_info.return_address_building_and_street
-        initial["address_city"] = self.leaver_info.return_address_city
-        initial["address_county"] = self.leaver_info.return_address_county
-        initial["address_postcode"] = self.leaver_info.return_address_postcode
+        initial["personal_phone"] = (
+            self.leaver_info.return_personal_phone or self.leaver_info.contact_phone
+        )
+        initial["contact_email"] = (
+            self.leaver_info.return_contact_email or self.leaver_info.personal_email
+        )
+        initial["address_line_1"] = (
+            self.leaver_info.return_address_line_1
+            or self.leaver_info.contact_address_line_1
+        )
+        initial["address_line_2"] = (
+            self.leaver_info.return_address_line_2
+            or self.leaver_info.contact_address_line_2
+        )
+        initial["address_city"] = (
+            self.leaver_info.return_address_city
+            or self.leaver_info.contact_address_city
+        )
+        initial["address_county"] = (
+            self.leaver_info.return_address_county
+            or self.leaver_info.contact_address_county
+        )
+        initial["address_postcode"] = (
+            self.leaver_info.return_address_postcode
+            or self.leaver_info.contact_address_postcode
+        )
         return initial
 
     def get_form_kwargs(self) -> Dict[str, Any]:
@@ -939,11 +962,12 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
             sso_email_user_id=sso_email_user_id, requester=self.request.user
         )
 
-        address: Optional[service_now_types.Address] = None
+        address: Optional[Address] = None
         if leaver_info.return_option == ReturnOptions.HOME.value:
-            address = {
-                "building_and_street": form.cleaned_data["address_building"],
-                "city": form.cleaned_data["address_city"],
+            address: Address = {
+                "line_1": form.cleaned_data["address_line_1"],
+                "line_2": form.cleaned_data["address_line_2"],
+                "town_or_city": form.cleaned_data["address_city"],
                 "county": form.cleaned_data["address_county"],
                 "postcode": form.cleaned_data["address_postcode"],
             }
@@ -1144,7 +1168,6 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
             return_option=self.leaver_info.return_option,
             return_personal_phone=self.leaver_info.return_personal_phone,
             return_contact_email=self.leaver_info.return_contact_email,
-            return_address=self.leaver_info.display_address,
             leaver_info=self.leaver_info,
             leaver_details=self.get_leaver_details_with_updates_for_display(
                 sso_email_user_id=sso_email_user_id,

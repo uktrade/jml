@@ -88,13 +88,19 @@
                             </dd>
                         </div>
                     {% endif %}
-                    {% if return_option == "home" and return_address %}
+                    {% if return_option == "home" and leaver_info.return_address %}
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
                                 Return address
                             </dt>
                             <dd class="govuk-summary-list__value">
-                                {{ return_address }}
+                                <address>
+                                    <p>{{ leaver_info.return_address.line_1 }}</p>
+                                    <p>{{ leaver_info.return_address.line_2 }}</p>
+                                    <p>{{ leaver_info.return_address.town_or_city }}</p>
+                                    <p>{{ leaver_info.return_address.county }}</p>
+                                    <p>{{ leaver_info.return_address.postcode }}</p>
+                                </address>
                             </dd>
                         </div>
                     {% endif %}

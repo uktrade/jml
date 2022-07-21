@@ -1,7 +1,10 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-third">
-        <img class="leaver-image" src="{{ leaver_details.photo }}"
-            alt="Picture of {{ leaver_details.first_name }} {{ leaver_details.last_name }}" />
+        {% if leaver_details.photo %}
+            <img class="leaver-image" src="{{ leaver_details.photo }}" alt="Picture of {{ leaver_details.first_name }} {{ leaver_details.last_name }}" />
+        {% else %}
+            <img class="leaver-image" src="/static/govuk-frontend/govuk/assets/images/govuk-crest-2x.png" alt="Placeholder picture" />
+        {% endif %}
     </div>
     <div class="govuk-grid-column-two-thirds">
         <p class="govuk-body">{{ leaver_details.first_name }} {{ leaver_details.last_name }}</p>
@@ -34,10 +37,11 @@
         </dt>
         <dd class="govuk-summary-list__value">
             <address>
-                <p>{{ leaver_info.contact_address_line1 }}</p>
-                <p>{{ leaver_info.contact_address_line2 }}</p>
-                <p>{{ leaver_info.contact_address_town }}</p>
-                <p>{{ leaver_info.contact_address_postcode }}</p>
+                <p>{{ leaver_info.contact_address.line_1 }}</p>
+                <p>{{ leaver_info.contact_address.line_2 }}</p>
+                <p>{{ leaver_info.contact_address.town_or_city }}</p>
+                <p>{{ leaver_info.contact_address.county }}</p>
+                <p>{{ leaver_info.contact_address.postcode }}</p>
             </address>
         </dd>
     </div>

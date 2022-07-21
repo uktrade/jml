@@ -42,9 +42,10 @@ class LeaverUpdateForm(GovFormattedForm):
     date_of_birth = DateInputField(label="")
     contact_email_address = forms.EmailField(label="")
     contact_phone = forms.CharField(label="")
-    contact_address_line1 = forms.CharField(label="Address line 1")
-    contact_address_line2 = forms.CharField(label="Address line 2")
-    contact_address_town = forms.CharField(label="Town or city")
+    contact_address_line_1 = forms.CharField(label="Address line 1")
+    contact_address_line_2 = forms.CharField(label="Address line 2")
+    contact_address_city = forms.CharField(label="Town or city")
+    contact_address_county = forms.CharField(label="County")
     contact_address_postcode = forms.CharField(label="Postcode")
     job_title = forms.CharField(label="")
     directorate = forms.ChoiceField(label="", choices=[])
@@ -135,9 +136,10 @@ class LeaverUpdateForm(GovFormattedForm):
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
-                Field("contact_address_line1"),
-                Field("contact_address_line2"),
-                Field("contact_address_town"),
+                Field("contact_address_line_1"),
+                Field("contact_address_line_2"),
+                Field("contact_address_city"),
+                Field("contact_address_county"),
                 Field("contact_address_postcode"),
                 legend="Contact address",
                 legend_size=Size.MEDIUM,
@@ -245,11 +247,10 @@ class ReturnOptionForm(GovFormattedForm):
 
 
 class ReturnInformationForm(GovFormattedForm):
-    personal_phone = forms.CharField(label="Contact phone", max_length=16)
-    contact_email = forms.EmailField(label="Contact email")
-    address_building = forms.CharField(
-        label="Building and street",
-    )
+    personal_phone = forms.CharField(label="", max_length=16)
+    contact_email = forms.EmailField(label="")
+    address_line_1 = forms.CharField(label="Address line 1")
+    address_line_2 = forms.CharField(label="Address line 2")
     address_city = forms.CharField(
         label="Town or city",
     )
@@ -264,17 +265,31 @@ class ReturnInformationForm(GovFormattedForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("address_building"),
-            Field("address_city"),
-            Field("address_county"),
-            Field("address_postcode"),
-            Field("personal_phone"),
-            Field("contact_email"),
+            Fieldset(
+                Field("address_line_1"),
+                Field("address_line_2"),
+                Field("address_city"),
+                Field("address_county"),
+                Field("address_postcode"),
+                legend="Contact address",
+                legend_size=Size.SMALL,
+            ),
+            Fieldset(
+                Field("personal_phone"),
+                legend="Contact phone",
+                legend_size=Size.SMALL,
+            ),
+            Fieldset(
+                Field("contact_email"),
+                legend="Contact email",
+                legend_size=Size.SMALL,
+            ),
             Submit("submit", "Save and continue"),
         )
 
         address_fields: List[str] = [
-            "address_building",
+            "address_line_1",
+            "address_line_2",
             "address_city",
             "address_county",
             "address_postcode",

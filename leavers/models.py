@@ -8,6 +8,7 @@ from activity_stream.models import (
     ActivityStreamStaffSSOUser,
     ActivityStreamStaffSSOUserEmail,
 )
+from core.types import Address
 from leavers.forms.leaver import ReturnOptions, SecurityClearance, StaffType
 from leavers.forms.line_manager import (
     AnnualLeavePaidOrDeducted,
@@ -382,9 +383,10 @@ class LeaverInformation(models.Model):
 
     # Leaver contact informtion
     contact_phone = models.CharField(max_length=1000, null=True, blank=True)
-    contact_address_line1 = models.CharField(max_length=1000, null=True, blank=True)
-    contact_address_line2 = models.CharField(max_length=1000, null=True, blank=True)
-    contact_address_town = models.CharField(max_length=1000, null=True, blank=True)
+    contact_address_line_1 = models.CharField(max_length=1000, null=True, blank=True)
+    contact_address_line_2 = models.CharField(max_length=1000, null=True, blank=True)
+    contact_address_city = models.CharField(max_length=1000, null=True, blank=True)
+    contact_address_county = models.CharField(max_length=1000, null=True, blank=True)
     contact_address_postcode = models.CharField(max_length=10, null=True, blank=True)
 
     # Display Screen Equipment
@@ -399,19 +401,29 @@ class LeaverInformation(models.Model):
     )
     return_personal_phone = models.CharField(max_length=16, null=True, blank=True)
     return_contact_email = models.EmailField(null=True, blank=True)
-    return_address_building_and_street = models.CharField(
-        max_length=1000, null=True, blank=True
-    )
+
+    return_address_line_1 = models.CharField(max_length=1000, null=True, blank=True)
+    return_address_line_2 = models.CharField(max_length=1000, null=True, blank=True)
     return_address_city = models.CharField(max_length=1000, null=True, blank=True)
     return_address_county = models.CharField(max_length=1000, null=True, blank=True)
     return_address_postcode = models.CharField(max_length=15, null=True, blank=True)
 
     @property
-    def display_address(self) -> str:
-        address_data = [
-            self.return_address_building_and_street,
-            self.return_address_city,
-            self.return_address_county,
-            self.return_address_postcode,
-        ]
-        return ", \n".join(filter(None, address_data))
+    def contact_address(self) -> Address:
+        return {
+            "line_1": self.contact_address_line_1 or "",
+            "line_2": self.contact_address_line_2 or "",
+            "town_or_city": self.contact_address_city or "",
+            "county": self.contact_address_county or "",
+            "postcode": self.contact_address_postcode or "",
+        }
+
+    @property
+    def return_address(self) -> Address:
+        return {
+            "line_1": self.return_address_line_1 or "",
+            "line_2": self.return_address_line_2 or "",
+            "town_or_city": self.return_address_city or "",
+            "county": self.return_address_county or "",
+            "postcode": self.return_address_postcode or "",
+        }
