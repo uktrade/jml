@@ -4,10 +4,8 @@ from django import forms
 from django.db.models.enums import TextChoices
 from django.urls import reverse
 
-from core.forms import GovFormattedForm
 
-
-class BuildingPassDestroyedForm(GovFormattedForm):
+class BuildingPassDestroyedForm(forms.Form):
     def __init__(self, leaving_request_uuid: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -33,7 +31,7 @@ class BuildingPassDestroyedForm(GovFormattedForm):
         )
 
 
-class BuildingPassNotReturnedForm(GovFormattedForm):
+class BuildingPassNotReturnedForm(forms.Form):
     notes = forms.CharField(
         label="Additional notes (optional)",
         required=False,
@@ -72,7 +70,7 @@ class RosaKit(TextChoices):
     KEY = "key", "ROSA Key"
 
 
-class RosaKitForm(GovFormattedForm):
+class RosaKitForm(forms.Form):
     user_has = forms.MultipleChoiceField(
         label="Select the kit that the leaver has",
         help_text="Select all that apply.",
@@ -164,7 +162,7 @@ class RosaKitForm(GovFormattedForm):
         return cleaned_data
 
 
-class RosaKitCloseRecordForm(GovFormattedForm):
+class RosaKitCloseRecordForm(forms.Form):
     def __init__(self, leaving_request_uuid: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

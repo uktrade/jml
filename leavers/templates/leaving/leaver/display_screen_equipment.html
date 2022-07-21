@@ -1,5 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
-{% load static %}
+{% load static crispy_forms_tags crispy_forms_gds %}
 
 {% block content %}
 
@@ -58,8 +58,7 @@
             <form novalidate method='post'>
                 {% csrf_token %}
                 <input type="hidden" name="form_name" value="add_asset_form">
-                {% include "includes/govt_uk_form.html" with form=add_asset_form %}
-                <input type="submit" value="Add" class="govuk-button govuk-button--secondary" data-module="govuk-button"/>
+                {% crispy add_asset_form %}
             </form>
         </div>
     </div>
@@ -69,8 +68,7 @@
             <form novalidate method='post'>
                 {% csrf_token %}
                 <input type="hidden" name="form_name" value="submission_form">
-                {% include "includes/govt_uk_form.html" with form=submission_form %}
-                <input type="submit" value="Save and continue" class="govuk-button" data-module="govuk-button"/>
+                {% crispy submission_form %}
             </form>
         </div>
     </div>
