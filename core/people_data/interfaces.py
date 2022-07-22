@@ -18,7 +18,7 @@ class PeopleDataStubbed(PeopleDataBase):
             "employee_numbers": [
                 "1",
             ],
-            "uksbs_person_id": 123,
+            "uksbs_person_id": "123",
         }
         return result
 

@@ -1,5 +1,7 @@
 from typing import Optional, TypedDict
 
+from core.uksbs.types import PersonData
+
 
 class LeaverDetails(TypedDict):
     first_name: str
@@ -30,3 +32,17 @@ class CirrusAsset(TypedDict):
     sys_id: Optional[str]
     tag: Optional[str]
     name: str
+
+
+class LeavingRequestLineReportLineManager(TypedDict):
+    name: str
+    email: str
+
+
+class LeavingRequestLineReport(TypedDict):
+    uuid: str
+    name: str
+    email: str
+    line_manager: Optional[LeavingRequestLineReportLineManager]
+    person_data: Optional[PersonData]
+    new_line_report: bool

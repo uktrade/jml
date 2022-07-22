@@ -7,4 +7,4 @@ class PeopleData(TypedDict):
     """
 
     employee_numbers: List[str]
-    uksbs_person_id: Optional[int]
+    uksbs_person_id: Optional[str]

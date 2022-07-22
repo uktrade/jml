@@ -8,6 +8,7 @@ from django_workflow_engine import Task
 from django_workflow_engine.dataclass import Step
 from django_workflow_engine.models import Flow, TaskRecord
 
+from activity_stream.models import ActivityStreamStaffSSOUser
 from core.service_now import get_service_now_interface
 from core.service_now.types import AssetDetails
 from core.uksbs import get_uksbs_interface
@@ -15,6 +16,10 @@ from core.uksbs.types import PersonData
 from core.uksbs.utils import build_leaving_data_from_leaving_request
 from core.utils.lsd import inform_lsd_team_of_leaver
 from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_message
+from leavers.exceptions import (
+    LeaverDoesNotHaveUKSBSPersonId,
+    ManagerDoesNotHaveUKSBSPersonId,
+)
 from leavers.models import LeaverInformation, LeavingRequest, SlackMessage, TaskLog
 from leavers.utils.emails import (
     send_csu4_leaver_email,
@@ -75,24 +80,31 @@ class CheckUKSBSLineManager(LeavingRequestTask):
         assert self.leaving_request
 
         # Not sure if this is the Oracle ID
-        leaver_oracle_id = self.leaving_request.leaver_activitystream_user.user_id
-        line_manager_oracle_id = (
-            self.leaving_request.manager_activitystream_user.user_id
+        leaver_as_user: ActivityStreamStaffSSOUser = (
+            self.leaving_request.leaver_activitystream_user
+        )
+        line_manager_as_user: ActivityStreamStaffSSOUser = (
+            self.leaving_request.manager_activitystream_user
         )
 
+        if not leaver_as_user.uksbs_person_id:
+            raise LeaverDoesNotHaveUKSBSPersonId()
+        if not line_manager_as_user.uksbs_person_id:
+            raise ManagerDoesNotHaveUKSBSPersonId()
+
         uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
-            oracle_id=leaver_oracle_id,
+            person_id=leaver_as_user.uksbs_person_id,
         )
 
         uksbs_leaver_managers: List[PersonData] = uksbs_leaver_hierarchy.get(
             "manager", []
         )
-        uksbs_leaver_manager_oracle_ids: List[str] = [
+        uksbs_leaver_manager_person_ids: List[str] = [
             uksbs_leaver_manager["person_id"]
             for uksbs_leaver_manager in uksbs_leaver_managers
         ]
 
-        if line_manager_oracle_id in uksbs_leaver_manager_oracle_ids:
+        if line_manager_as_user.uksbs_person_id in uksbs_leaver_manager_person_ids:
             return ["notify_line_manager"], {}, True
 
         return ["uksbs_line_manager_correction"], {}, False

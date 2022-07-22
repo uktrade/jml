@@ -722,14 +722,6 @@ class TestHasCirrusEquipmentView(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
-    def test_authenticated_user(self) -> None:
-        self.client.force_login(self.leaver)
-
-        response = self.client.get(reverse(self.view_name))
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
-
     @mock.patch(
         "leavers.views.leaver.get_cirrus_assets",
         return_value=[

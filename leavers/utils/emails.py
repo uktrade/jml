@@ -10,6 +10,7 @@ from activity_stream.models import (
 from core import notify
 from core.uksbs import get_uksbs_interface
 from core.uksbs.types import PersonData
+from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.models import LeaverInformation, LeavingRequest
 from leavers.types import DisplayScreenEquipmentAsset
 
@@ -196,16 +197,21 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
     assert leaving_request.leaver_activitystream_user
     assert leaving_request.manager_activitystream_user
 
+    leaver_as_user: ActivityStreamStaffSSOUser = (
+        leaving_request.leaver_activitystream_user
+    )
+
+    if not leaver_as_user.uksbs_person_id:
+        raise LeaverDoesNotHaveUKSBSPersonId()
+
     uksbs_interface = get_uksbs_interface()
 
-    leaver_oracle_id = leaving_request.leaver_activitystream_user.user_id
-
     uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
-        oracle_id=leaver_oracle_id,
+        person_id=leaver_as_user.uksbs_person_id,
     )
 
     uksbs_leaver_managers: List[PersonData] = uksbs_leaver_hierarchy.get("manager", [])
-    uksbs_leaver_manager_oracle_ids: List[str] = [
+    uksbs_leaver_manager_person_ids: List[str] = [
         str(uksbs_leaver_manager["person_id"])
         for uksbs_leaver_manager in uksbs_leaver_managers
     ]
@@ -216,7 +222,7 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
     # this code will send this email to ALL of them.
 
     for current_manager_as_user in ActivityStreamStaffSSOUser.objects.filter(
-        user_id__in=uksbs_leaver_manager_oracle_ids
+        uksbs_person_id__in=uksbs_leaver_manager_person_ids
     ):
         current_manager_sso_email: Optional[
             ActivityStreamStaffSSOUserEmail

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from crispy_forms_gds.fields import DateInputField
 from crispy_forms_gds.helper import FormHelper
@@ -9,6 +9,7 @@ from django.core.files.uploadedfile import UploadedFile
 from django.db.models.enums import TextChoices
 
 from core.utils.staff_index import ConsolidatedStaffDocument
+from leavers.types import LeavingRequestLineReport
 
 if TYPE_CHECKING:
     from leavers.models import LeavingRequest
@@ -243,8 +244,10 @@ class LineReportConfirmationForm(forms.Form):
 
     def clean(self) -> Dict[str, Any]:
         # Check that all line reports have a line manager selected.
-        line_reports = self.leaving_request.line_reports
-        for line_report in line_reports:
+        lr_line_reports: List[
+            LeavingRequestLineReport
+        ] = self.leaving_request.line_reports
+        for line_report in lr_line_reports:
             if not line_report["line_manager"]:
                 raise ValidationError(
                     f"Line report {line_report['name']} has no line manager selected."
