@@ -37,6 +37,7 @@ EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
         "service_now_department_id": "",
         "service_now_department_name": "",
         "people_data_employee_number": "",
+        "people_data_uksbs_person_id": "",
     }
 )
 

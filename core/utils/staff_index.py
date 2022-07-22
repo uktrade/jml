@@ -45,6 +45,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "service_now_department_id": {"type": "text"},
             "service_now_department_name": {"type": "text"},
             "people_data_employee_number": {"type": "text"},
+            "people_data_uksbs_person_id": {"type": "text"},
         },
     },
 }
@@ -73,6 +74,7 @@ class StaffDocument(DataClassJsonMixin):
     service_now_department_id: str
     service_now_department_name: str
     people_data_employee_number: Optional[str]
+    people_data_uksbs_person_id: Optional[str]
 
 
 class ConsolidatedStaffDocument(TypedDict):
@@ -338,6 +340,7 @@ def consolidate_staff_documents(
             "department_name": staff_document.service_now_department_name or "",
             "job_title": staff_document.people_finder_job_title or "",
             "staff_id": staff_document.people_data_employee_number or "",
+            "person_id": staff_document.people_data_uksbs_person_id or "",
             "photo": staff_document.people_finder_photo or "",
             "photo_small": staff_document.people_finder_photo_small or "",
             "manager": "",
@@ -481,6 +484,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         **get_service_now_data(staff_sso_user=staff_sso_user),
         # People Data
         "people_data_employee_number": employee_number,
+        "people_data_uksbs_person_id": people_data_results["uksbs_person_id"],
     }
     return StaffDocument.from_dict(staff_document_dict)
 
