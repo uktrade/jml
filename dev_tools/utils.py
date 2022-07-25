@@ -23,6 +23,11 @@ def create_user(first_name: str, last_name: str, email: str, group: Group) -> "U
         last_name=last_name,
         email=email,
     )
+    uuid_str = str(uuid.uuid4())
+    user.sso_legacy_user_id = uuid_str
+    user.sso_email_user_id = f"test@{uuid_str}"
+    user.save()
+
     user.groups.add(group)
 
     staff_sso_user, _ = ActivityStreamStaffSSOUser.objects.get_or_create(
