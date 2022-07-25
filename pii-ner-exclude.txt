@@ -46,6 +46,7 @@ API
 aria-label="Show
 aria-labelledby="govuk
 AssetDetails
+Authbroker                   
 Automation
 AV Equipment'
 Base
@@ -170,6 +171,8 @@ height="17
 height="30" width="36">
 Home Use"
 Hours
+HR_UKSBS_CORRECTION_EMAIL
+HR_UKSBS_CORRECTION_EMAIL                                
 href="?page=
 href="{%
 href="https://www.nationalarchives.gov.uk
@@ -337,6 +340,7 @@ TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  
 TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                                       
+TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                                       |                                                                                       
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL                  
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL |  |

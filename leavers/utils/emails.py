@@ -218,9 +218,6 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
 
     current_manager_emails: List[str] = []
 
-    # TODO: Discuss, it is possible that UK SBS returns multiple managers,
-    # this code will send this email to ALL of them.
-
     for current_manager_as_user in ActivityStreamStaffSSOUser.objects.filter(
         uksbs_person_id__in=uksbs_leaver_manager_person_ids
     ):
@@ -231,15 +228,19 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
         if current_manager_sso_email:
             current_manager_emails.append(current_manager_sso_email.email_address)
 
-            notify.email(
-                email_addresses=[current_manager_sso_email.email_address],
-                template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
-                personalisation={
-                    "recipient_name": current_manager_as_user.full_name,
-                    "leaver_name": leaving_request.get_leaver_name(),
-                    "manager_name": leaving_request.get_line_manager_name(),
-                },
-            )
+    # If there are no manager emails, we need to email HR
+    if not current_manager_emails:
+        current_manager_emails = [settings.HR_UKSBS_CORRECTION_EMAIL]
+
+    notify.email(
+        email_addresses=current_manager_emails,
+        template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
+        personalisation={
+            "recipient_name": current_manager_as_user.full_name,
+            "leaver_name": leaving_request.get_leaver_name(),
+            "manager_name": leaving_request.get_line_manager_name(),
+        },
+    )
 
 
 def send_line_manager_notification_email(leaving_request: LeavingRequest):

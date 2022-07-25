@@ -352,6 +352,9 @@ SECURITY_TEAM_EMAIL = env("SECURITY_TEAM_EMAIL", default=None)
 # SRE Team Settings
 SRE_EMAIL = env("SRE_EMAIL", default=None)
 
+# HR Team Settings
+HR_UKSBS_CORRECTION_EMAIL = env("HR_UKSBS_CORRECTION_EMAIL", default=None)
+
 # GOV.UK Notify
 GOVUK_NOTIFY_API_KEY = env("GOVUK_NOTIFY_API_KEY", default=None)
 
