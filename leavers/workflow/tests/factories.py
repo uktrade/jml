@@ -24,4 +24,3 @@ class TaskRecordFactory(DjangoModelFactory):
     step_id = Faker("word")
     task_name = Faker("word")
     done = False
-    broke_flow = False
