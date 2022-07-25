@@ -43,6 +43,7 @@ def create_user(first_name: str, last_name: str, email: str, group: Group) -> "U
             "last_accessed": timezone.now(),
             "joined": timezone.now(),
             "contact_email_address": user.sso_contact_email,
+            "email_user_id": user.sso_email_user_id,
             "available": True,
         },
     )
