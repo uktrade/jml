@@ -12,12 +12,17 @@ from core.uksbs.types import (
     ServiceRequestDataContact,
     TemplateData,
 )
+from leavers.exceptions import (
+    LeaverDoesNotHaveUKSBSPersonId,
+    ManagerDoesNotHaveUKSBSPersonId,
+)
 from leavers.forms.line_manager import (
     AnnualLeavePaidOrDeducted,
     DaysHours,
     FlexiLeavePaidOrDeducted,
 )
 from leavers.models import LeavingRequest
+from leavers.types import LeavingRequestLineReport
 
 
 class LeaveDetails(TypedDict):
@@ -107,12 +112,13 @@ def build_leaving_data_from_leaving_request(
     leaver_as: ActivityStreamStaffSSOUser = leaving_request.leaver_activitystream_user
     manager_as: ActivityStreamStaffSSOUser = leaving_request.manager_activitystream_user
 
-    # Not sure if this is the Oracle ID
-    leaver_oracle_id = leaver_as.user_id
-    line_manager_oracle_id = manager_as.user_id
+    if not leaver_as.uksbs_person_id:
+        raise LeaverDoesNotHaveUKSBSPersonId()
+    if not manager_as.uksbs_person_id:
+        raise ManagerDoesNotHaveUKSBSPersonId()
 
     uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
-        oracle_id=leaver_oracle_id,
+        person_id=leaver_as.uksbs_person_id,
     )
 
     uksbs_leaver: PersonData = uksbs_leaver_hierarchy["employee"][0]
@@ -121,7 +127,7 @@ def build_leaving_data_from_leaving_request(
     uksbs_leaver_manager: Optional[PersonData] = None
 
     for ulm in uksbs_leaver_managers:
-        if ulm["person_id"] == line_manager_oracle_id:
+        if ulm["person_id"] == manager_as.uksbs_person_id:
             uksbs_leaver_manager = ulm
             break
 
@@ -155,14 +161,26 @@ def build_leaving_data_from_leaving_request(
     direct_reports: List[DirectReport] = []
     additional_direct_reports: List[DirectReport] = []
 
-    for line_report in leaving_request.line_reports:
+    lr_line_reports: List[LeavingRequestLineReport] = leaving_request.line_reports
+
+    for line_report in lr_line_reports:
+        line_report_line_manager = line_report["line_manager"]
+        assert line_report_line_manager
+
+        line_report_person_data = line_report["person_data"]
+        oracle_id = ""
+        employee_id = ""
+        if line_report_person_data:
+            oracle_id = line_report_person_data["person_id"]
+            employee_id = line_report_person_data["employee_number"]
+
         direct_report: DirectReport = {
-            "OracleID": line_report["person_data"]["person_id"],
-            "EmployeeID": line_report["person_data"]["employee_number"],
+            "OracleID": oracle_id,
+            "EmployeeID": employee_id,
             "Name": line_report["name"],
             "Email": line_report["email"],
-            "NewManager": line_report["line_manager"]["name"],
-            "NewManagerEmail": line_report["line_manager"]["email"],
+            "NewManager": line_report_line_manager["name"],
+            "NewManagerEmail": line_report_line_manager["email"],
             "Effectivedate": leaving_request.leaving_date.strftime("%d/%m/%Y %H:%M"),
         }
         if line_report["new_line_report"]:

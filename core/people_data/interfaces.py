@@ -18,16 +18,19 @@ class PeopleDataStubbed(PeopleDataBase):
             "employee_numbers": [
                 "1",
             ],
+            "uksbs_person_id": "123",
         }
         return result
 
 
 class PeopleDataInterface(PeopleDataBase):
     def get_people_data(self, sso_legacy_id: str) -> types.PeopleData:
+        result: types.PeopleData = {
+            "employee_numbers": [],
+            "uksbs_person_id": None,
+        }
+
         with connections["people_data"].cursor() as cursor:
-            result: types.PeopleData = {
-                "employee_numbers": [],
-            }
             # No speech marks in query to avoid SQL injection
             cursor.execute(
                 "SELECT employee_numbers FROM dit.people_data__identities WHERE sso_user_id = %s",
@@ -35,7 +38,7 @@ class PeopleDataInterface(PeopleDataBase):
             )
             row = cursor.fetchone()
 
-        if row:
-            result["employee_numbers"] = row[0]
+            if row:
+                result["employee_numbers"] = row[0]
 
         return result

@@ -26,6 +26,8 @@ class TaskLog(models.Model):
         get_user_model(),
         on_delete=models.CASCADE,
         related_name="task_logs",
+        blank=True,
+        null=True,
     )
     notes = models.CharField(max_length=1000, blank=True, null=True)
 

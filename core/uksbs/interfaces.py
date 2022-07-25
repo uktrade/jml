@@ -15,7 +15,7 @@ class UKSBSUserNotFound(Exception):
 
 class UKSBSBase(ABC):
     @abstractmethod
-    def get_user_hierarchy(self, oracle_id: str) -> PersonHierarchyData:
+    def get_user_hierarchy(self, person_id: str) -> PersonHierarchyData:
         raise NotImplementedError
 
     @abstractmethod
@@ -24,11 +24,11 @@ class UKSBSBase(ABC):
 
 
 class UKSBSStubbed(UKSBSBase):
-    def get_user_hierarchy(self, oracle_id: str) -> PersonHierarchyData:
+    def get_user_hierarchy(self, person_id: str) -> PersonHierarchyData:
         return {
             "manager": [
                 {
-                    "person_id": 1,
+                    "person_id": person_id + "manager",
                     "username": None,
                     "full_name": "Manager 1",
                     "first_name": "Manager",
@@ -44,7 +44,7 @@ class UKSBSStubbed(UKSBSBase):
             ],
             "employee": [
                 {
-                    "person_id": 2,
+                    "person_id": person_id,
                     "username": None,
                     "full_name": "Employee 1",
                     "first_name": "Employee",
@@ -60,7 +60,7 @@ class UKSBSStubbed(UKSBSBase):
             ],
             "report": [
                 {
-                    "person_id": 3,
+                    "person_id": person_id + "report1",
                     "username": None,
                     "full_name": "Report 1",
                     "first_name": "Report",
@@ -74,7 +74,7 @@ class UKSBSStubbed(UKSBSBase):
                     "work_mobile": None,
                 },
                 {
-                    "person_id": 4,
+                    "person_id": person_id + "report2",
                     "username": None,
                     "full_name": "Report 2",
                     "first_name": "Report",
@@ -99,8 +99,8 @@ class UKSBSInterface(UKSBSBase):
         super().__init__()
         self.client = UKSBSClient()
 
-    def get_user_hierarchy(self, oracle_id: str) -> PersonHierarchyData:
-        return self.client.get_people_hierarchy(person_id=oracle_id)
+    def get_user_hierarchy(self, person_id: str) -> PersonHierarchyData:
+        return self.client.get_people_hierarchy(person_id=person_id)
 
     def submit_leaver_form(self, data: LeavingData) -> None:
         if not settings.PROCESS_LEAVING_REQUEST:

@@ -45,6 +45,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "service_now_department_id": {"type": "text"},
             "service_now_department_name": {"type": "text"},
             "people_data_employee_number": {"type": "text"},
+            "people_data_uksbs_person_id": {"type": "text"},
         },
     },
 }
@@ -73,6 +74,7 @@ class StaffDocument(DataClassJsonMixin):
     service_now_department_id: str
     service_now_department_name: str
     people_data_employee_number: Optional[str]
+    people_data_uksbs_person_id: Optional[str]
 
 
 class ConsolidatedStaffDocument(TypedDict):
@@ -89,6 +91,7 @@ class ConsolidatedStaffDocument(TypedDict):
     department_name: str
     job_title: str
     staff_id: str
+    uksbs_person_id: str
     manager: str
     photo: str
     photo_small: str
@@ -338,6 +341,7 @@ def consolidate_staff_documents(
             "department_name": staff_document.service_now_department_name or "",
             "job_title": staff_document.people_finder_job_title or "",
             "staff_id": staff_document.people_data_employee_number or "",
+            "uksbs_person_id": staff_document.people_data_uksbs_person_id or "",
             "photo": staff_document.people_finder_photo or "",
             "photo_small": staff_document.people_finder_photo_small or "",
             "manager": "",
@@ -467,6 +471,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     )
     # Assuming first id is correct
     employee_number = next(iter(people_data_results["employee_numbers"]), None)
+    uksbs_person_id = people_data_results["uksbs_person_id"] or ""
 
     """
     Build Staff Document
@@ -481,7 +486,13 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         **get_service_now_data(staff_sso_user=staff_sso_user),
         # People Data
         "people_data_employee_number": employee_number,
+        "people_data_uksbs_person_id": uksbs_person_id,
     }
+
+    # Updates to Activity Stream Staff SSO User
+    staff_sso_user.uksbs_person_id = uksbs_person_id
+    staff_sso_user.save()
+
     return StaffDocument.from_dict(staff_document_dict)
 
 

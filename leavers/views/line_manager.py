@@ -25,9 +25,11 @@ from core.utils.staff_index import (
     consolidate_staff_documents,
     get_staff_document_from_staff_index,
 )
+from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.forms import line_manager as line_manager_forms
 from leavers.models import LeaverInformation, LeavingRequest
 from leavers.progress_indicator import ProgressIndicator
+from leavers.types import LeavingRequestLineReport
 from user.models import User
 
 DATA_RECIPIENT_SEARCH_PARAM = "data_recipient_id"
@@ -569,7 +571,7 @@ def add_missing_line_report(
         )
     )
 
-    line_reports: List[Dict[str, Any]] = leaving_request.line_reports
+    lr_line_reports: List[LeavingRequestLineReport] = leaving_request.line_reports
 
     new_line_report_staff_id: Optional[str] = request.GET.get(
         NEW_LINE_REPORT_SEARCH_PARAM
@@ -587,7 +589,7 @@ def add_missing_line_report(
         line_report_email: str = consolidated_staff_document["email_addresses"][0]
 
         # Check if the line report already exists.
-        for line_report in line_reports:
+        for line_report in lr_line_reports:
             if line_report["email"] == line_report_email:
                 return redirect_response
 
@@ -598,15 +600,16 @@ def add_missing_line_report(
         )
 
         # Create a new line report
-        new_line_report: Dict[str, Any] = {
+        new_line_report: LeavingRequestLineReport = {
             "uuid": str(uuid4()),
             "name": line_report_name,
             "email": line_report_email,
+            "person_data": None,
             "line_manager": None,
             "new_line_report": True,
         }
-        line_reports.append(new_line_report)
-        leaving_request.line_reports = line_reports
+        lr_line_reports.append(new_line_report)
+        leaving_request.line_reports = lr_line_reports
         leaving_request.save()
 
     return redirect_response
@@ -627,7 +630,7 @@ def line_report_set_new_manager(
     if not leaving_request.leaver_complete:
         return HttpResponseNotFound()
 
-    line_reports: List[Dict[str, Any]] = leaving_request.line_reports
+    lr_line_reports: List[LeavingRequestLineReport] = leaving_request.line_reports
 
     line_manager_staff_id: Optional[str] = request.GET.get(
         LINE_REPORT_NEW_LINE_MANAGER_SEARCH_PARAM
@@ -647,14 +650,14 @@ def line_report_set_new_manager(
             + consolidated_staff_document["last_name"]
         )
         line_manager_email = consolidated_staff_document["email_addresses"][0]
-        for line_report in line_reports:
+        for line_report in lr_line_reports:
             if line_report["uuid"] == str(line_report_uuid):
                 line_report["line_manager"] = {
                     "name": line_manager_name,
                     "email": line_manager_email,
                 }
                 break
-        leaving_request.line_reports = line_reports
+        leaving_request.line_reports = lr_line_reports
         leaving_request.save()
 
     return HttpResponseRedirect(
@@ -678,16 +681,23 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
     def initialize_line_reports(self) -> None:
         if not self.leaving_request.line_reports:
             uksbs_interface = get_uksbs_interface()
+            leaver_as_user: ActivityStreamStaffSSOUser = (
+                self.leaving_request.leaver_activitystream_user
+            )
+
+            if not leaver_as_user.uksbs_person_id:
+                raise LeaverDoesNotHaveUKSBSPersonId()
+
             leaver_hierarchy_data: PersonHierarchyData = (
                 uksbs_interface.get_user_hierarchy(
-                    oracle_id=self.leaving_request.leaver_activitystream_user.user_id,
+                    person_id=leaver_as_user.uksbs_person_id,
                 )
             )
             person_data_line_reports: List[PersonData] = leaver_hierarchy_data.get(
                 "report", []
             )
 
-            line_reports: List[Dict[str, Any]] = [
+            lr_line_reports: List[LeavingRequestLineReport] = [
                 {
                     "uuid": str(uuid4()),
                     "name": line_report["full_name"],
@@ -698,7 +708,7 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
                 }
                 for line_report in person_data_line_reports
             ]
-            self.leaving_request.line_reports = line_reports
+            self.leaving_request.line_reports = lr_line_reports
             self.leaving_request.save()
 
     def dispatch(self, request, *args, **kwargs):

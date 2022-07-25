@@ -13,7 +13,7 @@ YESTERDAY = timezone.now() - timezone.timedelta(days=1)
 ONE_WEEK_FROM_NOW = TODAY + timezone.timedelta(days=7)
 
 FAKE_PERSON_DATA: PersonData = {
-    "person_id": 666,
+    "person_id": "666",
     "username": "fake_user_1",
     "full_name": "Fake User",
     "first_name": "Fake",
@@ -132,7 +132,7 @@ class TestUKSBSClient(TestCase):
         leaver = leaving_request.leaver_activitystream_user
         manager = leaving_request.manager_activitystream_user
         manager_person_data = FAKE_PERSON_DATA.copy()
-        manager_person_data["person_id"] = manager.user_id
+        manager_person_data["person_id"] = manager.uksbs_person_id
 
         responses.add(
             responses.POST,
@@ -144,7 +144,7 @@ class TestUKSBSClient(TestCase):
         )
         responses.add(
             responses.GET,
-            f"https://fake-uksbs.domain/hierarchy-api/1.0/{leaver.user_id}/hierarchy",
+            f"https://fake-uksbs.domain/hierarchy-api/1.0/{leaver.uksbs_person_id}/hierarchy",
             json={
                 "items": [
                     {

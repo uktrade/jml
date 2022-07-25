@@ -1,4 +1,4 @@
-from typing import List, TypedDict
+from typing import List, Optional, TypedDict
 
 
 class PeopleData(TypedDict):
@@ -7,3 +7,4 @@ class PeopleData(TypedDict):
     """
 
     employee_numbers: List[str]
+    uksbs_person_id: Optional[str]

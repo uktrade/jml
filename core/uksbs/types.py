@@ -10,7 +10,7 @@ class AccessToken(TypedDict):
 
 
 class PersonData(TypedDict):
-    person_id: int
+    person_id: str
     username: Optional[Any]
     full_name: str
     first_name: str
