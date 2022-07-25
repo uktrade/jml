@@ -1,14 +1,9 @@
-import uuid
 from typing import List, Tuple
 
+from dev_tools import utils as dev_tools_utils
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 
-from activity_stream.models import (
-    ActivityStreamStaffSSOUser,
-    ActivityStreamStaffSSOUserEmail,
-)
 from user.models import User
 
 # first name, last name, team /PS-IGNORE
@@ -49,53 +44,18 @@ class Command(BaseCommand):
                 name=group_name,
             )
 
-        try:
-            user = User.objects.get(username=email)
+        user, created = dev_tools_utils.create_user(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            group=group,
+        )
+
+        if not created:
             self.stdout.write(f"User {email} already exists")
             self.exists += 1
-        except User.DoesNotExist:
-            uuid_str = str(uuid.uuid4())
-            user = User.objects.create_user(
-                email,
-                email=email,
-                first_name=first_name,
-                last_name=last_name,
-                is_staff=True,
-                is_superuser=True,
-            )
-            user.sso_legacy_user_id = uuid_str
-            user.sso_email_user_id = f"test@{uuid_str}"
-            user.set_password("password")
-            user.save()
+        else:
             self.stdout.write(f"User for '{email}' created")
             self.created += 1
 
-        group.user_set.add(user)
-        self.stdout.write(f"{email} added to {group.name}")
-
-        # Create ActivityStreamStaffSSOUser for each user
-        sso_user, created = ActivityStreamStaffSSOUser.objects.get_or_create(
-            email_user_id=email,
-            defaults={
-                "identifier": uuid.uuid4(),
-                "available": True,
-                "name": f"{first_name} {last_name}",
-                "obj_type": "dit:StaffSSO:User",
-                "first_name": first_name,
-                "last_name": last_name,
-                "user_id": user.sso_legacy_user_id,
-                "status": "active",
-                "last_accessed": timezone.now(),
-                "joined": timezone.now(),
-                "email_user_id": user.sso_email_user_id,
-                "contact_email_address": "",
-                "became_inactive_on": None,
-            },
-        )
-        if created:
-            self.stdout.write(f"ActivityStreamStaffSSOUser created for {email}")
-            _, created = ActivityStreamStaffSSOUserEmail.objects.get_or_create(
-                email_address=email,
-                staff_sso_user=sso_user,
-            )
         return user

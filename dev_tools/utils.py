@@ -1,5 +1,5 @@
 import uuid
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Tuple
 
 from django.contrib.auth import get_user_model, login, logout
 from django.contrib.auth.models import Group
@@ -15,30 +15,40 @@ else:
     User = get_user_model()
 
 
-def create_user(first_name: str, last_name: str, email: str, group: Group) -> "User":
-    # Create the new user
-    user = User.objects.create(
-        username=str(uuid.uuid4()),
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-    )
-    uuid_str = str(uuid.uuid4())
-    user.sso_legacy_user_id = uuid_str
-    user.sso_email_user_id = f"test@{uuid_str}"
-    user.save()
+def create_user(
+    first_name: str, last_name: str, email: str, group: Group
+) -> Tuple["User", bool]:
+    created = False
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        # Create the new user
+        user = User.objects.create(
+            username=str(uuid.uuid4()),
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            is_staff=True,
+            is_superuser=True,
+        )
+        uuid_str = str(uuid.uuid4())
+        user.sso_legacy_user_id = uuid_str
+        user.sso_email_user_id = f"test@{uuid_str}"
+        user.set_password("password")
+        user.save()
+        created = True
 
     user.groups.add(group)
 
     staff_sso_user, _ = ActivityStreamStaffSSOUser.objects.get_or_create(
-        contact_email_address=user.sso_contact_email,
+        email_user_id=user.sso_email_user_id,
         defaults={
             "identifier": str(uuid.uuid4()),
             "name": f"{user.first_name} {user.last_name}",
-            "obj_type": "",
+            "obj_type": "dit:StaffSSO:User",
             "first_name": user.first_name,
             "last_name": user.last_name,
-            "user_id": user.pk,
+            "user_id": user.sso_legacy_user_id,
             "status": "active",
             "last_accessed": timezone.now(),
             "joined": timezone.now(),
@@ -52,7 +62,7 @@ def create_user(first_name: str, last_name: str, email: str, group: Group) -> "U
     staff_document = build_staff_document(staff_sso_user=staff_sso_user)
     index_staff_document(staff_document=staff_document)
 
-    return user
+    return user, created
 
 
 def change_user(request: HttpRequest, user_pk: Optional[str]) -> None:
