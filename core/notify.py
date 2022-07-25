@@ -37,12 +37,14 @@ class EmailTemplates(Enum):
 def email(
     email_addresses: List[str], template_id: EmailTemplates, personalisation: Dict
 ):
-    # TODO: Test GOV UK Notify Integration
     notification_client = NotificationsAPIClient(
         settings.GOVUK_NOTIFY_API_KEY,
     )
 
-    if not settings.PROCESS_LEAVING_REQUEST:
+    # Send all emails to the JML team
+    if settings.PROCESS_LEAVING_REQUEST:
+        email_addresses += settings.JML_TEAM_EMAILS
+    else:
         email_addresses = settings.JML_TEAM_EMAILS
 
     for email_address in email_addresses:
