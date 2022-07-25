@@ -70,7 +70,7 @@ def send_csu4_leaver_email(leaving_request: LeavingRequest):
             "date_of_birth": leaver_information.leaver_date_of_birth.strftime(
                 "%d-%B-%Y %H:%M"
             ),
-            "leaving_date": leaver_information.leaving_date,
+            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
         },
     )
 
@@ -101,7 +101,7 @@ def send_ocs_leaver_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.OCS_LEAVER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "leaving_date": leaver_information.leaving_date,
+            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
         },
     )
 
@@ -132,7 +132,7 @@ def send_ocs_oab_locker_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.OCS_OAB_LOCKER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "leaving_date": leaver_information.leaving_date,
+            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
         },
     )
 
@@ -335,7 +335,7 @@ def send_security_team_offboard_leaver_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "leaving_date": leaver_information.leaving_date,
+            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
             "security_team_link": reverse(
                 "security-team-confirmation", args=[leaving_request.uuid]
             ),
@@ -363,7 +363,7 @@ def send_security_team_offboard_leaver_reminder_email(leaving_request: LeavingRe
         template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "leaving_date": leaver_information.leaving_date,
+            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
             "security_team_link": reverse(
                 "security-team-confirmation", args=[leaving_request.uuid]
             ),
@@ -391,7 +391,7 @@ def send_sre_reminder_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.SRE_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "leaving_date": leaver_information.leaving_date,
+            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
             "sre_team_link": reverse("sre-confirmation", args=[leaving_request.uuid]),
         },
     )
@@ -423,7 +423,7 @@ def send_it_ops_asset_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.IT_OPS_ASSET_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "leaving_date": leaver_information.leaving_date,
+            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
             "dse_assets": dse_assets_string,
         },
     )
