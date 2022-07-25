@@ -36,7 +36,6 @@ LeaversWorkflow = Workflow(
             targets=[
                 "check_uksbs_line_manager",
             ],
-            break_flow=True,
             task_info={
                 "email_id": EmailIds.LINE_MANAGER_CORRECTION.value,
             },
@@ -66,7 +65,6 @@ LeaversWorkflow = Workflow(
             targets=[
                 "has_line_manager_completed",
             ],
-            break_flow=True,
             task_info={
                 "email_id": EmailIds.LINE_MANAGER_REMINDER.value,
             },
@@ -175,7 +173,6 @@ LeaversWorkflow = Workflow(
             task_info={
                 "email_id": EmailIds.SECURITY_OFFBOARD_LEAVER_NOTIFICATION.value,
             },
-            break_flow=True,
         ),
         Step(
             step_id="have_security_carried_out_leaving_tasks",
@@ -194,7 +191,6 @@ LeaversWorkflow = Workflow(
             task_info={
                 "email_id": EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER.value,
             },
-            break_flow=True,
         ),
         # SRE
         Step(
@@ -203,7 +199,6 @@ LeaversWorkflow = Workflow(
             targets=[
                 "send_sre_slack_message",
             ],
-            break_flow=True,
         ),
         Step(
             step_id="send_sre_slack_message",
@@ -229,7 +224,6 @@ LeaversWorkflow = Workflow(
             task_info={
                 "email_id": EmailIds.SRE_REMINDER.value,
             },
-            break_flow=True,
         ),
         # End
         Step(

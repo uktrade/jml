@@ -98,7 +98,7 @@ django-staff-sso-client==3.1.1
     # via -r requirements.in/base.in
 django-timezone-field==4.2.1
     # via django-celery-beat
-django-workflow-engine==0.0.20
+django-workflow-engine==0.0.21
     # via -r requirements.in/base.in
 djangorestframework==3.12.4
     # via

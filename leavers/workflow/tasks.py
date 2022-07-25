@@ -56,7 +56,7 @@ class BasicTask(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        return None, {}, True
+        return [], True
 
 
 class PauseTask(LeavingRequestTask):
@@ -67,7 +67,7 @@ class PauseTask(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        raise Exception("Pause workflow")
+        return [], False
 
 
 class CheckUKSBSLineManager(LeavingRequestTask):
@@ -105,9 +105,9 @@ class CheckUKSBSLineManager(LeavingRequestTask):
         ]
 
         if line_manager_as_user.uksbs_person_id in uksbs_leaver_manager_person_ids:
-            return ["notify_line_manager"], {}, True
+            return ["notify_line_manager"], True
 
-        return ["uksbs_line_manager_correction"], {}, False
+        return ["send_line_manager_correction_reminder"], False
 
 
 class LSDSendLeaverDetails(LeavingRequestTask):
@@ -132,7 +132,7 @@ class LSDSendLeaverDetails(LeavingRequestTask):
             leaving_date=self.leaving_request.leaving_date.strftime("%d/%m/%Y"),
         )
 
-        return None, {}, True
+        return None, True
 
 
 class ServiceNowSendLeaverDetails(LeavingRequestTask):
@@ -170,7 +170,7 @@ class ServiceNowSendLeaverDetails(LeavingRequestTask):
             assets=service_now_assets,
         )
 
-        return None, {}, True
+        return None, True
 
 
 class UKSBSSendLeaverDetails(LeavingRequestTask):
@@ -188,7 +188,7 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
 
         uksbs_interface.submit_leaver_form(data=leaving_data)
 
-        return ["setup_scheduled_tasks"], {}, True
+        return ["setup_scheduled_tasks"], True
 
 
 class EmailIds(Enum):
@@ -264,7 +264,7 @@ class EmailTask(LeavingRequestTask):
             self.leaving_request.email_task_logs.add(email_task_log)
             self.leaving_request.save()
 
-        return None, {}, True
+        return None, True
 
 
 class NotificationEmail(EmailTask):
@@ -340,8 +340,8 @@ class HasLineManagerCompleted(LeavingRequestTask):
 
     def execute(self, task_info):
         if self.leaving_request.line_manager_complete:
-            return ["thank_line_manager"], {}, True
-        return ["send_line_manager_reminder"], {}, False
+            return ["thank_line_manager"], True
+        return ["send_line_manager_reminder"], False
 
 
 class IsItLeavingDatePlusXDays(LeavingRequestTask):
@@ -351,7 +351,7 @@ class IsItLeavingDatePlusXDays(LeavingRequestTask):
 
     def execute(self, task_info):
         print("is it x days before leaving date task executed")
-        return None, {}, True
+        return None, True
 
 
 class IsItXDaysBeforePayroll(LeavingRequestTask):
@@ -361,7 +361,7 @@ class IsItXDaysBeforePayroll(LeavingRequestTask):
 
     def execute(self, task_info):
         print("is it x days before payroll date task executed")
-        return None, {}, True
+        return None, True
 
 
 class HaveSecurityCarriedOutLeavingTasks(LeavingRequestTask):
@@ -371,8 +371,8 @@ class HaveSecurityCarriedOutLeavingTasks(LeavingRequestTask):
 
     def execute(self, task_info):
         if self.leaving_request.security_team_complete:
-            return ["are_all_tasks_complete"], {}, True
-        return ["send_security_reminder"], {}, False
+            return ["are_all_tasks_complete"], True
+        return ["send_security_reminder"], False
 
 
 class HaveSRECarriedOutLeavingTasks(LeavingRequestTask):
@@ -382,8 +382,8 @@ class HaveSRECarriedOutLeavingTasks(LeavingRequestTask):
 
     def execute(self, task_info):
         if self.leaving_request.sre_complete:
-            return ["are_all_tasks_complete"], {}, True
-        return ["send_sre_reminder"], {}, False
+            return ["are_all_tasks_complete"], True
+        return ["send_sre_reminder"], False
 
 
 class SendSRESlackMessage(LeavingRequestTask):
@@ -404,7 +404,7 @@ class SendSRESlackMessage(LeavingRequestTask):
         except FailedToSendSREAlertMessage:
             print("Failed to send SRE alert message")
 
-        return None, {}, True
+        return None, True
 
 
 class LeaverCompleteTask(LeavingRequestTask):
@@ -442,5 +442,5 @@ class LeaverCompleteTask(LeavingRequestTask):
                 break
 
         if all_previous_steps_complete:
-            return None, {}, True
-        return None, {}, False
+            return None, True
+        return None, False
