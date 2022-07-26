@@ -35,6 +35,8 @@ from user.models import User
 DATA_RECIPIENT_SEARCH_PARAM = "data_recipient_id"
 NEW_LINE_REPORT_SEARCH_PARAM = "new_line_report_id"
 LINE_REPORT_NEW_LINE_MANAGER_SEARCH_PARAM = "new_line_manager_id"
+LINE_REPORT_SET_NEW_MANAGER_ERROR = "line_report_set_new_manager_error"
+ADD_MISSING_LINE_REPORT_ERROR = "add_missing_line_report_error"
 
 
 class LineManagerProgressIndicator(ProgressIndicator):
@@ -586,18 +588,24 @@ def add_missing_line_report(
             )[0]
         )
 
+        line_report_name: str = (
+            consolidated_staff_document["first_name"]
+            + " "
+            + consolidated_staff_document["last_name"]
+        )
+
+        if not consolidated_staff_document["email_addresses"]:
+            request.session[
+                ADD_MISSING_LINE_REPORT_ERROR
+            ] = f"Unable to add {line_report_name} as a line report, please try again later."
+            return redirect_response
+
         line_report_email: str = consolidated_staff_document["email_addresses"][0]
 
         # Check if the line report already exists.
         for line_report in lr_line_reports:
             if line_report["email"] == line_report_email:
                 return redirect_response
-
-        line_report_name: str = (
-            consolidated_staff_document["first_name"]
-            + " "
-            + consolidated_staff_document["last_name"]
-        )
 
         # Create a new line report
         new_line_report: LeavingRequestLineReport = {
@@ -630,6 +638,13 @@ def line_report_set_new_manager(
     if not leaving_request.leaver_complete:
         return HttpResponseNotFound()
 
+    redirect_response = HttpResponseRedirect(
+        reverse(
+            "line-manager-leaver-line-reports",
+            kwargs={"leaving_request_uuid": leaving_request_uuid},
+        )
+    )
+
     lr_line_reports: List[LeavingRequestLineReport] = leaving_request.line_reports
 
     line_manager_staff_id: Optional[str] = request.GET.get(
@@ -649,6 +664,12 @@ def line_report_set_new_manager(
             + " "
             + consolidated_staff_document["last_name"]
         )
+        if not consolidated_staff_document["email_addresses"]:
+            request.session[
+                LINE_REPORT_SET_NEW_MANAGER_ERROR
+            ] = f"Unable to add {line_manager_name} as a line manager, please try again later."
+            return redirect_response
+
         line_manager_email = consolidated_staff_document["email_addresses"][0]
         for line_report in lr_line_reports:
             if line_report["uuid"] == str(line_report_uuid):
@@ -657,15 +678,11 @@ def line_report_set_new_manager(
                     "email": line_manager_email,
                 }
                 break
+
         leaving_request.line_reports = lr_line_reports
         leaving_request.save()
 
-    return HttpResponseRedirect(
-        reverse(
-            "line-manager-leaver-line-reports",
-            kwargs={"leaving_request_uuid": leaving_request_uuid},
-        )
-    )
+    return redirect_response
 
 
 class LeaverLineReportsView(LineManagerViewMixin, FormView):
@@ -747,6 +764,20 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
+        errors: List[str] = []
+        line_report_set_new_manager_error: Optional[str] = self.request.session.get(
+            LINE_REPORT_SET_NEW_MANAGER_ERROR
+        )
+        if line_report_set_new_manager_error:
+            errors.append(line_report_set_new_manager_error)
+            self.request.session[LINE_REPORT_SET_NEW_MANAGER_ERROR] = None
+        add_missing_line_report_error: Optional[str] = self.request.session.get(
+            ADD_MISSING_LINE_REPORT_ERROR
+        )
+        if add_missing_line_report_error:
+            errors.append(add_missing_line_report_error)
+            self.request.session[ADD_MISSING_LINE_REPORT_ERROR] = None
+
         context.update(
             page_title="Leaver's line reports",
             leaver_name=self.leaving_request.get_leaver_name(),
@@ -760,6 +791,7 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
                 "line-manager-new-line-report-search",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
+            errors=errors,
         )
 
         return context
