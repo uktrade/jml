@@ -55,6 +55,7 @@ def create_user(
             "contact_email_address": user.sso_contact_email,
             "email_user_id": user.sso_email_user_id,
             "available": True,
+            "uksbs_person_id": str(uuid.uuid4()),
         },
     )
 
