@@ -59,6 +59,9 @@ def send_csu4_leaver_email(leaving_request: LeavingRequest):
     if not leaver_information:
         raise ValueError("leaver_information is not set")
 
+    if not leaver_information.leaving_date:
+        raise ValueError("leaving_date is not set")
+
     if not leaver_information.leaver_date_of_birth:
         raise ValueError("leaver_date_of_birth is not set")
 
@@ -96,6 +99,9 @@ def send_ocs_leaver_email(leaving_request: LeavingRequest):
     if not leaver_information:
         raise ValueError("leaver_information is not set")
 
+    if not leaver_information.leaving_date:
+        raise ValueError("leaving_date is not set")
+
     notify.email(
         email_addresses=[settings.OCS_EMAIL],
         template_id=notify.EmailTemplates.OCS_LEAVER_EMAIL,
@@ -126,6 +132,9 @@ def send_ocs_oab_locker_email(leaving_request: LeavingRequest):
 
     if not leaver_information:
         raise ValueError("leaver_information is not set")
+
+    if not leaver_information.leaving_date:
+        raise ValueError("leaving_date is not set")
 
     notify.email(
         email_addresses=[settings.OCS_OAB_LOCKER_EMAIL],
@@ -330,6 +339,9 @@ def send_security_team_offboard_leaver_email(leaving_request: LeavingRequest):
     if not leaver_information:
         raise ValueError("leaver_information is not set")
 
+    if not leaver_information.leaving_date:
+        raise ValueError("leaving_date is not set")
+
     notify.email(
         email_addresses=[settings.SECURITY_TEAM_EMAIL],
         template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL,
@@ -357,6 +369,9 @@ def send_security_team_offboard_leaver_reminder_email(leaving_request: LeavingRe
 
     if not leaver_information:
         raise ValueError("leaver_information is not set")
+
+    if not leaver_information.leaving_date:
+        raise ValueError("leaving_date is not set")
 
     notify.email(
         email_addresses=[settings.SECURITY_TEAM_EMAIL],
@@ -386,6 +401,9 @@ def send_sre_reminder_email(leaving_request: LeavingRequest):
     if not leaver_information:
         raise ValueError("leaver_information is not set")
 
+    if not leaver_information.leaving_date:
+        raise ValueError("leaving_date is not set")
+
     notify.email(
         email_addresses=[settings.SRE_EMAIL],
         template_id=notify.EmailTemplates.SRE_REMINDER_EMAIL,
@@ -411,6 +429,9 @@ def send_it_ops_asset_email(leaving_request: LeavingRequest):
 
     if not leaver_information:
         raise ValueError("leaver_information is not set")
+
+    if not leaver_information.leaving_date:
+        raise ValueError("leaving_date is not set")
 
     dse_assets: List[DisplayScreenEquipmentAsset] = leaver_information.dse_assets
     dse_assets_string = ""
