@@ -481,7 +481,6 @@ class LeaverInformation(models.Model):
     leaver_date_of_birth = models.DateField(null=True, blank=True)
     personal_email = models.EmailField(null=True, blank=True)
     job_title = models.CharField(max_length=1000, null=True, blank=True)
-    directorate_id = models.CharField(max_length=1000, null=True, blank=True)
     staff_id = models.CharField(max_length=1000, null=True, blank=True)
 
     # Extra information

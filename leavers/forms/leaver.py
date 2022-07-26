@@ -7,7 +7,6 @@ from crispy_forms_gds.layout import HTML, Button, Field, Fieldset, Layout, Size,
 from django import forms
 
 from core.forms import YesNoField
-from core.service_now import get_service_now_interface
 from leavers.types import ReturnOptions, SecurityClearance, StaffType
 
 
@@ -34,7 +33,6 @@ class LeaverUpdateForm(forms.Form):
     contact_address_county = forms.CharField(label="County")
     contact_address_postcode = forms.CharField(label="Postcode")
     job_title = forms.CharField(label="")
-    directorate = forms.ChoiceField(label="", choices=[])
     # Extra information
     security_clearance = forms.ChoiceField(
         label="",
@@ -57,16 +55,6 @@ class LeaverUpdateForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        service_now_interface = get_service_now_interface()
-        service_now_directorates = service_now_interface.get_directorates()
-        if not service_now_directorates:
-            raise Exception("No directorates returned from Service Now")
-
-        self.fields["directorate"].choices = [(None, "Select your directorate")] + [
-            (directorate["sys_id"], directorate["name"])
-            for directorate in service_now_directorates
-        ]
-
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
@@ -98,11 +86,6 @@ class LeaverUpdateForm(forms.Form):
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("date_of_birth"),
                 legend="Date of birth",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                Field("directorate"),
-                legend="Directorate",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(

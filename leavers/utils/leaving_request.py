@@ -48,7 +48,6 @@ def get_leaver_details(leaving_request: LeavingRequest) -> "LeaverDetails":
         "contact_email_address": consolidated_staff_document["contact_email_address"],
         # Professional details
         "job_title": consolidated_staff_document["job_title"],
-        "directorate": "",
         "staff_id": consolidated_staff_document["staff_id"],
         # Misc.
         "photo": consolidated_staff_document["photo"],

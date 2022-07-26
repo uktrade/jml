@@ -150,7 +150,6 @@ class LeaverInformationMixin:
             ],
             # Professional details
             "job_title": consolidated_staff_document["job_title"],
-            "directorate": "",
             "staff_id": consolidated_staff_document["staff_id"],
             # Misc.
             "photo": consolidated_staff_document["photo"],
@@ -202,7 +201,6 @@ class LeaverInformationMixin:
         leaver_info.leaver_last_name = updates.get("last_name", "")
         leaver_info.personal_email = updates.get("contact_email_address", "")
         leaver_info.job_title = updates.get("job_title", "")
-        leaver_info.directorate_id = updates.get("directorate", "")
 
         # Save the leaver info
         leaver_info.save(
@@ -212,7 +210,6 @@ class LeaverInformationMixin:
                 "leaver_last_name",
                 "personal_email",
                 "job_title",
-                "directorate_id",
                 "staff_id",
             ]
         )
@@ -360,28 +357,6 @@ class LeaverInformationMixin:
             sso_email_user_id=sso_email_user_id, requester=requester
         )
         leaver_details.update(**leaver_details_updates)  # type: ignore
-        return leaver_details
-
-    def get_leaver_details_with_updates_for_display(
-        self,
-        sso_email_user_id: str,
-        requester: User,
-    ) -> types.LeaverDetails:
-        leaver_details = self.get_leaver_details_with_updates(
-            sso_email_user_id=sso_email_user_id, requester=requester
-        )
-        # Get data from Service Now /PS-IGNORE
-        service_now_interface = get_service_now_interface()
-
-        # Get the Directorate's Name from Service Now
-        if leaver_details["directorate"]:
-            service_now_directorate = service_now_interface.get_directorates(
-                sys_id=leaver_details["directorate"]
-            )
-            if len(service_now_directorate) != 1:
-                raise Exception("Issue finding directorate in Service Now")
-            leaver_details["directorate"] = service_now_directorate[0]["name"]
-
         return leaver_details
 
     def store_leaving_dates(
@@ -629,7 +604,7 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
 
         sso_email_user_id = user.sso_email_user_id
 
-        display_leaver_details = self.get_leaver_details_with_updates_for_display(
+        display_leaver_details = self.get_leaver_details_with_updates(
             sso_email_user_id=sso_email_user_id,
             requester=user,
         )
@@ -655,7 +630,6 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             "last_name": form.cleaned_data["last_name"],
             "contact_email_address": form.cleaned_data["contact_email_address"],
             "job_title": form.cleaned_data["job_title"],
-            "directorate": form.cleaned_data["directorate"],
         }
 
         self.store_leaver_detail_updates(
@@ -1202,7 +1176,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
             return_personal_phone=self.leaver_info.return_personal_phone,
             return_contact_email=self.leaver_info.return_contact_email,
             leaver_info=self.leaver_info,
-            leaver_details=self.get_leaver_details_with_updates_for_display(
+            leaver_details=self.get_leaver_details_with_updates(
                 sso_email_user_id=sso_email_user_id,
                 requester=user,
             ),
