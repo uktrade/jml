@@ -171,6 +171,7 @@ def build_leaving_data_from_leaving_request(
         oracle_id = ""
         employee_id = ""
         if line_report_person_data:
+            # TODO: I don't think the person_id is the same as the Oracle ID
             oracle_id = line_report_person_data["person_id"]
             employee_id = line_report_person_data["employee_number"]
 
@@ -205,6 +206,7 @@ def build_leaving_data_from_leaving_request(
         # Leaver Details
         "leaverName": leaver_full_name,
         "leaverEmail": uksbs_leaver["email_address"],
+        # TODO: I don't think the person_id is the oracle ID
         "leaverOracleID": str(uksbs_leaver["person_id"]),
         "leaverEmployeeNumber": uksbs_leaver["employee_number"],
         "leaverReasonForLeaving": leaving_request.reason_for_leaving,
@@ -220,10 +222,12 @@ def build_leaving_data_from_leaving_request(
         # Submitter Details
         "submitterName": uksbs_leaver_manager["full_name"],
         "submitterEmail": uksbs_leaver_manager["email_address"],
+        # TODO: I don't think the person_id is the oracle ID
         "submitterOracleID": str(uksbs_leaver_manager["person_id"]),
         "submitterDate": timezone.now().strftime("%d/%m/%Y %H:%M"),
         "submitterSelectedLineManager": uksbs_leaver_manager["full_name"],
         "submitterSelectedLineManagerEmail": uksbs_leaver_manager["email_address"],
+        # TODO: I don't think the person_id is the oracle ID
         "submitterSelectedLineManagerOracleID": str(uksbs_leaver_manager["person_id"]),
         "submitterSelectedLineManagerEmployeeNumber": uksbs_leaver_manager[
             "employee_number"

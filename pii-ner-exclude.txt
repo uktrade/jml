@@ -21,6 +21,7 @@
 "Lost/Stolen"
 @media
 *Actions required:*\n
+# Joiners
 # Joiners Movers Leavers
 # People Finder
 # Staff
@@ -231,6 +232,7 @@ migrate$(COLOUR_NONE
 minimum_should_match
 Mismatch Email
 Mobile
+Movers and Leavers Service
 NAME
 name=
 National Insurance
@@ -378,6 +380,7 @@ the Security Team
 the Security Team User Group
 the SRE Team
 the SRE User Group
+the UK SBS API
 to:</p
 UK SBS - Unexpected
 UK SBS - Unexpected Response

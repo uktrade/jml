@@ -44,6 +44,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "service_now_department_id": {"type": "text"},
             "service_now_department_name": {"type": "text"},
             "people_data_employee_number": {"type": "text"},
+            # Never expose this value to the end user
             "people_data_uksbs_person_id": {"type": "text"},
         },
     },
@@ -73,6 +74,7 @@ class StaffDocument(DataClassJsonMixin):
     service_now_department_id: str
     service_now_department_name: str
     people_data_employee_number: Optional[str]
+    # Never expose this value to the end user
     people_data_uksbs_person_id: Optional[str]
 
 
@@ -90,6 +92,7 @@ class ConsolidatedStaffDocument(TypedDict):
     department_name: str
     job_title: str
     staff_id: str
+    # Never expose this value to the end user
     uksbs_person_id: str
     manager: str
     photo: str

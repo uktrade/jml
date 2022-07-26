@@ -18,6 +18,7 @@ class PeopleDataStubbed(PeopleDataBase):
             "employee_numbers": [
                 "1",
             ],
+            # NEVER EXPOSE THIS FIELD
             "uksbs_person_id": "123",
         }
         return result
@@ -27,6 +28,7 @@ class PeopleDataInterface(PeopleDataBase):
     def get_people_data(self, sso_legacy_id: str) -> types.PeopleData:
         result: types.PeopleData = {
             "employee_numbers": [],
+            # NEVER EXPOSE THIS FIELD
             "uksbs_person_id": None,
         }
 
