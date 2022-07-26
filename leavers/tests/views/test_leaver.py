@@ -131,7 +131,6 @@ class TestLeaverInformationMixin(TestCase):
         self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
         self.assertEqual(leaver_details["last_name"], "Bloggs")
         self.assertEqual(leaver_details["job_title"], "Job title")
-        self.assertEqual(leaver_details["directorate"], "")
 
     def test_get_leaver_details_with_result(self, mock_get_search_results) -> None:
         leaver_details = LeaverInformationMixin().get_leaver_details(
@@ -140,7 +139,6 @@ class TestLeaverInformationMixin(TestCase):
         self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
         self.assertEqual(leaver_details["last_name"], "Bloggs")
         self.assertEqual(leaver_details["job_title"], "Job title")
-        self.assertEqual(leaver_details["directorate"], "")
 
     def test_get_leaver_details_existing_updates(self, mock_get_search_results) -> None:
         factories.LeaverInformationFactory(
@@ -412,7 +410,6 @@ class TestConfirmDetailsView(TestCase):
         self.assertContains(response, "Confirm your information")
 
         leaver_details: types.LeaverDetails = response.context["leaver_details"]
-        self.assertEqual(leaver_details["directorate"], "")
         self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
         self.assertEqual(leaver_details["job_title"], "Job title")
         self.assertEqual(leaver_details["last_name"], "Bloggs")
@@ -431,7 +428,6 @@ class TestConfirmDetailsView(TestCase):
         self, mock_get_staff_document_from_staff_index, mock_get_search_results
     ) -> None:
         updates: types.LeaverDetailUpdates = {
-            "directorate": "2",
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
@@ -454,7 +450,6 @@ class TestConfirmDetailsView(TestCase):
                 "staff_id": "12345",
                 "contact_email_address": updates["contact_email_address"],
                 "job_title": updates["job_title"],
-                "directorate": "Directorate 2",
                 "photo": "",
             },
         )
@@ -474,7 +469,6 @@ class TestConfirmDetailsView(TestCase):
         self, mock_get_staff_document_from_staff_index, mock_get_search_results
     ) -> None:
         updates: types.LeaverDetailUpdates = {
-            "directorate": "1",
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
@@ -530,7 +524,6 @@ class TestUpdateDetailsView(TestCase):
         )
 
         form = response.context["form"]
-        self.assertEqual(form.initial["directorate"], "")
         self.assertEqual(form.initial["first_name"], "Joe")  # /PS-IGNORE
         self.assertEqual(form.initial["job_title"], "Job title")
         self.assertEqual(form.initial["last_name"], "Bloggs")  # /PS-IGNORE
@@ -549,7 +542,6 @@ class TestUpdateDetailsView(TestCase):
 
     def test_existing_updates(self, mock_get_search_results) -> None:
         updates: types.LeaverDetailUpdates = {
-            "directorate": "2",
             "first_name": "UpdatedFirstName",  # /PS-IGNORE
             "job_title": "Updated Job Title",
             "last_name": "UpdatedLastName",  # /PS-IGNORE
@@ -577,7 +569,6 @@ class TestUpdateDetailsView(TestCase):
             form.initial,
             {
                 "photo": "",
-                "directorate": updates["directorate"],
                 "first_name": updates["first_name"],
                 "job_title": updates["job_title"],
                 "last_name": updates["last_name"],
@@ -607,7 +598,6 @@ class TestUpdateDetailsView(TestCase):
         response = self.client.post(
             reverse(self.view_name),
             {
-                "directorate": "",
                 "first_name": "",
                 "job_title": "",
                 "last_name": "",
@@ -621,7 +611,6 @@ class TestUpdateDetailsView(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(response, "form", "directorate", "This field is required.")
         self.assertFormError(response, "form", "first_name", "This field is required.")
         self.assertFormError(response, "form", "job_title", "This field is required.")
         self.assertFormError(response, "form", "last_name", "This field is required.")
@@ -666,7 +655,6 @@ class TestUpdateDetailsView(TestCase):
                 "contact_address_county": "Greater London",
                 "contact_address_postcode": "AB1 2CD",  # /PS-IGNORE
                 "job_title": "Job Title",
-                "directorate": "1",
                 "security_clearance": "sc",
                 "has_locker": "yes",
                 "has_gov_procurement_card": "yes",
@@ -690,7 +678,6 @@ class TestUpdateDetailsView(TestCase):
         )
         leaver_updates: types.LeaverDetailUpdates = leaver_updates_obj.updates
 
-        self.assertEqual(leaver_updates["directorate"], "1")
         self.assertEqual(leaver_updates["first_name"], "FirstName")  # /PS-IGNORE
         self.assertEqual(leaver_updates["job_title"], "Job Title")
         self.assertEqual(leaver_updates["last_name"], "LastName")  # /PS-IGNORE
