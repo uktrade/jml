@@ -186,6 +186,7 @@ IE
 ill health</li>
 include:</p
 INDEX_CURRENT_USER_MIDDLEWARE                            
+Index](/docs
 INFO
 information</h1
 ingest_activity_stream
@@ -400,6 +401,7 @@ Updated Personal Email
 User
 User
 users.</td
+Variables](/docs
 viewBox="0 0 483.2
 visit</li>
 vpn_access_task_log

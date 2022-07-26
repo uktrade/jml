@@ -17,7 +17,7 @@
 `make all-requirements`
 
 ## Project documentation
-- [Index](docs/index.md)
-    - [Environment Variables](docs/environment-variables.md)
-    - [Emails](docs/emails.md)
-    - [UK SBS](docs/uksbs.md)
+- [Index](/docs/index.md)
+    - [Environment Variables](/docs/environment-variables.md)
+    - [Emails](/docs/emails.md)
+    - [UK SBS](/docs/uksbs.md)
