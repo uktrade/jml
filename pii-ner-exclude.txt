@@ -60,6 +60,7 @@ Build Staff Document
 Building Pass
 Building Pass Access Revoked
 building_pass_access_task_log
+C901
 card</li>{%
 channel_id
 checkbox
@@ -72,6 +73,7 @@ class="incomplete">To Do</span
 COLOUR_GREEN=\033[32;01
 COLOUR_YELLOW=\033[33;01
 Compile SCSS
+confirm_leaver_data
 contact_address_postcode
 Convert
 Convert a Queryset
@@ -277,6 +279,7 @@ recorded</h1
 Reminder Email
 Reminder Email*
 Report 2
+Request
 return_contact_email
 ReturnOptions
 role="alert
@@ -376,6 +379,8 @@ the Security Team User Group
 the SRE Team
 the SRE User Group
 to:</p
+UK SBS - Unexpected
+UK SBS - Unexpected Response
 UKSBS
 UKSBS Connect
 UKSBS Leavers

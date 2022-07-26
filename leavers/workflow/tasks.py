@@ -12,6 +12,7 @@ from activity_stream.models import ActivityStreamStaffSSOUser
 from core.service_now import get_service_now_interface
 from core.service_now.types import AssetDetails
 from core.uksbs import get_uksbs_interface
+from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.uksbs.types import PersonData
 from core.uksbs.utils import build_leaving_data_from_leaving_request
 from core.utils.lsd import inform_lsd_team_of_leaver
@@ -68,6 +69,99 @@ class PauseTask(LeavingRequestTask):
 
     def execute(self, task_info):
         return [], False
+
+
+class ConfirmLeaverData(LeavingRequestTask):
+    abstract = False
+    task_name = "confirm_leaver_data"
+    auto = True
+
+    def execute(self, task_info):  # noqa: C901
+        uksbs_interface = get_uksbs_interface()
+        assert self.leaving_request
+        assert self.leaving_request.leaver_activitystream_user
+        assert self.leaving_request.manager_activitystream_user
+
+        leaver_as_user: ActivityStreamStaffSSOUser = (
+            self.leaving_request.leaver_activitystream_user
+        )
+        manager_as_user: ActivityStreamStaffSSOUser = (
+            self.leaving_request.manager_activitystream_user
+        )
+
+        # A PII Safe list of errors with the leaving request.
+        errors: List[str] = []
+        uksbs_leaver_manager_person_ids: List[str] = []
+
+        if not leaver_as_user.uksbs_person_id:
+            errors.append("Leaver doesn't have a UK SBS Person ID")
+        else:
+            try:
+                uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
+                    person_id=leaver_as_user.uksbs_person_id,
+                )
+            except UKSBSUnexpectedResponse:
+                errors.append(
+                    "Couldn't get leaver hierarchy from UK SBS - Unexpected Response"
+                )
+            except UKSBSPersonNotFound:
+                errors.append(
+                    "Couldn't get leaver hierarchy from UK SBS - Person not found"
+                )
+            else:
+                uksbs_leaver_managers: List[PersonData] = uksbs_leaver_hierarchy.get(
+                    "manager", []
+                )
+                if not uksbs_leaver_managers:
+                    errors.append("Leaver doesn't have a manager in UK SBS")
+                else:
+                    uksbs_leaver_manager_person_ids = [
+                        uksbs_leaver_manager["person_id"]
+                        for uksbs_leaver_manager in uksbs_leaver_managers
+                    ]
+                    if len(uksbs_leaver_manager_person_ids) > 1:
+                        errors.append("Leaver has more than one manager in UK SBS")
+                    for uksbs_leaver_manager in uksbs_leaver_managers:
+                        if not uksbs_leaver_manager["email_address"]:
+                            errors.append(
+                                "Leaver's UK SBS manager doesn't have an email "
+                                "address in UK SBS"
+                            )
+
+        if not manager_as_user.uksbs_person_id:
+            errors.append("Manager doesn't have a UK SBS Person ID")
+        else:
+            try:
+                uksbs_interface.get_user_hierarchy(
+                    person_id=manager_as_user.uksbs_person_id,
+                )
+            except UKSBSUnexpectedResponse:
+                errors.append(
+                    "Couldn't get manager hierarchy from UK SBS - Unexpected "
+                    "Response"
+                )
+            except UKSBSPersonNotFound:
+                errors.append(
+                    "Couldn't get manager hierarchy from UK SBS - Person not " "found"
+                )
+            else:
+                if (
+                    manager_as_user.uksbs_person_id
+                    not in uksbs_leaver_manager_person_ids
+                ):
+                    errors.append(
+                        "Manager's UK SBS Person ID is not in the leaver's "
+                        "hierarchy data."
+                    )
+
+        if errors:
+            error_list = "\n".join(errors)
+            raise Exception(
+                f"Leaving Request ({self.leaving_request.uuid}) has some issues:"
+                f"\n\n{error_list}"
+            )
+
+        return [], True
 
 
 class CheckUKSBSLineManager(LeavingRequestTask):
