@@ -2,6 +2,7 @@ import responses
 from django.test import TestCase, override_settings
 from django.utils import timezone
 
+from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from core.uksbs.client import UKSBSClient, UKSBSPersonNotFound
 from core.uksbs.types import LeavingData, PersonData
 from core.uksbs.utils import build_leaving_data_from_leaving_request
@@ -128,9 +129,10 @@ class TestUKSBSClient(TestCase):
             leaving_date=timezone.now(),
             last_day=timezone.now(),
             reason_for_leaving=ReasonForleaving.RESIGNATION.value,
+            processing_manager_activitystream_user=ActivityStreamStaffSSOUserFactory(),
         )
         leaver = leaving_request.leaver_activitystream_user
-        manager = leaving_request.manager_activitystream_user
+        manager = leaving_request.processing_manager_activitystream_user
         manager_person_data = FAKE_PERSON_DATA.copy()
         manager_person_data["person_id"] = manager.uksbs_person_id
 

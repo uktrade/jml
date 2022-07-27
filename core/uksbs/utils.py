@@ -104,17 +104,19 @@ def build_leaving_data_from_leaving_request(
     uksbs_interface = get_uksbs_interface()
 
     assert leaving_request.leaver_activitystream_user
-    assert leaving_request.manager_activitystream_user
+    assert leaving_request.processing_manager_activitystream_user
     assert leaving_request.leaving_date
     assert leaving_request.last_day
     assert leaving_request.reason_for_leaving
 
     leaver_as: ActivityStreamStaffSSOUser = leaving_request.leaver_activitystream_user
-    manager_as: ActivityStreamStaffSSOUser = leaving_request.manager_activitystream_user
+    processing_manager_as: ActivityStreamStaffSSOUser = (
+        leaving_request.processing_manager_activitystream_user
+    )
 
     if not leaver_as.uksbs_person_id:
         raise LeaverDoesNotHaveUKSBSPersonId()
-    if not manager_as.uksbs_person_id:
+    if not processing_manager_as.uksbs_person_id:
         raise ManagerDoesNotHaveUKSBSPersonId()
 
     uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
@@ -127,7 +129,7 @@ def build_leaving_data_from_leaving_request(
     uksbs_leaver_manager: Optional[PersonData] = None
 
     for ulm in uksbs_leaver_managers:
-        if ulm["person_id"] == manager_as.uksbs_person_id:
+        if ulm["person_id"] == processing_manager_as.uksbs_person_id:
             uksbs_leaver_manager = ulm
             break
 
@@ -143,7 +145,7 @@ def build_leaving_data_from_leaving_request(
         "contactPrimaryFlag": "N",
     }
     line_manager_contact: ServiceRequestDataContact = {
-        "contactNumber": manager_as.user_id,  # Oracle ID
+        "contactNumber": processing_manager_as.user_id,  # Oracle ID
         "contactType": "EMPLOYEE",
         "contactTypePoint": "EMAIL",
         "contactPrimaryFlag": "Y",

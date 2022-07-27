@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Mapping, Optional, TypedDict
 
 from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
+from django.db.models.query import QuerySet
 from opensearch_dsl import Search
 from opensearch_dsl.response import Hit
 from opensearchpy import OpenSearch
@@ -499,9 +500,12 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
 
 
 def index_staff_by_emails(emails: List[str]) -> None:
-    for staff_sso_user in ActivityStreamStaffSSOUser.objects.filter(
+    staff_sso_users: QuerySet[
+        ActivityStreamStaffSSOUser
+    ] = ActivityStreamStaffSSOUser.objects.filter(
         sso_emails__email_address__in=emails,
-    ):
+    )
+    for staff_sso_user in staff_sso_users:
         try:
             staff_document = build_staff_document(staff_sso_user=staff_sso_user)
             index_staff_document(staff_document=staff_document)
@@ -525,12 +529,15 @@ def index_all_staff() -> int:
     current_date = date.today()
     days_ago = 6 * 30
     last_accessed_datetime = current_date - timedelta(days=days_ago)
-    # Add documents to the index
-    for staff_sso_user in ActivityStreamStaffSSOUser.objects.filter(
+    staff_sso_users: QuerySet[
+        ActivityStreamStaffSSOUser
+    ] = ActivityStreamStaffSSOUser.objects.filter(
         became_inactive_on__isnull=True,
         last_accessed__isnull=False,
         last_accessed__gte=last_accessed_datetime,
-    ):
+    )
+    # Add documents to the index
+    for staff_sso_user in staff_sso_users:
         try:
             staff_document = build_staff_document(staff_sso_user=staff_sso_user)
             index_staff_document(staff_document=staff_document)

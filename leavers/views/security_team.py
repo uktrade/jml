@@ -107,11 +107,14 @@ class BuildingPassConfirmationView(
         if self.leaving_request.security_pass_not_returned:
             notes = self.leaving_request.security_pass_not_returned.notes
 
+        manager_as_user = self.leaving_request.get_line_manager()
+        assert manager_as_user
+
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
             leaver_email=self.leaving_request.get_leaver_email(),
-            manager_name=self.leaving_request.get_line_manager_name(),
-            manager_email=self.leaving_request.get_line_manager_email(),
+            manager_name=manager_as_user.full_name,
+            manager_emails=manager_as_user.get_email_addresses_for_contact(),
             last_working_day=self.leaving_request.last_day.date(),
             leaving_date=self.leaving_request.leaving_date.date(),
             leaving_request_uuid=self.leaving_request.uuid,
@@ -323,11 +326,14 @@ class RosaKitConfirmationView(
             page_title=self.page_title,
         )
 
+        manager_as_user = self.leaving_request.get_line_manager()
+        assert manager_as_user
+
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
             leaver_email=self.leaving_request.get_leaver_email(),
-            manager_name=self.leaving_request.get_line_manager_name(),
-            manager_email=self.leaving_request.get_line_manager_email(),
+            manager_name=manager_as_user.full_name,
+            manager_emails=manager_as_user.get_email_addresses_for_contact(),
             last_working_day=self.leaving_request.last_day.date(),
             leaving_date=self.leaving_request.leaving_date.date(),
             leaving_request_uuid=self.leaving_request.uuid,

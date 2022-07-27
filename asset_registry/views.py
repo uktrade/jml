@@ -17,7 +17,7 @@ from asset_registry.utils import (
 )
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.search import SearchVector
-from django.db.models import QuerySet
+from django.db.models.query import QuerySet
 from django.http import Http404, HttpRequest, HttpResponseForbidden
 from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
@@ -73,11 +73,13 @@ class ListAssetsView(AssetViewMixin, FormView):
     search_terms: Optional[str] = None
 
     def get_queryset(self) -> QuerySet:
-        queryset = Asset.objects.all()
+        queryset: QuerySet[Asset] = Asset.objects.all()
         if self.search_terms:
             asset_ids: List[int] = []
 
-            physical_asset_queryset = PhysicalAsset.objects.all().annotate(
+            physical_asset_queryset: QuerySet[
+                PhysicalAsset
+            ] = PhysicalAsset.objects.all().annotate(
                 search=SearchVector(
                     "users__name",
                     "users__first_name",
@@ -97,7 +99,9 @@ class ListAssetsView(AssetViewMixin, FormView):
             )
             asset_ids += physical_asset_queryset.values_list("id", flat=True)
 
-            software_asset_queryset = SoftwareAsset.objects.all().annotate(
+            software_asset_queryset: QuerySet[
+                SoftwareAsset
+            ] = SoftwareAsset.objects.all().annotate(
                 search=SearchVector(
                     "users__name",
                     "users__first_name",

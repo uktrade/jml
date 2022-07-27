@@ -52,18 +52,18 @@ class DaysBeforePayroll(TestCase):
 
 class LeavingDatePlusXDays(TestCase):
     def setUp(self):
-        self.leaving_date = LeavingRequestFactory(
-            last_day=datetime(2021, 12, 1),
+        self.leaving_request = LeavingRequestFactory(
+            last_day=make_aware(datetime(2021, 12, 1)),
         )
 
     def test_leaving_date_not_set(self):
         # Remove the last day value
-        self.leaving_date.last_day = None
-        self.leaving_date.save()
+        self.leaving_request.last_day = None
+        self.leaving_request.save()
 
         self.assertFalse(
             is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_date,
+                leaving_request=self.leaving_request,
                 days_after_leaving_date=1,
             )
         )
@@ -72,19 +72,19 @@ class LeavingDatePlusXDays(TestCase):
     def test_leaving_date_tomorrow(self):
         self.assertFalse(
             is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_date,
+                leaving_request=self.leaving_request,
                 days_after_leaving_date=1,
             )
         )
         self.assertFalse(
             is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_date,
+                leaving_request=self.leaving_request,
                 days_after_leaving_date=0,
             )
         )
         self.assertTrue(
             is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_date,
+                leaving_request=self.leaving_request,
                 days_after_leaving_date=-1,
             )
         )
@@ -93,19 +93,19 @@ class LeavingDatePlusXDays(TestCase):
     def test_leaving_date_today(self):
         self.assertFalse(
             is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_date,
+                leaving_request=self.leaving_request,
                 days_after_leaving_date=1,
             )
         )
         self.assertTrue(
             is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_date,
+                leaving_request=self.leaving_request,
                 days_after_leaving_date=0,
             )
         )
         self.assertFalse(
             is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_date,
+                leaving_request=self.leaving_request,
                 days_after_leaving_date=-1,
             )
         )
@@ -114,19 +114,19 @@ class LeavingDatePlusXDays(TestCase):
     def test_leaving_date_yesterday(self):
         self.assertTrue(
             is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_date,
+                leaving_request=self.leaving_request,
                 days_after_leaving_date=1,
             )
         )
         self.assertFalse(
             is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_date,
+                leaving_request=self.leaving_request,
                 days_after_leaving_date=0,
             )
         )
         self.assertFalse(
             is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_date,
+                leaving_request=self.leaving_request,
                 days_after_leaving_date=-1,
             )
         )

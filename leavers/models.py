@@ -60,6 +60,7 @@ class LeavingRequest(models.Model):
         on_delete=models.CASCADE,
         related_name="+",
     )
+    # The manager that the Leaver selected
     manager_activitystream_user = models.ForeignKey(
         ActivityStreamStaffSSOUser,
         on_delete=models.CASCADE,
@@ -104,6 +105,14 @@ class LeavingRequest(models.Model):
     """
     Line Manager
     """
+    # The manager that processed the Leaver (could be the manager from UK SBS)
+    processing_manager_activitystream_user = models.ForeignKey(
+        ActivityStreamStaffSSOUser,
+        on_delete=models.CASCADE,
+        related_name="+",
+        blank=True,
+        null=True,
+    )
     reason_for_leaving = models.CharField(
         choices=ReasonForleaving.choices,
         max_length=255,
@@ -299,29 +308,15 @@ class LeavingRequest(models.Model):
                 return sso_email.email_address
         return None
 
-    def get_line_manager_name(self) -> Optional[str]:
+    def get_line_manager(self) -> Optional[ActivityStreamStaffSSOUser]:
         """
-        Get the Line manager's name.
-        """
-
-        manager_activitystream_user = self.manager_activitystream_user
-        if manager_activitystream_user:
-            line_manager_as_first_name = manager_activitystream_user.first_name
-            line_manager_as_last_name = manager_activitystream_user.last_name
-            if line_manager_as_first_name and line_manager_as_last_name:
-                return f"{line_manager_as_first_name} {line_manager_as_last_name}"
-
-        return None
-
-    def get_line_manager_email(self) -> Optional[str]:
-        """
-        Get the Line manager's email.
+        Returns the line manager that is in use.
         """
 
-        manager_activitystream_user = self.manager_activitystream_user
-        if manager_activitystream_user:
-            return manager_activitystream_user.contact_email_address
-
+        if self.processing_manager_activitystream_user:
+            return self.processing_manager_activitystream_user
+        if self.manager_activitystream_user:
+            return self.manager_activitystream_user
         return None
 
     def sre_services(self) -> List[Tuple[str, str, bool]]:

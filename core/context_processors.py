@@ -1,6 +1,7 @@
-from typing import List
+from typing import List, Optional
 
 from django.conf import settings
+from django.db.models import Q
 from django.urls import reverse
 
 from leavers.models import LeavingRequest
@@ -70,10 +71,20 @@ def global_context(request):
                 )
             )
 
-        latest_leaving_request = LeavingRequest.objects.filter(
-            leaver_complete__isnull=False,
-            manager_activitystream_user__email_user_id=request.user.sso_email_user_id,
-        ).last()
+        sso_email_user_id = request.user.sso_email_user_id
+        user_is_manager = Q(
+            Q(manager_activitystream_user__email_user_id=sso_email_user_id)
+            | Q(processing_manager_activitystream_user__email_user_id=sso_email_user_id)
+        )
+
+        latest_leaving_request: Optional[LeavingRequest] = (
+            LeavingRequest.objects.filter(
+                leaver_complete__isnull=False,
+                line_manager_complete__isnull=True,
+            )
+            .filter(user_is_manager)
+            .last()
+        )
         if latest_leaving_request:
             global_context["DEV_LINKS"].append(
                 (

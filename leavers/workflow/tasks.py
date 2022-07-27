@@ -82,77 +82,83 @@ class ConfirmLeaverData(LeavingRequestTask):
         assert self.leaving_request.leaver_activitystream_user
         assert self.leaving_request.manager_activitystream_user
 
-        leaver_as_user: ActivityStreamStaffSSOUser = (
-            self.leaving_request.leaver_activitystream_user
-        )
-        manager_as_user: ActivityStreamStaffSSOUser = (
-            self.leaving_request.manager_activitystream_user
-        )
+        leaver_as_user: Optional[
+            ActivityStreamStaffSSOUser
+        ] = self.leaving_request.leaver_activitystream_user
+        manager_as_user: Optional[
+            ActivityStreamStaffSSOUser
+        ] = self.leaving_request.manager_activitystream_user
 
         # A PII Safe list of errors with the leaving request.
         errors: List[str] = []
         uksbs_leaver_manager_person_ids: List[str] = []
 
-        if not leaver_as_user.uksbs_person_id:
-            errors.append("Leaver doesn't have a UK SBS Person ID")
+        if not leaver_as_user:
+            errors.append("Leaving Request doesn't have a Leaver")
         else:
-            try:
-                uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
-                    person_id=leaver_as_user.uksbs_person_id,
-                )
-            except UKSBSUnexpectedResponse:
-                errors.append(
-                    "Couldn't get leaver hierarchy from UK SBS - Unexpected Response"
-                )
-            except UKSBSPersonNotFound:
-                errors.append(
-                    "Couldn't get leaver hierarchy from UK SBS - Person not found"
-                )
+            if not leaver_as_user.uksbs_person_id:
+                errors.append("Leaver doesn't have a UK SBS Person ID")
             else:
-                uksbs_leaver_managers: List[PersonData] = uksbs_leaver_hierarchy.get(
-                    "manager", []
-                )
-                if not uksbs_leaver_managers:
-                    errors.append("Leaver doesn't have a manager in UK SBS")
-                else:
-                    uksbs_leaver_manager_person_ids = [
-                        uksbs_leaver_manager["person_id"]
-                        for uksbs_leaver_manager in uksbs_leaver_managers
-                    ]
-                    if len(uksbs_leaver_manager_person_ids) > 1:
-                        errors.append("Leaver has more than one manager in UK SBS")
-                    for uksbs_leaver_manager in uksbs_leaver_managers:
-                        if not uksbs_leaver_manager["email_address"]:
-                            errors.append(
-                                "Leaver's UK SBS manager doesn't have an email "
-                                "address in UK SBS"
-                            )
-
-        if not manager_as_user.uksbs_person_id:
-            errors.append("Manager doesn't have a UK SBS Person ID")
-        else:
-            try:
-                uksbs_interface.get_user_hierarchy(
-                    person_id=manager_as_user.uksbs_person_id,
-                )
-            except UKSBSUnexpectedResponse:
-                errors.append(
-                    "Couldn't get manager hierarchy from UK SBS - Unexpected "
-                    "Response"
-                )
-            except UKSBSPersonNotFound:
-                errors.append(
-                    "Couldn't get manager hierarchy from UK SBS - Person not " "found"
-                )
-            else:
-                if (
-                    manager_as_user.uksbs_person_id
-                    not in uksbs_leaver_manager_person_ids
-                ):
-                    errors.append(
-                        "Manager's UK SBS Person ID is not in the leaver's "
-                        "hierarchy data."
+                try:
+                    uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
+                        person_id=leaver_as_user.uksbs_person_id,
                     )
+                except UKSBSUnexpectedResponse:
+                    errors.append(
+                        "Couldn't get leaver hierarchy from UK SBS - Unexpected Response"
+                    )
+                except UKSBSPersonNotFound:
+                    errors.append(
+                        "Couldn't get leaver hierarchy from UK SBS - Person not found"
+                    )
+                else:
+                    uksbs_leaver_managers: List[
+                        PersonData
+                    ] = uksbs_leaver_hierarchy.get("manager", [])
+                    if not uksbs_leaver_managers:
+                        errors.append("Leaver doesn't have a manager in UK SBS")
+                    else:
+                        uksbs_leaver_manager_person_ids = [
+                            uksbs_leaver_manager["person_id"]
+                            for uksbs_leaver_manager in uksbs_leaver_managers
+                        ]
+                        if len(uksbs_leaver_manager_person_ids) > 1:
+                            errors.append("Leaver has more than one manager in UK SBS")
+                        for uksbs_leaver_manager in uksbs_leaver_managers:
+                            if not uksbs_leaver_manager["email_address"]:
+                                errors.append(
+                                    "Leaver's UK SBS manager doesn't have an email "
+                                    "address in UK SBS"
+                                )
+        if not manager_as_user:
+            errors.append("Leaving Request doesn't have a Manager")
+        else:
+            if not manager_as_user.uksbs_person_id:
+                errors.append("Manager doesn't have a UK SBS Person ID")
+            else:
+                try:
+                    uksbs_interface.get_user_hierarchy(
+                        person_id=manager_as_user.uksbs_person_id,
+                    )
+                except UKSBSUnexpectedResponse:
+                    errors.append(
+                        "Couldn't get manager hierarchy from UK SBS - Unexpected "
+                        "Response"
+                    )
+                except UKSBSPersonNotFound:
+                    errors.append(
+                        "Couldn't get manager hierarchy from UK SBS - Person not "
+                        "found"
+                    )
+                else:
+                    if (
+                        manager_as_user.uksbs_person_id
+                        not in uksbs_leaver_manager_person_ids
+                    ):
+                        errors.append(
+                            "Manager's UK SBS Person ID is not in the leaver's "
+                            "hierarchy data."
+                        )
 
         if errors:
             error_list = "\n".join(errors)
@@ -177,9 +183,7 @@ class CheckUKSBSLineManager(LeavingRequestTask):
         leaver_as_user: ActivityStreamStaffSSOUser = (
             self.leaving_request.leaver_activitystream_user
         )
-        line_manager_as_user: ActivityStreamStaffSSOUser = (
-            self.leaving_request.manager_activitystream_user
-        )
+        line_manager_as_user = self.leaving_request.get_line_manager()
 
         if not leaver_as_user.uksbs_person_id:
             raise LeaverDoesNotHaveUKSBSPersonId()

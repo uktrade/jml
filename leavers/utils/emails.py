@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from django.conf import settings
+from django.db.models.query import QuerySet
 from django.urls import reverse
 
 from activity_stream.models import (
@@ -178,10 +179,8 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
     if not leaving_request.is_rosa_user:
         raise LeaverDoesNotHaveRosaKit()
 
-    assert leaving_request.manager_activitystream_user
-    manager_as_user: ActivityStreamStaffSSOUser = (
-        leaving_request.manager_activitystream_user
-    )
+    manager_as_user = leaving_request.get_line_manager()
+    assert manager_as_user
 
     if not manager_as_user.contact_email_address:
         raise ValueError("contact_email_address is not set")
@@ -191,7 +190,7 @@ def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.ROSA_LINE_MANAGER_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "manager_name": leaving_request.get_line_manager_name(),
+            "manager_name": manager_as_user.full_name,
         },
     )
 
@@ -226,10 +225,13 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
     ]
 
     current_manager_emails: List[str] = []
-
-    for current_manager_as_user in ActivityStreamStaffSSOUser.objects.filter(
+    current_manager_as_users: QuerySet[
+        ActivityStreamStaffSSOUser
+    ] = ActivityStreamStaffSSOUser.objects.filter(
         uksbs_person_id__in=uksbs_leaver_manager_person_ids
-    ):
+    )
+
+    for current_manager_as_user in current_manager_as_users:
         current_manager_sso_email: Optional[
             ActivityStreamStaffSSOUserEmail
         ] = current_manager_as_user.sso_emails.first()
@@ -240,7 +242,7 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
     email_personalisation = {
         "recipient_name": current_manager_as_user.full_name,
         "leaver_name": leaving_request.get_leaver_name(),
-        "manager_name": leaving_request.get_line_manager_name(),
+        "manager_name": leaving_request.manager_activitystream_user.full_name,
     }
 
     if current_manager_emails:
@@ -253,11 +255,19 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
     else:
         # If there are no manager emails, we need to email the HR Offboarding
         # team and the Line manager that the Leaver selected.
+
+        if not leaver_as_user.contact_email_address:
+            raise ValueError("contact_email_address is not set")
+
+        if not settings.HR_UKSBS_CORRECTION_EMAIL:
+            raise ValueError("HR_UKSBS_CORRECTION_EMAIL is not set")
+
         notify.email(
             email_addresses=[leaver_as_user.contact_email_address],
             template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_REPORTED_LM_EMAIL,
             personalisation=email_personalisation,
         )
+
         notify.email(
             email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],
             template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_HR_EMAIL,
@@ -269,10 +279,8 @@ def send_line_manager_notification_email(leaving_request: LeavingRequest):
     """
     Send Line Manager an email to notify them of a Leaver they need to process.
     """
-    assert leaving_request.manager_activitystream_user
-    manager_as_user: ActivityStreamStaffSSOUser = (
-        leaving_request.manager_activitystream_user
-    )
+    manager_as_user = leaving_request.get_line_manager()
+    assert manager_as_user
 
     if not manager_as_user.contact_email_address:
         raise ValueError("contact_email_address is not set")
@@ -282,7 +290,7 @@ def send_line_manager_notification_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.LINE_MANAGER_NOTIFICATION_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "manager_name": leaving_request.get_line_manager_name(),
+            "manager_name": manager_as_user.full_name,
             "line_manager_link": reverse(
                 "line-manager-start", args=[leaving_request.uuid]
             ),
@@ -294,10 +302,8 @@ def send_line_manager_reminder_email(leaving_request: LeavingRequest):
     """
     Send Line Manager a reminder email to notify them of a Leaver they need to process.
     """
-    assert leaving_request.manager_activitystream_user
-    manager_as_user: ActivityStreamStaffSSOUser = (
-        leaving_request.manager_activitystream_user
-    )
+    manager_as_user = leaving_request.get_line_manager()
+    assert manager_as_user
 
     if not manager_as_user.contact_email_address:
         raise ValueError("contact_email_address is not set")
@@ -307,7 +313,7 @@ def send_line_manager_reminder_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.LINE_MANAGER_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "manager_name": leaving_request.get_line_manager_name(),
+            "manager_name": manager_as_user.full_name,
             "line_manager_link": reverse(
                 "line-manager-start", args=[leaving_request.uuid]
             ),
@@ -319,10 +325,8 @@ def send_line_manager_thankyou_email(leaving_request: LeavingRequest):
     """
     Send Line Manager a thank you email.
     """
-    assert leaving_request.manager_activitystream_user
-    manager_as_user: ActivityStreamStaffSSOUser = (
-        leaving_request.manager_activitystream_user
-    )
+    manager_as_user = leaving_request.get_line_manager()
+    assert manager_as_user
 
     if not manager_as_user.contact_email_address:
         raise ValueError("contact_email_address is not set")
@@ -332,7 +336,7 @@ def send_line_manager_thankyou_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.LINE_MANAGER_THANKYOU_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "manager_name": leaving_request.get_line_manager_name(),
+            "manager_name": manager_as_user.full_name,
         },
     )
 

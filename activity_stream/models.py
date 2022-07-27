@@ -1,3 +1,5 @@
+from typing import List
+
 from django.db import models
 
 
@@ -34,6 +36,19 @@ class ActivityStreamStaffSSOUser(models.Model):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    def get_email_addresses_for_contact(self) -> List[str]:
+        """
+        Return all known emails for this user.
+        """
+        emails = set()
+
+        if self.contact_email_address:
+            emails.add(self.contact_email_address)
+
+        for sso_email in self.sso_emails.all():
+            emails.add(sso_email.email_address)
+        return list(emails)
 
 
 class ActivityStreamStaffSSOUserEmail(models.Model):
