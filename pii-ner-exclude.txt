@@ -79,6 +79,7 @@ contact_address_postcode
 Convert
 Convert a Queryset
 Convert Request Data
+Correction Email
 Create ActivityStream
 Create Leaving Request
 Create Physical Asset
@@ -344,6 +345,7 @@ target="_blank">here</a>.</li>
 Team Zendesk
 TEMPLATE_ID_CSU4_EMAIL
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL
+TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL
 TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  
 TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                                       
@@ -388,6 +390,7 @@ UK SBS - Unexpected Response
 UKSBS
 UKSBS Connect
 UKSBS Leavers
+UKSBS Line
 UKSBS_INTERFACE
 UKSBS_POST_LEAVER_SUBMISSION                             
 UKSBSBase

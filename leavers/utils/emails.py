@@ -237,19 +237,32 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
         if current_manager_sso_email:
             current_manager_emails.append(current_manager_sso_email.email_address)
 
-    # If there are no manager emails, we need to email HR
-    if not current_manager_emails:
-        current_manager_emails = [settings.HR_UKSBS_CORRECTION_EMAIL]
+    email_personalisation = {
+        "recipient_name": current_manager_as_user.full_name,
+        "leaver_name": leaving_request.get_leaver_name(),
+        "manager_name": leaving_request.get_line_manager_name(),
+    }
 
-    notify.email(
-        email_addresses=current_manager_emails,
-        template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
-        personalisation={
-            "recipient_name": current_manager_as_user.full_name,
-            "leaver_name": leaving_request.get_leaver_name(),
-            "manager_name": leaving_request.get_line_manager_name(),
-        },
-    )
+    if current_manager_emails:
+        # Send email to UKSBS manager(s)
+        notify.email(
+            email_addresses=current_manager_emails,
+            template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
+            personalisation=email_personalisation,
+        )
+    else:
+        # If there are no manager emails, we need to email the HR Offboarding
+        # team and the Line manager that the Leaver selected.
+        notify.email(
+            email_addresses=[leaver_as_user.contact_email_address],
+            template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_REPORTED_LM_EMAIL,
+            personalisation=email_personalisation,
+        )
+        notify.email(
+            email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],
+            template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_HR_EMAIL,
+            personalisation=email_personalisation,
+        )
 
 
 def send_line_manager_notification_email(leaving_request: LeavingRequest):
