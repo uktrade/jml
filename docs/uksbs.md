@@ -42,7 +42,7 @@ Once the Line manager has completed their journey, we make a request to the UK S
     - The system will inform UK SBS of the Leaver.
 - The Line manager selected doesn't match the Line manager in UK SBS
     - The Leaver doesn't have a manager in UK SBS
-        - **??? What should we do here ???**
+        - An email is sent to HR and the Line manager that the Leaver selected informing them that UK SBS needs to be updated.
     - The service will ask the Line manager in UK SBS to update on UK SBS Connect so that the Leaver's Line manager is corrected to the one selected by the Leaver.
         - The Line Manager in UK SBS doesn't have an email_address
             - **??? What should we do here ???**
@@ -50,18 +50,13 @@ Once the Line manager has completed their journey, we make a request to the UK S
             - **??? What should we do here ???**
         - Once the manager in UK SBS is updated and correct, the system will inform UK SBS of the Leaver.
 
-## Edge cases
+## Un-handled edge cases
 
 ### The Leaver is not in UK SBS
 
 Should we skip over the Automation and just send an email to the Line manager asking them to fill out the UK SBS form?
 
-### The Leaver doesn't have a Line manager in UK SBS
-
-Should we send an email to UK SBS to inform them that we know of a Leaver that their system doesn't know about?
-Should we not tell UK SBS at all?
-
 ### The Line manager in UK SBS isn't contactable
-They don't have an email in UK SBS OR they aren't in the Staff index.
 
-Who should we ask to update UK SBS to correct the Leaver's Line manager?
+They don't have an email in UK SBS OR they aren't in the Staff index.
+Who should we ask to update UK SBS to correct the Leaver's Line manager? HR and the Line manager that the Leaver selected?

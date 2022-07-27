@@ -395,6 +395,7 @@ UKSBS_INTERFACE
 UKSBS_POST_LEAVER_SUBMISSION                             
 UKSBSBase
 UKSBSStubbed
+Un
 unique_sso_legacy_user_id
 Unit of Measurement
 Unit of Measurement Hours
