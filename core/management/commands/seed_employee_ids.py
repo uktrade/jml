@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.db import connections
+from django.db.models.query import QuerySet
 
 from user.models import User
 
@@ -8,7 +9,7 @@ class Command(BaseCommand):
     help = "Seed employee ids"
 
     def handle(self, *args, **options):
-        users = User.objects.filter(sso_legacy_user_id__isnull=False)
+        users: QuerySet[User] = User.objects.filter(sso_legacy_user_id__isnull=False)
 
         employee_id_1 = 10000000
         employee_id_2 = 100000

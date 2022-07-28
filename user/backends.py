@@ -1,8 +1,13 @@
+from typing import TYPE_CHECKING, Optional
+
 from authbroker_client.backends import AuthbrokerBackend
 from authbroker_client.utils import get_client, get_profile, has_valid_token
 from django.contrib.auth import get_user_model
 
-User = get_user_model()
+if TYPE_CHECKING:
+    from user.models import User
+else:
+    User = get_user_model()
 
 
 class CustomAuthbrokerBackend(AuthbrokerBackend):
@@ -15,7 +20,9 @@ class CustomAuthbrokerBackend(AuthbrokerBackend):
 
     @staticmethod
     def get_or_create_user(profile):
-        user = User.objects.filter(username=profile["email_user_id"]).first()
+        user: Optional[User] = User.objects.filter(
+            username=profile["email_user_id"]
+        ).first()
 
         if user:
             user.username = profile["email_user_id"]

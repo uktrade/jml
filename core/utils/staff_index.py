@@ -6,13 +6,13 @@ from typing import Any, Dict, List, Mapping, Optional, TypedDict
 
 from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
+from django.db.models.query import QuerySet
 from opensearch_dsl import Search
 from opensearch_dsl.response import Hit
 from opensearchpy import OpenSearch
 from opensearchpy.exceptions import NotFoundError
 
 from activity_stream.models import ActivityStreamStaffSSOUser, ServiceEmailAddress
-from core.people_finder.client import FailedToGetPersonRecord
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +45,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "service_now_department_id": {"type": "text"},
             "service_now_department_name": {"type": "text"},
             "people_data_employee_number": {"type": "text"},
+            # Never expose this value to the end user
             "people_data_uksbs_person_id": {"type": "text"},
         },
     },
@@ -74,6 +75,7 @@ class StaffDocument(DataClassJsonMixin):
     service_now_department_id: str
     service_now_department_name: str
     people_data_employee_number: Optional[str]
+    # Never expose this value to the end user
     people_data_uksbs_person_id: Optional[str]
 
 
@@ -91,6 +93,7 @@ class ConsolidatedStaffDocument(TypedDict):
     department_name: str
     job_title: str
     staff_id: str
+    # Never expose this value to the end user
     uksbs_person_id: str
     manager: str
     photo: str
@@ -497,16 +500,15 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
 
 
 def index_staff_by_emails(emails: List[str]) -> None:
-    for staff_sso_user in ActivityStreamStaffSSOUser.objects.filter(
+    staff_sso_users: QuerySet[
+        ActivityStreamStaffSSOUser
+    ] = ActivityStreamStaffSSOUser.objects.filter(
         sso_emails__email_address__in=emails,
-    ):
+    )
+    for staff_sso_user in staff_sso_users:
         try:
             staff_document = build_staff_document(staff_sso_user=staff_sso_user)
             index_staff_document(staff_document=staff_document)
-        except FailedToGetPersonRecord:
-            logger.error(
-                f"No People Finder record could be accessed for '{staff_sso_user}'"
-            )
         except Exception:
             logger.exception(
                 f"Could not build index entry for '{staff_sso_user}''", exc_info=True
@@ -527,20 +529,19 @@ def index_all_staff() -> int:
     current_date = date.today()
     days_ago = 6 * 30
     last_accessed_datetime = current_date - timedelta(days=days_ago)
-    # Add documents to the index
-    for staff_sso_user in ActivityStreamStaffSSOUser.objects.filter(
+    staff_sso_users: QuerySet[
+        ActivityStreamStaffSSOUser
+    ] = ActivityStreamStaffSSOUser.objects.filter(
         became_inactive_on__isnull=True,
         last_accessed__isnull=False,
         last_accessed__gte=last_accessed_datetime,
-    ):
+    )
+    # Add documents to the index
+    for staff_sso_user in staff_sso_users:
         try:
             staff_document = build_staff_document(staff_sso_user=staff_sso_user)
             index_staff_document(staff_document=staff_document)
             indexed_count += 1
-        except FailedToGetPersonRecord:
-            logger.error(
-                f"No People Finder record could be accessed for '{staff_sso_user}'"
-            )
         except Exception:
             logger.exception(
                 f"Could not build index entry for '{staff_sso_user}''", exc_info=True

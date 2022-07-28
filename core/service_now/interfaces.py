@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Iterable, List, Optional
 from django.conf import settings
 from django.core.cache import cache
 
+from activity_stream.models import ActivityStreamStaffSSOUser
 from core.service_now import types
 from core.service_now.client import ServiceNowClient
 from core.utils.helpers import bool_to_yes_no
@@ -387,7 +388,9 @@ class ServiceNowInterface(ServiceNowBase):
         if collection_address["county"]:
             collection_address_str += collection_address["county"]
 
-        leaver = leaving_request.leaver_activitystream_user
+        leaver: Optional[
+            ActivityStreamStaffSSOUser
+        ] = leaving_request.leaver_activitystream_user
         if not leaver:
             raise Exception("Unable to get leaver information")
         leaver_staff_document: StaffDocument = get_staff_document_from_staff_index(
@@ -395,12 +398,14 @@ class ServiceNowInterface(ServiceNowBase):
         )
         leaver_service_now_id = leaver_staff_document.service_now_user_id
 
-        manager = leaving_request.manager_activitystream_user
-        if not manager:
+        processing_manager: Optional[
+            ActivityStreamStaffSSOUser
+        ] = leaving_request.processing_manager_activitystream_user
+        if not processing_manager:
             raise Exception("Unable to get line manager information")
 
         manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
-            sso_email_user_id=manager.email_user_id,
+            sso_email_user_id=processing_manager.email_user_id,
         )
         manager_service_now_id = manager_staff_document.service_now_user_id
 

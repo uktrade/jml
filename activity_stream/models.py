@@ -1,3 +1,5 @@
+from typing import List
+
 from django.db import models
 
 
@@ -20,6 +22,7 @@ class ActivityStreamStaffSSOUser(models.Model):
     email_user_id = models.CharField(max_length=255)  # Current SSO id
     contact_email_address = models.EmailField(null=True, max_length=255)
     became_inactive_on = models.DateTimeField(null=True)
+    # NEVER EXPOSE THIS FIELD
     uksbs_person_id = models.CharField(max_length=255)
 
     # Used to denote if the user is still returned by the ActivityStream API.
@@ -33,6 +36,19 @@ class ActivityStreamStaffSSOUser(models.Model):
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    def get_email_addresses_for_contact(self) -> List[str]:
+        """
+        Return all known emails for this user.
+        """
+        emails = set()
+
+        if self.contact_email_address:
+            emails.add(self.contact_email_address)
+
+        for sso_email in self.sso_emails.all():
+            emails.add(sso_email.email_address)
+        return list(emails)
 
 
 class ActivityStreamStaffSSOUserEmail(models.Model):

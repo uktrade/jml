@@ -60,6 +60,11 @@ class UKSBSClient:
         return self.get_oauth_session()
 
     def get_people_hierarchy(self, person_id: str) -> PersonHierarchyData:
+        """
+        Get the person hierarchy data for given person_id.
+
+        Note: person_id is sensitive data, never expose it to an end user or use it in logs.
+        """
         if not settings.UKSBS_HIERARCHY_API_URL:
             raise ValueError("UKSBS_HIERARCHY_API_URL is not set")
         hierarchy_url = settings.UKSBS_HIERARCHY_API_URL

@@ -10,10 +10,6 @@ from mohawk import Sender
 logger = logging.getLogger(__name__)
 
 
-class FailedToGetPeopleRecords(Exception):
-    pass
-
-
 class FailedToGetPersonRecord(Exception):
     pass
 
@@ -100,7 +96,7 @@ class PeopleFinderIterator(Iterator):
             logger.error(
                 f"{response.status_code} response from People Finder API - '{self.current_url}'"
             )
-            raise FailedToGetPeopleRecords()
+            raise FailedToGetPersonRecord()
 
         data = response.json()
         self.items = data.get("results", [])
@@ -122,7 +118,7 @@ def get_details(sso_legacy_user_id) -> Person:
         logger.error(
             f"{response.status_code} response from People Finder API - '{url}'"
         )
-        raise FailedToGetPeopleRecords()
+        raise FailedToGetPersonRecord()
 
     try:
         logger.info("People Finder response: ")

@@ -17,6 +17,7 @@ from django.views.generic.edit import FormView
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.staff_search.views import StaffSearchView
 from core.uksbs import get_uksbs_interface
+from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.uksbs.types import PersonData, PersonHierarchyData
 from core.utils.helpers import make_possessive
 from core.utils.staff_index import (
@@ -35,6 +36,8 @@ from user.models import User
 DATA_RECIPIENT_SEARCH_PARAM = "data_recipient_id"
 NEW_LINE_REPORT_SEARCH_PARAM = "new_line_report_id"
 LINE_REPORT_NEW_LINE_MANAGER_SEARCH_PARAM = "new_line_manager_id"
+LINE_REPORT_SET_NEW_MANAGER_ERROR = "line_report_set_new_manager_error"
+ADD_MISSING_LINE_REPORT_ERROR = "add_missing_line_report_error"
 
 
 class LineManagerProgressIndicator(ProgressIndicator):
@@ -58,23 +61,118 @@ class LineManagerProgressIndicator(ProgressIndicator):
 
 
 class LineManagerViewMixin:
-    def line_manager_access(
+    def user_is_manager(
         self,
         request: HttpRequest,
         leaving_request: LeavingRequest,
     ) -> bool:
         user = cast(User, request.user)
-        manager_activitystream_user = leaving_request.manager_activitystream_user
 
-        # Check if we know the line manager
+        manager_activitystream_user: Optional[
+            ActivityStreamStaffSSOUser
+        ] = leaving_request.manager_activitystream_user
+
+        # If we don't know the manager, no one can access this view.
         if not manager_activitystream_user:
             return False
 
-        # Check if the user viewing the page is the Line manager
-        if user.sso_email_user_id != manager_activitystream_user.email_user_id:
+        # If the user is the manager that the leaver selected, they can access the view.
+        if user.sso_email_user_id == manager_activitystream_user.email_user_id:
+            # The user is the manager that the leaver selected
+            leaving_request.processing_manager_activitystream_user = (
+                manager_activitystream_user
+            )
+            leaving_request.save(
+                update_fields=["processing_manager_activitystream_user"]
+            )
+            return True
+        return False
+
+    def user_is_uksbs_manager(
+        self,
+        request: HttpRequest,
+        leaving_request: LeavingRequest,
+    ) -> bool:
+        user = cast(User, request.user)
+        # If the user is the manager that the leaver is currently assigned to in UK SBS,
+        # they can access the view.
+        try:
+            user_activitystream_user: ActivityStreamStaffSSOUser = (
+                ActivityStreamStaffSSOUser.objects.get(
+                    email_user_id=user.sso_email_user_id,
+                )
+            )
+        except ActivityStreamStaffSSOUser.DoesNotExist:
             return False
 
-        return True
+        if (
+            not leaving_request.leaver_activitystream_user
+            or not leaving_request.leaver_activitystream_user.uksbs_person_id
+            or not user_activitystream_user.uksbs_person_id
+        ):
+            return False
+
+        uksbs_interface = get_uksbs_interface()
+
+        try:
+            leaver_hierarchy_data = uksbs_interface.get_user_hierarchy(
+                person_id=leaving_request.leaver_activitystream_user.uksbs_person_id
+            )
+        except (UKSBSUnexpectedResponse, UKSBSPersonNotFound):
+            return False
+
+        for uksbs_manager in leaver_hierarchy_data.get("manager", []):
+            if uksbs_manager["person_id"] == user_activitystream_user.uksbs_person_id:
+                # The user is in UK SBS as the manager of the leaver.
+                leaving_request.processing_manager_activitystream_user = (
+                    user_activitystream_user
+                )
+                leaving_request.save(
+                    update_fields=["processing_manager_activitystream_user"]
+                )
+                return True
+
+    def line_manager_access(
+        self,
+        request: HttpRequest,
+        leaving_request: LeavingRequest,
+    ) -> bool:
+        """
+        Check to see if the user that is trying to process the Leaving Request is
+        actually a manager of the leaver.
+        - The manager that the Leaver selected
+        - The manager that the Leaver is currently assigned to in UK SBS
+
+        Sets the leaving_reqeust.processing_manager_activitystream_user accordingly.
+        """
+
+        user = cast(User, request.user)
+        leaver_activitystream_user: Optional[
+            ActivityStreamStaffSSOUser
+        ] = leaving_request.leaver_activitystream_user
+
+        # If we don't know the Leaver, no one can access this view.
+        if not leaver_activitystream_user:
+            return False
+
+        # If the user is the processing manager, they can access the view.
+        processing_manager_activitystream_user: Optional[
+            ActivityStreamStaffSSOUser
+        ] = leaving_request.processing_manager_activitystream_user
+        if (
+            processing_manager_activitystream_user
+            and user.sso_email_user_id
+            == processing_manager_activitystream_user.email_user_id
+        ):
+            return True
+
+        if self.user_is_manager(request=request, leaving_request=leaving_request):
+            return True
+
+        if self.user_is_uksbs_manager(request=request, leaving_request=leaving_request):
+            return True
+
+        return False
 
 
 class DataRecipientSearchView(LineManagerViewMixin, StaffSearchView):
@@ -93,6 +191,9 @@ class DataRecipientSearchView(LineManagerViewMixin, StaffSearchView):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
+
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
 
         if self.leaving_request.line_manager_complete:
             return redirect(
@@ -133,6 +234,9 @@ class NewLineReportSearchView(LineManagerViewMixin, StaffSearchView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
+
         if self.leaving_request.line_manager_complete:
             return redirect(
                 reverse(
@@ -171,7 +275,6 @@ class LineReportNewLineManagerSearchView(LineManagerViewMixin, StaffSearchView):
     query_param_name = LINE_REPORT_NEW_LINE_MANAGER_SEARCH_PARAM
 
     def get_success_url(self) -> str:
-
         return reverse(
             "line-reports-set-new-manager",
             kwargs={
@@ -186,6 +289,9 @@ class LineReportNewLineManagerSearchView(LineManagerViewMixin, StaffSearchView):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
+
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
 
         if self.leaving_request.line_manager_complete:
             return redirect(
@@ -230,6 +336,9 @@ class StartView(LineManagerViewMixin, TemplateView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
+
         if self.leaving_request.line_manager_complete:
             return redirect(
                 reverse(
@@ -243,9 +352,6 @@ class StartView(LineManagerViewMixin, TemplateView):
             leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -300,9 +406,11 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
         """
         Get the Manager StaffDocument
         """
+        manager_as_user = self.leaving_request.get_line_manager()
+        assert manager_as_user
         # Load the line manager from the Staff index.
         manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
-            sso_email_user_id=self.leaving_request.manager_activitystream_user.email_user_id,
+            sso_email_user_id=manager_as_user.email_user_id,
         )
         return consolidate_staff_documents(
             staff_documents=[manager_staff_document],
@@ -376,6 +484,9 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
             leaving_request_uuid=self.leaving_request.uuid,
         )
 
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
+
         if self.leaving_request.line_manager_complete:
             return redirect(
                 reverse(
@@ -389,9 +500,6 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
             leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
 
         self.leaver: ConsolidatedStaffDocument = self.get_leaver()
         self.manager: ConsolidatedStaffDocument = self.get_manager()
@@ -492,6 +600,9 @@ class DetailsView(LineManagerViewMixin, FormView):
             leaving_request_uuid=self.leaving_request.uuid,
         )
 
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
+
         if self.leaving_request.line_manager_complete:
             return redirect(
                 reverse(
@@ -505,9 +616,6 @@ class DetailsView(LineManagerViewMixin, FormView):
             leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -553,6 +661,10 @@ def add_missing_line_report(
     request: HttpRequest, leaving_request_uuid: UUID
 ) -> HttpResponse:
     leaving_request = get_object_or_404(LeavingRequest, uuid=leaving_request_uuid)
+
+    if not leaving_request.leaver_complete:
+        return HttpResponseNotFound()
+
     if leaving_request.line_manager_complete:
         return redirect(
             reverse(
@@ -560,9 +672,6 @@ def add_missing_line_report(
                 kwargs={"leaving_request_uuid": leaving_request_uuid},
             )
         )
-
-    if not leaving_request.leaver_complete:
-        return HttpResponseNotFound()
 
     redirect_response = HttpResponseRedirect(
         reverse(
@@ -586,18 +695,38 @@ def add_missing_line_report(
             )[0]
         )
 
-        line_report_email: str = consolidated_staff_document["email_addresses"][0]
-
-        # Check if the line report already exists.
-        for line_report in lr_line_reports:
-            if line_report["email"] == line_report_email:
-                return redirect_response
-
         line_report_name: str = (
             consolidated_staff_document["first_name"]
             + " "
             + consolidated_staff_document["last_name"]
         )
+
+        try:
+            line_report_as_user: ActivityStreamStaffSSOUser = (
+                ActivityStreamStaffSSOUser.objects.get(
+                    email_user_id=consolidated_staff_document[
+                        "staff_sso_email_user_id"
+                    ],
+                )
+            )
+        except ActivityStreamStaffSSOUser.DoesNotExist:
+            request.session[
+                ADD_MISSING_LINE_REPORT_ERROR
+            ] = f"Unable to add {line_report_name} as a line report, please try again later."
+            return redirect_response
+
+        try:
+            line_report_email = line_report_as_user.get_email_addresses_for_contact()[0]
+        except Exception:
+            request.session[
+                ADD_MISSING_LINE_REPORT_ERROR
+            ] = f"Unable to add {line_report_name} as a line report, please try again later."
+            return redirect_response
+
+        # Check if the line report already exists.
+        for line_report in lr_line_reports:
+            if line_report["email"] == line_report_email:
+                return redirect_response
 
         # Create a new line report
         new_line_report: LeavingRequestLineReport = {
@@ -619,6 +748,10 @@ def line_report_set_new_manager(
     request: HttpRequest, leaving_request_uuid: UUID, line_report_uuid: UUID
 ) -> HttpResponse:
     leaving_request = get_object_or_404(LeavingRequest, uuid=leaving_request_uuid)
+
+    if not leaving_request.leaver_complete:
+        return HttpResponseNotFound()
+
     if leaving_request.line_manager_complete:
         return redirect(
             reverse(
@@ -627,8 +760,12 @@ def line_report_set_new_manager(
             )
         )
 
-    if not leaving_request.leaver_complete:
-        return HttpResponseNotFound()
+    redirect_response = HttpResponseRedirect(
+        reverse(
+            "line-manager-leaver-line-reports",
+            kwargs={"leaving_request_uuid": leaving_request_uuid},
+        )
+    )
 
     lr_line_reports: List[LeavingRequestLineReport] = leaving_request.line_reports
 
@@ -649,7 +786,30 @@ def line_report_set_new_manager(
             + " "
             + consolidated_staff_document["last_name"]
         )
-        line_manager_email = consolidated_staff_document["email_addresses"][0]
+        try:
+            line_manager_as_user: ActivityStreamStaffSSOUser = (
+                ActivityStreamStaffSSOUser.objects.get(
+                    email_user_id=consolidated_staff_document[
+                        "staff_sso_email_user_id"
+                    ],
+                )
+            )
+        except ActivityStreamStaffSSOUser.DoesNotExist:
+            request.session[
+                LINE_REPORT_SET_NEW_MANAGER_ERROR
+            ] = f"Unable to add {line_manager_name} as a line manager, please try again later."
+            return redirect_response
+
+        try:
+            line_manager_email = line_manager_as_user.get_email_addresses_for_contact()[
+                0
+            ]
+        except Exception:
+            request.session[
+                LINE_REPORT_SET_NEW_MANAGER_ERROR
+            ] = f"Unable to add {line_manager_name} as a line manager, please try again later."
+            return redirect_response
+
         for line_report in lr_line_reports:
             if line_report["uuid"] == str(line_report_uuid):
                 line_report["line_manager"] = {
@@ -657,15 +817,11 @@ def line_report_set_new_manager(
                     "email": line_manager_email,
                 }
                 break
+
         leaving_request.line_reports = lr_line_reports
         leaving_request.save()
 
-    return HttpResponseRedirect(
-        reverse(
-            "line-manager-leaver-line-reports",
-            kwargs={"leaving_request_uuid": leaving_request_uuid},
-        )
-    )
+    return redirect_response
 
 
 class LeaverLineReportsView(LineManagerViewMixin, FormView):
@@ -720,6 +876,9 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
             leaving_request_uuid=self.leaving_request.uuid,
         )
 
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
+
         if self.leaving_request.line_manager_complete:
             return redirect(
                 reverse(
@@ -734,9 +893,6 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
         ):
             return HttpResponseForbidden()
 
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
-
         self.initialize_line_reports()
 
         if not self.leaving_request.line_reports:
@@ -746,6 +902,20 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
+
+        errors: List[str] = []
+        line_report_set_new_manager_error: Optional[str] = self.request.session.get(
+            LINE_REPORT_SET_NEW_MANAGER_ERROR
+        )
+        if line_report_set_new_manager_error:
+            errors.append(line_report_set_new_manager_error)
+            self.request.session[LINE_REPORT_SET_NEW_MANAGER_ERROR] = None
+        add_missing_line_report_error: Optional[str] = self.request.session.get(
+            ADD_MISSING_LINE_REPORT_ERROR
+        )
+        if add_missing_line_report_error:
+            errors.append(add_missing_line_report_error)
+            self.request.session[ADD_MISSING_LINE_REPORT_ERROR] = None
 
         context.update(
             page_title="Leaver's line reports",
@@ -760,6 +930,7 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
                 "line-manager-new-line-report-search",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
+            errors=errors,
         )
 
         return context
@@ -813,6 +984,9 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
             leaving_request_uuid=self.leaving_request.uuid,
         )
 
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
+
         if self.leaving_request.line_manager_complete:
             return redirect(
                 reverse(
@@ -826,9 +1000,6 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
             leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
 
         self.leaver: ConsolidatedStaffDocument = self.get_leaver()
         self.data_recipient: ConsolidatedStaffDocument = self.get_data_recipient()
@@ -918,6 +1089,9 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
 
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
+
         if not self.leaving_request.line_manager_complete:
             return HttpResponseForbidden()
 
@@ -926,9 +1100,6 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
             leaving_request=self.leaving_request,
         ):
             return HttpResponseForbidden()
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
 
         return super().dispatch(request, *args, **kwargs)
 

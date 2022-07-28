@@ -1,6 +1,7 @@
 from typing import Optional
 
 from django.conf import settings
+from django.db.models.query import QuerySet
 
 from activity_stream.models import ActivityStreamStaffSSOUser, ServiceEmailAddress
 from core.service_now import get_service_now_interface
@@ -17,7 +18,11 @@ from core.utils.staff_index import (
 def ingest_service_now():
     service_now_interface = get_service_now_interface()
 
-    for as_staff_sso_user in ActivityStreamStaffSSOUser.objects.all():
+    as_users: QuerySet[
+        ActivityStreamStaffSSOUser
+    ] = ActivityStreamStaffSSOUser.objects.all()
+
+    for as_staff_sso_user in as_users:
         try:
             staff_document = get_staff_document_from_staff_index(
                 sso_email_user_id=as_staff_sso_user.email_user_id,

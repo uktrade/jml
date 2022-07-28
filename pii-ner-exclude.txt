@@ -21,6 +21,7 @@
 "Lost/Stolen"
 @media
 *Actions required:*\n
+# Joiners
 # Joiners Movers Leavers
 # People Finder
 # Staff
@@ -39,6 +40,7 @@
 8.7 39.7 21.8l42.7-27.2A97.63
 activity_stream.activitystreamstaffssouser
 ActivityStream
+add_missing_line_report_error
 admin@opensearch:9200
 Annual Leave
 Annual Leave: "
@@ -59,6 +61,7 @@ Build Staff Document
 Building Pass
 Building Pass Access Revoked
 building_pass_access_task_log
+C901
 card</li>{%
 channel_id
 checkbox
@@ -71,10 +74,12 @@ class="incomplete">To Do</span
 COLOUR_GREEN=\033[32;01
 COLOUR_YELLOW=\033[33;01
 Compile SCSS
+confirm_leaver_data
 contact_address_postcode
 Convert
 Convert a Queryset
 Convert Request Data
+Correction Email
 Create ActivityStream
 Create Leaving Request
 Create Physical Asset
@@ -182,6 +187,7 @@ IE
 ill health</li>
 include:</p
 INDEX_CURRENT_USER_MIDDLEWARE                            
+Index](/docs
 INFO
 information</h1
 ingest_activity_stream
@@ -228,6 +234,7 @@ migrate$(COLOUR_NONE
 minimum_should_match
 Mismatch Email
 Mobile
+Movers and Leavers Service
 NAME
 name=
 National Insurance
@@ -276,6 +283,7 @@ recorded</h1
 Reminder Email
 Reminder Email*
 Report 2
+Request
 return_contact_email
 ReturnOptions
 role="alert
@@ -337,6 +345,7 @@ target="_blank">here</a>.</li>
 Team Zendesk
 TEMPLATE_ID_CSU4_EMAIL
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL
+TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL
 TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  
 TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                                       
@@ -374,14 +383,19 @@ the Security Team
 the Security Team User Group
 the SRE Team
 the SRE User Group
+the UK SBS API
 to:</p
+UK SBS - Unexpected
+UK SBS - Unexpected Response
 UKSBS
 UKSBS Connect
 UKSBS Leavers
+UKSBS Line
 UKSBS_INTERFACE
 UKSBS_POST_LEAVER_SUBMISSION                             
 UKSBSBase
 UKSBSStubbed
+Un
 unique_sso_legacy_user_id
 Unit of Measurement
 Unit of Measurement Hours
@@ -391,6 +405,7 @@ Updated Personal Email
 User
 User
 users.</td
+Variables](/docs
 viewBox="0 0 483.2
 visit</li>
 vpn_access_task_log
@@ -400,3 +415,4 @@ yet.</p
 You Email
 You Email*
 you.</p
+the Leaving Request

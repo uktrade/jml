@@ -1,5 +1,5 @@
 import uuid
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type, cast
 
 from django.forms import Form
@@ -373,8 +373,13 @@ class LeaverInformationMixin:
             sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
-        leaver_info.last_day = last_day
-        leaver_info.leaving_date = leaving_date
+        last_day_datetime = datetime(last_day.year, last_day.month, last_day.day)
+        leaving_date_datetime = datetime(
+            leaving_date.year, leaving_date.month, leaving_date.day
+        )
+
+        leaver_info.last_day = timezone.make_aware(last_day_datetime)
+        leaver_info.leaving_date = timezone.make_aware(leaving_date_datetime)
         leaver_info.save(
             update_fields=[
                 "last_day",

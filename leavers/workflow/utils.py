@@ -57,7 +57,7 @@ def is_it_leaving_date_plus_x_days(
         return False
 
     # Get the date X days after the last_day.
-    leaving_date = timezone.make_aware(leaving_request.last_day).date()
+    leaving_date = leaving_request.last_day.date()
     leaving_date_plus_x_days = leaving_date + timedelta(days=days_after_leaving_date)
 
     # Check to see if the last_day is X days in the past.

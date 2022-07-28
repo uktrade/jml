@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Iterable, Optional
 
 from core.people_finder.client import (
-    FailedToGetPeopleRecords,
+    FailedToGetPersonRecord,
     PeopleFinderIterator,
     get_details,
 )
@@ -83,7 +83,7 @@ class PeopleFinder(PeopleFinderBase):
     def get_details(self, sso_legacy_user_id: str) -> PersonDetail:
         try:
             person = get_details(sso_legacy_user_id)
-        except FailedToGetPeopleRecords:
+        except FailedToGetPersonRecord:
             raise PeopleFinderPersonNotFound()
 
         job_title = ""

@@ -1,6 +1,7 @@
 import uuid
 
 from django.contrib.auth import get_user_model
+from django.db.models.query import QuerySet
 from django.utils import timezone
 
 from activity_stream.models import ActivityStreamStaffSSOUser
@@ -40,7 +41,9 @@ class IndexCurrentUser:
             user: User = request.user
 
             # Check if the ActivityStreamStaffSSOUser already exists
-            as_users = ActivityStreamStaffSSOUser.objects.filter(
+            as_users: QuerySet[
+                ActivityStreamStaffSSOUser
+            ] = ActivityStreamStaffSSOUser.objects.filter(
                 email_user_id=user.sso_email_user_id,
             )
             if not as_users.exists():

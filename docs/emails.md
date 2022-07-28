@@ -6,7 +6,9 @@
 | Email name | Template ID Environment Variable | Context/Notes |
 | ----- | ----- | ----- |
 | Leaver Thank You Email | TEMPLATE_ID_LEAVER_THANK_YOU_EMAIL | This email is sent after the Leaver has informed the service that they are leaving.|
-| UKSBS Line Manager Mismatch Email | TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL | This email is used to help correct mismatching information between the Leaver service and UK SBS. |
+| UKSBS Line Manager Correction Email (UK SBS manager) | TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL | This email is sent to the listed Line manager in UK SBS to request that they update the Line manager to be the one that the Leaver selected |
+| UKSBS Line Manager Correction Email (Offboarding team) | TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL | This email is sent to the HR Offboarding team to request they update the Line manager in UK SBS to be the one that the Leaver selected. |
+| UKSBS Line Manager Correction Email (Reported Line manager) | TEMPLATE_ID_LINE_MANAGER_CORRECTION_REPORTED_LM_EMAIL | This email is sent to the Line manager that the Leaver selected to inform them that they are not the manager in UK SBS and that the HR team must fix this for them to be able to offboard the Leaver. |
 | Leaver Final Actions Email | ??? | This email is sent to the Leaver in their last working week to inform them of the actions they need to take. |
 | Line manager Final Actions Email | ??? | This email is sent to the Line manager in the leaver's last working week to inform them of the actions they need to take. |
 | Line Manager Notification Email | TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL | This email is sent to the Line manager to inform them of the leaver and the actions they need to take. |

@@ -29,7 +29,7 @@ def queryset_to_specific(initial_queryset: QuerySet) -> Iterable[Type[Model]]:
     subclass_objects: Dict[int, Type[Model]] = {}
 
     for subclass in subclasses:
-        subclass_queryset = subclass.objects.filter(pk__in=initial_pks)
+        subclass_queryset: QuerySet = subclass.objects.filter(pk__in=initial_pks)
         subclass_objects |= {obj.pk: obj for obj in subclass_queryset}
         subclass_pks[subclass] = subclass_queryset.values_list("pk", flat=True)
 

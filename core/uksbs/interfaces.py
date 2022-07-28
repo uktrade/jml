@@ -100,9 +100,19 @@ class UKSBSInterface(UKSBSBase):
         self.client = UKSBSClient()
 
     def get_user_hierarchy(self, person_id: str) -> PersonHierarchyData:
+        """
+        Get the person hierarchy data for given person_id.
+
+        Note: person_id is sensitive data, never expose it to an end user or use it in logs.
+        """
+
         return self.client.get_people_hierarchy(person_id=person_id)
 
     def submit_leaver_form(self, data: LeavingData) -> None:
+        """
+        Submit the leaver form to inform UK SBS of a leaver.
+        """
+
         if not settings.PROCESS_LEAVING_REQUEST:
             leaver_name = data["templateData"]["leaverEmail"]
             logger.warning(f"Submitting leaving data to UK SBS for {leaver_name}")

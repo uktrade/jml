@@ -6,6 +6,7 @@
         <div class="govuk-grid-column-two-thirds">
             {% include "leaving/progress_indicator.html" with steps=progress_steps %}
             {% error_summary form %}
+            {% include "includes/govt_error_summary.html" with errors=errors %}
         </div>
     </div>
 

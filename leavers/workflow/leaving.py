@@ -16,7 +16,7 @@ LeaversWorkflow = Workflow(
         # Leaver
         Step(
             step_id="setup_leaving",
-            task_name="basic_task",
+            task_name="confirm_leaver_data",
             start=True,
             targets=[
                 "check_uksbs_line_manager",

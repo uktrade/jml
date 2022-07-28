@@ -10,6 +10,7 @@ class AccessToken(TypedDict):
 
 
 class PersonData(TypedDict):
+    # NEVER EXPOSE THIS FIELD
     person_id: str
     username: Optional[Any]
     full_name: str

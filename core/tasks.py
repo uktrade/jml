@@ -1,3 +1,4 @@
+from django.db.models.query import QuerySet
 from django_workflow_engine.exceptions import WorkflowNotAuthError
 from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
@@ -20,7 +21,7 @@ def debug_task(self):
 @celery_app.task(bind=True)
 def progress_workflows(self):
     logger.info("RUNNING progress_workflows")
-    in_progress_flows = Flow.objects.filter(finished__isnull=True)
+    in_progress_flows: QuerySet[Flow] = Flow.objects.filter(finished__isnull=True)
     for flow in in_progress_flows:
         progress_workflow.delay(flow_pk=flow.pk)
     logger.info(f"Triggered {in_progress_flows.count()} workflows")

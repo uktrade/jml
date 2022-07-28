@@ -3,11 +3,13 @@
 import uuid
 
 from django.db import migrations, models
+from django.db.models.query import QuerySet
 
 
 def add_user_ids(apps, schema_editor):
     User = apps.get_model("user", "User")
-    for user in User.objects.all():
+    users: QuerySet[User] = User.objects.all()
+    for user in users:
         user.user_id = str(uuid.uuid4())
         user.save()
 

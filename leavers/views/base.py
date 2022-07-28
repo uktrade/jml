@@ -1,9 +1,10 @@
 from datetime import timedelta
-from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple, cast
+from typing import Any, Dict, List, Literal, Optional, Tuple, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
+from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -50,11 +51,11 @@ class LeavingRequestListing(
         self.show_complete = show_complete
         self.show_incomplete = show_incomplete
 
-    def get_leaving_requests(self) -> Iterable[LeavingRequest]:
+    def get_leaving_requests(self) -> QuerySet[LeavingRequest]:
         # Filter out any that haven't been completed by the line manager.
-        leaving_requests = LeavingRequest.objects.all().exclude(
-            line_manager_complete__isnull=True
-        )
+        leaving_requests: QuerySet[
+            LeavingRequest
+        ] = LeavingRequest.objects.all().exclude(line_manager_complete__isnull=True)
         if not self.show_complete:
             leaving_requests = leaving_requests.exclude(
                 **{self.get_complete_field() + "__isnull": False}
