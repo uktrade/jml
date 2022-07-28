@@ -701,13 +701,27 @@ def add_missing_line_report(
             + consolidated_staff_document["last_name"]
         )
 
-        if not consolidated_staff_document["email_addresses"]:
+        try:
+            line_report_as_user: ActivityStreamStaffSSOUser = (
+                ActivityStreamStaffSSOUser.objects.get(
+                    email_user_id=consolidated_staff_document[
+                        "staff_sso_email_user_id"
+                    ],
+                )
+            )
+        except ActivityStreamStaffSSOUser.DoesNotExist:
             request.session[
                 ADD_MISSING_LINE_REPORT_ERROR
             ] = f"Unable to add {line_report_name} as a line report, please try again later."
             return redirect_response
 
-        line_report_email: str = consolidated_staff_document["email_addresses"][0]
+        try:
+            line_report_email = line_report_as_user.get_email_addresses_for_contact()[0]
+        except Exception:
+            request.session[
+                ADD_MISSING_LINE_REPORT_ERROR
+            ] = f"Unable to add {line_report_name} as a line report, please try again later."
+            return redirect_response
 
         # Check if the line report already exists.
         for line_report in lr_line_reports:
@@ -772,13 +786,30 @@ def line_report_set_new_manager(
             + " "
             + consolidated_staff_document["last_name"]
         )
-        if not consolidated_staff_document["email_addresses"]:
+        try:
+            line_manager_as_user: ActivityStreamStaffSSOUser = (
+                ActivityStreamStaffSSOUser.objects.get(
+                    email_user_id=consolidated_staff_document[
+                        "staff_sso_email_user_id"
+                    ],
+                )
+            )
+        except ActivityStreamStaffSSOUser.DoesNotExist:
             request.session[
                 LINE_REPORT_SET_NEW_MANAGER_ERROR
             ] = f"Unable to add {line_manager_name} as a line manager, please try again later."
             return redirect_response
 
-        line_manager_email = consolidated_staff_document["email_addresses"][0]
+        try:
+            line_manager_email = line_manager_as_user.get_email_addresses_for_contact()[
+                0
+            ]
+        except Exception:
+            request.session[
+                LINE_REPORT_SET_NEW_MANAGER_ERROR
+            ] = f"Unable to add {line_manager_name} as a line manager, please try again later."
+            return redirect_response
+
         for line_report in lr_line_reports:
             if line_report["uuid"] == str(line_report_uuid):
                 line_report["line_manager"] = {
