@@ -25,6 +25,7 @@ from leavers.models import LeaverInformation, LeavingRequest, SlackMessage, Task
 from leavers.utils.emails import (
     send_csu4_leaver_email,
     send_it_ops_asset_email,
+    send_leaver_not_in_uksbs_reminder,
     send_leaver_thank_you_email,
     send_line_manager_correction_email,
     send_line_manager_notification_email,
@@ -170,6 +171,32 @@ class ConfirmLeaverData(LeavingRequestTask):
         return [], True
 
 
+class CheckUKSBSLeaver(LeavingRequestTask):
+    abstract = False
+    task_name = "check_uksbs_leaver"
+    auto = True
+
+    def execute(self, task_info):
+        uksbs_interface = get_uksbs_interface()
+        assert self.leaving_request
+
+        leaver_as_user: ActivityStreamStaffSSOUser = (
+            self.leaving_request.leaver_activitystream_user
+        )
+
+        if not leaver_as_user.uksbs_person_id:
+            return ["send_leaver_not_in_uksbs_reminder"], False
+
+        try:
+            uksbs_interface.get_user_hierarchy(
+                person_id=leaver_as_user.uksbs_person_id,
+            )
+        except (UKSBSUnexpectedResponse, UKSBSPersonNotFound):
+            return ["send_leaver_not_in_uksbs_reminder"], False
+
+        return [], True
+
+
 class CheckUKSBSLineManager(LeavingRequestTask):
     abstract = False
     task_name = "check_uksbs_line_manager"
@@ -179,7 +206,6 @@ class CheckUKSBSLineManager(LeavingRequestTask):
         uksbs_interface = get_uksbs_interface()
         assert self.leaving_request
 
-        # Not sure if this is the Oracle ID
         leaver_as_user: ActivityStreamStaffSSOUser = (
             self.leaving_request.leaver_activitystream_user
         )
@@ -291,6 +317,7 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
 
 class EmailIds(Enum):
     LEAVER_THANK_YOU_EMAIL = "leaver_thank_you_email"
+    LEAVER_NOT_IN_UKSBS_REMINDER = "leaver_not_in_uksbs_reminder"
     LEAVER_ROSA_REMINDER = "leaver_rosa_reminder"
     LINE_MANAGER_ROSA_REMINDER = "line_manager_rosa_reminder"
     LINE_MANAGER_CORRECTION = "line_manager_correction"
@@ -308,6 +335,7 @@ class EmailIds(Enum):
 
 EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LEAVER_THANK_YOU_EMAIL: send_leaver_thank_you_email,
+    EmailIds.LEAVER_NOT_IN_UKSBS_REMINDER: send_leaver_not_in_uksbs_reminder,
     EmailIds.LEAVER_ROSA_REMINDER: send_rosa_leaver_reminder_email,
     EmailIds.LINE_MANAGER_ROSA_REMINDER: send_rosa_line_manager_reminder_email,
     EmailIds.LINE_MANAGER_CORRECTION: send_line_manager_correction_email,

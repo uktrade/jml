@@ -19,8 +19,26 @@ LeaversWorkflow = Workflow(
             task_name="confirm_leaver_data",
             start=True,
             targets=[
+                "check_uksbs_leaver",
+            ],
+        ),
+        Step(
+            step_id="check_uksbs_leaver",
+            task_name="check_uksbs_leaver",
+            targets=[
+                "send_leaver_not_in_uksbs_reminder",
                 "check_uksbs_line_manager",
             ],
+        ),
+        Step(
+            step_id="send_leaver_not_in_uksbs_reminder",
+            task_name="reminder_email",
+            targets=[
+                "check_uksbs_leaver",
+            ],
+            task_info={
+                "email_id": EmailIds.LINE_MANAGER_CORRECTION.value,
+            },
         ),
         Step(
             step_id="check_uksbs_line_manager",
@@ -73,7 +91,7 @@ LeaversWorkflow = Workflow(
             step_id="thank_line_manager",
             task_name="notification_email",
             targets=[
-                "send_uksbs_leaver_details",
+                "setup_scheduled_tasks",
             ],
             task_info={
                 "email_id": EmailIds.LINE_MANAGER_THANKYOU.value,
@@ -100,7 +118,7 @@ LeaversWorkflow = Workflow(
             step_id="send_uksbs_leaver_details",
             task_name="send_uksbs_leaver_details",
             targets=[
-                "setup_scheduled_tasks",
+                "are_all_tasks_complete",
             ],
         ),
         # Service Now

@@ -34,7 +34,36 @@ def send_leaver_thank_you_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.LEAVER_THANK_YOU_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "contact_us_link": "",  # TODO: Update when we have a contact form.
+            "contact_us_link": reverse("beta-service-feedback"),
+        },
+    )
+
+
+def send_leaver_not_in_uksbs_reminder(leaving_request: LeavingRequest):
+    """
+    Send email to inform HR that a leaver is not in UK SBS.
+    """
+    assert leaving_request.manager_activitystream_user
+    manager_as_user: ActivityStreamStaffSSOUser = (
+        leaving_request.manager_activitystream_user
+    )
+
+    manager_emails = manager_as_user.get_email_addresses_for_contact()
+
+    # HR Email
+    notify.email(
+        email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],
+        template_id=notify.EmailTemplates.LEAVER_NOT_IN_UKSBS_HR_REMINDER,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
+        },
+    )
+    # Line Manager email
+    notify.email(
+        email_addresses=[manager_emails],
+        template_id=notify.EmailTemplates.LEAVER_NOT_IN_UKSBS_LM_REMINDER,
+        personalisation={
+            "leaver_name": leaving_request.get_leaver_name(),
         },
     )
 
