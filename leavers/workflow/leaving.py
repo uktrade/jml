@@ -109,7 +109,8 @@ LeaversWorkflow = Workflow(
                 "notify_csu4_of_leaving",
                 "notify_ocs_of_leaving",
                 "notify_ocs_of_oab_locker",
-                "send_security_notification",
+                "send_security_bp_notification",
+                "send_security_rk_notification",
                 "is_it_leaving_date_plus_x",
             ],
         ),
@@ -181,33 +182,70 @@ LeaversWorkflow = Workflow(
                 "email_id": EmailIds.OCS_OAB_LOCKER_EMAIL.value,
             },
         ),
-        # SECURITY
+        # SECURITY (Building Pass)
         Step(
-            step_id="send_security_notification",
+            step_id="send_security_bp_notification",
             task_name="notification_email",
             targets=[
-                "have_security_carried_out_leaving_tasks",
+                "have_security_carried_out_bp_leaving_tasks",
             ],
             task_info={
-                "email_id": EmailIds.SECURITY_OFFBOARD_LEAVER_NOTIFICATION.value,
+                "email_id": EmailIds.SECURITY_OFFBOARD_BP_LEAVER_NOTIFICATION.value,
             },
         ),
         Step(
-            step_id="have_security_carried_out_leaving_tasks",
-            task_name="have_security_carried_out_leaving_tasks",
+            step_id="have_security_carried_out_bp_leaving_tasks",
+            task_name="have_security_carried_out_bp_leaving_tasks",
             targets=[
-                "send_security_reminder",
+                "send_security_bp_reminder",
                 "are_all_tasks_complete",
             ],
         ),
         Step(
-            step_id="send_security_reminder",
-            task_name="reminder_email",
+            step_id="send_security_bp_reminder",
+            task_name="processor_reminder_email",
             targets=[
-                "have_security_carried_out_leaving_tasks",
+                "have_security_carried_out_bp_leaving_tasks",
             ],
             task_info={
-                "email_id": EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER.value,
+                "day_after_lwd": EmailIds.XXX.value,
+                "two_days_after_lwd": EmailIds.XXX.value,
+                "one_day_after_ld": EmailIds.XXX.value,
+                "two_days_after_ld_lm": EmailIds.XXX.value,
+                "two_days_after_ld_proc": EmailIds.XXX.value,
+            },
+        ),
+        # SECURITY (ROSA Kit)
+        Step(
+            step_id="send_security_rk_notification",
+            task_name="notification_email",
+            targets=[
+                "have_security_carried_out_rk_leaving_tasks",
+            ],
+            task_info={
+                "email_id": EmailIds.SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION.value,
+            },
+        ),
+        Step(
+            step_id="have_security_carried_out_rk_leaving_tasks",
+            task_name="have_security_carried_out_rk_leaving_tasks",
+            targets=[
+                "send_security_rk_reminder",
+                "are_all_tasks_complete",
+            ],
+        ),
+        Step(
+            step_id="send_security_rk_reminder",
+            task_name="processor_reminder_email",
+            targets=[
+                "have_security_carried_out_rk_leaving_tasks",
+            ],
+            task_info={
+                "day_after_lwd": EmailIds.XXX.value,
+                "two_days_after_lwd": EmailIds.XXX.value,
+                "one_day_after_ld": EmailIds.XXX.value,
+                "two_days_after_ld_lm": EmailIds.XXX.value,
+                "two_days_after_ld_proc": EmailIds.XXX.value,
             },
         ),
         # SRE
@@ -235,12 +273,16 @@ LeaversWorkflow = Workflow(
         ),
         Step(
             step_id="send_sre_reminder",
-            task_name="reminder_email",
+            task_name="processor_reminder_email",
             targets=[
                 "have_sre_carried_out_leaving_tasks",
             ],
             task_info={
-                "email_id": EmailIds.SRE_REMINDER.value,
+                "day_after_lwd": EmailIds.SRE_REMINDER.value,
+                "two_days_after_lwd": EmailIds.SRE_REMINDER.value,
+                "one_day_after_ld": EmailIds.SRE_REMINDER.value,
+                "two_days_after_ld_lm": EmailIds.SRE_REMINDER.value,
+                "two_days_after_ld_proc": EmailIds.SRE_REMINDER.value,
             },
         ),
         # End

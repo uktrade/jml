@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from enum import Enum
 from typing import Callable, Dict, List, Optional
 
@@ -33,10 +33,8 @@ from leavers.utils.emails import (
     send_line_manager_thankyou_email,
     send_ocs_leaver_email,
     send_ocs_oab_locker_email,
-    send_rosa_leaver_reminder_email,
-    send_rosa_line_manager_reminder_email,
-    send_security_team_offboard_leaver_email,
-    send_security_team_offboard_leaver_reminder_email,
+    send_security_team_offboard_bp_leaver_email,
+    send_security_team_offboard_rk_leaver_email,
     send_sre_reminder_email,
 )
 from leavers.utils.leaving_request import get_leaver_details
@@ -241,7 +239,6 @@ class LSDSendLeaverDetails(LeavingRequestTask):
 
     def execute(self, task_info):
         assert self.leaving_request
-        assert self.leaving_request.leaving_date
 
         leaver_name = self.leaving_request.get_leaver_name()
         if not leaver_name:
@@ -250,10 +247,14 @@ class LSDSendLeaverDetails(LeavingRequestTask):
         if not leaver_email:
             raise Exception("No leaver email is set on the Leaving Request")
 
+        leaving_date = self.leaving_request.get_leaving_date()
+        if not leaving_date:
+            raise Exception("No leaving date is set on the Leaving Request")
+
         inform_lsd_team_of_leaver(
             leaver_name=leaver_name,
             leaver_email=leaver_email,
-            leaving_date=self.leaving_request.leaving_date.strftime("%d/%m/%Y"),
+            leaving_date=leaving_date.strftime("%d/%m/%Y"),
         )
 
         return None, True
@@ -318,13 +319,16 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
 class EmailIds(Enum):
     LEAVER_THANK_YOU_EMAIL = "leaver_thank_you_email"
     LEAVER_NOT_IN_UKSBS_REMINDER = "leaver_not_in_uksbs_reminder"
-    LEAVER_ROSA_REMINDER = "leaver_rosa_reminder"
-    LINE_MANAGER_ROSA_REMINDER = "line_manager_rosa_reminder"
     LINE_MANAGER_CORRECTION = "line_manager_correction"
     LINE_MANAGER_NOTIFICATION = "line_manager_notification"
     LINE_MANAGER_REMINDER = "line_manager_reminder"
     LINE_MANAGER_THANKYOU = "line_manager_thankyou"
-    SECURITY_OFFBOARD_LEAVER_NOTIFICATION = "security_offboard_leaver_notification"
+    SECURITY_OFFBOARD_BP_LEAVER_NOTIFICATION = (
+        "security_offboard_bp_leaver_notification"
+    )
+    SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION = (
+        "security_offboard_rk_leaver_notification"
+    )
     SECURITY_OFFBOARD_LEAVER_REMINDER = "security_offboard_leaver_reminder"
     SRE_REMINDER = "sre_reminder"
     IT_OPS_ASSET_EMAIL = "it_ops_asset_email"
@@ -336,14 +340,12 @@ class EmailIds(Enum):
 EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LEAVER_THANK_YOU_EMAIL: send_leaver_thank_you_email,
     EmailIds.LEAVER_NOT_IN_UKSBS_REMINDER: send_leaver_not_in_uksbs_reminder,
-    EmailIds.LEAVER_ROSA_REMINDER: send_rosa_leaver_reminder_email,
-    EmailIds.LINE_MANAGER_ROSA_REMINDER: send_rosa_line_manager_reminder_email,
     EmailIds.LINE_MANAGER_CORRECTION: send_line_manager_correction_email,
     EmailIds.LINE_MANAGER_NOTIFICATION: send_line_manager_notification_email,
     EmailIds.LINE_MANAGER_REMINDER: send_line_manager_reminder_email,
     EmailIds.LINE_MANAGER_THANKYOU: send_line_manager_thankyou_email,
-    EmailIds.SECURITY_OFFBOARD_LEAVER_NOTIFICATION: send_security_team_offboard_leaver_email,
-    EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER: send_security_team_offboard_leaver_reminder_email,
+    EmailIds.SECURITY_OFFBOARD_BP_LEAVER_NOTIFICATION: send_security_team_offboard_bp_leaver_email,
+    EmailIds.SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION: send_security_team_offboard_rk_leaver_email,
     EmailIds.SRE_REMINDER: send_sre_reminder_email,
     EmailIds.IT_OPS_ASSET_EMAIL: send_it_ops_asset_email,
     EmailIds.CSU4_EMAIL: send_csu4_leaver_email,
@@ -357,13 +359,11 @@ class EmailTask(LeavingRequestTask):
 
     def should_send_email(
         self,
-        task_info: Dict,
         email_id: EmailIds,
     ) -> bool:
         """
         Check if we should send the email.
-        This method can be used to preve
-        nt the task from sending the email.
+        This method can be used to prevent the task from sending the email.
 
         Example scenarios:
         - Email no longer needed
@@ -371,18 +371,24 @@ class EmailTask(LeavingRequestTask):
         """
         return True
 
-    def execute(self, task_info):
-        email_id: EmailIds = EmailIds(task_info["email_id"])
-
+    def get_send_email_method(self, email_id: EmailIds) -> Callable:
         send_email_method: Optional[Callable] = EMAIL_MAPPING.get(email_id, None)
 
         if not send_email_method:
             raise Exception(f"Email method not found for {email_id.value}")
 
+        return send_email_method
+
+    def send_email(self, email_id: EmailIds):
+        """
+        Send the email.
+        """
+        assert self.leaving_request
+
         if self.should_send_email(
-            task_info=task_info,
             email_id=email_id,
         ):
+            send_email_method = self.get_send_email_method(email_id=email_id)
             send_email_method(leaving_request=self.leaving_request)
             email_task_log = self.leaving_request.task_logs.create(
                 task_name=f"Sending email {email_id.value}",
@@ -390,6 +396,9 @@ class EmailTask(LeavingRequestTask):
             self.leaving_request.email_task_logs.add(email_task_log)
             self.leaving_request.save()
 
+    def execute(self, task_info):
+        email_id: EmailIds = EmailIds(task_info["email_id"])
+        self.send_email(email_id=email_id)
         return None, True
 
 
@@ -406,7 +415,6 @@ class ReminderEmail(EmailTask):
 
     def should_send_email(
         self,
-        task_info: Dict,
         email_id: EmailIds,
     ) -> bool:
         """
@@ -421,7 +429,7 @@ class ReminderEmail(EmailTask):
         """
         assert self.leaving_request
 
-        last_day: Optional[datetime] = self.leaving_request.last_day
+        last_day = self.leaving_request.get_last_day()
         latest_email: Optional[TaskLog] = (
             self.leaving_request.email_task_logs.filter(
                 task_name__contains=email_id.value,
@@ -437,8 +445,8 @@ class ReminderEmail(EmailTask):
             else:
                 next_email_date = latest_email.created_at + timedelta(days=1)
         else:
-            two_weeks_before_last_day: datetime = last_day - timedelta(days=14)
-            one_week_before_last_day: datetime = last_day - timedelta(days=7)
+            two_weeks_before_last_day = last_day - timedelta(days=14)
+            one_week_before_last_day = last_day - timedelta(days=7)
 
             # Work out when the next email should be sent
             if not latest_email:
@@ -457,6 +465,76 @@ class ReminderEmail(EmailTask):
         if timezone.now() >= next_email_date:
             return True
         return False
+
+
+class ProcessorReminderEmail(EmailTask):
+    abstract = False
+    task_name = "processor_reminder_email"
+    auto = True
+
+    def should_send_email(
+        self,
+        email_id: EmailIds,
+    ) -> bool:
+        assert self.leaving_request
+
+        already_sent = self.leaving_request.email_task_logs.filter(
+            task_name__contains=email_id.value,
+        ).exists()
+
+        return not already_sent
+
+    def execute(self, task_info):
+        """
+        Key:
+         - lwd = Last Working Day
+         - ld = Leaving Date
+         - lm = Line Manager
+         - proc = Processor
+        """
+        assert self.leaving_request
+
+        today = timezone.now()
+        last_working_day = self.leaving_request.get_last_day()
+        leaving_date = self.leaving_request.get_leaving_date()
+
+        assert last_working_day
+        assert leaving_date
+
+        # Day after Last working day
+        day_after_lwd: Optional[str] = task_info.get("day_after_lwd")
+        day_after_lwd_email_id: EmailIds = EmailIds(day_after_lwd)
+        if today >= last_working_day + timedelta(days=1):
+            self.send_email(email_id=day_after_lwd_email_id)
+
+        # 2 days after Last working day
+        two_days_after_lwd: Optional[str] = task_info.get("two_days_after_lwd")
+        two_days_after_lwd_email_id: EmailIds = EmailIds(two_days_after_lwd)
+        if today >= last_working_day + timedelta(days=2):
+            self.send_email(email_id=two_days_after_lwd_email_id)
+
+        # Leaving date
+        on_ld: Optional[str] = task_info.get("on_ld")
+        on_ld_email_id: EmailIds = EmailIds(on_ld)
+        if today >= leaving_date:
+            self.send_email(email_id=on_ld_email_id)
+
+        # Day after Leaving date
+        one_day_after_ld: Optional[str] = task_info.get("one_day_after_ld")
+        one_day_after_ld_email_id: EmailIds = EmailIds(one_day_after_ld)
+        if today >= leaving_date + timedelta(days=1):
+            self.send_email(email_id=one_day_after_ld_email_id)
+
+        # Two days after Leaving date
+        two_days_after_ld_lm: Optional[str] = task_info.get("two_days_after_ld_lm")
+        two_days_after_ld_proc: Optional[str] = task_info.get("two_days_after_ld_proc")
+        two_days_after_ld_lm_email_id: EmailIds = EmailIds(two_days_after_ld_lm)
+        two_days_after_ld_proc_email_id: EmailIds = EmailIds(two_days_after_ld_proc)
+        if today >= leaving_date + timedelta(days=1):
+            self.send_email(email_id=two_days_after_ld_lm_email_id)
+            self.send_email(email_id=two_days_after_ld_proc_email_id)
+
+        return None, True
 
 
 class HasLineManagerCompleted(LeavingRequestTask):
@@ -490,15 +568,32 @@ class IsItXDaysBeforePayroll(LeavingRequestTask):
         return None, True
 
 
-class HaveSecurityCarriedOutLeavingTasks(LeavingRequestTask):
+class HaveSecurityCarriedOutBuildingPassLeavingTasks(LeavingRequestTask):
     abstract = False
-    task_name = "have_security_carried_out_leaving_tasks"
+    task_name = "have_security_carried_out_bp_leaving_tasks"
     auto = True
 
     def execute(self, task_info):
-        if self.leaving_request.security_team_complete:
+        if (
+            self.leaving_request.security_team_complete
+            or self.leaving_request.security_team_building_pass_complete
+        ):
             return ["are_all_tasks_complete"], True
-        return ["send_security_reminder"], False
+        return ["send_security_bp_reminder"], False
+
+
+class HaveSecurityCarriedOutRosaKitLeavingTasks(LeavingRequestTask):
+    abstract = False
+    task_name = "have_security_carried_out_rk_leaving_tasks"
+    auto = True
+
+    def execute(self, task_info):
+        if (
+            self.leaving_request.security_team_complete
+            or self.leaving_request.security_team_rosa_kit_complete
+        ):
+            return ["are_all_tasks_complete"], True
+        return ["send_security_rk_reminder"], False
 
 
 class HaveSRECarriedOutLeavingTasks(LeavingRequestTask):

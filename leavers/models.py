@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import List, Optional, Tuple
 
 from django.contrib.auth import get_user_model
@@ -266,13 +267,38 @@ class LeavingRequest(models.Model):
 
     @property
     def security_team_complete(self) -> bool:
-        if self.security_pass_destroyed and self.security_team_building_pass_complete:
+        if (
+            self.security_team_building_pass_complete
+            and self.security_team_rosa_kit_complete
+        ):
             return True
         return False
 
     """
     Methods
     """
+
+    def get_leaving_date(self) -> Optional[datetime]:
+        if self.leaving_date:
+            return self.leaving_date
+
+        leaver_information: Optional[
+            "LeaverInformation"
+        ] = self.leaver_information.first()
+        if leaver_information and leaver_information.leaving_date:
+            return leaver_information.leaving_date
+        return None
+
+    def get_last_day(self) -> Optional[datetime]:
+        if self.last_day:
+            return self.last_day
+
+        leaver_information: Optional[
+            "LeaverInformation"
+        ] = self.leaver_information.first()
+        if leaver_information and leaver_information.last_day:
+            return leaver_information.last_day
+        return None
 
     def get_leaver_name(self) -> Optional[str]:
         """

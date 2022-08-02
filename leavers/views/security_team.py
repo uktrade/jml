@@ -110,13 +110,23 @@ class BuildingPassConfirmationView(
         manager_as_user = self.leaving_request.get_line_manager()
         assert manager_as_user
 
+        leaving_datetime = self.leaving_request.get_leaving_date()
+        leaving_date: Optional[datetime] = None
+        if leaving_datetime:
+            leaving_date = leaving_datetime.date()
+
+        last_day_datetime = self.leaving_request.get_last_day()
+        last_day: Optional[datetime] = None
+        if last_day_datetime:
+            last_day = last_day_datetime.date()
+
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
             leaver_email=self.leaving_request.get_leaver_email(),
             manager_name=manager_as_user.full_name,
             manager_emails=manager_as_user.get_email_addresses_for_contact(),
-            last_working_day=self.leaving_request.last_day.date(),
-            leaving_date=self.leaving_request.leaving_date.date(),
+            leaving_date=leaving_date,
+            last_working_day=last_day,
             leaving_request_uuid=self.leaving_request.uuid,
             notifications=self.get_notifications(),
             pass_destroyed=bool(
@@ -329,13 +339,23 @@ class RosaKitConfirmationView(
         manager_as_user = self.leaving_request.get_line_manager()
         assert manager_as_user
 
+        leaving_datetime = self.leaving_request.get_leaving_date()
+        leaving_date: Optional[datetime] = None
+        if leaving_datetime:
+            leaving_date = leaving_datetime.date()
+
+        last_day_datetime = self.leaving_request.get_last_day()
+        last_day: Optional[datetime] = None
+        if last_day_datetime:
+            last_day = last_day_datetime.date()
+
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
             leaver_email=self.leaving_request.get_leaver_email(),
             manager_name=manager_as_user.full_name,
             manager_emails=manager_as_user.get_email_addresses_for_contact(),
-            last_working_day=self.leaving_request.last_day.date(),
-            leaving_date=self.leaving_request.leaving_date.date(),
+            leaving_date=leaving_date,
+            last_working_day=last_day,
             leaving_request_uuid=self.leaving_request.uuid,
             notifications=self.get_notifications(),
         )

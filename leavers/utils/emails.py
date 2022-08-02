@@ -11,6 +11,7 @@ from activity_stream.models import (
 from core import notify
 from core.uksbs import get_uksbs_interface
 from core.uksbs.types import PersonData
+from core.utils.helpers import make_possessive
 from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.models import LeaverInformation, LeavingRequest
 from leavers.types import DisplayScreenEquipmentAsset
@@ -60,7 +61,7 @@ def send_leaver_not_in_uksbs_reminder(leaving_request: LeavingRequest):
     )
     # Line Manager email
     notify.email(
-        email_addresses=[manager_emails],
+        email_addresses=manager_emails,
         template_id=notify.EmailTemplates.LEAVER_NOT_IN_UKSBS_LM_REMINDER,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
@@ -89,7 +90,9 @@ def send_csu4_leaver_email(leaving_request: LeavingRequest):
     if not leaver_information:
         raise ValueError("leaver_information is not set")
 
-    if not leaver_information.leaving_date:
+    leaving_date = leaving_request.get_leaving_date()
+
+    if not leaving_date:
         raise ValueError("leaving_date is not set")
 
     if not leaver_information.leaver_date_of_birth:
@@ -103,7 +106,7 @@ def send_csu4_leaver_email(leaving_request: LeavingRequest):
             "date_of_birth": leaver_information.leaver_date_of_birth.strftime(
                 "%d-%B-%Y %H:%M"
             ),
-            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
+            "leaving_date": leaving_date.strftime("%d-%B-%Y %H:%M"),
         },
     )
 
@@ -122,14 +125,9 @@ def send_ocs_leaver_email(leaving_request: LeavingRequest):
     if not settings.OCS_EMAIL:
         raise ValueError("OCS_EMAIL is not set")
 
-    leaver_information: Optional[
-        LeaverInformation
-    ] = leaving_request.leaver_information.first()
+    leaving_date = leaving_request.get_leaving_date()
 
-    if not leaver_information:
-        raise ValueError("leaver_information is not set")
-
-    if not leaver_information.leaving_date:
+    if not leaving_date:
         raise ValueError("leaving_date is not set")
 
     notify.email(
@@ -137,7 +135,7 @@ def send_ocs_leaver_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.OCS_LEAVER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
+            "leaving_date": leaving_date.strftime("%d-%B-%Y %H:%M"),
         },
     )
 
@@ -156,14 +154,9 @@ def send_ocs_oab_locker_email(leaving_request: LeavingRequest):
     if not settings.OCS_OAB_LOCKER_EMAIL:
         raise ValueError("OCS_OAB_LOCKER_EMAIL is not set")
 
-    leaver_information: Optional[
-        LeaverInformation
-    ] = leaving_request.leaver_information.first()
+    leaving_date = leaving_request.get_leaving_date()
 
-    if not leaver_information:
-        raise ValueError("leaver_information is not set")
-
-    if not leaver_information.leaving_date:
+    if not leaving_date:
         raise ValueError("leaving_date is not set")
 
     notify.email(
@@ -171,55 +164,7 @@ def send_ocs_oab_locker_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.OCS_OAB_LOCKER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
-        },
-    )
-
-
-class LeaverDoesNotHaveRosaKit(Exception):
-    pass
-
-
-def send_rosa_leaver_reminder_email(leaving_request: LeavingRequest):
-    """
-    Send Leaver an email to remind them to return their ROSA Kit.
-    """
-
-    if not leaving_request.is_rosa_user:
-        raise LeaverDoesNotHaveRosaKit()
-
-    leaver_email = leaving_request.get_leaver_email()
-
-    if not leaver_email:
-        raise ValueError("leaver_email is not set")
-
-    notify.email(
-        email_addresses=[],
-        template_id=notify.EmailTemplates.ROSA_LEAVER_REMINDER_EMAIL,
-        personalisation={"leaver_name": leaving_request.get_leaver_name()},
-    )
-
-
-def send_rosa_line_manager_reminder_email(leaving_request: LeavingRequest):
-    """
-    Send Line Manager an email to remind the Leaver to return their ROSA Kit.
-    """
-
-    if not leaving_request.is_rosa_user:
-        raise LeaverDoesNotHaveRosaKit()
-
-    manager_as_user = leaving_request.get_line_manager()
-    assert manager_as_user
-
-    if not manager_as_user.contact_email_address:
-        raise ValueError("contact_email_address is not set")
-
-    notify.email(
-        email_addresses=[manager_as_user.contact_email_address],
-        template_id=notify.EmailTemplates.ROSA_LINE_MANAGER_REMINDER_EMAIL,
-        personalisation={
-            "leaver_name": leaving_request.get_leaver_name(),
-            "manager_name": manager_as_user.full_name,
+            "leaving_date": leaving_date.strftime("%d-%B-%Y %H:%M"),
         },
     )
 
@@ -234,8 +179,16 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
     assert leaving_request.leaver_activitystream_user
     assert leaving_request.manager_activitystream_user
 
+    leaving_date = leaving_request.get_leaving_date()
+
+    if not leaving_date:
+        raise ValueError("leaving_date is not set")
+
     leaver_as_user: ActivityStreamStaffSSOUser = (
         leaving_request.leaver_activitystream_user
+    )
+    manager_as_user: ActivityStreamStaffSSOUser = (
+        leaving_request.manager_activitystream_user
     )
 
     if not leaver_as_user.uksbs_person_id:
@@ -252,55 +205,58 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
         str(uksbs_leaver_manager["person_id"])
         for uksbs_leaver_manager in uksbs_leaver_managers
     ]
-
-    current_manager_emails: List[str] = []
     current_manager_as_users: QuerySet[
         ActivityStreamStaffSSOUser
     ] = ActivityStreamStaffSSOUser.objects.filter(
         uksbs_person_id__in=uksbs_leaver_manager_person_ids
     )
 
-    for current_manager_as_user in current_manager_as_users:
-        current_manager_sso_email: Optional[
-            ActivityStreamStaffSSOUserEmail
-        ] = current_manager_as_user.sso_emails.first()
-
-        if current_manager_sso_email:
-            current_manager_emails.append(current_manager_sso_email.email_address)
+    leaver_name = leaving_request.get_leaver_name()
+    assert leaver_name
 
     email_personalisation = {
-        "recipient_name": current_manager_as_user.full_name,
-        "leaver_name": leaving_request.get_leaver_name(),
+        "leaving_date": leaving_date.strftime("%d-%B-%Y %H:%M"),
+        "leaver_name": leaver_name,
+        "possessive_leaver_name": make_possessive(leaver_name),
         "manager_name": leaving_request.manager_activitystream_user.full_name,
     }
 
-    if current_manager_emails:
-        # Send email to UKSBS manager(s)
-        notify.email(
-            email_addresses=current_manager_emails,
-            template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
-            personalisation=email_personalisation,
-        )
+    if current_manager_as_users.exists():
+        for current_manager_as_user in current_manager_as_users:
+            current_manager_sso_email: Optional[
+                ActivityStreamStaffSSOUserEmail
+            ] = current_manager_as_user.sso_emails.first()
+
+            if current_manager_sso_email:
+                # Send email to UKSBS manager(s)
+                notify.email(
+                    email_addresses=[current_manager_sso_email.email_address],
+                    template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
+                    personalisation=email_personalisation
+                    | {"recipient_name": current_manager_as_user.full_name},
+                )
     else:
         # If there are no manager emails, we need to email the HR Offboarding
         # team and the Line manager that the Leaver selected.
 
-        if not leaver_as_user.contact_email_address:
+        if not manager_as_user.contact_email_address:
             raise ValueError("contact_email_address is not set")
 
         if not settings.HR_UKSBS_CORRECTION_EMAIL:
             raise ValueError("HR_UKSBS_CORRECTION_EMAIL is not set")
 
         notify.email(
-            email_addresses=[leaver_as_user.contact_email_address],
+            email_addresses=[manager_as_user.contact_email_address],
             template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_REPORTED_LM_EMAIL,
-            personalisation=email_personalisation,
+            personalisation=email_personalisation
+            | {"recipient_name": manager_as_user.full_name},
         )
 
         notify.email(
             email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],
             template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_HR_EMAIL,
-            personalisation=email_personalisation,
+            personalisation=email_personalisation
+            | {"recipient_name": "HR Offboarding team"},
         )
 
 
@@ -370,7 +326,7 @@ def send_line_manager_thankyou_email(leaving_request: LeavingRequest):
     )
 
 
-def send_security_team_offboard_leaver_email(leaving_request: LeavingRequest):
+def send_security_team_offboard_bp_leaver_email(leaving_request: LeavingRequest):
     """
     Send Security Team an email to inform them of a new leaver to be off-boarded.
     """
@@ -378,55 +334,61 @@ def send_security_team_offboard_leaver_email(leaving_request: LeavingRequest):
     if not settings.SECURITY_TEAM_EMAIL:
         raise ValueError("SECURITY_TEAM_EMAIL is not set")
 
-    leaver_information: Optional[
-        LeaverInformation
-    ] = leaving_request.leaver_information.first()
-
-    if not leaver_information:
-        raise ValueError("leaver_information is not set")
-
-    if not leaver_information.leaving_date:
+    leaving_date = leaving_request.get_leaving_date()
+    if not leaving_date:
         raise ValueError("leaving_date is not set")
+
+    last_day = leaving_request.get_last_day()
+    if not last_day:
+        raise ValueError("last_day is not set")
+
+    leaver_name = leaving_request.get_leaver_name()
+    assert leaver_name
 
     notify.email(
         email_addresses=[settings.SECURITY_TEAM_EMAIL],
-        template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL,
+        template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_BP_LEAVER_EMAIL,
         personalisation={
-            "leaver_name": leaving_request.get_leaver_name(),
-            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
+            "leaver_name": leaver_name,
+            "possessive_leaver_name": make_possessive(leaver_name),
+            "leaving_date": leaving_date.strftime("%d-%B-%Y %H:%M"),
+            "last_day": last_day.strftime("%d-%B-%Y %H:%M"),
             "security_team_link": reverse(
-                "security-team-confirmation", args=[leaving_request.uuid]
+                "security-team-building-pass-confirmation", args=[leaving_request.uuid]
             ),
         },
     )
 
 
-def send_security_team_offboard_leaver_reminder_email(leaving_request: LeavingRequest):
+def send_security_team_offboard_rk_leaver_email(leaving_request: LeavingRequest):
     """
-    Send Security Team an email to remind them of a leaver to be offboarded.
+    Send Security Team an email to inform them of a new leaver to be off-boarded.
     """
 
     if not settings.SECURITY_TEAM_EMAIL:
         raise ValueError("SECURITY_TEAM_EMAIL is not set")
 
-    leaver_information: Optional[
-        LeaverInformation
-    ] = leaving_request.leaver_information.first()
-
-    if not leaver_information:
-        raise ValueError("leaver_information is not set")
-
-    if not leaver_information.leaving_date:
+    leaving_date = leaving_request.get_leaving_date()
+    if not leaving_date:
         raise ValueError("leaving_date is not set")
+
+    last_day = leaving_request.get_last_day()
+    if not last_day:
+        raise ValueError("last_day is not set")
+
+    leaver_name = leaving_request.get_leaver_name()
+    assert leaver_name
 
     notify.email(
         email_addresses=[settings.SECURITY_TEAM_EMAIL],
-        template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL,
+        template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_RK_LEAVER_EMAIL,
         personalisation={
-            "leaver_name": leaving_request.get_leaver_name(),
-            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
+            "leaver_name": leaver_name,
+            "possessive_leaver_name": make_possessive(leaver_name),
+            "leaving_date": leaving_date.strftime("%d-%B-%Y %H:%M"),
+            "last_day": last_day.strftime("%d-%B-%Y %H:%M"),
             "security_team_link": reverse(
-                "security-team-confirmation", args=[leaving_request.uuid]
+                "security-team-rosa-kit-confirmation", args=[leaving_request.uuid]
             ),
         },
     )
@@ -440,14 +402,9 @@ def send_sre_reminder_email(leaving_request: LeavingRequest):
     if not settings.SRE_EMAIL:
         raise ValueError("SRE_EMAIL is not set")
 
-    leaver_information: Optional[
-        LeaverInformation
-    ] = leaving_request.leaver_information.first()
+    leaving_date = leaving_request.get_leaving_date()
 
-    if not leaver_information:
-        raise ValueError("leaver_information is not set")
-
-    if not leaver_information.leaving_date:
+    if not leaving_date:
         raise ValueError("leaving_date is not set")
 
     notify.email(
@@ -455,7 +412,7 @@ def send_sre_reminder_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.SRE_REMINDER_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
+            "leaving_date": leaving_date.strftime("%d-%B-%Y %H:%M"),
             "sre_team_link": reverse("sre-confirmation", args=[leaving_request.uuid]),
         },
     )
@@ -469,15 +426,16 @@ def send_it_ops_asset_email(leaving_request: LeavingRequest):
     if not settings.IT_OPS_EMAIL:
         raise ValueError("IT_OPS_EMAIL is not set")
 
+    leaving_date = leaving_request.get_leaving_date()
+    if not leaving_date:
+        raise ValueError("leaving_date is not set")
+
     leaver_information: Optional[
         LeaverInformation
     ] = leaving_request.leaver_information.first()
 
     if not leaver_information:
         raise ValueError("leaver_information is not set")
-
-    if not leaver_information.leaving_date:
-        raise ValueError("leaving_date is not set")
 
     dse_assets: List[DisplayScreenEquipmentAsset] = leaver_information.dse_assets
     dse_assets_string = ""
@@ -490,7 +448,7 @@ def send_it_ops_asset_email(leaving_request: LeavingRequest):
         template_id=notify.EmailTemplates.IT_OPS_ASSET_EMAIL,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),
-            "leaving_date": leaver_information.leaving_date.strftime("%d-%B-%Y %H:%M"),
+            "leaving_date": leaving_date.strftime("%d-%B-%Y %H:%M"),
             "dse_assets": dse_assets_string,
         },
     )
