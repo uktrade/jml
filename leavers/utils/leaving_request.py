@@ -1,4 +1,6 @@
-from typing import TYPE_CHECKING, Iterable, List
+from typing import TYPE_CHECKING, Dict, List
+
+from django.db.models.query import QuerySet
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.utils.staff_index import (
@@ -55,11 +57,12 @@ def get_leaver_details(leaving_request: LeavingRequest) -> LeaverDetails:
 
 
 def get_email_task_logs(
-    *, leaving_request: LeavingRequest, email_id: "EmailIds"
-) -> List[TaskLog]:
-    all_email_task_logs: Iterable[TaskLog] = leaving_request.email_task_logs.all()
-    email_task_logs: List[TaskLog] = []
-    for email_task in all_email_task_logs:
-        if email_id.value == email_task.task_name:
-            email_task_logs.append(email_task)
+    *, leaving_request: LeavingRequest, email_ids: List["EmailIds"]
+) -> Dict["EmailIds", List[TaskLog]]:
+    all_email_task_logs: QuerySet[TaskLog] = leaving_request.email_task_logs.all()
+    email_task_logs: Dict["EmailIds", List[TaskLog]] = {}
+    for email_id in email_ids:
+        email_task_logs[email_id] = list(
+            all_email_task_logs.filter(task_name__icontains=email_id.value)
+        )
     return email_task_logs

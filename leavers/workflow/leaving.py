@@ -1,3 +1,4 @@
+from django.conf import settings
 from django_workflow_engine import Step, Workflow
 
 from leavers.workflow.tasks import BasicTask, EmailIds  # noqa F401
@@ -208,11 +209,15 @@ LeaversWorkflow = Workflow(
                 "have_security_carried_out_bp_leaving_tasks",
             ],
             task_info={
-                "day_after_lwd": EmailIds.XXX.value,
-                "two_days_after_lwd": EmailIds.XXX.value,
-                "one_day_after_ld": EmailIds.XXX.value,
-                "two_days_after_ld_lm": EmailIds.XXX.value,
-                "two_days_after_ld_proc": EmailIds.XXX.value,
+                "processor_email": settings.SECURITY_TEAM_EMAIL,
+                "day_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD,
+                "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD,
+                "on_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD,
+                "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD,
+                "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM,
+                "two_days_after_ld_proc": (
+                    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC
+                ),
             },
         ),
         # SECURITY (ROSA Kit)
@@ -241,11 +246,15 @@ LeaversWorkflow = Workflow(
                 "have_security_carried_out_rk_leaving_tasks",
             ],
             task_info={
-                "day_after_lwd": EmailIds.XXX.value,
-                "two_days_after_lwd": EmailIds.XXX.value,
-                "one_day_after_ld": EmailIds.XXX.value,
-                "two_days_after_ld_lm": EmailIds.XXX.value,
-                "two_days_after_ld_proc": EmailIds.XXX.value,
+                "processor_email": settings.SECURITY_TEAM_EMAIL,
+                "day_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD,
+                "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD,
+                "on_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD,
+                "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD,
+                "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM,
+                "two_days_after_ld_proc": (
+                    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC
+                ),
             },
         ),
         # SRE
@@ -278,11 +287,13 @@ LeaversWorkflow = Workflow(
                 "have_sre_carried_out_leaving_tasks",
             ],
             task_info={
-                "day_after_lwd": EmailIds.SRE_REMINDER.value,
-                "two_days_after_lwd": EmailIds.SRE_REMINDER.value,
-                "one_day_after_ld": EmailIds.SRE_REMINDER.value,
-                "two_days_after_ld_lm": EmailIds.SRE_REMINDER.value,
-                "two_days_after_ld_proc": EmailIds.SRE_REMINDER.value,
+                "processor_email": settings.SRE_EMAIL,
+                "day_after_lwd": EmailIds.SRE_REMINDER_DAY_AFTER_LWD,
+                "two_days_after_lwd": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LWD,
+                "on_ld": EmailIds.SRE_REMINDER_ON_LD,
+                "one_day_after_ld": EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD,
+                "two_days_after_ld_lm": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_LM,
+                "two_days_after_ld_proc": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC,
             },
         ),
         # End

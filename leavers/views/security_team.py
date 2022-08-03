@@ -17,7 +17,7 @@ from leavers.forms.security_team import (
     RosaKitCloseRecordForm,
     RosaKitForm,
 )
-from leavers.models import LeavingRequest, TaskLog
+from leavers.models import LeavingRequest
 from leavers.utils.leaving_request import get_email_task_logs
 from leavers.utils.security_team import (
     SecuritySubRole,
@@ -146,12 +146,14 @@ class BuildingPassConfirmationView(
 
         # Reminder sent to Line manager
         # TODO: Update to be the right email_id
-        line_manager_reminder_emails: List[TaskLog] = get_email_task_logs(
+        line_manager_reminder_emails = get_email_task_logs(
             leaving_request=self.leaving_request,
-            email_id=EmailIds.LINE_MANAGER_REMINDER,
+            email_ids=[EmailIds.LINE_MANAGER_REMINDER],
         )
         line_manager_last_sent: Optional[datetime] = None
-        for line_manager_reminder_email in line_manager_reminder_emails:
+        for line_manager_reminder_email in line_manager_reminder_emails.get(
+            EmailIds.LINE_MANAGER_REMINDER, []
+        ):
             if (
                 not line_manager_last_sent
                 or line_manager_last_sent < line_manager_reminder_email.created_at
@@ -167,18 +169,25 @@ class BuildingPassConfirmationView(
         )
 
         # Reminder sent to Leaver
-        # TODO: Update to be the right email_id
-        leaver_reminder_emails: List[TaskLog] = get_email_task_logs(
+        leaver_task_logs = get_email_task_logs(
             leaving_request=self.leaving_request,
-            email_id=EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER,
+            email_ids=[
+                EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD,
+                EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD,
+                EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ON_LD,
+                EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD,
+                EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM,
+                EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC,
+            ],
         )
         leaver_last_sent: Optional[datetime] = None
-        for leaver_reminder_email in leaver_reminder_emails:
-            if (
-                not leaver_last_sent
-                or leaver_last_sent < leaver_reminder_email.created_at
-            ):
-                leaver_last_sent = leaver_reminder_email.created_at
+        for email_id, leaver_reminder_emails in leaver_task_logs.items():
+            for leaver_reminder_email in leaver_reminder_emails:
+                if (
+                    not leaver_last_sent
+                    or leaver_last_sent < leaver_reminder_email.created_at
+                ):
+                    leaver_last_sent = leaver_reminder_email.created_at
 
         notifications.append(
             {
@@ -366,18 +375,21 @@ class RosaKitConfirmationView(
         notifications = []
 
         # Reminder sent to Line manager
-        # TODO: Update to be the right email_id
-        line_manager_reminder_emails: List[TaskLog] = get_email_task_logs(
+        line_manager_email_task_logs = get_email_task_logs(
             leaving_request=self.leaving_request,
-            email_id=EmailIds.LINE_MANAGER_REMINDER,
+            email_ids=[EmailIds.LINE_MANAGER_REMINDER],
         )
         line_manager_last_sent: Optional[datetime] = None
-        for line_manager_reminder_email in line_manager_reminder_emails:
-            if (
-                not line_manager_last_sent
-                or line_manager_last_sent < line_manager_reminder_email.created_at
-            ):
-                line_manager_last_sent = line_manager_reminder_email.created_at
+        for (
+            email_id,
+            line_manager_reminder_emails,
+        ) in line_manager_email_task_logs.items():
+            for line_manager_reminder_email in line_manager_reminder_emails:
+                if (
+                    not line_manager_last_sent
+                    or line_manager_last_sent < line_manager_reminder_email.created_at
+                ):
+                    line_manager_last_sent = line_manager_reminder_email.created_at
 
         notifications.append(
             {
@@ -388,18 +400,25 @@ class RosaKitConfirmationView(
         )
 
         # Reminder sent to Leaver
-        # TODO: Update to be the right email_id
-        leaver_reminder_emails: List[TaskLog] = get_email_task_logs(
+        leaver_task_logs = get_email_task_logs(
             leaving_request=self.leaving_request,
-            email_id=EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER,
+            email_ids=[
+                EmailIds.SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD,
+                EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD,
+                EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ON_LD,
+                EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD,
+                EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM,
+                EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC,
+            ],
         )
         leaver_last_sent: Optional[datetime] = None
-        for leaver_reminder_email in leaver_reminder_emails:
-            if (
-                not leaver_last_sent
-                or leaver_last_sent < leaver_reminder_email.created_at
-            ):
-                leaver_last_sent = leaver_reminder_email.created_at
+        for email_id, leaver_reminder_emails in leaver_task_logs.items():
+            for leaver_reminder_email in leaver_reminder_emails:
+                if (
+                    not leaver_last_sent
+                    or leaver_last_sent < leaver_reminder_email.created_at
+                ):
+                    leaver_last_sent = leaver_reminder_email.created_at
 
         notifications.append(
             {

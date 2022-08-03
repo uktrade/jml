@@ -383,31 +383,6 @@ def send_security_team_offboard_rk_leaver_email(leaving_request: LeavingRequest)
     )
 
 
-def send_sre_reminder_email(leaving_request: LeavingRequest):
-    """
-    Send SRE Team an email to remind them of a leaver.
-    """
-
-    if not settings.SRE_EMAIL:
-        raise ValueError("SRE_EMAIL is not set")
-
-    leaving_date = leaving_request.get_leaving_date()
-
-    if not leaving_date:
-        raise ValueError("leaving_date is not set")
-
-    personalisation = get_leaving_request_email_personalisation(leaving_request)
-    personalisation.update(
-        sre_team_link=reverse("sre-confirmation", args=[leaving_request.uuid]),
-    )
-
-    notify.email(
-        email_addresses=[settings.SRE_EMAIL],
-        template_id=notify.EmailTemplates.SRE_REMINDER_EMAIL,
-        personalisation=personalisation,
-    )
-
-
 def send_it_ops_asset_email(leaving_request: LeavingRequest):
     """
     Send IT Ops team an email to inform them of a leaver and their reported Assets.

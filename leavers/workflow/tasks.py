@@ -9,6 +9,7 @@ from django_workflow_engine.dataclass import Step
 from django_workflow_engine.models import Flow, TaskRecord
 
 from activity_stream.models import ActivityStreamStaffSSOUser
+from core.notify import EmailTemplates
 from core.service_now import get_service_now_interface
 from core.service_now.types import AssetDetails
 from core.uksbs import get_uksbs_interface
@@ -36,7 +37,6 @@ from leavers.utils.emails import (
     send_ocs_oab_locker_email,
     send_security_team_offboard_bp_leaver_email,
     send_security_team_offboard_rk_leaver_email,
-    send_sre_reminder_email,
 )
 from leavers.utils.leaving_request import get_leaver_details
 
@@ -324,14 +324,54 @@ class EmailIds(Enum):
     LINE_MANAGER_NOTIFICATION = "line_manager_notification"
     LINE_MANAGER_REMINDER = "line_manager_reminder"
     LINE_MANAGER_THANKYOU = "line_manager_thankyou"
+    # Security Offboarding (Building Pass)
     SECURITY_OFFBOARD_BP_LEAVER_NOTIFICATION = (
         "security_offboard_bp_leaver_notification"
     )
+    SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD = (
+        "security_offboard_bp_reminder_day_after_lwd"
+    )
+    SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD = (
+        "security_offboard_bp_reminder_two_days_after_lwd"
+    )
+    SECURITY_OFFBOARD_BP_REMINDER_ON_LD = "security_offboard_bp_reminder_on_ld"
+    SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD = (
+        "security_offboard_bp_reminder_one_day_after_ld"
+    )
+    SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM = (
+        "security_offboard_bp_reminder_two_days_after_ld_lm"
+    )
+    SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC = (
+        "security_offboard_bp_reminder_two_days_after_ld_proc"
+    )
+    # Security Offboarding (ROSA Kit)
     SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION = (
         "security_offboard_rk_leaver_notification"
     )
-    SECURITY_OFFBOARD_LEAVER_REMINDER = "security_offboard_leaver_reminder"
-    SRE_REMINDER = "sre_reminder"
+    SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD = (
+        "security_offboard_rk_reminder_day_after_lwd"
+    )
+    SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD = (
+        "security_offboard_rk_reminder_two_days_after_lwd"
+    )
+    SECURITY_OFFBOARD_RK_REMINDER_ON_LD = "security_offboard_rk_reminder_on_ld"
+    SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD = (
+        "security_offboard_rk_reminder_one_day_after_ld"
+    )
+    SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM = (
+        "security_offboard_rk_reminder_two_days_after_ld_lm"
+    )
+    SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC = (
+        "security_offboard_rk_reminder_two_days_after_ld_proc"
+    )
+    # SRE Offboarding
+    SRE_REMINDER_DAY_AFTER_LWD = "sre_reminder_day_after_lwd"
+    SRE_REMINDER_TWO_DAYS_AFTER_LWD = "sre_reminder_two_days_after_lwd"
+    SRE_REMINDER_ON_LD = "sre_reminder_on_ld"
+    SRE_REMINDER_ONE_DAY_AFTER_LD = "sre_reminder_one_day_after_ld"
+    SRE_REMINDER_TWO_DAYS_AFTER_LD_LM = "sre_reminder_two_days_after_ld_lm"
+    SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC = "sre_reminder_two_days_after_ld_proc"
+
     IT_OPS_ASSET_EMAIL = "it_ops_asset_email"
     CSU4_EMAIL = "csu4_email"
     OCS_EMAIL = "ocs_email"
@@ -347,14 +387,65 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LINE_MANAGER_THANKYOU: send_line_manager_thankyou_email,
     EmailIds.SECURITY_OFFBOARD_BP_LEAVER_NOTIFICATION: send_security_team_offboard_bp_leaver_email,
     EmailIds.SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION: send_security_team_offboard_rk_leaver_email,
-    EmailIds.SRE_REMINDER: send_sre_reminder_email,
     EmailIds.IT_OPS_ASSET_EMAIL: send_it_ops_asset_email,
     EmailIds.CSU4_EMAIL: send_csu4_leaver_email,
     EmailIds.OCS_EMAIL: send_ocs_leaver_email,
     EmailIds.OCS_OAB_LOCKER_EMAIL: send_ocs_oab_locker_email,
 }
-PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, str] = {
-    # Email ID to Email template ID
+PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
+    # Security Offboarding (Building Pass)
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD: (
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD,
+    ),
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD: (
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD
+    ),
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ON_LD: (
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_ON_LD
+    ),
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD: (
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD
+    ),
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM: (
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM
+    ),
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC
+    ),
+    # Security Offboarding (Rosa Kit)
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD: (
+        EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD
+    ),
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD: (
+        EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD
+    ),
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ON_LD: (
+        EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_ON_LD
+    ),
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD: (
+        EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD
+    ),
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM: (
+        EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM
+    ),
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+        EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC
+    ),
+    # SRE Offboarding
+    EmailIds.SRE_REMINDER_DAY_AFTER_LWD: (EmailTemplates.SRE_REMINDER_DAY_AFTER_LWD),
+    EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LWD: (
+        EmailTemplates.SRE_REMINDER_TWO_DAYS_AFTER_LWD
+    ),
+    EmailIds.SRE_REMINDER_ON_LD: (EmailTemplates.SRE_REMINDER_ON_LD),
+    EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD: (
+        EmailTemplates.SRE_REMINDER_ONE_DAY_AFTER_LD
+    ),
+    EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_LM: (
+        EmailTemplates.SRE_REMINDER_TWO_DAYS_AFTER_LD_LM
+    ),
+    EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+        EmailTemplates.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC
+    ),
 }
 
 
@@ -383,7 +474,9 @@ class EmailTask(LeavingRequestTask):
 
         return send_email_method
 
-    def send_email(self, email_id: EmailIds):
+    def send_email(
+        self, email_id: EmailIds, template_id: Optional[EmailTemplates] = None
+    ):
         """
         Send the email.
         """
@@ -393,7 +486,10 @@ class EmailTask(LeavingRequestTask):
             email_id=email_id,
         ):
             send_email_method = self.get_send_email_method(email_id=email_id)
-            send_email_method(leaving_request=self.leaving_request)
+            send_email_method(
+                leaving_request=self.leaving_request,
+                template_id=template_id,
+            )
             email_task_log = self.leaving_request.task_logs.create(
                 task_name=f"Sending email {email_id.value}",
             )
@@ -489,22 +585,24 @@ class ProcessorReminderEmail(EmailTask):
         return not already_sent
 
     def get_send_email_method(self, email_id: EmailIds) -> Callable:
-        email_template_id = PROCESSOR_REMINDER_EMAIL_MAPPING.get(email_id)
-        if not email_template_id:
-            raise Exception(f"Email template not found for {email_id.value}")
-
-        def send_processor_email(leaving_request: LeavingRequest):
+        def send_processor_email(
+            leaving_request: LeavingRequest, template_id: Optional[EmailTemplates]
+        ):
+            assert template_id
             from core import notify
 
             notify.email(
-                email_addresses=[],  # TODO
-                template_id=email_template_id,
+                email_addresses=[self.processor_email],
+                template_id=template_id,
                 personalisation=get_leaving_request_email_personalisation(
                     leaving_request
                 ),
             )
 
-        def send_line_manager_email(leaving_request: LeavingRequest):
+        def send_line_manager_email(
+            leaving_request: LeavingRequest, template_id: Optional[EmailTemplates]
+        ):
+            assert template_id
             from core import notify
 
             manager_as_user = leaving_request.get_line_manager()
@@ -514,7 +612,7 @@ class ProcessorReminderEmail(EmailTask):
 
             notify.email(
                 email_addresses=manager_contact_emails,
-                template_id=email_template_id,
+                template_id=template_id,
                 personalisation=get_leaving_request_email_personalisation(
                     leaving_request
                 ),
@@ -545,6 +643,8 @@ class ProcessorReminderEmail(EmailTask):
         """
         assert self.leaving_request
 
+        self.processor_email: str = task_info["processor_email"]
+
         today = timezone.now()
         last_working_day = self.leaving_request.get_last_day()
         leaving_date = self.leaving_request.get_leaving_date()
@@ -553,39 +653,61 @@ class ProcessorReminderEmail(EmailTask):
         assert leaving_date
 
         # Day after Last working day
-        day_after_lwd: Optional[str] = task_info.get("day_after_lwd")
-        self.day_after_lwd_email_id: EmailIds = EmailIds(day_after_lwd)
+        self.day_after_lwd_email_id = EmailIds(task_info["day_after_lwd"])
         if today >= last_working_day + timedelta(days=1):
-            self.send_email(email_id=self.day_after_lwd_email_id)
+            self.send_email(
+                email_id=self.day_after_lwd_email_id,
+                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
+                    self.day_after_lwd_email_id
+                ],
+            )
 
         # 2 days after Last working day
-        two_days_after_lwd: Optional[str] = task_info.get("two_days_after_lwd")
-        self.two_days_after_lwd_email_id: EmailIds = EmailIds(two_days_after_lwd)
+        self.two_days_after_lwd_email_id = EmailIds(task_info["two_days_after_lwd"])
         if today >= last_working_day + timedelta(days=2):
-            self.send_email(email_id=self.two_days_after_lwd_email_id)
+            self.send_email(
+                email_id=self.two_days_after_lwd_email_id,
+                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
+                    self.two_days_after_lwd_email_id
+                ],
+            )
 
         # Leaving date
-        on_ld: Optional[str] = task_info.get("on_ld")
-        self.on_ld_email_id: EmailIds = EmailIds(on_ld)
+        self.on_ld_email_id = EmailIds(task_info["on_ld"])
         if today >= leaving_date:
-            self.send_email(email_id=self.on_ld_email_id)
+            self.send_email(
+                email_id=self.on_ld_email_id,
+                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[self.on_ld_email_id],
+            )
 
         # Day after Leaving date
-        one_day_after_ld: Optional[str] = task_info.get("one_day_after_ld")
-        self.one_day_after_ld_email_id: EmailIds = EmailIds(one_day_after_ld)
+        self.one_day_after_ld_email_id = EmailIds(task_info["one_day_after_ld"])
         if today >= leaving_date + timedelta(days=1):
-            self.send_email(email_id=self.one_day_after_ld_email_id)
+            self.send_email(
+                email_id=self.one_day_after_ld_email_id,
+                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
+                    self.one_day_after_ld_email_id
+                ],
+            )
 
         # Two days after Leaving date
-        two_days_after_ld_lm: Optional[str] = task_info.get("two_days_after_ld_lm")
-        two_days_after_ld_proc: Optional[str] = task_info.get("two_days_after_ld_proc")
-        self.two_days_after_ld_lm_email_id: EmailIds = EmailIds(two_days_after_ld_lm)
-        self.two_days_after_ld_proc_email_id: EmailIds = EmailIds(
-            two_days_after_ld_proc
+        self.two_days_after_ld_lm_email_id = EmailIds(task_info["two_days_after_ld_lm"])
+        self.two_days_after_ld_proc_email_id = EmailIds(
+            task_info["two_days_after_ld_proc"]
         )
         if today >= leaving_date + timedelta(days=1):
-            self.send_email(email_id=self.two_days_after_ld_lm_email_id)
-            self.send_email(email_id=self.two_days_after_ld_proc_email_id)
+            self.send_email(
+                email_id=self.two_days_after_ld_lm_email_id,
+                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
+                    self.two_days_after_ld_lm_email_id
+                ],
+            )
+            self.send_email(
+                email_id=self.two_days_after_ld_proc_email_id,
+                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
+                    self.two_days_after_ld_proc_email_id
+                ],
+            )
 
         return None, True
 
