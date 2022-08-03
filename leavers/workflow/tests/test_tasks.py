@@ -26,19 +26,15 @@ class TestReminderEmail(TestCase):
 
         self.task_name = (
             "Some task name that contains an Email ID "
-            f"{EmailIds.LEAVER_ROSA_REMINDER.value}"
+            f"{EmailIds.LINE_MANAGER_CORRECTION.value}"
         )
-        self.task_info = {
-            "email_id": EmailIds.LEAVER_ROSA_REMINDER.value,
-        }
 
     @freeze_time("2021-12-5")
     def test_before_two_weeks(self):
         # Test no email sent yet
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -47,8 +43,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -59,8 +54,7 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -69,8 +63,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -82,8 +75,7 @@ class TestReminderEmail(TestCase):
             )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -94,8 +86,7 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -104,8 +95,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -117,8 +107,7 @@ class TestReminderEmail(TestCase):
             )
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -129,8 +118,7 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -139,8 +127,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -152,8 +139,7 @@ class TestReminderEmail(TestCase):
             )
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -164,8 +150,7 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -174,8 +159,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -187,8 +171,7 @@ class TestReminderEmail(TestCase):
             )
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -199,8 +182,7 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -209,8 +191,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -222,8 +203,7 @@ class TestReminderEmail(TestCase):
             )
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -234,8 +214,7 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -244,8 +223,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -257,8 +235,7 @@ class TestReminderEmail(TestCase):
             )
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -269,8 +246,7 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -279,8 +255,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -292,8 +267,7 @@ class TestReminderEmail(TestCase):
             )
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -304,8 +278,7 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -314,8 +287,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -327,8 +299,7 @@ class TestReminderEmail(TestCase):
             )
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -339,8 +310,7 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -349,8 +319,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -362,8 +331,7 @@ class TestReminderEmail(TestCase):
             )
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -374,8 +342,7 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -384,8 +351,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -397,8 +363,7 @@ class TestReminderEmail(TestCase):
             )
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -409,8 +374,7 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -419,8 +383,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -432,8 +395,7 @@ class TestReminderEmail(TestCase):
             )
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -444,8 +406,7 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -454,8 +415,7 @@ class TestReminderEmail(TestCase):
         # Test no email sent yet
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -467,8 +427,7 @@ class TestReminderEmail(TestCase):
             )
         self.assertTrue(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
 
@@ -479,7 +438,6 @@ class TestReminderEmail(TestCase):
         )
         self.assertFalse(
             self.task.should_send_email(
-                task_info=self.task_info,
-                email_id=EmailIds.LEAVER_ROSA_REMINDER,
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
             )
         )
