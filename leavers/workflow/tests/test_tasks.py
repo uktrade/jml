@@ -5,10 +5,77 @@ from django.test import TestCase
 from django.utils.timezone import make_aware
 from freezegun import freeze_time
 
-from leavers.factories import LeavingRequestFactory
-from leavers.workflow.tasks import EmailIds, ProcessorReminderEmail, ReminderEmail
+from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
+from leavers.models import LeaverInformation, LeavingRequest
+from leavers.workflow.tasks import (
+    EmailIds,
+    ProcessorReminderEmail,
+    ReminderEmail,
+    SkipCondition,
+)
 from leavers.workflow.tests.factories import FlowFactory, TaskRecordFactory
 from user.test.factories import UserFactory
+
+
+class TestSkipConditions(TestCase):
+    def setUp(self):
+        self.user = UserFactory()
+
+        self.flow = FlowFactory(executed_by=self.user)
+        self.task_record = TaskRecordFactory(executed_by=self.user, flow=self.flow)
+        self.leaving_request: LeavingRequest = LeavingRequestFactory(
+            last_day=make_aware(datetime(2021, 12, 25)),
+        )
+        self.leaver_information: LeaverInformation = LeaverInformationFactory(
+            leaving_request=self.leaving_request
+        )
+        self.flow.leaving_request = self.leaving_request
+        self.flow.save()
+
+        self.task = ReminderEmail(self.user, self.task_record, self.flow)
+
+    def test_no_skip_condition(self):
+        self.assertFalse(
+            self.task.should_skip(
+                task_info={},
+            )
+        )
+
+    def test_rosa_skip(self):
+        self.leaving_request.is_rosa_user = True
+        self.leaving_request.save()
+        self.assertFalse(
+            self.task.should_skip(
+                task_info={"skip_condition": SkipCondition.IS_NOT_ROSA_USER.value},
+            )
+        )
+        self.leaving_request.is_rosa_user = False
+        self.leaving_request.save()
+        self.assertTrue(
+            self.task.should_skip(
+                task_info={"skip_condition": SkipCondition.IS_NOT_ROSA_USER.value},
+            )
+        )
+
+    def test_oab_locker_skip(self):
+        self.leaver_information.has_locker = True
+        self.leaver_information.save()
+        self.assertFalse(
+            self.task.should_skip(
+                task_info={
+                    "skip_condition": SkipCondition.USER_DOES_NOT_HAVE_OAB_LOCKER.value
+                },
+            )
+        )
+        self.leaver_information.has_locker = False
+        self.leaver_information.save()
+        self.assertTrue(
+            self.task.should_skip(
+                task_info={
+                    "skip_condition": SkipCondition.USER_DOES_NOT_HAVE_OAB_LOCKER.value
+                },
+            )
+        )
 
 
 class TestReminderEmail(TestCase):
