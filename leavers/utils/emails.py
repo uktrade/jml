@@ -50,9 +50,19 @@ def get_leaving_request_email_personalisation(
         leaver_name=leaver_name,
         possessive_leaver_name=make_possessive(leaver_name),
         manager_name=manager_as_user.full_name,
+        manager_email=manager_as_user.get_email_addresses_for_contact()[0],
         leaving_date=leaving_date.strftime("%d-%B-%Y %H:%M"),
         last_day=last_day.strftime("%d-%B-%Y %H:%M"),
         contact_us_link=reverse("beta-service-feedback"),
+        security_team_bp_link=reverse(
+            "security-team-building-pass-confirmation", args=[leaving_request.uuid]
+        ),
+        security_team_rk_link=reverse(
+            "security-team-rosa-kit-confirmation", args=[leaving_request.uuid]
+        ),
+        sre_team_link=reverse(
+            "sre-confirmation", kwargs={"leaving_request_id": leaving_request.uuid}
+        ),
     )
 
     leaver_information: Optional[
@@ -325,23 +335,7 @@ def send_security_team_offboard_bp_leaver_email(leaving_request: LeavingRequest)
     if not settings.SECURITY_TEAM_EMAIL:
         raise ValueError("SECURITY_TEAM_EMAIL is not set")
 
-    leaving_date = leaving_request.get_leaving_date()
-    if not leaving_date:
-        raise ValueError("leaving_date is not set")
-
-    last_day = leaving_request.get_last_day()
-    if not last_day:
-        raise ValueError("last_day is not set")
-
-    leaver_name = leaving_request.get_leaver_name()
-    assert leaver_name
-
     personalisation = get_leaving_request_email_personalisation(leaving_request)
-    personalisation.update(
-        security_team_link=reverse(
-            "security-team-building-pass-confirmation", args=[leaving_request.uuid]
-        ),
-    )
 
     notify.email(
         email_addresses=[settings.SECURITY_TEAM_EMAIL],
@@ -358,27 +352,28 @@ def send_security_team_offboard_rk_leaver_email(leaving_request: LeavingRequest)
     if not settings.SECURITY_TEAM_EMAIL:
         raise ValueError("SECURITY_TEAM_EMAIL is not set")
 
-    leaving_date = leaving_request.get_leaving_date()
-    if not leaving_date:
-        raise ValueError("leaving_date is not set")
-
-    last_day = leaving_request.get_last_day()
-    if not last_day:
-        raise ValueError("last_day is not set")
-
-    leaver_name = leaving_request.get_leaver_name()
-    assert leaver_name
-
     personalisation = get_leaving_request_email_personalisation(leaving_request)
-    personalisation.update(
-        security_team_link=reverse(
-            "security-team-rosa-kit-confirmation", args=[leaving_request.uuid]
-        ),
-    )
 
     notify.email(
         email_addresses=[settings.SECURITY_TEAM_EMAIL],
         template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_RK_LEAVER_EMAIL,
+        personalisation=personalisation,
+    )
+
+
+def send_sre_notification_email(leaving_request: LeavingRequest):
+    """
+    Send the SRE team an email to inform them of a new leaver to be off-boarded.
+    """
+
+    if not settings.SRE_EMAIL:
+        raise ValueError("SRE_EMAIL is not set")
+
+    personalisation = get_leaving_request_email_personalisation(leaving_request)
+
+    notify.email(
+        email_addresses=[settings.SRE_EMAIL],
+        template_id=notify.EmailTemplates.SRE_NOTIFICATION,
         personalisation=personalisation,
     )
 

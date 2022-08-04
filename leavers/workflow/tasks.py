@@ -37,6 +37,7 @@ from leavers.utils.emails import (
     send_ocs_oab_locker_email,
     send_security_team_offboard_bp_leaver_email,
     send_security_team_offboard_rk_leaver_email,
+    send_sre_notification_email,
 )
 from leavers.utils.leaving_request import get_leaver_details
 
@@ -365,6 +366,7 @@ class EmailIds(Enum):
         "security_offboard_rk_reminder_two_days_after_ld_proc"
     )
     # SRE Offboarding
+    SRE_NOTIFICATION = "sre_notification"
     SRE_REMINDER_DAY_AFTER_LWD = "sre_reminder_day_after_lwd"
     SRE_REMINDER_TWO_DAYS_AFTER_LWD = "sre_reminder_two_days_after_lwd"
     SRE_REMINDER_ON_LD = "sre_reminder_on_ld"
@@ -387,6 +389,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LINE_MANAGER_THANKYOU: send_line_manager_thankyou_email,
     EmailIds.SECURITY_OFFBOARD_BP_LEAVER_NOTIFICATION: send_security_team_offboard_bp_leaver_email,
     EmailIds.SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION: send_security_team_offboard_rk_leaver_email,
+    EmailIds.SRE_NOTIFICATION: send_sre_notification_email,
     EmailIds.IT_OPS_ASSET_EMAIL: send_it_ops_asset_email,
     EmailIds.CSU4_EMAIL: send_csu4_leaver_email,
     EmailIds.OCS_EMAIL: send_ocs_leaver_email,
@@ -395,7 +398,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
 PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
     # Security Offboarding (Building Pass)
     EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD: (
-        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD,
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD
     ),
     EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD: (
         EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD
@@ -449,6 +452,11 @@ PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
 }
 
 
+class SkipCondition(Enum):
+    IS_NOT_ROSA_USER = "is_not_rosa_user"
+    USER_DOES_NOT_HAVE_OAB_LOCKER = "user_does_not_have_oab_locker"
+
+
 class EmailTask(LeavingRequestTask):
     abstract = True
 
@@ -496,9 +504,23 @@ class EmailTask(LeavingRequestTask):
             self.leaving_request.email_task_logs.add(email_task_log)
             self.leaving_request.save()
 
+    def should_skip(self, task_info) -> bool:
+        if "skip_condition" in task_info:
+            skip_condition: str = task_info["skip_condition"]
+            if skip_condition == SkipCondition.IS_NOT_ROSA_USER.value:
+                return not self.leaving_request.is_rosa_user
+            elif skip_condition == SkipCondition.USER_DOES_NOT_HAVE_OAB_LOCKER.value:
+                leaver_information: Optional[
+                    LeaverInformation
+                ] = self.leaving_request.leaver_information.first()
+                if leaver_information:
+                    return not leaver_information.has_locker
+        return False
+
     def execute(self, task_info):
-        email_id: EmailIds = EmailIds(task_info["email_id"])
-        self.send_email(email_id=email_id)
+        if not self.should_skip(task_info=task_info):
+            email_id: EmailIds = EmailIds(task_info["email_id"])
+            self.send_email(email_id=email_id)
         return None, True
 
 
@@ -642,6 +664,8 @@ class ProcessorReminderEmail(EmailTask):
          - proc = Processor
         """
         assert self.leaving_request
+        if self.should_skip(task_info=task_info):
+            return None, True
 
         self.processor_email: str = task_info["processor_email"]
 
@@ -653,8 +677,9 @@ class ProcessorReminderEmail(EmailTask):
         assert leaving_date
 
         # Day after Last working day
-        self.day_after_lwd_email_id = EmailIds(task_info["day_after_lwd"])
-        if today >= last_working_day + timedelta(days=1):
+        day_after_lwd = task_info.get("day_after_lwd")
+        if day_after_lwd and today >= last_working_day + timedelta(days=1):
+            self.day_after_lwd_email_id = EmailIds(day_after_lwd)
             self.send_email(
                 email_id=self.day_after_lwd_email_id,
                 template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
@@ -663,8 +688,9 @@ class ProcessorReminderEmail(EmailTask):
             )
 
         # 2 days after Last working day
-        self.two_days_after_lwd_email_id = EmailIds(task_info["two_days_after_lwd"])
-        if today >= last_working_day + timedelta(days=2):
+        two_days_after_lwd = task_info["two_days_after_lwd"]
+        if two_days_after_lwd and today >= last_working_day + timedelta(days=2):
+            self.two_days_after_lwd_email_id = EmailIds(two_days_after_lwd)
             self.send_email(
                 email_id=self.two_days_after_lwd_email_id,
                 template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
@@ -673,16 +699,18 @@ class ProcessorReminderEmail(EmailTask):
             )
 
         # Leaving date
-        self.on_ld_email_id = EmailIds(task_info["on_ld"])
-        if today >= leaving_date:
+        on_ld = task_info["on_ld"]
+        if on_ld and today >= leaving_date:
+            self.on_ld_email_id = EmailIds(on_ld)
             self.send_email(
                 email_id=self.on_ld_email_id,
                 template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[self.on_ld_email_id],
             )
 
         # Day after Leaving date
-        self.one_day_after_ld_email_id = EmailIds(task_info["one_day_after_ld"])
-        if today >= leaving_date + timedelta(days=1):
+        one_day_after_ld = task_info["one_day_after_ld"]
+        if one_day_after_ld and today >= leaving_date + timedelta(days=1):
+            self.one_day_after_ld_email_id = EmailIds(one_day_after_ld)
             self.send_email(
                 email_id=self.one_day_after_ld_email_id,
                 template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
@@ -691,23 +719,25 @@ class ProcessorReminderEmail(EmailTask):
             )
 
         # Two days after Leaving date
-        self.two_days_after_ld_lm_email_id = EmailIds(task_info["two_days_after_ld_lm"])
-        self.two_days_after_ld_proc_email_id = EmailIds(
-            task_info["two_days_after_ld_proc"]
-        )
         if today >= leaving_date + timedelta(days=1):
-            self.send_email(
-                email_id=self.two_days_after_ld_lm_email_id,
-                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
-                    self.two_days_after_ld_lm_email_id
-                ],
-            )
-            self.send_email(
-                email_id=self.two_days_after_ld_proc_email_id,
-                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
-                    self.two_days_after_ld_proc_email_id
-                ],
-            )
+            two_days_after_ld_lm = task_info["two_days_after_ld_lm"]
+            if two_days_after_ld_lm:
+                self.two_days_after_ld_lm_email_id = EmailIds(two_days_after_ld_lm)
+                self.send_email(
+                    email_id=self.two_days_after_ld_lm_email_id,
+                    template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
+                        self.two_days_after_ld_lm_email_id
+                    ],
+                )
+            two_days_after_ld_proc = task_info["two_days_after_ld_proc"]
+            if two_days_after_ld_proc:
+                self.two_days_after_ld_proc_email_id = EmailIds(two_days_after_ld_proc)
+                self.send_email(
+                    email_id=self.two_days_after_ld_proc_email_id,
+                    template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
+                        self.two_days_after_ld_proc_email_id
+                    ],
+                )
 
         return None, True
 
@@ -763,11 +793,15 @@ class HaveSecurityCarriedOutRosaKitLeavingTasks(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
+        if not self.leaving_request.is_rosa_user:
+            return ["are_all_tasks_complete"], True
+
         if (
             self.leaving_request.security_team_complete
             or self.leaving_request.security_team_rosa_kit_complete
         ):
             return ["are_all_tasks_complete"], True
+
         return ["send_security_rk_reminder"], False
 
 
