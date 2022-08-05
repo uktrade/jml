@@ -867,7 +867,7 @@ class TestCirrusEquipmentView(TestCase):
     def test_post_no_form_name(self) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(21):
+        with self.assertNumQueries(23):
             response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 200)
@@ -879,7 +879,7 @@ class TestCirrusEquipmentView(TestCase):
     def test_post_add_asset_form(self, mock_get_assets_for_user) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(21):
+        with self.assertNumQueries(23):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -914,7 +914,7 @@ class TestCirrusEquipmentView(TestCase):
     ) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(18):
+        with self.assertNumQueries(20):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -1013,7 +1013,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_post_no_form_name(self) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(11):
+        with self.assertNumQueries(13):
             response = self.client.post(reverse(self.view_name), {})
 
         self.assertEqual(response.status_code, 200)
@@ -1021,7 +1021,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_post_add_asset_form(self) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(14):
+        with self.assertNumQueries(16):
             response = self.client.post(
                 reverse(self.view_name),
                 {
@@ -1042,7 +1042,7 @@ class TestDisplayScreenEquipmentView(TestCase):
     def test_post_submission_form(self, mock_store_display_screen_equipment) -> None:
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(10):
             response = self.client.post(
                 reverse(self.view_name),
                 {
