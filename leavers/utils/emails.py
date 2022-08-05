@@ -60,7 +60,7 @@ def send_leaver_not_in_uksbs_reminder(leaving_request: LeavingRequest):
     )
     # Line Manager email
     notify.email(
-        email_addresses=[manager_emails],
+        email_addresses=manager_emails,
         template_id=notify.EmailTemplates.LEAVER_NOT_IN_UKSBS_LM_REMINDER,
         personalisation={
             "leaver_name": leaving_request.get_leaver_name(),

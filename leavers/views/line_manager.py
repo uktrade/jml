@@ -131,6 +131,7 @@ class LineManagerViewMixin:
                     update_fields=["processing_manager_activitystream_user"]
                 )
                 return True
+        return False
 
     def line_manager_access(
         self,
