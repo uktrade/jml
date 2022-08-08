@@ -5,23 +5,10 @@ from crispy_forms_gds.fields import DateInputField
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import HTML, Button, Field, Fieldset, Layout, Size, Submit
 from django import forms
-from django.db.models.enums import TextChoices
 
 from core.forms import YesNoField
 from core.service_now import get_service_now_interface
-
-
-class SecurityClearance(TextChoices):
-    """
-    Security Clearance levels
-    """
-
-    BPSS = "bpss", "Baseline Personnel Security Standard (BPSS)"
-    CTC = "ctc", "Counter Terrorist Check (CTC)"
-    SC = "sc", "Security Check (SC)"
-    ESC = "esc", "Enhanced Security Check (eSC)"
-    DV = "dv", "Developed Vetting (DV)"
-    EDV = "edv", "Enhanced Developed Vetting (eDV)"
+from leavers.types import ReturnOptions, SecurityClearance, StaffType
 
 
 class LeaverConfirmationForm(forms.Form):
@@ -32,13 +19,6 @@ class LeaverConfirmationForm(forms.Form):
         self.helper.layout = Layout(
             Submit("submit", "Accept and send"),
         )
-
-
-class StaffType(TextChoices):
-    CIVIL_SERVANT = "civil_servant", "Civil servant"
-    FAST_STREAMERS = "fast_streamers", "Fast streamers"
-    CONTRACTOR = "contractor", "Contractor such as Green Park"
-    BENCH_CONTRACTOR = "bench_contractor", "Bench contractor such as Profusion"
 
 
 class LeaverUpdateForm(forms.Form):
@@ -208,11 +188,6 @@ class LeaverUpdateForm(forms.Form):
             ),
             Submit("submit", "Save and continue"),
         )
-
-
-class ReturnOptions(TextChoices):
-    OFFICE = "office", "Return to the office"
-    HOME = "home", "Home collection"
 
 
 RETURN_OPTIONS = [

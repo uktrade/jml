@@ -1,16 +1,20 @@
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.urls import reverse
 from slack_sdk.web.slack_response import SlackResponse
 
 from core.utils.slack import FailedToSendSlackMessage, send_slack_message
-from leavers.models import LeavingRequest
+
+if TYPE_CHECKING:
+    from leavers.models import LeavingRequest
 
 
 class FailedToSendSREAlertMessage(Exception):
     pass
 
 
-def send_sre_alert_message(*, leaving_request: LeavingRequest) -> SlackResponse:
+def send_sre_alert_message(*, leaving_request: "LeavingRequest") -> SlackResponse:
     leaving_date = leaving_request.get_leaving_date()
 
     assert leaving_date
@@ -54,7 +58,7 @@ class FailedToSendSRECompleteMessage(Exception):
 
 
 def send_sre_complete_message(
-    *, thread_ts: str, leaving_request: LeavingRequest
+    *, thread_ts: str, leaving_request: "LeavingRequest"
 ) -> SlackResponse:
 
     if not settings.SLACK_SRE_CHANNEL_ID:

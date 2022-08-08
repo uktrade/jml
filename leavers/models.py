@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple, cast
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -10,7 +10,6 @@ from activity_stream.models import (
     ActivityStreamStaffSSOUserEmail,
 )
 from core.types import Address
-from leavers.forms.leaver import ReturnOptions, SecurityClearance, StaffType
 from leavers.forms.line_manager import (
     AnnualLeavePaidOrDeducted,
     DaysHours,
@@ -18,6 +17,15 @@ from leavers.forms.line_manager import (
     LeaverPaidUnpaid,
     ReasonForleaving,
 )
+from leavers.types import (
+    LeavingRequestReminderEmailTasks,
+    ReturnOptions,
+    SecurityClearance,
+    StaffType,
+)
+
+if TYPE_CHECKING:
+    from leavers.workflow.tasks import EmailIds
 
 
 class TaskLog(models.Model):
@@ -366,6 +374,82 @@ class LeavingRequest(models.Model):
             access_removed: bool = getattr(self, service_field) is not None
             sre_services.append((service_field, service_label, access_removed))
         return sre_services
+
+    def get_security_bp_reminder_email_tasks(self) -> LeavingRequestReminderEmailTasks:
+        from leavers.utils.leaving_request import get_email_task_logs
+        from leavers.workflow.tasks import SECURITY_TEAM_BP_REMINDER_EMAILS
+
+        email_ids = cast(
+            List["EmailIds"],
+            [email_id for _, email_id in SECURITY_TEAM_BP_REMINDER_EMAILS.items()],
+        )
+        email_task_logs = get_email_task_logs(
+            leaving_request=self,
+            email_ids=email_ids,
+        )
+        email_tasks: LeavingRequestReminderEmailTasks = {
+            "day_after_lwd": [],
+            "two_days_after_lwd": [],
+            "on_ld": [],
+            "one_day_after_ld": [],
+            "two_days_after_ld_lm": [],
+            "two_days_after_ld_proc": [],
+        }
+        for key, _ in email_tasks.items():
+            email_tasks[key] = email_task_logs[  # type: ignore
+                SECURITY_TEAM_BP_REMINDER_EMAILS[key]
+            ]
+        return email_tasks
+
+    def get_security_rk_reminder_email_tasks(self) -> LeavingRequestReminderEmailTasks:
+        from leavers.utils.leaving_request import get_email_task_logs
+        from leavers.workflow.tasks import SECURITY_TEAM_RK_REMINDER_EMAILS
+
+        email_ids = cast(
+            List["EmailIds"],
+            [email_id for _, email_id in SECURITY_TEAM_RK_REMINDER_EMAILS.items()],
+        )
+        email_task_logs = get_email_task_logs(
+            leaving_request=self,
+            email_ids=email_ids,
+        )
+        email_tasks: LeavingRequestReminderEmailTasks = {
+            "day_after_lwd": [],
+            "two_days_after_lwd": [],
+            "on_ld": [],
+            "one_day_after_ld": [],
+            "two_days_after_ld_lm": [],
+            "two_days_after_ld_proc": [],
+        }
+        for key, _ in email_tasks.items():
+            email_tasks[key] = email_task_logs[  # type: ignore
+                SECURITY_TEAM_RK_REMINDER_EMAILS[key]
+            ]
+        return email_tasks
+
+    def get_sre_reminder_email_tasks(self) -> LeavingRequestReminderEmailTasks:
+        from leavers.utils.leaving_request import get_email_task_logs
+        from leavers.workflow.tasks import SRE_REMINDER_EMAILS
+
+        email_ids = cast(
+            List["EmailIds"],
+            [email_id for _, email_id in SRE_REMINDER_EMAILS.items()],
+        )
+        email_task_logs = get_email_task_logs(
+            leaving_request=self,
+            email_ids=email_ids,
+        )
+        email_tasks: LeavingRequestReminderEmailTasks = {
+            "day_after_lwd": [],
+            "two_days_after_lwd": [],
+            "on_ld": [],
+            "one_day_after_ld": [],
+            "two_days_after_ld_lm": [],
+            "two_days_after_ld_proc": [],
+        }
+        for key, _ in email_tasks.items():
+            email_tasks[key] = email_task_logs[SRE_REMINDER_EMAILS[key]]  # type: ignore
+        return email_tasks
 
 
 class SlackMessage(models.Model):

@@ -277,6 +277,7 @@ PEOPLE_FINDER_INTERFACE                                  |
 PEOPLE_FINDER_INTERFACE=core.people_finder.interfaces
 people_finder_result["email
 people_finder_result["email
+PersonData
 Physical Asset
 PhysicalAsset
 Port Replicator

@@ -15,7 +15,6 @@ from core.service_now.types import AssetDetails
 from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.uksbs.types import PersonData
-from core.uksbs.utils import build_leaving_data_from_leaving_request
 from core.utils.lsd import inform_lsd_team_of_leaver
 from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_message
 from leavers.exceptions import (
@@ -23,6 +22,7 @@ from leavers.exceptions import (
     ManagerDoesNotHaveUKSBSPersonId,
 )
 from leavers.models import LeaverInformation, LeavingRequest, SlackMessage, TaskLog
+from leavers.types import ReminderEmailDict
 from leavers.utils.emails import (
     get_leaving_request_email_personalisation,
     send_csu4_leaver_email,
@@ -306,6 +306,8 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
+        from core.uksbs.utils import build_leaving_data_from_leaving_request
+
         uksbs_interface = get_uksbs_interface()
         assert self.leaving_request
 
@@ -451,6 +453,37 @@ PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
     ),
 }
 
+SECURITY_TEAM_BP_REMINDER_EMAILS: ReminderEmailDict = {
+    "day_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD,
+    "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD,
+    "on_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ON_LD,
+    "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD,
+    "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM,
+    "two_days_after_ld_proc": (
+        EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC
+    ),
+}
+
+SECURITY_TEAM_RK_REMINDER_EMAILS: ReminderEmailDict = {
+    "day_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD,
+    "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD,
+    "on_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ON_LD,
+    "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD,
+    "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM,
+    "two_days_after_ld_proc": (
+        EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC
+    ),
+}
+
+SRE_REMINDER_EMAILS: ReminderEmailDict = {
+    "day_after_lwd": EmailIds.SRE_REMINDER_DAY_AFTER_LWD,
+    "two_days_after_lwd": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LWD,
+    "on_ld": EmailIds.SRE_REMINDER_ON_LD,
+    "one_day_after_ld": EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD,
+    "two_days_after_ld_lm": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_LM,
+    "two_days_after_ld_proc": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC,
+}
+
 
 class SkipCondition(Enum):
     IS_NOT_ROSA_USER = "is_not_rosa_user"
@@ -505,6 +538,7 @@ class EmailTask(LeavingRequestTask):
             self.leaving_request.save()
 
     def should_skip(self, task_info) -> bool:
+        assert self.leaving_request
         if "skip_condition" in task_info:
             skip_condition: str = task_info["skip_condition"]
             if skip_condition == SkipCondition.IS_NOT_ROSA_USER.value:

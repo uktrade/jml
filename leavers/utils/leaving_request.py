@@ -10,9 +10,9 @@ from core.utils.staff_index import (
     get_staff_document_from_staff_index,
 )
 from leavers.models import LeavingRequest, TaskLog
-from leavers.types import LeaverDetails
 
 if TYPE_CHECKING:
+    from leavers.types import LeaverDetails
     from leavers.workflow.tasks import EmailIds
     from user.models import User
 
@@ -32,7 +32,7 @@ def update_or_create_leaving_request(
     return leaving_request
 
 
-def get_leaver_details(leaving_request: LeavingRequest) -> LeaverDetails:
+def get_leaver_details(leaving_request: LeavingRequest) -> "LeaverDetails":
     staff_document: StaffDocument = get_staff_document_from_staff_index(
         sso_email_user_id=leaving_request.leaver_activitystream_user.email_user_id,
     )
@@ -41,7 +41,7 @@ def get_leaver_details(leaving_request: LeavingRequest) -> LeaverDetails:
             staff_documents=[staff_document],
         )[0]
     )
-    leaver_details: LeaverDetails = {
+    leaver_details: "LeaverDetails" = {
         # Personal details
         "first_name": consolidated_staff_document["first_name"],
         "last_name": consolidated_staff_document["last_name"],

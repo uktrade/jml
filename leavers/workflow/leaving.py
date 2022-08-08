@@ -1,7 +1,13 @@
 from django.conf import settings
 from django_workflow_engine import Step, Workflow
 
-from leavers.workflow.tasks import BasicTask, EmailIds, SkipCondition  # noqa F401
+from leavers.workflow.tasks import (  # noqa F401
+    SECURITY_TEAM_BP_REMINDER_EMAILS,
+    SECURITY_TEAM_RK_REMINDER_EMAILS,
+    BasicTask,
+    EmailIds,
+    SkipCondition,
+)
 
 """
 Leavers Workflow
@@ -212,14 +218,7 @@ LeaversWorkflow = Workflow(
             ],
             task_info={
                 "processor_email": settings.SECURITY_TEAM_EMAIL,
-                "day_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD,
-                "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD,
-                "on_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD,
-                "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD,
-                "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM,
-                "two_days_after_ld_proc": (
-                    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC
-                ),
+                **SECURITY_TEAM_BP_REMINDER_EMAILS,
             },
         ),
         # SECURITY (ROSA Kit)
@@ -251,14 +250,7 @@ LeaversWorkflow = Workflow(
             task_info={
                 "skip_condition": SkipCondition.IS_NOT_ROSA_USER.value,
                 "processor_email": settings.SECURITY_TEAM_EMAIL,
-                "day_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD,
-                "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD,
-                "on_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD,
-                "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD,
-                "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM,
-                "two_days_after_ld_proc": (
-                    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC
-                ),
+                **SECURITY_TEAM_RK_REMINDER_EMAILS,
             },
         ),
         # SRE (Slack)
