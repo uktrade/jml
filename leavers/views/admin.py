@@ -101,7 +101,7 @@ class LeavingRequestDetailView(UserPassesTestMixin, TemplateView):
 
         if value_type == TaskLog:
             value_obj = cast(TaskLog, value)
-            return value_obj.task_name
+            return f"TaskLog: '{value_obj.task_name}'"
 
         return None
 
