@@ -220,6 +220,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "core.middleware.XRobotsTagMiddleware",
+    "core.middleware.PrimaryEmailMiddleware",
 ]
 
 AUTHENTICATION_BACKENDS = [

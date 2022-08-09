@@ -59,18 +59,26 @@ class MyManagerSearchView(StaffSearchView):
 class LeaverInformationMixin:
     people_finder_search = get_people_finder_interface()
 
+    leaver_activitystream_user: Optional[ActivityStreamStaffSSOUser] = None
+    leaving_request: Optional[LeavingRequest] = None
+    leaver_info: Optional[LeaverInformation] = None
+    leaver_details: Optional[types.LeaverDetails] = None
+
     def get_leaver_activitystream_user(
         self, sso_email_user_id: str
     ) -> ActivityStreamStaffSSOUser:
-        try:
-            leaver_activity_stream_user = ActivityStreamStaffSSOUser.objects.get(
-                email_user_id=sso_email_user_id,
-            )
-        except ActivityStreamStaffSSOUser.DoesNotExist:
-            raise Exception(
-                f"Unable to find leaver '{sso_email_user_id}' in the Staff SSO ActivityStream."
-            )
-        return leaver_activity_stream_user
+        if not self.leaver_activitystream_user:
+            try:
+                self.leaver_activity_stream_user = (
+                    ActivityStreamStaffSSOUser.objects.get(
+                        email_user_id=sso_email_user_id,
+                    )
+                )
+            except ActivityStreamStaffSSOUser.DoesNotExist:
+                raise Exception(
+                    f"Unable to find leaver '{sso_email_user_id}' in the Staff SSO ActivityStream."
+                )
+        return self.leaver_activity_stream_user
 
     def get_leaving_request(
         self, sso_email_user_id: str, requester: User
@@ -79,15 +87,19 @@ class LeaverInformationMixin:
         Get the Leaving Request for the Leaver
         """
 
+        if self.leaving_request and self.leaving_request.user_requesting == requester:
+            return self.leaving_request
+
         leaver_activity_stream_user = self.get_leaver_activitystream_user(
             sso_email_user_id=sso_email_user_id,
         )
 
-        leaving_request = update_or_create_leaving_request(
+        self.leaving_request = update_or_create_leaving_request(
             leaver=leaver_activity_stream_user,
             user_requesting=requester,
         )
-        return leaving_request
+
+        return self.leaving_request
 
     def get_leaver_information(
         self, sso_email_user_id: str, requester: User
@@ -96,22 +108,32 @@ class LeaverInformationMixin:
         Get the Leaver information stored in the DB
         Creates a new model if one doesn't exist.
         """
+        if self.leaver_info:
+            return self.leaver_info
+
         leaving_request = self.get_leaving_request(
             sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
 
-        leaver_info, _ = LeaverInformation.objects.prefetch_related().get_or_create(
+        (
+            self.leaver_info,
+            _,
+        ) = LeaverInformation.objects.prefetch_related().get_or_create(
             leaving_request=leaving_request,
             defaults={"updates": {}},
         )
-        return leaver_info
+        return self.leaver_info
 
     def get_leaver_details(self, sso_email_user_id: str) -> types.LeaverDetails:
         """
         Get the Leaver details from Index
         Raises an exception if Index doesn't have a record.
         """
+
+        if self.leaver_details:
+            return self.leaver_details
+
         staff_document = get_staff_document_from_staff_index(
             sso_email_user_id=sso_email_user_id
         )
@@ -119,7 +141,7 @@ class LeaverInformationMixin:
         consolidated_staff_document = consolidate_staff_documents(
             staff_documents=[staff_document]
         )[0]
-        leaver_details: types.LeaverDetails = {
+        self.leaver_details: types.LeaverDetails = {
             # Personal details
             "first_name": consolidated_staff_document["first_name"],
             "last_name": consolidated_staff_document["last_name"],
@@ -133,7 +155,7 @@ class LeaverInformationMixin:
             # Misc.
             "photo": consolidated_staff_document["photo"],
         }
-        return leaver_details
+        return self.leaver_details
 
     def get_leaver_detail_updates(
         self, sso_email_user_id: str, requester: User
@@ -146,6 +168,7 @@ class LeaverInformationMixin:
             sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
+        leaver_info.refresh_from_db()
         updates: types.LeaverDetailUpdates = leaver_info.updates
         return updates
 
@@ -203,6 +226,8 @@ class LeaverInformationMixin:
             sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
+        leaver_info.refresh_from_db()
+
         last_day: Optional[date] = None
         if leaver_info.last_day:
             last_day = leaver_info.last_day.date()
@@ -224,6 +249,7 @@ class LeaverInformationMixin:
             sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
+        leaver_info.refresh_from_db()
         leaving_request: LeavingRequest = leaver_info.leaving_request
 
         # Convert yes/no to boolean values.
@@ -373,6 +399,7 @@ class LeaverInformationMixin:
             sso_email_user_id=sso_email_user_id,
             requester=requester,
         )
+
         last_day_datetime = datetime(last_day.year, last_day.month, last_day.day)
         leaving_date_datetime = datetime(
             leaving_date.year, leaving_date.month, leaving_date.day
@@ -418,6 +445,7 @@ class LeaverInformationMixin:
         leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=requester
         )
+
         leaver_info.cirrus_assets = cirrus_assets
         leaver_info.information_is_correct = information_is_correct
         leaver_info.additional_information = additional_information
@@ -455,6 +483,7 @@ class LeaverInformationMixin:
         leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=requester
         )
+
         leaver_info.return_option = return_option
         leaver_info.save(update_fields=["return_option"])
 
