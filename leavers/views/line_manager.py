@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, cast
 from uuid import UUID, uuid4
 
@@ -28,7 +29,7 @@ from core.utils.staff_index import (
 )
 from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.forms import line_manager as line_manager_forms
-from leavers.models import LeaverInformation, LeavingRequest
+from leavers.models import LeavingRequest
 from leavers.progress_indicator import ProgressIndicator
 from leavers.types import LeavingRequestLineReport
 from user.models import User
@@ -131,6 +132,7 @@ class LineManagerViewMixin:
                     update_fields=["processing_manager_activitystream_user"]
                 )
                 return True
+        return False
 
     def line_manager_access(
         self,
@@ -514,20 +516,13 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
-        leaver_information: Optional[
-            LeaverInformation
-        ] = self.leaving_request.leaver_information.first()
 
-        if self.leaving_request.last_day:
-            initial["last_day"] = self.leaving_request.last_day
-        elif leaver_information and leaver_information.last_day:
-            initial["last_day"] = leaver_information.last_day
-        if self.leaving_request.leaving_date:
-            initial["leaving_date"] = self.leaving_request.leaving_date
-        elif leaver_information and leaver_information.leaving_date:
-            initial["leaving_date"] = leaver_information.leaving_date
+        initial["leaving_date"] = self.leaving_request.get_leaving_date()
+        initial["last_day"] = self.leaving_request.get_last_day()
+
         if self.leaving_request.reason_for_leaving:
             initial["reason_for_leaving"] = self.leaving_request.reason_for_leaving
+
         return initial
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
@@ -1040,6 +1035,16 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
             flexi_leave = flexi_leave_enum.label
         has_flexi_leave = bool(flexi_leave_enum.value != "None")
 
+        leaving_datetime = self.leaving_request.get_leaving_date()
+        leaving_date: Optional[datetime] = None
+        if leaving_datetime:
+            leaving_date = leaving_datetime.date()
+
+        last_day_datetime = self.leaving_request.get_last_day()
+        last_day: Optional[datetime] = None
+        if last_day_datetime:
+            last_day = last_day_datetime.date()
+
         context.update(
             page_title="Confirm all the information",
             progress_steps=self.progress_indicator.get_progress_steps(),
@@ -1047,8 +1052,8 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
             possessive_leaver_name=possessive_leaver_name,
             leaver=self.leaver,
             data_recipient=self.data_recipient,
-            last_day=self.leaving_request.last_day.date(),
-            leaving_date=self.leaving_request.leaving_date.date(),
+            leaving_date=leaving_date,
+            last_day=last_day,
             reason_for_leaving=reason_for_leaving,
             annual_leave=annual_leave,
             has_annual_leave=has_annual_leave,

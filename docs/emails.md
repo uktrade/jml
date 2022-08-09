@@ -3,19 +3,19 @@
 
 ## Leaver and Line manager emails
 
-| Email name | Template ID Environment Variable | Context/Notes |
-| ----- | ----- | ----- |
-| Leaver Thank You Email | TEMPLATE_ID_LEAVER_THANK_YOU_EMAIL | This email is sent after the Leaver has informed the service that they are leaving.|
-| UKSBS Line Manager Correction Email (UK SBS manager) | TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL | This email is sent to the listed Line manager in UK SBS to request that they update the Line manager to be the one that the Leaver selected |
-| UKSBS Line Manager Correction Email (Offboarding team) | TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL | This email is sent to the HR Offboarding team to request they update the Line manager in UK SBS to be the one that the Leaver selected. |
+| Email name                                                  | Template ID Environment Variable                      | Context/Notes |
+| ----------                                                  | --------------------------------                      | ------------- |
+| Leaver Thank You Email                                      | TEMPLATE_ID_LEAVER_THANK_YOU_EMAIL                    | This email is sent after the Leaver has informed the service that they are leaving. |
+| Leaver not in UK SBS (HR) Email                             | TEMPLATE_ID_LEAVER_NOT_IN_UKSBS_HR_REMINDER           | ??? |
+| Leaver not in UK SBS (LM) Email                             | TEMPLATE_ID_LEAVER_NOT_IN_UKSBS_LM_REMINDER           | ??? |
+| UKSBS Line Manager Correction Email (UK SBS manager)        | TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL             | This email is sent to the listed Line manager in UK SBS to request that they update the Line manager to be the one that the Leaver selected |
+| UKSBS Line Manager Correction Email (Offboarding team)      | TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL          | This email is sent to the HR Offboarding team to request they update the Line manager in UK SBS to be the one that the Leaver selected. |
 | UKSBS Line Manager Correction Email (Reported Line manager) | TEMPLATE_ID_LINE_MANAGER_CORRECTION_REPORTED_LM_EMAIL | This email is sent to the Line manager that the Leaver selected to inform them that they are not the manager in UK SBS and that the HR team must fix this for them to be able to offboard the Leaver. |
-| Leaver Final Actions Email | ??? | This email is sent to the Leaver in their last working week to inform them of the actions they need to take. |
-| Line manager Final Actions Email | ??? | This email is sent to the Line manager in the leaver's last working week to inform them of the actions they need to take. |
-| Line Manager Notification Email | TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL | This email is sent to the Line manager to inform them of the leaver and the actions they need to take. |
-| Line Manager Reminder Email | TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL | This email is sent to remind the Line manager of the actions they need to take. |
-| Line Manager Thank You Email | TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL | This email is sent to the Line manager once they have finished their journey. |
-| ROSA Leaver Reminder Email | TEMPLATE_ID_ROSA_LEAVER_REMINDER_EMAIL | This email is sent to the Leaver to remind them to return ROSA Kit |
-| ROSA Line Manager Reminder Email | TEMPLATE_ID_ROSA_LINE_MANAGER_REMINDER_EMAIL | This email is sent to the Line manager to remind them to remind the leaver to return ROSA Kit |
+| Line Manager Notification Email                             | TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL           | This email is sent to the Line manager to inform them of the leaver and the actions they need to take. |
+| Line Manager Reminder Email                                 | TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL               | This email is sent to remind the Line manager of the actions they need to take. |
+| Line Manager Thank You Email                                | TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL               | This email is sent to the Line manager once they have finished their journey. |
+| Leaver Final Actions Email                                  | ???                                                   | This email is sent to the Leaver in their last working week to inform them of the actions they need to take. |
+| Line manager Final Actions Email                            | ???                                                   | This email is sent to the Line manager in the leaver's last working week to inform them of the actions they need to take. |
 
 ### Leaver and Line manager reminder logic
 
@@ -37,7 +37,6 @@ These are notification emails sent to the processor:
 | IT Ops Leaver Notification Email | TEMPLATE_ID_IT_OPS_ASSET_EMAIL | This email is sent to the IT Ops team to inform them of the leaver and their reported assets. |
 | OCS Leaver Notification Email | TEMPLATE_ID_OCS_LEAVER_EMAIL | This email is sent to OCS to inform them of the leaver. |
 | OCS Leaver OAB Locker Email | TEMPLATE_ID_OCS_OAB_LOCKER_EMAIL | This email is sent to the OAB Locker team to inform them of the leaver. |
-| SRE Reminder Email | TEMPLATE_ID_SRE_REMINDER_EMAIL |  |
 
 ### Processor reminder logic
 

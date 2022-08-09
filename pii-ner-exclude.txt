@@ -27,7 +27,11 @@
 # Staff
 | SLACK_SRE_CHANNEL_ID                                     | None                                       
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
+| TEMPLATE_ID_OCS_LEAVER_EMAIL                                     | None                                       
+| TEMPLATE_ID_SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD       
 | TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL |
+| TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LWD                      
+| UKSBS_INTERFACE                                                  
 0003_add_user_user_id
 0003_add_user_user_id
 0007_activitystreamstaffssouser_is_active
@@ -127,6 +131,7 @@ Drop
 DSE
 E501
 Elastic
+Email                             
 Email Templates
 email_id
 ends.</td
@@ -215,6 +220,7 @@ Leaver's Notification Form
 leaverLastDay
 Leavers and Line Managers
 LeaversWorkflow
+Leaving Date - lm
 Leaving Request
 leaving_request.holds_government_procurement_card
 leaving_request.is_rosa_user
@@ -246,7 +252,9 @@ OAB
 object.current_task_record
 OCS
 OCS_EMAIL
+OCS_OAB_LOCKER_EMAIL                                             
 Old Admiralty Building
+one_day_after_ld
 OpenSearch
 OPENSEARCH_JAVA_OPTS=-Xms512
 OPTIONS
@@ -262,12 +270,14 @@ People Finder API - '
 People Finder Health Check
 People Finder Health Check"
 people_finder_email
+PEOPLE_FINDER_HAWK_ACCESS_ID                                     |                                            |                                                                                       
 PEOPLE_FINDER_HAWK_SECRET_KEY
 PEOPLE_FINDER_INTERFACE
 PEOPLE_FINDER_INTERFACE                                  |                                            
 PEOPLE_FINDER_INTERFACE=core.people_finder.interfaces
 people_finder_result["email
 people_finder_result["email
+PersonData
 Physical Asset
 PhysicalAsset
 Port Replicator
@@ -330,6 +340,7 @@ Split
 SQL
 SQL
 SRE
+SRE Offboarding
 SRE Reminder Email
 sso_access_task_log
 sso_email_user_id
@@ -344,8 +355,10 @@ StreamHandler
 target="_blank">here</a>.</li>
 Team Zendesk
 TEMPLATE_ID_CSU4_EMAIL
+TEMPLATE_ID_CSU4_EMAIL                                           | None                                       |                                                                                       
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL
+TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL                     | None                                       |                                                                                       
 TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  
 TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                                       
@@ -353,9 +366,9 @@ TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                 
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL                  
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL |  |
-TEMPLATE_ID_ROSA_LEAVER_REMINDER_EMAIL
-TEMPLATE_ID_ROSA_LEAVER_REMINDER_EMAIL |  |
-TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL
+TEMPLATE_ID_SECURITY_OFFBOARD_RK_REMINDER_ON_LD                  
+TEMPLATE_ID_SRE_NOTIFICATION                                     
+TEMPLATE_ID_SRE_REMINDER_ON_LD                                   
 Templates
 Tests for `get_leaver_detail_updates` "
 Tests for `get_leaver_details_with_updates`
@@ -377,6 +390,7 @@ the Health and Safety Team</h2
 the Leaver Activity Stream
 the Leaver Form's
 the Leaving DIT
+the Leaving Request
 the OCS OAB Locker Team                           
 the OCS Team                            
 the Security Team
@@ -387,12 +401,14 @@ the UK SBS API
 to:</p
 UK SBS - Unexpected
 UK SBS - Unexpected Response
+UK SBS Correction
 UKSBS
 UKSBS Connect
 UKSBS Leavers
 UKSBS Line
 UKSBS_INTERFACE
 UKSBS_POST_LEAVER_SUBMISSION                             
+UKSBS_POST_LEAVER_SUBMISSION                                     | None                                       
 UKSBSBase
 UKSBSStubbed
 Un
@@ -415,4 +431,3 @@ yet.</p
 You Email
 You Email*
 you.</p
-the Leaving Request

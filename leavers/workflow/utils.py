@@ -52,17 +52,17 @@ def is_x_days_before_payroll(days_before_payroll: int) -> bool:
 def is_it_leaving_date_plus_x_days(
     leaving_request: LeavingRequest, days_after_leaving_date: int
 ) -> bool:
+    last_day = leaving_request.get_last_day()
     # If there isn't a last_day set, it can't be past it.
-    if not leaving_request.last_day:
+    if not last_day:
         return False
 
     # Get the date X days after the last_day.
-    leaving_date = leaving_request.last_day.date()
-    leaving_date_plus_x_days = leaving_date + timedelta(days=days_after_leaving_date)
+    leaving_date_plus_x_days = last_day + timedelta(days=days_after_leaving_date)
 
     # Check to see if the last_day is X days in the past.
     today = timezone.now().date()
-    return bool(today == leaving_date_plus_x_days)
+    return bool(today == leaving_date_plus_x_days.date())
 
 
 def get_or_create_leaving_workflow(
