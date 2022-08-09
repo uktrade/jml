@@ -56,14 +56,16 @@ class LeavingRequestListing(
         leaving_requests: QuerySet[
             LeavingRequest
         ] = LeavingRequest.objects.all().exclude(line_manager_complete__isnull=True)
-        if not self.show_complete:
-            leaving_requests = leaving_requests.exclude(
-                **{self.get_complete_field() + "__isnull": False}
-            )
-        if not self.show_incomplete:
-            leaving_requests = leaving_requests.exclude(
-                **{self.get_complete_field() + "__isnull": True}
-            )
+        complete_field = self.get_complete_field()
+        if complete_field:
+            if not self.show_complete:
+                leaving_requests = leaving_requests.exclude(
+                    **{self.get_complete_field() + "__isnull": False}
+                )
+            if not self.show_incomplete:
+                leaving_requests = leaving_requests.exclude(
+                    **{self.get_complete_field() + "__isnull": True}
+                )
 
         # Search
         if self.query:
@@ -108,7 +110,10 @@ class LeavingRequestListing(
             assert last_day
             assert lr.line_manager_complete
 
-            is_complete = getattr(lr, self.get_complete_field())
+            complete_field = self.get_complete_field()
+            is_complete: Optional[bool] = None
+            if complete_field:
+                is_complete = getattr(lr, self.get_complete_field())
             link = reverse_lazy(
                 self.get_confirmation_view(), kwargs={"leaving_request_id": lr.uuid}
             )
@@ -133,7 +138,7 @@ class LeavingRequestListing(
                     "last_working_day": last_day.date(),
                     "days_until_last_working_day": days_until_last_working_day.days,
                     "reported_on": lr.line_manager_complete.date(),
-                    "complete": bool(getattr(lr, self.get_complete_field())),
+                    "complete": is_complete,
                 }
             )
 

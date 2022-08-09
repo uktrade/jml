@@ -1,6 +1,7 @@
 from django.urls import path
 from django_workflow_engine import workflow_urls
 
+from leavers.views import admin as admin_views
 from leavers.views import flow as flow_views
 from leavers.views import leaver as leaver_views
 from leavers.views import leaving as leaving_views
@@ -213,6 +214,17 @@ urlpatterns = [
         "leaver/security-team/<uuid:leaving_request_id>/summary/",
         security_team_views.TaskSummaryView.as_view(),
         name="security-team-summary",
+    ),
+    # Admin Views
+    path(
+        "admin/leaving-requests/",
+        admin_views.LeavingRequestListingView.as_view(),
+        name="admin-leaving-request-listing",
+    ),
+    path(
+        "jmladmin/leaving-requests/<uuid:leaving_request_id>/",
+        admin_views.LeavingRequestDetailView.as_view(),
+        name="admin-leaving-request-detail",
     ),
     # Django workflow
     path(

@@ -46,6 +46,7 @@
 activity_stream.activitystreamstaffssouser
 ActivityStream
 add_missing_line_report_error
+Admin Views
 admin@opensearch:9200
 Annual Leave
 Annual Leave: "
@@ -223,6 +224,7 @@ Leavers and Line Managers
 LeaversWorkflow
 Leaving Date - lm
 Leaving Request
+Leaving Request Admin
 leaving_request.holds_government_procurement_card
 leaving_request.is_rosa_user
 LeavingRequest
