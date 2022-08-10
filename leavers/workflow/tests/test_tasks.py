@@ -518,8 +518,8 @@ class TestProcessorReminderEmail(TestCase):
         self.flow = FlowFactory(executed_by=self.user)
         self.task_record = TaskRecordFactory(executed_by=self.user, flow=self.flow)
         self.leaving_request = LeavingRequestFactory(
-            last_day=make_aware(datetime(2021, 12, 25)),
-            leaving_date=make_aware(datetime(2021, 12, 30)),
+            last_day=make_aware(datetime(2021, 12, 20)),  # Monday
+            leaving_date=make_aware(datetime(2021, 12, 24)),  # Friday
         )
         self.flow.leaving_request = self.leaving_request
         self.flow.save()
@@ -536,13 +536,13 @@ class TestProcessorReminderEmail(TestCase):
         }
         self.task_info.update(**self.email_ids)
 
-    @freeze_time("2021-12-30")
+    @freeze_time("2021-12-27")  # Monday
     def test_should_send_email_none_sent_late(self):
         for _, email_id in self.email_ids.items():
             with self.subTest(email_id=email_id):
                 self.assertTrue(self.task.should_send_email(email_id=email_id))
 
-    @freeze_time("2021-12-30")
+    @freeze_time("2021-12-27")  # Monday
     def test_should_send_email_already_sent(self):
         for _, email_id in self.email_ids.items():
             self.leaving_request.email_task_logs.create(
@@ -552,13 +552,13 @@ class TestProcessorReminderEmail(TestCase):
             with self.subTest(email_id=email_id):
                 self.assertFalse(self.task.should_send_email(email_id=email_id))
 
-    @freeze_time("2021-12-5")
+    @freeze_time("2021-12-6")  # Monday
     @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
     def test_early(self, mock_get_send_email_method):
         self.task.execute(task_info=self.task_info)
         mock_get_send_email_method.assert_not_called()
 
-    @freeze_time("2021-12-26")
+    @freeze_time("2021-12-21")  # Tuesday
     @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
     def test_day_after_lwd(self, mock_get_send_email_method):
         self.task.execute(task_info=self.task_info)
@@ -566,7 +566,7 @@ class TestProcessorReminderEmail(TestCase):
             email_id=self.email_ids["day_after_lwd"]
         )
 
-    @freeze_time("2021-12-27")
+    @freeze_time("2021-12-22")  # Wednesday
     @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
     def test_two_days_after_lwd(self, mock_get_send_email_method):
         for _, email_id in self.email_ids.items():
@@ -581,7 +581,7 @@ class TestProcessorReminderEmail(TestCase):
             email_id=self.email_ids["two_days_after_lwd"]
         )
 
-    @freeze_time("2021-12-31")
+    @freeze_time("2021-12-24")  # Friday
     @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
     def test_on_ld(self, mock_get_send_email_method):
         for _, email_id in self.email_ids.items():
@@ -596,9 +596,22 @@ class TestProcessorReminderEmail(TestCase):
             email_id=self.email_ids["on_ld"]
         )
 
-    @freeze_time("2022-1-1")
+    @freeze_time("2021-12-25")  # Saturday
     @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
-    def test_one_day_after_ld(self, mock_get_send_email_method):
+    def test_one_day_after_ld_weekend(self, mock_get_send_email_method):
+        for _, email_id in self.email_ids.items():
+            if email_id != self.email_ids["one_day_after_ld"]:
+                self.leaving_request.email_task_logs.create(
+                    user=self.user,
+                    task_name=f"Some task name that contains an Email ID {email_id.value}",
+                )
+
+        self.task.execute(task_info=self.task_info)
+        mock_get_send_email_method.assert_not_called()
+
+    @freeze_time("2021-12-27")  # Monday
+    @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
+    def test_one_day_after_ld_weekday(self, mock_get_send_email_method):
         for _, email_id in self.email_ids.items():
             if email_id != self.email_ids["one_day_after_ld"]:
                 self.leaving_request.email_task_logs.create(
@@ -611,9 +624,25 @@ class TestProcessorReminderEmail(TestCase):
             email_id=self.email_ids["one_day_after_ld"]
         )
 
-    @freeze_time("2022-1-1")
+    @freeze_time("2021-12-26")  # Sunday
     @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
-    def test_two_days_after_ld(self, mock_get_send_email_method):
+    def test_two_days_after_ld_weekend(self, mock_get_send_email_method):
+        for _, email_id in self.email_ids.items():
+            if email_id not in [
+                self.email_ids["two_days_after_ld_lm"],
+                self.email_ids["two_days_after_ld_proc"],
+            ]:
+                self.leaving_request.email_task_logs.create(
+                    user=self.user,
+                    task_name=f"Some task name that contains an Email ID {email_id.value}",
+                )
+
+        self.task.execute(task_info=self.task_info)
+        mock_get_send_email_method.assert_not_called()
+
+    @freeze_time("2021-12-27")  # Monday
+    @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
+    def test_two_days_after_ld_weekday(self, mock_get_send_email_method):
         for _, email_id in self.email_ids.items():
             if email_id not in [
                 self.email_ids["two_days_after_ld_lm"],

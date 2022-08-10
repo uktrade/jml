@@ -15,6 +15,7 @@ from core.service_now.types import AssetDetails
 from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.uksbs.types import PersonData
+from core.utils.helpers import is_work_day
 from core.utils.lsd import inform_lsd_team_of_leaver
 from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_message
 from leavers.exceptions import (
@@ -638,7 +639,11 @@ class ProcessorReminderEmail(EmailTask):
             task_name__contains=email_id.value,
         ).exists()
 
-        return not already_sent
+        if already_sent:
+            return False
+
+        # Check to see if it is a work day
+        return is_work_day()
 
     def get_send_email_method(self, email_id: EmailIds) -> Callable:
         def send_processor_email(
