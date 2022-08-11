@@ -553,6 +553,9 @@ class EmailTask(LeavingRequestTask):
         return False
 
     def execute(self, task_info):
+        if not is_work_day():
+            return None, False
+
         if not self.should_skip(task_info=task_info):
             email_id: EmailIds = EmailIds(task_info["email_id"])
             self.send_email(email_id=email_id)
@@ -639,11 +642,7 @@ class ProcessorReminderEmail(EmailTask):
             task_name__contains=email_id.value,
         ).exists()
 
-        if already_sent:
-            return False
-
-        # Check to see if it is a work day
-        return is_work_day()
+        return not already_sent
 
     def get_send_email_method(self, email_id: EmailIds) -> Callable:
         def send_processor_email(
@@ -703,8 +702,13 @@ class ProcessorReminderEmail(EmailTask):
          - proc = Processor
         """
         assert self.leaving_request
+
         if self.should_skip(task_info=task_info):
             return None, True
+
+        # Check to see if it is a work day
+        if not is_work_day():
+            return None, False
 
         self.processor_email: str = task_info["processor_email"]
 

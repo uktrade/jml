@@ -85,7 +85,7 @@ class TestReminderEmail(TestCase):
         self.flow = FlowFactory(executed_by=self.user)
         self.task_record = TaskRecordFactory(executed_by=self.user, flow=self.flow)
         self.leaving_request = LeavingRequestFactory(
-            last_day=make_aware(datetime(2021, 12, 25)),
+            last_day=make_aware(datetime(2021, 12, 15)),
         )
         self.flow.leaving_request = self.leaving_request
         self.flow.save()
@@ -97,7 +97,7 @@ class TestReminderEmail(TestCase):
             f"{EmailIds.LINE_MANAGER_CORRECTION.value}"
         )
 
-    @freeze_time("2021-12-5")
+    @freeze_time("2021-11-30")  # Tuesday
     def test_before_two_weeks(self):
         # Test no email sent yet
         self.assertFalse(
@@ -106,7 +106,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-11")
+    @freeze_time("2021-12-1")  # Wednesday
     def test_exactly_two_weeks(self):
         # Test no email sent yet
         self.assertTrue(
@@ -126,7 +126,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-15")
+    @freeze_time("2021-12-3")  # Friday
     def test_before_one_week(self):
         # Test no email sent yet
         self.assertTrue(
@@ -136,7 +136,7 @@ class TestReminderEmail(TestCase):
         )
 
         # Test 2 week email sent
-        with freeze_time("2021-12-15"):
+        with freeze_time("2021-12-1"):  # Wednesday
             self.leaving_request.email_task_logs.create(
                 user=self.user,
                 task_name=self.task_name,
@@ -158,7 +158,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-18")
+    @freeze_time("2021-12-8")  # Wednesday
     def test_exactly_one_week(self):
         # Test no email sent yet
         self.assertTrue(
@@ -168,7 +168,7 @@ class TestReminderEmail(TestCase):
         )
 
         # Test 2 week email sent
-        with freeze_time("2021-12-15"):
+        with freeze_time("2021-12-1"):  # Wednesday
             self.leaving_request.email_task_logs.create(
                 user=self.user,
                 task_name=self.task_name,
@@ -190,7 +190,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-19")
+    @freeze_time("2021-12-9")  # Thursday
     def test_six_days(self):
         # Test no email sent yet
         self.assertTrue(
@@ -200,7 +200,7 @@ class TestReminderEmail(TestCase):
         )
 
         # Test 1 week email sent
-        with freeze_time("2021-12-18"):
+        with freeze_time("2021-12-8"):  # Wednesday
             self.leaving_request.email_task_logs.create(
                 user=self.user,
                 task_name=self.task_name,
@@ -222,7 +222,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-20")
+    @freeze_time("2021-12-10")  # Friday
     def test_five_days(self):
         # Test no email sent yet
         self.assertTrue(
@@ -232,7 +232,7 @@ class TestReminderEmail(TestCase):
         )
 
         # Test 6 days email sent
-        with freeze_time("2021-12-19"):
+        with freeze_time("2021-12-9"):  # Thursday
             self.leaving_request.email_task_logs.create(
                 user=self.user,
                 task_name=self.task_name,
@@ -254,7 +254,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-21")
+    @freeze_time("2021-12-11")  # Saturday
     def test_four_days(self):
         # Test no email sent yet
         self.assertTrue(
@@ -264,7 +264,7 @@ class TestReminderEmail(TestCase):
         )
 
         # Test 5 days email sent
-        with freeze_time("2021-12-20"):
+        with freeze_time("2021-12-10"):
             self.leaving_request.email_task_logs.create(
                 user=self.user,
                 task_name=self.task_name,
@@ -286,7 +286,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-22")
+    @freeze_time("2021-12-12")  # Sunday
     def test_three_days(self):
         # Test no email sent yet
         self.assertTrue(
@@ -296,7 +296,7 @@ class TestReminderEmail(TestCase):
         )
 
         # Test 4 days email sent
-        with freeze_time("2021-12-21"):
+        with freeze_time("2021-12-11"):  # Saturday
             self.leaving_request.email_task_logs.create(
                 user=self.user,
                 task_name=self.task_name,
@@ -318,7 +318,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-23")
+    @freeze_time("2021-12-13")  # Monday
     def test_two_days(self):
         # Test no email sent yet
         self.assertTrue(
@@ -328,7 +328,7 @@ class TestReminderEmail(TestCase):
         )
 
         # Test 3 days email sent
-        with freeze_time("2021-12-22"):
+        with freeze_time("2021-12-12"):  # Sunday
             self.leaving_request.email_task_logs.create(
                 user=self.user,
                 task_name=self.task_name,
@@ -350,7 +350,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-24")
+    @freeze_time("2021-12-14")  # Tuesday
     def test_one_day(self):
         # Test no email sent yet
         self.assertTrue(
@@ -360,7 +360,7 @@ class TestReminderEmail(TestCase):
         )
 
         # Test 2 days email sent
-        with freeze_time("2021-12-23"):
+        with freeze_time("2021-12-13"):  # Monday
             self.leaving_request.email_task_logs.create(
                 user=self.user,
                 task_name=self.task_name,
@@ -382,7 +382,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-25")
+    @freeze_time("2021-12-15")  # Wednesday
     def test_same_day(self):
         # Test no email sent yet
         self.assertTrue(
@@ -392,7 +392,7 @@ class TestReminderEmail(TestCase):
         )
 
         # Test 1 days email sent
-        with freeze_time("2021-12-24"):
+        with freeze_time("2021-12-14"):  # Tuesday
             self.leaving_request.email_task_logs.create(
                 user=self.user,
                 task_name=self.task_name,
@@ -414,7 +414,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-26")
+    @freeze_time("2021-12-16")  # Thursday
     def test_one_day_after(self):
         # Test no email sent yet
         self.assertTrue(
@@ -424,7 +424,7 @@ class TestReminderEmail(TestCase):
         )
 
         # Test same day email sent
-        with freeze_time("2021-12-25"):
+        with freeze_time("2021-12-15"):  # Wednesday
             self.leaving_request.email_task_logs.create(
                 user=self.user,
                 task_name=self.task_name,
@@ -446,7 +446,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-27")
+    @freeze_time("2021-12-17")  # Friday
     def test_two_days_after(self):
         # Test no email sent yet
         self.assertTrue(
@@ -456,7 +456,7 @@ class TestReminderEmail(TestCase):
         )
 
         # Test next day email sent
-        with freeze_time("2021-12-26"):
+        with freeze_time("2021-12-16"):  # Thursday
             self.leaving_request.email_task_logs.create(
                 user=self.user,
                 task_name=self.task_name,
@@ -478,7 +478,7 @@ class TestReminderEmail(TestCase):
             )
         )
 
-    @freeze_time("2021-12-28")
+    @freeze_time("2021-12-18")  # Saturday
     def test_three_days_after(self):
         # Test no email sent yet
         self.assertTrue(
@@ -488,7 +488,7 @@ class TestReminderEmail(TestCase):
         )
 
         # Test 2 days after email sent
-        with freeze_time("2021-12-27"):
+        with freeze_time("2021-12-17"):  # Friday
             self.leaving_request.email_task_logs.create(
                 user=self.user,
                 task_name=self.task_name,
