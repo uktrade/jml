@@ -35,12 +35,17 @@ class PeopleDataInterface(PeopleDataBase):
         with connections["people_data"].cursor() as cursor:
             # No speech marks in query to avoid SQL injection
             cursor.execute(
-                "SELECT employee_numbers FROM dit.people_data__identities WHERE sso_user_id = %s",
+                (
+                    "SELECT employee_numbers, person_id "
+                    "FROM dit.people_data__identities "
+                    "WHERE sso_user_id = %s"
+                ),
                 [sso_legacy_id],
             )
             row = cursor.fetchone()
 
             if row:
                 result["employee_numbers"] = row[0]
+                result["uksbs_person_id"] = row[1]
 
         return result

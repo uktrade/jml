@@ -425,6 +425,7 @@ Variables](/docs
 viewBox="0 0 483.2
 visit</li>
 vpn_access_task_log
+WHERE sso_user_id = %
 WhiteNoiseMiddleware
 x.groups.first
 yet.</p
