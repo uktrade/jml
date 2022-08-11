@@ -138,13 +138,13 @@
 
     <div class="govuk-grid-row {% if not manager %}govuk-form-group--error{% endif %}">
         <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Your line manager</h2>
+            <h2 class="govuk-heading-m">Your Line Manager</h2>
             {% if manager %}
                 {% include "staff_search/staff_result.html" with staff_details=manager %}
-                <a href="{{ manager_search }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">This is not my line manager</a>
+                <a href="{{ manager_search }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">This is not my Line Manager</a>
             {% else %}
-                <p class="govuk-body">You have no line manager assigned.</p>
-                <a href="{{ manager_search }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Add your line manager</a>
+                <p class="govuk-body">You have no Line Manager assigned.</p>
+                <a href="{{ manager_search }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Add your Line Manager</a>
             {% endif %}
         </div>
     </div>
@@ -153,7 +153,7 @@
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">Send us your leaving information</h2>
             <p class="govuk-body">By submitting this information, you are confirming that, to the best of your knowledge, the details you are providing are correct.</p>
-            <p class="govuk-body">We will send an email notification to your line manager after you accept and send.</p>
+            <p class="govuk-body">We will send an email notification to your Line Manager after you accept and send.</p>
             <form novalidate method='post'>
                 {% csrf_token %}
                 {% crispy form %}

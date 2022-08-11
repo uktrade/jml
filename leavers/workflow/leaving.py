@@ -65,7 +65,7 @@ LeaversWorkflow = Workflow(
                 "email_id": EmailIds.LINE_MANAGER_CORRECTION.value,
             },
         ),
-        # Line manager
+        # Line Manager
         Step(
             step_id="notify_line_manager",
             task_name="notification_email",

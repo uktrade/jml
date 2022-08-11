@@ -344,7 +344,7 @@ class LeavingRequest(models.Model):
 
     def get_line_manager(self) -> Optional[ActivityStreamStaffSSOUser]:
         """
-        Returns the line manager that is in use.
+        Returns the Line Manager that is in use.
         """
 
         if self.processing_manager_activitystream_user:

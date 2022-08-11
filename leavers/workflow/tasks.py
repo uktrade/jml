@@ -576,7 +576,7 @@ class ReminderEmail(EmailTask):
         """
         Sends reminder emails following the following rules:
         - If the last day isn't set:
-          - Send the email daily (This is going to the line manager)
+          - Send the email daily (This is going to the Line Manager)
         - If the last day is set
           - Send the email 2 weeks before the last day
           - Send the email 1 week before the last day

@@ -243,14 +243,14 @@ class LineReportConfirmationForm(forms.Form):
         )
 
     def clean(self) -> Dict[str, Any]:
-        # Check that all line reports have a line manager selected.
+        # Check that all line reports have a Line Manager selected.
         lr_line_reports: List[
             LeavingRequestLineReport
         ] = self.leaving_request.line_reports
         for line_report in lr_line_reports:
             if not line_report["line_manager"]:
                 raise ValidationError(
-                    f"Line report {line_report['name']} has no line manager selected."
+                    f"Line report {line_report['name']} has no Line Manager selected."
                 )
         return super().clean()
 

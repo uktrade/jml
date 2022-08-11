@@ -144,14 +144,14 @@ class BuildingPassConfirmationView(
 
         notification_email_mapping = {
             "two_days_after_lwd": (
-                "2 days after last working day reminder email to the Line manager"
+                "2 days after last working day reminder email to the Line Manager"
             ),
-            "on_ld": "On leaving date reminder email to the Line manager",
+            "on_ld": "On leaving date reminder email to the Line Manager",
             "one_day_after_ld": (
-                "1 day after leaving date reminder email to the Line manager"
+                "1 day after leaving date reminder email to the Line Manager"
             ),
             "two_days_after_ld_lm": (
-                "2 days after leaving date reminder email to the Line manager"
+                "2 days after leaving date reminder email to the Line Manager"
             ),
         }
         email_tasks = self.leaving_request.get_security_bp_reminder_email_tasks()
@@ -351,11 +351,11 @@ class RosaKitConfirmationView(
 
         notification_email_mapping = {
             "two_days_after_lwd": (
-                "2 days after last working day reminder email to the Line manager"
+                "2 days after last working day reminder email to the Line Manager"
             ),
-            "on_ld": "On leaving date reminder email to the Line manager",
-            "one_day_after_ld": "1 day after leaving date reminder email to the Line manager",
-            "two_days_after_ld_lm": " 2 days after leaving date reminder email to the Line manager",
+            "on_ld": "On leaving date reminder email to the Line Manager",
+            "one_day_after_ld": "1 day after leaving date reminder email to the Line Manager",
+            "two_days_after_ld_lm": " 2 days after leaving date reminder email to the Line Manager",
         }
         email_tasks = self.leaving_request.get_security_rk_reminder_email_tasks()
 

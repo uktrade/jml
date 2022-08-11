@@ -134,7 +134,7 @@ def build_leaving_data_from_leaving_request(
             break
 
     if not uksbs_leaver_manager:
-        raise Exception("Could not find line manager in UKSBS hierarchy")
+        raise Exception("Could not find Line Manager in UKSBS hierarchy")
 
     leaver_full_name = uksbs_leaver["full_name"]
 

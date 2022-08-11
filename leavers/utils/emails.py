@@ -25,7 +25,7 @@ def get_leaving_request_email_personalisation(
 
     leaver_name: The name of the leaver
     possessive_leaver_name: The name of the leaver in possessive form
-    manager_name: The name of the line manager
+    manager_name: The name of the Line Manager
     leaving_date: The date the leaver is leaving
     last_day: The last day of the leaver
     contact_us_link: The link to the contact us page
@@ -186,7 +186,7 @@ def send_ocs_oab_locker_email(leaving_request: LeavingRequest):
 def send_line_manager_correction_email(leaving_request: LeavingRequest):
     """
     Send an email to all of the Leaver's direct manager as per the response
-    from UK SBS to get them to update the Line manager in UK SBS to match
+    from UK SBS to get them to update the Line Manager in UK SBS to match
     the LeavingRequest.
     """
 
@@ -241,7 +241,7 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
                 )
     else:
         # If there are no manager emails, we need to email the HR Offboarding
-        # team and the Line manager that the Leaver selected.
+        # team and the Line Manager that the Leaver selected.
 
         if not manager_as_user.contact_email_address:
             raise ValueError("contact_email_address is not set")

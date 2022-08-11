@@ -8,6 +8,7 @@
 " Methods "
 " Physical Asset Categories "
 " Physical Asset Statuses "
+" Returns the Line Manager
 " Send Leaver
 " Send SRE Team
 " Send the Leaver
@@ -228,6 +229,10 @@ LeavingRequest
 LEGACY_PEOPLE_FINDER_ES_INDEX
 li class="progress-step{%
 Line
+Line Manager.</p
+Line Manager</a
+Line Manager</h2
+Line Managers.</p
 Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
 Loan Pool'

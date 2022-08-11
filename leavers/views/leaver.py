@@ -1222,7 +1222,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
             errors.append(
                 mark_safe(
                     f"<a href='{manager_search}'>You need to inform us of your "
-                    "line manager, please search for your manager below.</a>"
+                    "Line Manager, please search for your manager below.</a>"
                 )
             )
 

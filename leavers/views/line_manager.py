@@ -257,7 +257,7 @@ class NewLineReportSearchView(LineManagerViewMixin, StaffSearchView):
             self.leaving_request.leaver_activitystream_user.identifier
         ]
 
-        # TODO: Fix so that you can't accidentally set the new line manager to
+        # TODO: Fix so that you can't accidentally set the new Line Manager to
         # be the same as the line report.
         # for line_report in self.leaving_request.line_reports:
         #     try:
@@ -273,7 +273,7 @@ class NewLineReportSearchView(LineManagerViewMixin, StaffSearchView):
 
 
 class LineReportNewLineManagerSearchView(LineManagerViewMixin, StaffSearchView):
-    search_name = "new line manager"
+    search_name = "new Line Manager"
     query_param_name = LINE_REPORT_NEW_LINE_MANAGER_SEARCH_PARAM
 
     def get_success_url(self) -> str:
@@ -315,7 +315,7 @@ class LineReportNewLineManagerSearchView(LineManagerViewMixin, StaffSearchView):
 
         # line_report_uuid = self.request.GET["line_report_uuid"]
 
-        # TODO: Fix so that you can't accidentally set the new line manager to
+        # TODO: Fix so that you can't accidentally set the new Line Manager to
         # be the same as the line report.
         # for line_report in self.leaving_request.line_reports:
         #     if line_report["uuid"] == line_report_uuid:
@@ -363,7 +363,7 @@ class StartView(LineManagerViewMixin, TemplateView):
         leaver_name = self.leaving_request.get_leaver_name()
 
         context.update(
-            page_title="Leaving DIT: line manager's off-boarding actions",
+            page_title="Leaving DIT: Line Manager's off-boarding actions",
             start_url=reverse(
                 "line-manager-leaver-confirmation",
                 kwargs={"leaving_request_uuid": str(self.leaving_request.uuid)},
@@ -410,7 +410,7 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
         """
         manager_as_user = self.leaving_request.get_line_manager()
         assert manager_as_user
-        # Load the line manager from the Staff index.
+        # Load the Line Manager from the Staff index.
         manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
             sso_email_user_id=manager_as_user.email_user_id,
         )
@@ -792,7 +792,7 @@ def line_report_set_new_manager(
         except ActivityStreamStaffSSOUser.DoesNotExist:
             request.session[
                 LINE_REPORT_SET_NEW_MANAGER_ERROR
-            ] = f"Unable to add {line_manager_name} as a line manager, please try again later."
+            ] = f"Unable to add {line_manager_name} as a Line Manager, please try again later."
             return redirect_response
 
         try:
@@ -802,7 +802,7 @@ def line_report_set_new_manager(
         except Exception:
             request.session[
                 LINE_REPORT_SET_NEW_MANAGER_ERROR
-            ] = f"Unable to add {line_manager_name} as a line manager, please try again later."
+            ] = f"Unable to add {line_manager_name} as a Line Manager, please try again later."
             return redirect_response
 
         for line_report in lr_line_reports:
@@ -1114,7 +1114,7 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
         leaver_name = self.leaving_request.get_leaver_name()
 
         context.update(
-            page_title="Line manager's off-boarding actions completed",
+            page_title="Line Manager's off-boarding actions completed",
             leaver_name=leaver_name,
             possessive_leaver_name=make_possessive(leaver_name),
         )

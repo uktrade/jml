@@ -402,7 +402,7 @@ class ServiceNowInterface(ServiceNowBase):
             ActivityStreamStaffSSOUser
         ] = leaving_request.processing_manager_activitystream_user
         if not processing_manager:
-            raise Exception("Unable to get line manager information")
+            raise Exception("Unable to get Line Manager information")
 
         manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
             sso_email_user_id=processing_manager.email_user_id,
