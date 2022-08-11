@@ -23,14 +23,24 @@
                         <th scope="row" class="govuk-table__header">Work email</th>
                         <td class="govuk-table__cell">{{ leaver_email }}</td>
                     </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Last working day</th>
-                        <td class="govuk-table__cell">{{ last_day }}</td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Leaving date</th>
-                        <td class="govuk-table__cell">{{ leaving_date }}</td>
-                    </tr>
+                    {% if leaver_job_title %}
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Job title</th>
+                            <td class="govuk-table__cell">{{ leaver_job_title }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if last_day %}
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Last working day</th>
+                            <td class="govuk-table__cell">{{ last_day }}</td>
+                        </tr>
+                    {% endif %}
+                    {% if leaving_date %}
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">Leaving date</th>
+                            <td class="govuk-table__cell">{{ leaving_date }}</td>
+                        </tr>
+                    {% endif %}
                     <tr class="govuk-table__row">
                         <th scope="row" class="govuk-table__header">Status</th>
                         <td class="govuk-table__cell">
