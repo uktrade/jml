@@ -55,7 +55,7 @@ deprecated==1.2.13
     # via redis
 dit-activity-stream==0.0.1
     # via -r requirements.in/base.in
-django==3.2.14
+django==3.2.15
     # via
     #   -r requirements.in/base.in
     #   crispy-forms-gds
