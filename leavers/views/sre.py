@@ -188,11 +188,14 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        manager_as_user = self.leaving_request.get_line_manager()
+        assert manager_as_user
+
         context.update(
             page_title=self.page_title,
             leaving_request_uuid=self.leaving_request.uuid,
             leaver_name=self.leaving_request.get_leaver_name(),
-            line_manager_name=self.leaving_request.get_line_manager_name(),
+            line_manager_name=manager_as_user.full_name,
             leaving_request=self.leaving_request,
             access_removed_services=[
                 sre_service[1]

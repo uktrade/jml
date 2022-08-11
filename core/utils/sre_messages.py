@@ -1,17 +1,23 @@
+from typing import TYPE_CHECKING
+
 from django.conf import settings
 from django.urls import reverse
 from slack_sdk.web.slack_response import SlackResponse
 
 from core.utils.slack import FailedToSendSlackMessage, send_slack_message
-from leavers.models import LeavingRequest
+
+if TYPE_CHECKING:
+    from leavers.models import LeavingRequest
 
 
 class FailedToSendSREAlertMessage(Exception):
     pass
 
 
-def send_sre_alert_message(*, leaving_request: LeavingRequest) -> SlackResponse:
-    assert leaving_request.leaving_date
+def send_sre_alert_message(*, leaving_request: "LeavingRequest") -> SlackResponse:
+    leaving_date = leaving_request.get_leaving_date()
+
+    assert leaving_date
 
     if not settings.SLACK_SRE_CHANNEL_ID:
         raise FailedToSendSREAlertMessage("SLACK_SRE_CHANNEL_ID is not set")
@@ -22,7 +28,7 @@ def send_sre_alert_message(*, leaving_request: LeavingRequest) -> SlackResponse:
         )
 
         leaver_name = leaving_request.get_leaver_name()
-        leaving_date = leaving_request.leaving_date.strftime("%d/%m/%Y")
+        leaving_date_str = leaving_date.date().strftime("%d/%m/%Y")
 
         message_content = (
             f"{leaver_name} is leaving DIT\n"
@@ -32,9 +38,9 @@ def send_sre_alert_message(*, leaving_request: LeavingRequest) -> SlackResponse:
             "and services has been managed. This will complete their "
             f"off-boarding. ({settings.SITE_URL}{leaving_request_path}).\n"
             "\n"
-            f"*Deadline: {leaving_date}*\n"
+            f"*Deadline: {leaving_date_str}*\n"
             f"Please action this request by {leaver_name}’s last working "
-            f"day in the department which is {leaving_date}.\n"
+            f"day in the department which is {leaving_date_str}.\n"
             "\n"
             "DIT Leavers Service"
         )
@@ -52,7 +58,7 @@ class FailedToSendSRECompleteMessage(Exception):
 
 
 def send_sre_complete_message(
-    *, thread_ts: str, leaving_request: LeavingRequest
+    *, thread_ts: str, leaving_request: "LeavingRequest"
 ) -> SlackResponse:
 
     if not settings.SLACK_SRE_CHANNEL_ID:

@@ -90,7 +90,7 @@ urlpatterns = [
         leaver_views.RequestReceivedView.as_view(),
         name="leaver-request-received",
     ),
-    # Line manager
+    # Line Manager
     path(
         "line-manager/data-recipient-search/<uuid:leaving_request_uuid>/",
         line_manager_views.DataRecipientSearchView.as_view(),

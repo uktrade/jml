@@ -4,6 +4,7 @@ from django.test.testcases import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from core.utils.staff_index import StaffDocument
 from leavers.factories import LeavingRequestFactory
 from leavers.forms.line_manager import (
@@ -12,7 +13,10 @@ from leavers.forms.line_manager import (
     FlexiLeavePaidOrDeducted,
     LeaverPaidUnpaid,
 )
+from leavers.models import LeavingRequest
 from leavers.tests.views.include import ViewAccessTest
+from leavers.views.line_manager import LineManagerViewMixin
+from user.test.factories import UserFactory
 
 EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
     {
@@ -40,6 +44,109 @@ EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
         "people_data_uksbs_person_id": "",
     }
 )
+
+
+class TestLineManagerAccessMixin(TestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.leaver = UserFactory()
+        self.leaver_as_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.leaver.sso_email_user_id
+        )
+        self.random = UserFactory()
+        self.random_as_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.random.sso_email_user_id
+        )
+        self.manager = UserFactory()
+        self.manager_as_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.manager.sso_email_user_id
+        )
+        self.uksbs_manager = UserFactory()
+        self.uksbs_manager_as_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.uksbs_manager.sso_email_user_id,
+            uksbs_person_id=self.leaver_as_user.uksbs_person_id + "manager",
+        )
+        self.processing_manager = UserFactory()
+        self.processing_manager_as_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.processing_manager.sso_email_user_id
+        )
+
+        self.leaving_request: LeavingRequest = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
+            leaver_activitystream_user=self.leaver_as_user,
+            manager_activitystream_user=self.manager_as_user,
+        )
+        self.view_kwargs = {"args": [self.leaving_request.uuid]}
+
+    def test_user_is_leaver(self):
+        self.client.force_login(self.leaver)
+        http_response = self.client.get("")
+        response = LineManagerViewMixin().line_manager_access(
+            request=http_response.wsgi_request, leaving_request=self.leaving_request
+        )
+        self.assertFalse(response)
+        self.assertEqual(self.leaving_request.get_line_manager(), self.manager_as_user)
+
+    def test_user_is_random(self):
+        self.client.force_login(self.random)
+        http_response = self.client.get("")
+        response = LineManagerViewMixin().line_manager_access(
+            request=http_response.wsgi_request, leaving_request=self.leaving_request
+        )
+        self.assertFalse(response)
+        self.assertEqual(self.leaving_request.get_line_manager(), self.manager_as_user)
+
+    def test_user_is_manager(self):
+        self.client.force_login(self.manager)
+        http_response = self.client.get("")
+        response = LineManagerViewMixin().line_manager_access(
+            request=http_response.wsgi_request, leaving_request=self.leaving_request
+        )
+        self.leaving_request.refresh_from_db()
+        self.assertEqual(
+            self.leaving_request.processing_manager_activitystream_user,
+            self.manager_as_user,
+        )
+        self.assertTrue(response)
+        self.assertEqual(self.leaving_request.get_line_manager(), self.manager_as_user)
+
+    def test_user_is_uksbs_manager(self):
+        self.client.force_login(self.uksbs_manager)
+        http_response = self.client.get("")
+        response = LineManagerViewMixin().line_manager_access(
+            request=http_response.wsgi_request, leaving_request=self.leaving_request
+        )
+        self.leaving_request.refresh_from_db()
+        self.assertEqual(
+            self.leaving_request.processing_manager_activitystream_user,
+            self.uksbs_manager_as_user,
+        )
+        self.assertTrue(response)
+        self.assertEqual(
+            self.leaving_request.get_line_manager(), self.uksbs_manager_as_user
+        )
+
+    def test_user_is_processing_manager(self):
+        self.leaving_request.processing_manager_activitystream_user = (
+            self.processing_manager_as_user
+        )
+        self.leaving_request.save()
+
+        self.client.force_login(self.processing_manager)
+        http_response = self.client.get("")
+        response = LineManagerViewMixin().line_manager_access(
+            request=http_response.wsgi_request, leaving_request=self.leaving_request
+        )
+        self.leaving_request.refresh_from_db()
+        self.assertEqual(
+            self.leaving_request.processing_manager_activitystream_user,
+            self.processing_manager_as_user,
+        )
+        self.assertTrue(response)
+        self.assertEqual(
+            self.leaving_request.get_line_manager(), self.processing_manager_as_user
+        )
 
 
 class TestDataRecipientSearchView(ViewAccessTest, TestCase):

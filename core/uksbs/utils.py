@@ -104,17 +104,19 @@ def build_leaving_data_from_leaving_request(
     uksbs_interface = get_uksbs_interface()
 
     assert leaving_request.leaver_activitystream_user
-    assert leaving_request.manager_activitystream_user
+    assert leaving_request.processing_manager_activitystream_user
     assert leaving_request.leaving_date
     assert leaving_request.last_day
     assert leaving_request.reason_for_leaving
 
     leaver_as: ActivityStreamStaffSSOUser = leaving_request.leaver_activitystream_user
-    manager_as: ActivityStreamStaffSSOUser = leaving_request.manager_activitystream_user
+    processing_manager_as: ActivityStreamStaffSSOUser = (
+        leaving_request.processing_manager_activitystream_user
+    )
 
     if not leaver_as.uksbs_person_id:
         raise LeaverDoesNotHaveUKSBSPersonId()
-    if not manager_as.uksbs_person_id:
+    if not processing_manager_as.uksbs_person_id:
         raise ManagerDoesNotHaveUKSBSPersonId()
 
     uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
@@ -127,12 +129,12 @@ def build_leaving_data_from_leaving_request(
     uksbs_leaver_manager: Optional[PersonData] = None
 
     for ulm in uksbs_leaver_managers:
-        if ulm["person_id"] == manager_as.uksbs_person_id:
+        if ulm["person_id"] == processing_manager_as.uksbs_person_id:
             uksbs_leaver_manager = ulm
             break
 
     if not uksbs_leaver_manager:
-        raise Exception("Could not find line manager in UKSBS hierarchy")
+        raise Exception("Could not find Line Manager in UKSBS hierarchy")
 
     leaver_full_name = uksbs_leaver["full_name"]
 
@@ -143,7 +145,7 @@ def build_leaving_data_from_leaving_request(
         "contactPrimaryFlag": "N",
     }
     line_manager_contact: ServiceRequestDataContact = {
-        "contactNumber": manager_as.user_id,  # Oracle ID
+        "contactNumber": processing_manager_as.user_id,  # Oracle ID
         "contactType": "EMPLOYEE",
         "contactTypePoint": "EMAIL",
         "contactPrimaryFlag": "Y",
@@ -171,6 +173,7 @@ def build_leaving_data_from_leaving_request(
         oracle_id = ""
         employee_id = ""
         if line_report_person_data:
+            # TODO: I don't think the person_id is the same as the Oracle ID
             oracle_id = line_report_person_data["person_id"]
             employee_id = line_report_person_data["employee_number"]
 
@@ -205,6 +208,7 @@ def build_leaving_data_from_leaving_request(
         # Leaver Details
         "leaverName": leaver_full_name,
         "leaverEmail": uksbs_leaver["email_address"],
+        # TODO: I don't think the person_id is the oracle ID
         "leaverOracleID": str(uksbs_leaver["person_id"]),
         "leaverEmployeeNumber": uksbs_leaver["employee_number"],
         "leaverReasonForLeaving": leaving_request.reason_for_leaving,
@@ -220,10 +224,12 @@ def build_leaving_data_from_leaving_request(
         # Submitter Details
         "submitterName": uksbs_leaver_manager["full_name"],
         "submitterEmail": uksbs_leaver_manager["email_address"],
+        # TODO: I don't think the person_id is the oracle ID
         "submitterOracleID": str(uksbs_leaver_manager["person_id"]),
         "submitterDate": timezone.now().strftime("%d/%m/%Y %H:%M"),
         "submitterSelectedLineManager": uksbs_leaver_manager["full_name"],
         "submitterSelectedLineManagerEmail": uksbs_leaver_manager["email_address"],
+        # TODO: I don't think the person_id is the oracle ID
         "submitterSelectedLineManagerOracleID": str(uksbs_leaver_manager["person_id"]),
         "submitterSelectedLineManagerEmployeeNumber": uksbs_leaver_manager[
             "employee_number"

@@ -1,9 +1,10 @@
-from datetime import timedelta
-from typing import Any, Dict, Iterable, List, Literal, Optional, Tuple, cast
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Literal, Optional, Tuple, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
+from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -50,11 +51,11 @@ class LeavingRequestListing(
         self.show_complete = show_complete
         self.show_incomplete = show_incomplete
 
-    def get_leaving_requests(self) -> Iterable[LeavingRequest]:
-        # Filter out any that haven't been completed by the line manager.
-        leaving_requests = LeavingRequest.objects.all().exclude(
-            line_manager_complete__isnull=True
-        )
+    def get_leaving_requests(self) -> QuerySet[LeavingRequest]:
+        # Filter out any that haven't been completed by the Line Manager.
+        leaving_requests: QuerySet[
+            LeavingRequest
+        ] = LeavingRequest.objects.all().exclude(line_manager_complete__isnull=True)
         if not self.show_complete:
             leaving_requests = leaving_requests.exclude(
                 **{self.get_complete_field() + "__isnull": False}
@@ -100,8 +101,11 @@ class LeavingRequestListing(
         leaving_requests = self.get_leaving_requests()
         lr_results_data = []
         for lr in leaving_requests:
-            assert lr.last_day
-            assert lr.leaving_date
+            leaving_date = lr.get_leaving_date()
+            last_day = lr.get_last_day()
+
+            assert leaving_date
+            assert last_day
             assert lr.line_manager_complete
 
             is_complete = getattr(lr, self.get_complete_field())
@@ -114,7 +118,7 @@ class LeavingRequestListing(
                 )
 
             days_until_last_working_day: timedelta = (
-                lr.last_day.date() - timezone.now().date()
+                last_day.date() - timezone.now().date()
             )
 
             lr_results_data.append(
@@ -125,8 +129,8 @@ class LeavingRequestListing(
                         lr.security_clearance
                     ).label,
                     "work_email": lr.get_leaver_email(),
-                    "leaving_date": lr.leaving_date.date(),
-                    "last_working_day": lr.last_day.date(),
+                    "leaving_date": leaving_date.date(),
+                    "last_working_day": last_day.date(),
                     "days_until_last_working_day": days_until_last_working_day.days,
                     "reported_on": lr.line_manager_complete.date(),
                     "complete": bool(getattr(lr, self.get_complete_field())),
@@ -204,12 +208,22 @@ class TaskConfirmationView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        leaving_datetime = self.leaving_request.get_leaving_date()
+        leaving_date: Optional[datetime] = None
+        if leaving_datetime:
+            leaving_date = leaving_datetime.date()
+
+        last_day_datetime = self.leaving_request.get_last_day()
+        last_day: Optional[datetime] = None
+        if last_day_datetime:
+            last_day = last_day_datetime.date()
+
         context.update(
             page_title=self.page_title,
             leaver_name=self.leaving_request.get_leaver_name(),
             leaver_email=self.leaving_request.get_leaver_email(),
-            leaving_date=self.leaving_request.leaving_date.date(),
-            last_day=self.leaving_request.last_day.date(),
+            leaving_date=leaving_date,
+            last_day=last_day,
             complete=bool(getattr(self.leaving_request, self.complete_field)),
         )
 

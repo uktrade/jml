@@ -48,7 +48,7 @@
                 </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
-                        Line manager name
+                        Line Manager name
                     </dt>
                     <dd class="govuk-summary-list__value">
                         {{ manager_name }}
@@ -56,10 +56,22 @@
                 </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
-                        Line manager email
+                        {% if manager_emails|length == 1 %}
+                            Line Manager email
+                        {% else %}
+                            Line Manager emails
+                        {% endif %}
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        {{ manager_email }}
+                        <ul class="govuk-list">
+                            {% if manager_emails|length == 1 %}
+                                {{ manager_emails.0 }}
+                            {% else %}
+                                {% for manager_email in manager_emails %}
+                                    <li>{{ manager_email }}</li>
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
                     </dd>
                 </div>
             </dl>

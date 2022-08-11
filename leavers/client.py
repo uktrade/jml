@@ -15,7 +15,7 @@ class ActivityStreamUserClient(ActivityStreamClient):
     object_uuid_field: str = "user_id"
     object_last_modified_field: str = "last_modified"
 
-    def get_queryset(self, request: HttpRequest) -> QuerySet:
+    def get_queryset(self, request: HttpRequest) -> QuerySet[User]:
         return User.objects.all()
 
     def render_object(self, object: "User") -> Dict:

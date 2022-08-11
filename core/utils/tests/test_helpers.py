@@ -1,5 +1,6 @@
 from asset_registry.factories import PhysicalAssetFactory, SoftwareAssetFactory
 from asset_registry.models import Asset, PhysicalAsset, SoftwareAsset
+from django.db.models.query import QuerySet
 from django.test import TestCase
 
 from core.utils.helpers import bool_to_yes_no, make_possessive, queryset_to_specific
@@ -30,7 +31,7 @@ class QuerysetToSpecific(TestCase):
         PhysicalAssetFactory.create_batch(10)
 
     def test_queryset(self):
-        assets = Asset.objects.all()
+        assets: QuerySet[Asset] = Asset.objects.all()
         self.assertEqual(assets.count(), 20)
 
         for asset in assets:
@@ -38,7 +39,7 @@ class QuerysetToSpecific(TestCase):
             self.assertNotIsInstance(asset, (PhysicalAsset, SoftwareAsset))
 
     def test_queryset_to_specific(self):
-        assets = Asset.objects.all()
+        assets: QuerySet[Asset] = Asset.objects.all()
         self.assertEqual(assets.count(), 20)
 
         for asset in queryset_to_specific(assets):

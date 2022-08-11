@@ -8,6 +8,7 @@
 " Methods "
 " Physical Asset Categories "
 " Physical Asset Statuses "
+" Returns the Line Manager
 " Send Leaver
 " Send SRE Team
 " Send the Leaver
@@ -21,12 +22,17 @@
 "Lost/Stolen"
 @media
 *Actions required:*\n
+# Joiners
 # Joiners Movers Leavers
 # People Finder
 # Staff
 | SLACK_SRE_CHANNEL_ID                                     | None                                       
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
+| TEMPLATE_ID_OCS_LEAVER_EMAIL                                     | None                                       
+| TEMPLATE_ID_SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD       
 | TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL |
+| TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LWD                      
+| UKSBS_INTERFACE                                                  
 0003_add_user_user_id
 0003_add_user_user_id
 0007_activitystreamstaffssouser_is_active
@@ -39,6 +45,7 @@
 8.7 39.7 21.8l42.7-27.2A97.63
 activity_stream.activitystreamstaffssouser
 ActivityStream
+add_missing_line_report_error
 admin@opensearch:9200
 Annual Leave
 Annual Leave: "
@@ -59,6 +66,7 @@ Build Staff Document
 Building Pass
 Building Pass Access Revoked
 building_pass_access_task_log
+C901
 card</li>{%
 channel_id
 checkbox
@@ -71,10 +79,12 @@ class="incomplete">To Do</span
 COLOUR_GREEN=\033[32;01
 COLOUR_YELLOW=\033[33;01
 Compile SCSS
+confirm_leaver_data
 contact_address_postcode
 Convert
 Convert a Queryset
 Convert Request Data
+Correction Email
 Create ActivityStream
 Create Leaving Request
 Create Physical Asset
@@ -122,6 +132,7 @@ Drop
 DSE
 E501
 Elastic
+Email                             
 Email Templates
 email_id
 ends.</td
@@ -182,6 +193,7 @@ IE
 ill health</li>
 include:</p
 INDEX_CURRENT_USER_MIDDLEWARE                            
+Index](/docs
 INFO
 information</h1
 ingest_activity_stream
@@ -209,6 +221,7 @@ Leaver's Notification Form
 leaverLastDay
 Leavers and Line Managers
 LeaversWorkflow
+Leaving Date - lm
 Leaving Request
 leaving_request.holds_government_procurement_card
 leaving_request.is_rosa_user
@@ -216,6 +229,10 @@ LeavingRequest
 LEGACY_PEOPLE_FINDER_ES_INDEX
 li class="progress-step{%
 Line
+Line Manager.</p
+Line Manager</a
+Line Manager</h2
+Line Managers.</p
 Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
 Loan Pool'
@@ -228,6 +245,7 @@ migrate$(COLOUR_NONE
 minimum_should_match
 Mismatch Email
 Mobile
+Movers and Leavers Service
 NAME
 name=
 National Insurance
@@ -239,7 +257,9 @@ OAB
 object.current_task_record
 OCS
 OCS_EMAIL
+OCS_OAB_LOCKER_EMAIL                                             
 Old Admiralty Building
+one_day_after_ld
 OpenSearch
 OPENSEARCH_JAVA_OPTS=-Xms512
 OPTIONS
@@ -255,12 +275,14 @@ People Finder API - '
 People Finder Health Check
 People Finder Health Check"
 people_finder_email
+PEOPLE_FINDER_HAWK_ACCESS_ID                                     |                                            |                                                                                       
 PEOPLE_FINDER_HAWK_SECRET_KEY
 PEOPLE_FINDER_INTERFACE
 PEOPLE_FINDER_INTERFACE                                  |                                            
 PEOPLE_FINDER_INTERFACE=core.people_finder.interfaces
 people_finder_result["email
 people_finder_result["email
+PersonData
 Physical Asset
 PhysicalAsset
 Port Replicator
@@ -276,6 +298,7 @@ recorded</h1
 Reminder Email
 Reminder Email*
 Report 2
+Request
 return_contact_email
 ReturnOptions
 role="alert
@@ -322,6 +345,7 @@ Split
 SQL
 SQL
 SRE
+SRE Offboarding
 SRE Reminder Email
 sso_access_task_log
 sso_email_user_id
@@ -336,7 +360,10 @@ StreamHandler
 target="_blank">here</a>.</li>
 Team Zendesk
 TEMPLATE_ID_CSU4_EMAIL
+TEMPLATE_ID_CSU4_EMAIL                                           | None                                       |                                                                                       
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL
+TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL
+TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL                     | None                                       |                                                                                       
 TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  
 TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                                       
@@ -344,9 +371,9 @@ TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                 
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL                  
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL |  |
-TEMPLATE_ID_ROSA_LEAVER_REMINDER_EMAIL
-TEMPLATE_ID_ROSA_LEAVER_REMINDER_EMAIL |  |
-TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_EMAIL
+TEMPLATE_ID_SECURITY_OFFBOARD_RK_REMINDER_ON_LD                  
+TEMPLATE_ID_SRE_NOTIFICATION                                     
+TEMPLATE_ID_SRE_REMINDER_ON_LD                                   
 Templates
 Tests for `get_leaver_detail_updates` "
 Tests for `get_leaver_details_with_updates`
@@ -368,20 +395,28 @@ the Health and Safety Team</h2
 the Leaver Activity Stream
 the Leaver Form's
 the Leaving DIT
+the Leaving Request
 the OCS OAB Locker Team                           
 the OCS Team                            
 the Security Team
 the Security Team User Group
 the SRE Team
 the SRE User Group
+the UK SBS API
 to:</p
+UK SBS - Unexpected
+UK SBS - Unexpected Response
+UK SBS Correction
 UKSBS
 UKSBS Connect
 UKSBS Leavers
+UKSBS Line
 UKSBS_INTERFACE
 UKSBS_POST_LEAVER_SUBMISSION                             
+UKSBS_POST_LEAVER_SUBMISSION                                     | None                                       
 UKSBSBase
 UKSBSStubbed
+Un
 unique_sso_legacy_user_id
 Unit of Measurement
 Unit of Measurement Hours
@@ -391,9 +426,11 @@ Updated Personal Email
 User
 User
 users.</td
+Variables](/docs
 viewBox="0 0 483.2
 visit</li>
 vpn_access_task_log
+WHERE sso_user_id = %
 WhiteNoiseMiddleware
 x.groups.first
 yet.</p

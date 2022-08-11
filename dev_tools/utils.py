@@ -6,7 +6,10 @@ from django.contrib.auth.models import Group
 from django.http import HttpRequest
 from django.utils import timezone
 
-from activity_stream.models import ActivityStreamStaffSSOUser
+from activity_stream.models import (
+    ActivityStreamStaffSSOUser,
+    ActivityStreamStaffSSOUserEmail,
+)
 from core.utils.staff_index import build_staff_document, index_staff_document
 
 if TYPE_CHECKING:
@@ -57,6 +60,11 @@ def create_user(
             "available": True,
             "uksbs_person_id": str(uuid.uuid4()),
         },
+    )
+
+    ActivityStreamStaffSSOUserEmail.objects.get_or_create(
+        staff_sso_user=staff_sso_user,
+        email_address=user.email,
     )
 
     # Add the user into the Staff Index

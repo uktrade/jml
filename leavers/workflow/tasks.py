@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from enum import Enum
 from typing import Callable, Dict, List, Optional
 
@@ -9,11 +9,12 @@ from django_workflow_engine.dataclass import Step
 from django_workflow_engine.models import Flow, TaskRecord
 
 from activity_stream.models import ActivityStreamStaffSSOUser
+from core.notify import EmailTemplates
 from core.service_now import get_service_now_interface
 from core.service_now.types import AssetDetails
 from core.uksbs import get_uksbs_interface
+from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.uksbs.types import PersonData
-from core.uksbs.utils import build_leaving_data_from_leaving_request
 from core.utils.lsd import inform_lsd_team_of_leaver
 from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_message
 from leavers.exceptions import (
@@ -21,9 +22,12 @@ from leavers.exceptions import (
     ManagerDoesNotHaveUKSBSPersonId,
 )
 from leavers.models import LeaverInformation, LeavingRequest, SlackMessage, TaskLog
+from leavers.types import ReminderEmailDict
 from leavers.utils.emails import (
+    get_leaving_request_email_personalisation,
     send_csu4_leaver_email,
     send_it_ops_asset_email,
+    send_leaver_not_in_uksbs_reminder,
     send_leaver_thank_you_email,
     send_line_manager_correction_email,
     send_line_manager_notification_email,
@@ -31,11 +35,9 @@ from leavers.utils.emails import (
     send_line_manager_thankyou_email,
     send_ocs_leaver_email,
     send_ocs_oab_locker_email,
-    send_rosa_leaver_reminder_email,
-    send_rosa_line_manager_reminder_email,
-    send_security_team_offboard_leaver_email,
-    send_security_team_offboard_leaver_reminder_email,
-    send_sre_reminder_email,
+    send_security_team_offboard_bp_leaver_email,
+    send_security_team_offboard_rk_leaver_email,
+    send_sre_notification_email,
 )
 from leavers.utils.leaving_request import get_leaver_details
 
@@ -70,6 +72,131 @@ class PauseTask(LeavingRequestTask):
         return [], False
 
 
+class ConfirmLeaverData(LeavingRequestTask):
+    abstract = False
+    task_name = "confirm_leaver_data"
+    auto = True
+
+    def execute(self, task_info):  # noqa: C901
+        uksbs_interface = get_uksbs_interface()
+        assert self.leaving_request
+        assert self.leaving_request.leaver_activitystream_user
+        assert self.leaving_request.manager_activitystream_user
+
+        leaver_as_user: Optional[
+            ActivityStreamStaffSSOUser
+        ] = self.leaving_request.leaver_activitystream_user
+        manager_as_user: Optional[
+            ActivityStreamStaffSSOUser
+        ] = self.leaving_request.manager_activitystream_user
+
+        # A PII Safe list of errors with the leaving request.
+        errors: List[str] = []
+        uksbs_leaver_manager_person_ids: List[str] = []
+
+        if not leaver_as_user:
+            errors.append("Leaving Request doesn't have a Leaver")
+        else:
+            if not leaver_as_user.uksbs_person_id:
+                errors.append("Leaver doesn't have a UK SBS Person ID")
+            else:
+                try:
+                    uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
+                        person_id=leaver_as_user.uksbs_person_id,
+                    )
+                except UKSBSUnexpectedResponse:
+                    errors.append(
+                        "Couldn't get leaver hierarchy from UK SBS - Unexpected Response"
+                    )
+                except UKSBSPersonNotFound:
+                    errors.append(
+                        "Couldn't get leaver hierarchy from UK SBS - Person not found"
+                    )
+                else:
+                    uksbs_leaver_managers: List[
+                        PersonData
+                    ] = uksbs_leaver_hierarchy.get("manager", [])
+                    if not uksbs_leaver_managers:
+                        errors.append("Leaver doesn't have a manager in UK SBS")
+                    else:
+                        uksbs_leaver_manager_person_ids = [
+                            uksbs_leaver_manager["person_id"]
+                            for uksbs_leaver_manager in uksbs_leaver_managers
+                        ]
+                        if len(uksbs_leaver_manager_person_ids) > 1:
+                            errors.append("Leaver has more than one manager in UK SBS")
+                        for uksbs_leaver_manager in uksbs_leaver_managers:
+                            if not uksbs_leaver_manager["email_address"]:
+                                errors.append(
+                                    "Leaver's UK SBS manager doesn't have an email "
+                                    "address in UK SBS"
+                                )
+        if not manager_as_user:
+            errors.append("Leaving Request doesn't have a Manager")
+        else:
+            if not manager_as_user.uksbs_person_id:
+                errors.append("Manager doesn't have a UK SBS Person ID")
+            else:
+                try:
+                    uksbs_interface.get_user_hierarchy(
+                        person_id=manager_as_user.uksbs_person_id,
+                    )
+                except UKSBSUnexpectedResponse:
+                    errors.append(
+                        "Couldn't get manager hierarchy from UK SBS - Unexpected "
+                        "Response"
+                    )
+                except UKSBSPersonNotFound:
+                    errors.append(
+                        "Couldn't get manager hierarchy from UK SBS - Person not "
+                        "found"
+                    )
+                else:
+                    if (
+                        manager_as_user.uksbs_person_id
+                        not in uksbs_leaver_manager_person_ids
+                    ):
+                        errors.append(
+                            "Manager's UK SBS Person ID is not in the leaver's "
+                            "hierarchy data."
+                        )
+
+        if errors:
+            error_list = "\n".join(errors)
+            raise Exception(
+                f"Leaving Request ({self.leaving_request.uuid}) has some issues:"
+                f"\n\n{error_list}"
+            )
+
+        return [], True
+
+
+class CheckUKSBSLeaver(LeavingRequestTask):
+    abstract = False
+    task_name = "check_uksbs_leaver"
+    auto = True
+
+    def execute(self, task_info):
+        uksbs_interface = get_uksbs_interface()
+        assert self.leaving_request
+
+        leaver_as_user: ActivityStreamStaffSSOUser = (
+            self.leaving_request.leaver_activitystream_user
+        )
+
+        if not leaver_as_user.uksbs_person_id:
+            return ["send_leaver_not_in_uksbs_reminder"], False
+
+        try:
+            uksbs_interface.get_user_hierarchy(
+                person_id=leaver_as_user.uksbs_person_id,
+            )
+        except (UKSBSUnexpectedResponse, UKSBSPersonNotFound):
+            return ["send_leaver_not_in_uksbs_reminder"], False
+
+        return [], True
+
+
 class CheckUKSBSLineManager(LeavingRequestTask):
     abstract = False
     task_name = "check_uksbs_line_manager"
@@ -79,13 +206,10 @@ class CheckUKSBSLineManager(LeavingRequestTask):
         uksbs_interface = get_uksbs_interface()
         assert self.leaving_request
 
-        # Not sure if this is the Oracle ID
         leaver_as_user: ActivityStreamStaffSSOUser = (
             self.leaving_request.leaver_activitystream_user
         )
-        line_manager_as_user: ActivityStreamStaffSSOUser = (
-            self.leaving_request.manager_activitystream_user
-        )
+        line_manager_as_user = self.leaving_request.get_line_manager()
 
         if not leaver_as_user.uksbs_person_id:
             raise LeaverDoesNotHaveUKSBSPersonId()
@@ -117,7 +241,6 @@ class LSDSendLeaverDetails(LeavingRequestTask):
 
     def execute(self, task_info):
         assert self.leaving_request
-        assert self.leaving_request.leaving_date
 
         leaver_name = self.leaving_request.get_leaver_name()
         if not leaver_name:
@@ -126,10 +249,14 @@ class LSDSendLeaverDetails(LeavingRequestTask):
         if not leaver_email:
             raise Exception("No leaver email is set on the Leaving Request")
 
+        leaving_date = self.leaving_request.get_leaving_date()
+        if not leaving_date:
+            raise Exception("No leaving date is set on the Leaving Request")
+
         inform_lsd_team_of_leaver(
             leaver_name=leaver_name,
             leaver_email=leaver_email,
-            leaving_date=self.leaving_request.leaving_date.strftime("%d/%m/%Y"),
+            leaving_date=leaving_date.strftime("%d/%m/%Y"),
         )
 
         return None, True
@@ -179,6 +306,8 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
+        from core.uksbs.utils import build_leaving_data_from_leaving_request
+
         uksbs_interface = get_uksbs_interface()
         assert self.leaving_request
 
@@ -193,15 +322,60 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
 
 class EmailIds(Enum):
     LEAVER_THANK_YOU_EMAIL = "leaver_thank_you_email"
-    LEAVER_ROSA_REMINDER = "leaver_rosa_reminder"
-    LINE_MANAGER_ROSA_REMINDER = "line_manager_rosa_reminder"
+    LEAVER_NOT_IN_UKSBS_REMINDER = "leaver_not_in_uksbs_reminder"
     LINE_MANAGER_CORRECTION = "line_manager_correction"
     LINE_MANAGER_NOTIFICATION = "line_manager_notification"
     LINE_MANAGER_REMINDER = "line_manager_reminder"
     LINE_MANAGER_THANKYOU = "line_manager_thankyou"
-    SECURITY_OFFBOARD_LEAVER_NOTIFICATION = "security_offboard_leaver_notification"
-    SECURITY_OFFBOARD_LEAVER_REMINDER = "security_offboard_leaver_reminder"
-    SRE_REMINDER = "sre_reminder"
+    # Security Offboarding (Building Pass)
+    SECURITY_OFFBOARD_BP_LEAVER_NOTIFICATION = (
+        "security_offboard_bp_leaver_notification"
+    )
+    SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD = (
+        "security_offboard_bp_reminder_day_after_lwd"
+    )
+    SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD = (
+        "security_offboard_bp_reminder_two_days_after_lwd"
+    )
+    SECURITY_OFFBOARD_BP_REMINDER_ON_LD = "security_offboard_bp_reminder_on_ld"
+    SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD = (
+        "security_offboard_bp_reminder_one_day_after_ld"
+    )
+    SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM = (
+        "security_offboard_bp_reminder_two_days_after_ld_lm"
+    )
+    SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC = (
+        "security_offboard_bp_reminder_two_days_after_ld_proc"
+    )
+    # Security Offboarding (ROSA Kit)
+    SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION = (
+        "security_offboard_rk_leaver_notification"
+    )
+    SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD = (
+        "security_offboard_rk_reminder_day_after_lwd"
+    )
+    SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD = (
+        "security_offboard_rk_reminder_two_days_after_lwd"
+    )
+    SECURITY_OFFBOARD_RK_REMINDER_ON_LD = "security_offboard_rk_reminder_on_ld"
+    SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD = (
+        "security_offboard_rk_reminder_one_day_after_ld"
+    )
+    SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM = (
+        "security_offboard_rk_reminder_two_days_after_ld_lm"
+    )
+    SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC = (
+        "security_offboard_rk_reminder_two_days_after_ld_proc"
+    )
+    # SRE Offboarding
+    SRE_NOTIFICATION = "sre_notification"
+    SRE_REMINDER_DAY_AFTER_LWD = "sre_reminder_day_after_lwd"
+    SRE_REMINDER_TWO_DAYS_AFTER_LWD = "sre_reminder_two_days_after_lwd"
+    SRE_REMINDER_ON_LD = "sre_reminder_on_ld"
+    SRE_REMINDER_ONE_DAY_AFTER_LD = "sre_reminder_one_day_after_ld"
+    SRE_REMINDER_TWO_DAYS_AFTER_LD_LM = "sre_reminder_two_days_after_ld_lm"
+    SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC = "sre_reminder_two_days_after_ld_proc"
+
     IT_OPS_ASSET_EMAIL = "it_ops_asset_email"
     CSU4_EMAIL = "csu4_email"
     OCS_EMAIL = "ocs_email"
@@ -210,20 +384,110 @@ class EmailIds(Enum):
 
 EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LEAVER_THANK_YOU_EMAIL: send_leaver_thank_you_email,
-    EmailIds.LEAVER_ROSA_REMINDER: send_rosa_leaver_reminder_email,
-    EmailIds.LINE_MANAGER_ROSA_REMINDER: send_rosa_line_manager_reminder_email,
+    EmailIds.LEAVER_NOT_IN_UKSBS_REMINDER: send_leaver_not_in_uksbs_reminder,
     EmailIds.LINE_MANAGER_CORRECTION: send_line_manager_correction_email,
     EmailIds.LINE_MANAGER_NOTIFICATION: send_line_manager_notification_email,
     EmailIds.LINE_MANAGER_REMINDER: send_line_manager_reminder_email,
     EmailIds.LINE_MANAGER_THANKYOU: send_line_manager_thankyou_email,
-    EmailIds.SECURITY_OFFBOARD_LEAVER_NOTIFICATION: send_security_team_offboard_leaver_email,
-    EmailIds.SECURITY_OFFBOARD_LEAVER_REMINDER: send_security_team_offboard_leaver_reminder_email,
-    EmailIds.SRE_REMINDER: send_sre_reminder_email,
+    EmailIds.SECURITY_OFFBOARD_BP_LEAVER_NOTIFICATION: send_security_team_offboard_bp_leaver_email,
+    EmailIds.SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION: send_security_team_offboard_rk_leaver_email,
+    EmailIds.SRE_NOTIFICATION: send_sre_notification_email,
     EmailIds.IT_OPS_ASSET_EMAIL: send_it_ops_asset_email,
     EmailIds.CSU4_EMAIL: send_csu4_leaver_email,
     EmailIds.OCS_EMAIL: send_ocs_leaver_email,
     EmailIds.OCS_OAB_LOCKER_EMAIL: send_ocs_oab_locker_email,
 }
+PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
+    # Security Offboarding (Building Pass)
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD: (
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD
+    ),
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD: (
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD
+    ),
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ON_LD: (
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_ON_LD
+    ),
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD: (
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD
+    ),
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM: (
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM
+    ),
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+        EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC
+    ),
+    # Security Offboarding (Rosa Kit)
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD: (
+        EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD
+    ),
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD: (
+        EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD
+    ),
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ON_LD: (
+        EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_ON_LD
+    ),
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD: (
+        EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD
+    ),
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM: (
+        EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM
+    ),
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+        EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC
+    ),
+    # SRE Offboarding
+    EmailIds.SRE_REMINDER_DAY_AFTER_LWD: (EmailTemplates.SRE_REMINDER_DAY_AFTER_LWD),
+    EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LWD: (
+        EmailTemplates.SRE_REMINDER_TWO_DAYS_AFTER_LWD
+    ),
+    EmailIds.SRE_REMINDER_ON_LD: (EmailTemplates.SRE_REMINDER_ON_LD),
+    EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD: (
+        EmailTemplates.SRE_REMINDER_ONE_DAY_AFTER_LD
+    ),
+    EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_LM: (
+        EmailTemplates.SRE_REMINDER_TWO_DAYS_AFTER_LD_LM
+    ),
+    EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+        EmailTemplates.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC
+    ),
+}
+
+SECURITY_TEAM_BP_REMINDER_EMAILS: ReminderEmailDict = {
+    "day_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD,
+    "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD,
+    "on_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ON_LD,
+    "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD,
+    "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM,
+    "two_days_after_ld_proc": (
+        EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC
+    ),
+}
+
+SECURITY_TEAM_RK_REMINDER_EMAILS: ReminderEmailDict = {
+    "day_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD,
+    "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD,
+    "on_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ON_LD,
+    "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD,
+    "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM,
+    "two_days_after_ld_proc": (
+        EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC
+    ),
+}
+
+SRE_REMINDER_EMAILS: ReminderEmailDict = {
+    "day_after_lwd": EmailIds.SRE_REMINDER_DAY_AFTER_LWD,
+    "two_days_after_lwd": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LWD,
+    "on_ld": EmailIds.SRE_REMINDER_ON_LD,
+    "one_day_after_ld": EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD,
+    "two_days_after_ld_lm": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_LM,
+    "two_days_after_ld_proc": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC,
+}
+
+
+class SkipCondition(Enum):
+    IS_NOT_ROSA_USER = "is_not_rosa_user"
+    USER_DOES_NOT_HAVE_OAB_LOCKER = "user_does_not_have_oab_locker"
 
 
 class EmailTask(LeavingRequestTask):
@@ -231,13 +495,11 @@ class EmailTask(LeavingRequestTask):
 
     def should_send_email(
         self,
-        task_info: Dict,
         email_id: EmailIds,
     ) -> bool:
         """
         Check if we should send the email.
-        This method can be used to preve
-        nt the task from sending the email.
+        This method can be used to prevent the task from sending the email.
 
         Example scenarios:
         - Email no longer needed
@@ -245,25 +507,54 @@ class EmailTask(LeavingRequestTask):
         """
         return True
 
-    def execute(self, task_info):
-        email_id: EmailIds = EmailIds(task_info["email_id"])
-
+    def get_send_email_method(self, email_id: EmailIds) -> Callable:
         send_email_method: Optional[Callable] = EMAIL_MAPPING.get(email_id, None)
 
         if not send_email_method:
             raise Exception(f"Email method not found for {email_id.value}")
 
+        return send_email_method
+
+    def send_email(
+        self, email_id: EmailIds, template_id: Optional[EmailTemplates] = None
+    ):
+        """
+        Send the email.
+        """
+        assert self.leaving_request
+
         if self.should_send_email(
-            task_info=task_info,
             email_id=email_id,
         ):
-            send_email_method(leaving_request=self.leaving_request)
+            send_email_method = self.get_send_email_method(email_id=email_id)
+            send_email_method(
+                leaving_request=self.leaving_request,
+                template_id=template_id,
+            )
             email_task_log = self.leaving_request.task_logs.create(
                 task_name=f"Sending email {email_id.value}",
             )
             self.leaving_request.email_task_logs.add(email_task_log)
             self.leaving_request.save()
 
+    def should_skip(self, task_info) -> bool:
+        assert self.leaving_request
+        if "skip_condition" in task_info:
+            skip_condition: str = task_info["skip_condition"]
+            if skip_condition == SkipCondition.IS_NOT_ROSA_USER.value:
+                return not self.leaving_request.is_rosa_user
+            elif skip_condition == SkipCondition.USER_DOES_NOT_HAVE_OAB_LOCKER.value:
+                leaver_information: Optional[
+                    LeaverInformation
+                ] = self.leaving_request.leaver_information.first()
+                if leaver_information:
+                    return not leaver_information.has_locker
+        return False
+
+    def execute(self, task_info):
+        if not self.should_skip(task_info=task_info):
+            email_id: EmailIds = EmailIds(task_info["email_id"])
+            self.send_email(email_id=email_id)
         return None, True
 
 
@@ -280,13 +571,12 @@ class ReminderEmail(EmailTask):
 
     def should_send_email(
         self,
-        task_info: Dict,
         email_id: EmailIds,
     ) -> bool:
         """
         Sends reminder emails following the following rules:
         - If the last day isn't set:
-          - Send the email daily (This is going to the line manager)
+          - Send the email daily (This is going to the Line Manager)
         - If the last day is set
           - Send the email 2 weeks before the last day
           - Send the email 1 week before the last day
@@ -295,7 +585,7 @@ class ReminderEmail(EmailTask):
         """
         assert self.leaving_request
 
-        last_day: Optional[datetime] = self.leaving_request.last_day
+        last_day = self.leaving_request.get_last_day()
         latest_email: Optional[TaskLog] = (
             self.leaving_request.email_task_logs.filter(
                 task_name__contains=email_id.value,
@@ -311,8 +601,8 @@ class ReminderEmail(EmailTask):
             else:
                 next_email_date = latest_email.created_at + timedelta(days=1)
         else:
-            two_weeks_before_last_day: datetime = last_day - timedelta(days=14)
-            one_week_before_last_day: datetime = last_day - timedelta(days=7)
+            two_weeks_before_last_day = last_day - timedelta(days=14)
+            one_week_before_last_day = last_day - timedelta(days=7)
 
             # Work out when the next email should be sent
             if not latest_email:
@@ -331,6 +621,159 @@ class ReminderEmail(EmailTask):
         if timezone.now() >= next_email_date:
             return True
         return False
+
+
+class ProcessorReminderEmail(EmailTask):
+    abstract = False
+    task_name = "processor_reminder_email"
+    auto = True
+
+    def should_send_email(
+        self,
+        email_id: EmailIds,
+    ) -> bool:
+        assert self.leaving_request
+
+        already_sent = self.leaving_request.email_task_logs.filter(
+            task_name__contains=email_id.value,
+        ).exists()
+
+        return not already_sent
+
+    def get_send_email_method(self, email_id: EmailIds) -> Callable:
+        def send_processor_email(
+            leaving_request: LeavingRequest, template_id: Optional[EmailTemplates]
+        ):
+            assert template_id
+            from core import notify
+
+            notify.email(
+                email_addresses=[self.processor_email],
+                template_id=template_id,
+                personalisation=get_leaving_request_email_personalisation(
+                    leaving_request
+                ),
+            )
+
+        def send_line_manager_email(
+            leaving_request: LeavingRequest, template_id: Optional[EmailTemplates]
+        ):
+            assert template_id
+            from core import notify
+
+            manager_as_user = leaving_request.get_line_manager()
+            assert manager_as_user
+
+            manager_contact_emails = manager_as_user.get_email_addresses_for_contact()
+
+            notify.email(
+                email_addresses=manager_contact_emails,
+                template_id=template_id,
+                personalisation=get_leaving_request_email_personalisation(
+                    leaving_request
+                ),
+            )
+
+        if email_id == self.day_after_lwd_email_id:
+            return send_processor_email
+        elif email_id == self.two_days_after_lwd_email_id:
+            return send_line_manager_email
+        elif email_id == self.on_ld_email_id:
+            return send_line_manager_email
+        elif email_id == self.one_day_after_ld_email_id:
+            return send_processor_email
+        elif email_id == self.two_days_after_ld_lm_email_id:
+            return send_line_manager_email
+        elif email_id == self.two_days_after_ld_proc_email_id:
+            return send_processor_email
+
+        raise Exception(f"Email method not found for {email_id.value}")
+
+    def execute(self, task_info):
+        """
+        Key:
+         - lwd = Last Working Day
+         - ld = Leaving Date
+         - lm = Line Manager
+         - proc = Processor
+        """
+        assert self.leaving_request
+        if self.should_skip(task_info=task_info):
+            return None, True
+
+        self.processor_email: str = task_info["processor_email"]
+
+        today = timezone.now()
+        last_working_day = self.leaving_request.get_last_day()
+        leaving_date = self.leaving_request.get_leaving_date()
+
+        assert last_working_day
+        assert leaving_date
+
+        # Day after Last working day
+        day_after_lwd = task_info.get("day_after_lwd")
+        if day_after_lwd and today >= last_working_day + timedelta(days=1):
+            self.day_after_lwd_email_id = EmailIds(day_after_lwd)
+            self.send_email(
+                email_id=self.day_after_lwd_email_id,
+                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
+                    self.day_after_lwd_email_id
+                ],
+            )
+
+        # 2 days after Last working day
+        two_days_after_lwd = task_info["two_days_after_lwd"]
+        if two_days_after_lwd and today >= last_working_day + timedelta(days=2):
+            self.two_days_after_lwd_email_id = EmailIds(two_days_after_lwd)
+            self.send_email(
+                email_id=self.two_days_after_lwd_email_id,
+                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
+                    self.two_days_after_lwd_email_id
+                ],
+            )
+
+        # Leaving date
+        on_ld = task_info["on_ld"]
+        if on_ld and today >= leaving_date:
+            self.on_ld_email_id = EmailIds(on_ld)
+            self.send_email(
+                email_id=self.on_ld_email_id,
+                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[self.on_ld_email_id],
+            )
+
+        # Day after Leaving date
+        one_day_after_ld = task_info["one_day_after_ld"]
+        if one_day_after_ld and today >= leaving_date + timedelta(days=1):
+            self.one_day_after_ld_email_id = EmailIds(one_day_after_ld)
+            self.send_email(
+                email_id=self.one_day_after_ld_email_id,
+                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
+                    self.one_day_after_ld_email_id
+                ],
+            )
+
+        # Two days after Leaving date
+        if today >= leaving_date + timedelta(days=1):
+            two_days_after_ld_lm = task_info["two_days_after_ld_lm"]
+            if two_days_after_ld_lm:
+                self.two_days_after_ld_lm_email_id = EmailIds(two_days_after_ld_lm)
+                self.send_email(
+                    email_id=self.two_days_after_ld_lm_email_id,
+                    template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
+                        self.two_days_after_ld_lm_email_id
+                    ],
+                )
+            two_days_after_ld_proc = task_info["two_days_after_ld_proc"]
+            if two_days_after_ld_proc:
+                self.two_days_after_ld_proc_email_id = EmailIds(two_days_after_ld_proc)
+                self.send_email(
+                    email_id=self.two_days_after_ld_proc_email_id,
+                    template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
+                        self.two_days_after_ld_proc_email_id
+                    ],
+                )
+
+        return None, True
 
 
 class HasLineManagerCompleted(LeavingRequestTask):
@@ -364,15 +807,36 @@ class IsItXDaysBeforePayroll(LeavingRequestTask):
         return None, True
 
 
-class HaveSecurityCarriedOutLeavingTasks(LeavingRequestTask):
+class HaveSecurityCarriedOutBuildingPassLeavingTasks(LeavingRequestTask):
     abstract = False
-    task_name = "have_security_carried_out_leaving_tasks"
+    task_name = "have_security_carried_out_bp_leaving_tasks"
     auto = True
 
     def execute(self, task_info):
-        if self.leaving_request.security_team_complete:
+        if (
+            self.leaving_request.security_team_complete
+            or self.leaving_request.security_team_building_pass_complete
+        ):
             return ["are_all_tasks_complete"], True
-        return ["send_security_reminder"], False
+        return ["send_security_bp_reminder"], False
+
+
+class HaveSecurityCarriedOutRosaKitLeavingTasks(LeavingRequestTask):
+    abstract = False
+    task_name = "have_security_carried_out_rk_leaving_tasks"
+    auto = True
+
+    def execute(self, task_info):
+        if not self.leaving_request.is_rosa_user:
+            return ["are_all_tasks_complete"], True
+
+        if (
+            self.leaving_request.security_team_complete
+            or self.leaving_request.security_team_rosa_kit_complete
+        ):
+            return ["are_all_tasks_complete"], True
+
+        return ["send_security_rk_reminder"], False
 
 
 class HaveSRECarriedOutLeavingTasks(LeavingRequestTask):

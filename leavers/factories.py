@@ -20,6 +20,7 @@ class LeavingRequestFactory(DjangoModelFactory):
     user_requesting = factory.SubFactory(UserFactory)
     leaver_activitystream_user = factory.SubFactory(ActivityStreamStaffSSOUserFactory)
     manager_activitystream_user = factory.SubFactory(ActivityStreamStaffSSOUserFactory)
+    processing_manager_activitystream_user = None
     data_recipient_activitystream_user = factory.SubFactory(
         ActivityStreamStaffSSOUserFactory
     )
