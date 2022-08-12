@@ -111,16 +111,7 @@ class TaskConfirmationView(base.TaskConfirmationView):
             submission_type = "submit"
 
         if submission_type == "submit":
-            first_slack_message = self.leaving_request.slack_messages.order_by(
-                "-created_at"
-            ).first()
-
-            if not first_slack_message:
-                raise Exception("No Slack messages found")
-
-            # TODO handle None in above result
             send_sre_complete_message(
-                thread_ts=first_slack_message.slack_timestamp,
                 leaving_request=self.leaving_request,
             )
 

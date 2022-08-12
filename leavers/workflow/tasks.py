@@ -2,7 +2,6 @@ from datetime import timedelta
 from enum import Enum
 from typing import Callable, Dict, List, Optional
 
-from django.conf import settings
 from django.utils import timezone
 from django_workflow_engine import Task
 from django_workflow_engine.dataclass import Step
@@ -16,12 +15,16 @@ from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.uksbs.types import PersonData
 from core.utils.lsd import inform_lsd_team_of_leaver
-from core.utils.sre_messages import FailedToSendSREAlertMessage, send_sre_alert_message
+from core.utils.sre_messages import (
+    FailedToSendSREAlertMessage,
+    send_sre_alert_message,
+    send_sre_reminder_message,
+)
 from leavers.exceptions import (
     LeaverDoesNotHaveUKSBSPersonId,
     ManagerDoesNotHaveUKSBSPersonId,
 )
-from leavers.models import LeaverInformation, LeavingRequest, SlackMessage, TaskLog
+from leavers.models import LeaverInformation, LeavingRequest, TaskLog
 from leavers.types import ReminderEmailDict
 from leavers.utils.emails import (
     get_leaving_request_email_personalisation,
@@ -655,6 +658,14 @@ class ProcessorReminderEmail(EmailTask):
                 ),
             )
 
+            sre_reminder_email_ids: List[EmailIds] = [
+                email_id for _, email_id in SRE_REMINDER_EMAILS
+            ]
+            if email_id in sre_reminder_email_ids:
+                send_sre_reminder_message(
+                    email_id=email_id, leaving_request=leaving_request
+                )
+
         def send_line_manager_email(
             leaving_request: LeavingRequest, template_id: Optional[EmailTemplates]
         ):
@@ -857,13 +868,8 @@ class SendSRESlackMessage(LeavingRequestTask):
 
     def execute(self, task_info):
         try:
-            alert_response = send_sre_alert_message(
+            send_sre_alert_message(
                 leaving_request=self.leaving_request,
-            )
-            SlackMessage.objects.create(
-                slack_timestamp=alert_response.data["ts"],
-                leaving_request=self.leaving_request,
-                channel_id=settings.SLACK_SRE_CHANNEL_ID,
             )
         except FailedToSendSREAlertMessage:
             print("Failed to send SRE alert message")

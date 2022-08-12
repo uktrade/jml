@@ -4,6 +4,7 @@ from django_workflow_engine import Step, Workflow
 from leavers.workflow.tasks import (  # noqa F401
     SECURITY_TEAM_BP_REMINDER_EMAILS,
     SECURITY_TEAM_RK_REMINDER_EMAILS,
+    SRE_REMINDER_EMAILS,
     BasicTask,
     EmailIds,
     SkipCondition,
@@ -295,12 +296,7 @@ LeaversWorkflow = Workflow(
             ],
             task_info={
                 "processor_email": settings.SRE_EMAIL,
-                "day_after_lwd": EmailIds.SRE_REMINDER_DAY_AFTER_LWD,
-                "two_days_after_lwd": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LWD,
-                "on_ld": EmailIds.SRE_REMINDER_ON_LD,
-                "one_day_after_ld": EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD,
-                "two_days_after_ld_lm": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_LM,
-                "two_days_after_ld_proc": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC,
+                **SRE_REMINDER_EMAILS,
             },
         ),
         # End
