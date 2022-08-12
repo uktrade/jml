@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 
-from core.utils.sre_messages import send_sre_complete_message
 from leavers.forms import sre as sre_forms
 from leavers.models import LeavingRequest, TaskLog
 from leavers.views import base
@@ -104,6 +103,8 @@ class TaskConfirmationView(base.TaskConfirmationView):
         return reverse_lazy("sre-thank-you", args=[self.leaving_request.uuid])
 
     def form_valid(self, form):
+        from core.utils.sre_messages import send_sre_complete_message
+
         response = super().form_valid(form)
 
         submission_type: Literal["save", "submit"] = "save"

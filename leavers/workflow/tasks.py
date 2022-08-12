@@ -15,11 +15,6 @@ from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.uksbs.types import PersonData
 from core.utils.lsd import inform_lsd_team_of_leaver
-from core.utils.sre_messages import (
-    FailedToSendSREAlertMessage,
-    send_sre_alert_message,
-    send_sre_reminder_message,
-)
 from leavers.exceptions import (
     LeaverDoesNotHaveUKSBSPersonId,
     ManagerDoesNotHaveUKSBSPersonId,
@@ -647,9 +642,10 @@ class ProcessorReminderEmail(EmailTask):
         def send_processor_email(
             leaving_request: LeavingRequest, template_id: Optional[EmailTemplates]
         ):
-            assert template_id
             from core import notify
+            from core.utils.sre_messages import send_sre_reminder_message
 
+            assert template_id
             notify.email(
                 email_addresses=[self.processor_email],
                 template_id=template_id,
@@ -867,6 +863,11 @@ class SendSRESlackMessage(LeavingRequestTask):
     task_name = "send_sre_slack_message"
 
     def execute(self, task_info):
+        from core.utils.sre_messages import (
+            FailedToSendSREAlertMessage,
+            send_sre_alert_message,
+        )
+
         try:
             send_sre_alert_message(
                 leaving_request=self.leaving_request,

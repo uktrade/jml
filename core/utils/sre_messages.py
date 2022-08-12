@@ -7,10 +7,10 @@ from slack_sdk.web.slack_response import SlackResponse
 from core.utils.helpers import make_possessive
 from core.utils.slack import FailedToSendSlackMessage, send_slack_message
 from leavers.models import SlackMessage
+from leavers.workflow.tasks import EmailIds
 
 if TYPE_CHECKING:
     from leavers.models import LeavingRequest
-    from leavers.workflow.tasks import EmailIds
 
 
 def send_slack_message_for_leaving_request(
@@ -19,7 +19,7 @@ def send_slack_message_for_leaving_request(
     channel_id: str,
     message_content: str,
     thread_ts: Optional[str] = None,
-):
+) -> SlackResponse:
     slack_response = send_slack_message(
         channel_id=channel_id,
         message_content=message_content,
@@ -30,6 +30,7 @@ def send_slack_message_for_leaving_request(
         leaving_request=leaving_request,
         channel_id=channel_id,
     )
+    return slack_response
 
 
 class FailedToSendSREAlertMessage(Exception):
