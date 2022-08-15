@@ -45,7 +45,7 @@ LeaversWorkflow = Workflow(
                 "check_uksbs_leaver",
             ],
             task_info={
-                "email_id": EmailIds.LINE_MANAGER_CORRECTION.value,
+                "email_id": EmailIds.LEAVER_NOT_IN_UKSBS_REMINDER.value,
             },
         ),
         Step(
