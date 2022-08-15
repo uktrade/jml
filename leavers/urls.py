@@ -222,7 +222,7 @@ urlpatterns = [
         name="admin-leaving-request-listing",
     ),
     path(
-        "jmladmin/leaving-requests/<uuid:leaving_request_id>/",
+        "admin/leaving-requests/<uuid:leaving_request_id>/",
         admin_views.LeavingRequestDetailView.as_view(),
         name="admin-leaving-request-detail",
     ),

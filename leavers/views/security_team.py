@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -38,6 +39,11 @@ class LeavingRequestListing(base.LeavingRequestListing):
         return self.request.user.groups.filter(
             name="Security Team",
         ).exists()
+
+    def get_leaving_requests(self) -> QuerySet[LeavingRequest]:
+        leaving_requests = super().get_leaving_requests()
+        # Filter out any that haven't been completed by the Line Manager.
+        return leaving_requests.exclude(line_manager_complete__isnull=True)
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         self.role = get_security_role(request)

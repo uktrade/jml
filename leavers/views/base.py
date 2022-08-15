@@ -52,10 +52,7 @@ class LeavingRequestListing(
         self.show_incomplete = show_incomplete
 
     def get_leaving_requests(self) -> QuerySet[LeavingRequest]:
-        # Filter out any that haven't been completed by the Line Manager.
-        leaving_requests: QuerySet[
-            LeavingRequest
-        ] = LeavingRequest.objects.all().exclude(line_manager_complete__isnull=True)
+        leaving_requests: QuerySet[LeavingRequest] = LeavingRequest.objects.all()
         complete_field = self.get_complete_field()
         if complete_field:
             if not self.show_complete:

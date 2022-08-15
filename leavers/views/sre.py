@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Literal, Tuple
 
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -34,6 +35,11 @@ class LeavingRequestListing(base.LeavingRequestListing):
         return self.request.user.groups.filter(
             name="SRE",
         ).exists()
+
+    def get_leaving_requests(self) -> QuerySet[LeavingRequest]:
+        leaving_requests = super().get_leaving_requests()
+        # Filter out any that haven't been completed by the Line Manager.
+        return leaving_requests.exclude(line_manager_complete__isnull=True)
 
 
 class TaskConfirmationView(base.TaskConfirmationView):
