@@ -238,7 +238,7 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
             response.context["leaving_date"], self.leaving_request.last_day.date()
         )
 
-    @mock.patch("leavers.views.sre.send_sre_complete_message")
+    @mock.patch("core.utils.sre_messages.send_sre_complete_message")
     def test_save_form(self, mock_send_sre_complete_message):
         self.client.force_login(self.authenticated_user)
         self.client.post(
@@ -251,7 +251,7 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
         # Check that the leaving request has NOT been marked as SRE complete
         self.assertFalse(self.leaving_request.sre_complete)
 
-    @mock.patch("leavers.views.sre.send_sre_complete_message")
+    @mock.patch("core.utils.sre_messages.send_sre_complete_message")
     def test_submit_form(self, mock_send_sre_complete_message):
         self.client.force_login(self.authenticated_user)
         self.client.post(

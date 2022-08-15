@@ -306,6 +306,7 @@ Report 2
 Request
 return_contact_email
 ReturnOptions
+risk.\n
 role="alert
 ROSA
 ROSA Access Revoked
@@ -401,6 +402,7 @@ the Leaver Activity Stream
 the Leaver Form's
 the Leaving DIT
 the Leaving Request
+the Leaving Service
 the OCS OAB Locker Team                           
 the OCS Team                            
 the Security Team

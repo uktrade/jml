@@ -7,7 +7,6 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 
-from core.utils.sre_messages import send_sre_complete_message
 from leavers.forms import sre as sre_forms
 from leavers.models import LeavingRequest, TaskLog
 from leavers.views import base
@@ -104,6 +103,8 @@ class TaskConfirmationView(base.TaskConfirmationView):
         return reverse_lazy("sre-thank-you", args=[self.leaving_request.uuid])
 
     def form_valid(self, form):
+        from core.utils.sre_messages import send_sre_complete_message
+
         response = super().form_valid(form)
 
         submission_type: Literal["save", "submit"] = "save"
@@ -111,16 +112,7 @@ class TaskConfirmationView(base.TaskConfirmationView):
             submission_type = "submit"
 
         if submission_type == "submit":
-            first_slack_message = self.leaving_request.slack_messages.order_by(
-                "-created_at"
-            ).first()
-
-            if not first_slack_message:
-                raise Exception("No Slack messages found")
-
-            # TODO handle None in above result
             send_sre_complete_message(
-                thread_ts=first_slack_message.slack_timestamp,
                 leaving_request=self.leaving_request,
             )
 
