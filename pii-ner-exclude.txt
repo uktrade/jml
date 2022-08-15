@@ -9,6 +9,7 @@
 " Physical Asset Categories "
 " Physical Asset Statuses "
 " Returns the Line Manager
+" Returns True
 " Send Leaver
 " Send SRE Team
 " Send the Leaver

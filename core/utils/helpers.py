@@ -1,12 +1,37 @@
+from enum import Enum
 from typing import Dict, Iterable, List, Literal, Optional, Type
 
 from django.db.models import Model, QuerySet
+from django.utils import timezone
+
+
+class IsoWeekdays(Enum):
+    MONDAY = 1
+    TUESDAY = 2
+    WEDNESDAY = 3
+    THURSDAY = 4
+    FRIDAY = 5
+    SATURDAY = 6
+    SUNDAY = 7
 
 
 def bool_to_yes_no(value: Optional[bool] = None) -> Literal["yes", "no"]:
     if value:
         return "yes"
     return "no"
+
+
+def is_work_day() -> bool:
+    """
+    Returns True if it is a work day.
+    """
+    today = timezone.now().date()
+    if today.isoweekday() in [
+        IsoWeekdays.SATURDAY.value,
+        IsoWeekdays.SUNDAY.value,
+    ]:
+        return False
+    return True
 
 
 def make_possessive(word: str) -> str:
