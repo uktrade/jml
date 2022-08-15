@@ -115,14 +115,19 @@ class LeavingRequestListing(
             lr_result_data = {
                 "link": link,
                 "leaver_name": lr.get_leaver_name(),
-                "security_clearance": SecurityClearance(lr.security_clearance).label,
                 "work_email": lr.get_leaver_email(),
                 "complete": is_complete,
+                "security_clearance": "Not yet known",
                 "leaving_date": "Not yet known",
                 "last_day": "Not yet known",
                 "days_until_last_working_day": "Not yet known",
                 "reported_on": "Not yet reported",
             }
+
+            if lr.security_clearance:
+                lr_result_data.update(
+                    security_clearance=SecurityClearance(lr.security_clearance).label
+                )
 
             if lr.line_manager_complete:
                 lr_result_data.update(reported_on=lr.line_manager_complete.date())
