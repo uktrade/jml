@@ -193,7 +193,7 @@ class CheckUKSBSLeaver(LeavingRequestTask):
         except (UKSBSUnexpectedResponse, UKSBSPersonNotFound):
             return ["send_leaver_not_in_uksbs_reminder"], False
 
-        return [], True
+        return ["check_uksbs_line_manager"], True
 
 
 class CheckUKSBSLineManager(LeavingRequestTask):
