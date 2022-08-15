@@ -43,6 +43,8 @@ def get_leaving_request_email_personalisation(
     manager_as_user = leaving_request.get_line_manager()
     assert manager_as_user
 
+    site_url = settings.SITE_URL
+
     personalisation.update(
         leaver_name=leaver_name,
         possessive_leaver_name=make_possessive(leaver_name),
@@ -50,14 +52,17 @@ def get_leaving_request_email_personalisation(
         manager_email=manager_as_user.get_email_addresses_for_contact()[0],
         leaving_date=leaving_date.strftime("%d-%B-%Y %H:%M"),
         last_day=last_day.strftime("%d-%B-%Y %H:%M"),
-        contact_us_link=reverse("beta-service-feedback"),
-        security_team_bp_link=reverse(
+        contact_us_link=site_url + reverse("beta-service-feedback"),
+        line_manager_link=site_url
+        + reverse("line-manager-start", args=[leaving_request.uuid]),
+        security_team_bp_link=site_url
+        + reverse(
             "security-team-building-pass-confirmation", args=[leaving_request.uuid]
         ),
-        security_team_rk_link=reverse(
-            "security-team-rosa-kit-confirmation", args=[leaving_request.uuid]
-        ),
-        sre_team_link=reverse(
+        security_team_rk_link=site_url
+        + reverse("security-team-rosa-kit-confirmation", args=[leaving_request.uuid]),
+        sre_team_link=site_url
+        + reverse(
             "sre-confirmation", kwargs={"leaving_request_id": leaving_request.uuid}
         ),
     )
@@ -294,9 +299,6 @@ def send_line_manager_notification_email(
         raise ValueError("manager_contact_emails is not set")
 
     personalisation = get_leaving_request_email_personalisation(leaving_request)
-    personalisation.update(
-        line_manager_link=reverse("line-manager-start", args=[leaving_request.uuid]),
-    )
 
     notify.email(
         email_addresses=manager_contact_emails,
@@ -320,9 +322,6 @@ def send_line_manager_reminder_email(
         raise ValueError("manager_contact_emails is not set")
 
     personalisation = get_leaving_request_email_personalisation(leaving_request)
-    personalisation.update(
-        line_manager_link=reverse("line-manager-start", args=[leaving_request.uuid]),
-    )
 
     notify.email(
         email_addresses=manager_contact_emails,
