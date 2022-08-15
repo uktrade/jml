@@ -8,6 +8,7 @@ from freezegun import freeze_time
 from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
 from leavers.models import LeaverInformation, LeavingRequest
 from leavers.workflow.tasks import (
+    DailyReminderEmail,
     EmailIds,
     ProcessorReminderEmail,
     ReminderEmail,
@@ -76,6 +77,75 @@ class TestSkipConditions(TestCase):
                 },
             )
         )
+
+
+class TestDailyReminderEmail(TestCase):
+    def setUp(self):
+        self.user = UserFactory()
+
+        self.flow = FlowFactory(executed_by=self.user)
+        self.task_record = TaskRecordFactory(executed_by=self.user, flow=self.flow)
+        self.leaving_request = LeavingRequestFactory(
+            last_day=make_aware(datetime(2021, 12, 15)),
+        )
+        self.flow.leaving_request = self.leaving_request
+        self.flow.save()
+
+        self.task = DailyReminderEmail(self.user, self.task_record, self.flow)
+
+        self.task_name = (
+            "Some task name that contains an Email ID "
+            f"{EmailIds.LINE_MANAGER_CORRECTION.value}"
+        )
+
+    @freeze_time("2021-11-30")  # Tuesday
+    def test_daily_logic(self):
+        self.assertTrue(
+            self.task.should_send_email(
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
+            )
+        )
+        self.leaving_request.email_task_logs.create(
+            user=self.user,
+            task_name=self.task_name,
+        )
+        self.assertFalse(
+            self.task.should_send_email(
+                email_id=EmailIds.LINE_MANAGER_CORRECTION,
+            )
+        )
+
+        with freeze_time("2021-12-1"):  # Wednesday
+            self.assertTrue(
+                self.task.should_send_email(
+                    email_id=EmailIds.LINE_MANAGER_CORRECTION,
+                )
+            )
+            self.leaving_request.email_task_logs.create(
+                user=self.user,
+                task_name=self.task_name,
+            )
+            self.assertFalse(
+                self.task.should_send_email(
+                    email_id=EmailIds.LINE_MANAGER_CORRECTION,
+                )
+            )
+
+        with freeze_time("2021-12-2"):  # Thursday
+            self.assertTrue(
+                self.task.should_send_email(
+                    email_id=EmailIds.LINE_MANAGER_CORRECTION,
+                )
+            )
+            self.leaving_request.email_task_logs.create(
+                user=self.user,
+                task_name=self.task_name,
+            )
+            self.assertFalse(
+                self.task.should_send_email(
+                    email_id=EmailIds.LINE_MANAGER_CORRECTION,
+                )
+            )
 
 
 class TestReminderEmail(TestCase):

@@ -624,9 +624,6 @@ class TestUpdateDetailsView(TestCase):
             response, "form", "contact_address_line_1", "This field is required."
         )
         self.assertFormError(
-            response, "form", "contact_address_line_2", "This field is required."
-        )
-        self.assertFormError(
             response, "form", "contact_address_city", "This field is required."
         )
         self.assertFormError(
@@ -1249,7 +1246,7 @@ class TestCirrusEquipmentReturnInformationView(TestCase):
         self.assertEqual(response.status_code, 200)
         context_form = response.context["form"]
         self.assertTrue(context_form.fields["address_line_1"].required)
-        self.assertTrue(context_form.fields["address_line_2"].required)
+        self.assertFalse(context_form.fields["address_line_2"].required)
         self.assertTrue(context_form.fields["address_city"].required)
         self.assertTrue(context_form.fields["address_county"].required)
         self.assertTrue(context_form.fields["address_postcode"].required)
