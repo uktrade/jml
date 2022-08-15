@@ -46,7 +46,10 @@
                     Actions
                 </dt>
                 <dd class="govuk-summary-list__value">
-                    <p><a class="govuk-link" href="{% url "flow" flow.pk %}">View leaving request</a></p>
+                    {% if flow.leaving_request %}
+                        <p><a class="govuk-link" href="{% url 'admin-leaving-request-detail' flow.leaving_request.uuid %}">View leaving request</a></p>
+                    {% endif %}
+                    <p><a class="govuk-link" href="{% url 'flow' flow.pk %}">View flow</a></p>
                     {% if flow.on_manual_step or not flow.is_complete %}
                         <p><a class="govuk-link" href="{% url "flow-continue" flow.pk %}">Progress leaving</a></p>
                     {% endif %}
