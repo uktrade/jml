@@ -97,12 +97,13 @@ def send_leaver_thank_you_email(
         leaving_request.leaver_activitystream_user
     )
 
-    if not leaver_as_user.contact_email_address:
-        raise ValueError("contact_email_address is not set")
+    contact_emails = leaver_as_user.get_email_addresses_for_contact()
+    if not contact_emails:
+        raise ValueError("Can't get contact email for the Leaver")
 
     personalisation = get_leaving_request_email_personalisation(leaving_request)
     notify.email(
-        email_addresses=[leaver_as_user.contact_email_address],
+        email_addresses=contact_emails,
         template_id=notify.EmailTemplates.LEAVER_THANK_YOU_EMAIL,
         personalisation=personalisation,
     )
