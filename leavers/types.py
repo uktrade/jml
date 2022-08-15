@@ -38,7 +38,6 @@ class LeaverDetails(TypedDict):
     last_name: str
     contact_email_address: str
     job_title: str
-    directorate: str
     staff_id: str
     # Misc.
     photo: str
@@ -49,7 +48,6 @@ class LeaverDetailUpdates(TypedDict, total=False):
     last_name: str
     contact_email_address: str
     job_title: str
-    directorate: str
 
 
 class DisplayScreenEquipmentAsset(TypedDict):

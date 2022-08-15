@@ -39,6 +39,7 @@
 0007_activitystreamstaffssouser_is_active
 0032_leavingrequest_reason_for_leaving
 0048_leaverinformation_leaver_date_of_birth
+0053_leavingrequest_processing_manager_activitystream_user
 100px
 234px
 7.7-.2
