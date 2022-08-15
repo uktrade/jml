@@ -100,13 +100,6 @@ class LeavingRequestListing(
         leaving_requests = self.get_leaving_requests()
         lr_results_data = []
         for lr in leaving_requests:
-            leaving_date = lr.get_leaving_date()
-            last_day = lr.get_last_day()
-
-            assert leaving_date
-            assert last_day
-            assert lr.line_manager_complete
-
             complete_field = self.get_complete_field()
             is_complete: Optional[bool] = None
             if complete_field:
@@ -119,25 +112,39 @@ class LeavingRequestListing(
                     self.get_summary_view(), kwargs={"leaving_request_id": lr.uuid}
                 )
 
-            days_until_last_working_day: timedelta = (
-                last_day.date() - timezone.now().date()
-            )
+            lr_result_data = {
+                "link": link,
+                "leaver_name": lr.get_leaver_name(),
+                "security_clearance": SecurityClearance(lr.security_clearance).label,
+                "work_email": lr.get_leaver_email(),
+                "complete": is_complete,
+                "leaving_date": "Not yet known",
+                "last_day": "Not yet known",
+                "days_until_last_working_day": "Not yet known",
+                "reported_on": "Not yet reported",
+            }
 
-            lr_results_data.append(
-                {
-                    "link": link,
-                    "leaver_name": lr.get_leaver_name(),
-                    "security_clearance": SecurityClearance(
-                        lr.security_clearance
-                    ).label,
-                    "work_email": lr.get_leaver_email(),
-                    "leaving_date": leaving_date.date(),
-                    "last_working_day": last_day.date(),
-                    "days_until_last_working_day": days_until_last_working_day.days,
-                    "reported_on": lr.line_manager_complete.date(),
-                    "complete": is_complete,
-                }
-            )
+            if lr.line_manager_complete:
+                lr_result_data.update(reported_on=lr.line_manager_complete.date())
+
+            leaving_date = lr.get_leaving_date()
+            last_day = lr.get_last_day()
+
+            if leaving_date:
+                lr_result_data.update(
+                    leaving_date=leaving_date.date(),
+                )
+            if last_day:
+                days_until_last_working_day: timedelta = (
+                    last_day.date() - timezone.now().date()
+                )
+
+                lr_result_data.update(
+                    last_working_day=last_day.date(),
+                    days_until_last_working_day=days_until_last_working_day.days,
+                )
+
+            lr_results_data.append(lr_result_data)
 
         # Paginate the results
         paginator = Paginator(lr_results_data, 20)
