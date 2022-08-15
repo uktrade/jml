@@ -84,7 +84,10 @@ def get_leaving_request_email_personalisation(
     return personalisation
 
 
-def send_leaver_thank_you_email(leaving_request: LeavingRequest):
+def send_leaver_thank_you_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send the Leaver an email to thank them, and inform them of the next steps
     in the process.
@@ -105,7 +108,10 @@ def send_leaver_thank_you_email(leaving_request: LeavingRequest):
     )
 
 
-def send_leaver_not_in_uksbs_reminder(leaving_request: LeavingRequest):
+def send_leaver_not_in_uksbs_reminder(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send email to inform HR that a leaver is not in UK SBS.
     """
@@ -132,7 +138,10 @@ def send_leaver_not_in_uksbs_reminder(leaving_request: LeavingRequest):
     )
 
 
-def send_csu4_leaver_email(leaving_request: LeavingRequest):
+def send_csu4_leaver_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send Cluster 4 Email to notify of a new leaver.
     """
@@ -149,7 +158,10 @@ def send_csu4_leaver_email(leaving_request: LeavingRequest):
     )
 
 
-def send_ocs_leaver_email(leaving_request: LeavingRequest):
+def send_ocs_leaver_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send OCS Email to notify of a new leaver.
     """
@@ -166,7 +178,10 @@ def send_ocs_leaver_email(leaving_request: LeavingRequest):
     )
 
 
-def send_ocs_oab_locker_email(leaving_request: LeavingRequest):
+def send_ocs_oab_locker_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send OCS OAB Locker email.
     """
@@ -183,7 +198,10 @@ def send_ocs_oab_locker_email(leaving_request: LeavingRequest):
     )
 
 
-def send_line_manager_correction_email(leaving_request: LeavingRequest):
+def send_line_manager_correction_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send an email to all of the Leaver's direct manager as per the response
     from UK SBS to get them to update the Line Manager in UK SBS to match
@@ -264,7 +282,10 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
         )
 
 
-def send_line_manager_notification_email(leaving_request: LeavingRequest):
+def send_line_manager_notification_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send Line Manager an email to notify them of a Leaver they need to process.
     """
@@ -286,7 +307,10 @@ def send_line_manager_notification_email(leaving_request: LeavingRequest):
     )
 
 
-def send_line_manager_reminder_email(leaving_request: LeavingRequest):
+def send_line_manager_reminder_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send Line Manager a reminder email to notify them of a Leaver they need to process.
     """
@@ -308,7 +332,10 @@ def send_line_manager_reminder_email(leaving_request: LeavingRequest):
     )
 
 
-def send_line_manager_thankyou_email(leaving_request: LeavingRequest):
+def send_line_manager_thankyou_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send Line Manager a thank you email.
     """
@@ -327,7 +354,10 @@ def send_line_manager_thankyou_email(leaving_request: LeavingRequest):
     )
 
 
-def send_security_team_offboard_bp_leaver_email(leaving_request: LeavingRequest):
+def send_security_team_offboard_bp_leaver_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send Security Team an email to inform them of a new leaver to be off-boarded.
     """
@@ -344,7 +374,10 @@ def send_security_team_offboard_bp_leaver_email(leaving_request: LeavingRequest)
     )
 
 
-def send_security_team_offboard_rk_leaver_email(leaving_request: LeavingRequest):
+def send_security_team_offboard_rk_leaver_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send Security Team an email to inform them of a new leaver to be off-boarded.
     """
@@ -361,7 +394,10 @@ def send_security_team_offboard_rk_leaver_email(leaving_request: LeavingRequest)
     )
 
 
-def send_sre_notification_email(leaving_request: LeavingRequest):
+def send_sre_notification_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send the SRE team an email to inform them of a new leaver to be off-boarded.
     """
@@ -378,7 +414,10 @@ def send_sre_notification_email(leaving_request: LeavingRequest):
     )
 
 
-def send_it_ops_asset_email(leaving_request: LeavingRequest):
+def send_it_ops_asset_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send IT Ops team an email to inform them of a leaver and their reported Assets.
     """
