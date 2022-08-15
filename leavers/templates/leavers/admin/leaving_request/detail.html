@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1 class="govuk-heading-l">{{ leaving_request }}</h1>
+    <h2 class="govuk-heading-m">Staff involved</h2>
+    <h3 class="govuk-heading-s">Leaver</h3>
+    {% if leaver %}
+        {% include "staff_search/staff_result.html" with staff_details=leaver %}
+    {% else %}
+        <p class="govuk-body">No leaver</p>
+    {% endif %}
+    <h3 class="govuk-heading-s">Chosen Line Manager</h3>
+    {% if manager %}
+        {% include "staff_search/staff_result.html" with staff_details=manager %}
+    {% else %}
+        <p class="govuk-body">No line manager</p>
+    {% endif %}
+    <h3 class="govuk-heading-s">Processing Line Manager</h3>
+    {% if processing_manager %}
+        {% include "staff_search/staff_result.html" with staff_details=processing_manager %}
+    {% else %}
+        <p class="govuk-body">No processing manager</p>
+    {% endif %}
+    <h3 class="govuk-heading-s">Data Recipient</h3>
+    {% if data_recipient %}
+        {% include "staff_search/staff_result.html" with staff_details=data_recipient %}
+    {% else %}
+        <p class="govuk-body">No data recipient</p>
+    {% endif %}
+
+    <table class="govuk-table">
+        <caption class="govuk-table__caption govuk-table__caption--m">Details</caption>
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header">Field</th>
+                <th scope="col" class="govuk-table__header">Value</th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for field, value in leaving_request_field_values %}
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">{{ field }}</th>
+                    <td class="govuk-table__cell">{{ value }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+{% endblock %}
