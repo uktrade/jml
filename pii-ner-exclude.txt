@@ -217,6 +217,7 @@ Leaver Email
 Leaver Final Actions Email
 Leaver Final Actions Email |  | X |  | X |  |  |  |
 leaver_activitystream_user__contact_email_address
+leaver_job_title
 leaver_paid_unpaid
 Leaver's Notification Form
 leaverLastDay

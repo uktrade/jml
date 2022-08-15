@@ -14,7 +14,7 @@ from django.views.generic.edit import FormView
 
 from leavers.forms import data_processor as data_processor_forms
 from leavers.forms.leaver import SecurityClearance
-from leavers.models import LeavingRequest, TaskLog
+from leavers.models import LeaverInformation, LeavingRequest, TaskLog
 from user.models import User
 
 
@@ -218,10 +218,19 @@ class TaskConfirmationView(
         if last_day_datetime:
             last_day = last_day_datetime.date()
 
+        leaver_information: Optional[
+            LeaverInformation
+        ] = self.leaving_request.leaver_information.first()
+
+        leaver_job_title: Optional[str] = None
+        if leaver_information:
+            leaver_job_title = leaver_information.job_title
+
         context.update(
             page_title=self.page_title,
             leaver_name=self.leaving_request.get_leaver_name(),
             leaver_email=self.leaving_request.get_leaver_email(),
+            leaver_job_title=leaver_job_title,
             leaving_date=leaving_date,
             last_day=last_day,
             complete=bool(getattr(self.leaving_request, self.complete_field)),
