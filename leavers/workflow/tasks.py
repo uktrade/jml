@@ -369,10 +369,7 @@ class EmailIds(Enum):
     # SRE Offboarding
     SRE_NOTIFICATION = "sre_notification"
     SRE_REMINDER_DAY_AFTER_LWD = "sre_reminder_day_after_lwd"
-    SRE_REMINDER_TWO_DAYS_AFTER_LWD = "sre_reminder_two_days_after_lwd"
-    SRE_REMINDER_ON_LD = "sre_reminder_on_ld"
     SRE_REMINDER_ONE_DAY_AFTER_LD = "sre_reminder_one_day_after_ld"
-    SRE_REMINDER_TWO_DAYS_AFTER_LD_LM = "sre_reminder_two_days_after_ld_lm"
     SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC = "sre_reminder_two_days_after_ld_proc"
 
     IT_OPS_ASSET_EMAIL = "it_ops_asset_email"
@@ -437,15 +434,8 @@ PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
     ),
     # SRE Offboarding
     EmailIds.SRE_REMINDER_DAY_AFTER_LWD: (EmailTemplates.SRE_REMINDER_DAY_AFTER_LWD),
-    EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LWD: (
-        EmailTemplates.SRE_REMINDER_TWO_DAYS_AFTER_LWD
-    ),
-    EmailIds.SRE_REMINDER_ON_LD: (EmailTemplates.SRE_REMINDER_ON_LD),
     EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD: (
         EmailTemplates.SRE_REMINDER_ONE_DAY_AFTER_LD
-    ),
-    EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_LM: (
-        EmailTemplates.SRE_REMINDER_TWO_DAYS_AFTER_LD_LM
     ),
     EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
         EmailTemplates.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC
@@ -476,12 +466,17 @@ SECURITY_TEAM_RK_REMINDER_EMAILS: ReminderEmailDict = {
 
 SRE_REMINDER_EMAILS: ReminderEmailDict = {
     "day_after_lwd": EmailIds.SRE_REMINDER_DAY_AFTER_LWD,
-    "two_days_after_lwd": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LWD,
-    "on_ld": EmailIds.SRE_REMINDER_ON_LD,
+    "two_days_after_lwd": None,
+    "on_ld": None,
     "one_day_after_ld": EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD,
-    "two_days_after_ld_lm": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_LM,
+    "two_days_after_ld_lm": None,
     "two_days_after_ld_proc": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC,
 }
+SRE_REMINDER_EMAIL_IDS: List[EmailIds] = [
+    sre_reminder_email_id  # type: ignore
+    for _, sre_reminder_email_id in SRE_REMINDER_EMAILS.items()
+    if sre_reminder_email_id
+]
 
 
 class SkipCondition(Enum):
@@ -658,10 +653,7 @@ class ProcessorReminderEmail(EmailTask):
                 ),
             )
 
-            sre_reminder_email_ids: List[EmailIds] = [
-                email_id for _, email_id in SRE_REMINDER_EMAILS
-            ]
-            if email_id in sre_reminder_email_ids:
+            if email_id in SRE_REMINDER_EMAIL_IDS:
                 send_sre_reminder_message(
                     email_id=email_id, leaving_request=leaving_request
                 )
@@ -738,7 +730,7 @@ class ProcessorReminderEmail(EmailTask):
             )
 
         # 2 days after Last working day
-        two_days_after_lwd = task_info["two_days_after_lwd"]
+        two_days_after_lwd = task_info.get("two_days_after_lwd")
         if two_days_after_lwd and today >= last_working_day + timedelta(days=2):
             self.two_days_after_lwd_email_id = EmailIds(two_days_after_lwd)
             self.send_email(
@@ -749,7 +741,7 @@ class ProcessorReminderEmail(EmailTask):
             )
 
         # Leaving date
-        on_ld = task_info["on_ld"]
+        on_ld = task_info.get("on_ld")
         if on_ld and today >= leaving_date:
             self.on_ld_email_id = EmailIds(on_ld)
             self.send_email(
@@ -758,7 +750,7 @@ class ProcessorReminderEmail(EmailTask):
             )
 
         # Day after Leaving date
-        one_day_after_ld = task_info["one_day_after_ld"]
+        one_day_after_ld = task_info.get("one_day_after_ld")
         if one_day_after_ld and today >= leaving_date + timedelta(days=1):
             self.one_day_after_ld_email_id = EmailIds(one_day_after_ld)
             self.send_email(
@@ -770,7 +762,7 @@ class ProcessorReminderEmail(EmailTask):
 
         # Two days after Leaving date
         if today >= leaving_date + timedelta(days=1):
-            two_days_after_ld_lm = task_info["two_days_after_ld_lm"]
+            two_days_after_ld_lm = task_info.get("two_days_after_ld_lm")
             if two_days_after_ld_lm:
                 self.two_days_after_ld_lm_email_id = EmailIds(two_days_after_ld_lm)
                 self.send_email(
@@ -779,7 +771,7 @@ class ProcessorReminderEmail(EmailTask):
                         self.two_days_after_ld_lm_email_id
                     ],
                 )
-            two_days_after_ld_proc = task_info["two_days_after_ld_proc"]
+            two_days_after_ld_proc = task_info.get("two_days_after_ld_proc")
             if two_days_after_ld_proc:
                 self.two_days_after_ld_proc_email_id = EmailIds(two_days_after_ld_proc)
                 self.send_email(

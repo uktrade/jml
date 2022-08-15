@@ -25,8 +25,13 @@ def send_slack_message_for_leaving_request(
         message_content=message_content,
         thread_ts=thread_ts,
     )
+
+    slack_timestamp = ""
+    if type(slack_response.data) == dict:
+        slack_timestamp = slack_response.data["ts"]
+
     SlackMessage.objects.create(
-        slack_timestamp=slack_response.data["ts"],
+        slack_timestamp=slack_timestamp,
         leaving_request=leaving_request,
         channel_id=channel_id,
     )
@@ -140,7 +145,10 @@ def send_sre_reminder_message(
         raise FailedToSendSREReminderMessage("No Slack messages found")
 
     leaver_name = leaving_request.get_leaver_name()
-    possessive_leaver_name = make_possessive(leaver_name)
+    possessive_leaver_name = ""
+    if leaver_name:
+        possessive_leaver_name = make_possessive(leaver_name)
+
     sre_team_link = reverse(
         "sre-confirmation", kwargs={"leaving_request_id": leaving_request.uuid}
     )

@@ -85,15 +85,8 @@ class EmailTemplates(Enum):
 
     SRE_NOTIFICATION = email_template_settings.SRE_NOTIFICATION
     SRE_REMINDER_DAY_AFTER_LWD = email_template_settings.SRE_REMINDER_DAY_AFTER_LWD
-    SRE_REMINDER_TWO_DAYS_AFTER_LWD = (
-        email_template_settings.SRE_REMINDER_TWO_DAYS_AFTER_LWD
-    )
-    SRE_REMINDER_ON_LD = email_template_settings.SRE_REMINDER_ON_LD
     SRE_REMINDER_ONE_DAY_AFTER_LD = (
         email_template_settings.SRE_REMINDER_ONE_DAY_AFTER_LD
-    )
-    SRE_REMINDER_TWO_DAYS_AFTER_LD_LM = (
-        email_template_settings.SRE_REMINDER_TWO_DAYS_AFTER_LD_LM
     )
     SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC = (
         email_template_settings.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC

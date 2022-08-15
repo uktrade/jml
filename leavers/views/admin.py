@@ -108,7 +108,7 @@ class LeavingRequestDetailView(UserPassesTestMixin, TemplateView):
     def format_json_field(
         self, field: Optional[Union[Field, ForeignObjectRel]], value: Any
     ) -> str:
-        if field.name == "line_reports":
+        if field and field.name == "line_reports":
             formatted_value = ""
             for index, line_report in enumerate(value):
                 line_report_obj = cast(LeavingRequestLineReport, line_report)
@@ -143,7 +143,7 @@ class LeavingRequestDetailView(UserPassesTestMixin, TemplateView):
         if value_type == datetime:
             return value
 
-        field_type = ""
+        field_type: Any = ""
         if field:
             field_type = type(field)
 

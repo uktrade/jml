@@ -77,12 +77,12 @@ class LeavingRequestLineReport(TypedDict):
 
 
 class ReminderEmailDict(TypedDict):
-    day_after_lwd: "EmailIds"
-    two_days_after_lwd: "EmailIds"
-    on_ld: "EmailIds"
-    one_day_after_ld: "EmailIds"
-    two_days_after_ld_lm: "EmailIds"
-    two_days_after_ld_proc: "EmailIds"
+    day_after_lwd: Optional["EmailIds"]
+    two_days_after_lwd: Optional["EmailIds"]
+    on_ld: Optional["EmailIds"]
+    one_day_after_ld: Optional["EmailIds"]
+    two_days_after_ld_lm: Optional["EmailIds"]
+    two_days_after_ld_proc: Optional["EmailIds"]
 
 
 class LeavingRequestReminderEmailTasks(TypedDict):

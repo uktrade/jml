@@ -862,6 +862,7 @@ class CirrusEquipmentReturnOptionsView(LeaverInformationMixin, FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self) -> Dict[str, Any]:
+        assert self.leaver_info
         initial = super().get_initial()
         initial["return_option"] = self.leaver_info.return_option
         return initial
@@ -910,11 +911,14 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
         )
+
         if not self.leaver_info.cirrus_assets:
             return redirect(self.get_success_url())
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self) -> Dict[str, Any]:
+        assert self.leaver_info
+
         initial = super().get_initial()
         initial["personal_phone"] = (
             self.leaver_info.return_personal_phone or self.leaver_info.contact_phone
@@ -945,6 +949,8 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
         return initial
 
     def get_form_kwargs(self) -> Dict[str, Any]:
+        assert self.leaver_info
+
         kwargs = super().get_form_kwargs()
         if self.leaver_info.return_option == ReturnOptions.OFFICE.value:
             kwargs.update(hide_address=True)
@@ -952,6 +958,8 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
         return kwargs
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        assert self.leaver_info
+
         context = super().get_context_data(**kwargs)
         context.update(
             page_title=self.progress_indicator.get_current_step_label(),
@@ -963,14 +971,13 @@ class CirrusEquipmentReturnInformationView(LeaverInformationMixin, FormView):
         return context
 
     def form_valid(self, form):
+        assert self.leaver_info
+
         user = cast(User, self.request.user)
         sso_email_user_id = cast(str, user.sso_email_user_id)
-        leaver_info = self.get_leaver_information(
-            sso_email_user_id=sso_email_user_id, requester=self.request.user
-        )
 
         address: Optional[Address] = None
-        if leaver_info.return_option == ReturnOptions.HOME.value:
+        if self.leaver_info.return_option == ReturnOptions.HOME.value:
             address: Address = {
                 "line_1": form.cleaned_data["address_line_1"],
                 "line_2": form.cleaned_data["address_line_2"],
@@ -1117,6 +1124,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
         )
+        self.leaving_request: LeavingRequest = self.leaver_info.leaving_request
 
         manager_id: Optional[str] = request.GET.get(MANAGER_SEARCH_PARAM, None)
         if manager_id:
@@ -1133,16 +1141,16 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
                     "Unable to find manager in the Staff SSO ActivityStream."
                 )
 
-            if self.leaver_info.leaving_request.manager_activitystream_user != manager:
-                self.leaver_info.leaving_request.manager_activitystream_user = manager
-                self.leaver_info.leaving_request.save()
+            if self.leaving_request.manager_activitystream_user != manager:
+                self.leaving_request.manager_activitystream_user = manager
+                self.leaving_request.save()
         return super().dispatch(request, *args, **kwargs)
 
     def get_manager(self) -> Optional[ConsolidatedStaffDocument]:
         manager: Optional[ConsolidatedStaffDocument] = None
-        if self.leaver_info.leaving_request.manager_activitystream_user:
+        if self.leaving_request.manager_activitystream_user:
             sso_email_user_id = (
-                self.leaver_info.leaving_request.manager_activitystream_user.email_user_id
+                self.leaving_request.manager_activitystream_user.email_user_id
             )
             manager_staff_document = get_staff_document_from_staff_index(
                 sso_email_user_id=sso_email_user_id,

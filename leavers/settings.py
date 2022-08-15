@@ -41,10 +41,7 @@ class EmailTemplatesSettings:
     # Procesor emails: SRE
     SRE_NOTIFICATION: str
     SRE_REMINDER_DAY_AFTER_LWD: str
-    SRE_REMINDER_TWO_DAYS_AFTER_LWD: str
-    SRE_REMINDER_ON_LD: str
     SRE_REMINDER_ONE_DAY_AFTER_LD: str
-    SRE_REMINDER_TWO_DAYS_AFTER_LD_LM: str
     SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC: str
 
     def __getattr__(self, attr):
