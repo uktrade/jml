@@ -328,6 +328,7 @@ Send
 Send Line
 Send OCS Email
 Send OCS OAB Locker
+send_leaver_thank_you_email
 Sensitive and Personal
 Service
 Service Now

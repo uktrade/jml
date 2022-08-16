@@ -4,10 +4,7 @@ from django.conf import settings
 from django.db.models.query import QuerySet
 from django.urls import reverse
 
-from activity_stream.models import (
-    ActivityStreamStaffSSOUser,
-    ActivityStreamStaffSSOUserEmail,
-)
+from activity_stream.models import ActivityStreamStaffSSOUser
 from core import notify
 from core.uksbs import get_uksbs_interface
 from core.uksbs.types import PersonData
@@ -46,6 +43,8 @@ def get_leaving_request_email_personalisation(
     manager_as_user = leaving_request.get_line_manager()
     assert manager_as_user
 
+    site_url = settings.SITE_URL
+
     personalisation.update(
         leaver_name=leaver_name,
         possessive_leaver_name=make_possessive(leaver_name),
@@ -53,14 +52,17 @@ def get_leaving_request_email_personalisation(
         manager_email=manager_as_user.get_email_addresses_for_contact()[0],
         leaving_date=leaving_date.strftime("%d-%B-%Y %H:%M"),
         last_day=last_day.strftime("%d-%B-%Y %H:%M"),
-        contact_us_link=reverse("beta-service-feedback"),
-        security_team_bp_link=reverse(
+        contact_us_link=site_url + reverse("beta-service-feedback"),
+        line_manager_link=site_url
+        + reverse("line-manager-start", args=[leaving_request.uuid]),
+        security_team_bp_link=site_url
+        + reverse(
             "security-team-building-pass-confirmation", args=[leaving_request.uuid]
         ),
-        security_team_rk_link=reverse(
-            "security-team-rosa-kit-confirmation", args=[leaving_request.uuid]
-        ),
-        sre_team_link=reverse(
+        security_team_rk_link=site_url
+        + reverse("security-team-rosa-kit-confirmation", args=[leaving_request.uuid]),
+        sre_team_link=site_url
+        + reverse(
             "sre-confirmation", kwargs={"leaving_request_id": leaving_request.uuid}
         ),
     )
@@ -84,7 +86,10 @@ def get_leaving_request_email_personalisation(
     return personalisation
 
 
-def send_leaver_thank_you_email(leaving_request: LeavingRequest):
+def send_leaver_thank_you_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send the Leaver an email to thank them, and inform them of the next steps
     in the process.
@@ -94,18 +99,22 @@ def send_leaver_thank_you_email(leaving_request: LeavingRequest):
         leaving_request.leaver_activitystream_user
     )
 
-    if not leaver_as_user.contact_email_address:
-        raise ValueError("contact_email_address is not set")
+    contact_emails = leaver_as_user.get_email_addresses_for_contact()
+    if not contact_emails:
+        raise ValueError("Can't get contact email for the Leaver")
 
     personalisation = get_leaving_request_email_personalisation(leaving_request)
     notify.email(
-        email_addresses=[leaver_as_user.contact_email_address],
+        email_addresses=contact_emails,
         template_id=notify.EmailTemplates.LEAVER_THANK_YOU_EMAIL,
         personalisation=personalisation,
     )
 
 
-def send_leaver_not_in_uksbs_reminder(leaving_request: LeavingRequest):
+def send_leaver_not_in_uksbs_reminder(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send email to inform HR that a leaver is not in UK SBS.
     """
@@ -132,7 +141,10 @@ def send_leaver_not_in_uksbs_reminder(leaving_request: LeavingRequest):
     )
 
 
-def send_csu4_leaver_email(leaving_request: LeavingRequest):
+def send_csu4_leaver_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send Cluster 4 Email to notify of a new leaver.
     """
@@ -149,7 +161,10 @@ def send_csu4_leaver_email(leaving_request: LeavingRequest):
     )
 
 
-def send_ocs_leaver_email(leaving_request: LeavingRequest):
+def send_ocs_leaver_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send OCS Email to notify of a new leaver.
     """
@@ -166,7 +181,10 @@ def send_ocs_leaver_email(leaving_request: LeavingRequest):
     )
 
 
-def send_ocs_oab_locker_email(leaving_request: LeavingRequest):
+def send_ocs_oab_locker_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send OCS OAB Locker email.
     """
@@ -183,7 +201,10 @@ def send_ocs_oab_locker_email(leaving_request: LeavingRequest):
     )
 
 
-def send_line_manager_correction_email(leaving_request: LeavingRequest):
+def send_line_manager_correction_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send an email to all of the Leaver's direct manager as per the response
     from UK SBS to get them to update the Line Manager in UK SBS to match
@@ -227,14 +248,13 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
 
     if current_manager_as_users.exists():
         for current_manager_as_user in current_manager_as_users:
-            current_manager_sso_email: Optional[
-                ActivityStreamStaffSSOUserEmail
-            ] = current_manager_as_user.sso_emails.first()
-
-            if current_manager_sso_email:
+            current_manager_contact_emails = (
+                current_manager_as_user.get_email_addresses_for_contact()
+            )
+            if current_manager_contact_emails:
                 # Send email to UKSBS manager(s)
                 notify.email(
-                    email_addresses=[current_manager_sso_email.email_address],
+                    email_addresses=current_manager_contact_emails,
                     template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_EMAIL,
                     personalisation=email_personalisation
                     | {"recipient_name": current_manager_as_user.full_name},
@@ -242,15 +262,15 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
     else:
         # If there are no manager emails, we need to email the HR Offboarding
         # team and the Line Manager that the Leaver selected.
-
-        if not manager_as_user.contact_email_address:
-            raise ValueError("contact_email_address is not set")
+        manager_contact_emails = manager_as_user.get_email_addresses_for_contact()
+        if not manager_contact_emails:
+            raise ValueError("manager_contact_emails is not set")
 
         if not settings.HR_UKSBS_CORRECTION_EMAIL:
             raise ValueError("HR_UKSBS_CORRECTION_EMAIL is not set")
 
         notify.email(
-            email_addresses=[manager_as_user.contact_email_address],
+            email_addresses=manager_contact_emails,
             template_id=notify.EmailTemplates.LINE_MANAGER_CORRECTION_REPORTED_LM_EMAIL,
             personalisation=email_personalisation
             | {"recipient_name": manager_as_user.full_name},
@@ -264,70 +284,79 @@ def send_line_manager_correction_email(leaving_request: LeavingRequest):
         )
 
 
-def send_line_manager_notification_email(leaving_request: LeavingRequest):
+def send_line_manager_notification_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send Line Manager an email to notify them of a Leaver they need to process.
     """
     manager_as_user = leaving_request.get_line_manager()
     assert manager_as_user
 
-    if not manager_as_user.contact_email_address:
-        raise ValueError("contact_email_address is not set")
+    manager_contact_emails = manager_as_user.get_email_addresses_for_contact()
+    if not manager_contact_emails:
+        raise ValueError("manager_contact_emails is not set")
 
     personalisation = get_leaving_request_email_personalisation(leaving_request)
-    personalisation.update(
-        line_manager_link=reverse("line-manager-start", args=[leaving_request.uuid]),
-    )
 
     notify.email(
-        email_addresses=[manager_as_user.contact_email_address],
+        email_addresses=manager_contact_emails,
         template_id=notify.EmailTemplates.LINE_MANAGER_NOTIFICATION_EMAIL,
         personalisation=personalisation,
     )
 
 
-def send_line_manager_reminder_email(leaving_request: LeavingRequest):
+def send_line_manager_reminder_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send Line Manager a reminder email to notify them of a Leaver they need to process.
     """
     manager_as_user = leaving_request.get_line_manager()
     assert manager_as_user
 
-    if not manager_as_user.contact_email_address:
-        raise ValueError("contact_email_address is not set")
+    manager_contact_emails = manager_as_user.get_email_addresses_for_contact()
+    if not manager_contact_emails:
+        raise ValueError("manager_contact_emails is not set")
 
     personalisation = get_leaving_request_email_personalisation(leaving_request)
-    personalisation.update(
-        line_manager_link=reverse("line-manager-start", args=[leaving_request.uuid]),
-    )
 
     notify.email(
-        email_addresses=[manager_as_user.contact_email_address],
+        email_addresses=manager_contact_emails,
         template_id=notify.EmailTemplates.LINE_MANAGER_REMINDER_EMAIL,
         personalisation=personalisation,
     )
 
 
-def send_line_manager_thankyou_email(leaving_request: LeavingRequest):
+def send_line_manager_thankyou_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send Line Manager a thank you email.
     """
     manager_as_user = leaving_request.get_line_manager()
     assert manager_as_user
 
-    if not manager_as_user.contact_email_address:
-        raise ValueError("contact_email_address is not set")
+    manager_contact_emails = manager_as_user.get_email_addresses_for_contact()
+    if not manager_contact_emails:
+        raise ValueError("manager_contact_emails is not set")
 
     personalisation = get_leaving_request_email_personalisation(leaving_request)
 
     notify.email(
-        email_addresses=[manager_as_user.contact_email_address],
+        email_addresses=manager_contact_emails,
         template_id=notify.EmailTemplates.LINE_MANAGER_THANKYOU_EMAIL,
         personalisation=personalisation,
     )
 
 
-def send_security_team_offboard_bp_leaver_email(leaving_request: LeavingRequest):
+def send_security_team_offboard_bp_leaver_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send Security Team an email to inform them of a new leaver to be off-boarded.
     """
@@ -344,7 +373,10 @@ def send_security_team_offboard_bp_leaver_email(leaving_request: LeavingRequest)
     )
 
 
-def send_security_team_offboard_rk_leaver_email(leaving_request: LeavingRequest):
+def send_security_team_offboard_rk_leaver_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send Security Team an email to inform them of a new leaver to be off-boarded.
     """
@@ -361,7 +393,10 @@ def send_security_team_offboard_rk_leaver_email(leaving_request: LeavingRequest)
     )
 
 
-def send_sre_notification_email(leaving_request: LeavingRequest):
+def send_sre_notification_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send the SRE team an email to inform them of a new leaver to be off-boarded.
     """
@@ -378,7 +413,10 @@ def send_sre_notification_email(leaving_request: LeavingRequest):
     )
 
 
-def send_it_ops_asset_email(leaving_request: LeavingRequest):
+def send_it_ops_asset_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
     """
     Send IT Ops team an email to inform them of a leaver and their reported Assets.
     """

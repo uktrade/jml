@@ -27,8 +27,18 @@ LeaversWorkflow = Workflow(
             task_name="basic_task",
             start=True,
             targets=[
+                "send_leaver_thank_you_email",
+            ],
+        ),
+        Step(
+            step_id="send_leaver_thank_you_email",
+            task_name="notification_email",
+            targets=[
                 "check_uksbs_leaver",
             ],
+            task_info={
+                "email_id": EmailIds.LEAVER_THANK_YOU_EMAIL.value,
+            },
         ),
         Step(
             step_id="check_uksbs_leaver",
@@ -40,7 +50,7 @@ LeaversWorkflow = Workflow(
         ),
         Step(
             step_id="send_leaver_not_in_uksbs_reminder",
-            task_name="reminder_email",
+            task_name="daily_reminder_email",
             targets=[
                 "check_uksbs_leaver",
             ],
@@ -58,7 +68,7 @@ LeaversWorkflow = Workflow(
         ),
         Step(
             step_id="send_line_manager_correction_reminder",
-            task_name="reminder_email",
+            task_name="daily_reminder_email",
             targets=[
                 "check_uksbs_line_manager",
             ],

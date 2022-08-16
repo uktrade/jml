@@ -28,7 +28,7 @@ class LeaverUpdateForm(forms.Form):
     contact_email_address = forms.EmailField(label="")
     contact_phone = forms.CharField(label="")
     contact_address_line_1 = forms.CharField(label="Address line 1")
-    contact_address_line_2 = forms.CharField(label="Address line 2")
+    contact_address_line_2 = forms.CharField(label="Address line 2", required=False)
     contact_address_city = forms.CharField(label="Town or city")
     contact_address_county = forms.CharField(label="County")
     contact_address_postcode = forms.CharField(label="Postcode")
@@ -214,16 +214,10 @@ class ReturnInformationForm(forms.Form):
     personal_phone = forms.CharField(label="", max_length=16)
     contact_email = forms.EmailField(label="")
     address_line_1 = forms.CharField(label="Address line 1")
-    address_line_2 = forms.CharField(label="Address line 2")
-    address_city = forms.CharField(
-        label="Town or city",
-    )
-    address_county = forms.CharField(
-        label="County",
-    )
-    address_postcode = forms.CharField(
-        label="Postcode",
-    )
+    address_line_2 = forms.CharField(label="Address line 2", required=False)
+    address_city = forms.CharField(label="Town or city")
+    address_county = forms.CharField(label="County")
+    address_postcode = forms.CharField(label="Postcode")
 
     def __init__(self, *args, hide_address: bool = False, **kwargs):
         super().__init__(*args, **kwargs)

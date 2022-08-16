@@ -193,7 +193,7 @@ class CheckUKSBSLeaver(LeavingRequestTask):
         except (UKSBSUnexpectedResponse, UKSBSPersonNotFound):
             return ["send_leaver_not_in_uksbs_reminder"], False
 
-        return [], True
+        return ["check_uksbs_line_manager"], True
 
 
 class CheckUKSBSLineManager(LeavingRequestTask):
@@ -559,6 +559,35 @@ class NotificationEmail(EmailTask):
     abstract = False
     task_name = "notification_email"
     auto = True
+
+
+class DailyReminderEmail(EmailTask):
+    abstract = False
+    task_name = "daily_reminder_email"
+    auto = True
+
+    def should_send_email(
+        self,
+        email_id: EmailIds,
+    ) -> bool:
+        assert self.leaving_request
+
+        latest_email: Optional[TaskLog] = (
+            self.leaving_request.email_task_logs.filter(
+                task_name__contains=email_id.value,
+            )
+            .order_by("-created_at")
+            .first()
+        )
+
+        if not latest_email:
+            return True
+
+        next_email_date = latest_email.created_at + timedelta(days=1)
+        # Send the email if the next email date has passed
+        if timezone.now() >= next_email_date:
+            return True
+        return False
 
 
 class ReminderEmail(EmailTask):
