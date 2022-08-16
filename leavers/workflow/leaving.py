@@ -308,7 +308,7 @@ LeaversWorkflow = Workflow(
                 "have_sre_carried_out_leaving_tasks",
             ],
             task_info={
-                "processor_email": settings.SRE_EMAIL,
+                "processor_emails": [settings.SRE_EMAIL],
                 **SRE_REMINDER_EMAILS,
             },
         ),

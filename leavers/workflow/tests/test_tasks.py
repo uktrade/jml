@@ -595,7 +595,7 @@ class TestProcessorReminderEmail(TestCase):
         self.flow.save()
 
         self.task = ProcessorReminderEmail(self.user, self.task_record, self.flow)
-        self.task_info = {"processor_email": "someone@example.com"}  # /PS-IGNORE
+        self.task_info = {"processor_emails": ["someone@example.com"]}  # /PS-IGNORE
         self.email_ids = {
             "day_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD,
             "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD,
