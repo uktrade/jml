@@ -55,7 +55,7 @@ deprecated==1.2.13
     # via redis
 dit-activity-stream==0.0.1
     # via -r requirements.in/base.in
-django==3.2.14
+django==3.2.15
     # via
     #   -r requirements.in/base.in
     #   crispy-forms-gds
@@ -234,7 +234,7 @@ waitress==2.1.2
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2.0
+whitenoise==5.2
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
