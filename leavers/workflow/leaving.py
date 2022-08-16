@@ -228,7 +228,10 @@ LeaversWorkflow = Workflow(
                 "have_security_carried_out_bp_leaving_tasks",
             ],
             task_info={
-                "processor_email": settings.SECURITY_TEAM_EMAIL,
+                "processor_emails": [
+                    settings.SECURITY_TEAM_BUILDING_PASS_EMAIL,
+                    settings.SECURITY_TEAM_EMAIL,
+                ],
                 **SECURITY_TEAM_BP_REMINDER_EMAILS,
             },
         ),
@@ -260,7 +263,7 @@ LeaversWorkflow = Workflow(
             ],
             task_info={
                 "skip_condition": SkipCondition.IS_NOT_ROSA_USER.value,
-                "processor_email": settings.SECURITY_TEAM_EMAIL,
+                "processor_emails": [settings.SECURITY_TEAM_ROSA_EMAIL],
                 **SECURITY_TEAM_RK_REMINDER_EMAILS,
             },
         ),

@@ -349,6 +349,10 @@ OCS_OAB_LOCKER_EMAIL = env("OCS_OAB_LOCKER_EMAIL", default=None)
 
 # Security Team Settings
 SECURITY_TEAM_EMAIL = env("SECURITY_TEAM_EMAIL", default=None)
+SECURITY_TEAM_BUILDING_PASS_EMAIL = env(
+    "SECURITY_TEAM_BUILDING_PASS_EMAIL", default=None
+)
+SECURITY_TEAM_ROSA_EMAIL = env("SECURITY_TEAM_ROSA_EMAIL", default=None)
 
 # SRE Team Settings
 SRE_EMAIL = env("SRE_EMAIL", default=None)

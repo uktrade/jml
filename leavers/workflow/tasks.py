@@ -675,7 +675,7 @@ class ProcessorReminderEmail(EmailTask):
 
             assert template_id
             notify.email(
-                email_addresses=[self.processor_email],
+                email_addresses=self.processor_emails,
                 template_id=template_id,
                 personalisation=get_leaving_request_email_personalisation(
                     leaving_request
@@ -738,7 +738,7 @@ class ProcessorReminderEmail(EmailTask):
         if not is_work_day():
             return None, False
 
-        self.processor_email: str = task_info["processor_email"]
+        self.processor_emails: List[str] = task_info["processor_emails"]
 
         today = timezone.now()
         last_working_day = self.leaving_request.get_last_day()

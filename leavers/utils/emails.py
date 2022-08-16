@@ -152,10 +152,13 @@ def send_csu4_leaver_email(
     if not settings.CSU4_EMAIL:
         raise ValueError("CSU4_EMAIL is not set")
 
+    if not settings.SECURITY_TEAM_EMAIL:
+        raise ValueError("SECURITY_TEAM_EMAIL is not set")
+
     personalisation = get_leaving_request_email_personalisation(leaving_request)
 
     notify.email(
-        email_addresses=[settings.CSU4_EMAIL],
+        email_addresses=[settings.CSU4_EMAIL, settings.SECURITY_TEAM_EMAIL],
         template_id=notify.EmailTemplates.CSU4_LEAVER_EMAIL,
         personalisation=personalisation,
     )
