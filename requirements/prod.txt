@@ -123,10 +123,6 @@ frozenlist==1.2.0
     # via
     #   aiohttp
     #   aiosignal
-gevent==21.12.0
-    # via -r requirements.in/prod.in
-greenlet==1.1.2
-    # via gevent
 idna==3.3
     # via
     #   requests
@@ -253,10 +249,3 @@ yarl==1.7.2
     # via aiohttp
 zenpy==2.0.24
     # via -r requirements.in/base.in
-zope-event==4.5.0
-    # via gevent
-zope-interface==5.4.0
-    # via gevent
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools
