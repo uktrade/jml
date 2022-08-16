@@ -36,7 +36,7 @@ def create_user(
         )
         uuid_str = str(uuid.uuid4())
         user.sso_legacy_user_id = uuid_str
-        user.sso_email_user_id = f"test@{uuid_str}"
+        user.sso_email_user_id = f"test@{uuid_str}.com"
         user.set_password("password")
         user.save()
         created = True
