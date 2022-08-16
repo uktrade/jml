@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.urls import include, path
@@ -19,3 +20,8 @@ public_url_patterns = [
 ]
 
 urlpatterns = private_urlpatterns + public_url_patterns
+
+if hasattr(settings, "NESSUS_TEST_ENABLED") and settings.NESSUS_TEST_ENABLED:
+    urlpatterns += [
+        path("nessus/", include("nessus.urls")),
+    ]

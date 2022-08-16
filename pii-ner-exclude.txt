@@ -437,3 +437,5 @@ yet.</p
 You Email
 You Email*
 you.</p
+NESSUS_TEST_USER_PASSWORD
+Legacy

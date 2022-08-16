@@ -1,0 +1,7 @@
+<h2>NESSUS test user login</h2>
+<h3>Never use in production!</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Log In</button>
+</form>
