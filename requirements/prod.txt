@@ -55,7 +55,7 @@ deprecated==1.2.13
     # via redis
 dit-activity-stream==0.0.1
     # via -r requirements.in/base.in
-django==3.2.14
+django==3.2.15
     # via
     #   -r requirements.in/base.in
     #   crispy-forms-gds
@@ -123,10 +123,6 @@ frozenlist==1.2.0
     # via
     #   aiohttp
     #   aiosignal
-gevent==20.6.2
-    # via -r requirements.in/prod.in
-greenlet==1.1.2
-    # via gevent
 idna==3.3
     # via
     #   requests
@@ -245,7 +241,7 @@ waitress==2.1.2
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2
+whitenoise==5.2.0
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
@@ -253,10 +249,3 @@ yarl==1.7.2
     # via aiohttp
 zenpy==2.0.24
     # via -r requirements.in/base.in
-zope-event==4.5.0
-    # via gevent
-zope-interface==5.4.0
-    # via gevent
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools

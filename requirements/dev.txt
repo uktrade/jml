@@ -63,7 +63,7 @@ deprecated==1.2.13
     # via redis
 dit-activity-stream==0.0.1
     # via -r requirements.in/base.in
-django==3.2.14
+django==3.2.15
     # via
     #   -r requirements.in/base.in
     #   crispy-forms-gds
@@ -358,7 +358,7 @@ wcwidth==0.2.5
     # via prompt-toolkit
 wheel==0.37.0
     # via pip-tools
-whitenoise==5.2.0
+whitenoise==5.2
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
