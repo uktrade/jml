@@ -1,5 +1,5 @@
 from datetime import date, timedelta
-from typing import List
+from typing import Dict, List
 from unittest import mock
 
 from django.test import TestCase
@@ -35,6 +35,59 @@ class TestLeaversWorkflow(TestCase):
     list.
     """
 
+    # A mapping of Step IDs to possible target values
+    TASK_TARGET_MAPPING: Dict[str, List[List[str]]] = {
+        "setup_leaving": [
+            ["send_leaver_thank_you_email"],
+        ],
+        "send_leaver_thank_you_email": [
+            ["check_uksbs_leaver"],
+        ],
+        "check_uksbs_leaver": [
+            ["send_leaver_not_in_uksbs_reminder"],
+            ["check_uksbs_line_manager"],
+        ],
+        "send_leaver_not_in_uksbs_reminder": [
+            ["check_uksbs_leaver"],
+        ],
+        "check_uksbs_line_manager": [
+            ["send_line_manager_correction_reminder"],
+            ["notify_line_manager"],
+        ],
+        "send_line_manager_correction_reminder": [
+            ["check_uksbs_line_manager"],
+        ],
+        "notify_line_manager": [
+            ["has_line_manager_completed"],
+        ],
+        "has_line_manager_completed": [
+            ["send_line_manager_reminder"],
+            ["thank_line_manager"],
+        ],
+        "send_line_manager_reminder": [
+            ["has_line_manager_completed"],
+        ],
+        "thank_line_manager": [
+            ["setup_scheduled_tasks"],
+        ],
+        "setup_scheduled_tasks": [
+            ["setup_scheduled_tasks"],
+            [
+                "send_uksbs_leaver_details",
+                "send_service_now_leaver_details",
+                "send_it_ops_leaver_details",
+                "send_lsd_team_leaver_details",
+                "notify_csu4_of_leaving",
+                "notify_ocs_of_leaving",
+                "notify_ocs_of_oab_locker",
+                "send_security_bp_notification",
+                "send_security_rk_notification",
+                "send_sre_notification",
+                "is_it_leaving_date_plus_x",
+            ],
+        ],
+    }
+
     def setUp(self):
         now = timezone.now()
         self.leaving_request = LeavingRequestFactory(
@@ -58,17 +111,8 @@ class TestLeaversWorkflow(TestCase):
         self.executor = WorkflowExecutor(self.flow)
 
     def check_tasks(self, expected_tasks: List[str]):
-        ran_tasks = [
-            flow.step_id for flow in self.flow.tasks.all().order_by("started_at")
-        ]
-        if ran_tasks != expected_tasks:
-            from pprint import pprint
-
-            pprint(ran_tasks)
-            pprint(expected_tasks)
-
         self.assertEqual(
-            ran_tasks,
+            [flow.step_id for flow in self.flow.tasks.all().order_by("started_at")],
             expected_tasks,
         )
 
@@ -183,6 +227,17 @@ class TestLeaversWorkflow(TestCase):
             expected_tasks=expected_tasks,
         )
 
+        # Check to make sure all task targets are correct
+        for task in self.flow.tasks.filter(executed_at__isnull=False).order_by(
+            "started_at"
+        ):
+            task_targets: List[str] = [
+                task_target.target_string for task_target in task.targets.all()
+            ]
+            self.assertTrue(
+                task_targets in self.TASK_TARGET_MAPPING.get(task.step_id, [])
+            )
+
     def test_workflow_with_pauses(
         self,
         mock_email,
@@ -262,3 +317,14 @@ class TestLeaversWorkflow(TestCase):
                 "setup_scheduled_tasks",
             ]
             self.check_tasks(expected_tasks=expected_tasks)
+
+        # Check to make sure all task targets are correct
+        for task in self.flow.tasks.filter(executed_at__isnull=False).order_by(
+            "started_at"
+        ):
+            task_targets: List[str] = [
+                task_target.target_string for task_target in task.targets.all()
+            ]
+            self.assertTrue(
+                task_targets in self.TASK_TARGET_MAPPING.get(task.step_id, [])
+            )
