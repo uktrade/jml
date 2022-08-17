@@ -131,13 +131,13 @@ def send_leaver_not_in_uksbs_reminder(
     notify.email(
         email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],
         template_id=notify.EmailTemplates.LEAVER_NOT_IN_UKSBS_HR_REMINDER,
-        personalisation=personalisation + {"recipient_name": "DIT Off-boarding Team"},
+        personalisation=personalisation | {"recipient_name": "DIT Off-boarding Team"},
     )
     # Line Manager email
     notify.email(
         email_addresses=manager_emails,
         template_id=notify.EmailTemplates.LEAVER_NOT_IN_UKSBS_LM_REMINDER,
-        personalisation=personalisation + {"recipient_name": manager_as_user.full_name},
+        personalisation=personalisation | {"recipient_name": manager_as_user.full_name},
     )
 
 
