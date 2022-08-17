@@ -223,7 +223,7 @@ class CheckUKSBSLineManager(LeavingRequestTask):
             "manager", []
         )
         uksbs_leaver_manager_person_ids: List[str] = [
-            uksbs_leaver_manager["person_id"]
+            str(uksbs_leaver_manager["person_id"])
             for uksbs_leaver_manager in uksbs_leaver_managers
         ]
 
