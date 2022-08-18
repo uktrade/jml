@@ -8,10 +8,10 @@ celery_app.autodiscover_tasks()
 
 celery_app.conf.beat_schedule = {
     # Queue up the workflows every 5 minutes.
-    # "progress-workflow-task": {
-    #     "task": "core.tasks.progress_workflows",
-    #     "schedule": crontab(minute="*/5"),
-    # },
+    "progress-workflow-task": {
+        "task": "core.tasks.progress_workflows",
+        "schedule": crontab(minute="*/5"),
+    },
     # Nightly tasks to update the Staff search index.
     # "update-staff-search-index-from-activity-stream": {
     #     "task": "core.tasks.update_staff_search_index_from_activity_stream",
