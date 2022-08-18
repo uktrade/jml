@@ -891,7 +891,7 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
         self.initialize_line_reports()
 
         if not self.leaving_request.line_reports:
-            return self.get_success_url()
+            return redirect(self.get_success_url())
 
         return super().dispatch(request, *args, **kwargs)
 
