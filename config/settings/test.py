@@ -52,3 +52,13 @@ TEMPLATE_ID_SRE_NOTIFICATION = "xxx"
 TEMPLATE_ID_SRE_REMINDER_DAY_AFTER_LWD = "xxx"
 TEMPLATE_ID_SRE_REMINDER_ONE_DAY_AFTER_LD = "xxx"
 TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC = "xxx"
+
+CSU4_EMAIL = "test@example.com"  # /PS-IGNORE
+IT_OPS_EMAIL = "test@example.com"  # /PS-IGNORE
+OCS_EMAIL = "test@example.com"  # /PS-IGNORE
+OCS_OAB_LOCKER_EMAIL = "test@example.com"  # /PS-IGNORE
+SECURITY_TEAM_EMAIL = "test@example.com"  # /PS-IGNORE
+SECURITY_TEAM_BUILDING_PASS_EMAIL = "test@example.com"  # /PS-IGNORE
+SECURITY_TEAM_ROSA_EMAIL = "test@example.com"  # /PS-IGNORE
+SRE_EMAIL = "test@example.com"  # /PS-IGNORE
+HR_UKSBS_CORRECTION_EMAIL = "test@example.com"  # /PS-IGNORE
