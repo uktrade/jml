@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from typing import Any, Dict, Tuple
 
 from django.db import connections
+from django.db.backends.utils import CursorWrapper
 
 from core.people_data import types
 
@@ -24,6 +26,10 @@ class PeopleDataStubbed(PeopleDataBase):
         return result
 
 
+def row_to_dict(*, cursor: CursorWrapper, row: Tuple) -> Dict[str, Any]:
+    return dict(zip([col[0] for col in cursor.description], row))
+
+
 class PeopleDataInterface(PeopleDataBase):
     def get_people_data(self, sso_legacy_id: str) -> types.PeopleData:
         result: types.PeopleData = {
@@ -35,17 +41,14 @@ class PeopleDataInterface(PeopleDataBase):
         with connections["people_data"].cursor() as cursor:
             # No speech marks in query to avoid SQL injection
             cursor.execute(
-                (
-                    "SELECT employee_numbers, person_id "
-                    "FROM dit.people_data__identities "
-                    "WHERE sso_user_id = %s"
-                ),
+                "SELECT * FROM dit.people_data__identities WHERE sso_user_id = %s",
                 [sso_legacy_id],
             )
             row = cursor.fetchone()
-
             if row:
-                result["employee_numbers"] = row[0]
-                result["uksbs_person_id"] = row[1]
+                dict_row = row_to_dict(cursor=cursor, row=row)
+                people_data_result = types.PeopleDataResult.from_dict(dict_row)
+                result["employee_numbers"] = people_data_result.employee_numbers
+                result["uksbs_person_id"] = people_data_result.person_id
 
         return result
