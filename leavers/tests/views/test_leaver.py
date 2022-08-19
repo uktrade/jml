@@ -43,7 +43,7 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
         "people_finder_photo_small": "",
         "service_now_user_id": "",
         "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
-        "service_now_department_name": "Department of International Trade",
+        "service_now_department_name": "Department for International Trade",
         "people_data_employee_number": "12345",
         "people_data_uksbs_person_id": "54321",
     }

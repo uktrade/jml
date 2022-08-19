@@ -118,7 +118,7 @@ class ServiceNowStubbed(ServiceNowBase):
             {"sys_id": "2", "name": "Department 2"},
             {
                 "sys_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
-                "name": "Department of International Trade",
+                "name": "Department for International Trade",
             },
         ]
         if sys_id:
@@ -296,7 +296,7 @@ class ServiceNowInterface(ServiceNowBase):
         results: List[types.DepartmentDetails] = [
             {
                 "sys_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
-                "name": "Department of International Trade",
+                "name": "Department for International Trade",
             }
         ]
 
