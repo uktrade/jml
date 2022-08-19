@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional
+from typing import Dict, List, Literal, Optional
 
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.fields import DateInputField
@@ -21,6 +21,27 @@ class LeaverConfirmationForm(forms.Form):
 
 
 class LeaverUpdateForm(forms.Form):
+    required_error_messages: Dict[str, str] = {
+        "first_name": "Please tell us your first name.",  # /PS-IGNORE
+        "last_name": "Please tell us your last name.",  # /PS-IGNORE
+        "date_of_birth": "Please tell us your date of birth.",
+        "contact_email_address": "Please tell us your contact email.",
+        "contact_phone": "Please tell us your contact phone number.",
+        "contact_address_line_1": "Please tell us the first line of your address.",
+        "contact_address_city": "Please tell us your town or city.",
+        "contact_address_county": "Please tell us your county.",
+        "contact_address_postcode": "Please tell us your postcode.",
+        "job_title": "Please tell us your job title.",
+        "security_clearance": "Please select your security clearance from the list.",
+        "has_locker": "Please tell us if you have a locker assigned to you.",
+        "staff_type": "Please select your staff type.",
+        "has_gov_procurement_card": "Please tell us if you have a GPC.",
+        "has_rosa_kit": "Please tell us if you have ROSA kit.",
+        "has_dse": "Please tell us if you have any IT equipment.",
+        "leaving_date": "Please enter the day, month and year of your leaving date.",
+        "last_day": "Please enter the day, month and year of your last working day.",
+    }
+
     # Personal details
     first_name = forms.CharField(label="")
     last_name = forms.CharField(label="")
@@ -55,6 +76,10 @@ class LeaverUpdateForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        for field_name, required_message in self.required_error_messages.items():
+            self.fields[field_name].error_messages["required"] = required_message
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
@@ -129,7 +154,7 @@ class LeaverUpdateForm(forms.Form):
                     "payment card issued by DIT.</p>"
                 ),
                 Field.radios("has_gov_procurement_card", inline=True),
-                legend="Do you have a government procurement card?",
+                legend="Do you have a government procurement card (GPC)?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
@@ -211,6 +236,15 @@ class ReturnOptionForm(forms.Form):
 
 
 class ReturnInformationForm(forms.Form):
+    required_error_messages: Dict[str, str] = {
+        "personal_phone": "Please tell us your contact phone number.",
+        "contact_email": "Please tell us your contact email.",
+        "address_line_1": "Please tell us the first line of your address.",
+        "address_city": "Please tell us your town or city.",
+        "address_county": "Please tell us your county.",
+        "address_postcode": "Please tell us your postcode.",
+    }
+
     personal_phone = forms.CharField(label="", max_length=16)
     contact_email = forms.EmailField(label="")
     address_line_1 = forms.CharField(label="Address line 1")
@@ -221,6 +255,10 @@ class ReturnInformationForm(forms.Form):
 
     def __init__(self, *args, hide_address: bool = False, **kwargs):
         super().__init__(*args, **kwargs)
+
+        for field_name, required_message in self.required_error_messages.items():
+            self.fields[field_name].error_messages["required"] = required_message
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
@@ -305,6 +343,13 @@ class AddDisplayScreenEquipmentAssetForm(forms.Form):
 
 
 class CorrectionForm(forms.Form):
+    required_error_messages: Dict[str, str] = {
+        "is_correct": (
+            "Please tell us if we have the correct list of equipment currently "
+            "assigned to you."
+        ),
+    }
+
     is_correct = YesNoField(
         label="Is this information correct?",
     )
@@ -317,6 +362,9 @@ class CorrectionForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        for field_name, required_message in self.required_error_messages.items():
+            self.fields[field_name].error_messages["required"] = required_message
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
