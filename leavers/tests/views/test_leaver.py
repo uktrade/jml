@@ -611,26 +611,53 @@ class TestUpdateDetailsView(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(response, "form", "first_name", "This field is required.")
-        self.assertFormError(response, "form", "job_title", "This field is required.")
-        self.assertFormError(response, "form", "last_name", "This field is required.")
         self.assertFormError(
-            response, "form", "contact_email_address", "This field is required."
+            response,
+            "form",
+            "first_name",
+            "Please tell us your first name.",  # /PS-IGNORE
         )
         self.assertFormError(
-            response, "form", "contact_phone", "This field is required."
+            response,
+            "form",
+            "last_name",
+            "Please tell us your last name.",  # /PS-IGNORE
         )
         self.assertFormError(
-            response, "form", "contact_address_line_1", "This field is required."
+            response, "form", "job_title", "Please tell us your job title."
         )
         self.assertFormError(
-            response, "form", "contact_address_city", "This field is required."
+            response,
+            "form",
+            "contact_email_address",
+            "Please tell us your contact email.",
         )
         self.assertFormError(
-            response, "form", "contact_address_county", "This field is required."
+            response,
+            "form",
+            "contact_phone",
+            "Please tell us your contact phone number.",
         )
         self.assertFormError(
-            response, "form", "contact_address_postcode", "This field is required."
+            response,
+            "form",
+            "contact_address_line_1",
+            "Please tell us the first line of your address.",
+        )
+        self.assertFormError(
+            response,
+            "form",
+            "contact_address_city",
+            "Please tell us your town or city.",
+        )
+        self.assertFormError(
+            response, "form", "contact_address_county", "Please tell us your county."
+        )
+        self.assertFormError(
+            response,
+            "form",
+            "contact_address_postcode",
+            "Please tell us your postcode.",
         )
 
     def test_submit_contains_required_data(self, mock_get_search_results) -> None:
