@@ -14,7 +14,7 @@ from core.service_now.types import AssetDetails
 from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.uksbs.types import PersonData
-from core.utils.helpers import is_work_day
+from core.utils.helpers import is_work_day_and_time
 from core.utils.lsd import inform_lsd_team_of_leaver
 from leavers.exceptions import (
     LeaverDoesNotHaveUKSBSPersonId,
@@ -546,7 +546,7 @@ class EmailTask(LeavingRequestTask):
         return False
 
     def execute(self, task_info):
-        if not is_work_day():
+        if not is_work_day_and_time():
             return None, False
 
         if not self.should_skip(task_info=task_info):
@@ -735,7 +735,7 @@ class ProcessorReminderEmail(EmailTask):
             return None, True
 
         # Check to see if it is a work day
-        if not is_work_day():
+        if not is_work_day_and_time():
             return None, False
 
         self.processor_emails: List[str] = task_info["processor_emails"]

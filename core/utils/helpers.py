@@ -21,17 +21,23 @@ def bool_to_yes_no(value: Optional[bool] = None) -> Literal["yes", "no"]:
     return "no"
 
 
-def is_work_day() -> bool:
+def is_work_day_and_time() -> bool:
     """
-    Returns True if it is a work day.
+    Returns True if it is a work day and during working hours.
     """
-    today = timezone.now().date()
+
+    now = timezone.now()
+    today = now.date()
     if today.isoweekday() in [
         IsoWeekdays.SATURDAY.value,
         IsoWeekdays.SUNDAY.value,
     ]:
         return False
-    return True
+
+    # Check to see if the time is between 9-5.
+    if now.hour >= 9 and now.hour <= 17:
+        return True
+    return False
 
 
 def make_possessive(word: str) -> str:
