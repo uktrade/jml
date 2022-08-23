@@ -241,22 +241,7 @@ class LSDSendLeaverDetails(LeavingRequestTask):
     def execute(self, task_info):
         assert self.leaving_request
 
-        leaver_name = self.leaving_request.get_leaver_name()
-        if not leaver_name:
-            raise Exception("No leaver name is set on the Leaving Request")
-        leaver_email = self.leaving_request.get_leaver_email()
-        if not leaver_email:
-            raise Exception("No leaver email is set on the Leaving Request")
-
-        leaving_date = self.leaving_request.get_leaving_date()
-        if not leaving_date:
-            raise Exception("No leaving date is set on the Leaving Request")
-
-        inform_lsd_team_of_leaver(
-            leaver_name=leaver_name,
-            leaver_email=leaver_email,
-            leaving_date=leaving_date.strftime("%d/%m/%Y"),
-        )
+        inform_lsd_team_of_leaver(leaving_request=self.leaving_request)
 
         return None, True
 
@@ -296,6 +281,10 @@ class ServiceNowSendLeaverDetails(LeavingRequestTask):
             assets=service_now_assets,
         )
 
+        self.leaving_request.task_logs.create(
+            task_name="Service Now informed of Leaver",
+        )
+
         return None, True
 
 
@@ -315,6 +304,10 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
         )
 
         uksbs_interface.submit_leaver_form(data=leaving_data)
+
+        self.leaving_request.task_logs.create(
+            task_name="UK SBS informed of Leaver",
+        )
 
         return ["setup_scheduled_tasks"], True
 
