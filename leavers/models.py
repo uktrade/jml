@@ -5,10 +5,7 @@ from typing import TYPE_CHECKING, List, Optional, Tuple, cast
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from activity_stream.models import (
-    ActivityStreamStaffSSOUser,
-    ActivityStreamStaffSSOUserEmail,
-)
+from activity_stream.models import ActivityStreamStaffSSOUser
 from core.types import Address
 from leavers.forms.line_manager import (
     AnnualLeavePaidOrDeducted,
@@ -334,13 +331,12 @@ class LeavingRequest(models.Model):
         return None
 
     def get_leaver_email(self) -> Optional[str]:
-        if self.leaver_activitystream_user:
-            sso_email: Optional[
-                ActivityStreamStaffSSOUserEmail
-            ] = self.leaver_activitystream_user.sso_emails.first()
-            if sso_email:
-                return sso_email.email_address
-        return None
+        leaver_emails = (
+            self.leaver_activitystream_user.get_email_addresses_for_contact()
+        )
+        if not leaver_emails:
+            return None
+        return leaver_emails[0]
 
     def get_line_manager(self) -> Optional[ActivityStreamStaffSSOUser]:
         """

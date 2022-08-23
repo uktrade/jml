@@ -34,6 +34,9 @@ def get_leaving_request_email_personalisation(
     leaver_name = leaving_request.get_leaver_name()
     assert leaver_name
 
+    leaver_email = leaving_request.get_leaver_email()
+    assert leaver_name
+
     leaving_date = leaving_request.get_leaving_date()
     assert leaving_date
 
@@ -47,6 +50,7 @@ def get_leaving_request_email_personalisation(
 
     personalisation.update(
         leaver_name=leaver_name,
+        leaver_email=leaver_email,
         possessive_leaver_name=make_possessive(leaver_name),
         manager_name=manager_as_user.full_name,
         manager_email=manager_as_user.get_email_addresses_for_contact()[0],
