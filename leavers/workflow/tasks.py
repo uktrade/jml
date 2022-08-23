@@ -824,16 +824,6 @@ class HasLineManagerCompleted(LeavingRequestTask):
         return ["send_line_manager_reminder"], False
 
 
-class IsItLeavingDatePlusXDays(LeavingRequestTask):
-    abstract = False
-    task_name = "is_it_leaving_date_plus_x"
-    auto = True
-
-    def execute(self, task_info):
-        print("is it x days before leaving date task executed")
-        return None, True
-
-
 class IsItXDaysBeforePayroll(LeavingRequestTask):
     abstract = False
     task_name = "is_it_x_days_before_payroll"
