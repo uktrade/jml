@@ -21,7 +21,7 @@
 | SERVICE_NOW_DIT_DEPARTMENT_SYS_ID                                | None                                       |                                                                                       |
 | LEGACY_PEOPLE_FINDER_ES_INDEX                                    | None                                       |                                                                                       |
 | LEGACY_PEOPLE_FINDER_ES_URL                                      | None                                       |                                                                                       |
-| CSU4_EMAIL                                                       | None                                       | Email address for the CSU4 Team                                                       |
+| CLU4_EMAIL                                                       | None                                       | Email address for the CLU4 Team                                                       |
 | OCS_EMAIL                                                        | None                                       | Email address for the OCS Team                                                        |
 | OCS_OAB_LOCKER_EMAIL                                             | None                                       | Email address for the OCS OAB Locker Team                                             |
 | SECURITY_TEAM_EMAIL                                              | None                                       | Email address for the Security Team                                                   |
@@ -49,7 +49,7 @@
 | TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL                      | None                                       |                                                                                       |
 | TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                          | None                                       |                                                                                       |
 | TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL                          | None                                       |                                                                                       |
-| TEMPLATE_ID_CSU4_EMAIL                                           | None                                       |                                                                                       |
+| TEMPLATE_ID_CLU4_EMAIL                                           | None                                       |                                                                                       |
 | TEMPLATE_ID_IT_OPS_ASSET_EMAIL                                   | None                                       |                                                                                       |
 | TEMPLATE_ID_OCS_LEAVER_EMAIL                                     | None                                       |                                                                                       |
 | TEMPLATE_ID_OCS_OAB_LOCKER_EMAIL                                 | None                                       |                                                                                       |

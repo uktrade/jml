@@ -77,7 +77,7 @@ class TestLeaversWorkflow(TestCase):
                 "send_service_now_leaver_details",
                 "send_it_ops_leaver_details",
                 "send_lsd_team_leaver_details",
-                "notify_csu4_of_leaving",
+                "notify_clu4_of_leaving",
                 "notify_ocs_of_leaving",
                 "notify_ocs_of_oab_locker",
                 "send_security_bp_notification",

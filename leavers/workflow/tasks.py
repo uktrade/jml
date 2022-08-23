@@ -24,7 +24,7 @@ from leavers.models import LeaverInformation, LeavingRequest, TaskLog
 from leavers.types import ReminderEmailDict
 from leavers.utils.emails import (
     get_leaving_request_email_personalisation,
-    send_csu4_leaver_email,
+    send_clu4_leaver_email,
     send_it_ops_asset_email,
     send_leaver_not_in_uksbs_reminder,
     send_leaver_thank_you_email,
@@ -373,7 +373,7 @@ class EmailIds(Enum):
     SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC = "sre_reminder_two_days_after_ld_proc"
 
     IT_OPS_ASSET_EMAIL = "it_ops_asset_email"
-    CSU4_EMAIL = "csu4_email"
+    CLU4_EMAIL = "clu4_email"
     OCS_EMAIL = "ocs_email"
     OCS_OAB_LOCKER_EMAIL = "ocs_oab_locker_email"
 
@@ -389,7 +389,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION: send_security_team_offboard_rk_leaver_email,
     EmailIds.SRE_NOTIFICATION: send_sre_notification_email,
     EmailIds.IT_OPS_ASSET_EMAIL: send_it_ops_asset_email,
-    EmailIds.CSU4_EMAIL: send_csu4_leaver_email,
+    EmailIds.CLU4_EMAIL: send_clu4_leaver_email,
     EmailIds.OCS_EMAIL: send_ocs_leaver_email,
     EmailIds.OCS_OAB_LOCKER_EMAIL: send_ocs_oab_locker_email,
 }

@@ -336,8 +336,8 @@ UKSBS_POST_LEAVER_SUBMISSION = env("UKSBS_POST_LEAVER_SUBMISSION", default=None)
 LEGACY_PEOPLE_FINDER_ES_INDEX = env("LEGACY_PEOPLE_FINDER_ES_INDEX", default=None)
 LEGACY_PEOPLE_FINDER_ES_URL = env("LEGACY_PEOPLE_FINDER_ES_URL", default=None)
 
-# CSU4 Settings
-CSU4_EMAIL = env("CSU4_EMAIL", default=None)
+# CLU4 Settings
+CLU4_EMAIL = env("CLU4_EMAIL", default=None)
 
 # IT OPS Settings
 IT_OPS_EMAIL = env("IT_OPS_EMAIL", default=None)

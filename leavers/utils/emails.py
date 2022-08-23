@@ -141,7 +141,7 @@ def send_leaver_not_in_uksbs_reminder(
     )
 
 
-def send_csu4_leaver_email(
+def send_clu4_leaver_email(
     leaving_request: LeavingRequest,
     template_id: Optional[notify.EmailTemplates] = None,
 ):
@@ -149,8 +149,8 @@ def send_csu4_leaver_email(
     Send Cluster 4 Email to notify of a new leaver.
     """
 
-    if not settings.CSU4_EMAIL:
-        raise ValueError("CSU4_EMAIL is not set")
+    if not settings.CLU4_EMAIL:
+        raise ValueError("CLU4_EMAIL is not set")
 
     if not settings.SECURITY_TEAM_EMAIL:
         raise ValueError("SECURITY_TEAM_EMAIL is not set")
@@ -158,8 +158,8 @@ def send_csu4_leaver_email(
     personalisation = get_leaving_request_email_personalisation(leaving_request)
 
     notify.email(
-        email_addresses=[settings.CSU4_EMAIL, settings.SECURITY_TEAM_EMAIL],
-        template_id=notify.EmailTemplates.CSU4_LEAVER_EMAIL,
+        email_addresses=[settings.CLU4_EMAIL, settings.SECURITY_TEAM_EMAIL],
+        template_id=notify.EmailTemplates.CLU4_LEAVER_EMAIL,
         personalisation=personalisation,
     )
 
