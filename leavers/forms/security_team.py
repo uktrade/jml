@@ -31,6 +31,58 @@ class BuildingPassDestroyedForm(forms.Form):
         )
 
 
+class BuildingPassDisabledForm(forms.Form):
+    def __init__(self, leaving_request_uuid: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        cancel_url = reverse(
+            "security-team-building-pass-confirmation",
+            args=[leaving_request_uuid],
+        )
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Submit(
+                    "save",
+                    "Confirm building pass disabled",
+                    css_class="govuk-button--warning",
+                ),
+                HTML(
+                    f"<a href='{cancel_url}' class='govuk-button "
+                    "govuk-button--secondary'>Cancel</a>"
+                ),
+                css_class="govuk-button-group",
+            ),
+        )
+
+
+class BuildingPassReturnedForm(forms.Form):
+    def __init__(self, leaving_request_uuid: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        cancel_url = reverse(
+            "security-team-building-pass-confirmation",
+            args=[leaving_request_uuid],
+        )
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Submit(
+                    "save",
+                    "Confirm building pass returned",
+                    css_class="govuk-button--warning",
+                ),
+                HTML(
+                    f"<a href='{cancel_url}' class='govuk-button "
+                    "govuk-button--secondary'>Cancel</a>"
+                ),
+                css_class="govuk-button-group",
+            ),
+        )
+
+
 class BuildingPassNotReturnedForm(forms.Form):
     notes = forms.CharField(
         label="Additional notes (optional)",

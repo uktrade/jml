@@ -328,6 +328,7 @@ rosa_mobile_returned_task_log
 Security
 SECURITY
 Security Team
+security_pass_disabled_task_log
 security_team_building_pass_complete
 Send
 Send Line
