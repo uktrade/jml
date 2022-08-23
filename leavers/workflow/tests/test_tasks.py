@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 from unittest import mock
 
 from django.test import TestCase
@@ -585,6 +586,7 @@ class TestProcessorReminderEmail(TestCase):
     def setUp(self):
         self.user = UserFactory()
 
+        # Leaving Request with different dates
         self.flow = FlowFactory(executed_by=self.user)
         self.task_record = TaskRecordFactory(executed_by=self.user, flow=self.flow)
         self.leaving_request = LeavingRequestFactory(
@@ -594,7 +596,18 @@ class TestProcessorReminderEmail(TestCase):
         self.flow.leaving_request = self.leaving_request
         self.flow.save()
 
+        # Leaving Request with same dates
+        self.flow2 = FlowFactory(executed_by=self.user)
+        self.task_record2 = TaskRecordFactory(executed_by=self.user, flow=self.flow2)
+        self.leaving_request2 = LeavingRequestFactory(
+            last_day=make_aware(datetime(2021, 12, 24)),  # Friday
+            leaving_date=make_aware(datetime(2021, 12, 24)),  # Friday
+        )
+        self.flow2.leaving_request = self.leaving_request2
+        self.flow2.save()
+
         self.task = ProcessorReminderEmail(self.user, self.task_record, self.flow)
+        self.task2 = ProcessorReminderEmail(self.user, self.task_record, self.flow2)
         self.task_info = {"processor_emails": ["someone@example.com"]}  # /PS-IGNORE
         self.email_ids = {
             "day_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD,
@@ -732,3 +745,33 @@ class TestProcessorReminderEmail(TestCase):
         self.assertEqual(
             calls[1].kwargs["email_id"], self.email_ids["two_days_after_ld_proc"]
         )
+
+    @freeze_time("2021-12-27 12:00:00")  # Monday
+    @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
+    def test_different_ld_and_lwd(self, mock_get_send_email_method):
+        self.task.execute(task_info=self.task_info)
+        calls = mock_get_send_email_method.call_args_list
+
+        called_email_ids: List[EmailIds] = [call.kwargs["email_id"] for call in calls]
+
+        self.assertIn(self.email_ids["day_after_lwd"], called_email_ids)
+        self.assertIn(self.email_ids["two_days_after_lwd"], called_email_ids)
+        self.assertIn(self.email_ids["on_ld"], called_email_ids)
+        self.assertIn(self.email_ids["one_day_after_ld"], called_email_ids)
+        self.assertIn(self.email_ids["two_days_after_ld_lm"], called_email_ids)
+        self.assertIn(self.email_ids["two_days_after_ld_proc"], called_email_ids)
+
+    @freeze_time("2021-12-27 12:00:00")  # Monday
+    @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
+    def test_same_ld_and_lwd(self, mock_get_send_email_method):
+        self.task2.execute(task_info=self.task_info)
+        calls = mock_get_send_email_method.call_args_list
+
+        called_email_ids: List[EmailIds] = [call.kwargs["email_id"] for call in calls]
+
+        self.assertNotIn(self.email_ids["day_after_lwd"], called_email_ids)
+        self.assertNotIn(self.email_ids["two_days_after_lwd"], called_email_ids)
+        self.assertIn(self.email_ids["on_ld"], called_email_ids)
+        self.assertIn(self.email_ids["one_day_after_ld"], called_email_ids)
+        self.assertIn(self.email_ids["two_days_after_ld_lm"], called_email_ids)
+        self.assertIn(self.email_ids["two_days_after_ld_proc"], called_email_ids)
