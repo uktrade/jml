@@ -83,7 +83,6 @@ class TestLeaversWorkflow(TestCase):
                 "send_security_bp_notification",
                 "send_security_rk_notification",
                 "send_sre_notification",
-                "is_it_leaving_date_plus_x",
             ],
         ],
     }

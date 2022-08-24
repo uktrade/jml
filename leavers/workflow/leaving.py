@@ -130,7 +130,6 @@ LeaversWorkflow = Workflow(
                 "send_security_bp_notification",
                 "send_security_rk_notification",
                 "send_sre_notification",
-                "is_it_leaving_date_plus_x",
             ],
         ),
         # UK SBS
@@ -267,31 +266,23 @@ LeaversWorkflow = Workflow(
                 **SECURITY_TEAM_RK_REMINDER_EMAILS,
             },
         ),
-        # SRE (Slack)
+        # SRE (Emails & Slack)
         Step(
-            step_id="is_it_leaving_date_plus_x",
-            task_name="is_it_leaving_date_plus_x",
+            step_id="send_sre_notification",
+            task_name="notification_email",
             targets=[
                 "send_sre_slack_message",
             ],
+            task_info={
+                "email_id": EmailIds.SRE_NOTIFICATION.value,
+            },
         ),
         Step(
             step_id="send_sre_slack_message",
             task_name="send_sre_slack_message",
             targets=[
-                "are_all_tasks_complete",
-            ],
-        ),
-        # SRE (Emails)
-        Step(
-            step_id="send_sre_notification",
-            task_name="notification_email",
-            targets=[
                 "have_sre_carried_out_leaving_tasks",
             ],
-            task_info={
-                "email_id": EmailIds.SRE_NOTIFICATION.value,
-            },
         ),
         Step(
             step_id="have_sre_carried_out_leaving_tasks",

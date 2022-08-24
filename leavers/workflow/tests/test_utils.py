@@ -4,12 +4,7 @@ from django.test import TestCase
 from django.utils.timezone import make_aware
 from freezegun import freeze_time
 
-from leavers.factories import LeavingRequestFactory
-from leavers.workflow.utils import (
-    get_payroll_date,
-    is_it_leaving_date_plus_x_days,
-    is_x_days_before_payroll,
-)
+from leavers.workflow.utils import get_payroll_date, is_x_days_before_payroll
 
 
 class GetPayrollDate(TestCase):
@@ -48,85 +43,3 @@ class DaysBeforePayroll(TestCase):
         self.assertFalse(is_x_days_before_payroll(2))
         self.assertFalse(is_x_days_before_payroll(1))
         self.assertTrue(is_x_days_before_payroll(0))
-
-
-class LeavingDatePlusXDays(TestCase):
-    def setUp(self):
-        self.leaving_request = LeavingRequestFactory(
-            last_day=make_aware(datetime(2021, 12, 1)),
-        )
-
-    def test_leaving_date_not_set(self):
-        # Remove the last day value
-        self.leaving_request.last_day = None
-        self.leaving_request.save()
-
-        self.assertFalse(
-            is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_request,
-                days_after_leaving_date=1,
-            )
-        )
-
-    @freeze_time("2021-11-30")
-    def test_leaving_date_tomorrow(self):
-        self.assertFalse(
-            is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_request,
-                days_after_leaving_date=1,
-            )
-        )
-        self.assertFalse(
-            is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_request,
-                days_after_leaving_date=0,
-            )
-        )
-        self.assertTrue(
-            is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_request,
-                days_after_leaving_date=-1,
-            )
-        )
-
-    @freeze_time("2021-12-01")
-    def test_leaving_date_today(self):
-        self.assertFalse(
-            is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_request,
-                days_after_leaving_date=1,
-            )
-        )
-        self.assertTrue(
-            is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_request,
-                days_after_leaving_date=0,
-            )
-        )
-        self.assertFalse(
-            is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_request,
-                days_after_leaving_date=-1,
-            )
-        )
-
-    @freeze_time("2021-12-02")
-    def test_leaving_date_yesterday(self):
-        self.assertTrue(
-            is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_request,
-                days_after_leaving_date=1,
-            )
-        )
-        self.assertFalse(
-            is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_request,
-                days_after_leaving_date=0,
-            )
-        )
-        self.assertFalse(
-            is_it_leaving_date_plus_x_days(
-                leaving_request=self.leaving_request,
-                days_after_leaving_date=-1,
-            )
-        )
