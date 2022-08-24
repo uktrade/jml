@@ -124,7 +124,7 @@ LeaversWorkflow = Workflow(
                 "send_service_now_leaver_details",
                 "send_it_ops_leaver_details",
                 "send_lsd_team_leaver_details",
-                "notify_csu4_of_leaving",
+                "notify_clu4_of_leaving",
                 "notify_ocs_of_leaving",
                 "notify_ocs_of_oab_locker",
                 "send_security_bp_notification",
@@ -168,15 +168,15 @@ LeaversWorkflow = Workflow(
                 "are_all_tasks_complete",
             ],
         ),
-        # CSU4
+        # CLU4
         Step(
-            step_id="notify_csu4_of_leaving",
+            step_id="notify_clu4_of_leaving",
             task_name="notification_email",
             targets=[
                 "are_all_tasks_complete",
             ],
             task_info={
-                "email_id": EmailIds.CSU4_EMAIL.value,
+                "email_id": EmailIds.CLU4_EMAIL.value,
             },
         ),
         # OCS

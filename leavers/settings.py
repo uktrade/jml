@@ -18,7 +18,7 @@ class EmailTemplatesSettings:
     LINE_MANAGER_REMINDER_EMAIL: str
     LINE_MANAGER_THANKYOU_EMAIL: str
     # Procesor emails
-    CSU4_EMAIL: str
+    CLU4_EMAIL: str
     IT_OPS_ASSET_EMAIL: str
     OCS_LEAVER_EMAIL: str
     OCS_OAB_LOCKER_EMAIL: str

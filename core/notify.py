@@ -34,7 +34,7 @@ class EmailTemplates(Enum):
     LINE_MANAGER_REMINDER_EMAIL = email_template_settings.LINE_MANAGER_REMINDER_EMAIL
     LINE_MANAGER_THANKYOU_EMAIL = email_template_settings.LINE_MANAGER_THANKYOU_EMAIL
 
-    CSU4_LEAVER_EMAIL = email_template_settings.CSU4_EMAIL
+    CLU4_LEAVER_EMAIL = email_template_settings.CLU4_EMAIL
     IT_OPS_ASSET_EMAIL = email_template_settings.IT_OPS_ASSET_EMAIL
     OCS_LEAVER_EMAIL = email_template_settings.OCS_LEAVER_EMAIL
     OCS_OAB_LOCKER_EMAIL = email_template_settings.OCS_OAB_LOCKER_EMAIL
