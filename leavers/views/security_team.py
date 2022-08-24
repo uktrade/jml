@@ -13,7 +13,9 @@ from django.views.generic.edit import FormView
 
 from leavers.forms.security_team import (
     BuildingPassDestroyedForm,
+    BuildingPassDisabledForm,
     BuildingPassNotReturnedForm,
+    BuildingPassReturnedForm,
     RosaKit,
     RosaKitCloseRecordForm,
     RosaKitForm,
@@ -133,9 +135,10 @@ class BuildingPassConfirmationView(
             last_working_day=last_day,
             leaving_request_uuid=self.leaving_request.uuid,
             notifications=self.get_notifications(),
-            pass_destroyed=bool(
-                self.leaving_request.security_team_building_pass_complete
-            ),
+            pass_disabled=bool(self.leaving_request.security_pass_disabled),
+            pass_returned=bool(self.leaving_request.security_pass_returned),
+            pass_destroyed=bool(self.leaving_request.security_pass_destroyed),
+            pass_not_returned=bool(self.leaving_request.security_pass_not_returned),
             can_mark_as_not_returned=bool(
                 self.leaving_request.leaving_date < timezone.now()
                 and not self.leaving_request.security_team_building_pass_complete
@@ -181,7 +184,113 @@ class BuildingPassConfirmationView(
         return notifications
 
 
-class BuildingPassDestroyView(
+class BuildingPassDisabledView(
+    UserPassesTestMixin,
+    FormView,
+):
+    template_name = "leaving/security_team/confirmation/building_pass_action.html"
+    page_title: str = "Security Team off-boarding: Building pass disabled confirmation"
+    form_class = BuildingPassDisabledForm
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="Security Team",
+        ).exists()
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest,
+            uuid=self.kwargs.get("leaving_request_id", None),
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self) -> str:
+        return reverse_lazy(
+            "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
+        )
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
+
+        return form_kwargs
+
+    def form_valid(self, form):
+        user = cast(User, self.request.user)
+
+        self.leaving_request.security_pass_disabled = (
+            self.leaving_request.task_logs.create(
+                user=user,
+                task_name="Building pass disabled",
+            )
+        )
+        self.leaving_request.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(
+            leaving_request_uuid=self.leaving_request.uuid,
+            page_title=self.page_title,
+            action_name="disabled",
+        )
+        return context
+
+
+class BuildingPassReturnedView(
+    UserPassesTestMixin,
+    FormView,
+):
+    template_name = "leaving/security_team/confirmation/building_pass_action.html"
+    page_title: str = "Security Team off-boarding: Building pass returned confirmation"
+    form_class = BuildingPassReturnedForm
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="Security Team",
+        ).exists()
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest,
+            uuid=self.kwargs.get("leaving_request_id", None),
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self) -> str:
+        return reverse_lazy(
+            "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
+        )
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
+
+        return form_kwargs
+
+    def form_valid(self, form):
+        user = cast(User, self.request.user)
+
+        self.leaving_request.security_pass_returned = (
+            self.leaving_request.task_logs.create(
+                user=user,
+                task_name="Building pass returned",
+            )
+        )
+        self.leaving_request.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(
+            leaving_request_uuid=self.leaving_request.uuid,
+            page_title=self.page_title,
+            action_name="disabled",
+        )
+        return context
+
+
+class BuildingPassDestroyedView(
     UserPassesTestMixin,
     FormView,
 ):
@@ -202,19 +311,15 @@ class BuildingPassDestroyView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
-        assert self.leaving_request
         return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
 
     def get_form_kwargs(self) -> Dict[str, Any]:
-        assert self.leaving_request
-
         form_kwargs = super().get_form_kwargs()
         form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
 
         return form_kwargs
 
     def form_valid(self, form):
-        assert self.leaving_request
         user = cast(User, self.request.user)
 
         self.leaving_request.security_pass_destroyed = (
@@ -232,6 +337,7 @@ class BuildingPassDestroyView(
         context.update(
             leaving_request_uuid=self.leaving_request.uuid,
             page_title=self.page_title,
+            action_name="destroyed",
         )
         return context
 
@@ -259,21 +365,17 @@ class BuildingPassNotReturnedView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
-        assert self.leaving_request
         return reverse_lazy(
             "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
         )
 
     def get_form_kwargs(self) -> Dict[str, Any]:
-        assert self.leaving_request
-
         form_kwargs = super().get_form_kwargs()
         form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
 
         return form_kwargs
 
     def form_valid(self, form):
-        assert self.leaving_request
         user = cast(User, self.request.user)
 
         self.leaving_request.security_pass_not_returned = (
@@ -291,6 +393,7 @@ class BuildingPassNotReturnedView(
         context.update(
             leaving_request_uuid=self.leaving_request.uuid,
             page_title=self.page_title,
+            action_name="not returned",
         )
         return context
 
@@ -304,7 +407,6 @@ class RosaKitConfirmationView(
     form_class = RosaKitForm
 
     def get_success_url(self) -> str:
-        assert self.leaving_request
         return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
 
     def test_func(self):
@@ -392,7 +494,6 @@ class RosaKitConfirmationView(
         return initial
 
     def form_valid(self, form):
-        assert self.leaving_request
         user = cast(User, self.request.user)
         self.leaving_request.rosa_kit_form_data = form.cleaned_data
 
@@ -463,19 +564,15 @@ class RosaKitConfirmationCloseView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
-        assert self.leaving_request
         return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
 
     def get_form_kwargs(self) -> Dict[str, Any]:
-        assert self.leaving_request
-
         form_kwargs = super().get_form_kwargs()
         form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
 
         return form_kwargs
 
     def form_valid(self, form):
-        assert self.leaving_request
         self.leaving_request.security_team_rosa_kit_complete = timezone.now()
         self.leaving_request.save()
         return super().form_valid(form)
@@ -580,10 +677,10 @@ class TaskSummaryView(
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
             leaving_request_uuid=self.leaving_request.uuid,
-            pass_destroyed=bool(
-                self.leaving_request.security_team_building_pass_complete
-            ),
-            pass_not_returned=bool(self.leaving_request.security_pass_not_returned),
+            pass_disabled=self.leaving_request.security_pass_disabled,
+            pass_returned=self.leaving_request.security_pass_returned,
+            pass_destroyed=self.leaving_request.security_pass_destroyed,
+            pass_not_returned=self.leaving_request.security_pass_not_returned,
             building_pass_notes=building_pass_notes,
             rosa_kit_tasks=rosa_kit_tasks,
             rosa_kit_complete=bool(

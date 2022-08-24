@@ -191,8 +191,18 @@ urlpatterns = [
         name="security-team-building-pass-confirmation",
     ),
     path(
+        "leaver/security-team/<uuid:leaving_request_id>/building-pass/disabled/",
+        security_team_views.BuildingPassDisabledView.as_view(),
+        name="security-team-building-pass-disabled",
+    ),
+    path(
+        "leaver/security-team/<uuid:leaving_request_id>/building-pass/returned/",
+        security_team_views.BuildingPassReturnedView.as_view(),
+        name="security-team-building-pass-returned",
+    ),
+    path(
         "leaver/security-team/<uuid:leaving_request_id>/building-pass/destroy/",
-        security_team_views.BuildingPassDestroyView.as_view(),
+        security_team_views.BuildingPassDestroyedView.as_view(),
         name="security-team-building-pass-destroy",
     ),
     path(
