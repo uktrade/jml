@@ -205,21 +205,17 @@ class BuildingPassDisabledView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
-        assert self.leaving_request
         return reverse_lazy(
             "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
         )
 
     def get_form_kwargs(self) -> Dict[str, Any]:
-        assert self.leaving_request
-
         form_kwargs = super().get_form_kwargs()
         form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
 
         return form_kwargs
 
     def form_valid(self, form):
-        assert self.leaving_request
         user = cast(User, self.request.user)
 
         self.leaving_request.security_pass_disabled = (
@@ -262,21 +258,17 @@ class BuildingPassReturnedView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
-        assert self.leaving_request
         return reverse_lazy(
             "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
         )
 
     def get_form_kwargs(self) -> Dict[str, Any]:
-        assert self.leaving_request
-
         form_kwargs = super().get_form_kwargs()
         form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
 
         return form_kwargs
 
     def form_valid(self, form):
-        assert self.leaving_request
         user = cast(User, self.request.user)
 
         self.leaving_request.security_pass_returned = (
@@ -319,19 +311,15 @@ class BuildingPassDestroyedView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
-        assert self.leaving_request
         return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
 
     def get_form_kwargs(self) -> Dict[str, Any]:
-        assert self.leaving_request
-
         form_kwargs = super().get_form_kwargs()
         form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
 
         return form_kwargs
 
     def form_valid(self, form):
-        assert self.leaving_request
         user = cast(User, self.request.user)
 
         self.leaving_request.security_pass_destroyed = (
@@ -377,21 +365,17 @@ class BuildingPassNotReturnedView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
-        assert self.leaving_request
         return reverse_lazy(
             "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
         )
 
     def get_form_kwargs(self) -> Dict[str, Any]:
-        assert self.leaving_request
-
         form_kwargs = super().get_form_kwargs()
         form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
 
         return form_kwargs
 
     def form_valid(self, form):
-        assert self.leaving_request
         user = cast(User, self.request.user)
 
         self.leaving_request.security_pass_not_returned = (
@@ -423,7 +407,6 @@ class RosaKitConfirmationView(
     form_class = RosaKitForm
 
     def get_success_url(self) -> str:
-        assert self.leaving_request
         return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
 
     def test_func(self):
@@ -511,7 +494,6 @@ class RosaKitConfirmationView(
         return initial
 
     def form_valid(self, form):
-        assert self.leaving_request
         user = cast(User, self.request.user)
         self.leaving_request.rosa_kit_form_data = form.cleaned_data
 
@@ -582,19 +564,15 @@ class RosaKitConfirmationCloseView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
-        assert self.leaving_request
         return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
 
     def get_form_kwargs(self) -> Dict[str, Any]:
-        assert self.leaving_request
-
         form_kwargs = super().get_form_kwargs()
         form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
 
         return form_kwargs
 
     def form_valid(self, form):
-        assert self.leaving_request
         self.leaving_request.security_team_rosa_kit_complete = timezone.now()
         self.leaving_request.save()
         return super().form_valid(form)
