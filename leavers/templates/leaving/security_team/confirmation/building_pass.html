@@ -111,7 +111,6 @@
         </div>
     </div>
 
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {% if notes %}
@@ -119,38 +118,38 @@
                 <p class="govuk-body">{{ notes }}</p>
             {% endif %}
 
-
-            <table class="govuk-table">
-                <caption class="govuk-table__caption govuk-table__caption--m">Status changes</caption>
-                <thead class="govuk-table__head">
-                    <tr class="govuk-table__row">
-                        <th scope="col" class="govuk-table__header">Status</th>
-                    </tr>
-                </thead>
-                <tbody class="govuk-table__body">
-                    {% if pass_disabled %}
+            {% if pass_disabled or pass_returned %}
+                <table class="govuk-table">
+                    <caption class="govuk-table__caption govuk-table__caption--m">Status changes</caption>
+                    <thead class="govuk-table__head">
                         <tr class="govuk-table__row">
-                            <td class="govuk-table__cell">
-                                <strong class="govuk-tag govuk-tag--green">
-                                    Building pass marked as disabled
-                                </strong>
-                            </td>
+                            <th scope="col" class="govuk-table__header">Status</th>
                         </tr>
-                    {% endif %}
-                    {% if pass_returned %}
-                        <tr class="govuk-table__row">
-                            <td class="govuk-table__cell">
-                                <strong class="govuk-tag govuk-tag--green">
-                                    Building pass marked as returned
-                                </strong>
-                            </td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="govuk-table__body">
+                        {% if pass_disabled %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <strong class="govuk-tag govuk-tag--green">
+                                        Building pass marked as disabled
+                                    </strong>
+                                </td>
+                            </tr>
+                        {% endif %}
+                        {% if pass_returned %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">
+                                    <strong class="govuk-tag govuk-tag--green">
+                                        Building pass marked as returned
+                                    </strong>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            {% endif %}
         </div>
     </div>
-
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
