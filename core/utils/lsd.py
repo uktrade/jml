@@ -28,7 +28,7 @@ def inform_lsd_team_of_leaver(leaver_name: str, leaver_email: str, leaving_date:
             "We have been informed that the following person is leaving/has left the department.\n"
             f"Name: {leaver_name}\n"
             f"Email: {leaver_email}\n"
-            f"Date if Leaving: {leaving_date}\n"
+            f"Date of Leaving: {leaving_date}\n"
             "Please ensure that permissions are removed for this user (where appropriate. SSO, "
             "Datahub, Digital Worskspace, OKTA)."
         ),

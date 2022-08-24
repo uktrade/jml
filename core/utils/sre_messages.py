@@ -66,9 +66,9 @@ def send_sre_alert_message(*, leaving_request: "LeavingRequest") -> SlackRespons
             "and services has been managed. This will complete their "
             f"off-boarding. ({settings.SITE_URL}{leaving_request_path}).\n"
             "\n"
-            f"*Deadline: {leaving_date_str}*\n"
-            f"Please action this request by {leaver_name}’s last working "
-            f"day in the department which is {leaving_date_str}.\n"
+            "Please take any relevant actions on this record on the first "
+            f"working day after {leaver_name}’s leaving date "
+            f"{leaving_date_str}.\n"
             "\n"
             "DIT Leavers Service"
         )
