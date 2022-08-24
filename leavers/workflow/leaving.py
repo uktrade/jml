@@ -231,7 +231,7 @@ LeaversWorkflow = Workflow(
                     settings.SECURITY_TEAM_BUILDING_PASS_EMAIL,
                     settings.SECURITY_TEAM_EMAIL,
                 ],
-                **SECURITY_TEAM_BP_REMINDER_EMAILS,
+                **SECURITY_TEAM_BP_REMINDER_EMAILS,  # type: ignore
             },
         ),
         # SECURITY (ROSA Kit)
@@ -263,7 +263,7 @@ LeaversWorkflow = Workflow(
             task_info={
                 "skip_condition": SkipCondition.IS_NOT_ROSA_USER.value,
                 "processor_emails": [settings.SECURITY_TEAM_ROSA_EMAIL],
-                **SECURITY_TEAM_RK_REMINDER_EMAILS,
+                **SECURITY_TEAM_RK_REMINDER_EMAILS,  # type: ignore
             },
         ),
         # SRE (Emails & Slack)
@@ -300,7 +300,7 @@ LeaversWorkflow = Workflow(
             ],
             task_info={
                 "processor_emails": [settings.SRE_EMAIL],
-                **SRE_REMINDER_EMAILS,
+                **SRE_REMINDER_EMAILS,  # type: ignore
             },
         ),
         # End

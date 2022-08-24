@@ -35,7 +35,7 @@ def get_leaving_request_email_personalisation(
     assert leaver_name
 
     leaver_email = leaving_request.get_leaver_email()
-    assert leaver_name
+    assert leaver_email
 
     leaving_date = leaving_request.get_leaving_date()
     assert leaving_date
