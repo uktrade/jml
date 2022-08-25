@@ -35,7 +35,6 @@ from leavers.types import LeavingRequestLineReport
 from user.models import User
 
 DATA_RECIPIENT_SEARCH_PARAM = "data_recipient_id"
-NEW_LINE_REPORT_SEARCH_PARAM = "new_line_report_id"
 LINE_REPORT_NEW_LINE_MANAGER_SEARCH_PARAM = "new_line_manager_id"
 LINE_REPORT_SET_NEW_MANAGER_ERROR = "line_report_set_new_manager_error"
 ADD_MISSING_LINE_REPORT_ERROR = "add_missing_line_report_error"
@@ -214,61 +213,6 @@ class DataRecipientSearchView(LineManagerViewMixin, StaffSearchView):
         self.exclude_staff_ids = [
             self.leaving_request.leaver_activitystream_user.identifier
         ]
-        return super().dispatch(request, *args, **kwargs)
-
-
-class NewLineReportSearchView(LineManagerViewMixin, StaffSearchView):
-    search_name = "missing line report"
-    query_param_name = NEW_LINE_REPORT_SEARCH_PARAM
-
-    def get_success_url(self) -> str:
-        return reverse(
-            "add-missing-line-report",
-            kwargs={
-                "leaving_request_uuid": self.leaving_request.uuid,
-            },
-        )
-
-    def dispatch(
-        self, request: HttpRequest, *args: Any, **kwargs: Any
-    ) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
-
-        if self.leaving_request.line_manager_complete:
-            return redirect(
-                reverse(
-                    "line-manager-thank-you",
-                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                )
-            )
-
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
-        ):
-            return HttpResponseForbidden()
-
-        self.exclude_staff_ids = [
-            self.leaving_request.leaver_activitystream_user.identifier
-        ]
-
-        # TODO: Fix so that you can't accidentally set the new Line Manager to
-        # be the same as the line report.
-        # for line_report in self.leaving_request.line_reports:
-        #     try:
-        #         line_report_as_user = ActivityStreamStaffSSOUser.objects.get(
-        #             email_address=line_report["email"]
-        #         )
-        #     except ActivityStreamStaffSSOUser.DoesNotExist:
-        #         continue
-
-        #     self.exclude_staff_ids.append(line_report_as_user.identifier)
-
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -652,93 +596,6 @@ class DetailsView(LineManagerViewMixin, FormView):
         return context
 
 
-def add_missing_line_report(
-    request: HttpRequest, leaving_request_uuid: UUID
-) -> HttpResponse:
-    leaving_request = get_object_or_404(LeavingRequest, uuid=leaving_request_uuid)
-
-    if not leaving_request.leaver_complete:
-        return HttpResponseNotFound()
-
-    if leaving_request.line_manager_complete:
-        return redirect(
-            reverse(
-                "line-manager-thank-you",
-                kwargs={"leaving_request_uuid": leaving_request_uuid},
-            )
-        )
-
-    redirect_response = HttpResponseRedirect(
-        reverse(
-            "line-manager-leaver-line-reports",
-            kwargs={"leaving_request_uuid": leaving_request_uuid},
-        )
-    )
-
-    lr_line_reports: List[LeavingRequestLineReport] = leaving_request.line_reports
-
-    new_line_report_staff_id: Optional[str] = request.GET.get(
-        NEW_LINE_REPORT_SEARCH_PARAM
-    )
-    if new_line_report_staff_id:
-        new_line_report_staff_document: StaffDocument = (
-            get_staff_document_from_staff_index(staff_uuid=new_line_report_staff_id)
-        )
-        consolidated_staff_document: ConsolidatedStaffDocument = (
-            consolidate_staff_documents(
-                staff_documents=[new_line_report_staff_document],
-            )[0]
-        )
-
-        line_report_name: str = (
-            consolidated_staff_document["first_name"]
-            + " "
-            + consolidated_staff_document["last_name"]
-        )
-
-        try:
-            line_report_as_user: ActivityStreamStaffSSOUser = (
-                ActivityStreamStaffSSOUser.objects.get(
-                    email_user_id=consolidated_staff_document[
-                        "staff_sso_email_user_id"
-                    ],
-                )
-            )
-        except ActivityStreamStaffSSOUser.DoesNotExist:
-            request.session[
-                ADD_MISSING_LINE_REPORT_ERROR
-            ] = f"Unable to add {line_report_name} as a line report, please try again later."
-            return redirect_response
-
-        try:
-            line_report_email = line_report_as_user.get_email_addresses_for_contact()[0]
-        except Exception:
-            request.session[
-                ADD_MISSING_LINE_REPORT_ERROR
-            ] = f"Unable to add {line_report_name} as a line report, please try again later."
-            return redirect_response
-
-        # Check if the line report already exists.
-        for line_report in lr_line_reports:
-            if line_report["email"] == line_report_email:
-                return redirect_response
-
-        # Create a new line report
-        new_line_report: LeavingRequestLineReport = {
-            "uuid": str(uuid4()),
-            "name": line_report_name,
-            "email": line_report_email,
-            "person_data": None,
-            "line_manager": None,
-            "new_line_report": True,
-        }
-        lr_line_reports.append(new_line_report)
-        leaving_request.line_reports = lr_line_reports
-        leaving_request.save()
-
-    return redirect_response
-
-
 def line_report_set_new_manager(
     request: HttpRequest, leaving_request_uuid: UUID, line_report_uuid: UUID
 ) -> HttpResponse:
@@ -919,10 +776,6 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
             line_reports=self.leaving_request.line_reports,
             new_line_manager_search=reverse(
                 "line-manager-line-report-new-line-manager-search",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
-            new_line_report_search=reverse(
-                "line-manager-new-line-report-search",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
             errors=errors,
