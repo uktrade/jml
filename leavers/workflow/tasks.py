@@ -1,6 +1,6 @@
 from datetime import timedelta
 from enum import Enum
-from typing import Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from django.utils import timezone
 from django_workflow_engine import Task
@@ -46,9 +46,14 @@ class LeavingRequestTask(Task):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.leaving_request: Optional[LeavingRequest] = getattr(
+        leaving_request: Optional[LeavingRequest] = getattr(
             self.flow, "leaving_request", None
         )
+        if not leaving_request:
+            raise Exception(
+                "The Flow is missing the LeavingRequest that it relates to."
+            )
+        self.leaving_request: LeavingRequest = leaving_request
 
 
 class BasicTask(LeavingRequestTask):
@@ -78,7 +83,6 @@ class ConfirmLeaverData(LeavingRequestTask):
 
     def execute(self, task_info):  # noqa: C901
         uksbs_interface = get_uksbs_interface()
-        assert self.leaving_request
         assert self.leaving_request.leaver_activitystream_user
         assert self.leaving_request.manager_activitystream_user
 
@@ -177,7 +181,6 @@ class CheckUKSBSLeaver(LeavingRequestTask):
 
     def execute(self, task_info):
         uksbs_interface = get_uksbs_interface()
-        assert self.leaving_request
 
         leaver_as_user: ActivityStreamStaffSSOUser = (
             self.leaving_request.leaver_activitystream_user
@@ -203,7 +206,6 @@ class CheckUKSBSLineManager(LeavingRequestTask):
 
     def execute(self, task_info):
         uksbs_interface = get_uksbs_interface()
-        assert self.leaving_request
 
         leaver_as_user: ActivityStreamStaffSSOUser = (
             self.leaving_request.leaver_activitystream_user
@@ -239,10 +241,7 @@ class LSDSendLeaverDetails(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        assert self.leaving_request
-
         inform_lsd_team_of_leaver(leaving_request=self.leaving_request)
-
         return None, True
 
 
@@ -252,8 +251,6 @@ class ServiceNowSendLeaverDetails(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        assert self.leaving_request
-
         leaver_details = get_leaver_details(leaving_request=self.leaving_request)
         leaver_information: Optional[
             LeaverInformation
@@ -297,8 +294,6 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
         from core.uksbs.utils import build_leaving_data_from_leaving_request
 
         uksbs_interface = get_uksbs_interface()
-        assert self.leaving_request
-
         leaving_data = build_leaving_data_from_leaving_request(
             leaving_request=self.leaving_request,
         )
@@ -508,7 +503,6 @@ class EmailTask(LeavingRequestTask):
         """
         Send the email.
         """
-        assert self.leaving_request
 
         if self.should_send_email(
             email_id=email_id,
@@ -525,7 +519,6 @@ class EmailTask(LeavingRequestTask):
             self.leaving_request.save()
 
     def should_skip(self, task_info) -> bool:
-        assert self.leaving_request
         if "skip_condition" in task_info:
             skip_condition: str = task_info["skip_condition"]
             if skip_condition == SkipCondition.IS_NOT_ROSA_USER.value:
@@ -563,8 +556,6 @@ class DailyReminderEmail(EmailTask):
         self,
         email_id: EmailIds,
     ) -> bool:
-        assert self.leaving_request
-
         latest_email: Optional[TaskLog] = (
             self.leaving_request.email_task_logs.filter(
                 task_name__contains=email_id.value,
@@ -602,8 +593,6 @@ class ReminderEmail(EmailTask):
           - Send the email daily for the week before the last day
           - Send the email daily for the days after the last day
         """
-        assert self.leaving_request
-
         last_day = self.leaving_request.get_last_day()
         latest_email: Optional[TaskLog] = (
             self.leaving_request.email_task_logs.filter(
@@ -651,8 +640,6 @@ class ProcessorReminderEmail(EmailTask):
         self,
         email_id: EmailIds,
     ) -> bool:
-        assert self.leaving_request
-
         already_sent = self.leaving_request.email_task_logs.filter(
             task_name__contains=email_id.value,
         ).exists()
@@ -714,6 +701,113 @@ class ProcessorReminderEmail(EmailTask):
 
         raise Exception(f"Email method not found for {email_id.value}")
 
+    def send_day_after_last_working_day_email(self, task_info: Dict[Any, Any]):
+        today = timezone.now()
+        last_working_day = self.leaving_request.get_last_day()
+        if not last_working_day:
+            raise Exception("Leaving Request doesn't have a last working day")
+
+        day_after_last_working_day = last_working_day + timedelta(days=1)
+
+        day_after_lwd = task_info.get("day_after_lwd")
+        if day_after_lwd and today >= day_after_last_working_day:
+            self.day_after_lwd_email_id = EmailIds(day_after_lwd)
+            template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[self.day_after_lwd_email_id]
+            self.send_email(
+                email_id=self.day_after_lwd_email_id,
+                template_id=template_id,
+            )
+
+    def send_two_days_after_last_working_day_email(self, task_info: Dict[Any, Any]):
+        today = timezone.now()
+        last_working_day = self.leaving_request.get_last_day()
+        if not last_working_day:
+            raise Exception("Leaving Request doesn't have a last working day")
+
+        two_days_after_last_working_day = last_working_day + timedelta(days=2)
+        two_days_after_lwd = task_info.get("two_days_after_lwd")
+        if two_days_after_lwd and today >= two_days_after_last_working_day:
+            self.two_days_after_lwd_email_id = EmailIds(two_days_after_lwd)
+            template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
+                self.two_days_after_lwd_email_id
+            ]
+            self.send_email(
+                email_id=self.two_days_after_lwd_email_id,
+                template_id=template_id,
+            )
+
+    def send_on_leaving_date_email(self, task_info: Dict[Any, Any]):
+        today = timezone.now()
+        leaving_date = self.leaving_request.get_leaving_date()
+        if not leaving_date:
+            raise Exception("Leaving Request doesn't have a leaving date")
+
+        on_ld = task_info.get("on_ld")
+        if on_ld and today >= leaving_date:
+            self.on_ld_email_id = EmailIds(on_ld)
+            template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[self.on_ld_email_id]
+            self.send_email(email_id=self.on_ld_email_id, template_id=template_id)
+
+    def send_one_day_after_leaving_date_email(self, task_info: Dict[Any, Any]):
+        today = timezone.now()
+        leaving_date = self.leaving_request.get_leaving_date()
+        if not leaving_date:
+            raise Exception("Leaving Request doesn't have a leaving date")
+
+        day_after_leaving_date = leaving_date + timedelta(days=1)
+        one_day_after_ld = task_info.get("one_day_after_ld")
+        if one_day_after_ld and today >= day_after_leaving_date:
+            self.one_day_after_ld_email_id = EmailIds(one_day_after_ld)
+            template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
+                self.one_day_after_ld_email_id
+            ]
+            self.send_email(
+                email_id=self.one_day_after_ld_email_id,
+                template_id=template_id,
+            )
+
+    def send_two_days_after_leaving_date_line_manager_email(
+        self, task_info: Dict[Any, Any]
+    ):
+        today = timezone.now()
+        leaving_date = self.leaving_request.get_leaving_date()
+        if not leaving_date:
+            raise Exception("Leaving Request doesn't have a leaving date")
+
+        two_days_after_leaving_date = leaving_date + timedelta(days=2)
+        if today >= two_days_after_leaving_date:
+            two_days_after_ld_lm = task_info.get("two_days_after_ld_lm")
+            if two_days_after_ld_lm:
+                self.two_days_after_ld_lm_email_id = EmailIds(two_days_after_ld_lm)
+                template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
+                    self.two_days_after_ld_lm_email_id
+                ]
+                self.send_email(
+                    email_id=self.two_days_after_ld_lm_email_id,
+                    template_id=template_id,
+                )
+
+    def send_two_days_after_leaving_date_processor_email(
+        self, task_info: Dict[Any, Any]
+    ):
+        today = timezone.now()
+        leaving_date = self.leaving_request.get_leaving_date()
+        if not leaving_date:
+            raise Exception("Leaving Request doesn't have a leaving date")
+
+        two_days_after_leaving_date = leaving_date + timedelta(days=2)
+        if today >= two_days_after_leaving_date:
+            two_days_after_ld_proc = task_info.get("two_days_after_ld_proc")
+            if two_days_after_ld_proc:
+                self.two_days_after_ld_proc_email_id = EmailIds(two_days_after_ld_proc)
+                template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
+                    self.two_days_after_ld_proc_email_id
+                ]
+                self.send_email(
+                    email_id=self.two_days_after_ld_proc_email_id,
+                    template_id=template_id,
+                )
+
     def execute(self, task_info):
         """
         Key:
@@ -722,8 +816,6 @@ class ProcessorReminderEmail(EmailTask):
          - lm = Line Manager
          - proc = Processor
         """
-        assert self.leaving_request
-
         if self.should_skip(task_info=task_info):
             return None, True
 
@@ -733,75 +825,35 @@ class ProcessorReminderEmail(EmailTask):
 
         self.processor_emails: List[str] = task_info["processor_emails"]
 
-        today = timezone.now()
         last_working_day = self.leaving_request.get_last_day()
         leaving_date = self.leaving_request.get_leaving_date()
 
         assert last_working_day
         assert leaving_date
 
-        # Day after Last working day
-        day_after_lwd = task_info.get("day_after_lwd")
-        if day_after_lwd and today >= last_working_day + timedelta(days=1):
-            self.day_after_lwd_email_id = EmailIds(day_after_lwd)
-            self.send_email(
-                email_id=self.day_after_lwd_email_id,
-                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
-                    self.day_after_lwd_email_id
-                ],
-            )
+        # Only send "X days after Last working day" emails if the Last working
+        # day is not the same as the leaving date.
+        if last_working_day.date() != leaving_date.date():
+            # Day after Last working day
+            self.send_day_after_last_working_day_email(task_info=task_info)
 
-        # 2 days after Last working day
-        two_days_after_lwd = task_info.get("two_days_after_lwd")
-        if two_days_after_lwd and today >= last_working_day + timedelta(days=2):
-            self.two_days_after_lwd_email_id = EmailIds(two_days_after_lwd)
-            self.send_email(
-                email_id=self.two_days_after_lwd_email_id,
-                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
-                    self.two_days_after_lwd_email_id
-                ],
-            )
+            # 2 days after Last working day
+            self.send_two_days_after_last_working_day_email(task_info=task_info)
 
         # Leaving date
-        on_ld = task_info.get("on_ld")
-        if on_ld and today >= leaving_date:
-            self.on_ld_email_id = EmailIds(on_ld)
-            self.send_email(
-                email_id=self.on_ld_email_id,
-                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[self.on_ld_email_id],
-            )
+        self.send_on_leaving_date_email(task_info=task_info)
 
         # Day after Leaving date
-        one_day_after_ld = task_info.get("one_day_after_ld")
-        if one_day_after_ld and today >= leaving_date + timedelta(days=1):
-            self.one_day_after_ld_email_id = EmailIds(one_day_after_ld)
-            self.send_email(
-                email_id=self.one_day_after_ld_email_id,
-                template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
-                    self.one_day_after_ld_email_id
-                ],
-            )
+        self.send_one_day_after_leaving_date_email(task_info=task_info)
 
         # Two days after Leaving date
-        if today >= leaving_date + timedelta(days=1):
-            two_days_after_ld_lm = task_info.get("two_days_after_ld_lm")
-            if two_days_after_ld_lm:
-                self.two_days_after_ld_lm_email_id = EmailIds(two_days_after_ld_lm)
-                self.send_email(
-                    email_id=self.two_days_after_ld_lm_email_id,
-                    template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
-                        self.two_days_after_ld_lm_email_id
-                    ],
-                )
-            two_days_after_ld_proc = task_info.get("two_days_after_ld_proc")
-            if two_days_after_ld_proc:
-                self.two_days_after_ld_proc_email_id = EmailIds(two_days_after_ld_proc)
-                self.send_email(
-                    email_id=self.two_days_after_ld_proc_email_id,
-                    template_id=PROCESSOR_REMINDER_EMAIL_MAPPING[
-                        self.two_days_after_ld_proc_email_id
-                    ],
-                )
+        self.send_two_days_after_leaving_date_line_manager_email(
+            task_info=task_info,
+        )
+
+        self.send_two_days_after_leaving_date_processor_email(
+            task_info=task_info,
+        )
 
         return None, True
 
