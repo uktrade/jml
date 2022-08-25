@@ -161,7 +161,6 @@ def build_leaving_data_from_leaving_request(
     leave_details = get_leave_details(leaving_request=leaving_request)
 
     direct_reports: List[DirectReport] = []
-    additional_direct_reports: List[DirectReport] = []
 
     lr_line_reports: List[LeavingRequestLineReport] = leaving_request.line_reports
 
@@ -189,7 +188,7 @@ def build_leaving_data_from_leaving_request(
         direct_reports.append(direct_report)
 
     template_data: TemplateData = {
-        "additionalDirectReports": additional_direct_reports,
+        "additionalDirectReports": [],
         "directReports": direct_reports,
         # Payroll Details
         "leaverPaidUnpaid": leave_details["leaverPaidUnpaid"],
