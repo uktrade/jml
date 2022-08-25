@@ -92,31 +92,33 @@
         </div>
     </div>
 
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Leaver's line reports</h2>
+    {% if line_reports %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h2 class="govuk-heading-m">Leaver's line reports</h2>
 
-            <table class="govuk-table">
-                <thead class="govuk-table__head">
-                    <tr class="govuk-table__row">
-                        <th scope="col" class="govuk-table__header">Line report</th>
-                        <th scope="col" class="govuk-table__header">New Line Manager</th>
-                    </tr>
-                </thead>
-                <tbody class="govuk-table__body">
-                    {% for line_report in line_reports %}
+                <table class="govuk-table">
+                    <thead class="govuk-table__head">
                         <tr class="govuk-table__row">
-                            <td class="govuk-table__cell">{{ line_report.name }}</td>
-                            <td class="govuk-table__cell">{{ line_report.line_manager.name }}</td>
+                            <th scope="col" class="govuk-table__header">Line report</th>
+                            <th scope="col" class="govuk-table__header">New Line Manager</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="govuk-table__body">
+                        {% for line_report in line_reports %}
+                            <tr class="govuk-table__row">
+                                <td class="govuk-table__cell">{{ line_report.name }}</td>
+                                <td class="govuk-table__cell">{{ line_report.line_manager.name }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
 
-            <a href="{{ line_reports_view }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit
-                information</a>
+                <a href="{{ line_reports_view }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit
+                    information</a>
+            </div>
         </div>
-    </div>
+    {% endif %}
 
     <form method="POST">
         {% crispy form %}
