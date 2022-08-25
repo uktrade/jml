@@ -113,7 +113,6 @@ class LeavingRequestDetailView(UserPassesTestMixin, TemplateView):
             for index, line_report in enumerate(value):
                 line_report_obj = cast(LeavingRequestLineReport, line_report)
                 formatted_value += (
-                    f"New line report? {line_report_obj['new_line_report']}<br>"
                     f"Line Report Name: {line_report_obj['name']}<br>"
                     f"Line Report Email: {line_report_obj['email']}<br>"
                 )

@@ -712,7 +712,6 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
                     "email": line_report["email_address"],
                     "line_manager": None,
                     "person_data": line_report,
-                    "new_line_report": False,
                 }
                 for line_report in person_data_line_reports
             ]
