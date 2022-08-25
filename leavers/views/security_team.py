@@ -606,6 +606,9 @@ class TaskSummaryView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_rosa_kit_statuses(self):
+        if not self.leaving_request.is_rosa_user:
+            return {}
+
         rosa_kit_statuses = {
             RosaKit.MOBILE.value: {
                 "colour": "blue",
@@ -627,14 +630,14 @@ class TaskSummaryView(
             user_has = self.leaving_request.rosa_kit_form_data["user_has"]
             user_returned = self.leaving_request.rosa_kit_form_data["user_has"]
 
-        for key, status in rosa_kit_statuses.items():
-            if key not in user_has:
-                status["colour"] = "yellow"
-                status["text"] = "Leaver doesn't have"
+            for key, status in rosa_kit_statuses.items():
+                if key in user_has:
+                    status["colour"] = "yellow"
+                    status["text"] = "Leaver has"
 
-            if key in user_returned:
-                status["colour"] = "green"
-                status["text"] = "Returned"
+                if key in user_returned:
+                    status["colour"] = "green"
+                    status["text"] = "Returned"
 
         return rosa_kit_statuses
 
@@ -651,24 +654,14 @@ class TaskSummaryView(
         rosa_kit_statuses = self.get_rosa_kit_statuses()
         rosa_kit_tasks = []
 
-        rosa_kit_tasks.append(
-            {
-                "name": "Retrieve ROSA Mobile",
-                "status": rosa_kit_statuses[RosaKit.MOBILE.value],
-            }
-        )
-        rosa_kit_tasks.append(
-            {
-                "name": "Retrieve ROSA Laptop",
-                "status": rosa_kit_statuses[RosaKit.LAPTOP.value],
-            }
-        )
-        rosa_kit_tasks.append(
-            {
-                "name": "Retrieve ROSA Key",
-                "status": rosa_kit_statuses[RosaKit.KEY.value],
-            }
-        )
+        for rosa_kit_value, status in rosa_kit_statuses.items():
+            rosa_kit = RosaKit(rosa_kit_value)
+            rosa_kit_tasks.append(
+                {
+                    "name": f"Retrieve {rosa_kit.label}",
+                    "status": status,
+                }
+            )
 
         rosa_kit_notes = None
         if self.leaving_request.rosa_kit_form_data:
