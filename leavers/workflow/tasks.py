@@ -25,6 +25,7 @@ from leavers.types import ReminderEmailDict
 from leavers.utils.emails import (
     get_leaving_request_email_personalisation,
     send_clu4_leaver_email,
+    send_feetham_security_pass_office_email,
     send_it_ops_asset_email,
     send_leaver_not_in_uksbs_reminder,
     send_leaver_thank_you_email,
@@ -360,6 +361,7 @@ class EmailIds(Enum):
     SRE_REMINDER_ONE_DAY_AFTER_LD = "sre_reminder_one_day_after_ld"
     SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC = "sre_reminder_two_days_after_ld_proc"
 
+    FEETHAM_SECURITY_PASS_OFFICE_EMAIL = "feetham_security_pass_office_email"
     IT_OPS_ASSET_EMAIL = "it_ops_asset_email"
     CLU4_EMAIL = "clu4_email"
     OCS_EMAIL = "ocs_email"
@@ -376,6 +378,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.SECURITY_OFFBOARD_BP_LEAVER_NOTIFICATION: send_security_team_offboard_bp_leaver_email,
     EmailIds.SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION: send_security_team_offboard_rk_leaver_email,
     EmailIds.SRE_NOTIFICATION: send_sre_notification_email,
+    EmailIds.FEETHAM_SECURITY_PASS_OFFICE_EMAIL: send_feetham_security_pass_office_email,
     EmailIds.IT_OPS_ASSET_EMAIL: send_it_ops_asset_email,
     EmailIds.CLU4_EMAIL: send_clu4_leaver_email,
     EmailIds.OCS_EMAIL: send_ocs_leaver_email,

@@ -50,6 +50,7 @@
 | TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                          | None                                       |                                                                                       |
 | TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL                          | None                                       |                                                                                       |
 | TEMPLATE_ID_CLU4_EMAIL                                           | None                                       |                                                                                       |
+| TEMPLATE_ID_FEETHAM_SECURITY_PASS_OFFICE_EMAIL                   | None                                       |                                                                                       |
 | TEMPLATE_ID_IT_OPS_ASSET_EMAIL                                   | None                                       |                                                                                       |
 | TEMPLATE_ID_OCS_LEAVER_EMAIL                                     | None                                       |                                                                                       |
 | TEMPLATE_ID_OCS_OAB_LOCKER_EMAIL                                 | None                                       |                                                                                       |

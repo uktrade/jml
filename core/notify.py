@@ -35,6 +35,9 @@ class EmailTemplates(Enum):
     LINE_MANAGER_THANKYOU_EMAIL = email_template_settings.LINE_MANAGER_THANKYOU_EMAIL
 
     CLU4_LEAVER_EMAIL = email_template_settings.CLU4_EMAIL
+    FEETHAM_SECURITY_PASS_OFFICE_EMAIL = (
+        email_template_settings.FEETHAM_SECURITY_PASS_OFFICE_EMAIL
+    )
     IT_OPS_ASSET_EMAIL = email_template_settings.IT_OPS_ASSET_EMAIL
     OCS_LEAVER_EMAIL = email_template_settings.OCS_LEAVER_EMAIL
     OCS_OAB_LOCKER_EMAIL = email_template_settings.OCS_OAB_LOCKER_EMAIL

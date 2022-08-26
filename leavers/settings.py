@@ -19,6 +19,7 @@ class EmailTemplatesSettings:
     LINE_MANAGER_THANKYOU_EMAIL: str
     # Procesor emails
     CLU4_EMAIL: str
+    FEETHAM_SECURITY_PASS_OFFICE_EMAIL: str
     IT_OPS_ASSET_EMAIL: str
     OCS_LEAVER_EMAIL: str
     OCS_OAB_LOCKER_EMAIL: str
