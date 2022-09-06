@@ -4,6 +4,8 @@ from django.http.request import HttpRequest
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 
+COOKIE_KEY = "cookies_policy"
+
 
 def cookie_notice(request):
     context = {}
@@ -12,10 +14,16 @@ def cookie_notice(request):
 
 
 def cookie_response(request: HttpRequest, response: Literal["accept", "reject"]):
+    cookie_value_mapping = {
+        "accept": "true",
+        "reject": "false",
+    }
+    cookie_value = cookie_value_mapping[response]
+
     redirect_response = redirect(request.GET.get("next", "/"))
     redirect_response.set_cookie(
-        "cookie_banner_response",
-        response,
+        COOKIE_KEY,
+        cookie_value,
         max_age=31536000,  # 1 year
     )
     return redirect_response

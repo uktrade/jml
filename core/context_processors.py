@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db.models import Q
 from django.urls import reverse
 
+from core.cookies.views import COOKIE_KEY
 from leavers.models import LeavingRequest
 
 
@@ -15,7 +16,7 @@ def global_context(request):
 
     global_context = {
         "SERVICE_NAME": "Leaving DIT",
-        "COOKIE_RESPONSE": request.COOKIES.get("cookie_banner_response"),
+        "COOKIE_RESPONSE": request.COOKIES.get(COOKIE_KEY),
         "GTM_CODE": settings.GTM_CODE,
         "DEV_LINKS": [],
     }
