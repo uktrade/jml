@@ -161,6 +161,10 @@ f"user{n
 f"We
 F401
 Faulty"
+Feetham Security Pass Office
+Feetham Security Pass Office Leaver Notification Email
+Feetham Security Pass Office Settings
+feetham_security_pass_office_email
 Finder Raises
 Flexi Impacting Pay
 Flexi Leave
@@ -331,6 +335,7 @@ Security Team
 security_pass_disabled_task_log
 security_team_building_pass_complete
 Send
+Send Feetham Security Pass Office
 Send Line
 Send OCS Email
 Send OCS OAB Locker
@@ -376,6 +381,7 @@ Team Zendesk
 TEMPLATE_ID_CLU4_EMAIL
 TEMPLATE_ID_CLU4_EMAIL                                           |
 TEMPLATE_ID_CLU4_EMAIL                                           | None                                       |                                                                                       
+TEMPLATE_ID_FEETHAM_SECURITY_PASS_OFFICE_EMAIL                   
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL                     | None                                       |                                                                                       
@@ -406,6 +412,7 @@ the CLU4 Team
 the Data Recipient StaffDocument
 the DB Creates
 The DIT Leaving Service
+the Feetham Security Pass Office
 the Health and Safety Team</h2
 the Leaver Activity Stream
 the Leaver Form's

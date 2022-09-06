@@ -339,6 +339,11 @@ LEGACY_PEOPLE_FINDER_ES_URL = env("LEGACY_PEOPLE_FINDER_ES_URL", default=None)
 # CLU4 Settings
 CLU4_EMAIL = env("CLU4_EMAIL", default=None)
 
+# Feetham Security Pass Office Settings
+FEETHAM_SECURITY_PASS_OFFICE_EMAIL = env(
+    "FEETHAM_SECURITY_PASS_OFFICE_EMAIL", default=None
+)
+
 # IT OPS Settings
 IT_OPS_EMAIL = env("IT_OPS_EMAIL", default=None)
 

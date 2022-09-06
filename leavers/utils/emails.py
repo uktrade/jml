@@ -456,3 +456,34 @@ def send_it_ops_asset_email(
         template_id=notify.EmailTemplates.IT_OPS_ASSET_EMAIL,
         personalisation=personalisation,
     )
+
+
+def send_feetham_security_pass_office_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
+    """
+    Send Feetham Security Pass Office an email to inform them of a leaver.
+    """
+
+    if not settings.FEETHAM_SECURITY_PASS_OFFICE_EMAIL:
+        raise ValueError("FEETHAM_SECURITY_PASS_OFFICE_EMAIL is not set")
+
+    leaving_date = leaving_request.get_leaving_date()
+    if not leaving_date:
+        raise ValueError("leaving_date is not set")
+
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    if not leaver_information:
+        raise ValueError("leaver_information is not set")
+
+    personalisation = get_leaving_request_email_personalisation(leaving_request)
+
+    notify.email(
+        email_addresses=[settings.FEETHAM_SECURITY_PASS_OFFICE_EMAIL],
+        template_id=notify.EmailTemplates.FEETHAM_SECURITY_PASS_OFFICE_EMAIL,
+        personalisation=personalisation,
+    )

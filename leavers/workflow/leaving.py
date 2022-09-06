@@ -122,6 +122,7 @@ LeaversWorkflow = Workflow(
             targets=[
                 "send_uksbs_leaver_details",
                 "send_service_now_leaver_details",
+                "send_feetham_leaver_details",
                 "send_it_ops_leaver_details",
                 "send_lsd_team_leaver_details",
                 "notify_clu4_of_leaving",
@@ -147,6 +148,17 @@ LeaversWorkflow = Workflow(
             targets=[
                 "are_all_tasks_complete",
             ],
+        ),
+        # Feetham Security Pass Office
+        Step(
+            step_id="send_feetham_leaver_details",
+            task_name="notification_email",
+            targets=[
+                "are_all_tasks_complete",
+            ],
+            task_info={
+                "email_id": EmailIds.FEETHAM_SECURITY_PASS_OFFICE_EMAIL.value,
+            },
         ),
         # IT Ops
         Step(
