@@ -161,7 +161,6 @@ def build_leaving_data_from_leaving_request(
     leave_details = get_leave_details(leaving_request=leaving_request)
 
     direct_reports: List[DirectReport] = []
-    additional_direct_reports: List[DirectReport] = []
 
     lr_line_reports: List[LeavingRequestLineReport] = leaving_request.line_reports
 
@@ -186,13 +185,10 @@ def build_leaving_data_from_leaving_request(
             "NewManagerEmail": line_report_line_manager["email"],
             "Effectivedate": leaving_request.leaving_date.strftime("%d/%m/%Y %H:%M"),
         }
-        if line_report["new_line_report"]:
-            additional_direct_reports.append(direct_report)
-        else:
-            direct_reports.append(direct_report)
+        direct_reports.append(direct_report)
 
     template_data: TemplateData = {
-        "additionalDirectReports": additional_direct_reports,
+        "additionalDirectReports": [],
         "directReports": direct_reports,
         # Payroll Details
         "leaverPaidUnpaid": leave_details["leaverPaidUnpaid"],

@@ -98,11 +98,6 @@ urlpatterns = [
         name="line-manager-data-recipient-search",
     ),
     path(
-        "line-manager/<uuid:leaving_request_uuid>/line-reports/line-report-search/",
-        line_manager_views.NewLineReportSearchView.as_view(),
-        name="line-manager-new-line-report-search",
-    ),
-    path(
         "line-manager/<uuid:leaving_request_uuid>/line-reports/line-manager-search/",
         line_manager_views.LineReportNewLineManagerSearchView.as_view(),
         name="line-manager-line-report-new-line-manager-search",
@@ -126,11 +121,6 @@ urlpatterns = [
         "line-manager/<uuid:leaving_request_uuid>/line-reports/",
         line_manager_views.LeaverLineReportsView.as_view(),
         name="line-manager-leaver-line-reports",
-    ),
-    path(
-        "line-manager/<uuid:leaving_request_uuid>/line-reports/new/",
-        line_manager_views.add_missing_line_report,
-        name="add-missing-line-report",
     ),
     path(
         "line-manager/<uuid:leaving_request_uuid>/line-reports/"

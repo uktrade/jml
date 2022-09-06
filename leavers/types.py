@@ -73,7 +73,6 @@ class LeavingRequestLineReport(TypedDict):
     email: str
     line_manager: Optional[LeavingRequestLineReportLineManager]
     person_data: Optional["PersonData"]
-    new_line_report: bool
 
 
 class ReminderEmailDict(TypedDict):
