@@ -861,7 +861,7 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
 
         reason_for_leaving: Optional[str] = None
         if self.leaving_request.reason_for_leaving:
-            reason_for_leaving = line_manager_forms.ReasonForleaving(
+            reason_for_leaving = line_manager_forms.ReasonForLeaving(
                 self.leaving_request.reason_for_leaving
             ).label
 

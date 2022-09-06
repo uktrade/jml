@@ -265,7 +265,7 @@ class LineManagerConfirmationForm(forms.Form):
         )
 
 
-class ReasonForleaving(TextChoices):
+class ReasonForLeaving(TextChoices):
     """
     Reason for leaving choices.
     """
@@ -284,7 +284,7 @@ class ConfirmLeavingDate(forms.Form):
     reason_for_leaving = forms.ChoiceField(
         label="",
         widget=forms.RadioSelect,
-        choices=ReasonForleaving.choices,
+        choices=ReasonForLeaving.choices,
     )
 
     def __init__(self, leaver: ConsolidatedStaffDocument, *args, **kwargs):

@@ -377,6 +377,7 @@ Start Line
 Store DSE
 StreamHandler
 target="_blank">here</a>.</li>
+TaskRecord
 Team Zendesk
 TEMPLATE_ID_CLU4_EMAIL
 TEMPLATE_ID_CLU4_EMAIL                                           |

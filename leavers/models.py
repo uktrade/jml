@@ -12,7 +12,7 @@ from leavers.forms.line_manager import (
     DaysHours,
     FlexiLeavePaidOrDeducted,
     LeaverPaidUnpaid,
-    ReasonForleaving,
+    ReasonForLeaving,
 )
 from leavers.types import (
     LeavingRequestReminderEmailTasks,
@@ -120,7 +120,7 @@ class LeavingRequest(models.Model):
         null=True,
     )
     reason_for_leaving = models.CharField(
-        choices=ReasonForleaving.choices,
+        choices=ReasonForLeaving.choices,
         max_length=255,
         blank=True,
         null=True,
