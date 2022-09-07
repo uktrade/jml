@@ -3,6 +3,7 @@ from django.http.response import HttpResponse
 from django.test import TestCase
 from django.urls import reverse_lazy
 
+from core.cookies.views import COOKIE_KEY
 from user.test.factories import UserFactory
 
 
@@ -24,13 +25,13 @@ class CookieResponse(TestCase):
         response: HttpResponse = self.client.get(self.accept_path)
 
         self.assertEqual(response.status_code, 302)
-        cbr_cookie: SimpleCookie = response.cookies["cookie_banner_response"]
-        self.assertEqual(cbr_cookie.value, "accept")
+        cbr_cookie: SimpleCookie = response.cookies[COOKIE_KEY]
+        self.assertEqual(cbr_cookie.value, "true")
 
     def test_cookie_response_reject(self):
         self.client.force_login(UserFactory())
         response: HttpResponse = self.client.get(self.reject_path)
 
         self.assertEqual(response.status_code, 302)
-        cbr_cookie: SimpleCookie = response.cookies["cookie_banner_response"]
-        self.assertEqual(cbr_cookie.value, "reject")
+        cbr_cookie: SimpleCookie = response.cookies[COOKIE_KEY]
+        self.assertEqual(cbr_cookie.value, "false")
