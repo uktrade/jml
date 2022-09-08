@@ -2,6 +2,7 @@ import logging
 
 from django.conf import settings
 from zenpy import Zenpy
+from zenpy.lib.api_objects import Ticket
 
 from leavers.models import LeavingRequest
 
@@ -38,19 +39,21 @@ def inform_lsd_team_of_leaver(leaving_request: LeavingRequest):
     client = get_zendesk_client()
     # Create a Zendesk Ticket /PS-IGNORE
     client.tickets.create(
-        subject=f"Notification of Leaver: {leaver_name}",
-        comment=(
-            "We have been informed that the following person is leaving/has left the department.\n"
-            f"Name: {leaver_name}\n"
-            f"Email: {leaver_email}\n"
-            f"Date of Leaving: {leaving_date_str}\n"
-            "Please ensure that permissions are removed for this user (where appropriate. SSO, "
-            "Datahub, Digital Worskspace, OKTA)."
-        ),
-        priority="normal",
-        type="task",
-        status="new",
-        requester=client.users.me,
+        Ticket(
+            subject=f"Notification of Leaver: {leaver_name}",
+            comment=(
+                "We have been informed that the following person is leaving/has left the department.\n"
+                f"Name: {leaver_name}\n"
+                f"Email: {leaver_email}\n"
+                f"Date of Leaving: {leaving_date_str}\n"
+                "Please ensure that permissions are removed for this user (where appropriate. SSO, "
+                "Datahub, Digital Worskspace, OKTA)."
+            ),
+            priority="normal",
+            type="task",
+            status="new",
+            requester=client.users.me(),
+        )
     )
 
     leaving_request.task_logs.create(
