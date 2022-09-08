@@ -1,3 +1,3 @@
-{% if COOKIE_RESPONSE == "accept" and GTM_CODE %}
+{% if COOKIE_RESPONSE == "true" and GTM_CODE %}
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ GTM_CODE }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 {% endif %}
