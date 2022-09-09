@@ -109,6 +109,7 @@ class TestLeaversWorkflow(TestCase):
             [
                 "send_uksbs_leaver_details",
                 "send_service_now_leaver_details",
+                "send_feetham_leaver_details",
                 "send_it_ops_leaver_details",
                 "send_lsd_team_leaver_details",
                 "notify_clu4_of_leaving",
@@ -123,6 +124,9 @@ class TestLeaversWorkflow(TestCase):
             ["are_all_tasks_complete"],
         ],
         "send_service_now_leaver_details": [
+            ["are_all_tasks_complete"],
+        ],
+        "send_feetham_leaver_details": [
             ["are_all_tasks_complete"],
         ],
         "send_it_ops_leaver_details": [
@@ -299,6 +303,7 @@ class TestLeaversWorkflow(TestCase):
             "setup_scheduled_tasks",
             "send_uksbs_leaver_details",
             "send_service_now_leaver_details",
+            "send_feetham_leaver_details",
             "send_it_ops_leaver_details",
             "send_lsd_team_leaver_details",
             "notify_clu4_of_leaving",
