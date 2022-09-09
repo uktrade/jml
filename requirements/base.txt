@@ -15,7 +15,9 @@ asgiref==3.4.1
 async-timeout==4.0.1
     # via aiohttp
 attrs==21.2.0
-    # via aiohttp
+    # via
+    #   aiohttp
+    #   pytest
 billiard==3.6.4.0
     # via celery
 cachetools==5.0.0
@@ -118,10 +120,14 @@ frozenlist==1.2.0
     # via
     #   aiohttp
     #   aiosignal
+helpdesk-client==0.1.4
+    # via -r requirements.in/base.in
 idna==3.3
     # via
     #   requests
     #   yarl
+iniconfig==1.1.1
+    # via pytest
 kombu==5.2.3
     # via celery
 kubi-ecs-logger==0.1.0
@@ -157,14 +163,24 @@ opensearch-py==1.0.0
     # via
     #   -r requirements.in/base.in
     #   opensearch-dsl
+packaging==21.3
+    # via pytest
+pluggy==1.0.0
+    # via pytest
 prompt-toolkit==3.0.23
     # via click-repl
 psycopg2==2.9.2
     # via -r requirements.in/base.in
+py==1.11.0
+    # via pytest
 pyjwt==2.4.0
     # via
     #   -r requirements.in/base.in
     #   notifications-python-client
+pyparsing==3.0.9
+    # via packaging
+pytest==7.1.3
+    # via helpdesk-client
 python-crontab==2.6.0
     # via django-celery-beat
 python-dateutil==2.8.2
@@ -215,6 +231,8 @@ slackclient==2.9.3
     # via -r requirements.in/base.in
 sqlparse==0.4.2
     # via django
+tomli==2.0.1
+    # via pytest
 typing-extensions==4.0.1
     # via
     #   async-timeout
@@ -236,11 +254,11 @@ waitress==2.1.2
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2.0
+whitenoise==5.2
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated
 yarl==1.7.2
     # via aiohttp
-zenpy==2.0.24
-    # via -r requirements.in/base.in
+zenpy==2.0.25
+    # via helpdesk-client
