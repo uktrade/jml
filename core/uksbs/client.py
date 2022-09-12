@@ -78,7 +78,7 @@ class UKSBSClient:
 
         if response.status_code != 200:
             raise UKSBSUnexpectedResponse(
-                f"UK SBS API returned status code {response.status_code}"
+                f"UK SBS API returned status code {response.status_code} '{response.content}'"
             )
 
         data = response.json()
@@ -115,7 +115,7 @@ class UKSBSClient:
 
         if response.status_code != 200:
             raise UKSBSUnexpectedResponse(
-                f"UK SBS API returned status code {response.status_code}"
+                f"UK SBS API returned status code {response.status_code}: '{response.content}'"
             )
 
         try:
