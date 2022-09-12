@@ -391,7 +391,10 @@ class LeavingRequest(models.Model):
 
         email_ids = cast(
             List["EmailIds"],
-            [email_id for _, email_id in SECURITY_TEAM_BP_REMINDER_EMAILS.items()],
+            [
+                EmailIds(email_id)
+                for _, email_id in SECURITY_TEAM_BP_REMINDER_EMAILS.items()
+            ],
         )
         email_task_logs = get_email_task_logs(
             leaving_request=self,
@@ -417,7 +420,10 @@ class LeavingRequest(models.Model):
 
         email_ids = cast(
             List["EmailIds"],
-            [email_id for _, email_id in SECURITY_TEAM_RK_REMINDER_EMAILS.items()],
+            [
+                EmailIds(email_id)
+                for _, email_id in SECURITY_TEAM_RK_REMINDER_EMAILS.items()
+            ],
         )
         email_task_logs = get_email_task_logs(
             leaving_request=self,
@@ -443,7 +449,7 @@ class LeavingRequest(models.Model):
 
         email_ids = cast(
             List["EmailIds"],
-            [email_id for _, email_id in SRE_REMINDER_EMAILS.items()],
+            [EmailIds(email_id) for _, email_id in SRE_REMINDER_EMAILS.items()],
         )
         email_task_logs = get_email_task_logs(
             leaving_request=self,
