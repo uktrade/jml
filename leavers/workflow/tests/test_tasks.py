@@ -8,6 +8,7 @@ from freezegun import freeze_time
 
 from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
 from leavers.models import LeaverInformation, LeavingRequest
+from leavers.types import ReminderEmailDict
 from leavers.workflow.tasks import (
     DailyReminderEmail,
     EmailIds,
@@ -609,13 +610,17 @@ class TestProcessorReminderEmail(TestCase):
         self.task = ProcessorReminderEmail(self.user, self.task_record, self.flow)
         self.task2 = ProcessorReminderEmail(self.user, self.task_record, self.flow2)
         self.task_info = {"processor_emails": ["someone@example.com"]}  # /PS-IGNORE
-        self.email_ids = {
-            "day_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD,
-            "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD,
-            "on_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD,
-            "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD,
-            "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM,
-            "two_days_after_ld_proc": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC,
+        self.email_ids: ReminderEmailDict = {
+            "day_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD.value,
+            "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD.value,
+            "on_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD.value,
+            "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD.value,
+            "two_days_after_ld_lm": (
+                EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM.value
+            ),
+            "two_days_after_ld_proc": (
+                EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC.value
+            ),
         }
         self.task_info.update(**self.email_ids)
 
@@ -623,17 +628,21 @@ class TestProcessorReminderEmail(TestCase):
     def test_should_send_email_none_sent_late(self):
         for _, email_id in self.email_ids.items():
             with self.subTest(email_id=email_id):
-                self.assertTrue(self.task.should_send_email(email_id=email_id))
+                self.assertTrue(
+                    self.task.should_send_email(email_id=EmailIds(email_id))
+                )
 
     @freeze_time("2021-12-27 12:00:00")  # Monday
     def test_should_send_email_already_sent(self):
         for _, email_id in self.email_ids.items():
             self.leaving_request.email_task_logs.create(
                 user=self.user,
-                task_name=f"Some task name that contains an Email ID {email_id.value}",
+                task_name=f"Some task name that contains an Email ID {email_id}",
             )
             with self.subTest(email_id=email_id):
-                self.assertFalse(self.task.should_send_email(email_id=email_id))
+                self.assertFalse(
+                    self.task.should_send_email(email_id=EmailIds(email_id))
+                )
 
     @freeze_time("2021-12-6 12:00:00")  # Monday
     @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
@@ -646,7 +655,7 @@ class TestProcessorReminderEmail(TestCase):
     def test_day_after_lwd(self, mock_get_send_email_method):
         self.task.execute(task_info=self.task_info)
         mock_get_send_email_method.assert_called_once_with(
-            email_id=self.email_ids["day_after_lwd"]
+            email_id=EmailIds(self.email_ids["day_after_lwd"])
         )
 
     @freeze_time("2021-12-22 12:00:00")  # Wednesday
@@ -656,12 +665,12 @@ class TestProcessorReminderEmail(TestCase):
             if email_id != self.email_ids["two_days_after_lwd"]:
                 self.leaving_request.email_task_logs.create(
                     user=self.user,
-                    task_name=f"Some task name that contains an Email ID {email_id.value}",
+                    task_name=f"Some task name that contains an Email ID {email_id}",
                 )
 
         self.task.execute(task_info=self.task_info)
         mock_get_send_email_method.assert_called_once_with(
-            email_id=self.email_ids["two_days_after_lwd"]
+            email_id=EmailIds(self.email_ids["two_days_after_lwd"])
         )
 
     @freeze_time("2021-12-24 12:00:00")  # Friday
@@ -671,12 +680,12 @@ class TestProcessorReminderEmail(TestCase):
             if email_id != self.email_ids["on_ld"]:
                 self.leaving_request.email_task_logs.create(
                     user=self.user,
-                    task_name=f"Some task name that contains an Email ID {email_id.value}",
+                    task_name=f"Some task name that contains an Email ID {email_id}",
                 )
 
         self.task.execute(task_info=self.task_info)
         mock_get_send_email_method.assert_called_once_with(
-            email_id=self.email_ids["on_ld"]
+            email_id=EmailIds(self.email_ids["on_ld"])
         )
 
     @freeze_time("2021-12-25 12:00:00")  # Saturday
@@ -686,7 +695,7 @@ class TestProcessorReminderEmail(TestCase):
             if email_id != self.email_ids["one_day_after_ld"]:
                 self.leaving_request.email_task_logs.create(
                     user=self.user,
-                    task_name=f"Some task name that contains an Email ID {email_id.value}",
+                    task_name=f"Some task name that contains an Email ID {email_id}",
                 )
 
         self.task.execute(task_info=self.task_info)
@@ -699,12 +708,12 @@ class TestProcessorReminderEmail(TestCase):
             if email_id != self.email_ids["one_day_after_ld"]:
                 self.leaving_request.email_task_logs.create(
                     user=self.user,
-                    task_name=f"Some task name that contains an Email ID {email_id.value}",
+                    task_name=f"Some task name that contains an Email ID {email_id}",
                 )
 
         self.task.execute(task_info=self.task_info)
         mock_get_send_email_method.assert_called_once_with(
-            email_id=self.email_ids["one_day_after_ld"]
+            email_id=EmailIds(self.email_ids["one_day_after_ld"])
         )
 
     @freeze_time("2021-12-26 12:00:00")  # Sunday
@@ -717,7 +726,7 @@ class TestProcessorReminderEmail(TestCase):
             ]:
                 self.leaving_request.email_task_logs.create(
                     user=self.user,
-                    task_name=f"Some task name that contains an Email ID {email_id.value}",
+                    task_name=f"Some task name that contains an Email ID {email_id}",
                 )
 
         self.task.execute(task_info=self.task_info)
@@ -733,17 +742,17 @@ class TestProcessorReminderEmail(TestCase):
             ]:
                 self.leaving_request.email_task_logs.create(
                     user=self.user,
-                    task_name=f"Some task name that contains an Email ID {email_id.value}",
+                    task_name=f"Some task name that contains an Email ID {email_id}",
                 )
 
         self.task.execute(task_info=self.task_info)
         calls = mock_get_send_email_method.call_args_list
 
         self.assertEqual(
-            calls[0].kwargs["email_id"], self.email_ids["two_days_after_ld_lm"]
+            calls[0].kwargs["email_id"].value, self.email_ids["two_days_after_ld_lm"]
         )
         self.assertEqual(
-            calls[1].kwargs["email_id"], self.email_ids["two_days_after_ld_proc"]
+            calls[1].kwargs["email_id"].value, self.email_ids["two_days_after_ld_proc"]
         )
 
     @freeze_time("2021-12-27 12:00:00")  # Monday
@@ -752,7 +761,7 @@ class TestProcessorReminderEmail(TestCase):
         self.task.execute(task_info=self.task_info)
         calls = mock_get_send_email_method.call_args_list
 
-        called_email_ids: List[EmailIds] = [call.kwargs["email_id"] for call in calls]
+        called_email_ids: List[str] = [call.kwargs["email_id"].value for call in calls]
 
         self.assertIn(self.email_ids["day_after_lwd"], called_email_ids)
         self.assertIn(self.email_ids["two_days_after_lwd"], called_email_ids)
@@ -767,7 +776,7 @@ class TestProcessorReminderEmail(TestCase):
         self.task2.execute(task_info=self.task_info)
         calls = mock_get_send_email_method.call_args_list
 
-        called_email_ids: List[EmailIds] = [call.kwargs["email_id"] for call in calls]
+        called_email_ids: List[str] = [call.kwargs["email_id"].value for call in calls]
 
         self.assertNotIn(self.email_ids["day_after_lwd"], called_email_ids)
         self.assertNotIn(self.email_ids["two_days_after_lwd"], called_email_ids)

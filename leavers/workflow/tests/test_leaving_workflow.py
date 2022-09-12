@@ -2,13 +2,45 @@ from datetime import date, timedelta
 from typing import Dict, List
 from unittest import mock
 
+from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
 
+from core.utils.staff_index import StaffDocument
 from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
+from leavers.forms.line_manager import ReasonForLeaving
 from user.test.factories import UserFactory
+
+STAFF_DOCUMENT = StaffDocument.from_dict(
+    {
+        "uuid": "",
+        "staff_sso_activity_stream_id": "1",
+        "staff_sso_legacy_id": "123",
+        "staff_sso_contact_email_address": "joe.bloggs@example.com",  # /PS-IGNORE
+        "staff_sso_first_name": "Joe",  # /PS-IGNORE
+        "staff_sso_last_name": "Bloggs",
+        "staff_sso_email_user_id": "joe.bloggs@example.com",  # /PS-IGNORE
+        "staff_sso_email_addresses": [
+            "joe.bloggs@example.com",  # /PS-IGNORE
+        ],
+        "people_finder_directorate": "",
+        "people_finder_first_name": "Joe",  # /PS-IGNORE
+        "people_finder_grade": "Example Grade",
+        "people_finder_job_title": "Job title",
+        "people_finder_last_name": "Bloggs",
+        "people_finder_phone": "0123456789",
+        "people_finder_email": "joe.bloggs@example.com",  # /PS-IGNORE
+        "people_finder_photo": "",
+        "people_finder_photo_small": "",
+        "service_now_user_id": "",
+        "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
+        "service_now_department_name": "Department for International Trade",
+        "people_data_employee_number": "12345",
+        "people_data_uksbs_person_id": "54321",
+    }
+)
 
 
 @mock.patch(
@@ -26,6 +58,7 @@ from user.test.factories import UserFactory
     ),
 )
 @mock.patch("core.notify.email")
+@mock.patch("leavers.workflow.tasks.is_work_day_and_time", return_value=True)
 class TestLeaversWorkflow(TestCase):
     """
     These tests the Leavers Workflow in it's current state
@@ -75,6 +108,7 @@ class TestLeaversWorkflow(TestCase):
             [
                 "send_uksbs_leaver_details",
                 "send_service_now_leaver_details",
+                "send_feetham_leaver_details",
                 "send_it_ops_leaver_details",
                 "send_lsd_team_leaver_details",
                 "notify_clu4_of_leaving",
@@ -85,6 +119,67 @@ class TestLeaversWorkflow(TestCase):
                 "send_sre_notification",
             ],
         ],
+        "send_uksbs_leaver_details": [
+            ["are_all_tasks_complete"],
+        ],
+        "send_service_now_leaver_details": [
+            ["are_all_tasks_complete"],
+        ],
+        "send_feetham_leaver_details": [
+            ["are_all_tasks_complete"],
+        ],
+        "send_it_ops_leaver_details": [
+            ["are_all_tasks_complete"],
+        ],
+        "send_lsd_team_leaver_details": [
+            ["are_all_tasks_complete"],
+        ],
+        "notify_clu4_of_leaving": [
+            ["are_all_tasks_complete"],
+        ],
+        "notify_ocs_of_leaving": [
+            ["are_all_tasks_complete"],
+        ],
+        "notify_ocs_of_oab_locker": [
+            ["are_all_tasks_complete"],
+        ],
+        "send_security_bp_notification": [
+            ["have_security_carried_out_bp_leaving_tasks"],
+        ],
+        "have_security_carried_out_bp_leaving_tasks": [
+            ["send_security_bp_reminder"],
+            ["are_all_tasks_complete"],
+        ],
+        "send_security_bp_reminder": [
+            ["have_security_carried_out_bp_leaving_tasks"],
+        ],
+        "send_security_rk_notification": [
+            ["have_security_carried_out_rk_leaving_tasks"],
+        ],
+        "have_security_carried_out_rk_leaving_tasks": [
+            ["send_security_rk_reminder"],
+            ["are_all_tasks_complete"],
+        ],
+        "send_security_rk_reminder": [
+            ["have_security_carried_out_rk_leaving_tasks"],
+        ],
+        "send_sre_notification": [
+            ["send_sre_slack_message"],
+        ],
+        "send_sre_slack_message": [
+            ["have_sre_carried_out_leaving_tasks"],
+        ],
+        "have_sre_carried_out_leaving_tasks": [
+            ["send_sre_reminder"],
+            ["are_all_tasks_complete"],
+        ],
+        "send_sre_reminder": [
+            ["have_sre_carried_out_leaving_tasks"],
+        ],
+        "are_all_tasks_complete": [
+            ["are_all_tasks_complete"],
+            [],
+        ],
     }
 
     def setUp(self):
@@ -93,10 +188,22 @@ class TestLeaversWorkflow(TestCase):
             leaving_date=now + timedelta(days=15),
             last_day=now + timedelta(days=12),
             leaver_complete=now,
+            reason_for_leaving=ReasonForLeaving.RESIGNATION.value,
         )
+        self.leaving_request.processing_manager_activitystream_user = (
+            self.leaving_request.manager_activitystream_user
+        )
+        self.leaving_request.save()
+        self.leaving_request.processing_manager_activitystream_user.uksbs_person_id = (
+            self.leaving_request.leaver_activitystream_user.uksbs_person_id + "manager"
+        )
+        self.leaving_request.processing_manager_activitystream_user.save()
+
         self.leaver_information = LeaverInformationFactory(
             leaving_request=self.leaving_request,
             leaver_date_of_birth=date(1990, 1, 1),
+            dse_assets=[],
+            cirrus_assets=[],
         )
 
         self.flow = Flow.objects.create(
@@ -179,29 +286,55 @@ class TestLeaversWorkflow(TestCase):
         ]
         self.check_tasks(expected_tasks=expected_tasks)
 
-    def run_line_manger_completed_offboarding(self, expected_tasks):
+    def run_line_manger_completed_offboarding(
+        self,
+        expected_tasks,
+        mock_get_staff_document_from_staff_index,
+    ):
+        mock_get_staff_document_from_staff_index.return_value = STAFF_DOCUMENT
+
         self.leaving_request.line_manager_complete = timezone.now()
         self.leaving_request.save(update_fields=["line_manager_complete"])
 
         self.executor.run_flow(user=None)
         expected_tasks += [
             "thank_line_manager",
-            # Setup Scheduled Tasks is a paus_task so it will continuously
-            # create a new task of itself
             "setup_scheduled_tasks",
-            "setup_scheduled_tasks",
+            "send_uksbs_leaver_details",
+            "send_service_now_leaver_details",
+            "send_feetham_leaver_details",
+            "send_it_ops_leaver_details",
+            "send_lsd_team_leaver_details",
+            "notify_clu4_of_leaving",
+            "notify_ocs_of_leaving",
+            "notify_ocs_of_oab_locker",
+            "send_security_bp_notification",
+            "send_security_rk_notification",
+            "send_sre_notification",
+            "send_sre_slack_message",
+            "have_security_carried_out_rk_leaving_tasks",
+            "have_security_carried_out_bp_leaving_tasks",
+            "are_all_tasks_complete",
+            "are_all_tasks_complete",
+            "send_security_bp_reminder",
+            "have_sre_carried_out_leaving_tasks",
         ]
         self.check_tasks(expected_tasks=expected_tasks)
 
+    @mock.patch(
+        "leavers.utils.leaving_request.get_staff_document_from_staff_index",
+        return_value=None,
+    )
     def test_workflow(
         self,
+        mock_get_staff_document_from_staff_index,
+        mock_is_work_day_and_time,
         mock_email,
         mock_CheckUKSBSLeaver_execute,
         mock_CheckUKSBSLineManager_execute,
     ):
         expected_tasks: List[str] = []
-
-        self.assertFalse(self.flow.tasks.all().exists())
+        self.check_tasks(expected_tasks=expected_tasks)
 
         # Leaver is not in UK SBS
         self.run_leaver_not_in_uksbs(
@@ -224,6 +357,7 @@ class TestLeaversWorkflow(TestCase):
         # Line manager has completed the off-boarding process
         self.run_line_manger_completed_offboarding(
             expected_tasks=expected_tasks,
+            mock_get_staff_document_from_staff_index=mock_get_staff_document_from_staff_index,
         )
 
         # Check to make sure all task targets are correct
@@ -237,8 +371,14 @@ class TestLeaversWorkflow(TestCase):
                 task_targets in self.TASK_TARGET_MAPPING.get(task.step_id, [])
             )
 
+    @mock.patch(
+        "leavers.utils.leaving_request.get_staff_document_from_staff_index",
+        return_value=None,
+    )
     def test_workflow_with_pauses(
         self,
+        mock_get_staff_document_from_staff_index,
+        mock_is_work_day_and_time,
         mock_email,
         mock_CheckUKSBSLeaver_execute,
         mock_CheckUKSBSLineManager_execute,
@@ -307,23 +447,5 @@ class TestLeaversWorkflow(TestCase):
         # Line manager has completed the off-boarding process
         self.run_line_manger_completed_offboarding(
             expected_tasks=expected_tasks,
+            mock_get_staff_document_from_staff_index=mock_get_staff_document_from_staff_index,
         )
-
-        # Run a few more times without progression to make sure nothing odd happens.
-        for _ in range(10):
-            self.executor.run_flow(user=None)
-            expected_tasks += [
-                "setup_scheduled_tasks",
-            ]
-            self.check_tasks(expected_tasks=expected_tasks)
-
-        # Check to make sure all task targets are correct
-        for task in self.flow.tasks.filter(executed_at__isnull=False).order_by(
-            "started_at"
-        ):
-            task_targets: List[str] = [
-                task_target.target_string for task_target in task.targets.all()
-            ]
-            self.assertTrue(
-                task_targets in self.TASK_TARGET_MAPPING.get(task.step_id, [])
-            )

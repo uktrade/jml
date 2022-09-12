@@ -2,12 +2,14 @@ from datetime import timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
+from django.db.models.query import QuerySet
 from django.utils import timezone
 from django_workflow_engine import Task
 from django_workflow_engine.dataclass import Step
 from django_workflow_engine.models import Flow, TaskRecord
 
 from activity_stream.models import ActivityStreamStaffSSOUser
+from core.lsd_zendesk import get_lsd_zendesk_interface
 from core.notify import EmailTemplates
 from core.service_now import get_service_now_interface
 from core.service_now.types import AssetDetails
@@ -15,7 +17,6 @@ from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.uksbs.types import PersonData
 from core.utils.helpers import is_work_day_and_time
-from core.utils.lsd import inform_lsd_team_of_leaver
 from leavers.exceptions import (
     LeaverDoesNotHaveUKSBSPersonId,
     ManagerDoesNotHaveUKSBSPersonId,
@@ -242,7 +243,10 @@ class LSDSendLeaverDetails(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        inform_lsd_team_of_leaver(leaving_request=self.leaving_request)
+        lsd_zendesk_interface = get_lsd_zendesk_interface()
+        lsd_zendesk_interface.inform_lsd_team_of_leaver(
+            leaving_request=self.leaving_request,
+        )
         return None, True
 
 
@@ -305,7 +309,7 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
             task_name="UK SBS informed of Leaver",
         )
 
-        return ["setup_scheduled_tasks"], True
+        return ["are_all_tasks_complete"], True
 
 
 class EmailIds(Enum):
@@ -434,34 +438,34 @@ PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
 }
 
 SECURITY_TEAM_BP_REMINDER_EMAILS: ReminderEmailDict = {
-    "day_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD,
-    "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD,
-    "on_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ON_LD,
-    "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD,
-    "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM,
+    "day_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD.value,
+    "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD.value,
+    "on_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ON_LD.value,
+    "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD.value,
+    "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM.value,
     "two_days_after_ld_proc": (
-        EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC
+        EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC.value
     ),
 }
 
 SECURITY_TEAM_RK_REMINDER_EMAILS: ReminderEmailDict = {
-    "day_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD,
-    "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD,
-    "on_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ON_LD,
-    "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD,
-    "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM,
+    "day_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD.value,
+    "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD.value,
+    "on_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ON_LD.value,
+    "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD.value,
+    "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM.value,
     "two_days_after_ld_proc": (
-        EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC
+        EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC.value
     ),
 }
 
 SRE_REMINDER_EMAILS: ReminderEmailDict = {
-    "day_after_lwd": EmailIds.SRE_REMINDER_DAY_AFTER_LWD,
+    "day_after_lwd": EmailIds.SRE_REMINDER_DAY_AFTER_LWD.value,
     "two_days_after_lwd": None,
     "on_ld": None,
-    "one_day_after_ld": EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD,
+    "one_day_after_ld": EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD.value,
     "two_days_after_ld_lm": None,
-    "two_days_after_ld_proc": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC,
+    "two_days_after_ld_proc": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC.value,
 }
 SRE_REMINDER_EMAIL_IDS: List[EmailIds] = [
     sre_reminder_email_id  # type: ignore
@@ -712,7 +716,7 @@ class ProcessorReminderEmail(EmailTask):
 
         day_after_last_working_day = last_working_day + timedelta(days=1)
 
-        day_after_lwd = task_info.get("day_after_lwd")
+        day_after_lwd: Optional[str] = task_info.get("day_after_lwd")
         if day_after_lwd and today >= day_after_last_working_day:
             self.day_after_lwd_email_id = EmailIds(day_after_lwd)
             template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[self.day_after_lwd_email_id]
@@ -728,7 +732,7 @@ class ProcessorReminderEmail(EmailTask):
             raise Exception("Leaving Request doesn't have a last working day")
 
         two_days_after_last_working_day = last_working_day + timedelta(days=2)
-        two_days_after_lwd = task_info.get("two_days_after_lwd")
+        two_days_after_lwd: Optional[str] = task_info.get("two_days_after_lwd")
         if two_days_after_lwd and today >= two_days_after_last_working_day:
             self.two_days_after_lwd_email_id = EmailIds(two_days_after_lwd)
             template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
@@ -745,7 +749,7 @@ class ProcessorReminderEmail(EmailTask):
         if not leaving_date:
             raise Exception("Leaving Request doesn't have a leaving date")
 
-        on_ld = task_info.get("on_ld")
+        on_ld: Optional[str] = task_info.get("on_ld")
         if on_ld and today >= leaving_date:
             self.on_ld_email_id = EmailIds(on_ld)
             template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[self.on_ld_email_id]
@@ -758,7 +762,7 @@ class ProcessorReminderEmail(EmailTask):
             raise Exception("Leaving Request doesn't have a leaving date")
 
         day_after_leaving_date = leaving_date + timedelta(days=1)
-        one_day_after_ld = task_info.get("one_day_after_ld")
+        one_day_after_ld: Optional[str] = task_info.get("one_day_after_ld")
         if one_day_after_ld and today >= day_after_leaving_date:
             self.one_day_after_ld_email_id = EmailIds(one_day_after_ld)
             template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
@@ -779,7 +783,7 @@ class ProcessorReminderEmail(EmailTask):
 
         two_days_after_leaving_date = leaving_date + timedelta(days=2)
         if today >= two_days_after_leaving_date:
-            two_days_after_ld_lm = task_info.get("two_days_after_ld_lm")
+            two_days_after_ld_lm: Optional[str] = task_info.get("two_days_after_ld_lm")
             if two_days_after_ld_lm:
                 self.two_days_after_ld_lm_email_id = EmailIds(two_days_after_ld_lm)
                 template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
@@ -800,7 +804,9 @@ class ProcessorReminderEmail(EmailTask):
 
         two_days_after_leaving_date = leaving_date + timedelta(days=2)
         if today >= two_days_after_leaving_date:
-            two_days_after_ld_proc = task_info.get("two_days_after_ld_proc")
+            two_days_after_ld_proc: Optional[str] = task_info.get(
+                "two_days_after_ld_proc"
+            )
             if two_days_after_ld_proc:
                 self.two_days_after_ld_proc_email_id = EmailIds(two_days_after_ld_proc)
                 template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
@@ -968,15 +974,10 @@ class LeaverCompleteTask(LeavingRequestTask):
         all_previous_steps_complete: bool = True
 
         for previous_step in previous_steps:
-            try:
-                previous_step_task: TaskRecord = flow.tasks.get(
-                    step_id=previous_step.step_id
-                )
-            except TaskRecord.DoesNotExist:
-                all_previous_steps_complete = False
-                break
-
-            if not previous_step_task.done:
+            previous_step_tasks: QuerySet[TaskRecord] = flow.tasks.filter(
+                step_id=previous_step.step_id
+            )
+            if not previous_step_tasks.filter(done=True).exists():
                 all_previous_steps_complete = False
                 break
 

@@ -377,6 +377,7 @@ Start Line
 Store DSE
 StreamHandler
 target="_blank">here</a>.</li>
+TaskRecord
 Team Zendesk
 TEMPLATE_ID_CLU4_EMAIL
 TEMPLATE_ID_CLU4_EMAIL                                           |
@@ -395,6 +396,7 @@ TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL |  |
 TEMPLATE_ID_SECURITY_OFFBOARD_RK_REMINDER_ON_LD                  
 TEMPLATE_ID_SRE_NOTIFICATION                                     
 TEMPLATE_ID_SRE_REMINDER_ON_LD                                   
+TEMPLATE_ID_SRE_REMINDER_ON_LD                                   | None                                       
 Templates
 Tests for `get_leaver_detail_updates` "
 Tests for `get_leaver_details_with_updates`
