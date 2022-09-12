@@ -406,7 +406,9 @@ class LeavingRequest(models.Model):
             "two_days_after_ld_proc": [],
         }
         for key, _ in email_tasks.items():
-            security_team_bp_reminder_email = SECURITY_TEAM_BP_REMINDER_EMAILS[key]  # type: ignore
+            security_team_bp_reminder_email = EmailIds(
+                SECURITY_TEAM_BP_REMINDER_EMAILS[key]  # type: ignore
+            )
             st_bp_email_task_logs = email_task_logs[security_team_bp_reminder_email]
             email_tasks[key] = st_bp_email_task_logs  # type: ignore
         return email_tasks
@@ -435,7 +437,9 @@ class LeavingRequest(models.Model):
             "two_days_after_ld_proc": [],
         }
         for key, _ in email_tasks.items():
-            security_team_rk_reminder_email = SECURITY_TEAM_RK_REMINDER_EMAILS[key]  # type: ignore
+            security_team_rk_reminder_email = EmailIds(
+                SECURITY_TEAM_RK_REMINDER_EMAILS[key]  # type: ignore
+            )
             st_rk_email_task_logs = email_task_logs[security_team_rk_reminder_email]
             email_tasks[key] = st_rk_email_task_logs  # type: ignore
         return email_tasks
@@ -461,7 +465,7 @@ class LeavingRequest(models.Model):
             "two_days_after_ld_proc": [],
         }
         for key, _ in email_tasks.items():
-            email_tasks[key] = email_task_logs[SRE_REMINDER_EMAILS[key]]  # type: ignore
+            email_tasks[key] = email_task_logs[EmailIds(SRE_REMINDER_EMAILS[key])]  # type: ignore
         return email_tasks
 
 
