@@ -371,6 +371,8 @@ GOVUK_NOTIFY_API_KEY = env("GOVUK_NOTIFY_API_KEY", default=None)
 LSD_ZENDESK_EMAIL = env("LSD_ZENDESK_EMAIL")
 LSD_ZENDESK_TOKEN = env("LSD_ZENDESK_TOKEN")
 LSD_ZENDESK_SUBDOMAIN = env("LSD_ZENDESK_SUBDOMAIN")
+# Send requests to zendesk?
+LSD_ZENDESK_LIVE = env.bool("LSD_ZENDESK_LIVE", default=False)
 
 # Search Staff Index
 SEARCH_HOST_URLS: List[str] = []
@@ -395,8 +397,6 @@ DJANGO_HAWK = {
     "HAWK_INCOMING_SECRET_KEY": env("HAWK_INCOMING_SECRET_KEY"),
 }
 
-# LSD Zendesk (use live Zendesk?)
-LSD_ZENDESK_LIVE = env.bool("LSD_ZENDESK_LIVE", default=False)
 
 # Process leaving requests
 PROCESS_LEAVING_REQUEST = env.bool("PROCESS_LEAVING_REQUEST", default=True)
