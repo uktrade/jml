@@ -367,6 +367,14 @@ HR_UKSBS_CORRECTION_EMAIL = env("HR_UKSBS_CORRECTION_EMAIL", default=None)
 # GOV.UK Notify
 GOVUK_NOTIFY_API_KEY = env("GOVUK_NOTIFY_API_KEY", default=None)
 
+
+# Helpdesk interface
+HELP_DESK_INTERFACE = env("HELP_DESK_INTERFACE", default="")
+HELP_DESK_CREDS = env.dict("HELP_DESK_CREDS", default={})
+# Send requests to zendesk?
+LSD_HELP_DESK_LIVE = env.bool("LSD_HELP_DESK_LIVE", default=False)
+
+>>>>>>> main
 # Search Staff Index
 SEARCH_HOST_URLS: List[str] = []
 if "opensearch" in VCAP_SERVICES:
@@ -390,12 +398,11 @@ DJANGO_HAWK = {
     "HAWK_INCOMING_SECRET_KEY": env("HAWK_INCOMING_SECRET_KEY"),
 }
 
+
 # Process leaving requests
 PROCESS_LEAVING_REQUEST = env.bool("PROCESS_LEAVING_REQUEST", default=True)
 
 JML_TEAM_CONTACT_EMAIL = env("JML_TEAM_CONTACT_EMAIL", default="")
 JML_TEAM_EMAILS = env.list("JML_TEAM_EMAILS", default=[])
 
-# Helpdesk interface
-HELP_DESK_INTERFACE = env("HELP_DESK_INTERFACE", default="")
-HELP_DESK_CREDS = env.dict("HELP_DESK_CREDS", default={})
+

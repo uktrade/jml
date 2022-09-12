@@ -118,7 +118,7 @@ LeaversWorkflow = Workflow(
         # Split flow
         Step(
             step_id="setup_scheduled_tasks",
-            task_name="pause_task",  # TODO: Swap back to basic_task
+            task_name="basic_task",
             targets=[
                 "send_uksbs_leaver_details",
                 "send_service_now_leaver_details",

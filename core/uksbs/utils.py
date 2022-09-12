@@ -129,7 +129,7 @@ def build_leaving_data_from_leaving_request(
     uksbs_leaver_manager: Optional[PersonData] = None
 
     for ulm in uksbs_leaver_managers:
-        if ulm["person_id"] == processing_manager_as.uksbs_person_id:
+        if str(ulm["person_id"]) == str(processing_manager_as.uksbs_person_id):
             uksbs_leaver_manager = ulm
             break
 

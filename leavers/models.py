@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING, List, Optional, Tuple, cast
+from typing import List, Optional, Tuple, cast
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -12,7 +12,7 @@ from leavers.forms.line_manager import (
     DaysHours,
     FlexiLeavePaidOrDeducted,
     LeaverPaidUnpaid,
-    ReasonForleaving,
+    ReasonForLeaving,
 )
 from leavers.types import (
     LeavingRequestReminderEmailTasks,
@@ -20,9 +20,6 @@ from leavers.types import (
     SecurityClearance,
     StaffType,
 )
-
-if TYPE_CHECKING:
-    from leavers.workflow.tasks import EmailIds
 
 
 class TaskLog(models.Model):
@@ -120,7 +117,7 @@ class LeavingRequest(models.Model):
         null=True,
     )
     reason_for_leaving = models.CharField(
-        choices=ReasonForleaving.choices,
+        choices=ReasonForLeaving.choices,
         max_length=255,
         blank=True,
         null=True,
@@ -387,11 +384,14 @@ class LeavingRequest(models.Model):
 
     def get_security_bp_reminder_email_tasks(self) -> LeavingRequestReminderEmailTasks:
         from leavers.utils.leaving_request import get_email_task_logs
-        from leavers.workflow.tasks import SECURITY_TEAM_BP_REMINDER_EMAILS
+        from leavers.workflow.tasks import SECURITY_TEAM_BP_REMINDER_EMAILS, EmailIds
 
         email_ids = cast(
-            List["EmailIds"],
-            [email_id for _, email_id in SECURITY_TEAM_BP_REMINDER_EMAILS.items()],
+            List[EmailIds],
+            [
+                EmailIds(email_id)
+                for _, email_id in SECURITY_TEAM_BP_REMINDER_EMAILS.items()
+            ],
         )
         email_task_logs = get_email_task_logs(
             leaving_request=self,
@@ -406,18 +406,23 @@ class LeavingRequest(models.Model):
             "two_days_after_ld_proc": [],
         }
         for key, _ in email_tasks.items():
-            security_team_bp_reminder_email = SECURITY_TEAM_BP_REMINDER_EMAILS[key]  # type: ignore
+            security_team_bp_reminder_email = EmailIds(
+                SECURITY_TEAM_BP_REMINDER_EMAILS[key]  # type: ignore
+            )
             st_bp_email_task_logs = email_task_logs[security_team_bp_reminder_email]
             email_tasks[key] = st_bp_email_task_logs  # type: ignore
         return email_tasks
 
     def get_security_rk_reminder_email_tasks(self) -> LeavingRequestReminderEmailTasks:
         from leavers.utils.leaving_request import get_email_task_logs
-        from leavers.workflow.tasks import SECURITY_TEAM_RK_REMINDER_EMAILS
+        from leavers.workflow.tasks import SECURITY_TEAM_RK_REMINDER_EMAILS, EmailIds
 
         email_ids = cast(
-            List["EmailIds"],
-            [email_id for _, email_id in SECURITY_TEAM_RK_REMINDER_EMAILS.items()],
+            List[EmailIds],
+            [
+                EmailIds(email_id)
+                for _, email_id in SECURITY_TEAM_RK_REMINDER_EMAILS.items()
+            ],
         )
         email_task_logs = get_email_task_logs(
             leaving_request=self,
@@ -432,18 +437,20 @@ class LeavingRequest(models.Model):
             "two_days_after_ld_proc": [],
         }
         for key, _ in email_tasks.items():
-            security_team_rk_reminder_email = SECURITY_TEAM_RK_REMINDER_EMAILS[key]  # type: ignore
+            security_team_rk_reminder_email = EmailIds(
+                SECURITY_TEAM_RK_REMINDER_EMAILS[key]  # type: ignore
+            )
             st_rk_email_task_logs = email_task_logs[security_team_rk_reminder_email]
             email_tasks[key] = st_rk_email_task_logs  # type: ignore
         return email_tasks
 
     def get_sre_reminder_email_tasks(self) -> LeavingRequestReminderEmailTasks:
         from leavers.utils.leaving_request import get_email_task_logs
-        from leavers.workflow.tasks import SRE_REMINDER_EMAILS
+        from leavers.workflow.tasks import SRE_REMINDER_EMAILS, EmailIds
 
         email_ids = cast(
-            List["EmailIds"],
-            [email_id for _, email_id in SRE_REMINDER_EMAILS.items()],
+            List[EmailIds],
+            [EmailIds(email_id) for _, email_id in SRE_REMINDER_EMAILS.items()],
         )
         email_task_logs = get_email_task_logs(
             leaving_request=self,
@@ -458,7 +465,7 @@ class LeavingRequest(models.Model):
             "two_days_after_ld_proc": [],
         }
         for key, _ in email_tasks.items():
-            email_tasks[key] = email_task_logs[SRE_REMINDER_EMAILS[key]]  # type: ignore
+            email_tasks[key] = email_task_logs[EmailIds(SRE_REMINDER_EMAILS[key])]  # type: ignore
         return email_tasks
 
 

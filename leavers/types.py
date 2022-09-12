@@ -5,7 +5,6 @@ from django.db.models.enums import TextChoices
 if TYPE_CHECKING:
     from core.uksbs.types import PersonData
     from leavers.models import TaskLog
-    from leavers.workflow.tasks import EmailIds
 
 
 class SecurityClearance(TextChoices):
@@ -76,12 +75,12 @@ class LeavingRequestLineReport(TypedDict):
 
 
 class ReminderEmailDict(TypedDict):
-    day_after_lwd: Optional["EmailIds"]
-    two_days_after_lwd: Optional["EmailIds"]
-    on_ld: Optional["EmailIds"]
-    one_day_after_ld: Optional["EmailIds"]
-    two_days_after_ld_lm: Optional["EmailIds"]
-    two_days_after_ld_proc: Optional["EmailIds"]
+    day_after_lwd: Optional[str]
+    two_days_after_lwd: Optional[str]
+    on_ld: Optional[str]
+    one_day_after_ld: Optional[str]
+    two_days_after_ld_lm: Optional[str]
+    two_days_after_ld_proc: Optional[str]
 
 
 class LeavingRequestReminderEmailTasks(TypedDict):
