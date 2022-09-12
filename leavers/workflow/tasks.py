@@ -713,7 +713,7 @@ class ProcessorReminderEmail(EmailTask):
 
         day_after_last_working_day = last_working_day + timedelta(days=1)
 
-        day_after_lwd = task_info.get("day_after_lwd")
+        day_after_lwd: Optional[str] = task_info.get("day_after_lwd")
         if day_after_lwd and today >= day_after_last_working_day:
             self.day_after_lwd_email_id = EmailIds(day_after_lwd)
             template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[self.day_after_lwd_email_id]
@@ -729,7 +729,7 @@ class ProcessorReminderEmail(EmailTask):
             raise Exception("Leaving Request doesn't have a last working day")
 
         two_days_after_last_working_day = last_working_day + timedelta(days=2)
-        two_days_after_lwd = task_info.get("two_days_after_lwd")
+        two_days_after_lwd: Optional[str] = task_info.get("two_days_after_lwd")
         if two_days_after_lwd and today >= two_days_after_last_working_day:
             self.two_days_after_lwd_email_id = EmailIds(two_days_after_lwd)
             template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
@@ -746,7 +746,7 @@ class ProcessorReminderEmail(EmailTask):
         if not leaving_date:
             raise Exception("Leaving Request doesn't have a leaving date")
 
-        on_ld = task_info.get("on_ld")
+        on_ld: Optional[str] = task_info.get("on_ld")
         if on_ld and today >= leaving_date:
             self.on_ld_email_id = EmailIds(on_ld)
             template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[self.on_ld_email_id]
@@ -759,7 +759,7 @@ class ProcessorReminderEmail(EmailTask):
             raise Exception("Leaving Request doesn't have a leaving date")
 
         day_after_leaving_date = leaving_date + timedelta(days=1)
-        one_day_after_ld = task_info.get("one_day_after_ld")
+        one_day_after_ld: Optional[str] = task_info.get("one_day_after_ld")
         if one_day_after_ld and today >= day_after_leaving_date:
             self.one_day_after_ld_email_id = EmailIds(one_day_after_ld)
             template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
@@ -780,7 +780,7 @@ class ProcessorReminderEmail(EmailTask):
 
         two_days_after_leaving_date = leaving_date + timedelta(days=2)
         if today >= two_days_after_leaving_date:
-            two_days_after_ld_lm = task_info.get("two_days_after_ld_lm")
+            two_days_after_ld_lm: Optional[str] = task_info.get("two_days_after_ld_lm")
             if two_days_after_ld_lm:
                 self.two_days_after_ld_lm_email_id = EmailIds(two_days_after_ld_lm)
                 template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
@@ -801,7 +801,9 @@ class ProcessorReminderEmail(EmailTask):
 
         two_days_after_leaving_date = leaving_date + timedelta(days=2)
         if today >= two_days_after_leaving_date:
-            two_days_after_ld_proc = task_info.get("two_days_after_ld_proc")
+            two_days_after_ld_proc: Optional[str] = task_info.get(
+                "two_days_after_ld_proc"
+            )
             if two_days_after_ld_proc:
                 self.two_days_after_ld_proc_email_id = EmailIds(two_days_after_ld_proc)
                 template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
