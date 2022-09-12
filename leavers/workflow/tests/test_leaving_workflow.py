@@ -57,7 +57,6 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
         False,
     ),
 )
-@mock.patch("leavers.workflow.tasks.inform_lsd_team_of_leaver")
 @mock.patch("core.notify.email")
 @mock.patch("leavers.workflow.tasks.is_work_day_and_time", return_value=True)
 class TestLeaversWorkflow(TestCase):
@@ -331,7 +330,6 @@ class TestLeaversWorkflow(TestCase):
         mock_get_staff_document_from_staff_index,
         mock_is_work_day_and_time,
         mock_email,
-        mock_inform_lsd_team_of_leaver,
         mock_CheckUKSBSLeaver_execute,
         mock_CheckUKSBSLineManager_execute,
     ):
@@ -382,7 +380,6 @@ class TestLeaversWorkflow(TestCase):
         mock_get_staff_document_from_staff_index,
         mock_is_work_day_and_time,
         mock_email,
-        mock_inform_lsd_team_of_leaver,
         mock_CheckUKSBSLeaver_execute,
         mock_CheckUKSBSLineManager_execute,
     ):

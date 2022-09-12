@@ -9,6 +9,7 @@ from django_workflow_engine.dataclass import Step
 from django_workflow_engine.models import Flow, TaskRecord
 
 from activity_stream.models import ActivityStreamStaffSSOUser
+from core.lsd_zendesk import get_lsd_zendesk_interface
 from core.notify import EmailTemplates
 from core.service_now import get_service_now_interface
 from core.service_now.types import AssetDetails
@@ -16,7 +17,6 @@ from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.uksbs.types import PersonData
 from core.utils.helpers import is_work_day_and_time
-from core.utils.lsd import inform_lsd_team_of_leaver
 from leavers.exceptions import (
     LeaverDoesNotHaveUKSBSPersonId,
     ManagerDoesNotHaveUKSBSPersonId,
@@ -243,7 +243,10 @@ class LSDSendLeaverDetails(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        inform_lsd_team_of_leaver(leaving_request=self.leaving_request)
+        lsd_zendesk_interface = get_lsd_zendesk_interface()
+        lsd_zendesk_interface.inform_lsd_team_of_leaver(
+            leaving_request=self.leaving_request,
+        )
         return None, True
 
 

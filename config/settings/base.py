@@ -395,6 +395,9 @@ DJANGO_HAWK = {
     "HAWK_INCOMING_SECRET_KEY": env("HAWK_INCOMING_SECRET_KEY"),
 }
 
+# LSD Zendesk (use live Zendesk?)
+LSD_ZENDESK_LIVE = env.bool("LSD_ZENDESK_LIVE", default=False)
+
 # Process leaving requests
 PROCESS_LEAVING_REQUEST = env.bool("PROCESS_LEAVING_REQUEST", default=True)
 
