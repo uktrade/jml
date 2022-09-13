@@ -468,7 +468,7 @@ SRE_REMINDER_EMAILS: ReminderEmailDict = {
     "two_days_after_ld_proc": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC.value,
 }
 SRE_REMINDER_EMAIL_IDS: List[EmailIds] = [
-    sre_reminder_email_id  # type: ignore
+    EmailIds(sre_reminder_email_id)  # type: ignore
     for _, sre_reminder_email_id in SRE_REMINDER_EMAILS.items()
     if sre_reminder_email_id
 ]
