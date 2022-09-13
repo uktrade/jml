@@ -643,6 +643,13 @@ class ProcessorReminderEmail(EmailTask):
     task_name = "processor_reminder_email"
     auto = True
 
+    day_after_lwd_email_id: Optional[EmailIds] = None
+    two_days_after_lwd_email_id: Optional[EmailIds] = None
+    on_ld_email_id: Optional[EmailIds] = None
+    one_day_after_ld_email_id: Optional[EmailIds] = None
+    two_days_after_ld_lm_email_id: Optional[EmailIds] = None
+    two_days_after_ld_proc_email_id: Optional[EmailIds] = None
+
     def should_send_email(
         self,
         email_id: EmailIds,
@@ -693,18 +700,29 @@ class ProcessorReminderEmail(EmailTask):
                 ),
             )
 
-        if email_id == self.day_after_lwd_email_id:
+        processor_email_mapping = [
+            item
+            for item in [
+                self.day_after_lwd_email_id,
+                self.one_day_after_ld_email_id,
+                self.two_days_after_ld_proc_email_id,
+            ]
+            if item is not None
+        ]
+        line_manager_email_mapping = [
+            item
+            for item in [
+                self.two_days_after_lwd_email_id,
+                self.on_ld_email_id,
+                self.two_days_after_ld_lm_email_id,
+            ]
+            if item is not None
+        ]
+
+        if email_id in processor_email_mapping:
             return send_processor_email
-        elif email_id == self.two_days_after_lwd_email_id:
+        elif email_id in line_manager_email_mapping:
             return send_line_manager_email
-        elif email_id == self.on_ld_email_id:
-            return send_line_manager_email
-        elif email_id == self.one_day_after_ld_email_id:
-            return send_processor_email
-        elif email_id == self.two_days_after_ld_lm_email_id:
-            return send_line_manager_email
-        elif email_id == self.two_days_after_ld_proc_email_id:
-            return send_processor_email
 
         raise Exception(f"Email method not found for {email_id.value}")
 
