@@ -21,7 +21,7 @@ from leavers.forms.line_manager import (
     DaysHours,
     FlexiLeavePaidOrDeducted,
 )
-from leavers.models import LeavingRequest
+from leavers.models import LeaverInformation, LeavingRequest
 from leavers.types import LeavingRequestLineReport
 
 
@@ -138,8 +138,16 @@ def build_leaving_data_from_leaving_request(
 
     leaver_full_name = uksbs_leaver["full_name"]
 
+    leaver_information: Optional[
+        LeaverInformation
+    ] = leaving_request.leaver_information.first()
+
+    leaver_contact_number = ""
+    if leaver_information:
+        leaver_contact_number = leaver_information.contact_phone
+
     leaver_contact: ServiceRequestDataContact = {
-        "contactNumber": leaving_request.contact_phone or "",
+        "contactNumber": leaver_contact_number,
         "contactType": "EMPLOYEE",
         "contactTypePoint": "EMAIL",
         "contactPrimaryFlag": "N",
