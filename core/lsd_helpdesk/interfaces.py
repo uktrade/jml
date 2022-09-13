@@ -14,8 +14,8 @@ from helpdesk_client.interfaces import (
 from leavers.models import LeavingRequest
 
 logger = logging.getLogger(__name__)
-helpdesk_interface = get_helpdesk_interface(settings.HELP_DESK_INTERFACE)
-helpdesk = helpdesk_interface(credentials=settings.HELP_DESK_CREDS)
+helpdesk_interface = get_helpdesk_interface(settings.LSD_HELP_DESK_INTERFACE)
+helpdesk = helpdesk_interface(credentials=settings.LSD_HELP_DESK_CREDS)
 
 
 class LSDHelpdeskBase(ABC):

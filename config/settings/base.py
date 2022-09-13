@@ -369,12 +369,11 @@ GOVUK_NOTIFY_API_KEY = env("GOVUK_NOTIFY_API_KEY", default=None)
 
 
 # Helpdesk interface
-HELP_DESK_INTERFACE = env("HELP_DESK_INTERFACE", default="")
-HELP_DESK_CREDS = env.dict("HELP_DESK_CREDS", default={})
+LSD_HELP_DESK_INTERFACE = env("LSD_HELP_DESK_INTERFACE", default="")
+LSD_HELP_DESK_CREDS = env.dict("LSD_HELP_DESK_CREDS", default={})
 # Send requests to zendesk?
 LSD_HELP_DESK_LIVE = env.bool("LSD_HELP_DESK_LIVE", default=False)
 
->>>>>>> main
 # Search Staff Index
 SEARCH_HOST_URLS: List[str] = []
 if "opensearch" in VCAP_SERVICES:

@@ -251,8 +251,9 @@ Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
 Loan Pool'
 Lost/Stolen'
-LSD_ZENDESK_EMAIL                                        
-LSD_ZENDESK_TOKEN
+LSD_HELP_DESK_CREDS                                       
+LSD_HELP_DESK_TOKEN
+LSD_HELP_DESK_INTERFACE
 manager_id
 Mi-Fi Device'
 migrate$(COLOUR_NONE

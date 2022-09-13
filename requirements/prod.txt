@@ -125,7 +125,7 @@ frozenlist==1.2.0
     # via
     #   aiohttp
     #   aiosignal
-helpdesk-client==0.1.4
+helpdesk-client==0.1.6
     # via -r requirements.in/base.in
 idna==3.3
     # via
@@ -259,7 +259,7 @@ waitress==2.1.2
     # via -r requirements.in/base.in
 wcwidth==0.2.5
     # via prompt-toolkit
-whitenoise==5.2.0
+whitenoise==5.2
     # via -r requirements.in/base.in
 wrapt==1.13.3
     # via deprecated

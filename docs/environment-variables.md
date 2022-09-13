@@ -28,10 +28,10 @@
 | SRE_EMAIL                                                        | None                                       | Email address for the SRE Team                                                                     |
 | HR_UKSBS_CORRECTION_EMAIL                                        | None                                       | Email address for the HR Team member that deals with UK SBS corrections                            |
 | GOVUK_NOTIFY_API_KEY                                             | None                                       |                                                                                                    |
-| LSD_ZENDESK_EMAIL                                                |                                            | LSD Team Zendesk email address                                                                     |
-| LSD_ZENDESK_TOKEN                                                |                                            |                                                                                                    |
-| LSD_ZENDESK_SUBDOMAIN                                            |                                            |                                                                                                    |
-| LSD_ZENDESK_LIVE                                                 | false                                      | Set to 'true' if you want to create Zendesk tickets, default behaviour will just stubb the request |
+|
+| LSD_HELP_DESK_CREDS                                                |                                            | list of credentials: full_name=xxx,token=xxx,subdomain=xxx                                                                                                   |
+| LSD_HELP_DESK_INTERFACE                                            |                                            |                                                                                                    |
+| LSD_HELP_DESK_LIVE                                                 | false                                      | Set to 'true' if you want to create Zendesk tickets, default behaviour will just stubb the request |
 | SEARCH_HOST_URLS                                                 |                                            |                                                                                                    |
 | SEARCH_STAFF_INDEX_NAME                                          | staff                                      |                                                                                                    |
 | INDEX_CURRENT_USER_MIDDLEWARE                                    | false                                      |                                                                                                    |
