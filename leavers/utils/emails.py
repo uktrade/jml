@@ -368,13 +368,13 @@ def send_security_team_offboard_bp_leaver_email(
     Send Security Team an email to inform them of a new leaver to be off-boarded.
     """
 
-    if not settings.SECURITY_TEAM_EMAIL:
-        raise ValueError("SECURITY_TEAM_EMAIL is not set")
+    if not settings.SECURITY_TEAM_BUILDING_PASS_EMAIL:
+        raise ValueError("SECURITY_TEAM_BUILDING_PASS_EMAIL is not set")
 
     personalisation = get_leaving_request_email_personalisation(leaving_request)
 
     notify.email(
-        email_addresses=[settings.SECURITY_TEAM_EMAIL],
+        email_addresses=[settings.SECURITY_TEAM_BUILDING_PASS_EMAIL],
         template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_BP_LEAVER_EMAIL,
         personalisation=personalisation,
     )
@@ -388,13 +388,13 @@ def send_security_team_offboard_rk_leaver_email(
     Send Security Team an email to inform them of a new leaver to be off-boarded.
     """
 
-    if not settings.SECURITY_TEAM_EMAIL:
-        raise ValueError("SECURITY_TEAM_EMAIL is not set")
+    if not settings.SECURITY_TEAM_ROSA_EMAIL:
+        raise ValueError("SECURITY_TEAM_ROSA_EMAIL is not set")
 
     personalisation = get_leaving_request_email_personalisation(leaving_request)
 
     notify.email(
-        email_addresses=[settings.SECURITY_TEAM_EMAIL],
+        email_addresses=[settings.SECURITY_TEAM_ROSA_EMAIL],
         template_id=notify.EmailTemplates.SECURITY_TEAM_OFFBOARD_RK_LEAVER_EMAIL,
         personalisation=personalisation,
     )
