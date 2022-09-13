@@ -661,24 +661,28 @@ class ProcessorReminderEmail(EmailTask):
         return not already_sent
 
     def get_send_email_method(self, email_id: EmailIds) -> Callable:
-        def send_processor_email(
+        def send_processor_message(
             leaving_request: LeavingRequest, template_id: Optional[EmailTemplates]
         ):
-            from core import notify
-            from core.utils.sre_messages import send_sre_reminder_message
-
-            assert template_id
-            notify.email(
-                email_addresses=self.processor_emails,
-                template_id=template_id,
-                personalisation=get_leaving_request_email_personalisation(
-                    leaving_request
-                ),
-            )
-
             if email_id in SRE_REMINDER_EMAIL_IDS:
+                # We only send slack messages to SRE (but we prentend to send
+                # an email)
+                from core.utils.sre_messages import send_sre_reminder_message
+
                 send_sre_reminder_message(
                     email_id=email_id, leaving_request=leaving_request
+                )
+            else:
+                # For everyone else we always send emails
+                from core import notify
+
+                assert template_id
+                notify.email(
+                    email_addresses=self.processor_emails,
+                    template_id=template_id,
+                    personalisation=get_leaving_request_email_personalisation(
+                        leaving_request
+                    ),
                 )
 
         def send_line_manager_email(
@@ -720,7 +724,7 @@ class ProcessorReminderEmail(EmailTask):
         ]
 
         if email_id in processor_email_mapping:
-            return send_processor_email
+            return send_processor_message
         elif email_id in line_manager_email_mapping:
             return send_line_manager_email
 
