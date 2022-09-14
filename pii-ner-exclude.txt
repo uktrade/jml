@@ -334,6 +334,8 @@ SECURITY
 Security Team
 security_pass_disabled_task_log
 security_team_building_pass_complete
+SECURITY_TEAM_VETTING_EMAIL
+SECURITY_TEAM_VETTING_EMAIL                                      
 Send
 Send Feetham Security Pass Office
 Send Line

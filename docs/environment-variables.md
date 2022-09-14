@@ -24,7 +24,7 @@
 | CLU4_EMAIL                                                       | None                                       | Email address for the CLU4 Team                                                                    |
 | OCS_EMAIL                                                        | None                                       | Email address for the OCS Team                                                                     |
 | OCS_OAB_LOCKER_EMAIL                                             | None                                       | Email address for the OCS OAB Locker Team                                                          |
-| SECURITY_TEAM_EMAIL                                              | None                                       | Email address for the Security Team                                                                |
+| SECURITY_TEAM_VETTING_EMAIL                                      | None                                       | Email address for the Security Team (vetting)                                                               |
 | SRE_EMAIL                                                        | None                                       | Email address for the SRE Team                                                                     |
 | HR_UKSBS_CORRECTION_EMAIL                                        | None                                       | Email address for the HR Team member that deals with UK SBS corrections                            |
 | GOVUK_NOTIFY_API_KEY                                             | None                                       |                                                                                                    |
