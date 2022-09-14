@@ -281,6 +281,17 @@ class LeavingRequest(models.Model):
     )
     security_team_rosa_kit_complete = models.DateTimeField(null=True, blank=True)
 
+    """
+    Workflow attributes
+    """
+    manually_offboarded_from_uksbs = models.OneToOneField(
+        TaskLog,
+        on_delete=models.CASCADE,
+        related_name="manually_offboarded_from_uksbs",
+        null=True,
+        blank=True,
+    )
+
     @property
     def security_team_complete(self) -> bool:
         if (
