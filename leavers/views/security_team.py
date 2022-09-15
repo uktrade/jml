@@ -222,6 +222,7 @@ class BuildingPassDisabledView(
             self.leaving_request.task_logs.create(
                 user=user,
                 task_name="Building pass disabled",
+                reference="LeavingRequest.security_pass_disabled",
             )
         )
         self.leaving_request.save()
@@ -275,6 +276,7 @@ class BuildingPassReturnedView(
             self.leaving_request.task_logs.create(
                 user=user,
                 task_name="Building pass returned",
+                reference="LeavingRequest.security_pass_returned",
             )
         )
         self.leaving_request.save()
@@ -326,6 +328,7 @@ class BuildingPassDestroyedView(
             self.leaving_request.task_logs.create(
                 user=user,
                 task_name="Building pass destroyed",
+                reference="LeavingRequest.security_pass_destroyed",
             )
         )
         self.leaving_request.security_team_building_pass_complete = timezone.now()
@@ -382,6 +385,7 @@ class BuildingPassNotReturnedView(
             self.leaving_request.task_logs.create(
                 user=user,
                 task_name="Building pass not returned",
+                reference="LeavingRequest.security_pass_not_returned",
                 notes=form.cleaned_data.get("notes", ""),
             )
         )
@@ -507,6 +511,7 @@ class RosaKitConfirmationView(
                     self.leaving_request.task_logs.create(
                         user=user,
                         task_name="ROSA Mobile returned",
+                        reference="LeavingRequest.rosa_mobile_returned",
                     )
                 )
             if RosaKit.LAPTOP.value in form.cleaned_data["user_returned"]:
@@ -514,6 +519,7 @@ class RosaKitConfirmationView(
                     self.leaving_request.task_logs.create(
                         user=user,
                         task_name="ROSA Laptop returned",
+                        reference="LeavingRequest.rosa_laptop_returned",
                     )
                 )
             if RosaKit.KEY.value in form.cleaned_data["user_returned"]:
@@ -521,6 +527,7 @@ class RosaKitConfirmationView(
                     self.leaving_request.task_logs.create(
                         user=user,
                         task_name="ROSA Key returned",
+                        reference="LeavingRequest.rosa_key_returned",
                     )
                 )
 

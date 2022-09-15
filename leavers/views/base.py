@@ -276,6 +276,7 @@ class TaskConfirmationView(
         new_task_log = self.leaving_request.task_logs.create(
             user=user,
             task_name=task_name,
+            reference=f"LeavingRequest.{leaving_request_field_name}",
         )
         if add_to_leaving_request:
             setattr(
