@@ -242,6 +242,7 @@ class LeavingRequestManuallyOffboarded(UserPassesTestMixin, FormView):
             self.leaving_request.task_logs.create(
                 user=self.request.user,
                 task_name="Leaver has been manually off-boarded from UK SBS",
+                reference="LeavingRequest.manually_offboarded_from_uksbs",
             )
         )
         self.leaving_request.save()

@@ -18,6 +18,7 @@ LEAVING_REQUEST_TASK_LOG_FIELDS = [
     "rosa_mobile_returned",
     "rosa_laptop_returned",
     "rosa_key_returned",
+    "manually_offboarded_from_uksbs",
 ]
 
 
