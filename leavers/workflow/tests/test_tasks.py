@@ -6,7 +6,11 @@ from django.test import TestCase
 from django.utils.timezone import make_aware
 from freezegun import freeze_time
 
-from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
+from leavers.factories import (
+    LeaverInformationFactory,
+    LeavingRequestFactory,
+    TaskLogFactory,
+)
 from leavers.models import LeaverInformation, LeavingRequest
 from leavers.types import ReminderEmailDict
 from leavers.workflow.tasks import (
@@ -17,6 +21,7 @@ from leavers.workflow.tasks import (
     ProcessorReminderEmail,
     ReminderEmail,
     SkipCondition,
+    UKSBSSendLeaverDetails,
 )
 from leavers.workflow.tests.factories import FlowFactory, TaskRecordFactory
 from user.test.factories import UserFactory
@@ -37,7 +42,16 @@ class TestSkipConditions(TestCase):
         self.flow.leaving_request = self.leaving_request
         self.flow.save()
 
-        self.task = ReminderEmail(self.user, self.task_record, self.flow)
+        self.task = ReminderEmail(
+            self.user,
+            self.task_record,
+            self.flow,
+        )
+        self.uk_sbs_task = UKSBSSendLeaverDetails(
+            self.user,
+            self.task_record,
+            self.flow,
+        )
 
     def test_no_skip_condition(self):
         self.assertFalse(
@@ -78,6 +92,24 @@ class TestSkipConditions(TestCase):
             self.task.should_skip(
                 task_info={
                     "skip_condition": SkipCondition.USER_DOES_NOT_HAVE_OAB_LOCKER.value
+                },
+            )
+        )
+
+    def test_manually_offboarded_from_uksbs_skip(self):
+        self.assertFalse(
+            self.uk_sbs_task.should_skip(
+                task_info={
+                    "skip_condition": SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value
+                },
+            )
+        )
+        self.leaving_request.manually_offboarded_from_uksbs = TaskLogFactory()
+        self.leaving_request.save()
+        self.assertTrue(
+            self.uk_sbs_task.should_skip(
+                task_info={
+                    "skip_condition": SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value
                 },
             )
         )
@@ -610,7 +642,7 @@ class TestProcessorReminderEmail(TestCase):
         self.flow2.save()
 
         self.task = ProcessorReminderEmail(self.user, self.task_record, self.flow)
-        self.task2 = ProcessorReminderEmail(self.user, self.task_record, self.flow2)
+        self.task2 = ProcessorReminderEmail(self.user, self.task_record2, self.flow2)
         self.task_info = {"processor_emails": ["someone@example.com"]}  # /PS-IGNORE
         self.email_ids: ReminderEmailDict = SECURITY_TEAM_BP_REMINDER_EMAILS
         self.task_info.update(**self.email_ids)

@@ -12,6 +12,18 @@ from leavers import models, types
 from user.test.factories import UserFactory
 
 
+class TaskLogFactory(DjangoModelFactory):
+    class Meta:
+        model = models.TaskLog
+
+    created_at = factory.fuzzy.FuzzyDateTime(
+        start_dt=timezone.now() - timedelta(days=10),
+    )
+    user = factory.SubFactory(UserFactory)
+    task_name = factory.Sequence(lambda n: f"TaskLog {n}")
+    notes = factory.Sequence(lambda n: f"TaskLog notes {n}")
+
+
 class LeavingRequestFactory(DjangoModelFactory):
     class Meta:
         model = models.LeavingRequest
