@@ -35,7 +35,7 @@ def update_tasklogs_with_references(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("leavers", "0056_unpause_workflows"),
+        ("leavers", "0057_leavingrequest_manually_offboarded_from_uksbs"),
     ]
 
     operations = [
