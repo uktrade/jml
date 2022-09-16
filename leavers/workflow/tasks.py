@@ -295,8 +295,18 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
     task_name = "send_uksbs_leaver_details"
     auto = True
 
+    def should_skip(self, task_info) -> bool:
+        if "skip_condition" in task_info:
+            skip_condition: str = task_info["skip_condition"]
+            if skip_condition == SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value:
+                return bool(self.leaving_request.manually_offboarded_from_uksbs)
+        return False
+
     def execute(self, task_info):
         from core.uksbs.utils import build_leaving_data_from_leaving_request
+
+        if self.should_skip(task_info=task_info):
+            return ["are_all_tasks_complete"], True
 
         uksbs_interface = get_uksbs_interface()
         leaving_data = build_leaving_data_from_leaving_request(
@@ -477,6 +487,7 @@ SRE_REMINDER_EMAIL_IDS: List[EmailIds] = [
 class SkipCondition(Enum):
     IS_NOT_ROSA_USER = "is_not_rosa_user"
     USER_DOES_NOT_HAVE_OAB_LOCKER = "user_does_not_have_oab_locker"
+    MANUALLY_OFFBOARDED_FROM_UKSBS = "manually_offboarded_from_uksbs"
 
 
 class EmailTask(LeavingRequestTask):

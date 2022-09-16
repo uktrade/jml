@@ -140,6 +140,9 @@ LeaversWorkflow = Workflow(
             targets=[
                 "are_all_tasks_complete",
             ],
+            task_info={
+                "skip_condition": SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value,
+            },
         ),
         # Service Now
         Step(
