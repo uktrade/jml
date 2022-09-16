@@ -152,7 +152,7 @@ mypy-extensions==0.4.3
     # via typing-inspect
 notifications-python-client==6.3.0
     # via -r requirements.in/base.in
-oauthlib==3.2.0
+oauthlib==3.2.1
     # via requests-oauthlib
 opensearch-dsl==1.0.0
     # via -r requirements.in/base.in
