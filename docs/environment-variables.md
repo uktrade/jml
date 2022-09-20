@@ -24,7 +24,7 @@
 | CLU4_EMAIL                                                       | None                                       | Email address for the CLU4 Team                                                                    |
 | OCS_EMAIL                                                        | None                                       | Email address for the OCS Team                                                                     |
 | OCS_OAB_LOCKER_EMAIL                                             | None                                       | Email address for the OCS OAB Locker Team                                                          |
-| SECURITY_TEAM_VETTING_EMAIL                                      | None                                       | Email address for the Security Team (vetting)                                                               |
+| SECURITY_TEAM_VETTING_EMAIL                                      | None                                       | Email address for the Security Team (vetting)                                                      |
 | SRE_EMAIL                                                        | None                                       | Email address for the SRE Team                                                                     |
 | HR_UKSBS_CORRECTION_EMAIL                                        | None                                       | Email address for the HR Team member that deals with UK SBS corrections                            |
 | GOVUK_NOTIFY_API_KEY                                             | None                                       |                                                                                                    |
@@ -41,6 +41,7 @@
 | UKSBS_LEAVER_SUBMISSION_API_URL                                  | None                                       | UK SBS Leaver Submission URL                                                                       |
 | UKSBS_POST_LEAVER_SUBMISSION                                     | None                                       | UK SBS Leaver Submission path                                                                      |
 | PROCESS_LEAVING_REQUEST                                          | true                                       | Set to 'false' if you want to prevent sending leaving request data to the processors.              |
+| GPC_RETURN_ADDRESS                                               | []                                         | Set as the comma separated list of each address line for the GPC Return Address                    |
 | TEMPLATE_ID_LEAVER_THANK_YOU_EMAIL                               | None                                       |                                                                                                    |
 | TEMPLATE_ID_LEAVER_NOT_IN_UKSBS_HR_REMINDER                      | None                                       |                                                                                                    |
 | TEMPLATE_ID_LEAVER_NOT_IN_UKSBS_LM_REMINDER                      | None                                       |                                                                                                    |
