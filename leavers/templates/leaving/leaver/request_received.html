@@ -18,9 +18,9 @@
 
                 <p class="govuk-body">You must clear all of your GPC transactions before leaving DIT.</p>
                 <p class="govuk-body">You must then cut up your GPC and post it to:</p>
-                <address>
+                <address class="govuk-!-margin-bottom-6">
                     {% for line in GPC_RETURN_ADDRESS %}
-                        <p>{{ line }}</p>
+                        <p class="govuk-body govuk-!-margin-0">{{ line }}</p>
                     {% endfor %}
                 </address>
             {% endif %}
