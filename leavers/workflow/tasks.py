@@ -295,8 +295,18 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
     task_name = "send_uksbs_leaver_details"
     auto = True
 
+    def should_skip(self, task_info) -> bool:
+        if "skip_condition" in task_info:
+            skip_condition: str = task_info["skip_condition"]
+            if skip_condition == SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value:
+                return bool(self.leaving_request.manually_offboarded_from_uksbs)
+        return False
+
     def execute(self, task_info):
         from core.uksbs.utils import build_leaving_data_from_leaving_request
+
+        if self.should_skip(task_info=task_info):
+            return ["are_all_tasks_complete"], True
 
         uksbs_interface = get_uksbs_interface()
         leaving_data = build_leaving_data_from_leaving_request(
@@ -468,7 +478,7 @@ SRE_REMINDER_EMAILS: ReminderEmailDict = {
     "two_days_after_ld_proc": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC.value,
 }
 SRE_REMINDER_EMAIL_IDS: List[EmailIds] = [
-    sre_reminder_email_id  # type: ignore
+    EmailIds(sre_reminder_email_id)  # type: ignore
     for _, sre_reminder_email_id in SRE_REMINDER_EMAILS.items()
     if sre_reminder_email_id
 ]
@@ -477,6 +487,7 @@ SRE_REMINDER_EMAIL_IDS: List[EmailIds] = [
 class SkipCondition(Enum):
     IS_NOT_ROSA_USER = "is_not_rosa_user"
     USER_DOES_NOT_HAVE_OAB_LOCKER = "user_does_not_have_oab_locker"
+    MANUALLY_OFFBOARDED_FROM_UKSBS = "manually_offboarded_from_uksbs"
 
 
 class EmailTask(LeavingRequestTask):
@@ -643,6 +654,13 @@ class ProcessorReminderEmail(EmailTask):
     task_name = "processor_reminder_email"
     auto = True
 
+    day_after_lwd_email_id: Optional[EmailIds] = None
+    two_days_after_lwd_email_id: Optional[EmailIds] = None
+    on_ld_email_id: Optional[EmailIds] = None
+    one_day_after_ld_email_id: Optional[EmailIds] = None
+    two_days_after_ld_lm_email_id: Optional[EmailIds] = None
+    two_days_after_ld_proc_email_id: Optional[EmailIds] = None
+
     def should_send_email(
         self,
         email_id: EmailIds,
@@ -654,24 +672,28 @@ class ProcessorReminderEmail(EmailTask):
         return not already_sent
 
     def get_send_email_method(self, email_id: EmailIds) -> Callable:
-        def send_processor_email(
+        def send_processor_message(
             leaving_request: LeavingRequest, template_id: Optional[EmailTemplates]
         ):
-            from core import notify
-            from core.utils.sre_messages import send_sre_reminder_message
-
-            assert template_id
-            notify.email(
-                email_addresses=self.processor_emails,
-                template_id=template_id,
-                personalisation=get_leaving_request_email_personalisation(
-                    leaving_request
-                ),
-            )
-
             if email_id in SRE_REMINDER_EMAIL_IDS:
+                # We only send slack messages to SRE (but we prentend to send
+                # an email)
+                from core.utils.sre_messages import send_sre_reminder_message
+
                 send_sre_reminder_message(
                     email_id=email_id, leaving_request=leaving_request
+                )
+            else:
+                # For everyone else we always send emails
+                from core import notify
+
+                assert template_id
+                notify.email(
+                    email_addresses=self.processor_emails,
+                    template_id=template_id,
+                    personalisation=get_leaving_request_email_personalisation(
+                        leaving_request
+                    ),
                 )
 
         def send_line_manager_email(
@@ -693,18 +715,29 @@ class ProcessorReminderEmail(EmailTask):
                 ),
             )
 
-        if email_id == self.day_after_lwd_email_id:
-            return send_processor_email
-        elif email_id == self.two_days_after_lwd_email_id:
+        processor_email_mapping = [
+            item
+            for item in [
+                self.day_after_lwd_email_id,
+                self.one_day_after_ld_email_id,
+                self.two_days_after_ld_proc_email_id,
+            ]
+            if item is not None
+        ]
+        line_manager_email_mapping = [
+            item
+            for item in [
+                self.two_days_after_lwd_email_id,
+                self.on_ld_email_id,
+                self.two_days_after_ld_lm_email_id,
+            ]
+            if item is not None
+        ]
+
+        if email_id in processor_email_mapping:
+            return send_processor_message
+        elif email_id in line_manager_email_mapping:
             return send_line_manager_email
-        elif email_id == self.on_ld_email_id:
-            return send_line_manager_email
-        elif email_id == self.one_day_after_ld_email_id:
-            return send_processor_email
-        elif email_id == self.two_days_after_ld_lm_email_id:
-            return send_line_manager_email
-        elif email_id == self.two_days_after_ld_proc_email_id:
-            return send_processor_email
 
         raise Exception(f"Email method not found for {email_id.value}")
 

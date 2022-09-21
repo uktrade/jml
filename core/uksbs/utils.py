@@ -139,13 +139,13 @@ def build_leaving_data_from_leaving_request(
     leaver_full_name = uksbs_leaver["full_name"]
 
     leaver_contact: ServiceRequestDataContact = {
-        "contactNumber": leaver_as.user_id,  # Oracle ID
+        "contactNumber": leaver_as.uksbs_person_id,
         "contactType": "EMPLOYEE",
         "contactTypePoint": "EMAIL",
         "contactPrimaryFlag": "N",
     }
     line_manager_contact: ServiceRequestDataContact = {
-        "contactNumber": processing_manager_as.user_id,  # Oracle ID
+        "contactNumber": processing_manager_as.uksbs_person_id,
         "contactType": "EMPLOYEE",
         "contactTypePoint": "EMAIL",
         "contactPrimaryFlag": "Y",

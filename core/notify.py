@@ -86,14 +86,10 @@ class EmailTemplates(Enum):
         email_template_settings.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC
     )
 
-    SRE_NOTIFICATION = email_template_settings.SRE_NOTIFICATION
-    SRE_REMINDER_DAY_AFTER_LWD = email_template_settings.SRE_REMINDER_DAY_AFTER_LWD
-    SRE_REMINDER_ONE_DAY_AFTER_LD = (
-        email_template_settings.SRE_REMINDER_ONE_DAY_AFTER_LD
-    )
-    SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC = (
-        email_template_settings.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC
-    )
+    SRE_NOTIFICATION = "no_template_id_we_send_slack_messages"
+    SRE_REMINDER_DAY_AFTER_LWD = "no_template_id_we_send_slack_messages"
+    SRE_REMINDER_ONE_DAY_AFTER_LD = "no_template_id_we_send_slack_messages"
+    SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC = "no_template_id_we_send_slack_messages"
 
 
 def email(

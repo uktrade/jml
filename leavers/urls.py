@@ -226,6 +226,11 @@ urlpatterns = [
         admin_views.LeavingRequestDetailView.as_view(),
         name="admin-leaving-request-detail",
     ),
+    path(
+        "admin/leaving-requests/<uuid:leaving_request_id>/manually-offboard-uksbs/",
+        admin_views.LeavingRequestManuallyOffboarded.as_view(),
+        name="admin-leaving-request-manually-offboard-uksbs",
+    ),
     # Django workflow
     path(
         "leaving-workflow/",

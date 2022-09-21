@@ -19,3 +19,7 @@ class BetaServiceFeedback(models.Model):
     satisfaction = models.CharField(max_length=30, choices=SatisfactionOptions.choices)
     comment = models.TextField(blank=True)
     submitter = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "Beta Feedback Submission"
+        verbose_name_plural = "Beta Feedback Submissions"

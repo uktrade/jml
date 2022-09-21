@@ -255,6 +255,7 @@ LSD_HELP_DESK_CREDS
 LSD_HELP_DESK_TOKEN
 LSD_HELP_DESK_INTERFACE
 manager_id
+Mark
 Mi-Fi Device'
 migrate$(COLOUR_NONE
 minimum_should_match
@@ -335,6 +336,8 @@ SECURITY
 Security Team
 security_pass_disabled_task_log
 security_team_building_pass_complete
+SECURITY_TEAM_VETTING_EMAIL
+SECURITY_TEAM_VETTING_EMAIL                                      
 Send
 Send Feetham Security Pass Office
 Send Line

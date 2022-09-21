@@ -140,6 +140,9 @@ LeaversWorkflow = Workflow(
             targets=[
                 "are_all_tasks_complete",
             ],
+            task_info={
+                "skip_condition": SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value,
+            },
         ),
         # Service Now
         Step(
@@ -239,10 +242,7 @@ LeaversWorkflow = Workflow(
                 "have_security_carried_out_bp_leaving_tasks",
             ],
             task_info={
-                "processor_emails": [
-                    settings.SECURITY_TEAM_BUILDING_PASS_EMAIL,
-                    settings.SECURITY_TEAM_EMAIL,
-                ],
+                "processor_emails": [settings.SECURITY_TEAM_BUILDING_PASS_EMAIL],
                 **SECURITY_TEAM_BP_REMINDER_EMAILS,  # type: ignore
             },
         ),

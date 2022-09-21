@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 from uuid import UUID
 
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -13,10 +13,11 @@ from django.db.models.fields.related import (
     OneToOneField,
 )
 from django.db.models.fields.reverse_related import ForeignObjectRel
-from django.shortcuts import get_object_or_404
+from django.http.response import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.views.generic import TemplateView
+from django.views.generic import FormView, TemplateView
 from django_workflow_engine.models import Flow
 
 from activity_stream.models import ActivityStreamStaffSSOUser
@@ -25,6 +26,7 @@ from core.utils.staff_index import (
     consolidate_staff_documents,
     get_staff_document_from_staff_index,
 )
+from leavers.forms.admin import ManuallyOffboardedFromUKSBSForm
 from leavers.models import LeavingRequest, TaskLog
 from leavers.types import LeavingRequestLineReport
 from leavers.views import base
@@ -197,3 +199,50 @@ class LeavingRequestDetailView(UserPassesTestMixin, TemplateView):
             ),
         )
         return context
+
+
+class LeavingRequestManuallyOffboarded(UserPassesTestMixin, FormView):
+    template_name = "leavers/admin/leaving_request/manual_offboard_from_uksbs.html"
+    form_class = ManuallyOffboardedFromUKSBSForm
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "admin-leaving-request-detail",
+            kwargs={"leaving_request_id": self.leaving_request.uuid},
+        )
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        kwargs = super().get_form_kwargs()
+        kwargs["leaving_request_uuid"] = self.leaving_request.uuid
+        return kwargs
+
+    def dispatch(self, request, *args, **kwargs):
+        self.leaving_request = get_object_or_404(
+            LeavingRequest, uuid=kwargs["leaving_request_id"]
+        )
+        if self.leaving_request.manually_offboarded_from_uksbs:
+            return redirect(self.get_success_url())
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        leaver_name = self.leaving_request.get_leaver_name()
+        context.update(
+            page_title=f"Mark '{leaver_name}' as off-boarded from UK SBS ",
+            leaver_name=leaver_name,
+            leaving_request_uuid=self.leaving_request.uuid,
+        )
+        return context
+
+    def form_valid(self, form) -> HttpResponse:
+        self.leaving_request.manually_offboarded_from_uksbs = (
+            self.leaving_request.task_logs.create(
+                user=self.request.user,
+                task_name="Leaver has been manually off-boarded from UK SBS",
+            )
+        )
+        self.leaving_request.save()
+        return super().form_valid(form)
