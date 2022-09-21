@@ -1,0 +1,5 @@
+{% for task_note in task_notes %}
+    <span class="govuk-caption-m">Added {{ task_note.datetime }}</span>
+    <h3 class="govuk-heading-m">{{ task_note.full_name }}</h3>
+    <p class="govuk-body">{{ task_note.note }}</p>
+{% endfor %}

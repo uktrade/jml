@@ -87,6 +87,7 @@ class BuildingPassNotReturnedForm(forms.Form):
     notes = forms.CharField(
         label="Additional notes (optional)",
         required=False,
+        widget=forms.Textarea,
         max_length=1000,
     )
 
@@ -140,6 +141,7 @@ class RosaKitForm(forms.Form):
     notes = forms.CharField(
         label="Additional notes (optional)",
         required=False,
+        widget=forms.Textarea,
         max_length=1000,
     )
 

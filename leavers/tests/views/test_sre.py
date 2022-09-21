@@ -1,5 +1,4 @@
 from datetime import timedelta
-from unittest import mock
 
 from django.contrib.auth.models import Group
 from django.test.testcases import TestCase
@@ -7,7 +6,6 @@ from django.utils import timezone
 
 from leavers.factories import LeavingRequestFactory, SlackMessageFactory
 from leavers.forms.leaver import SecurityClearance
-from leavers.models import TaskLog
 from leavers.tests.views.include import ViewAccessTest
 
 
@@ -208,9 +206,9 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertContains(response, "Complete")
 
 
-class TestTaskConfirmationView(ViewAccessTest, TestCase):
-    view_name = "sre-confirmation"
-    allowed_methods = ["get", "post", "put"]
+class TestTaskDetailView(ViewAccessTest, TestCase):
+    view_name = "sre-detail"
+    allowed_methods = ["get"]
 
     def setUp(self):
         super().setUp()
@@ -236,89 +234,6 @@ class TestTaskConfirmationView(ViewAccessTest, TestCase):
         self.assertEqual(response.context["leaver_name"], leaver_name)
         self.assertEqual(
             response.context["leaving_date"], self.leaving_request.last_day.date()
-        )
-
-    @mock.patch("core.utils.sre_messages.send_sre_complete_message")
-    def test_save_form(self, mock_send_sre_complete_message):
-        self.client.force_login(self.authenticated_user)
-        self.client.post(
-            self.get_url(),
-            {},
-        )
-
-        self.leaving_request.refresh_from_db()
-
-        # Check that the leaving request has NOT been marked as SRE complete
-        self.assertFalse(self.leaving_request.sre_complete)
-
-    @mock.patch("core.utils.sre_messages.send_sre_complete_message")
-    def test_submit_form(self, mock_send_sre_complete_message):
-        self.client.force_login(self.authenticated_user)
-        self.client.post(
-            self.get_url(),
-            {
-                "submit": "",
-                "vpn": True,
-                "govuk_paas": True,
-                "github": True,
-                "sentry": True,
-                "slack": True,
-                "sso": True,
-                "aws": True,
-                "jira": True,
-            },
-        )
-
-        self.leaving_request.refresh_from_db()
-
-        # Check that the leaving request has been marked as SRE complete
-        self.assertTrue(self.leaving_request.sre_complete)
-
-        # Check the SRE Complete message is triggered
-        mock_send_sre_complete_message.assert_called_once()
-
-        # Check the task logs are created
-        user_task_logs = TaskLog.objects.filter(user=self.authenticated_user)
-        self.assertTrue(user_task_logs.exists())
-        self.assertTrue(
-            user_task_logs.filter(
-                task_name="VPN access removal confirmed",
-            ).exists()
-        )
-        self.assertTrue(
-            user_task_logs.filter(
-                task_name="GOV.UK PAAS access removal confirmed",
-            ).exists()
-        )
-        self.assertTrue(
-            user_task_logs.filter(
-                task_name="Github access removal confirmed",
-            ).exists()
-        )
-        self.assertTrue(
-            user_task_logs.filter(
-                task_name="Sentry access removal confirmed",
-            ).exists()
-        )
-        self.assertTrue(
-            user_task_logs.filter(
-                task_name="Slack access removal confirmed",
-            ).exists()
-        )
-        self.assertTrue(
-            user_task_logs.filter(
-                task_name="SSO access removal confirmed",
-            ).exists()
-        )
-        self.assertTrue(
-            user_task_logs.filter(
-                task_name="AWS access removal confirmed",
-            ).exists()
-        )
-        self.assertTrue(
-            user_task_logs.filter(
-                task_name="Jira access removal confirmed",
-            ).exists()
         )
 
 

@@ -4,6 +4,7 @@ from typing import List, Optional, Tuple, cast
 
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models.query import QuerySet
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.types import Address
@@ -14,17 +15,22 @@ from leavers.forms.line_manager import (
     LeaverPaidUnpaid,
     ReasonForLeaving,
 )
+from leavers.forms.sre import ServiceAndToolActions
 from leavers.types import (
     LeavingRequestReminderEmailTasks,
     ReturnOptions,
     SecurityClearance,
     StaffType,
+    TaskNote,
 )
 
 
 class TaskLog(models.Model):
+    # When the TaskLog was created.
     created_at = models.DateTimeField(auto_now_add=True)
+    # A string representation of the action/task.
     task_name = models.CharField(max_length=155)
+    # The user the performed the task.
     user = models.ForeignKey(
         get_user_model(),
         on_delete=models.CASCADE,
@@ -32,7 +38,11 @@ class TaskLog(models.Model):
         blank=True,
         null=True,
     )
+    # A model/field reference to produce a history for a given field.
     reference = models.CharField(max_length=155, blank=True, null=True)
+    # An optional string value to store a status of a task.
+    value = models.CharField(max_length=155, blank=True, null=True)
+    # A string note added to the task.
     notes = models.CharField(max_length=1000, blank=True, null=True)
 
 
@@ -178,6 +188,14 @@ class LeavingRequest(models.Model):
         TaskLog,
         on_delete=models.CASCADE,
         related_name="github_user_task_log",
+        null=True,
+        blank=True,
+    )
+
+    gitlab_user_access_removed = models.OneToOneField(
+        TaskLog,
+        on_delete=models.CASCADE,
+        related_name="gitlab_user_task_log",
         null=True,
         blank=True,
     )
@@ -382,17 +400,47 @@ class LeavingRequest(models.Model):
             ("vpn_access_removed", "VPN"),
             ("govuk_paas_access_removed", "GOV UK PaaS"),
             ("github_user_access_removed", "Github"),
+            ("gitlab_user_access_removed", "GitLab"),
             ("sentry_access_removed", "Sentry"),
             ("slack_removed", "Slack"),
             ("sso_access_removed", "SSO"),
             ("aws_access_removed", "AWS"),
             ("jira_access_removed", "Jira"),
         ]
-        sre_services: List[Tuple[str, str, bool]] = []
+        sre_services: List[Tuple[str, str, ServiceAndToolActions]] = []
         for service_field, service_label in sre_service_label_mapping:
-            access_removed: bool = getattr(self, service_field) is not None
-            sre_services.append((service_field, service_label, access_removed))
+            status: ServiceAndToolActions = ServiceAndToolActions.NOT_STARTED
+            service_task_log: Optional[TaskLog] = getattr(self, service_field)
+            if service_task_log:
+                status = ServiceAndToolActions(service_task_log.value)
+            sre_services.append(
+                (
+                    service_field,
+                    service_label,
+                    status,
+                )
+            )
         return sre_services
+
+    def get_sre_notes(self, field_name: str) -> List[TaskNote]:
+        sre_notes: List[TaskNote] = []
+
+        field_task_logs: QuerySet[TaskLog] = self.task_logs.filter(
+            reference=f"LeavingRequest.{field_name}", notes__isnull=False
+        ).order_by("-created_at")
+        for field_task_log in field_task_logs:
+            full_name = "System"
+            if field_task_log.user:
+                full_name = field_task_log.user.get_full_name()
+            sre_notes.append(
+                TaskNote(
+                    datetime=field_task_log.created_at,
+                    full_name=full_name,
+                    note=field_task_log.notes,
+                )
+            )
+
+        return sre_notes
 
     def get_security_bp_reminder_email_tasks(self) -> LeavingRequestReminderEmailTasks:
         from leavers.utils.leaving_request import get_email_task_logs

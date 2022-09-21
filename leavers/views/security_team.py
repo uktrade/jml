@@ -88,7 +88,7 @@ class BuildingPassConfirmationView(
     TemplateView,
 ):
     template_name = "leaving/security_team/confirmation/building_pass.html"
-    page_title: str = "Security Team off-boarding building pass confirmation"
+    page_title: str = "Security Team offboarding building pass confirmation"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -189,7 +189,7 @@ class BuildingPassDisabledView(
     FormView,
 ):
     template_name = "leaving/security_team/confirmation/building_pass_action.html"
-    page_title: str = "Security Team off-boarding: Building pass disabled confirmation"
+    page_title: str = "Security Team offboarding: Building pass disabled confirmation"
     form_class = BuildingPassDisabledForm
 
     def test_func(self):
@@ -243,7 +243,7 @@ class BuildingPassReturnedView(
     FormView,
 ):
     template_name = "leaving/security_team/confirmation/building_pass_action.html"
-    page_title: str = "Security Team off-boarding: Building pass returned confirmation"
+    page_title: str = "Security Team offboarding: Building pass returned confirmation"
     form_class = BuildingPassReturnedForm
 
     def test_func(self):
@@ -297,7 +297,7 @@ class BuildingPassDestroyedView(
     FormView,
 ):
     template_name = "leaving/security_team/confirmation/building_pass_action.html"
-    page_title: str = "Security Team off-boarding: Building pass destroyed confirmation"
+    page_title: str = "Security Team offboarding: Building pass destroyed confirmation"
     form_class = BuildingPassDestroyedForm
 
     def test_func(self):
@@ -351,7 +351,7 @@ class BuildingPassNotReturnedView(
 ):
     template_name = "leaving/security_team/confirmation/building_pass_action.html"
     page_title: str = (
-        "Security Team off-boarding: Building pass not returned confirmation"
+        "Security Team offboarding: Building pass not returned confirmation"
     )
     form_class = BuildingPassNotReturnedForm
 
@@ -407,7 +407,7 @@ class RosaKitConfirmationView(
     FormView,
 ):
     template_name = "leaving/security_team/confirmation/rosa_kit.html"
-    page_title: str = "Security Team off-boarding ROSA kit confirmation"
+    page_title: str = "Security Team offboarding ROSA kit confirmation"
     form_class = RosaKitForm
 
     def get_success_url(self) -> str:
@@ -555,7 +555,7 @@ class RosaKitConfirmationCloseView(
     FormView,
 ):
     template_name = "leaving/security_team/confirmation/rosa_kit_action.html"
-    page_title: str = "Security Team off-boarding: ROSA Kit confirmation"
+    page_title: str = "Security Team offboarding: ROSA Kit confirmation"
     form_class = RosaKitCloseRecordForm
 
     def test_func(self):
@@ -598,7 +598,7 @@ class TaskSummaryView(
     TemplateView,
 ):
     template_name = "leaving/security_team/summary.html"
-    page_title: str = "Security Team off-boarding summary"
+    page_title: str = "Security Team offboarding summary"
 
     def test_func(self):
         return self.request.user.groups.filter(

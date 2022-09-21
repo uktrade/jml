@@ -52,7 +52,7 @@ def send_sre_alert_message(*, leaving_request: "LeavingRequest") -> SlackRespons
 
     try:
         leaving_request_path = reverse(
-            "sre-confirmation", kwargs={"leaving_request_id": leaving_request.uuid}
+            "sre-detail", kwargs={"leaving_request_id": leaving_request.uuid}
         )
 
         leaver_name = leaving_request.get_leaver_name()
@@ -64,7 +64,7 @@ def send_sre_alert_message(*, leaving_request: "LeavingRequest") -> SlackRespons
             "*Actions required:*\n"
             f"We need you to confirm that {leaver_name}'s access to tools "
             "and services has been managed. This will complete their "
-            f"off-boarding. ({settings.SITE_URL}{leaving_request_path}).\n"
+            f"offboarding. ({settings.SITE_URL}{leaving_request_path}).\n"
             "\n"
             "Please take any relevant actions on this record on the first "
             f"working day after {leaver_name}’s leaving date "
@@ -150,7 +150,7 @@ def send_sre_reminder_message(
         possessive_leaver_name = make_possessive(leaver_name)
 
     sre_team_link = reverse(
-        "sre-confirmation", kwargs={"leaving_request_id": leaving_request.uuid}
+        "sre-detail", kwargs={"leaving_request_id": leaving_request.uuid}
     )
 
     try:

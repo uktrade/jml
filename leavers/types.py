@@ -23,8 +23,8 @@ class SecurityClearance(TextChoices):
 class StaffType(TextChoices):
     CIVIL_SERVANT = "civil_servant", "Civil servant"
     FAST_STREAMERS = "fast_streamers", "Fast streamers"
-    CONTRACTOR = "contractor", "Contractor such as Green Park"
-    BENCH_CONTRACTOR = "bench_contractor", "Bench contractor such as Profusion"
+    CONTRACTOR = "contractor", "Contractor"
+    BENCH_CONTRACTOR = "bench_contractor", "Bench contractor"
 
 
 class ReturnOptions(TextChoices):
@@ -90,3 +90,9 @@ class LeavingRequestReminderEmailTasks(TypedDict):
     one_day_after_ld: List["TaskLog"]
     two_days_after_ld_lm: List["TaskLog"]
     two_days_after_ld_proc: List["TaskLog"]
+
+
+class TaskNote(TypedDict):
+    datetime: str
+    full_name: str
+    note: str

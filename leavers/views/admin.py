@@ -231,7 +231,7 @@ class LeavingRequestManuallyOffboarded(UserPassesTestMixin, FormView):
         context = super().get_context_data(**kwargs)
         leaver_name = self.leaving_request.get_leaver_name()
         context.update(
-            page_title=f"Mark '{leaver_name}' as off-boarded from UK SBS ",
+            page_title=f"Mark '{leaver_name}' as offboarded from UK SBS ",
             leaver_name=leaver_name,
             leaving_request_uuid=self.leaving_request.uuid,
         )
@@ -241,7 +241,7 @@ class LeavingRequestManuallyOffboarded(UserPassesTestMixin, FormView):
         self.leaving_request.manually_offboarded_from_uksbs = (
             self.leaving_request.task_logs.create(
                 user=self.request.user,
-                task_name="Leaver has been manually off-boarded from UK SBS",
+                task_name="Leaver has been manually offboarded from UK SBS",
                 reference="LeavingRequest.manually_offboarded_from_uksbs",
             )
         )
