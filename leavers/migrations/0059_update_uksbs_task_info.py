@@ -23,7 +23,7 @@ def update_uksbs_task_info(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("leavers", "0057_leavingrequest_manually_offboarded_from_uksbs"),
+        ("leavers", "0058_tasklog_reference"),
     ]
 
     operations = [
