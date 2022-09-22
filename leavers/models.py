@@ -32,6 +32,7 @@ class TaskLog(models.Model):
         blank=True,
         null=True,
     )
+    reference = models.CharField(max_length=155, blank=True, null=True)
     notes = models.CharField(max_length=1000, blank=True, null=True)
 
 

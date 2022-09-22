@@ -240,6 +240,7 @@ Leaving Request Admin
 leaving_request.holds_government_procurement_card
 leaving_request.is_rosa_user
 LeavingRequest
+LeavingRequest.manually_offboarded_from_uksbs
 LEGACY_PEOPLE_FINDER_ES_INDEX
 li class="progress-step{%
 Line
