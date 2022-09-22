@@ -397,6 +397,8 @@ DJANGO_HAWK = {
     "HAWK_INCOMING_SECRET_KEY": env("HAWK_INCOMING_SECRET_KEY"),
 }
 
+# GPC Return Address
+GPC_RETURN_ADDRESS = env.list("GPC_RETURN_ADDRESS", default=[])
 
 # Process leaving requests
 PROCESS_LEAVING_REQUEST = env.bool("PROCESS_LEAVING_REQUEST", default=True)
