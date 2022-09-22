@@ -271,6 +271,7 @@ new_line_report_id"
 None                                       
 None" &&
 Notification Email
+notify.email
 OAB
 object.current_task_record
 OCS

@@ -407,17 +407,19 @@ def send_sre_notification_email(
     """
     Send the SRE team an email to inform them of a new leaver to be off-boarded.
     """
+    # Skip this task
+    pass
 
-    if not settings.SRE_EMAIL:
-        raise ValueError("SRE_EMAIL is not set")
+    # if not settings.SRE_EMAIL:
+    #     raise ValueError("SRE_EMAIL is not set")
 
-    personalisation = get_leaving_request_email_personalisation(leaving_request)
+    # personalisation = get_leaving_request_email_personalisation(leaving_request)
 
-    notify.email(
-        email_addresses=[settings.SRE_EMAIL],
-        template_id=notify.EmailTemplates.SRE_NOTIFICATION,
-        personalisation=personalisation,
-    )
+    # notify.email(
+    #     email_addresses=[settings.SRE_EMAIL],
+    #     template_id=notify.EmailTemplates.SRE_NOTIFICATION,
+    #     personalisation=personalisation,
+    # )
 
 
 def send_it_ops_asset_email(
