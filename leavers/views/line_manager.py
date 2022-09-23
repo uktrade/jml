@@ -122,7 +122,9 @@ class LineManagerViewMixin:
             return False
 
         for uksbs_manager in leaver_hierarchy_data.get("manager", []):
-            if uksbs_manager["person_id"] == user_activitystream_user.uksbs_person_id:
+            if str(uksbs_manager["person_id"]) == str(
+                user_activitystream_user.uksbs_person_id
+            ):
                 # The user is in UK SBS as the manager of the leaver.
                 leaving_request.processing_manager_activitystream_user = (
                     user_activitystream_user
