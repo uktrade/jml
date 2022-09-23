@@ -268,13 +268,14 @@ class ServiceNowSendLeaverDetails(LeavingRequestTask):
 
         service_now_assets: List[AssetDetails] = []
 
-        for cirrus_asset in leaver_information.cirrus_assets:
-            asset_details: AssetDetails = {
-                "sys_id": cirrus_asset["sys_id"],
-                "tag": cirrus_asset["tag"],
-                "name": cirrus_asset["name"],
-            }
-            service_now_assets.append(asset_details)
+        if leaver_information.cirrus_assets:
+            for cirrus_asset in leaver_information.cirrus_assets:
+                asset_details: AssetDetails = {
+                    "sys_id": cirrus_asset["sys_id"],
+                    "tag": cirrus_asset["tag"],
+                    "name": cirrus_asset["name"],
+                }
+                service_now_assets.append(asset_details)
 
         service_now_interface = get_service_now_interface()
         service_now_interface.submit_leaver_request(
