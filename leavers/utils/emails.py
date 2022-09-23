@@ -444,11 +444,14 @@ def send_it_ops_asset_email(
     if not leaver_information:
         raise ValueError("leaver_information is not set")
 
-    dse_assets: List[DisplayScreenEquipmentAsset] = leaver_information.dse_assets
     dse_assets_string = ""
-    for dse_asset in dse_assets:
-        dse_asset_name = dse_asset["name"]
-        dse_assets_string += f"* {dse_asset_name}\n"
+    dse_assets: Optional[
+        List[DisplayScreenEquipmentAsset]
+    ] = leaver_information.dse_assets
+    if dse_assets:
+        for dse_asset in dse_assets:
+            dse_asset_name = dse_asset["name"]
+            dse_assets_string += f"* {dse_asset_name}\n"
 
     personalisation = get_leaving_request_email_personalisation(leaving_request)
     personalisation.update(dse_assets=dse_assets_string)
