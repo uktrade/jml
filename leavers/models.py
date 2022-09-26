@@ -442,6 +442,55 @@ class LeavingRequest(models.Model):
 
         return sre_notes
 
+    def get_security_building_pass_notes(self) -> List[TaskNote]:
+        security_building_pass_notes: List[TaskNote] = []
+
+        task_logs: QuerySet[TaskLog] = self.task_logs.filter(
+            reference="LeavingRequest.security_team_building_pass_complete",
+            notes__isnull=False,
+        ).order_by("-created_at")
+        for task_log in task_logs:
+            full_name = "System"
+            if task_log.user:
+                full_name = task_log.user.get_full_name()
+            security_building_pass_notes.append(
+                TaskNote(
+                    datetime=task_log.created_at,
+                    full_name=full_name,
+                    note=task_log.notes,
+                )
+            )
+
+        return security_building_pass_notes
+
+    def get_security_rosa_kit_notes(self) -> List[TaskNote]:
+        security_rosa_kit_notes: List[TaskNote] = []
+
+        security_rosa_kit_references: List[str] = [
+            "LeavingRequest.rosa_mobile_returned",
+            "LeavingRequest.rosa_laptop_returned",
+            "LeavingRequest.rosa_key_returned",
+            "LeavingRequest.security_team_rosa_kit_complete",
+        ]
+
+        task_logs: QuerySet[TaskLog] = self.task_logs.filter(
+            reference__in=security_rosa_kit_references,
+            notes__isnull=False,
+        ).order_by("-created_at")
+        for task_log in task_logs:
+            full_name = "System"
+            if task_log.user:
+                full_name = task_log.user.get_full_name()
+            security_rosa_kit_notes.append(
+                TaskNote(
+                    datetime=task_log.created_at,
+                    full_name=full_name,
+                    note=task_log.notes,
+                )
+            )
+
+        return security_rosa_kit_notes
+
     def get_security_bp_reminder_email_tasks(self) -> LeavingRequestReminderEmailTasks:
         from leavers.utils.leaving_request import get_email_task_logs
         from leavers.workflow.tasks import SECURITY_TEAM_BP_REMINDER_EMAILS, EmailIds

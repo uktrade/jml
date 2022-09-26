@@ -45,6 +45,7 @@
 234px
 7.7-.2
 8.7 39.7 21.8l42.7-27.2A97.63
+active</dd
 activity_stream.activitystreamstaffssouser
 ActivityStream
 add_missing_line_report_error
@@ -290,6 +291,8 @@ Paid
 ParsedUKSBSPDF
 ParsedUKSBSPDF"
 Pass notes</h2
+Pending
+Pending" %
 People Data
 People Finder
 People Finder API - '

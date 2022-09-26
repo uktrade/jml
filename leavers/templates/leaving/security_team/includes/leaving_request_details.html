@@ -1,0 +1,82 @@
+<dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Leaver name
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {{ leaver_name }}
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Security clearance
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {{ leaver_security_clearance }}
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Leaver email
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {{ leaver_email }}
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Leaver's last working day
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {{ last_working_day }}
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Leaver's leaving date
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {{ leaving_date }}
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Line Manager name
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {{ manager_name }}
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            {% if manager_emails|length == 1 %}
+                Line Manager email
+            {% else %}
+                Line Manager emails
+            {% endif %}
+        </dt>
+        <dd class="govuk-summary-list__value">
+            <ul class="govuk-list">
+                {% if manager_emails|length == 1 %}
+                    {{ manager_emails.0 }}
+                {% else %}
+                    {% for manager_email in manager_emails %}
+                        <li>{{ manager_email }}</li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Status
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {% if complete %}
+                <strong class="govuk-tag govuk-tag--green">Complete</strong>
+            {% else %}
+                <strong class="govuk-tag govuk-tag--grey">Incomplete</strong>
+            {% endif %}
+        </dd>
+    </div>
+</dl>

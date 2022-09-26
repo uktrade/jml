@@ -5,6 +5,7 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {% error_summary form %}
             <a href="{% url 'security-team-listing-incomplete' %}" class="govuk-back-link">Back</a>
         </div>
     </div>
@@ -12,170 +13,22 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
+            {% include "leaving/security_team/includes/leaving_request_details.html" %}
+
+            <h2 class="govuk-heading-m">Pass status</h2>
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Leaver name
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ leaver_name }}
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Leaver email
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ leaver_email }}
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Leaver's last working day
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ last_working_day }}
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Leaver's leaving date
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ leaving_date }}
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Line Manager name
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ manager_name }}
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        {% if manager_emails|length == 1 %}
-                            Line Manager email
-                        {% else %}
-                            Line Manager emails
-                        {% endif %}
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        <ul class="govuk-list">
-                            {% if manager_emails|length == 1 %}
-                                {{ manager_emails.0 }}
-                            {% else %}
-                                {% for manager_email in manager_emails %}
-                                    <li>{{ manager_email }}</li>
-                                {% endfor %}
-                            {% endif %}
-                        </ul>
-                    </dd>
+                    <dd class="govuk-summary-list__value">Pass is active</dd>
                 </div>
             </dl>
+            <p class="govuk-body">To complete this record the pass needs to be marked as deactivated, returned and destroyed.</p>
+            <a href="#" class="govuk-button">Edit status</a>
+
+            <h2 class="govuk-heading-m">Notes</h2>
+            <form novalidate method='post'>
+                {% crispy form %}
+            </form>
+            {% include "leaving/includes/task_notes.html" with task_notes=task_notes %}
         </div>
     </div>
-
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <table class="govuk-table">
-                <caption class="govuk-table__caption govuk-table__caption--m">Reminders</caption>
-                <thead class="govuk-table__head">
-                    <tr class="govuk-table__row">
-                        <th scope="col" class="govuk-table__header">Status</th>
-                        <th scope="col" class="govuk-table__header">Name</th>
-                        <th scope="col" class="govuk-table__header">Last sent</th>
-                    </tr>
-                </thead>
-                <tbody class="govuk-table__body">
-                    {% for notification in notifications %}
-                        <tr class="govuk-table__row">
-                            <td class="govuk-table__cell">
-                                {% if notification.sent %}
-                                    <strong class="govuk-tag govuk-tag--green">
-                                        Sent
-                                    </strong>
-                                {% else %}
-                                    <strong class="govuk-tag govuk-tag--red">
-                                        Not sent
-                                    </strong>
-                                {% endif %}
-                            </td>
-                            <td class="govuk-table__cell">{{ notification.name }}</td>
-                            <td class="govuk-table__cell">{% firstof notification.last_sent "N/A" %}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% if notes %}
-                <h2 class="govuk-heading-m">Notes</h2>
-                <p class="govuk-body">{{ notes }}</p>
-            {% endif %}
-
-            {% if pass_disabled or pass_returned %}
-                <table class="govuk-table">
-                    <caption class="govuk-table__caption govuk-table__caption--m">Status changes</caption>
-                    <thead class="govuk-table__head">
-                        <tr class="govuk-table__row">
-                            <th scope="col" class="govuk-table__header">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="govuk-table__body">
-                        {% if pass_disabled %}
-                            <tr class="govuk-table__row">
-                                <td class="govuk-table__cell">
-                                    <strong class="govuk-tag govuk-tag--green">
-                                        Building pass marked as disabled
-                                    </strong>
-                                </td>
-                            </tr>
-                        {% endif %}
-                        {% if pass_returned %}
-                            <tr class="govuk-table__row">
-                                <td class="govuk-table__cell">
-                                    <strong class="govuk-tag govuk-tag--green">
-                                        Building pass marked as returned
-                                    </strong>
-                                </td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <div class="govuk-button-group">
-                {% if not pass_disabled %}
-                    <a href="{% url 'security-team-building-pass-disabled' leaving_request_uuid %}" class="govuk-button govuk-button--secondary">
-                        Mark pass as disabled
-                    </a>
-                {% endif %}
-                {% if not pass_returned %}
-                    <a href="{% url 'security-team-building-pass-returned' leaving_request_uuid %}" class="govuk-button govuk-button--secondary">
-                        Mark pass as returned
-                    </a>
-                {% endif %}
-                {% if not pass_destroyed %}
-                    <a href="{% url 'security-team-building-pass-destroy' leaving_request_uuid %}" class="govuk-button govuk-button--warning">
-                        Mark pass as destroyed
-                    </a>
-                {% endif %}
-
-                {% if can_mark_as_not_returned %}
-                    <a href="{% url 'security-team-building-pass-not-returned' leaving_request_uuid %}" class="govuk-button govuk-button--secondary">
-                        Mark pass as not returned
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-{% endblock %}
+{% endblock content %}
