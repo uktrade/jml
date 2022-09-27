@@ -13,6 +13,10 @@ from django.views.generic.edit import FormView
 
 from leavers.forms.security_team import (
     AddTaskNoteForm,
+    BuildingPassCloseRecordForm,
+    BuildingPassForm,
+    BuildingPassStatus,
+    BuildingPassSteps,
     RosaKit,
     RosaKitCloseRecordForm,
     RosaKitForm,
@@ -61,9 +65,9 @@ class LeavingRequestListing(base.LeavingRequestListing):
 
     def get_page_title(self, object_type_name: str) -> str:
         if self.role == SecuritySubRole.BUILDING_PASS:
-            return f"Building Pass: {object_type_name.title()}"
+            return "Building pass requests"
         elif self.role == SecuritySubRole.ROSA_KIT:
-            return f"ROSA Kit: {object_type_name.title()}"
+            return "ROSA Kit requests"
         raise Exception("Unknown security role")
 
     def get_service_name(self) -> str:
@@ -141,13 +145,15 @@ class BuildingPassConfirmationView(
             leaving_date=leaving_date,
             last_working_day=last_day,
             leaving_request_uuid=self.leaving_request.uuid,
-            pass_disabled=bool(self.leaving_request.security_pass_disabled),
-            pass_returned=bool(self.leaving_request.security_pass_returned),
-            pass_destroyed=bool(self.leaving_request.security_pass_destroyed),
-            pass_not_returned=bool(self.leaving_request.security_pass_not_returned),
-            can_mark_as_not_returned=bool(
-                self.leaving_request.leaving_date < timezone.now()
-                and not self.leaving_request.security_team_building_pass_complete
+            pass_disabled=self.leaving_request.security_pass_disabled,
+            pass_returned=self.leaving_request.security_pass_returned,
+            pass_destroyed=self.leaving_request.security_pass_destroyed,
+            can_complete=all(
+                [
+                    self.leaving_request.security_pass_disabled,
+                    self.leaving_request.security_pass_returned,
+                    self.leaving_request.security_pass_destroyed,
+                ]
             ),
             complete=bool(self.leaving_request.security_team_building_pass_complete),
             task_notes=self.leaving_request.get_security_building_pass_notes(),
@@ -172,47 +178,210 @@ class BuildingPassConfirmationView(
         return super().form_valid(form)
 
 
-# def mark_buidling_pass_disabled():
-#     self.leaving_request.security_pass_disabled = (
-#         self.leaving_request.task_logs.create(
-#             user=user,
-#             task_name="Building pass disabled",
-#             reference="LeavingRequest.security_pass_disabled",
-#         )
-#     )
-#     self.leaving_request.save()
+class BuildingPassConfirmationEditView(
+    UserPassesTestMixin,
+    FormView,
+):
+    template_name = "leaving/security_team/confirmation/building_pass_edit.html"
+    form_class = BuildingPassForm
 
-# def mark_building_pass_returned():
-#     self.leaving_request.security_pass_returned = (
-#         self.leaving_request.task_logs.create(
-#             user=user,
-#             task_name="Building pass returned",
-#             reference="LeavingRequest.security_pass_returned",
-#         )
-#     )
-#     self.leaving_request.save()
+    def get_success_url(self) -> str:
+        return reverse_lazy(
+            "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
+        )
 
-# def mark_buidling_pass_destroyed():
-#     self.leaving_request.security_pass_destroyed = (
-#         self.leaving_request.task_logs.create(
-#             user=user,
-#             task_name="Building pass destroyed",
-#             reference="LeavingRequest.security_pass_destroyed",
-#         )
-#     )
-#     self.leaving_request.security_team_building_pass_complete = timezone.now()
-#     self.leaving_request.save()
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="Security Team",
+        ).exists()
 
-# def mark_buidling_pass_not_returned():
-#     self.leaving_request.security_pass_not_returned = (
-#         self.leaving_request.task_logs.create(
-#             user=user,
-#             task_name="Building pass not returned",
-#             reference="LeavingRequest.security_pass_not_returned",
-#             notes=form.cleaned_data.get("notes", ""),
-#         )
-#     )
-#     self.leaving_request.save()
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest,
+            uuid=self.kwargs.get("leaving_request_id", None),
+        )
+        set_security_role(request=request, role=SecuritySubRole.ROSA_KIT)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        leaver_name = self.leaving_request.get_leaver_name()
+        context.update(page_title=f"{leaver_name} building pass")
+
+        manager_as_user = self.leaving_request.get_line_manager()
+        assert manager_as_user
+
+        leaving_datetime = self.leaving_request.get_leaving_date()
+        leaving_date: Optional[datetime] = None
+        if leaving_datetime:
+            leaving_date = leaving_datetime.date()
+
+        last_day_datetime = self.leaving_request.get_last_day()
+        last_day: Optional[datetime] = None
+        if last_day_datetime:
+            last_day = last_day_datetime.date()
+
+        context.update(
+            leaver_name=leaver_name,
+            leaver_email=self.leaving_request.get_leaver_email(),
+            leaver_security_clearance=SecurityClearance(
+                self.leaving_request.security_clearance
+            ).label,
+            manager_name=manager_as_user.full_name,
+            manager_emails=manager_as_user.get_email_addresses_for_contact(),
+            leaving_date=leaving_date,
+            last_working_day=last_day,
+            leaving_request_uuid=self.leaving_request.uuid,
+            pass_disabled=self.leaving_request.security_pass_disabled,
+            pass_returned=self.leaving_request.security_pass_returned,
+            pass_destroyed=self.leaving_request.security_pass_destroyed,
+            complete=bool(self.leaving_request.security_team_building_pass_complete),
+        )
+
+        return context
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
+        return form_kwargs
+
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+
+        initial["pass_status"] = BuildingPassStatus.ACTIVE.value
+        if self.leaving_request.security_pass_disabled:
+            initial["pass_status"] = BuildingPassStatus.DEACTIVATED.value
+
+        initial["next_steps"] = []
+        if self.leaving_request.security_pass_returned:
+            initial["next_steps"].append(BuildingPassSteps.RETURNED.value)
+        if self.leaving_request.security_pass_destroyed:
+            initial["next_steps"].append(BuildingPassSteps.DESTROYED.value)
+
+        return initial
+
+    def form_valid(self, form):
+        user = cast(User, self.request.user)
+
+        # Mark the pass as being deactivated.
+        if (
+            form.cleaned_data["pass_status"] == BuildingPassStatus.DEACTIVATED
+            and not self.leaving_request.security_pass_disabled
+        ):
+            self.leaving_request.security_pass_disabled = (
+                self.leaving_request.task_logs.create(
+                    user=user,
+                    task_name="Building pass marked as deactivated",
+                    reference="LeavingRequest.security_pass_disabled",
+                )
+            )
+        # Unmark the pass as being deactivated.
+        if (
+            form.cleaned_data["pass_status"] == BuildingPassStatus.ACTIVE
+            and self.leaving_request.security_pass_disabled
+        ):
+            self.leaving_request.security_pass_disabled = None
+            self.leaving_request.task_logs.create(
+                user=user,
+                task_name="Building pass marked as activated",
+                reference="LeavingRequest.security_pass_disabled",
+            )
+
+        # Mark the pass as returned.
+        if (
+            BuildingPassSteps.RETURNED.value in form.cleaned_data["next_steps"]
+            and not self.leaving_request.security_pass_returned
+        ):
+            self.leaving_request.security_pass_returned = (
+                self.leaving_request.task_logs.create(
+                    user=user,
+                    task_name="Building pass 'returned' checked",
+                    reference="LeavingRequest.security_pass_returned",
+                )
+            )
+        # uUmark the pass as returned.
+        if (
+            BuildingPassSteps.RETURNED.value not in form.cleaned_data["next_steps"]
+            and self.leaving_request.security_pass_returned
+        ):
+            self.leaving_request.security_pass_returned = None
+            self.leaving_request.task_logs.create(
+                user=user,
+                task_name="Building pass 'returned' unchecked",
+                reference="LeavingRequest.security_pass_returned",
+            )
+
+        # Mark the pass as destroyed.
+        if (
+            BuildingPassSteps.DESTROYED.value in form.cleaned_data["next_steps"]
+            and not self.leaving_request.security_pass_destroyed
+        ):
+            self.leaving_request.security_pass_destroyed = (
+                self.leaving_request.task_logs.create(
+                    user=user,
+                    task_name="Building pass 'destroyed' checked",
+                    reference="LeavingRequest.security_pass_destroyed",
+                )
+            )
+        # Unmark the pass as returned.
+        if (
+            BuildingPassSteps.DESTROYED.value not in form.cleaned_data["next_steps"]
+            and self.leaving_request.security_pass_destroyed
+        ):
+            self.leaving_request.security_pass_destroyed = None
+            self.leaving_request.task_logs.create(
+                user=user,
+                task_name="Building pass 'destroyed' unchecked",
+                reference="LeavingRequest.security_pass_destroyed",
+            )
+
+        self.leaving_request.save()
+
+        return super().form_valid(form)
+
+
+class BuidlingPassConfirmationCloseView(
+    UserPassesTestMixin,
+    FormView,
+):
+    template_name = "leaving/security_team/confirmation/building_pass_action.html"
+    page_title: str = "Security Team offboarding: Building pass confirmation"
+    form_class = BuildingPassCloseRecordForm
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="Security Team",
+        ).exists()
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest,
+            uuid=self.kwargs.get("leaving_request_id", None),
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self) -> str:
+        return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
+
+        return form_kwargs
+
+    def form_valid(self, form):
+        self.leaving_request.security_team_building_pass_complete = timezone.now()
+        self.leaving_request.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(
+            leaving_request_uuid=self.leaving_request.uuid,
+            page_title=self.page_title,
+        )
+        return context
 
 
 def get_rosa_kit_statuses(leaving_request: LeavingRequest) -> Dict[str, Dict[str, str]]:
@@ -544,7 +713,6 @@ class TaskSummaryView(
             pass_disabled=self.leaving_request.security_pass_disabled,
             pass_returned=self.leaving_request.security_pass_returned,
             pass_destroyed=self.leaving_request.security_pass_destroyed,
-            pass_not_returned=self.leaving_request.security_pass_not_returned,
             rosa_kit_tasks=rosa_kit_tasks,
             rosa_kit_complete=bool(
                 self.leaving_request.security_team_rosa_kit_complete

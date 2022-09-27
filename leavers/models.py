@@ -267,13 +267,6 @@ class LeavingRequest(models.Model):
         null=True,
         blank=True,
     )
-    security_pass_not_returned = models.OneToOneField(
-        TaskLog,
-        on_delete=models.CASCADE,
-        related_name="security_pass_not_returned_task_log",
-        null=True,
-        blank=True,
-    )
     security_team_building_pass_complete = models.DateTimeField(null=True, blank=True)
 
     rosa_kit_form_data = models.JSONField(null=True, blank=True)

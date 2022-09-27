@@ -29,6 +29,87 @@ class AddTaskNoteForm(forms.Form):
         )
 
 
+class BuildingPassStatus(TextChoices):
+    ACTIVE = "active", "Active"
+    DEACTIVATED = "deactivated", "Deactivated"
+
+
+class BuildingPassSteps(TextChoices):
+    RETURNED = "returned", "Pass returned"
+    DESTROYED = "destroyed", "Pass destroyed"
+
+
+class BuildingPassForm(forms.Form):
+    pass_status = forms.ChoiceField(
+        label="Edit pass status",
+        choices=BuildingPassStatus.choices,
+        widget=forms.RadioSelect,
+    )
+    next_steps = forms.MultipleChoiceField(
+        label="Next steps",
+        choices=BuildingPassSteps.choices,
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+
+    def __init__(self, leaving_request_uuid: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        cancel_url = reverse(
+            "security-team-building-pass-confirmation",
+            args=[leaving_request_uuid],
+        )
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.radios(
+                "pass_status",
+                legend_size=Size.MEDIUM,
+            ),
+            Field.checkboxes(
+                "next_steps",
+                legend_size=Size.MEDIUM,
+            ),
+            Div(
+                Submit(
+                    "submit",
+                    "Save",
+                ),
+                HTML(
+                    f"<a href='{cancel_url}' class='govuk-button govuk-button--secondary' "
+                    "data-module='govuk-button'>Cancel</a>"
+                ),
+                css_class="govuk-button-group",
+            ),
+        )
+
+
+class BuildingPassCloseRecordForm(forms.Form):
+    def __init__(self, leaving_request_uuid: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        cancel_url = reverse(
+            "security-team-building-pass-confirmation",
+            args=[leaving_request_uuid],
+        )
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Submit(
+                    "save",
+                    "Close record",
+                    css_class="govuk-button--warning",
+                ),
+                HTML(
+                    f"<a href='{cancel_url}' class='govuk-button "
+                    "govuk-button--secondary'>Cancel</a>"
+                ),
+                css_class="govuk-button-group",
+            ),
+        )
+
+
 class RosaKit(TextChoices):
     MOBILE = "mobile", "ROSA Mobile"
     LAPTOP = "laptop", "ROSA Laptop"

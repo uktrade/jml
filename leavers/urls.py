@@ -191,6 +191,16 @@ urlpatterns = [
         name="security-team-building-pass-confirmation",
     ),
     path(
+        "leaver/security-team/<uuid:leaving_request_id>/building-pass/edit/",
+        security_team_views.BuildingPassConfirmationEditView.as_view(),
+        name="security-team-building-pass-confirmation-edit",
+    ),
+    path(
+        "leaver/security-team/<uuid:leaving_request_id>/building-pass/confirm/",
+        security_team_views.BuidlingPassConfirmationCloseView.as_view(),
+        name="security-team-buidling-pass-confirmation-close",
+    ),
+    path(
         "leaver/security-team/<uuid:leaving_request_id>/rosa-kit/",
         security_team_views.RosaKitConfirmationView.as_view(),
         name="security-team-rosa-kit-confirmation",

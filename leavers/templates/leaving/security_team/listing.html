@@ -12,17 +12,30 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
-            {% if show_complete and not show_incomplete %}
-                <p class="govuk-body">Select the leaver to view a summary of their offboarding from security.</p>
-            {% elif show_incomplete and not show_complete %}
-                <p class="govuk-body">Select the leaving request to inform us of actions taken.</p>
-            {% endif %}
-
-            <h2 class="govuk-heading-m"></h2>
             <form action="" method="post">
                 {% crispy form %}
             </form>
         </div>
     </div>
-    {% include "leaving/includes/leaving_request_table.html" with object_type_name=object_type_name page=page pagination_pages=pagination_pages %}
-{% endblock %}
+
+    <div class="govuk-tabs">
+        <h2 class="govuk-tabs__title">
+            Contents
+        </h2>
+        <ul class="govuk-tabs__list">
+            <li class="govuk-tabs__list-item {% if show_incomplete %}govuk-tabs__list-item--selected{% endif %}">
+                <a class="govuk-tabs__tab" href='{% url "security-team-listing-incomplete" %}'>
+                    Waiting
+                </a>
+            </li>
+            <li class="govuk-tabs__list-item {% if show_complete %}govuk-tabs__list-item--selected{% endif %}">
+                <a class="govuk-tabs__tab" href='{% url "security-team-listing-complete" %}'>
+                    Completed
+                </a>
+            </li>
+        </ul>
+        <div class="govuk-tabs__panel">
+            {% include "leaving/includes/leaving_request_table.html" with object_type_name=object_type_name page=page pagination_pages=pagination_pages %}
+        </div>
+    </div>
+{% endblock content %}

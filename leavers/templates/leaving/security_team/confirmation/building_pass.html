@@ -18,11 +18,31 @@
             <h2 class="govuk-heading-m">Pass status</h2>
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
-                    <dd class="govuk-summary-list__value">Pass is active</dd>
+                    {% if pass_disabled %}
+                        <dd class="govuk-summary-list__value">Pass deactivated</dd>
+                        <dd class="govuk-summary-list__value govuk-!-text-align-right">{{ pass_disabled.created_at }} by {{ pass_disabled.user.get_full_name }}</dd>
+                    {% else %}
+                        <dd class="govuk-summary-list__value">Pass is active</dd>
+                    {% endif %}
                 </div>
+                {% if pass_returned %}
+                    <div class="govuk-summary-list__row">
+                        <dd class="govuk-summary-list__value">Pass returned</dd>
+                        <dd class="govuk-summary-list__value govuk-!-text-align-right">{{ pass_returned.created_at }} by {{ pass_returned.user.get_full_name }}</dd>
+                    </div>
+                {% endif %}
+                {% if pass_destroyed %}
+                    <div class="govuk-summary-list__row">
+                        <dd class="govuk-summary-list__value">Pass destroyed</dd>
+                        <dd class="govuk-summary-list__value govuk-!-text-align-right">{{ pass_destroyed.created_at }} by {{ pass_destroyed.user.get_full_name }}</dd>
+                    </div>
+                {% endif %}
             </dl>
             <p class="govuk-body">To complete this record the pass needs to be marked as deactivated, returned and destroyed.</p>
-            <a href="#" class="govuk-button">Edit status</a>
+            <a href='{% url "security-team-building-pass-confirmation-edit" leaving_request_uuid %}' class="govuk-button">Edit status</a>
+            {% if can_complete %}
+                <a href='{% url "security-team-buidling-pass-confirmation-close" leaving_request_uuid %}' class="govuk-button govuk-button--warning">Complete</a>
+            {% endif %}
 
             <h2 class="govuk-heading-m">Notes</h2>
             <form novalidate method='post'>
