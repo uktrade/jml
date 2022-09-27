@@ -1,10 +1,9 @@
-from typing import TYPE_CHECKING, List, Optional, TypedDict
+from typing import TYPE_CHECKING, Optional, TypedDict
 
 from django.db.models.enums import TextChoices
 
 if TYPE_CHECKING:
     from core.uksbs.types import PersonData
-    from leavers.models import TaskLog
 
 
 class SecurityClearance(TextChoices):
@@ -81,15 +80,6 @@ class ReminderEmailDict(TypedDict):
     one_day_after_ld: Optional[str]
     two_days_after_ld_lm: Optional[str]
     two_days_after_ld_proc: Optional[str]
-
-
-class LeavingRequestReminderEmailTasks(TypedDict):
-    day_after_lwd: List["TaskLog"]
-    two_days_after_lwd: List["TaskLog"]
-    on_ld: List["TaskLog"]
-    one_day_after_ld: List["TaskLog"]
-    two_days_after_ld_lm: List["TaskLog"]
-    two_days_after_ld_proc: List["TaskLog"]
 
 
 class TaskNote(TypedDict):

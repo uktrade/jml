@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from typing import List, Optional, Tuple, cast
+from typing import List, Optional, Tuple
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -16,13 +16,7 @@ from leavers.forms.line_manager import (
     ReasonForLeaving,
 )
 from leavers.forms.sre import ServiceAndToolActions
-from leavers.types import (
-    LeavingRequestReminderEmailTasks,
-    ReturnOptions,
-    SecurityClearance,
-    StaffType,
-    TaskNote,
-)
+from leavers.types import ReturnOptions, SecurityClearance, StaffType, TaskNote
 
 
 class TaskLog(models.Model):
@@ -269,7 +263,6 @@ class LeavingRequest(models.Model):
     )
     security_team_building_pass_complete = models.DateTimeField(null=True, blank=True)
 
-    rosa_kit_form_data = models.JSONField(null=True, blank=True)
     rosa_mobile_returned = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
@@ -456,18 +449,13 @@ class LeavingRequest(models.Model):
 
         return security_building_pass_notes
 
-    def get_security_rosa_kit_notes(self) -> List[TaskNote]:
+    def get_security_rosa_kit_notes(self, field_name: str) -> List[TaskNote]:
         security_rosa_kit_notes: List[TaskNote] = []
 
-        security_rosa_kit_references: List[str] = [
-            "LeavingRequest.rosa_mobile_returned",
-            "LeavingRequest.rosa_laptop_returned",
-            "LeavingRequest.rosa_key_returned",
-            "LeavingRequest.security_team_rosa_kit_complete",
-        ]
+        security_rosa_kit_reference: str = f"LeavingRequest.{field_name}"
 
         task_logs: QuerySet[TaskLog] = self.task_logs.filter(
-            reference__in=security_rosa_kit_references,
+            reference=security_rosa_kit_reference,
             notes__isnull=False,
         ).order_by("-created_at")
         for task_log in task_logs:
@@ -483,92 +471,6 @@ class LeavingRequest(models.Model):
             )
 
         return security_rosa_kit_notes
-
-    def get_security_bp_reminder_email_tasks(self) -> LeavingRequestReminderEmailTasks:
-        from leavers.utils.leaving_request import get_email_task_logs
-        from leavers.workflow.tasks import SECURITY_TEAM_BP_REMINDER_EMAILS, EmailIds
-
-        email_ids = cast(
-            List[EmailIds],
-            [
-                EmailIds(email_id)
-                for _, email_id in SECURITY_TEAM_BP_REMINDER_EMAILS.items()
-            ],
-        )
-        email_task_logs = get_email_task_logs(
-            leaving_request=self,
-            email_ids=email_ids,
-        )
-        email_tasks: LeavingRequestReminderEmailTasks = {
-            "day_after_lwd": [],
-            "two_days_after_lwd": [],
-            "on_ld": [],
-            "one_day_after_ld": [],
-            "two_days_after_ld_lm": [],
-            "two_days_after_ld_proc": [],
-        }
-        for key, _ in email_tasks.items():
-            security_team_bp_reminder_email = EmailIds(
-                SECURITY_TEAM_BP_REMINDER_EMAILS[key]  # type: ignore
-            )
-            st_bp_email_task_logs = email_task_logs[security_team_bp_reminder_email]
-            email_tasks[key] = st_bp_email_task_logs  # type: ignore
-        return email_tasks
-
-    def get_security_rk_reminder_email_tasks(self) -> LeavingRequestReminderEmailTasks:
-        from leavers.utils.leaving_request import get_email_task_logs
-        from leavers.workflow.tasks import SECURITY_TEAM_RK_REMINDER_EMAILS, EmailIds
-
-        email_ids = cast(
-            List[EmailIds],
-            [
-                EmailIds(email_id)
-                for _, email_id in SECURITY_TEAM_RK_REMINDER_EMAILS.items()
-            ],
-        )
-        email_task_logs = get_email_task_logs(
-            leaving_request=self,
-            email_ids=email_ids,
-        )
-        email_tasks: LeavingRequestReminderEmailTasks = {
-            "day_after_lwd": [],
-            "two_days_after_lwd": [],
-            "on_ld": [],
-            "one_day_after_ld": [],
-            "two_days_after_ld_lm": [],
-            "two_days_after_ld_proc": [],
-        }
-        for key, _ in email_tasks.items():
-            security_team_rk_reminder_email = EmailIds(
-                SECURITY_TEAM_RK_REMINDER_EMAILS[key]  # type: ignore
-            )
-            st_rk_email_task_logs = email_task_logs[security_team_rk_reminder_email]
-            email_tasks[key] = st_rk_email_task_logs  # type: ignore
-        return email_tasks
-
-    def get_sre_reminder_email_tasks(self) -> LeavingRequestReminderEmailTasks:
-        from leavers.utils.leaving_request import get_email_task_logs
-        from leavers.workflow.tasks import SRE_REMINDER_EMAILS, EmailIds
-
-        email_ids = cast(
-            List[EmailIds],
-            [EmailIds(email_id) for _, email_id in SRE_REMINDER_EMAILS.items()],
-        )
-        email_task_logs = get_email_task_logs(
-            leaving_request=self,
-            email_ids=email_ids,
-        )
-        email_tasks: LeavingRequestReminderEmailTasks = {
-            "day_after_lwd": [],
-            "two_days_after_lwd": [],
-            "on_ld": [],
-            "one_day_after_ld": [],
-            "two_days_after_ld_lm": [],
-            "two_days_after_ld_proc": [],
-        }
-        for key, _ in email_tasks.items():
-            email_tasks[key] = email_task_logs[EmailIds(SRE_REMINDER_EMAILS[key])]  # type: ignore
-        return email_tasks
 
 
 class SlackMessage(models.Model):

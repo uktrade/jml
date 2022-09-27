@@ -5,7 +5,6 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% error_summary form %}
             <a href="{% url 'security-team-listing-incomplete' %}" class="govuk-back-link">Back</a>
         </div>
     </div>
@@ -16,27 +15,24 @@
             {% include "leaving/security_team/includes/leaving_request_details.html" %}
 
             <h2 class="govuk-heading-m">ROSA Kit status</h2>
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dd class="govuk-summary-list__value">ROSA Mobile</dd>
-                    <dd class="govuk-summary-list__value govuk-!-text-align-right">{% firstof rosa_mobile_status "Pending" %}</dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dd class="govuk-summary-list__value">ROSA Laptop</dd>
-                    <dd class="govuk-summary-list__value govuk-!-text-align-right">{% firstof rosa_laptop_status "Pending" %}</dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dd class="govuk-summary-list__value">ROSA Key</dd>
-                    <dd class="govuk-summary-list__value govuk-!-text-align-right">{% firstof rosa_key_status "Pending" %}</dd>
-                </div>
-            </dl>
-            <a href="{% url 'security-team-rosa-kit-confirmation-edit' leaving_request_uuid %}" class="govuk-button">Edit status</a>
 
-            <h2 class="govuk-heading-m">Notes</h2>
-            <form novalidate method='post'>
-                {% crispy form %}
-            </form>
-            {% include "leaving/includes/task_notes.html" with task_notes=task_notes %}
+            <table class="govuk-table">
+                <tbody class="govuk-table__body">
+                    {% for ki in kit_info %}
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell"><a class="govuk-link" href="{% url 'security-team-rosa-kit-field' leaving_request_uuid ki.field_name %}">{{ ki.name }}</a></td>
+                            <td class="govuk-table__cell">{{ ki.comment }}</td>
+                            <td class="govuk-table__cell govuk-!-text-align-right"><strong class="govuk-tag govuk-tag--{{ ki.status_colour }}">{{ ki.status_text }}</strong></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if can_mark_as_complete %}
+                <a href="{% url 'security-team-rosa-kit-confirmation-close' leaving_request_uuid %}" class="govuk-button" data-module="govuk-button">
+                    Complete record
+                </a>
+            {% endif %}
         </div>
     </div>
 {% endblock content %}

@@ -225,6 +225,8 @@ Joe"
 Joey
 JS
 Kit
+Kit requests</a
+kit_info
 kit</th
 know:</p
 Laptop
@@ -248,6 +250,7 @@ leaving_request=self.leaving_request
 LeavingRequest
 LeavingRequest.manually_offboarded_from_uksbs
 LEGACY_PEOPLE_FINDER_ES_INDEX
+li class="moj-primary
 li class="progress-step{%
 Line
 Line Manager.</p

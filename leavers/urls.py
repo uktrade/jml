@@ -206,9 +206,9 @@ urlpatterns = [
         name="security-team-rosa-kit-confirmation",
     ),
     path(
-        "leaver/security-team/<uuid:leaving_request_id>/rosa-kit/edit/",
-        security_team_views.RosaKitConfirmationEditView.as_view(),
-        name="security-team-rosa-kit-confirmation-edit",
+        "leaver/security-team/<uuid:leaving_request_id>/rosa-kit/status/<str:field_name>/",
+        security_team_views.RosaKitFieldView.as_view(),
+        name="security-team-rosa-kit-field",
     ),
     path(
         "leaver/security-team/<uuid:leaving_request_id>/rosa-kit/confirm/",

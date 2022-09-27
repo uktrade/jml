@@ -1,6 +1,25 @@
 {% extends "leaving/leaving_base.html" %}
 {% load crispy_forms_tags crispy_forms_gds %}
 
+{% block primary_navigation %}
+    <div class="moj-primary-navigation">
+        <div class="moj-primary-navigation__container">
+            <div class="moj-primary-navigation__nav">
+                <nav class="moj-primary-navigation" aria-label="Primary navigation">
+                    <ul class="moj-primary-navigation__list">
+                        <li class="moj-primary-navigation__item">
+                            <a class="moj-primary-navigation__link" {% if security_role.value == "bp" %}aria-current="page"{% endif %} href='{% url "security-team-listing-incomplete" %}?security-role=bp'>Building pass requests</a>
+                        </li>
+                        <li class="moj-primary-navigation__item">
+                            <a class="moj-primary-navigation__link" {% if security_role.value == "rk" %}aria-current="page"{% endif %} href='{% url "security-team-listing-incomplete" %}?security-role=rk'>ROSA Kit requests</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+{% endblock primary_navigation %}
+
 {% block content %}
 
     <div class="govuk-grid-row">
