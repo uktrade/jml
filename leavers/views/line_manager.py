@@ -309,7 +309,7 @@ class StartView(LineManagerViewMixin, TemplateView):
         leaver_name = self.leaving_request.get_leaver_name()
 
         context.update(
-            page_title="Leaving DIT: Line Manager's off-boarding actions",
+            page_title="Leaving DIT: Line Manager's offboarding actions",
             start_url=reverse(
                 "line-manager-leaver-confirmation",
                 kwargs={"leaving_request_uuid": str(self.leaving_request.uuid)},
@@ -968,7 +968,7 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
         leaver_name = self.leaving_request.get_leaver_name()
 
         context.update(
-            page_title="Line Manager's off-boarding actions completed",
+            page_title="Line Manager's offboarding actions completed",
             leaver_name=leaver_name,
             possessive_leaver_name=make_possessive(leaver_name),
         )

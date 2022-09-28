@@ -1,11 +1,12 @@
-{% extends "base.html" %}
+{% extends "leaving/leaving_base.html" %}
 {% load crispy_forms_tags crispy_forms_gds %}
 
 {% block content %}
+
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {% error_summary form %}
-            <a href="{% url 'admin-leaving-request-detail' leaving_request_uuid %}" class="govuk-back-link">Back</a>
+            <a href="{% url 'sre-detail' leaving_request_uuid %}" class="govuk-back-link">Back</a>
         </div>
     </div>
 
@@ -13,10 +14,11 @@
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             <p class="govuk-body">
-                You are about to mark '{{ leaver_name }}'' as being manually offboarded from UK SBS. This action can not be undone.
+                You are about to mark {{ possessive_leaver_name }} offboearding record as complete. This action can not be undone.
             </p>
         </div>
     </div>
+
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">

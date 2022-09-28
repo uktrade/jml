@@ -66,9 +66,7 @@ def get_leaving_request_email_personalisation(
         security_team_rk_link=site_url
         + reverse("security-team-rosa-kit-confirmation", args=[leaving_request.uuid]),
         sre_team_link=site_url
-        + reverse(
-            "sre-confirmation", kwargs={"leaving_request_id": leaving_request.uuid}
-        ),
+        + reverse("sre-detail", kwargs={"leaving_request_id": leaving_request.uuid}),
     )
 
     leaver_information: Optional[
@@ -135,7 +133,7 @@ def send_leaver_not_in_uksbs_reminder(
     notify.email(
         email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],
         template_id=notify.EmailTemplates.LEAVER_NOT_IN_UKSBS_HR_REMINDER,
-        personalisation=personalisation | {"recipient_name": "DIT Off-boarding Team"},
+        personalisation=personalisation | {"recipient_name": "DIT Offboarding Team"},
     )
     # Line Manager email
     notify.email(
@@ -365,7 +363,7 @@ def send_security_team_offboard_bp_leaver_email(
     template_id: Optional[notify.EmailTemplates] = None,
 ):
     """
-    Send Security Team an email to inform them of a new leaver to be off-boarded.
+    Send Security Team an email to inform them of a new leaver to be offboarded.
     """
 
     if not settings.SECURITY_TEAM_BUILDING_PASS_EMAIL:
@@ -385,7 +383,7 @@ def send_security_team_offboard_rk_leaver_email(
     template_id: Optional[notify.EmailTemplates] = None,
 ):
     """
-    Send Security Team an email to inform them of a new leaver to be off-boarded.
+    Send Security Team an email to inform them of a new leaver to be offboarded.
     """
 
     if not settings.SECURITY_TEAM_ROSA_EMAIL:
@@ -405,7 +403,7 @@ def send_sre_notification_email(
     template_id: Optional[notify.EmailTemplates] = None,
 ):
     """
-    Send the SRE team an email to inform them of a new leaver to be off-boarded.
+    Send the SRE team an email to inform them of a new leaver to be offboarded.
     """
     # Skip this task
     pass

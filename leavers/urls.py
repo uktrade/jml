@@ -151,8 +151,18 @@ urlpatterns = [
     ),
     path(
         "leaver/sre/<uuid:leaving_request_id>/",
-        sre_views.TaskConfirmationView.as_view(),
-        name="sre-confirmation",
+        sre_views.TaskDetailView.as_view(),
+        name="sre-detail",
+    ),
+    path(
+        "leaver/sre/<uuid:leaving_request_id>/service-and-tools/<str:field_name>/",
+        sre_views.TaskServiceAndToolsView.as_view(),
+        name="sre-service-and-tools",
+    ),
+    path(
+        "leaver/sre/<uuid:leaving_request_id>/confirm/",
+        sre_views.TaskCompleteConfirmationView.as_view(),
+        name="sre-confirm-complete",
     ),
     path(
         "leaver/sre/<uuid:leaving_request_id>/summary/",

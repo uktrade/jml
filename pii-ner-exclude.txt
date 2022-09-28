@@ -78,7 +78,7 @@ Cirrus Equipment
 Civil Servant
 Civil Servants
 class="govuk-button__start
-class="incomplete">To Do</span
+class="incomplete">To do</span
 CLU4
 CLU4 Leaver Notification Email
 CLU4_EMAIL
@@ -129,7 +129,7 @@ Disposed Of"
 DIT
 DIT Activity
 DIT Leavers Service
-DIT Off-boarding Team
+DIT Offboarding Team
 DIT</li
 DjangoCelery
 DjangoTemplates
@@ -148,6 +148,7 @@ Example Building
 Example Grade
 expires_at
 f"<a href='{cancel_url
+f"A
 f"ActivityStreamStaffSSOUser
 f"Asset
 f"Error
@@ -241,6 +242,7 @@ Leaving Request
 Leaving Request Admin
 leaving_request.holds_government_procurement_card
 leaving_request.is_rosa_user
+leaving_request=self.leaving_request
 LeavingRequest
 LeavingRequest.manually_offboarded_from_uksbs
 LEGACY_PEOPLE_FINDER_ES_INDEX
@@ -304,6 +306,7 @@ people_finder_result["email
 PersonData
 Physical Asset
 PhysicalAsset
+PII
 Port Replicator
 Port Replicator'
 process.</p
@@ -384,6 +387,7 @@ Start Line
 Store DSE
 StreamHandler
 target="_blank">here</a>.</li>
+TaskLog
 TaskRecord
 Team Zendesk
 TEMPLATE_ID_CLU4_EMAIL
@@ -459,6 +463,7 @@ Updated Personal Email
 User
 User
 users.</td
+value="update_status_form">
 Variables](/docs
 viewBox="0 0 483.2
 visit</li>

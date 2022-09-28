@@ -1,12 +1,13 @@
 {% extends "leaving/leaving_base.html" %}
-
 {% load crispy_forms_tags crispy_forms_gds %}
 
 {% block content %}
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% error_summary form %}
+            {% error_summary update_status_form %}
+            {% error_summary add_note_form %}
+            <a href="{% url 'sre-detail' leaving_request_uuid %}" class="govuk-back-link">Back</a>
         </div>
     </div>
 
@@ -44,10 +45,10 @@
                     <tr class="govuk-table__row">
                         <th scope="row" class="govuk-table__header">Status</th>
                         <td class="govuk-table__cell">
-                            {% if object.complete %}
-                                <span class="complete">Complete</span>
+                            {% if complete %}
+                                <strong class="govuk-tag govuk-tag--green">Complete</strong>
                             {% else %}
-                                <span class="incomplete">Incomplete</span>
+                                <strong class="govuk-tag govuk-tag--grey">To do</strong>
                             {% endif %}
                         </td>
                     </tr>
@@ -58,12 +59,20 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">List services and tools removed</h2>
-            <p class="govuk-body">Select only those tools and services from the list, that <em>{{ leaver_name }}</em> had access to and has been removed from:</p>
+            <h2 class="govuk-heading-l">{{ service_name }}</h2>
+
             <form novalidate method='post'>
-                {% crispy form %}
+                <input type="hidden" name="form_name" value="update_status_form" />
+                {% crispy update_status_form %}
             </form>
+
+            <h3 class="govuk-heading-m">Notes</h3>
+            <form novalidate method='post'>
+                <input type="hidden" name="form_name" value="add_note_form" />
+                {% crispy add_note_form %}
+            </form>
+
+            {% include "leaving/includes/task_notes.html" with task_notes=task_notes %}
         </div>
     </div>
-
-{% endblock %}
+{% endblock content %}

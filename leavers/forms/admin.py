@@ -15,7 +15,7 @@ class ManuallyOffboardedFromUKSBSForm(forms.Form):
         self.helper.layout = Layout(
             Submit(
                 "submit",
-                "Mark as manually off-boarded from UK SBS",
+                "Mark as manually offboarded from UK SBS",
                 css_class="govuk-button--warning",
             ),
             HTML(

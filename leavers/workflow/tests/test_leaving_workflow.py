@@ -348,13 +348,13 @@ class TestLeaversWorkflow(TestCase):
             mock_CheckUKSBSLeaver_execute=mock_CheckUKSBSLeaver_execute,
         )
 
-        # Line manager is in UK SBS, notified and hasn't completed the off-boarding process
+        # Line manager is in UK SBS, notified and hasn't completed the offboarding process
         self.run_line_manger_in_uksbs(
             expected_tasks=expected_tasks,
             mock_CheckUKSBSLineManager_execute=mock_CheckUKSBSLineManager_execute,
         )
 
-        # Line manager has completed the off-boarding process
+        # Line manager has completed the offboarding process
         self.run_line_manger_completed_offboarding(
             expected_tasks=expected_tasks,
             mock_get_staff_document_from_staff_index=mock_get_staff_document_from_staff_index,
@@ -425,7 +425,7 @@ class TestLeaversWorkflow(TestCase):
             self.check_tasks(expected_tasks=expected_tasks)
 
         # Line manager is in UK SBS, notified and hasn't completed the
-        # off-boarding process
+        # offboarding process
         self.run_line_manger_in_uksbs(
             expected_tasks=expected_tasks,
             mock_CheckUKSBSLineManager_execute=mock_CheckUKSBSLineManager_execute,
@@ -444,7 +444,7 @@ class TestLeaversWorkflow(TestCase):
             ]
             self.check_tasks(expected_tasks=expected_tasks)
 
-        # Line manager has completed the off-boarding process
+        # Line manager has completed the offboarding process
         self.run_line_manger_completed_offboarding(
             expected_tasks=expected_tasks,
             mock_get_staff_document_from_staff_index=mock_get_staff_document_from_staff_index,

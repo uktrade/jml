@@ -1,83 +1,76 @@
-from typing import Dict
-
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Field, Layout, Submit
+from crispy_forms_gds.layout import HTML, Div, Field, Layout, Submit
 from django import forms
+from django.db.models.enums import TextChoices
+from django.urls import reverse
 
 
-class SREConfirmCompleteForm(forms.Form):
-    vpn = forms.BooleanField(
-        label="VPN",
-        required=True,
-    )
-    govuk_paas = forms.BooleanField(
-        label="GOVUK PAAS",
-        required=True,
-    )
-    github = forms.BooleanField(
-        label="Github, removed from teams and repos",
+class ServiceAndToolActions(TextChoices):
+    NOT_STARTED = None, "Not started"
+    NOT_APPLICABLE = "not_applicable", "Not applicable"
+    REMOVED = "removed", "Removed"
+
+
+class SREServiceAndToolsForm(forms.Form):
+    action = forms.ChoiceField(
+        label="",
+        choices=ServiceAndToolActions.choices,
+        widget=forms.RadioSelect,
         required=False,
-    )
-    sentry = forms.BooleanField(
-        required=False,
-    )
-    slack = forms.BooleanField(
-        required=False,
-    )
-    sso = forms.BooleanField(
-        label="SSO",
-        required=True,
-    )
-    aws = forms.BooleanField(
-        label="AWS",
-        required=True,
-    )
-    jira = forms.BooleanField(
-        required=True,
     )
 
-    def __init__(self, completed: bool = False, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        required_message_replacement: Dict[str, str] = {
-            "vpn": "VPN",
-            "govuk_paas": "GOVUK PAAS",
-            "sso": "SSO",
-            "aws": "AWS",
-            "jira": "Jira",
-        }
-        for field_name, field in self.fields.items():
-            if field_name in required_message_replacement:
-                message_replacement = required_message_replacement[field_name]
-                field.error_messages[
-                    "required"
-                ] = f"Select {message_replacement} to confirm removal."
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field.checkbox("vpn"),
-            Field.checkbox("govuk_paas"),
-            Field.checkbox("github"),
-            Field.checkbox("sentry"),
-            Field.checkbox("slack"),
-            Field.checkbox("sso"),
-            Field.checkbox("aws"),
-            Field.checkbox("jira"),
+            Field.radios("action"),
+            Submit("save", "Save"),
         )
 
-        if completed:
-            self.helper.layout.append(Submit("save", "Save changes"))
-        else:
-            self.helper.layout.append(
-                HTML.p(
-                    "Select Confirm and Send only when you have removed access to all "
-                    "the tools and services for {{ leaver_name }}."
-                )
-            )
-            self.helper.layout.append(
+
+class SREAddTaskNoteForm(forms.Form):
+    note = forms.CharField(
+        label="",
+        widget=forms.Textarea,
+        help_text="Please do not enter personally identifiable information (PII) here",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.textarea(
+                "note",
+                rows=5,
+            ),
+            Submit(
+                "save",
+                "Add comment",
+                css_class="govuk-button--secondary",
+            ),
+        )
+
+
+class SREConfirmCompleteForm(forms.Form):
+    def __init__(self, leaving_request_uuid: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        cancel_url = reverse("sre-detail", args=[leaving_request_uuid])
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
                 Submit(
                     "save",
-                    "Save and continue later",
-                    css_class="govuk-button--secondary",
-                )
-            )
-            self.helper.layout.append(Submit("submit", "Confirm and send"))
+                    "Confirm record is complete",
+                    css_class="govuk-button--warning",
+                ),
+                HTML(
+                    f"<a href='{cancel_url}' class='govuk-button "
+                    "govuk-button--secondary'>Cancel</a>"
+                ),
+                css_class="govuk-button-group",
+            ),
+        )

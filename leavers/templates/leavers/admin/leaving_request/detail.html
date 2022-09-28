@@ -47,7 +47,7 @@
     </table>
 
     {% if not leaving_request.manually_offboarded_from_uksbs %}
-        <a href="{% url 'admin-leaving-request-manually-offboard-uksbs' leaving_request.uuid %}" class="govuk-button govuk-button--warning" data-module="govuk-button">Mannually off-boarded from UK SBS</a>
+        <a href="{% url 'admin-leaving-request-manually-offboard-uksbs' leaving_request.uuid %}" class="govuk-button govuk-button--warning" data-module="govuk-button">Manually offboarded from UK SBS</a>
     {% endif %}
 
 {% endblock %}

@@ -2,13 +2,13 @@
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
             {% if "leaver_name" in fields %}
-                <th scope="col" class="govuk-table__header">Name surname</th>
+                <th scope="col" class="govuk-table__header">Leaver's name</th>
             {% endif %}
             {% if "security_clearance" in fields %}
                 <th scope="col" class="govuk-table__header">Security Clearance level</th>
             {% endif %}
             {% if "work_email" in fields %}
-                <th scope="col" class="govuk-table__header">Work email</th>
+                <th scope="col" class="govuk-table__header">Email</th>
             {% endif %}
             {% if "leaving_date" in fields %}
                 <th scope="col" class="govuk-table__header">Leaving date</th>
@@ -17,7 +17,7 @@
                 <th scope="col" class="govuk-table__header">Last working day</th>
             {% endif %}
             {% if "days_until_last_working_day" in fields %}
-                <th scope="col" class="govuk-table__header">Days until last working day</th>
+                <th scope="col" class="govuk-table__header">Days left</th>
             {% endif %}
             {% if "reported_on" in fields %}
                 <th scope="col" class="govuk-table__header">Reported on</th>
@@ -58,9 +58,13 @@
                 {% if "complete" in fields %}
                     <td class="govuk-table__cell">
                         {% if object.complete %}
-                            <span class="complete">Complete</span>
+                            <strong class="govuk-tag govuk-tag--green">
+                                Complete
+                            </strong>
                         {% else %}
-                            <span class="incomplete">To Do</span>
+                            <strong class="govuk-tag govuk-tag--grey">
+                                To do
+                            </strong>
                         {% endif %}
                     </td>
                 {% endif %}
