@@ -3,8 +3,18 @@ from typing import Dict, List, Literal, Optional
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.fields import DateInputField
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Button, Field, Fieldset, Layout, Size, Submit
+from crispy_forms_gds.layout import (
+    HTML,
+    Button,
+    Div,
+    Field,
+    Fieldset,
+    Layout,
+    Size,
+    Submit,
+)
 from django import forms
+from django.urls import reverse
 
 from core.forms import YesNoField
 from leavers.types import ReturnOptions, SecurityClearance, StaffType
@@ -195,6 +205,28 @@ class LeaverUpdateForm(forms.Form):
                 legend_size=Size.MEDIUM,
             ),
             Submit("submit", "Save and continue"),
+        )
+
+
+class FindPersonIDForm(forms.Form):
+    personal_email = forms.EmailField(label="Personal email")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        cancel_url = reverse("leaver-find-details-help")
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field("personal_email"),
+            Div(
+                Submit("submit", "Search"),
+                HTML(
+                    f"<a href='{cancel_url}' class='govuk-button govuk-button--secondary' "
+                    "data-module='govuk-button'>My email address cannot be found</a>"
+                ),
+                css_class="govuk-button-group",
+            ),
         )
 
 

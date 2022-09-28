@@ -27,6 +27,9 @@
 | SECURITY_TEAM_VETTING_EMAIL                                      | None                                       | Email address for the Security Team (vetting)                                                        |
 | SRE_EMAIL                                                        | None                                       | Email address for the SRE Team                                                                       |
 | HR_UKSBS_CORRECTION_EMAIL                                        | None                                       | Email address for the HR Team member that deals with UK SBS corrections                              |
+| DIT_OFFBOARDING_EMAIL                                            | ''                                         |                                                                                                      |
+| JML_TEAM_CONTACT_EMAIL                                           | ''                                         |                                                                                                      |
+| JML_TEAM_EMAILS                                                  | []                                         |                                                                                                      |
 | GOVUK_NOTIFY_API_KEY                                             | None                                       |                                                                                                      |
 | HELP_DESK_CREDS                                                  | None                                       | Dict of credentials for help desk: format will depend on helpdesk                                    |
 | HELP_DESK_INTERFACE                                              | help_desk_client.interfaces.HelpDeskStubbed| Help desk interface to use, use the stub for local dev/tests                                         |

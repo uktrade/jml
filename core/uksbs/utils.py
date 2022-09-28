@@ -113,14 +113,15 @@ def build_leaving_data_from_leaving_request(
     processing_manager_as: ActivityStreamStaffSSOUser = (
         leaving_request.processing_manager_activitystream_user
     )
-
-    if not leaver_as.uksbs_person_id:
+    leaver_person_id = leaver_as.get_person_id()
+    if not leaver_person_id:
         raise LeaverDoesNotHaveUKSBSPersonId()
-    if not processing_manager_as.uksbs_person_id:
+    manager_person_id = processing_manager_as.get_person_id()
+    if not manager_person_id:
         raise ManagerDoesNotHaveUKSBSPersonId()
 
     uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
-        person_id=leaver_as.uksbs_person_id,
+        person_id=leaver_person_id,
     )
 
     uksbs_leaver: PersonData = uksbs_leaver_hierarchy["employee"][0]
@@ -129,7 +130,7 @@ def build_leaving_data_from_leaving_request(
     uksbs_leaver_manager: Optional[PersonData] = None
 
     for ulm in uksbs_leaver_managers:
-        if str(ulm["person_id"]) == str(processing_manager_as.uksbs_person_id):
+        if str(ulm["person_id"]) == str(manager_person_id):
             uksbs_leaver_manager = ulm
             break
 
@@ -137,15 +138,14 @@ def build_leaving_data_from_leaving_request(
         raise Exception("Could not find Line Manager in UKSBS hierarchy")
 
     leaver_full_name = uksbs_leaver["full_name"]
-
     leaver_contact: ServiceRequestDataContact = {
-        "contactNumber": leaver_as.uksbs_person_id,
+        "contactNumber": leaver_person_id,
         "contactType": "EMPLOYEE",
         "contactTypePoint": "EMAIL",
         "contactPrimaryFlag": "N",
     }
     line_manager_contact: ServiceRequestDataContact = {
-        "contactNumber": processing_manager_as.uksbs_person_id,
+        "contactNumber": manager_person_id,
         "contactType": "EMPLOYEE",
         "contactTypePoint": "EMAIL",
         "contactPrimaryFlag": "Y",

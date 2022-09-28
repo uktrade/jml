@@ -47,6 +47,16 @@ urlpatterns = [
         name="leaver-update-details",
     ),
     path(
+        "leaver/personal-email/",
+        leaver_views.LeaverFindDetailsView.as_view(),
+        name="leaver-find-details",
+    ),
+    path(
+        "leaver/personal-email-help/",
+        leaver_views.LeaverFindDetailsHelpView.as_view(),
+        name="leaver-find-details-help",
+    ),
+    path(
         "leaver/confirm-details/",
         leaver_views.ConfirmDetailsView.as_view(),
         name="leaver-confirm-details",

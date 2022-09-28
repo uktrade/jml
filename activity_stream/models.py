@@ -25,6 +25,7 @@ class ActivityStreamStaffSSOUser(models.Model):
     became_inactive_on = models.DateTimeField(null=True)
     # NEVER EXPOSE THIS FIELD
     uksbs_person_id = models.CharField(max_length=255)
+    uksbs_person_id_override = models.CharField(null=True, blank=True, max_length=255)
 
     # Used to denote if the user is still returned by the ActivityStream API.
     available = models.BooleanField(default=False)
@@ -66,6 +67,11 @@ class ActivityStreamStaffSSOUser(models.Model):
         for sso_email in self.sso_emails.all():
             emails.add(sso_email.email_address)
         return list(emails)
+
+    def get_person_id(self) -> str:
+        if self.uksbs_person_id_override:
+            return self.uksbs_person_id_override
+        return self.uksbs_person_id
 
 
 class ActivityStreamStaffSSOUserEmail(models.Model):

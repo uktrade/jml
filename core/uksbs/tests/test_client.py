@@ -3,6 +3,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from activity_stream.factories import ActivityStreamStaffSSOUserFactory
+from activity_stream.models import ActivityStreamStaffSSOUser
 from core.uksbs.client import UKSBSClient, UKSBSPersonNotFound
 from core.uksbs.types import LeavingData, PersonData
 from core.uksbs.utils import build_leaving_data_from_leaving_request
@@ -131,10 +132,12 @@ class TestUKSBSClient(TestCase):
             reason_for_leaving=ReasonForLeaving.RESIGNATION.value,
             processing_manager_activitystream_user=ActivityStreamStaffSSOUserFactory(),
         )
-        leaver = leaving_request.leaver_activitystream_user
+        leaver: ActivityStreamStaffSSOUser = leaving_request.leaver_activitystream_user
+        leaver_person_id = leaver.get_person_id()
         manager = leaving_request.processing_manager_activitystream_user
         manager_person_data = FAKE_PERSON_DATA.copy()
-        manager_person_data["person_id"] = manager.uksbs_person_id
+        if manager:
+            manager_person_data["person_id"] = manager.get_person_id()
 
         responses.add(
             responses.POST,
@@ -146,7 +149,7 @@ class TestUKSBSClient(TestCase):
         )
         responses.add(
             responses.GET,
-            f"https://fake-uksbs.domain/hierarchy-api/1.0/{leaver.uksbs_person_id}/hierarchy",
+            f"https://fake-uksbs.domain/hierarchy-api/1.0/{leaver_person_id}/hierarchy",
             json={
                 "items": [
                     {

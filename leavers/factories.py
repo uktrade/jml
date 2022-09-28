@@ -1,6 +1,6 @@
 import uuid
 from datetime import timedelta
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import factory
 import factory.fuzzy
@@ -8,6 +8,7 @@ from django.utils import timezone
 from factory.django import DjangoModelFactory
 
 from activity_stream.factories import ActivityStreamStaffSSOUserFactory
+from activity_stream.models import ActivityStreamStaffSSOUser
 from leavers import models, types
 from user.test.factories import UserFactory
 
@@ -32,7 +33,7 @@ class LeavingRequestFactory(DjangoModelFactory):
     user_requesting = factory.SubFactory(UserFactory)
     leaver_activitystream_user = factory.SubFactory(ActivityStreamStaffSSOUserFactory)
     manager_activitystream_user = factory.SubFactory(ActivityStreamStaffSSOUserFactory)
-    processing_manager_activitystream_user = None
+    processing_manager_activitystream_user: Optional[ActivityStreamStaffSSOUser] = None
     data_recipient_activitystream_user = factory.SubFactory(
         ActivityStreamStaffSSOUserFactory
     )
