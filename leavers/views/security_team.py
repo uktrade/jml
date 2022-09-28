@@ -195,8 +195,10 @@ class BuildingPassConfirmationView(
     def form_valid(self, form) -> HttpResponse:
         note = form.cleaned_data["note"]
 
+        user = cast(User, self.request.user)
+
         self.leaving_request.task_logs.create(
-            user=self.request.user,
+            user=user,
             task_name="A comment has been added.",
             notes=note,
             reference="LeavingRequest.security_team_building_pass_complete",
@@ -458,7 +460,10 @@ class RosaKitConfirmationView(
         ).exists()
 
     def get_page_title(self) -> str:
-        possessive_leaver_name = make_possessive(self.leaving_request.get_leaver_name())
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
         return f"{possessive_leaver_name} ROSA Kit"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
@@ -592,12 +597,17 @@ class RosaKitFieldView(
         )
 
     def get_page_title(self) -> str:
-        possessive_leaver_name = make_possessive(self.leaving_request.get_leaver_name())
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
         return f"{possessive_leaver_name} ROSA Kit"
 
     def post_update_status_form(
         self, request: HttpRequest, form: Form, *args, **kwargs
     ):
+        user = cast(User, request.user)
+
         action_value = form.cleaned_data["action"]
         action = RosaKitActions(action_value)
 
@@ -608,7 +618,7 @@ class RosaKitFieldView(
             current_task_log and current_task_log.value != action.value
         ):
             task_log = self.leaving_request.task_logs.create(
-                user=self.request.user,
+                user=user,
                 task_name=f"{self.field_name} has been updated to '{action.value}'",
                 notes=f"Updated the status to '{action.label}'",
                 reference=f"LeavingRequest.{self.field_name}",
@@ -626,8 +636,10 @@ class RosaKitFieldView(
     def post_add_note_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         note = form.cleaned_data["note"]
 
+        user = cast(User, self.request.user)
+
         self.leaving_request.task_logs.create(
-            user=self.request.user,
+            user=user,
             task_name="A comment has been added.",
             notes=note,
             reference=f"LeavingRequest.{self.field_name}",
@@ -667,7 +679,7 @@ class RosaKitFieldView(
         return initial
 
     def get_initial_add_note_form(self) -> Dict[str, Any]:
-        initial = {}
+        initial: Dict[str, Any] = {}
         return initial
 
     def get_context_data(self, **kwargs):
@@ -738,7 +750,10 @@ class RosaKitConfirmationCloseView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_page_title(self) -> str:
-        possessive_leaver_name = make_possessive(self.leaving_request.get_leaver_name())
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
         return f"{possessive_leaver_name} ROSA Kit: confirm record is complete"
 
     def get_success_url(self) -> str:
@@ -757,12 +772,16 @@ class RosaKitConfirmationCloseView(
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
+
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
+
         context.update(
             leaving_request_uuid=self.leaving_request.uuid,
             page_title=self.get_page_title(),
-            possessive_leaver_name=make_possessive(
-                self.leaving_request.get_leaver_name()
-            ),
+            possessive_leaver_name=possessive_leaver_name,
         )
         return context
 
@@ -786,7 +805,10 @@ class TaskSummaryView(
         return super().dispatch(request, *args, **kwargs)
 
     def get_page_title(self) -> str:
-        possessive_leaver_name = make_possessive(self.leaving_request.get_leaver_name())
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
         return f"{possessive_leaver_name} security offboarding summary"
 
     def get_context_data(self, **kwargs):

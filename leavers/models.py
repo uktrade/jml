@@ -376,7 +376,7 @@ class LeavingRequest(models.Model):
             return self.manager_activitystream_user
         return None
 
-    def sre_services(self) -> List[Tuple[str, str, bool]]:
+    def sre_services(self) -> List[Tuple[str, str, ServiceAndToolActions]]:
         """
         Returns a list of the SRE services and if access has been removed.
         Tuple: (service_field, service_name, access_removed)
@@ -420,9 +420,9 @@ class LeavingRequest(models.Model):
                 full_name = field_task_log.user.get_full_name()
             sre_notes.append(
                 TaskNote(
-                    datetime=field_task_log.created_at,
+                    datetime=field_task_log.created_at.strftime("%d/%m/%Y %H:%M"),
                     full_name=full_name,
-                    note=field_task_log.notes,
+                    note=field_task_log.notes or "",
                 )
             )
 
@@ -441,9 +441,9 @@ class LeavingRequest(models.Model):
                 full_name = task_log.user.get_full_name()
             security_building_pass_notes.append(
                 TaskNote(
-                    datetime=task_log.created_at,
+                    datetime=task_log.created_at.strftime("%d/%m/%Y %H:%M"),
                     full_name=full_name,
-                    note=task_log.notes,
+                    note=task_log.notes or "",
                 )
             )
 
@@ -464,9 +464,9 @@ class LeavingRequest(models.Model):
                 full_name = task_log.user.get_full_name()
             security_rosa_kit_notes.append(
                 TaskNote(
-                    datetime=task_log.created_at,
+                    datetime=task_log.created_at.strftime("%d/%m/%Y %H:%M"),
                     full_name=full_name,
-                    note=task_log.notes,
+                    note=task_log.notes or "",
                 )
             )
 
