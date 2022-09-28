@@ -102,7 +102,6 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
 
         self.assertContains(response, "Joe")
         self.assertContains(response, "Bloggs")
-        self.assertContains(response, "Outstanding")
 
 
 class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):

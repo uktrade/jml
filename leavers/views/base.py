@@ -54,11 +54,11 @@ class LeavingRequestListing(
         if complete_field:
             if not self.show_complete:
                 leaving_requests = leaving_requests.exclude(
-                    **{self.get_complete_field() + "__isnull": False}
+                    **{complete_field + "__isnull": False}
                 )
             if not self.show_incomplete:
                 leaving_requests = leaving_requests.exclude(
-                    **{self.get_complete_field() + "__isnull": True}
+                    **{complete_field + "__isnull": True}
                 )
 
         # Search

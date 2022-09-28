@@ -1,6 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
 
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -10,7 +9,7 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-l">Summary of <em>{{ possessive_leaver_name }}</em> security offboarding</h1>
+            <h1 class="govuk-heading-l">{{ page_title }}</h1>
 
             <table class="govuk-table">
                 <caption class="govuk-table__caption govuk-table__caption--m">Offboarding tasks</caption>
@@ -28,10 +27,6 @@
                                 <strong class="govuk-tag govuk-tag--green">
                                     Destroyed
                                 </strong>
-                            {% elif pass_not_returned %}
-                                <strong class="govuk-tag govuk-tag--red">
-                                    Marked as not returned
-                                </strong>
                             {% else %}
                                 <strong class="govuk-tag govuk-tag--blue">
                                     Pending
@@ -39,6 +34,7 @@
                             {% endif %}
                         </td>
                     </tr>
+
                     {% for rosa_kit_task in rosa_kit_tasks %}
                         <tr class="govuk-table__row">
                             <td class="govuk-table__cell">{{ rosa_kit_task.name }}</td>
@@ -48,21 +44,10 @@
                                 </strong>
                             </td>
                         </tr>
-                    {% endfor%}
+                    {% endfor %}
                 </tbody>
             </table>
-
-            {% if building_pass_notes %}
-                <h2 class="govuk-heading-m">Building Pass notes</h2>
-                <p class="govuk-body">{{ building_pass_notes }}</p>
-            {% endif %}
-
-            {% if rosa_kit_notes %}
-                <h2 class="govuk-heading-m">ROSA Kit notes</h2>
-                <p class="govuk-body">{{ rosa_kit_notes }}</p>
-            {% endif %}
-
             <a class="govuk-link" href="{% url 'security-team-listing-complete' %}">Return to completed leaving requests dashboard</a>
         </div>
     </div>
-{% endblock %}
+{% endblock content %}

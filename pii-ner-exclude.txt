@@ -45,6 +45,7 @@
 234px
 7.7-.2
 8.7 39.7 21.8l42.7-27.2A97.63
+active</dd
 activity_stream.activitystreamstaffssouser
 ActivityStream
 add_missing_line_report_error
@@ -67,6 +68,7 @@ below.</a>
 Bench
 Build Staff Document
 Building Pass
+Building pass '
 Building Pass Access Revoked
 building_pass_access_task_log
 C901
@@ -223,6 +225,8 @@ Joe"
 Joey
 JS
 Kit
+Kit requests</a
+kit_info
 kit</th
 know:</p
 Laptop
@@ -246,6 +250,7 @@ leaving_request=self.leaving_request
 LeavingRequest
 LeavingRequest.manually_offboarded_from_uksbs
 LEGACY_PEOPLE_FINDER_ES_INDEX
+li class="moj-primary
 li class="progress-step{%
 Line
 Line Manager.</p
@@ -290,6 +295,8 @@ Paid
 ParsedUKSBSPDF
 ParsedUKSBSPDF"
 Pass notes</h2
+Pending
+Pending" %
 People Data
 People Finder
 People Finder API - '

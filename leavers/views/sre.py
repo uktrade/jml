@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Tuple, Type, TypedDict
+from typing import Any, Dict, List, Literal, Optional, Tuple, Type, TypedDict, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models.query import QuerySet
@@ -21,6 +21,7 @@ from leavers.forms.sre import (
 )
 from leavers.models import LeaverInformation, LeavingRequest, TaskLog
 from leavers.views import base
+from user.models import User
 
 
 class LeavingRequestListing(base.LeavingRequestListing):
@@ -110,10 +111,13 @@ class TaskDetailView(UserPassesTestMixin, TemplateView):
                     service_info["comment"] = service_field_task_log.notes
                 else:
                     created_at = service_field_task_log.created_at.strftime("%d/%m/%Y")
-                    service_info["comment"] = (
-                        f"Last updated by {service_field_task_log.user.get_full_name()}"
-                        f" on {created_at}"
-                    )
+                    if service_field_task_log.user:
+                        service_info["comment"] = (
+                            f"Last updated by {service_field_task_log.user.get_full_name()}"
+                            f" on {created_at}"
+                        )
+                    else:
+                        service_info["comment"] = f"Last updated at {created_at}"
 
             services.append(service_info)
 
@@ -206,12 +210,17 @@ class TaskServiceAndToolsView(
         return reverse("sre-detail", args=[self.leaving_request.uuid])
 
     def get_page_title(self) -> str:
-        possessive_leaver_name = make_possessive(self.leaving_request.get_leaver_name())
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
         return f"{possessive_leaver_name} SRE offboarding"
 
     def post_update_status_form(
         self, request: HttpRequest, form: Form, *args, **kwargs
     ):
+        user = cast(User, request.user)
+
         action_value = form.cleaned_data["action"]
         action = ServiceAndToolActions(action_value)
 
@@ -222,7 +231,7 @@ class TaskServiceAndToolsView(
             current_task_log and current_task_log.value != action.value
         ):
             task_log = self.leaving_request.task_logs.create(
-                user=self.request.user,
+                user=user,
                 task_name=f"{self.field_name} has been updated to '{action.value}'",
                 notes=f"Updated the status to '{action.label}'",
                 reference=f"LeavingRequest.{self.field_name}",
@@ -240,8 +249,10 @@ class TaskServiceAndToolsView(
     def post_add_note_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         note = form.cleaned_data["note"]
 
+        user = cast(User, request.user)
+
         self.leaving_request.task_logs.create(
-            user=self.request.user,
+            user=user,
             task_name="A comment has been added.",
             notes=note,
             reference=f"LeavingRequest.{self.field_name}",
@@ -282,7 +293,7 @@ class TaskServiceAndToolsView(
         return initial
 
     def get_initial_add_note_form(self) -> Dict[str, Any]:
-        initial = {}
+        initial: Dict[str, Any] = {}
         return initial
 
     def get_context_data(self, **kwargs):
@@ -356,7 +367,10 @@ class TaskCompleteConfirmationView(
         return form_kwargs
 
     def get_page_title(self) -> str:
-        possessive_leaver_name = make_possessive(self.leaving_request.get_leaver_name())
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
         return f"{possessive_leaver_name} SRE offboarding: confirm record is complete"
 
     def form_valid(self, form):
@@ -376,7 +390,10 @@ class TaskCompleteConfirmationView(
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        possessive_leaver_name = make_possessive(self.leaving_request.get_leaver_name())
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
 
         context.update(
             leaving_request_uuid=self.leaving_request.uuid,

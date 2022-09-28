@@ -1,8 +1,10 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, cast
+from typing import Any, Dict, List, Optional, Type, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models.query import QuerySet
+from django.forms import Form
+from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -11,27 +13,53 @@ from django.utils import timezone
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
+from core.utils.helpers import make_possessive
 from leavers.forms.security_team import (
-    BuildingPassDestroyedForm,
-    BuildingPassDisabledForm,
-    BuildingPassNotReturnedForm,
-    BuildingPassReturnedForm,
+    AddTaskNoteForm,
+    BuildingPassCloseRecordForm,
+    BuildingPassForm,
+    BuildingPassStatus,
+    BuildingPassSteps,
     RosaKit,
+    RosaKitActions,
     RosaKitCloseRecordForm,
-    RosaKitForm,
+    RosaKitFieldForm,
 )
 from leavers.models import LeavingRequest, TaskLog
+from leavers.types import SecurityClearance
 from leavers.utils.security_team import (
     SecuritySubRole,
     get_security_role,
     set_security_role,
 )
 from leavers.views import base
+from leavers.views.sre import ServiceInfo
 from user.models import User
+
+ROSA_KIT: List[str] = [
+    RosaKit.MOBILE.value,
+    RosaKit.LAPTOP.value,
+    RosaKit.KEY.value,
+]
+ROSA_KIT_FIELD_MAPPING: Dict[str, str] = {
+    RosaKit.MOBILE.value: "rosa_mobile_returned",
+    RosaKit.LAPTOP.value: "rosa_laptop_returned",
+    RosaKit.KEY.value: "rosa_key_returned",
+}
 
 
 class LeavingRequestListing(base.LeavingRequestListing):
     template_name = "leaving/security_team/listing.html"
+
+    fields: List[str] = [
+        "leaver_name",
+        "security_clearance",
+        "work_email",
+        "leaving_date",
+        "last_working_day",
+        "days_until_last_working_day",
+        "complete",
+    ]
 
     building_pass_confirmation_view = "security-team-building-pass-confirmation"
     rosa_kit_confirmation_view = "security-team-rosa-kit-confirmation"
@@ -45,7 +73,12 @@ class LeavingRequestListing(base.LeavingRequestListing):
     def get_leaving_requests(self) -> QuerySet[LeavingRequest]:
         leaving_requests = super().get_leaving_requests()
         # Filter out any that haven't been completed by the Line Manager.
-        return leaving_requests.exclude(line_manager_complete__isnull=True)
+        leaving_requests = leaving_requests.exclude(line_manager_complete__isnull=True)
+
+        if self.role == SecuritySubRole.ROSA_KIT:
+            leaving_requests = leaving_requests.filter(is_rosa_user=True)
+
+        return leaving_requests
 
     def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         self.role = get_security_role(request)
@@ -53,9 +86,9 @@ class LeavingRequestListing(base.LeavingRequestListing):
 
     def get_page_title(self, object_type_name: str) -> str:
         if self.role == SecuritySubRole.BUILDING_PASS:
-            return f"Building Pass: {object_type_name.title()}"
+            return "Building pass requests"
         elif self.role == SecuritySubRole.ROSA_KIT:
-            return f"ROSA Kit: {object_type_name.title()}"
+            return "ROSA Kit requests"
         raise Exception("Unknown security role")
 
     def get_service_name(self) -> str:
@@ -82,13 +115,18 @@ class LeavingRequestListing(base.LeavingRequestListing):
 
         raise Exception("Unknown security role")
 
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(security_role=self.role)
+        return context
+
 
 class BuildingPassConfirmationView(
     UserPassesTestMixin,
-    TemplateView,
+    FormView,
 ):
     template_name = "leaving/security_team/confirmation/building_pass.html"
-    page_title: str = "Security Team offboarding building pass confirmation"
+    form_class = AddTaskNoteForm
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -105,13 +143,9 @@ class BuildingPassConfirmationView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(
-            page_title=self.page_title,
-        )
 
-        notes: Optional[str] = None
-        if self.leaving_request.security_pass_not_returned:
-            notes = self.leaving_request.security_pass_not_returned.notes
+        leaver_name = self.leaving_request.get_leaver_name()
+        context.update(page_title=f"{leaver_name} building pass")
 
         manager_as_user = self.leaving_request.get_line_manager()
         assert manager_as_user
@@ -127,291 +161,62 @@ class BuildingPassConfirmationView(
             last_day = last_day_datetime.date()
 
         context.update(
-            leaver_name=self.leaving_request.get_leaver_name(),
+            leaver_name=leaver_name,
             leaver_email=self.leaving_request.get_leaver_email(),
+            leaver_security_clearance=SecurityClearance(
+                self.leaving_request.security_clearance
+            ).label,
             manager_name=manager_as_user.full_name,
             manager_emails=manager_as_user.get_email_addresses_for_contact(),
             leaving_date=leaving_date,
             last_working_day=last_day,
             leaving_request_uuid=self.leaving_request.uuid,
-            notifications=self.get_notifications(),
-            pass_disabled=bool(self.leaving_request.security_pass_disabled),
-            pass_returned=bool(self.leaving_request.security_pass_returned),
-            pass_destroyed=bool(self.leaving_request.security_pass_destroyed),
-            pass_not_returned=bool(self.leaving_request.security_pass_not_returned),
-            can_mark_as_not_returned=bool(
-                self.leaving_request.leaving_date < timezone.now()
-                and not self.leaving_request.security_team_building_pass_complete
+            pass_disabled=self.leaving_request.security_pass_disabled,
+            pass_returned=self.leaving_request.security_pass_returned,
+            pass_destroyed=self.leaving_request.security_pass_destroyed,
+            can_complete=all(
+                [
+                    self.leaving_request.security_pass_disabled,
+                    self.leaving_request.security_pass_returned,
+                    self.leaving_request.security_pass_destroyed,
+                ]
             ),
-            notes=notes,
+            complete=bool(self.leaving_request.security_team_building_pass_complete),
+            task_notes=self.leaving_request.get_security_building_pass_notes(),
         )
 
         return context
 
-    def get_notifications(self) -> List[Dict[str, Any]]:
-        notifications = []
+    def get_success_url(self) -> str:
+        return reverse(
+            "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
+        )
 
-        notification_email_mapping = {
-            "two_days_after_lwd": (
-                "2 days after last working day reminder email to the Line Manager"
-            ),
-            "on_ld": "On leaving date reminder email to the Line Manager",
-            "one_day_after_ld": (
-                "1 day after leaving date reminder email to the Line Manager"
-            ),
-            "two_days_after_ld_lm": (
-                "2 days after leaving date reminder email to the Line Manager"
-            ),
-        }
-        email_tasks = self.leaving_request.get_security_bp_reminder_email_tasks()
+    def form_valid(self, form) -> HttpResponse:
+        note = form.cleaned_data["note"]
 
-        for key, task_logs in email_tasks.items():
-            task_logs = cast(List[TaskLog], task_logs)
-            if key in notification_email_mapping:
-                last_sent: Optional[datetime] = None
-                for task_log in task_logs:
-                    if not last_sent or last_sent < task_log.created_at:
-                        last_sent = task_log.created_at
+        user = cast(User, self.request.user)
 
-                notifications.append(
-                    {
-                        "sent": bool(task_logs),
-                        "name": notification_email_mapping[key],
-                        "last_sent": last_sent,
-                    }
-                )
-
-        return notifications
+        self.leaving_request.task_logs.create(
+            user=user,
+            task_name="A comment has been added.",
+            notes=note,
+            reference="LeavingRequest.security_team_building_pass_complete",
+        )
+        return super().form_valid(form)
 
 
-class BuildingPassDisabledView(
+class BuildingPassConfirmationEditView(
     UserPassesTestMixin,
     FormView,
 ):
-    template_name = "leaving/security_team/confirmation/building_pass_action.html"
-    page_title: str = "Security Team offboarding: Building pass disabled confirmation"
-    form_class = BuildingPassDisabledForm
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="Security Team",
-        ).exists()
-
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-        return super().dispatch(request, *args, **kwargs)
+    template_name = "leaving/security_team/confirmation/building_pass_edit.html"
+    form_class = BuildingPassForm
 
     def get_success_url(self) -> str:
         return reverse_lazy(
             "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
         )
-
-    def get_form_kwargs(self) -> Dict[str, Any]:
-        form_kwargs = super().get_form_kwargs()
-        form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
-
-        return form_kwargs
-
-    def form_valid(self, form):
-        user = cast(User, self.request.user)
-
-        self.leaving_request.security_pass_disabled = (
-            self.leaving_request.task_logs.create(
-                user=user,
-                task_name="Building pass disabled",
-                reference="LeavingRequest.security_pass_disabled",
-            )
-        )
-        self.leaving_request.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(
-            leaving_request_uuid=self.leaving_request.uuid,
-            page_title=self.page_title,
-            action_name="disabled",
-        )
-        return context
-
-
-class BuildingPassReturnedView(
-    UserPassesTestMixin,
-    FormView,
-):
-    template_name = "leaving/security_team/confirmation/building_pass_action.html"
-    page_title: str = "Security Team offboarding: Building pass returned confirmation"
-    form_class = BuildingPassReturnedForm
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="Security Team",
-        ).exists()
-
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_success_url(self) -> str:
-        return reverse_lazy(
-            "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
-        )
-
-    def get_form_kwargs(self) -> Dict[str, Any]:
-        form_kwargs = super().get_form_kwargs()
-        form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
-
-        return form_kwargs
-
-    def form_valid(self, form):
-        user = cast(User, self.request.user)
-
-        self.leaving_request.security_pass_returned = (
-            self.leaving_request.task_logs.create(
-                user=user,
-                task_name="Building pass returned",
-                reference="LeavingRequest.security_pass_returned",
-            )
-        )
-        self.leaving_request.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(
-            leaving_request_uuid=self.leaving_request.uuid,
-            page_title=self.page_title,
-            action_name="disabled",
-        )
-        return context
-
-
-class BuildingPassDestroyedView(
-    UserPassesTestMixin,
-    FormView,
-):
-    template_name = "leaving/security_team/confirmation/building_pass_action.html"
-    page_title: str = "Security Team offboarding: Building pass destroyed confirmation"
-    form_class = BuildingPassDestroyedForm
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="Security Team",
-        ).exists()
-
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_success_url(self) -> str:
-        return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
-
-    def get_form_kwargs(self) -> Dict[str, Any]:
-        form_kwargs = super().get_form_kwargs()
-        form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
-
-        return form_kwargs
-
-    def form_valid(self, form):
-        user = cast(User, self.request.user)
-
-        self.leaving_request.security_pass_destroyed = (
-            self.leaving_request.task_logs.create(
-                user=user,
-                task_name="Building pass destroyed",
-                reference="LeavingRequest.security_pass_destroyed",
-            )
-        )
-        self.leaving_request.security_team_building_pass_complete = timezone.now()
-        self.leaving_request.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(
-            leaving_request_uuid=self.leaving_request.uuid,
-            page_title=self.page_title,
-            action_name="destroyed",
-        )
-        return context
-
-
-class BuildingPassNotReturnedView(
-    UserPassesTestMixin,
-    FormView,
-):
-    template_name = "leaving/security_team/confirmation/building_pass_action.html"
-    page_title: str = (
-        "Security Team offboarding: Building pass not returned confirmation"
-    )
-    form_class = BuildingPassNotReturnedForm
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="Security Team",
-        ).exists()
-
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_success_url(self) -> str:
-        return reverse_lazy(
-            "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
-        )
-
-    def get_form_kwargs(self) -> Dict[str, Any]:
-        form_kwargs = super().get_form_kwargs()
-        form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
-
-        return form_kwargs
-
-    def form_valid(self, form):
-        user = cast(User, self.request.user)
-
-        self.leaving_request.security_pass_not_returned = (
-            self.leaving_request.task_logs.create(
-                user=user,
-                task_name="Building pass not returned",
-                reference="LeavingRequest.security_pass_not_returned",
-                notes=form.cleaned_data.get("notes", ""),
-            )
-        )
-        self.leaving_request.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(
-            leaving_request_uuid=self.leaving_request.uuid,
-            page_title=self.page_title,
-            action_name="not returned",
-        )
-        return context
-
-
-class RosaKitConfirmationView(
-    UserPassesTestMixin,
-    FormView,
-):
-    template_name = "leaving/security_team/confirmation/rosa_kit.html"
-    page_title: str = "Security Team offboarding ROSA kit confirmation"
-    form_class = RosaKitForm
-
-    def get_success_url(self) -> str:
-        return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -428,9 +233,283 @@ class RosaKitConfirmationView(
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        leaver_name = self.leaving_request.get_leaver_name()
+        context.update(page_title=f"{leaver_name} building pass")
+
+        manager_as_user = self.leaving_request.get_line_manager()
+        assert manager_as_user
+
+        leaving_datetime = self.leaving_request.get_leaving_date()
+        leaving_date: Optional[datetime] = None
+        if leaving_datetime:
+            leaving_date = leaving_datetime.date()
+
+        last_day_datetime = self.leaving_request.get_last_day()
+        last_day: Optional[datetime] = None
+        if last_day_datetime:
+            last_day = last_day_datetime.date()
+
         context.update(
+            leaver_name=leaver_name,
+            leaver_email=self.leaving_request.get_leaver_email(),
+            leaver_security_clearance=SecurityClearance(
+                self.leaving_request.security_clearance
+            ).label,
+            manager_name=manager_as_user.full_name,
+            manager_emails=manager_as_user.get_email_addresses_for_contact(),
+            leaving_date=leaving_date,
+            last_working_day=last_day,
+            leaving_request_uuid=self.leaving_request.uuid,
+            pass_disabled=self.leaving_request.security_pass_disabled,
+            pass_returned=self.leaving_request.security_pass_returned,
+            pass_destroyed=self.leaving_request.security_pass_destroyed,
+            complete=bool(self.leaving_request.security_team_building_pass_complete),
+        )
+
+        return context
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
+        return form_kwargs
+
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+
+        initial["pass_status"] = BuildingPassStatus.ACTIVE.value
+        if self.leaving_request.security_pass_disabled:
+            initial["pass_status"] = BuildingPassStatus.DEACTIVATED.value
+
+        initial["next_steps"] = []
+        if self.leaving_request.security_pass_returned:
+            initial["next_steps"].append(BuildingPassSteps.RETURNED.value)
+        if self.leaving_request.security_pass_destroyed:
+            initial["next_steps"].append(BuildingPassSteps.DESTROYED.value)
+
+        return initial
+
+    def form_valid(self, form):
+        user = cast(User, self.request.user)
+
+        # Mark the pass as being deactivated.
+        if (
+            form.cleaned_data["pass_status"] == BuildingPassStatus.DEACTIVATED
+            and not self.leaving_request.security_pass_disabled
+        ):
+            self.leaving_request.security_pass_disabled = (
+                self.leaving_request.task_logs.create(
+                    user=user,
+                    task_name="Building pass marked as deactivated",
+                    reference="LeavingRequest.security_pass_disabled",
+                )
+            )
+        # Unmark the pass as being deactivated.
+        if (
+            form.cleaned_data["pass_status"] == BuildingPassStatus.ACTIVE
+            and self.leaving_request.security_pass_disabled
+        ):
+            self.leaving_request.security_pass_disabled = None
+            self.leaving_request.task_logs.create(
+                user=user,
+                task_name="Building pass marked as activated",
+                reference="LeavingRequest.security_pass_disabled",
+            )
+
+        # Mark the pass as returned.
+        if (
+            BuildingPassSteps.RETURNED.value in form.cleaned_data["next_steps"]
+            and not self.leaving_request.security_pass_returned
+        ):
+            self.leaving_request.security_pass_returned = (
+                self.leaving_request.task_logs.create(
+                    user=user,
+                    task_name="Building pass 'returned' checked",
+                    reference="LeavingRequest.security_pass_returned",
+                )
+            )
+        # uUmark the pass as returned.
+        if (
+            BuildingPassSteps.RETURNED.value not in form.cleaned_data["next_steps"]
+            and self.leaving_request.security_pass_returned
+        ):
+            self.leaving_request.security_pass_returned = None
+            self.leaving_request.task_logs.create(
+                user=user,
+                task_name="Building pass 'returned' unchecked",
+                reference="LeavingRequest.security_pass_returned",
+            )
+
+        # Mark the pass as destroyed.
+        if (
+            BuildingPassSteps.DESTROYED.value in form.cleaned_data["next_steps"]
+            and not self.leaving_request.security_pass_destroyed
+        ):
+            self.leaving_request.security_pass_destroyed = (
+                self.leaving_request.task_logs.create(
+                    user=user,
+                    task_name="Building pass 'destroyed' checked",
+                    reference="LeavingRequest.security_pass_destroyed",
+                )
+            )
+        # Unmark the pass as returned.
+        if (
+            BuildingPassSteps.DESTROYED.value not in form.cleaned_data["next_steps"]
+            and self.leaving_request.security_pass_destroyed
+        ):
+            self.leaving_request.security_pass_destroyed = None
+            self.leaving_request.task_logs.create(
+                user=user,
+                task_name="Building pass 'destroyed' unchecked",
+                reference="LeavingRequest.security_pass_destroyed",
+            )
+
+        self.leaving_request.save()
+
+        return super().form_valid(form)
+
+
+class BuidlingPassConfirmationCloseView(
+    UserPassesTestMixin,
+    FormView,
+):
+    template_name = "leaving/security_team/confirmation/building_pass_action.html"
+    page_title: str = "Security Team offboarding: Building pass confirmation"
+    form_class = BuildingPassCloseRecordForm
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="Security Team",
+        ).exists()
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest,
+            uuid=self.kwargs.get("leaving_request_id", None),
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self) -> str:
+        return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
+
+    def get_form_kwargs(self) -> Dict[str, Any]:
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
+
+        return form_kwargs
+
+    def form_valid(self, form):
+        self.leaving_request.security_team_building_pass_complete = timezone.now()
+        self.leaving_request.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(
+            leaving_request_uuid=self.leaving_request.uuid,
             page_title=self.page_title,
         )
+        return context
+
+
+def get_rosa_kit_statuses(leaving_request: LeavingRequest) -> Dict[str, Dict[str, str]]:
+    if not leaving_request.is_rosa_user:
+        return {}
+
+    rosa_kit_statuses: Dict[str, Dict[str, str]] = {
+        RosaKit.MOBILE.value: {
+            "colour": "blue",
+            "text": "Pending",
+        },
+        RosaKit.LAPTOP.value: {
+            "colour": "blue",
+            "text": "Pending",
+        },
+        RosaKit.KEY.value: {
+            "colour": "blue",
+            "text": "Pending",
+        },
+    }
+
+    for rk in ROSA_KIT:
+        rosa_kit_field = ROSA_KIT_FIELD_MAPPING[rk]
+        rosa_task_log: Optional[TaskLog] = getattr(leaving_request, rosa_kit_field)
+        if rosa_task_log:
+            if rosa_task_log.value == RosaKitActions.NOT_STARTED:
+                rosa_kit_statuses[rk]["colour"] = "grey"
+                rosa_kit_statuses[rk]["text"] = "Not started"
+            elif rosa_task_log.value == RosaKitActions.NOT_APPLICABLE:
+                rosa_kit_statuses[rk]["colour"] = "grey"
+                rosa_kit_statuses[rk]["text"] = "N/A"
+            elif rosa_task_log.value == RosaKitActions.RETURNED:
+                rosa_kit_statuses[rk]["colour"] = "green"
+                rosa_kit_statuses[rk]["text"] = "Returned"
+
+    return rosa_kit_statuses
+
+
+class RosaKitConfirmationView(
+    UserPassesTestMixin,
+    TemplateView,
+):
+    template_name = "leaving/security_team/confirmation/rosa_kit.html"
+
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="Security Team",
+        ).exists()
+
+    def get_page_title(self) -> str:
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
+        return f"{possessive_leaver_name} ROSA Kit"
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest,
+            uuid=self.kwargs.get("leaving_request_id", None),
+        )
+        set_security_role(request=request, role=SecuritySubRole.ROSA_KIT)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_kit_info(self) -> List[ServiceInfo]:
+        kit_info: List[ServiceInfo] = []
+        for kit_item in ROSA_KIT:
+            rosa_kit = RosaKit(kit_item)
+            rosa_kit_field = ROSA_KIT_FIELD_MAPPING[kit_item]
+
+            rosa_info = ServiceInfo(
+                field_name=rosa_kit_field,
+                name=rosa_kit.label,
+                comment="",
+                status_colour="grey",
+                status_text="Not started",
+            )
+
+            rosa_task_log: Optional[TaskLog] = getattr(
+                self.leaving_request, rosa_kit_field
+            )
+            if rosa_task_log:
+                if rosa_task_log.value == RosaKitActions.NOT_STARTED:
+                    rosa_info["status_colour"] = "grey"
+                    rosa_info["status_text"] = "Not started"
+                elif rosa_task_log.value == RosaKitActions.NOT_APPLICABLE:
+                    rosa_info["status_colour"] = "grey"
+                    rosa_info["status_text"] = "N/A"
+                elif rosa_task_log.value == RosaKitActions.RETURNED:
+                    rosa_info["status_colour"] = "green"
+                    rosa_info["status_text"] = "Returned"
+
+            kit_info.append(rosa_info)
+
+        return kit_info
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update(page_title=self.get_page_title())
 
         manager_as_user = self.leaving_request.get_line_manager()
         assert manager_as_user
@@ -448,106 +527,207 @@ class RosaKitConfirmationView(
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
             leaver_email=self.leaving_request.get_leaver_email(),
+            leaver_security_clearance=SecurityClearance(
+                self.leaving_request.security_clearance
+            ).label,
             manager_name=manager_as_user.full_name,
             manager_emails=manager_as_user.get_email_addresses_for_contact(),
             leaving_date=leaving_date,
             last_working_day=last_day,
             leaving_request_uuid=self.leaving_request.uuid,
-            notifications=self.get_notifications(),
+            kit_info=self.get_kit_info(),
         )
+
+        can_mark_as_complete: bool = True
+        for rk in ROSA_KIT:
+            rosa_kit_field_name = ROSA_KIT_FIELD_MAPPING[rk]
+            rosa_kit_task_log: Optional[TaskLog] = getattr(
+                self.leaving_request, rosa_kit_field_name
+            )
+            if not rosa_kit_task_log:
+                can_mark_as_complete = False
+                break
+            elif rosa_kit_task_log and rosa_kit_task_log.value not in [
+                RosaKitActions.NOT_APPLICABLE,
+                RosaKitActions.RETURNED,
+            ]:
+                can_mark_as_complete = False
+                break
+
+        context.update(can_mark_as_complete=can_mark_as_complete)
 
         return context
 
-    def get_notifications(self) -> List[Dict[str, Any]]:
-        notifications = []
+    def get_success_url(self) -> str:
+        return reverse(
+            "security-team-rosa-kit-confirmation", args=[self.leaving_request.uuid]
+        )
 
-        notification_email_mapping = {
-            "two_days_after_lwd": (
-                "2 days after last working day reminder email to the Line Manager"
-            ),
-            "on_ld": "On leaving date reminder email to the Line Manager",
-            "one_day_after_ld": "1 day after leaving date reminder email to the Line Manager",
-            "two_days_after_ld_lm": " 2 days after leaving date reminder email to the Line Manager",
-        }
-        email_tasks = self.leaving_request.get_security_rk_reminder_email_tasks()
 
-        for key, task_logs in email_tasks.items():
-            task_logs = cast(List[TaskLog], task_logs)
-            if key in notification_email_mapping:
-                last_sent: Optional[datetime] = None
-                for task_log in task_logs:
-                    if not last_sent or last_sent < task_log.created_at:
-                        last_sent = task_log.created_at
+class RosaKitFieldView(
+    UserPassesTestMixin,
+    TemplateView,
+):
+    template_name = "leaving/security_team/confirmation/rosa_kit_edit.html"
+    forms: Dict[str, Type[Form]] = {
+        "update_status_form": RosaKitFieldForm,
+        "add_note_form": AddTaskNoteForm,
+    }
 
-                notifications.append(
-                    {
-                        "sent": bool(task_logs),
-                        "name": notification_email_mapping[key],
-                        "last_sent": last_sent,
-                    }
-                )
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="Security Team",
+        ).exists()
 
-        return notifications
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        self.leaving_request = get_object_or_404(
+            LeavingRequest,
+            uuid=self.kwargs.get("leaving_request_id", None),
+        )
 
-        return notifications
+        self.field_name = self.kwargs.get("field_name", None)
+        if not self.field_name:
+            raise Http404
 
-    def get_initial(self) -> Dict[str, Any]:
-        initial = super().get_initial()
-        if self.leaving_request.rosa_kit_form_data:
-            initial.update(**self.leaving_request.rosa_kit_form_data)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "security-team-rosa-kit-confirmation", args=[self.leaving_request.uuid]
+        )
+
+    def get_page_title(self) -> str:
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
+        return f"{possessive_leaver_name} ROSA Kit"
+
+    def post_update_status_form(
+        self, request: HttpRequest, form: Form, *args, **kwargs
+    ):
+        user = cast(User, request.user)
+
+        action_value = form.cleaned_data["action"]
+        action = RosaKitActions(action_value)
+
+        current_task_log: Optional[TaskLog] = getattr(
+            self.leaving_request, self.field_name
+        )
+        if not current_task_log or (
+            current_task_log and current_task_log.value != action.value
+        ):
+            task_log = self.leaving_request.task_logs.create(
+                user=user,
+                task_name=f"{self.field_name} has been updated to '{action.value}'",
+                notes=f"Updated the status to '{action.label}'",
+                reference=f"LeavingRequest.{self.field_name}",
+                value=action.value,
+            )
+            setattr(
+                self.leaving_request,
+                self.field_name,
+                task_log,
+            )
+            self.leaving_request.save()
+
+        return redirect(self.get_success_url())
+
+    def post_add_note_form(self, request: HttpRequest, form: Form, *args, **kwargs):
+        note = form.cleaned_data["note"]
+
+        user = cast(User, self.request.user)
+
+        self.leaving_request.task_logs.create(
+            user=user,
+            task_name="A comment has been added.",
+            notes=note,
+            reference=f"LeavingRequest.{self.field_name}",
+        )
+
+        return redirect(
+            reverse(
+                "security-team-rosa-kit-field",
+                args=[self.leaving_request.uuid, self.field_name],
+            )
+        )
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        if "form_name" in request.POST:
+            form_name = request.POST["form_name"]
+            if form_name in self.forms:
+                form = self.forms[form_name](request.POST)
+                if form.is_valid():
+                    # Call the "post_{form_name}" method to handle the form POST logic.
+                    return getattr(self, f"post_{form_name}")(
+                        request, form, *args, **kwargs
+                    )
+                else:
+                    context[form_name] = form
+        return self.render_to_response(context)
+
+    def get_initial_update_status_form(self) -> Dict[str, Any]:
+        initial = {}
+
+        current_task_log: Optional[TaskLog] = getattr(
+            self.leaving_request, self.field_name
+        )
+        if current_task_log:
+            initial["action"] = current_task_log.value
+
         return initial
 
-    def form_valid(self, form):
-        user = cast(User, self.request.user)
-        self.leaving_request.rosa_kit_form_data = form.cleaned_data
+    def get_initial_add_note_form(self) -> Dict[str, Any]:
+        initial: Dict[str, Any] = {}
+        return initial
 
-        submission_type: Literal["close", "save"] = "save"
-        if "save" in form.data:
-            submission_type = "save"
-        elif "close" in form.data:
-            submission_type = "close"
-            if RosaKit.MOBILE.value in form.cleaned_data["user_returned"]:
-                self.leaving_request.rosa_mobile_returned = (
-                    self.leaving_request.task_logs.create(
-                        user=user,
-                        task_name="ROSA Mobile returned",
-                        reference="LeavingRequest.rosa_mobile_returned",
-                    )
-                )
-            if RosaKit.LAPTOP.value in form.cleaned_data["user_returned"]:
-                self.leaving_request.rosa_laptop_returned = (
-                    self.leaving_request.task_logs.create(
-                        user=user,
-                        task_name="ROSA Laptop returned",
-                        reference="LeavingRequest.rosa_laptop_returned",
-                    )
-                )
-            if RosaKit.KEY.value in form.cleaned_data["user_returned"]:
-                self.leaving_request.rosa_key_returned = (
-                    self.leaving_request.task_logs.create(
-                        user=user,
-                        task_name="ROSA Key returned",
-                        reference="LeavingRequest.rosa_key_returned",
-                    )
-                )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-        self.leaving_request.save()
+        # Add form instances to the context.
+        for form_name, form_class in self.forms.items():
+            form_initial = getattr(self, f"get_initial_{form_name}")()
+            context[form_name] = form_class(initial=form_initial)
 
-        if submission_type == "save":
-            return redirect(
-                reverse(
-                    "security-team-rosa-kit-confirmation",
-                    kwargs={"leaving_request_id": self.leaving_request.uuid},
-                )
-            )
-        elif submission_type == "close":
-            return redirect(
-                reverse(
-                    "security-team-rosa-kit-confirmation-close",
-                    kwargs={"leaving_request_id": self.leaving_request.uuid},
-                )
-            )
-        return super().form_valid(form)
+        context.update(page_title=self.get_page_title())
+
+        manager_as_user = self.leaving_request.get_line_manager()
+        assert manager_as_user
+
+        leaving_datetime = self.leaving_request.get_leaving_date()
+        leaving_date: Optional[datetime] = None
+        if leaving_datetime:
+            leaving_date = leaving_datetime.date()
+
+        last_day_datetime = self.leaving_request.get_last_day()
+        last_day: Optional[datetime] = None
+        if last_day_datetime:
+            last_day = last_day_datetime.date()
+
+        rosa_kit = None
+        for rk, field_name in ROSA_KIT_FIELD_MAPPING.items():
+            if field_name == self.field_name:
+                rosa_kit = RosaKit(rk)
+
+        context.update(
+            rosa_kit_name=rosa_kit.label,
+            leaver_name=self.leaving_request.get_leaver_name(),
+            leaver_email=self.leaving_request.get_leaver_email(),
+            leaver_security_clearance=SecurityClearance(
+                self.leaving_request.security_clearance
+            ).label,
+            manager_name=manager_as_user.full_name,
+            manager_emails=manager_as_user.get_email_addresses_for_contact(),
+            leaving_date=leaving_date,
+            last_working_day=last_day,
+            leaving_request_uuid=self.leaving_request.uuid,
+            task_notes=self.leaving_request.get_security_rosa_kit_notes(
+                field_name=self.field_name
+            ),
+        )
+
+        return context
 
 
 class RosaKitConfirmationCloseView(
@@ -555,7 +735,6 @@ class RosaKitConfirmationCloseView(
     FormView,
 ):
     template_name = "leaving/security_team/confirmation/rosa_kit_action.html"
-    page_title: str = "Security Team offboarding: ROSA Kit confirmation"
     form_class = RosaKitCloseRecordForm
 
     def test_func(self):
@@ -569,6 +748,13 @@ class RosaKitConfirmationCloseView(
             uuid=self.kwargs.get("leaving_request_id", None),
         )
         return super().dispatch(request, *args, **kwargs)
+
+    def get_page_title(self) -> str:
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
+        return f"{possessive_leaver_name} ROSA Kit: confirm record is complete"
 
     def get_success_url(self) -> str:
         return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
@@ -586,9 +772,16 @@ class RosaKitConfirmationCloseView(
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
+
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
+
         context.update(
             leaving_request_uuid=self.leaving_request.uuid,
-            page_title=self.page_title,
+            page_title=self.get_page_title(),
+            possessive_leaver_name=possessive_leaver_name,
         )
         return context
 
@@ -598,7 +791,6 @@ class TaskSummaryView(
     TemplateView,
 ):
     template_name = "leaving/security_team/summary.html"
-    page_title: str = "Security Team offboarding summary"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -612,53 +804,20 @@ class TaskSummaryView(
         )
         return super().dispatch(request, *args, **kwargs)
 
-    def get_rosa_kit_statuses(self):
-        if not self.leaving_request.is_rosa_user:
-            return {}
-
-        rosa_kit_statuses = {
-            RosaKit.MOBILE.value: {
-                "colour": "blue",
-                "text": "Pending",
-            },
-            RosaKit.LAPTOP.value: {
-                "colour": "blue",
-                "text": "Pending",
-            },
-            RosaKit.KEY.value: {
-                "colour": "blue",
-                "text": "Pending",
-            },
-        }
-
-        user_has = []
-        user_returned = []
-        if self.leaving_request.rosa_kit_form_data:
-            user_has = self.leaving_request.rosa_kit_form_data["user_has"]
-            user_returned = self.leaving_request.rosa_kit_form_data["user_has"]
-
-            for key, status in rosa_kit_statuses.items():
-                if key in user_has:
-                    status["colour"] = "yellow"
-                    status["text"] = "Leaver has"
-
-                if key in user_returned:
-                    status["colour"] = "green"
-                    status["text"] = "Returned"
-
-        return rosa_kit_statuses
+    def get_page_title(self) -> str:
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
+        return f"{possessive_leaver_name} security offboarding summary"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
-            page_title=self.page_title,
+            page_title=self.get_page_title(),
         )
 
-        building_pass_notes: Optional[str] = None
-        if self.leaving_request.security_pass_not_returned:
-            building_pass_notes = self.leaving_request.security_pass_not_returned.notes
-
-        rosa_kit_statuses = self.get_rosa_kit_statuses()
+        rosa_kit_statuses = get_rosa_kit_statuses(leaving_request=self.leaving_request)
         rosa_kit_tasks = []
 
         for rosa_kit_value, status in rosa_kit_statuses.items():
@@ -670,23 +829,16 @@ class TaskSummaryView(
                 }
             )
 
-        rosa_kit_notes = None
-        if self.leaving_request.rosa_kit_form_data:
-            rosa_kit_notes = self.leaving_request.rosa_kit_form_data.get("notes")
-
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
             leaving_request_uuid=self.leaving_request.uuid,
             pass_disabled=self.leaving_request.security_pass_disabled,
             pass_returned=self.leaving_request.security_pass_returned,
             pass_destroyed=self.leaving_request.security_pass_destroyed,
-            pass_not_returned=self.leaving_request.security_pass_not_returned,
-            building_pass_notes=building_pass_notes,
             rosa_kit_tasks=rosa_kit_tasks,
             rosa_kit_complete=bool(
                 self.leaving_request.security_team_rosa_kit_complete
             ),
-            rosa_kit_notes=rosa_kit_notes,
         )
 
         return context
