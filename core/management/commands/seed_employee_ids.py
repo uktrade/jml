@@ -17,9 +17,13 @@ class Command(BaseCommand):
         with connections["people_data"].cursor() as cursor:
             for user in users:
                 cursor.execute(
-                    "INSERT INTO dit.people_data__identities "
-                    "(sso_user_id, employee_numbers) VALUES(%s, %s)",
-                    (user.sso_legacy_user_id, [employee_id_1, employee_id_2]),
+                    "INSERT INTO dit.people_data__jml "
+                    "(email_address, person_id, employee_numbers) VALUES(%s, %s)",
+                    (
+                        user.email,
+                        user.sso_legacy_user_id,
+                        [employee_id_1, employee_id_2],
+                    ),
                 )
                 employee_id_1 += 1
                 employee_id_2 += 1

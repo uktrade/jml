@@ -9,21 +9,24 @@ from core.people_data import types
 
 class PeopleDataBase(ABC):
     @abstractmethod
-    def get_people_data(self, sso_legacy_id: str) -> types.PeopleData:
+    def get_people_data(self, email_address: str) -> types.PeopleDataResult:
         raise NotImplementedError
 
 
 class PeopleDataStubbed(PeopleDataBase):
-    def get_people_data(self, sso_legacy_id: str) -> types.PeopleData:
-        result: types.PeopleData = {
-            # Legacy style SSO user ids
-            "employee_numbers": [
+    def get_people_data(self, email_address: str) -> types.PeopleDataResult:
+        people_data_result = types.PeopleDataResult(
+            email_address=email_address,
+            # NEVER EXPOSE THIS FIELD
+            person_id="123",
+            employee_numbers=[
                 "1",
             ],
-            # NEVER EXPOSE THIS FIELD
-            "uksbs_person_id": "123",
-        }
-        return result
+            person_type=None,
+            grade=None,
+            grade_level=None,
+        )
+        return people_data_result
 
 
 def row_to_dict(*, cursor: CursorWrapper, row: Tuple) -> Dict[str, Any]:
@@ -31,24 +34,26 @@ def row_to_dict(*, cursor: CursorWrapper, row: Tuple) -> Dict[str, Any]:
 
 
 class PeopleDataInterface(PeopleDataBase):
-    def get_people_data(self, sso_legacy_id: str) -> types.PeopleData:
-        result: types.PeopleData = {
-            "employee_numbers": [],
+    def get_people_data(self, email_address: str) -> types.PeopleDataResult:
+        people_data_result = types.PeopleDataResult(
+            email_address=email_address,
             # NEVER EXPOSE THIS FIELD
-            "uksbs_person_id": None,
-        }
+            person_id=None,
+            employee_numbers=[],
+            person_type=None,
+            grade=None,
+            grade_level=None,
+        )
 
         with connections["people_data"].cursor() as cursor:
             # No speech marks in query to avoid SQL injection
             cursor.execute(
-                "SELECT * FROM dit.people_data__identities WHERE sso_user_id = %s",
-                [sso_legacy_id],
+                "SELECT * FROM dit.people_data__jml WHERE email_address = %s",
+                [email_address],
             )
             row = cursor.fetchone()
             if row:
                 dict_row = row_to_dict(cursor=cursor, row=row)
                 people_data_result = types.PeopleDataResult.from_dict(dict_row)
-                result["employee_numbers"] = people_data_result.employee_numbers
-                result["uksbs_person_id"] = people_data_result.person_id
 
-        return result
+        return people_data_result
