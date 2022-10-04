@@ -1,9 +1,10 @@
 import logging
 from abc import ABC, abstractmethod
+from typing import List, Optional
 
 from django.conf import settings
 from zenpy import Zenpy
-from zenpy.lib.api_objects import Ticket
+from zenpy.lib.api_objects import Group, Ticket
 
 from leavers.models import LeavingRequest
 
@@ -53,6 +54,17 @@ class LSDZendesk(LSDZendeskBase):
             return None
 
         client = self.get_zendesk_client()
+        user = client.users.me()
+        # Get Datahub Group
+        groups: List[Group] = list(client.users.groups(user))
+        datahub_group: Optional[Group] = None
+        for group in groups:
+            if group.name == "Datahub":
+                datahub_group = group
+                break
+        if not datahub_group:
+            raise Exception("Unable to find the Datahub Group")
+
         # Create a Zendesk Ticket /PS-IGNORE
         client.tickets.create(
             Ticket(
@@ -69,7 +81,8 @@ class LSDZendesk(LSDZendeskBase):
                 priority="normal",
                 type="task",
                 status="new",
-                requester=client.users.me(),
+                requester=user,
+                group_id=datahub_group.id,
             )
         )
 
