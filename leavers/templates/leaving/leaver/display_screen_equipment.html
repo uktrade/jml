@@ -6,12 +6,12 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <a href="{% url 'leaver-update-details' %}" class="govuk-back-link">Back</a>
-            {% include "leaving/progress_indicator.html" with steps=progress_steps %}
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            <span class="govuk-caption-l">Page 3 of 4</span>
             <h1 class="govuk-heading-l">IT equipment</h1>
             <p class="govuk-body">Please confirm, update or add any IT equipment that has been issued to you such as:</p>
             <ul class="govuk-list govuk-list--bullet">
@@ -57,7 +57,7 @@
             <p class="govuk-body">Add any IT equipment you have which are not listed above.</p>
             <form novalidate method='post'>
                 {% csrf_token %}
-                <input type="hidden" name="form_name" value="add_asset_form">
+                <input type="hidden" name="form_name" value="add_asset_form" />
                 {% crispy add_asset_form %}
             </form>
         </div>
@@ -67,9 +67,9 @@
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method='post'>
                 {% csrf_token %}
-                <input type="hidden" name="form_name" value="submission_form">
+                <input type="hidden" name="form_name" value="submission_form" />
                 {% crispy submission_form %}
             </form>
         </div>
     </div>
-{% endblock %}
+{% endblock content %}

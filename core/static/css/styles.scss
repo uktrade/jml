@@ -4,7 +4,6 @@ $govuk-assets-path: "/static/govuk-frontend/govuk/assets/";
 @import "./node_modules/@ministryofjustice/frontend/moj/all";
 @import "./core/static/css/healthcheck";
 @import "./core/static/css/pagination";
-@import "./leavers/static/leavers/css/progress_indicator";
 @import "./leavers/static/leavers/css/sre_leaving_requests_table";
 
 .leaver-image {

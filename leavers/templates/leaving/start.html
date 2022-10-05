@@ -1,30 +1,35 @@
 {% extends "leaving/leaving_base.html" %}
 
 {% block content %}
-    <h1 class="govuk-heading-l">Leaving DIT: what you need to do</h1>
-    <p class="govuk-body">Use this service if you are leaving DIT, as a:</p>
-    <ul class="govuk-list govuk-list--bullet">
-        <li>civil servant</li>
-        <li>contractor</li>
-    </ul>
-    <p class="govuk-body">After you complete and send this form, your line manager will need to confirm some information. They will receive further instructions by email.</p>
 
-    <h2 class="govuk-heading-m">Before you start</h2>
-    <p class="govuk-body">To complete the form, you will need to know:</p>
-    <ul class="govuk-list govuk-list--bullet">
-        <li>your security clearance level</li>
-        <li>the last day you will work at DIT</li>
-        <li>the last date you are employed and paid by DIT (your leaving date)</li>
-    </ul>
-    <p class="govuk-body">You and your line manager must have agreed on your last working day and leaving date before you can use this service.</p>
-    <p class="govuk-body">This form should take less than 10 minutes to compete.</p>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">Leaving DIT: what you need to do</h1>
+            <p class="govuk-body">Use this service if you are leaving DIT, as a:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>civil servant</li>
+                <li>contractor</li>
+            </ul>
+            <p class="govuk-body">After you complete and send this form, your line manager will need to confirm some information. They will receive further instructions by email.</p>
 
-    <a href="{% url 'leaver-update-details' %}" role="button" draggable="false" class="govuk-button govuk-button--start"
-        data-module="govuk-button">
-        Start
-        <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19"
-            viewBox="0 0 33 40" aria-hidden="true" focusable="false">
-            <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z"/>
-        </svg>
-    </a>
-{% endblock %}
+            <h2 class="govuk-heading-m">Before you start</h2>
+            <p class="govuk-body">To complete the form, you will need to know:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>your security clearance level</li>
+                <li>the last day you will work at DIT</li>
+                <li>the last date you are employed and paid by DIT (your leaving date)</li>
+            </ul>
+            <p class="govuk-body">You and your line manager must have agreed on your last working day and leaving date before you can use this service.</p>
+            <p class="govuk-body">This form should take less than 10 minutes to compete.</p>
+
+            <a href="{% url 'leaver-update-details' %}" role="button" draggable="false" class="govuk-button govuk-button--start"
+                data-module="govuk-button">
+                Start
+                <svg class="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19"
+                    viewBox="0 0 33 40" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+{% endblock content %}

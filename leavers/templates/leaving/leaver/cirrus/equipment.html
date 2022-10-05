@@ -8,12 +8,12 @@
             <a href="{% url 'leaver-display-screen-equipment' %}" class="govuk-back-link">Back</a>
             {% error_summary add_asset_form %}
             {% error_summary correction_form %}
-            {% include "leaving/progress_indicator.html" with steps=progress_steps %}
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            <span class="govuk-caption-l">Page 2 of 4</span>
             <h1 class="govuk-heading-l">Cirrus kit</h1>
             <p class="govuk-body">You may have received a laptop or mobile phone from either Cirrus, DIT's IT department or both. If you are not sure who has provided your equipment, you can quickly check who has provided your equipment by finding the asset tag on the back of your device.</p>
             <p class="govuk-body">The Asset Tag is on a white sticker and can be found on the back of your Cirrus equipment. The sticker on your Cirrus laptop has a barcode and a 9 digital alpha-numeric number that starts with 'EUDT'. On your phone, the sticker will have a similar number starting with 'EUMT'</p>
@@ -57,7 +57,7 @@
             <h2 class="govuk-heading-m">Additional Cirrus kit item:</h2>
             <p class="govuk-body">If you have any Cirrus kit not listed above, please add them.</p>
             <form novalidate method='post'>
-                <input type="hidden" name="form_name" value="add_asset_form">
+                <input type="hidden" name="form_name" value="add_asset_form" />
                 {% crispy add_asset_form %}
             </form>
         </div>
@@ -66,9 +66,9 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method='post'>
-                <input type="hidden" name="form_name" value="correction_form">
+                <input type="hidden" name="form_name" value="correction_form" />
                 {% crispy correction_form %}
             </form>
         </div>
     </div>
-{% endblock %}
+{% endblock content %}

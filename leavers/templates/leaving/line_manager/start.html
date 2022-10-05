@@ -2,23 +2,29 @@
 {% load static %}
 
 {% block content %}
-    <h1 class="govuk-heading-l">{{ page_title }}</h1>
-    <p class="govuk-body">To complete the <em>{{ leaver_name }}</em>'s offboarding you must confirm:</p>
-    <ul class="govuk-list govuk-list--bullet">
-        <li>who will receive {{ possessive_leaver_name }} data</li>
-        <li>their leaving date</li>
-        <li>their last working day</li>
-        <li>any remaining annual or flexi leave</li>
-    </ul>
-    <p class="govuk-body">This will usually take you between 10 and 20 minutes to complete.</p>
-    <a class="govuk-button" data-module="govuk-button" href="{{ start_url }}">
-        Start now
-    </a>
-    <h2 class="govuk-heading-m">Before you start</h2>
-    <p class="govuk-body">Make sure you know:</p>
-    <ul class="govuk-list govuk-list--bullet">
-        <li>their leaving date</li>
-        <li>their last working day</li>
-        <li>if they have any remaining annual or Flexi leave.</li>
-    </ul>
-{% endblock %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">{{ page_title }}</h1>
+            <p class="govuk-body">To complete the <em>{{ leaver_name }}</em>'s offboarding you must confirm:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>who will receive {{ possessive_leaver_name }} data</li>
+                <li>their leaving date</li>
+                <li>their last working day</li>
+                <li>any remaining annual or flexi leave</li>
+            </ul>
+            <p class="govuk-body">This will usually take you between 10 and 20 minutes to complete.</p>
+            <a class="govuk-button" data-module="govuk-button" href="{{ start_url }}">
+                Start now
+            </a>
+            <h2 class="govuk-heading-m">Before you start</h2>
+            <p class="govuk-body">Make sure you know:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>their leaving date</li>
+                <li>their last working day</li>
+                <li>if they have any remaining annual or Flexi leave.</li>
+            </ul>
+        </div>
+    </div>
+
+{% endblock content %}

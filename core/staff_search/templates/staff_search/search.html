@@ -1,24 +1,28 @@
 {% extends "leaving/leaving_base.html" %}
 {% load static crispy_forms_tags crispy_forms_gds %}
 
-{% block main_class_names %}back-link-format{% endblock %}
+{% block main_class_names %}back-link-format{% endblock main_class_names %}
 
 {% block content %}
 
-    <h2 class="govuk-heading-m">Search for the {{ search_name }}</h2>
-    {% error_summary form %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">Search for the {{ search_name }}</h2>
+            {% error_summary form %}
 
-    <form novalidate method="POST">
-        {% csrf_token %}
-        {% crispy form %}
-    </form>
+            <form novalidate method="post">
+                {% csrf_token %}
+                {% crispy form %}
+            </form>
 
-    {% if search_term %}
-        <h2 class="govuk-heading-m">{{ staff_results|length }} result{{ staff_results|pluralize }} for "{{ search_term }}"</h2>
-        {% for staff_details in staff_results %}
-            {% include "staff_search/staff_result.html" with staff_details=staff_details %}
-            <a href="{{ success_url }}?{{ query_param_name }}={{ staff_details.uuid }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Select</a>
-        {% endfor %}
-    {% endif %}
+            {% if search_term %}
+                <h2 class="govuk-heading-m">{{ staff_results|length }} result{{ staff_results|pluralize }} for "{{ search_term }}"</h2>
+                {% for staff_details in staff_results %}
+                    {% include "staff_search/staff_result.html" with staff_details=staff_details %}
+                    <a href="{{ success_url }}?{{ query_param_name }}={{ staff_details.uuid }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Select</a>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
 
-{% endblock %}
+{% endblock content %}

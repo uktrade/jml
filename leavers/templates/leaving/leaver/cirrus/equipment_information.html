@@ -7,7 +7,6 @@
         <div class="govuk-grid-column-two-thirds">
             <a href="{% url 'leaver-return-options' %}" class="govuk-back-link">Back</a>
             {% error_summary form %}
-            {% include "leaving/progress_indicator.html" with steps=progress_steps %}
         </div>
     </div>
 
@@ -28,4 +27,4 @@
             </form>
         </div>
     </div>
-{% endblock %}
+{% endblock content %}
