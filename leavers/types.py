@@ -21,14 +21,14 @@ class SecurityClearance(TextChoices):
 
 class StaffType(TextChoices):
     CIVIL_SERVANT = "civil_servant", "Civil servant"
-    FAST_STREAMERS = "fast_streamers", "Fast streamers"
-    CONTRACTOR = "contractor", "Contractor"
-    BENCH_CONTRACTOR = "bench_contractor", "Bench contractor"
+    CONTRACTOR = "contractor", "Contractor (for example, Hays)"
+    BENCH_CONTRACTOR = "bench_contractor", "Bench contractor (for example, Profusion)"
+    FAST_STREAMERS = "fast_streamers", "Civil Service Fast Stream"
 
 
 class ReturnOptions(TextChoices):
-    OFFICE = "office", "Return to the office"
-    HOME = "home", "Home collection"
+    OFFICE = "office", "In-person return at OAB"
+    HOME = "home", "Home collection by courier"
 
 
 class LeaverDetails(TypedDict):

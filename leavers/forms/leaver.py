@@ -1,4 +1,5 @@
-from typing import Dict, List, Literal, Optional
+from datetime import timedelta
+from typing import Dict
 
 from crispy_forms_gds.choices import Choice
 from crispy_forms_gds.fields import DateInputField
@@ -9,14 +10,18 @@ from crispy_forms_gds.layout import (
     Div,
     Field,
     Fieldset,
+    Fluid,
     Layout,
     Size,
     Submit,
 )
 from django import forms
+from django.http.request import HttpRequest
 from django.urls import reverse
+from django.utils import timezone
 
 from core.forms import YesNoField
+from core.staff_search.forms import staff_search_autocomplete_field
 from leavers.types import ReturnOptions, SecurityClearance, StaffType
 
 
@@ -30,59 +35,31 @@ class LeaverConfirmationForm(forms.Form):
         )
 
 
-class LeaverUpdateForm(forms.Form):
+class EmploymentProfileForm(forms.Form):
     required_error_messages: Dict[str, str] = {
         "first_name": "Please tell us your first name.",  # /PS-IGNORE
         "last_name": "Please tell us your last name.",  # /PS-IGNORE
         "date_of_birth": "Please tell us your date of birth.",
-        "contact_email_address": "Please tell us your contact email.",
-        "contact_phone": "Please tell us your contact phone number.",
-        "contact_address_line_1": "Please tell us the first line of your address.",
-        "contact_address_city": "Please tell us your town or city.",
-        "contact_address_county": "Please tell us your county.",
-        "contact_address_postcode": "Please tell us your postcode.",
         "job_title": "Please tell us your job title.",
-        "security_clearance": "Please select your security clearance from the list.",
-        "has_locker": "Please tell us if you have a locker assigned to you.",
         "staff_type": "Please select your staff type.",
-        "has_gov_procurement_card": "Please tell us if you have a GPC.",
-        "has_rosa_kit": "Please tell us if you have ROSA kit.",
-        "has_dse": "Please tell us if you have any IT equipment.",
-        "leaving_date": "Please enter the day, month and year of your leaving date.",
-        "last_day": "Please enter the day, month and year of your last working day.",
+        "security_clearance": "Please select your security clearance from the list.",
     }
 
-    # Personal details
     first_name = forms.CharField(label="")
     last_name = forms.CharField(label="")
     date_of_birth = DateInputField(label="")
-    contact_email_address = forms.EmailField(label="")
-    contact_phone = forms.CharField(label="")
-    contact_address_line_1 = forms.CharField(label="Address line 1")
-    contact_address_line_2 = forms.CharField(label="Address line 2", required=False)
-    contact_address_city = forms.CharField(label="Town or city")
-    contact_address_county = forms.CharField(label="County")
-    contact_address_postcode = forms.CharField(label="Postcode")
     job_title = forms.CharField(label="")
-    # Extra information
+    staff_type = forms.ChoiceField(
+        label="",
+        widget=forms.RadioSelect,
+        choices=StaffType.choices,
+    )
     security_clearance = forms.ChoiceField(
         label="",
         choices=(
             [(None, "Select security clearance type")] + SecurityClearance.choices  # type: ignore
         ),
     )
-    has_locker = YesNoField(label="")
-    staff_type = forms.ChoiceField(
-        label="",
-        widget=forms.RadioSelect,
-        choices=StaffType.choices,
-    )
-    has_gov_procurement_card = YesNoField(label="")
-    has_rosa_kit = YesNoField(label="")
-    has_dse = YesNoField(label="")
-
-    leaving_date = DateInputField(label="")
-    last_day = DateInputField(label="")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -93,118 +70,41 @@ class LeaverUpdateForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                Field("first_name"),
+                Field.text("first_name", field_width=Fluid.TWO_THIRDS),
                 legend="First name",  # /PS-IGNORE
-                legend_size=Size.MEDIUM,
+                legend_size=Size.SMALL,
             ),
             Fieldset(
-                Field("last_name"),
+                Field.text("last_name", field_width=Fluid.TWO_THIRDS),
                 legend="Last name",  # /PS-IGNORE
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                Field("job_title"),
-                legend="Job title",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                Field("security_clearance"),
-                legend="Security clearance type",
-                legend_size=Size.MEDIUM,
+                legend_size=Size.SMALL,
             ),
             Fieldset(
                 HTML(
-                    "<p class='govuk-body'>In order to correctly identify "
-                    "you, the administrators of security clearance "
-                    "require your date of birth.</p>"
+                    "<p class='govuk-body'>We need your date of birth to "
+                    "identify you and complete your offboarding.</p>"
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("date_of_birth"),
                 legend="Date of birth",
-                legend_size=Size.MEDIUM,
+                legend_size=Size.SMALL,
             ),
             Fieldset(
-                HTML(
-                    "<p class='govuk-body'>Please provide an email address where "
-                    "we can contact you after your last working day. We will "
-                    "only do this to send you information about your leaving the "
-                    "department.</p>"
-                ),
-                Field("contact_email_address"),
-                legend="Contact email",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                Field("contact_phone"),
-                legend="Contact phone",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                Field("contact_address_line_1"),
-                Field("contact_address_line_2"),
-                Field("contact_address_city"),
-                Field("contact_address_county"),
-                Field("contact_address_postcode"),
-                legend="Contact address",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                Field.radios("has_locker", inline=True),
-                legend="Do you have a locker?",
-                legend_size=Size.MEDIUM,
+                Field.text("job_title", field_width=Fluid.TWO_THIRDS),
+                legend="Job title",
+                legend_size=Size.SMALL,
             ),
             Fieldset(
                 Field.radios("staff_type"),
                 legend="What staff type are you?",
-                legend_size=Size.MEDIUM,
+                legend_size=Size.SMALL,
             ),
             Fieldset(
-                HTML(
-                    "<p class='govuk-body'>A government procurement card is a "
-                    "payment card issued by DIT.</p>"
-                ),
-                Field.radios("has_gov_procurement_card", inline=True),
-                legend="Do you have a government procurement card (GPC)?",
-                legend_size=Size.MEDIUM,
+                Field("security_clearance"),
+                legend="Security clearance type",
+                legend_size=Size.SMALL,
             ),
-            Fieldset(
-                HTML(
-                    "<p class='govuk-body'>ROSA is a secure IT system platform "
-                    "for managing work classified at official, sensitive, "
-                    "secret or top secret level.</p>"
-                ),
-                Field.radios("has_rosa_kit", inline=True),
-                legend="Do you have a ROSA kit?",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                Field.radios("has_dse", inline=True),
-                legend="Do you have any IT equipment?",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                HTML(
-                    "<p class='govuk-body'>This is the last day you will be "
-                    "working at DIT. After this date you will no longer have "
-                    "access to any DIT provided systems and buildings.</p>"
-                ),
-                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
-                Field("last_day"),
-                legend="Last working day",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                HTML(
-                    "<p class='govuk-body'>This is the last day you will be "
-                    "employed by the department and the last day you will "
-                    "be paid for.</p>"
-                ),
-                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
-                Field("leaving_date"),
-                legend="Leaving date",
-                legend_size=Size.MEDIUM,
-            ),
-            Submit("submit", "Save and continue"),
+            Submit("submit", "Next"),
         )
 
 
@@ -267,25 +167,18 @@ class ReturnOptionForm(forms.Form):
         )
 
 
-class ReturnInformationForm(forms.Form):
+class LeaverDatesForm(forms.Form):
     required_error_messages: Dict[str, str] = {
-        "personal_phone": "Please tell us your contact phone number.",
-        "contact_email": "Please tell us your contact email.",
-        "address_line_1": "Please tell us the first line of your address.",
-        "address_city": "Please tell us your town or city.",
-        "address_county": "Please tell us your county.",
-        "address_postcode": "Please tell us your postcode.",
+        "leaving_date": "Please enter the day, month and year of your leaving date.",
+        "last_day": "Please enter the day, month and year of your last working day.",
+        "leaver_manager": "Please select your line manager.",
     }
 
-    personal_phone = forms.CharField(label="", max_length=16)
-    contact_email = forms.EmailField(label="")
-    address_line_1 = forms.CharField(label="Address line 1")
-    address_line_2 = forms.CharField(label="Address line 2", required=False)
-    address_city = forms.CharField(label="Town or city")
-    address_county = forms.CharField(label="County")
-    address_postcode = forms.CharField(label="Postcode")
+    leaving_date = DateInputField(label="")
+    last_day = DateInputField(label="")
+    leaver_manager = forms.CharField(label="", widget=forms.HiddenInput)
 
-    def __init__(self, *args, hide_address: bool = False, **kwargs):
+    def __init__(self, request: HttpRequest, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         for field_name, required_message in self.required_error_messages.items():
@@ -294,42 +187,109 @@ class ReturnInformationForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                Field("address_line_1"),
-                Field("address_line_2"),
-                Field("address_city"),
-                Field("address_county"),
-                Field("address_postcode"),
-                legend="Contact address",
+                HTML(
+                    "<p class='govuk-body'>Your line manager will confirm "
+                    "your leaving date. They are responsible for offboarding "
+                    "you from DIT.</p>"
+                    "<p class='govuk-body'>Add the person you report to if "
+                    "you do not know who your line manager is.</p>"
+                ),
+                *staff_search_autocomplete_field(
+                    form=self,
+                    request=request,
+                    field_name="leaver_manager",
+                    search_url=reverse("leaver-manager-search"),
+                    remove_url=reverse("leaver-remove-line-manager"),
+                ),
+                legend="Who is your line manager?",
                 legend_size=Size.SMALL,
             ),
             Fieldset(
-                Field("personal_phone"),
-                legend="Contact phone",
+                HTML(
+                    "<p class='govuk-body'>This is the last day you will work "
+                    "for DIT. After this day, you will not have access to any "
+                    "DIT systems and buildings.</p>"
+                ),
+                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
+                Field("last_day"),
+                legend="When is your last working day?",
                 legend_size=Size.SMALL,
             ),
             Fieldset(
-                Field("contact_email"),
-                legend="Contact email",
+                HTML(
+                    "<p class='govuk-body'>This is the last day you will be "
+                    "employed and paid by DIT.</p>"
+                ),
+                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
+                Field("leaving_date"),
+                legend="When is your official leaving day?",
                 legend_size=Size.SMALL,
             ),
-            Submit("submit", "Save and continue"),
+            Submit("submit", "Next"),
         )
 
-        address_fields: List[str] = [
-            "address_line_1",
-            "address_line_2",
-            "address_city",
-            "address_county",
-            "address_postcode",
-        ]
-        if hide_address:
-            for field_name in address_fields:
-                self.fields[field_name].required = False
-                self.fields[field_name].widget = forms.HiddenInput()
+    def clean_leaving_date(self):
+        today = timezone.now().date()
+        yesterday = today - timedelta(days=1)
+        leaving_date = self.cleaned_data["leaving_date"]
+        if yesterday > leaving_date:
+            raise forms.ValidationError(
+                "Leaving date must be in the future (or today)",
+            )
+        return leaving_date
+
+    def full_clean(self) -> None:
+        super().full_clean()
+
+        last_day = self.cleaned_data.get("last_day")
+        leaving_date = self.cleaned_data.get("leaving_date")
+        if last_day and leaving_date and last_day > leaving_date:
+            self.add_error(
+                "last_day",
+                "Last working day must be before or on the same day as your leaving date.",
+            )
+
+
+class LeaverHasAssetsForm(forms.Form):
+    required_error_messages: Dict[str, str] = {
+        "has_gov_procurement_card": "Please tell us if you have a GPC.",
+        "has_rosa_kit": "Please tell us if you have ROSA kit.",
+        "has_dse": "Please tell us if you have any IT equipment.",
+    }
+
+    has_gov_procurement_card = YesNoField(label="")
+    has_rosa_kit = YesNoField(label="")
+    has_dse = YesNoField(label="")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, required_message in self.required_error_messages.items():
+            self.fields[field_name].error_messages["required"] = required_message
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(
+                Field.radios("has_gov_procurement_card", inline=False),
+                legend="Do you have a government procurement card (GPC)?",
+                legend_size=Size.SMALL,
+            ),
+            Fieldset(
+                Field.radios("has_rosa_kit", inline=False),
+                legend="Do you have ROSA equipment?",
+                legend_size=Size.SMALL,
+            ),
+            Fieldset(
+                Field.radios("has_dse", inline=False),
+                legend="Do you have any IT equipment?",
+                legend_size=Size.SMALL,
+            ),
+            Submit("submit", "Next"),
+        )
 
 
 class HasCirrusKitForm(forms.Form):
-    has_cirrus_kit = YesNoField(label="")
+    has_cirrus_kit = YesNoField(label="Do you have any Cirrus equipment?")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -339,22 +299,167 @@ class HasCirrusKitForm(forms.Form):
             Field.radios(
                 "has_cirrus_kit",
                 legend_size=Size.MEDIUM,
-                inline=True,
             ),
-            Submit("submit", "Continue"),
+            Submit("submit", "Next"),
         )
 
 
 class AddCirrusAssetForm(forms.Form):
-    asset_name = forms.CharField(label="Add asset")
+    asset_name = forms.CharField(label="Name of asset")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field.text("asset_name"),
+            Field.text("asset_name", field_width=Fluid.TWO_THIRDS),
             Button.secondary("submit", "Add"),
         )
+
+
+RETURN_OPTIONS = [
+    Choice(
+        ReturnOptions.OFFICE.value,
+        ReturnOptions.OFFICE.label,
+        hint=(
+            "On your last working day, return your Cirrus kit to OAB's Tech "
+            "Bar (on the 3rd floor). The Tech Bar is open Monday to Friday "
+            "from 10am to 4pm."
+        ),
+    ),
+    Choice(
+        ReturnOptions.HOME.value,
+        ReturnOptions.HOME.label,
+        hint=(
+            "We will send you a box with instructions to pack your Cirrus kit. "
+            "Your box will be collected by courier."
+        ),
+    ),
+]
+
+
+def radios_with_conditionals(*args, **kwargs) -> Field:
+    field = Field.radios(*args, **kwargs)
+    field.context.update(has_conditionals=True)
+    return field
+
+
+class CirrusReturnFormNoAssets(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Submit("submit", "Next"),
+        )
+
+
+class CirrusReturnFormWithAssets(forms.Form):
+    required_error_messages: Dict[str, str] = {
+        "office_personal_phone": "Please tell us your contact phone number.",
+        "home_personal_phone": "Please tell us your contact phone number.",
+        "office_contact_email": "Please tell us your contact email.",
+        "home_contact_email": "Please tell us your contact email.",
+        "home_address_line_1": "Please tell us the first line of your address.",
+        "home_address_city": "Please tell us your town or city.",
+        "home_address_county": "Please tell us your county.",
+        "home_address_postcode": "Please tell us your postcode.",
+    }
+    return_option = forms.ChoiceField(
+        label="",
+        choices=RETURN_OPTIONS,
+        widget=forms.RadioSelect,
+    )
+
+    office_personal_phone = forms.CharField(label="", max_length=16, required=False)
+    office_contact_email = forms.EmailField(label="", required=False)
+
+    home_personal_phone = forms.CharField(label="", max_length=16, required=False)
+    home_contact_email = forms.EmailField(label="", required=False)
+
+    home_address_line_1 = forms.CharField(label="Address line 1", required=False)
+    home_address_line_2 = forms.CharField(label="Address line 2", required=False)
+    home_address_city = forms.CharField(label="Town or city", required=False)
+    home_address_county = forms.CharField(label="County", required=False)
+    home_address_postcode = forms.CharField(label="Postcode", required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, required_message in self.required_error_messages.items():
+            self.fields[field_name].error_messages["required"] = required_message
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(
+                radios_with_conditionals("return_option"),
+                legend="How would you like to return your Cirrus kit?",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                Field.text("office_personal_phone", field_width=Fluid.TWO_THIRDS),
+                legend="Contact phone",
+                legend_size=Size.SMALL,
+                css_class="radio-conditional-field conditional-return_option-office",
+            ),
+            Fieldset(
+                Field.text("office_contact_email", field_width=Fluid.TWO_THIRDS),
+                legend="Contact email",
+                legend_size=Size.SMALL,
+                css_class="radio-conditional-field conditional-return_option-office",
+            ),
+            Fieldset(
+                Field.text("home_personal_phone", field_width=Fluid.TWO_THIRDS),
+                legend="Contact phone",
+                legend_size=Size.SMALL,
+                css_class="radio-conditional-field conditional-return_option-home",
+            ),
+            Fieldset(
+                Field.text("home_contact_email", field_width=Fluid.TWO_THIRDS),
+                legend="Contact email",
+                legend_size=Size.SMALL,
+                css_class="radio-conditional-field conditional-return_option-home",
+            ),
+            Fieldset(
+                Field.text("home_address_line_1", field_width=Fluid.TWO_THIRDS),
+                Field.text("home_address_line_2", field_width=Fluid.TWO_THIRDS),
+                Field.text("home_address_city", field_width=Fluid.TWO_THIRDS),
+                Field.text("home_address_county", field_width=Fluid.TWO_THIRDS),
+                Field.text("home_address_postcode", field_width=Fluid.TWO_THIRDS),
+                legend="Address for courier to pick up your Cirrus kit",
+                legend_size=Size.SMALL,
+                css_class="radio-conditional-field conditional-return_option-home",
+            ),
+            Submit("submit", "Next"),
+        )
+
+    def full_clean(self) -> None:
+        super().full_clean()
+
+        required_fields_mapping = {
+            ReturnOptions.OFFICE.value: [
+                "office_personal_phone",
+                "office_contact_email",
+            ],
+            ReturnOptions.HOME.value: [
+                "home_personal_phone",
+                "home_contact_email",
+                "home_address_line_1",
+                "home_address_city",
+                "home_address_county",
+                "home_address_postcode",
+            ],
+        }
+
+        for return_option, return_option_fields in required_fields_mapping.items():
+            for return_option_field in return_option_fields:
+                if self.cleaned_data.get("return_option") == return_option:
+                    required_error_message = self.fields[
+                        return_option_field
+                    ].error_messages["required"]
+                    if not self.cleaned_data.get(return_option_field):
+                        self.add_error(return_option_field, required_error_message)
+                else:
+                    self.cleaned_data.pop(return_option_field, None)
 
 
 class AddDisplayScreenEquipmentAssetForm(forms.Form):
@@ -365,32 +470,44 @@ class AddDisplayScreenEquipmentAssetForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field("asset_name"),
+            Field.text("asset_name", field_width=Fluid.TWO_THIRDS),
             Submit(
                 "submit",
-                "Add asset",
+                "Add",
                 css_class="govuk-button--secondary",
             ),
         )
 
 
-class CorrectionForm(forms.Form):
+class SubmissionForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Submit("submit", "Next"),
+        )
+
+
+class LeaverContactDetailsForm(forms.Form):
     required_error_messages: Dict[str, str] = {
-        "is_correct": (
-            "Please tell us if we have the correct list of equipment currently "
-            "assigned to you."
-        ),
+        "contact_phone": "Please tell us your personal phone number.",
+        "contact_email_address": "Please tell us your personal email address.",
+        "contact_address_line_1": "Please tell us the first line of your address.",
+        "contact_address_city": "Please tell us your town or city.",
+        "contact_address_county": "Please tell us your county.",
+        "contact_address_postcode": "Please tell us your postcode.",
     }
 
-    is_correct = YesNoField(
-        label="Is this information correct?",
+    contact_phone = forms.CharField(label="Personal phone number")
+    contact_email_address = forms.EmailField(label="Personal email address")
+    contact_address_line_1 = forms.CharField(label="Address line 1")
+    contact_address_line_2 = forms.CharField(
+        label="Address line 2 (optional)", required=False
     )
-    whats_incorrect = forms.CharField(
-        required=False,
-        label="If no, please use the text box to provide further information",
-        widget=forms.Textarea(),
-        max_length=1000,
-    )
+    contact_address_city = forms.CharField(label="Town or city")
+    contact_address_county = forms.CharField(label="County")
+    contact_address_postcode = forms.CharField(label="Postcode")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -400,40 +517,12 @@ class CorrectionForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field.radios(
-                "is_correct",
-                legend_size=Size.MEDIUM,
-                inline=True,
-            ),
-            Field.textarea("whats_incorrect"),
-            HTML.p(
-                "If you have made any changes, Service Now may contact you to confirm."
-            ),
-            Submit("submit", "Save and continue"),
-        )
-
-    def clean_whats_incorrect(self) -> str:
-        whats_incorrect: str = self.cleaned_data.get("whats_incorrect", "")
-
-        is_correct: Optional[Literal["yes", "no"]] = self.cleaned_data.get("is_correct")
-
-        if is_correct == "yes":
-            whats_incorrect = ""
-
-        elif is_correct == "no":
-            if not whats_incorrect:
-                raise forms.ValidationError(
-                    "Please tell us why the information is incorrect"
-                )
-
-        return whats_incorrect
-
-
-class SubmissionForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Submit("submit", "Save and continue"),
+            Field.text("contact_email_address", field_width=Fluid.TWO_THIRDS),
+            Field.text("contact_phone", field_width=Fluid.TWO_THIRDS),
+            Field.text("contact_address_line_1", field_width=Fluid.TWO_THIRDS),
+            Field.text("contact_address_line_2", field_width=Fluid.TWO_THIRDS),
+            Field.text("contact_address_city", field_width=Fluid.TWO_THIRDS),
+            Field.text("contact_address_county", field_width=Fluid.TWO_THIRDS),
+            Field.text("contact_address_postcode", field_width=Fluid.TWO_THIRDS),
+            Submit("submit", "Next"),
         )

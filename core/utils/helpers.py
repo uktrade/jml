@@ -21,6 +21,14 @@ def bool_to_yes_no(value: Optional[bool] = None) -> Literal["yes", "no"]:
     return "no"
 
 
+def yes_no_to_bool(value: Literal["yes", "no"]) -> bool:
+    if value == "yes":
+        return True
+    elif value == "no":
+        return False
+    raise ValueError("Invalid value for yes_no_to_bool")
+
+
 def is_work_day_and_time() -> bool:
     """
     Returns True if it is a work day and during working hours.

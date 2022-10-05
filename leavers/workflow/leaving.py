@@ -212,7 +212,6 @@ LeaversWorkflow = Workflow(
                 "are_all_tasks_complete",
             ],
             task_info={
-                "skip_condition": SkipCondition.USER_DOES_NOT_HAVE_OAB_LOCKER.value,
                 "email_id": EmailIds.OCS_OAB_LOCKER_EMAIL.value,
             },
         ),

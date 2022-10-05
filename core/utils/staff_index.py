@@ -552,3 +552,22 @@ def index_all_staff() -> int:
             )
 
     return indexed_count
+
+
+def get_csd_for_activitystream_user(
+    *, activitystream_user: Optional[ActivityStreamStaffSSOUser]
+) -> Optional[ConsolidatedStaffDocument]:
+    if not activitystream_user:
+        return None
+
+    sso_email_user_id = activitystream_user.email_user_id
+    staff_document = get_staff_document_from_staff_index(
+        sso_email_user_id=sso_email_user_id,
+    )
+    if not staff_document:
+        return None
+
+    consolidated_staff_documents = consolidate_staff_documents(
+        staff_documents=[staff_document],
+    )
+    return consolidated_staff_documents[0]

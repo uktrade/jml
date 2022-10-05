@@ -5,159 +5,217 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <a href="{% url 'leaver-return-information' %}" class="govuk-back-link">Back</a>
-            {% include "leaving/progress_indicator.html" with steps=progress_steps %}
+            <a href="{% url 'leaver-contact-details' %}" class="govuk-back-link">Back</a>
             {% error_summary form %}
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-l">Confirm your information</h1>
-            {% include "includes/govt_error_summary.html" with errors=errors %}
-            <p class="govuk-body">Please review and edit your details if needed.</p>
+            <span class="govuk-caption-l">Page 7 of 7</span>
+            <h1 class="govuk-heading-l">{{ page_title }}</h1>
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">About me</h2>
-            {% include "includes/leaver_details.html" with leaver_details=leaver_details leaver_info=leaver_info %}
-            <a href="{% url 'leaver-update-details' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
+            <h2 class="govuk-heading-m">Employment profile</h2>
+            <a href="{% url 'employment-profile' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Name</dt>
+                    <dd class="govuk-summary-list__value">{{ leaver_info.leaver_first_name }} {{ leaver_info.leaver_last_name }}</dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Job title</dt>
+                    <dd class="govuk-summary-list__value">{{ leaver_info.job_title }}</dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Date of birth</dt>
+                    <dd class="govuk-summary-list__value">{{ leaver_info.leaver_date_of_birth }}</dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Staff type</dt>
+                    <dd class="govuk-summary-list__value">{{ staff_type.label }}</dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Security clearance</dt>
+                    <dd class="govuk-summary-list__value">{{ security_clearance.label }}</dd>
+                </div>
+            </dl>
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Cirrus kit</h2>
-            {% if cirrus_assets %}
-                <dl class="govuk-summary-list">
-                    {% for cirrus_asset in cirrus_assets %}
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Asset name
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {{ cirrus_asset.name }}
-                            </dd>
-                        </div>
-                    {% endfor %}
-                </dl>
-            {% else %}
-                <p class="govuk-body">No Cirrus kit listed.</p>
-            {% endif %}
-            <a href="{% url 'leaver-cirrus-equipment' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
+            <h2 class="govuk-heading-m">Leaving information</h2>
+            <a href="{% url 'leaver-dates' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Leaving date</dt>
+                    <dd class="govuk-summary-list__value">{{ leaver_info.leaving_date }}</dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Last working day</dt>
+                    <dd class="govuk-summary-list__value">{{ leaver_info.last_day }}</dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Line manager</dt>
+                    <dd class="govuk-summary-list__value">{{ leaving_request.manager_activitystream_user.full_name }}</dd>
+                </div>
+            </dl>
         </div>
     </div>
 
-    {% if return_option or return_personal_phone or return_contact_email or return_address %}
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-m">Cirrus kit return option</h2>
-                <dl class="govuk-summary-list">
-                    {% if return_option %}
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Return option
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {% if return_option == "home" %}
-                                    Return to home
-                                {% elif return_option == "office" %}
-                                    Return to the office
-                                {% endif %}
-                            </dd>
-                        </div>
-                    {% endif %}
-                    {% if return_personal_phone %}
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Contact phone
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {{ return_personal_phone }}
-                            </dd>
-                        </div>
-                    {% endif %}
-                    {% if return_contact_email %}
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Contact email
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                {{ return_contact_email }}
-                            </dd>
-                        </div>
-                    {% endif %}
-                    {% if return_option == "home" and leaver_info.return_address %}
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Return address
-                            </dt>
-                            <dd class="govuk-summary-list__value">
-                                <address>
-                                    <p>{{ leaver_info.return_address.line_1 }}</p>
-                                    <p>{{ leaver_info.return_address.line_2 }}</p>
-                                    <p>{{ leaver_info.return_address.town_or_city }}</p>
-                                    <p>{{ leaver_info.return_address.county }}</p>
-                                    <p>{{ leaver_info.return_address.postcode }}</p>
-                                </address>
-                            </dd>
-                        </div>
-                    {% endif %}
-                </dl>
-                <a href="{% url 'leaver-return-options' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
-            </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">Return of DIT assets</h2>
+            <a href="{% url 'leaver-has-assets' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Has Goverment Procurement Card?</dt>
+                    <dd class="govuk-summary-list__value">{{ leaving_request.holds_government_procurement_card|yesno:"Yes,No" }}</dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Has ROSA?</dt>
+                    <dd class="govuk-summary-list__value">{{ leaving_request.is_rosa_user|yesno:"Yes,No" }}</dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Has IT equipment?</dt>
+                    <dd class="govuk-summary-list__value">{{ leaver_info.has_dse|yesno:"Yes,No" }}</dd>
+                </div>
+            </dl>
         </div>
-    {% endif %}
+    </div>
 
-    {% if has_dse %}
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-m">IT equipment</h2>
-                {% if dse_assets %}
-                    <dl class="govuk-summary-list">
-                        {% for dse_asset in dse_assets %}
-                            <div class="govuk-summary-list__row">
-                                <dt class="govuk-summary-list__key">
-                                    Asset name
-                                </dt>
-                                <dd class="govuk-summary-list__value">
-                                    {{ dse_asset.name }}
-                                </dd>
-                            </div>
-                        {% endfor %}
-                    </dl>
-                {% else %}
-                    <p class="govuk-body">No IT equipment listed.</p>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">Return Cirrus kit</h2>
+            <a href="{% url 'leaver-has-cirrus-equipment' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
+            <dl class="govuk-summary-list">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">Cirrus kit</dt>
+                    <dd class="govuk-summary-list__value">
+                        {% if cirrus_assets %}
+                            {% for cirrus_asset in cirrus_assets %}{{ cirrus_asset.name }}<br />{% endfor %}
+                        {% else %}
+                            No Cirrus kit listed.
+                        {% endif %}
+                    </dd>
+                </div>
+                {% if return_option %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Return method</dt>
+                        <dd class="govuk-summary-list__value">
+                            {% if return_option == "home" %}
+                                Home collection
+                            {% elif return_option == "office" %}
+                                Return to the office
+                            {% endif %}
+                        </dd>
+                    </div>
                 {% endif %}
+                {% if return_personal_phone %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Return contact phone</dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ return_personal_phone }}
+                        </dd>
+                    </div>
+                {% endif %}
+                {% if return_contact_email %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Return contact email</dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ return_contact_email }}
+                        </dd>
+                    </div>
+                {% endif %}
+                {% if return_option == "home" and leaver_info.return_address %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Delivery address</dt>
+                        <dd class="govuk-summary-list__value">
+                            <address>
+                                <p>{{ leaver_info.return_address.line_1 }}</p>
+                                <p>{{ leaver_info.return_address.line_2 }}</p>
+                                <p>{{ leaver_info.return_address.town_or_city }}</p>
+                                <p>{{ leaver_info.return_address.county }}</p>
+                                <p>{{ leaver_info.return_address.postcode }}</p>
+                            </address>
+                        </dd>
+                    </div>
+                {% endif %}
+            </dl>
+        </div>
+    </div>
+
+    {% if leaver_info.has_dse %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+                <h2 class="govuk-heading-m">Return DIT-owned equipment over £150</h2>
                 <a href="{% url 'leaver-display-screen-equipment' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">IT equipment (expensed)</dt>
+                        <dd class="govuk-summary-list__value">
+                            {% if dse_assets %}
+                                {% for dse_asset in dse_assets %}
+                                    {{ dse_asset.name }}<br />
+                                {% endfor %}
+                            {% else %}
+                                No IT equipment listed.
+                            {% endif %}
+                        </dd>
+                    </div>
+                </dl>
             </div>
         </div>
     {% endif %}
 
-    <div class="govuk-grid-row {% if not manager %}govuk-form-group--error{% endif %}">
+    <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Your Line Manager</h2>
-            {% if manager %}
-                {% include "staff_search/staff_result.html" with staff_details=manager %}
-                <a href="{{ manager_search }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">This is not my Line Manager</a>
-            {% else %}
-                <p class="govuk-body">You have no Line Manager assigned.</p>
-                <a href="{{ manager_search }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Add your Line Manager</a>
-            {% endif %}
+            <h2 class="govuk-heading-m">Personal contact details</h2>
+            <a href="{% url 'leaver-contact-details' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Edit information</a>
+            <dl class="govuk-summary-list">
+                {% if leaver_info.contact_phone %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Phone</dt>
+                        <dd class="govuk-summary-list__value">{{ leaver_info.contact_phone }}</dd>
+                    </div>
+                {% endif %}
+                {% if leaver_info.personal_email %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Email</dt>
+                        <dd class="govuk-summary-list__value">{{ leaver_info.personal_email }}</dd>
+                    </div>
+                {% endif %}
+                {% if leaver_info.contact_address %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">Address</dt>
+                        <dd class="govuk-summary-list__value">
+                            <address>
+                                <p>{{ leaver_info.contact_address.line_1 }}</p>
+                                <p>{{ leaver_info.contact_address.line_2 }}</p>
+                                <p>{{ leaver_info.contact_address.town_or_city }}</p>
+                                <p>{{ leaver_info.contact_address.county }}</p>
+                                <p>{{ leaver_info.contact_address.postcode }}</p>
+                            </address>
+                        </dd>
+                    </div>
+                {% endif %}
+            </dl>
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">Send us your leaving information</h2>
-            <p class="govuk-body">By submitting this information, you are confirming that, to the best of your knowledge, the details you are providing are correct.</p>
-            <p class="govuk-body">We will send an email notification to your Line Manager after you accept and send.</p>
+            <p class="govuk-body">By sending this information, you are confirming that, to the best of your knowledge, the details you are providing are correct.</p>
+            <p class="govuk-body">After you accept and send, we will send an email to your line manager to confirm what they need to do.</p>
             <form novalidate method='post'>
                 {% csrf_token %}
                 {% crispy form %}
             </form>
         </div>
     </div>
-{% endblock %}
+{% endblock content %}

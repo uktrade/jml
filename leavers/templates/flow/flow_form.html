@@ -1,11 +1,16 @@
 {% extends "flow/flow_base.html" %}
 
 {% block content %}
-    <form novalidate method='post'>
-        <fieldset class="govuk-fieldset">
-            {% csrf_token %}
-            {% include "includes/govt_uk_form.html" with form=form %}
-            <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
-        </fieldset>
-    </form>
-{% endblock %}
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <form novalidate method='post'>
+                <fieldset class="govuk-fieldset">
+                    {% csrf_token %}
+                    {% include "includes/govt_uk_form.html" with form=form %}
+                    <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+{% endblock content %}

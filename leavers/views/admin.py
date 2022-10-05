@@ -20,12 +20,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import FormView, TemplateView
 from django_workflow_engine.models import Flow
 
-from activity_stream.models import ActivityStreamStaffSSOUser
-from core.utils.staff_index import (
-    ConsolidatedStaffDocument,
-    consolidate_staff_documents,
-    get_staff_document_from_staff_index,
-)
+from core.utils.staff_index import get_csd_for_activitystream_user
 from leavers.forms.admin import ManuallyOffboardedFromUKSBSForm
 from leavers.models import LeavingRequest, TaskLog
 from leavers.types import LeavingRequestLineReport
@@ -63,24 +58,6 @@ class LeavingRequestDetailView(UserPassesTestMixin, TemplateView):
             LeavingRequest, uuid=kwargs["leaving_request_id"]
         )
         return super().dispatch(request, *args, **kwargs)
-
-    def get_csd_for_activitystream_user(
-        self, activitystream_user: Optional[ActivityStreamStaffSSOUser]
-    ) -> Optional[ConsolidatedStaffDocument]:
-        if not activitystream_user:
-            return None
-
-        sso_email_user_id = activitystream_user.email_user_id
-        staff_document = get_staff_document_from_staff_index(
-            sso_email_user_id=sso_email_user_id,
-        )
-        if not staff_document:
-            return None
-
-        consolidated_staff_documents = consolidate_staff_documents(
-            staff_documents=[staff_document],
-        )
-        return consolidated_staff_documents[0]
 
     def format_list(self, value: List) -> str:
         formatted_value = "<ul class='govuk-list govuk-list--bullet'>"
@@ -185,16 +162,16 @@ class LeavingRequestDetailView(UserPassesTestMixin, TemplateView):
         context.update(
             leaving_request=self.leaving_request,
             leaving_request_field_values=leaving_request_field_values,
-            leaver=self.get_csd_for_activitystream_user(
+            leaver=get_csd_for_activitystream_user(
                 activitystream_user=self.leaving_request.leaver_activitystream_user
             ),
-            manager=self.get_csd_for_activitystream_user(
+            manager=get_csd_for_activitystream_user(
                 activitystream_user=self.leaving_request.manager_activitystream_user
             ),
-            processing_manager=self.get_csd_for_activitystream_user(
+            processing_manager=get_csd_for_activitystream_user(
                 activitystream_user=self.leaving_request.processing_manager_activitystream_user
             ),
-            data_recipient=self.get_csd_for_activitystream_user(
+            data_recipient=get_csd_for_activitystream_user(
                 activitystream_user=self.leaving_request.data_recipient_activitystream_user
             ),
         )

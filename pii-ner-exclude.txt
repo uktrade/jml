@@ -44,16 +44,20 @@
 100px
 234px
 7.7-.2
+7</span
 8.7 39.7 21.8l42.7-27.2A97.63
 active</dd
 activity_stream.activitystreamstaffssouser
 ActivityStream
 add_missing_line_report_error
+address=
 Admin Views
 admin@opensearch:9200
 Annual Leave
 Annual Leave: "
 API
+Apple
+aria-describedby="id
 aria-label="Show
 aria-labelledby="govuk
 AssetDetails
@@ -66,6 +70,8 @@ Baseline Personnel Security Standard
 before.</td>
 below.</a>
 Bench
+Bloggs
+bool_to_yes_no
 Build Staff Document
 Building Pass
 Building pass '
@@ -77,8 +83,10 @@ channel_id
 checkbox
 Cirrus
 Cirrus Equipment
+Cirrus kit</h2>
 Civil Servant
 Civil Servants
+Civil Service Fast Stream
 class="govuk-button__start
 class="incomplete">To do</span
 CLU4
@@ -89,7 +97,9 @@ COLOUR_GREEN=\033[32;01
 COLOUR_YELLOW=\033[33;01
 Compile SCSS
 confirm_leaver_data
+contact_address_line_1
 contact_address_postcode
+contractors</p
 Convert
 Convert a Queryset
 Convert Request Data
@@ -100,6 +110,7 @@ Create Physical Asset
 Create Software Asset
 create_physical_asset
 Create/Update Staff ES
+Crispy
 crispy_forms_gds
 Crown
 CRSF
@@ -109,9 +120,11 @@ Dashboard</a>
 Data
 date_of_birth
 date_of_birth_0"
+date_of_birth_0": 19
 date_of_birth_2
 Days"
 DB
+delay:200ms
 Department 1
 Department 2
 Department for International Trade
@@ -124,6 +137,7 @@ Digital
 Digital Workspace
 Digital Worskspace
 directorate_id
+DIRS
 Discuss
 Display non
 Display Screen Equipment
@@ -146,6 +160,8 @@ Email Templates
 email_id
 ends.</td
 Enhanced Security Check
+event.detail.headers['X-CSRFToken'
+event.target.checked && gov_radio_conditional_wrapper.id
 Example Building
 Example Grade
 expires_at
@@ -175,6 +191,7 @@ Flexi leave.</li>
 for.</p
 Form
 form</h1
+found</p
 from:</p>
 Get the Leaver StaffDocument
 Get the Leaving Request for the Leaver
@@ -191,11 +208,16 @@ GPC Return Address
 Graphs
 Green Park
 gtm-head.html
+H021
 has_cirrus_kit
 HAWK_INCOMING_ACCESS_KEY
 HAWK_INCOMING_SECRET_KEY
 height="17
 height="30" width="36">
+HELP_DESK_CREDS
+HELP_DESK_INTERFACE
+help_text_and_errors.html
+hint{%
 Home Use"
 Hours
 HR & Payroll
@@ -205,10 +227,13 @@ href="?page=
 href="{%
 href="https://www.nationalarchives.gov.uk
 HSTS
+HTMX
 https://fake-uksbs.domain/hierarchy-api/1.0
+id="id
 IE
 ill health</li>
 include:</p
+include</p
 INDEX_CURRENT_USER_MIDDLEWARE                            
 Index](/docs
 INFO
@@ -219,6 +244,7 @@ Jira
 JML
 JML_TEAM_CONTACT_EMAIL                                           
 JML_TEAM_CONTACT_EMAIL"
+job_title
 job_title"
 Joe
 Joe Bloggs
@@ -229,6 +255,7 @@ JS
 Kit
 Kit requests</a
 kit_info
+kit)</li
 kit</th
 know:</p
 Laptop
@@ -237,6 +264,8 @@ Leaver Email
 Leaver Final Actions Email
 Leaver Final Actions Email |  | X |  | X |  |  |  |
 leaver_activitystream_user__contact_email_address
+leaver_info.has_dse
+leaver_info.refresh_from_db
 leaver_job_title
 leaver_paid_unpaid
 Leaver's Notification Form
@@ -263,16 +292,18 @@ Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
 Loan Pool'
 Lost/Stolen'
-HELP_DESK_INTERFACE
-HELP_DESK_CREDS
 LSD_HELP_DESK_LIVE
+manager_activitystream_user
 manager_id
+Manager</h2
 Mark
 Mi-Fi Device'
 migrate$(COLOUR_NONE
 minimum_should_match
 Mismatch Email
 Mobile
+mock_get_assets_for_user
+mock_store_return_information.assert_called_once_with
 Movers and Leavers Service
 NAME
 name=
@@ -331,6 +362,7 @@ Reminder Email
 Reminder Email*
 Report 2
 Request
+Return Cirrus
 return_contact_email
 ReturnOptions
 risk.\n
@@ -354,11 +386,11 @@ security_pass_disabled_task_log
 security_team_building_pass_complete
 SECURITY_TEAM_VETTING_EMAIL
 SECURITY_TEAM_VETTING_EMAIL                                      
+self.assertEqual(response.status_code
 Send
 Send Feetham Security Pass Office
 Send Line
 Send OCS Email
-Send OCS OAB Locker
 send_leaver_thank_you_email
 Sensitive and Personal
 Service
@@ -371,6 +403,7 @@ SERVICE_NOW_DIT_DEPARTMENT_SYS_ID=1234567890
 SERVICE_NOW_INTERFACE
 Session
 session.</p
+SIM
 sizes="152x152
 Slack
 slack_access_task_log
@@ -388,18 +421,23 @@ SRE Offboarding
 SRE Reminder Email
 sso_access_task_log
 sso_email_user_id
+sso_email_user_id = user.sso_email_user_id
 staff_details.job_title %
 staff_id"
 STAFF_SSO_ACTIVITY_STREAM_ID
 staff_sso_legacy_id
 StaffDocument
 Start Line
+Start" %}
 Store DSE
+str
 StreamHandler
+super().setUp
 target="_blank">here</a>.</li>
 TaskLog
 TaskRecord
 Team Zendesk
+Tech
 TEMPLATE_ID_CLU4_EMAIL
 TEMPLATE_ID_CLU4_EMAIL                                           |
 TEMPLATE_ID_CLU4_EMAIL                                           | None                                       |                                                                                       
@@ -419,6 +457,7 @@ TEMPLATE_ID_SRE_NOTIFICATION
 TEMPLATE_ID_SRE_REMINDER_ON_LD                                   
 TEMPLATE_ID_SRE_REMINDER_ON_LD                                   | None                                       
 Templates
+test_existing_updates
 Tests for `get_leaver_detail_updates` "
 Tests for `get_leaver_details_with_updates`
 Tests for `get_leaver_details_with_updates`
@@ -443,15 +482,16 @@ the Leaver Activity Stream
 the Leaver Form's
 the Leaving DIT
 the Leaving Request
-the Leaving Service
-the OCS OAB Locker Team                           
+the Leaving Service                       
 the OCS Team                            
 the Security Team
 the Security Team User Group
 the SRE Team
 the SRE User Group
+The Tech Bar
 the UK SBS API
 to:</p
+TODO Fix
 UK SBS - Unexpected
 UK SBS - Unexpected Response
 UK SBS Correction
@@ -470,6 +510,7 @@ unique_sso_legacy_user_id
 Unit of Measurement
 Unit of Measurement Hours
 UNUSED ATM
+UNUSED FIELDS
 Updated Contact Email
 Updated Personal Email
 User
@@ -482,6 +523,7 @@ visit</li>
 vpn_access_task_log
 WHERE sso_user_id = %
 WhiteNoiseMiddleware
+Windows
 WorkflowExecutor
 x.groups.first
 yet.</p

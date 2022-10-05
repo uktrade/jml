@@ -1,7 +1,6 @@
 {% load static sass_tags %}
 <!DOCTYPE html>
 <html lang="en" class="govuk-template app-html-class">
-
     <head>
         <meta charset="utf-8" />
         <title>{% block title %}{% if page_title %}{{ page_title }} - {% endif %}{{ SERVICE_NAME }}{% endblock title %}</title>
@@ -151,6 +150,16 @@
         <script src='{% static "cytoscape/dist/cytoscape.min.js" %}'></script>
         <script src="https://unpkg.com/dagre@0.7.4/dist/dagre.js"></script><!-- /PS-IGNORE -->
         <script src='{% static "cytoscape-dagre/cytoscape-dagre.js" %}'></script>
+        <script src='{% static "js/conditional-radios.js" %}'></script>
+        <script src="https://unpkg.com/htmx.org@1.8.0" integrity="sha384-cZuAZ+ZbwkNRnrKi05G/fjBX+azI9DNOkNYysZ0I/X5ZFgsmMiBXgDZof30F5ofc" crossorigin="anonymous"></script><!-- /PS-IGNORE -->
+        <script>
+            const CSRF_TOKEN = "{{ csrf_token }}";
+
+            document.body.addEventListener('htmx:configRequest', function(event) {
+                event.detail.headers['X-CSRFToken'] = CSRF_TOKEN;
+            });
+        </script>
+
         {% include "gtm-body.html" %}
         {% block scripts %}{% endblock scripts %}
     </body>
