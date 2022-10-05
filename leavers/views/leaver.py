@@ -248,11 +248,6 @@ class LeaverInformationMixin:
         leaver_info.refresh_from_db()
         leaving_request: LeavingRequest = leaver_info.leaving_request
 
-        # Convert yes/no to boolean values.
-        has_locker = None
-        if leaver_info.has_locker is not None:
-            has_locker = bool_to_yes_no(leaver_info.has_locker)
-
         has_rosa_kit = None
         if leaving_request.is_rosa_user is not None:
             has_rosa_kit = bool_to_yes_no(leaving_request.is_rosa_user)
@@ -270,7 +265,6 @@ class LeaverInformationMixin:
         return {
             "security_clearance": leaving_request.security_clearance,
             "date_of_birth": leaver_info.leaver_date_of_birth,
-            "has_locker": has_locker,
             "has_rosa_kit": has_rosa_kit,
             "has_gov_procurement_card": has_gov_procurement_card,
             "has_dse": has_dse,
@@ -289,7 +283,6 @@ class LeaverInformationMixin:
         requester: User,
         date_of_birth: date,
         security_clearance: str,
-        has_locker: bool,
         has_gov_procurement_card: bool,
         has_rosa_kit: bool,
         has_dse: bool,
@@ -326,7 +319,6 @@ class LeaverInformationMixin:
         )
 
         leaver_info.leaver_date_of_birth = date_of_birth
-        leaver_info.has_locker = has_locker
         leaver_info.has_dse = has_dse
         leaver_info.contact_phone = contact_phone
         leaver_info.contact_address_line_1 = contact_address_line_1
@@ -337,7 +329,6 @@ class LeaverInformationMixin:
         leaver_info.save(
             update_fields=[
                 "leaver_date_of_birth",
-                "has_locker",
                 "has_dse",
                 "contact_phone",
                 "contact_address_line_1",
@@ -602,7 +593,6 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             requester=user,
             date_of_birth=form.cleaned_data["date_of_birth"],
             security_clearance=form.cleaned_data["security_clearance"],
-            has_locker=bool(form.cleaned_data["has_locker"] == "yes"),
             has_gov_procurement_card=bool(
                 form.cleaned_data["has_gov_procurement_card"] == "yes"
             ),

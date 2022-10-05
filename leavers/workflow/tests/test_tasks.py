@@ -76,26 +76,6 @@ class TestSkipConditions(TestCase):
             )
         )
 
-    def test_oab_locker_skip(self):
-        self.leaver_information.has_locker = True
-        self.leaver_information.save()
-        self.assertFalse(
-            self.task.should_skip(
-                task_info={
-                    "skip_condition": SkipCondition.USER_DOES_NOT_HAVE_OAB_LOCKER.value
-                },
-            )
-        )
-        self.leaver_information.has_locker = False
-        self.leaver_information.save()
-        self.assertTrue(
-            self.task.should_skip(
-                task_info={
-                    "skip_condition": SkipCondition.USER_DOES_NOT_HAVE_OAB_LOCKER.value
-                },
-            )
-        )
-
     def test_manually_offboarded_from_uksbs_skip(self):
         self.assertFalse(
             self.uk_sbs_task.should_skip(

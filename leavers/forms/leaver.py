@@ -33,7 +33,6 @@ class LeaverUpdateForm(forms.Form):
         "contact_address_postcode": "Please tell us your postcode.",
         "job_title": "Please tell us your job title.",
         "security_clearance": "Please select your security clearance from the list.",
-        "has_locker": "Please tell us if you have a locker assigned to you.",
         "staff_type": "Please select your staff type.",
         "has_gov_procurement_card": "Please tell us if you have a GPC.",
         "has_rosa_kit": "Please tell us if you have ROSA kit.",
@@ -61,7 +60,6 @@ class LeaverUpdateForm(forms.Form):
             [(None, "Select security clearance type")] + SecurityClearance.choices  # type: ignore
         ),
     )
-    has_locker = YesNoField(label="")
     staff_type = forms.ChoiceField(
         label="",
         widget=forms.RadioSelect,
@@ -136,11 +134,6 @@ class LeaverUpdateForm(forms.Form):
                 Field("contact_address_county"),
                 Field("contact_address_postcode"),
                 legend="Contact address",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                Field.radios("has_locker", inline=True),
-                legend="Do you have a locker?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(

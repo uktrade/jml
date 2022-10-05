@@ -505,7 +505,6 @@ class LeaverInformation(models.Model):
     staff_id = models.CharField(max_length=1000, null=True, blank=True)
 
     # Extra information
-    has_locker = models.BooleanField(null=True, blank=True)
     has_dse = models.BooleanField(null=True, blank=True)
 
     # Leaver contact informtion
