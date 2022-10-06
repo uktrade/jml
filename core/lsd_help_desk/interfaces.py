@@ -2,8 +2,8 @@ import logging
 from abc import ABC, abstractmethod
 
 from django.conf import settings
-from helpdesk_client import get_helpdesk_interface
-from helpdesk_client.interfaces import (
+from help_desk_client import get_help_desk_interface
+from help_desk_client.interfaces import (
     HelpDeskComment,
     HelpDeskTicket,
     Priority,
@@ -14,25 +14,24 @@ from helpdesk_client.interfaces import (
 from leavers.models import LeavingRequest
 
 logger = logging.getLogger(__name__)
-helpdesk_interface = get_helpdesk_interface(settings.LSD_HELP_DESK_INTERFACE)
-helpdesk = helpdesk_interface(credentials=settings.LSD_HELP_DESK_CREDS)
+help_desk_interface = get_help_desk_interface(settings.HELP_DESK_INTERFACE)
+help_desk = help_desk_interface(credentials=settings.HELP_DESK_CREDS)
 
 
-class LSDHelpdeskBase(ABC):
+class LSDHelpDeskBase(ABC):
     @abstractmethod
     def inform_lsd_team_of_leaver(self, leaving_request: LeavingRequest):
         raise NotImplementedError
 
 
-class LSDHelpdeskStubbed(LSDHelpdeskBase):
+class LSDHelpDeskStubbed(LSDHelpDeskBase):
     def inform_lsd_team_of_leaver(self, leaving_request: LeavingRequest):
         leaving_request.task_logs.create(
             task_name="LSD team informed of leaver via Helpdesk (stubbed)",
         )
 
 
-class LSDHelpdesk(LSDHelpdeskBase):
-
+class LSDHelpDesk(LSDHelpDeskBase):
     def inform_lsd_team_of_leaver(self, leaving_request: LeavingRequest):
         leaver_name = leaving_request.get_leaver_name()
         if not leaver_name:
@@ -64,7 +63,7 @@ class LSDHelpdesk(LSDHelpdeskBase):
             "(where appropriate. SSO, Datahub, Digital Worskspace, OKTA)."
         )
 
-        helpdesk.create_ticket(
+        help_desk.create_ticket(
             HelpDeskTicket(
                 subject=f"Notification of Leaver: {leaver_name}",
                 comment=HelpDeskComment(

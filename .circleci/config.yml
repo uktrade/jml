@@ -12,7 +12,7 @@ jobs:
                   command: make check-fixme
             - run:
                   name: Copy env file
-                  command: cp .env.ci .env
+                  command: cp .env.old.ci .env.old
             - run:
                   name: build containers
                   command: make build

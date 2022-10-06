@@ -9,7 +9,7 @@ from django_workflow_engine.dataclass import Step
 from django_workflow_engine.models import Flow, TaskRecord
 
 from activity_stream.models import ActivityStreamStaffSSOUser
-from core.lsd_zendesk import get_lsd_zendesk_interface
+from core.lsd_help_desk import get_lsd_help_desk_interface
 from core.notify import EmailTemplates
 from core.service_now import get_service_now_interface
 from core.service_now.types import AssetDetails
@@ -243,8 +243,8 @@ class LSDSendLeaverDetails(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        lsd_zendesk_interface = get_lsd_zendesk_interface()
-        lsd_zendesk_interface.inform_lsd_team_of_leaver(
+        lsd_help_desk_interface = get_lsd_help_desk_interface()
+        lsd_help_desk_interface.inform_lsd_team_of_leaver(
             leaving_request=self.leaving_request,
         )
         return None, True

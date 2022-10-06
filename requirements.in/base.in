@@ -37,4 +37,4 @@ opensearch-py==1.0.0
 opensearch-dsl==1.0.0
 # GovUK Notify
 notifications-python-client
-helpdesk-client==0.1.6
+help-desk-client==0.2.0

@@ -402,3 +402,6 @@ JML_TEAM_EMAILS = env.list("JML_TEAM_EMAILS", default=[])
 # Helpdesk interface
 HELP_DESK_INTERFACE = env("HELP_DESK_INTERFACE", default="")
 HELP_DESK_CREDS = env.dict("HELP_DESK_CREDS", default={})
+
+# LSD team
+LSD_HELP_DESK_LIVE = env.bool("LSD_HELP_DESK_LIVE", default=True)
