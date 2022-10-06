@@ -261,9 +261,9 @@ Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
 Loan Pool'
 Lost/Stolen'
-LSD_HELP_DESK_CREDS                                       
-LSD_HELP_DESK_TOKEN
-LSD_HELP_DESK_INTERFACE
+HELP_DESK_INTERFACE
+HELP_DESK_CREDS
+LSD_HELP_DESK_LIVE
 manager_id
 Mark
 Mi-Fi Device'
