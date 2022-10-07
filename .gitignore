@@ -146,3 +146,5 @@ test_*.txt
 
 media/
 .pii-secret-hook/
+
+.env.old

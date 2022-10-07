@@ -28,7 +28,6 @@ slackclient
 waitress==2.1.2
 whitenoise==5.2
 whitenoise==5.2.0
-zenpy==2.0.24
 # Elastic Search
 elasticsearch
 elasticsearch-dsl
@@ -38,3 +37,4 @@ opensearch-py==1.0.0
 opensearch-dsl==1.0.0
 # GovUK Notify
 notifications-python-client
+help-desk-client==0.2.0

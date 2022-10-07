@@ -367,13 +367,6 @@ HR_UKSBS_CORRECTION_EMAIL = env("HR_UKSBS_CORRECTION_EMAIL", default=None)
 # GOV.UK Notify
 GOVUK_NOTIFY_API_KEY = env("GOVUK_NOTIFY_API_KEY", default=None)
 
-# LSD Team settings
-LSD_ZENDESK_EMAIL = env("LSD_ZENDESK_EMAIL")
-LSD_ZENDESK_TOKEN = env("LSD_ZENDESK_TOKEN")
-LSD_ZENDESK_SUBDOMAIN = env("LSD_ZENDESK_SUBDOMAIN")
-# Send requests to zendesk?
-LSD_ZENDESK_LIVE = env.bool("LSD_ZENDESK_LIVE", default=False)
-
 # Search Staff Index
 SEARCH_HOST_URLS: List[str] = []
 if "opensearch" in VCAP_SERVICES:
@@ -405,3 +398,10 @@ PROCESS_LEAVING_REQUEST = env.bool("PROCESS_LEAVING_REQUEST", default=True)
 
 JML_TEAM_CONTACT_EMAIL = env("JML_TEAM_CONTACT_EMAIL", default="")
 JML_TEAM_EMAILS = env.list("JML_TEAM_EMAILS", default=[])
+
+# Help desk interface
+HELP_DESK_INTERFACE = env("HELP_DESK_INTERFACE", default="")
+HELP_DESK_CREDS = env.dict("HELP_DESK_CREDS", default={})
+
+# LSD team
+LSD_HELP_DESK_LIVE = env.bool("LSD_HELP_DESK_LIVE", default=True)

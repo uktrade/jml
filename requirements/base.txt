@@ -118,6 +118,8 @@ frozenlist==1.2.0
     # via
     #   aiohttp
     #   aiosignal
+help-desk-client==0.2.0
+    # via -r requirements.in/base.in
 idna==3.3
     # via
     #   requests
@@ -242,5 +244,5 @@ wrapt==1.13.3
     # via deprecated
 yarl==1.7.2
     # via aiohttp
-zenpy==2.0.24
-    # via -r requirements.in/base.in
+zenpy==2.0.25
+    # via help-desk-client
