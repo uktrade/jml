@@ -27,7 +27,7 @@ class LSDHelpDeskBase(ABC):
 class LSDHelpDeskStubbed(LSDHelpDeskBase):
     def inform_lsd_team_of_leaver(self, leaving_request: LeavingRequest):
         leaving_request.task_logs.create(
-            task_name="LSD team informed of leaver via Helpdesk (stubbed)",
+            task_name="LSD team informed of leaver via the help desk (stubbed)",
         )
 
 
@@ -48,11 +48,11 @@ class LSDHelpDesk(LSDHelpDeskBase):
 
         if not settings.PROCESS_LEAVING_REQUEST:
             logger.warning(
-                f"Creating zendesk ticket for LSD team regarding {leaver_name}"
+                f"Creating help desk ticket for LSD team regarding {leaver_name}"
             )
             return None
 
-         # Create a helpdesk /PS-IGNORE
+        # Create a helpdesk /PS-IGNORE
         comment_body = (
             "We have been informed that the following person is "
             "leaving/has left the department.\n"
@@ -76,5 +76,5 @@ class LSDHelpDesk(LSDHelpDeskBase):
         )
 
         leaving_request.task_logs.create(
-            task_name="LSD team informed of leaver via Zendesk",
+            task_name="LSD team informed of leaver via help desk",
         )

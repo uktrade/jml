@@ -399,7 +399,7 @@ PROCESS_LEAVING_REQUEST = env.bool("PROCESS_LEAVING_REQUEST", default=True)
 JML_TEAM_CONTACT_EMAIL = env("JML_TEAM_CONTACT_EMAIL", default="")
 JML_TEAM_EMAILS = env.list("JML_TEAM_EMAILS", default=[])
 
-# Helpdesk interface
+# Help desk interface
 HELP_DESK_INTERFACE = env("HELP_DESK_INTERFACE", default="")
 HELP_DESK_CREDS = env.dict("HELP_DESK_CREDS", default={})
 
