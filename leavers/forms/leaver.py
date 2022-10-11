@@ -199,6 +199,7 @@ class LeaverDatesForm(forms.Form):
                     request=request,
                     field_name="leaver_manager",
                     search_url=reverse("leaver-manager-search"),
+                    remove_text="Remove line manager",
                     remove_url=reverse("leaver-remove-line-manager"),
                 ),
                 legend="Who is your line manager?",

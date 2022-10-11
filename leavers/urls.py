@@ -136,6 +136,11 @@ urlpatterns = [
         name="line-manager-leaver-confirmation",
     ),
     path(
+        "line-manager/<uuid:leaving_request_uuid>/leaver-confirmation/remove-data-recipient/",
+        line_manager_views.RemoveDataRecipientFromLeavingRequestView.as_view(),
+        name="line-manager-remove-data-recipient",
+    ),
+    path(
         "line-manager/<uuid:leaving_request_uuid>/details/",
         line_manager_views.DetailsView.as_view(),
         name="line-manager-details",
@@ -144,6 +149,11 @@ urlpatterns = [
         "line-manager/<uuid:leaving_request_uuid>/line-reports/",
         line_manager_views.LeaverLineReportsView.as_view(),
         name="line-manager-leaver-line-reports",
+    ),
+    path(
+        "line-manager/<uuid:leaving_request_uuid>/line-reports/remove-line-manager/",
+        line_manager_views.RemoveLineManagerFromLineReportView.as_view(),
+        name="remove-line-manager-from-line-report",
     ),
     path(
         "line-manager/<uuid:leaving_request_uuid>/line-reports/"

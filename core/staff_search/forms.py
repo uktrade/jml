@@ -35,6 +35,7 @@ def staff_search_autocomplete_field(
     request: HttpRequest,
     field_name: str,
     search_url: str,
+    remove_text: Optional[str] = None,
     remove_url: Optional[str] = None
 ) -> List[Union[Field, HTML]]:
     """
@@ -72,6 +73,7 @@ def staff_search_autocomplete_field(
                     "search_url": search_url,
                     "search_identifier": field_name,
                     "staff_uuid": current_value,
+                    "remove_text": remove_text,
                     "remove_url": remove_url,
                 },
             ).content.decode()

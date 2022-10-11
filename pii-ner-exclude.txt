@@ -20,6 +20,7 @@
 " The Asset's
 " The Service Now API Asset
 " The Service Now API User
+"Google Drive
 "Lost/Stolen"
 @media
 *Actions required:*\n
@@ -122,6 +123,7 @@ date_of_birth
 date_of_birth_0"
 date_of_birth_0": 19
 date_of_birth_2
+day</span></a
 Days"
 DB
 delay:200ms
@@ -171,6 +173,7 @@ f"ActivityStreamStaffSSOUser
 f"Asset
 f"Error
 f"Gsuite
+f"If
 f"Physical Asset
 f"Software Asset
 f"sys_id={sys_id
@@ -193,6 +196,7 @@ Form
 form</h1
 found</p
 from:</p>
+Functionality
 Get the Leaver StaffDocument
 Get the Leaving Request for the Leaver
 Github
@@ -290,12 +294,14 @@ Line Manager</h2
 Line Managers.</p
 Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
+line_report.consolidated_staff_document.job_title
 Loan Pool'
 Lost/Stolen'
 LSD_HELP_DESK_LIVE
 manager_activitystream_user
 manager_id
 Manager</h2
+manager</label
 Mark
 Mi-Fi Device'
 migrate$(COLOUR_NONE
@@ -360,6 +366,7 @@ Reason for Leaving Resignation
 recorded</h1
 Reminder Email
 Reminder Email*
+remove_url=
 Report 2
 Request
 Return Cirrus
@@ -391,6 +398,7 @@ Send
 Send Feetham Security Pass Office
 Send Line
 Send OCS Email
+Send OCS OAB Locker
 send_leaver_thank_you_email
 Sensitive and Personal
 Service
@@ -458,6 +466,7 @@ TEMPLATE_ID_SRE_REMINDER_ON_LD
 TEMPLATE_ID_SRE_REMINDER_ON_LD                                   | None                                       
 Templates
 test_existing_updates
+TestDetailsView(ViewAccessTest
 Tests for `get_leaver_detail_updates` "
 Tests for `get_leaver_details_with_updates`
 Tests for `get_leaver_details_with_updates`

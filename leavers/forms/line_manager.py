@@ -5,9 +5,12 @@ from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import HTML, Field, Fieldset, Layout, Size, Submit
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.files.uploadedfile import UploadedFile
 from django.db.models.enums import TextChoices
+from django.http.request import HttpRequest
+from django.urls import reverse
 
+from core.staff_search.forms import staff_search_autocomplete_field
+from core.utils.helpers import make_possessive
 from core.utils.staff_index import ConsolidatedStaffDocument
 from leavers.types import LeavingRequestLineReport
 
@@ -15,35 +18,9 @@ if TYPE_CHECKING:
     from leavers.models import LeavingRequest
 
 
-class PdfFileField(forms.FileField):
-    def validate(self, value: UploadedFile) -> None:
-        super().validate(value)
-        if value.content_type != "application/pdf":
-            raise ValidationError("File must be a PDF")
-
-
-class UksbsPdfForm(forms.Form):
-    uksbs_pdf = PdfFileField(
-        label="",
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Fieldset(
-                "uksbs_pdf",
-                legend="Upload the UKSBS PDF",
-                legend_size=Size.MEDIUM,
-            ),
-            Submit("submit", "Submit"),
-        )
-
-
 class LeaverPaidUnpaid(TextChoices):
-    UNPAID = "unpaid", "Unpaid - not on UK SBS Payroll"
-    PAID = "paid", "Paid - on UK SBS Payroll"
+    PAID = "paid", "Paid"
+    UNPAID = "unpaid", "Unpaid"
 
 
 class AnnualLeavePaidOrDeducted(TextChoices):
@@ -64,7 +41,6 @@ class DaysHours(TextChoices):
 
 
 class LineManagerDetailsForm(forms.Form):
-
     leaver_paid_unpaid = forms.ChoiceField(
         label="",
         choices=LeaverPaidUnpaid.choices,
@@ -103,6 +79,11 @@ class LineManagerDetailsForm(forms.Form):
     def __init__(self, leaver_name: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["flexi_leave"].help_text = (
+            f"If {leaver_name} has built up any additional flexi leave, "
+            "tell us how that leave should be handled."
+        )
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
@@ -112,7 +93,7 @@ class LineManagerDetailsForm(forms.Form):
             ),
             Fieldset(
                 "annual_leave",
-                legend="Is there annual leave to be paid or deducted?",
+                legend=f"Does {leaver_name} have annual leave to be paid or deducted?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
@@ -127,15 +108,9 @@ class LineManagerDetailsForm(forms.Form):
                 legend_size=Size.MEDIUM,
                 css_id="annual_number_fieldset",
             ),
-            HTML("<h2 class='govuk-heading-l'>Flexi leave dates</h2>"),
-            HTML(
-                f"<p class='govuk-body'>If {leaver_name} has built up any "
-                "additional Flexi Leave, please indicate how that leave "
-                "should be handled.</p>"
-            ),
             Fieldset(
                 "flexi_leave",
-                legend="Is there flexi leave to be paid or deducted?",
+                legend=f"Does {leaver_name} have any flexi leave to be paid or deducted?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
@@ -144,7 +119,7 @@ class LineManagerDetailsForm(forms.Form):
                 legend_size=Size.MEDIUM,
                 css_id="flexi_number_fieldset",
             ),
-            Submit("submit", "Save and continue"),
+            Submit("submit", "Next"),
         )
 
     def annual_leave_selected(self) -> bool:
@@ -239,7 +214,7 @@ class LineReportConfirmationForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Submit("submit", "Confirm and send"),
+            Submit("submit", "Next"),
         )
 
     def clean(self) -> Dict[str, Any]:
@@ -249,8 +224,9 @@ class LineReportConfirmationForm(forms.Form):
         ] = self.leaving_request.line_reports
         for line_report in lr_line_reports:
             if not line_report["line_manager"]:
-                raise ValidationError(
-                    f"Line report {line_report['name']} has no Line Manager selected."
+                self.add_error(
+                    None,
+                    f"Line report {line_report['name']} has no Line Manager selected.",
                 )
         return super().clean()
 
@@ -261,7 +237,7 @@ class LineManagerConfirmationForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Submit("submit", "Confirm and send"),
+            Submit("submit", "Accept and send"),
         )
 
 
@@ -275,6 +251,10 @@ class ReasonForLeaving(TextChoices):
 
 
 class ConfirmLeavingDate(forms.Form):
+    required_error_messages: Dict[str, str] = {
+        "data_recipient": "Please select the Google Drive data transfer recipient",
+    }
+
     last_day = DateInputField(
         label="",
     )
@@ -286,41 +266,84 @@ class ConfirmLeavingDate(forms.Form):
         widget=forms.RadioSelect,
         choices=ReasonForLeaving.choices,
     )
+    data_recipient = forms.CharField(label="", widget=forms.HiddenInput)
 
-    def __init__(self, leaver: ConsolidatedStaffDocument, *args, **kwargs):
+    def __init__(
+        self,
+        request: HttpRequest,
+        leaving_request_uuid: str,
+        leaver: ConsolidatedStaffDocument,
+        needs_data_transfer: bool = False,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
 
+        for field_name, required_message in self.required_error_messages.items():
+            self.fields[field_name].error_messages["required"] = required_message
+
         leaver_name: str = leaver["first_name"] + " " + leaver["last_name"]
+        possessive_leaver_first_name = make_possessive(leaver["first_name"])
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
                 HTML(
-                    "<p class='govuk-body'>This is the last day the leaver will "
-                    "be working at DIT. After this date the leaver will no "
-                    "longer have access to any DIT provided systems and "
-                    "buildings.</p>"
+                    f"<p class='govuk-body'>This is the last date {leaver_name} "
+                    "will work for DIT. After this date they will not have "
+                    "access to any of the DIT-provided systems and buildings.</p>"
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("last_day"),
-                legend=f"Confirm the last working day provided by {leaver_name}",
+                legend=f"Confirm {possessive_leaver_first_name} last working day",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
                 HTML(
-                    "<p class='govuk-body'>This is the last day the leaver will "
-                    "be employed by the department and the last day they will "
-                    "be paid for.</p>"
+                    f"<p class='govuk-body'>This is the last date {leaver_name} "
+                    "will be employed and paid by DIT.</p>"
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("leaving_date"),
-                legend=f"Confirm the leaving date provided by {leaver_name}",
+                legend=f"Confirm {possessive_leaver_first_name} leaving date",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
                 Field("reason_for_leaving"),
-                legend="What's their reason for leaving?",
+                legend="Reason for leaving",
                 legend_size=Size.MEDIUM,
             ),
-            Submit("submit", "Save and continue"),
         )
+
+        if needs_data_transfer:
+            self.helper.layout.append(
+                Fieldset(
+                    HTML(
+                        f"<p class='govuk-body'>If {leaver_name} has any files in "
+                        "Google Drive, tell us who these should be transferred to."
+                        "</p>"
+                    ),
+                    *staff_search_autocomplete_field(
+                        form=self,
+                        request=request,
+                        field_name="data_recipient",
+                        search_url=reverse(
+                            "line-manager-data-recipient-search",
+                            kwargs={"leaving_request_uuid": leaving_request_uuid},
+                        ),
+                        remove_text="Remove data recipient",
+                        remove_url=reverse(
+                            "line-manager-remove-data-recipient",
+                            kwargs={"leaving_request_uuid": leaving_request_uuid},
+                        ),
+                    ),
+                    legend="Google Drive data transfer",
+                    legend_size=Size.MEDIUM,
+                )
+            )
+        else:
+            self.fields["data_recipient"].widget = forms.HiddenInput()
+            self.fields["data_recipient"].required = False
+            self.helper.layout.append(Field("data_recipient"))
+
+        self.helper.layout.append(Submit("submit", "Next"))

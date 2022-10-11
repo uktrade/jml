@@ -4,6 +4,7 @@
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {% back_link back_url %}
             {% error_summary form %}
             {% include "includes/govt_error_summary.html" with errors=errors %}
         </div>
@@ -13,23 +14,55 @@
         <div class="govuk-grid-column-two-thirds">
             <span class="govuk-caption-l">Page 3 of 4</span>
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
-            <p class="govuk-body">The leaver currently has line reports that will need to be reassigned to new Line Managers.</p>
 
+            {% include "leaving/line_manager/includes/staff_card.html" with staff_details=leaver %}
+
+            <p class="govuk-body">{{ leaver_name }} has one or more team members that report to them. A new line manager needs to be assigned to each team member.</p>
+
+            <h2 class="govuk-heading-m">Team members who report to {{ leaver_name }}</h2>
             {% for line_report in line_reports %}
-                <h2 class="govuk-heading-m">{{ line_report.name }} - {{ line_report.email }}</h2>
-                {% if line_report.line_manager %}
-                    <p class="govuk-body">New Line Manager: {{ line_report.line_manager.name }} - {{ line_report.line_manager.email }}</p>
+                {% if line_report.consolidated_staff_document %}
+                    {{ line_report.consolidated_staff_document }}
                 {% endif %}
-                <a href="{{ new_line_manager_search }}?line_report_uuid={{ line_report.uuid }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Select new Line Manager</a>
+                <div class="govuk-grid-row">
+                    <div class="govuk-grid-column-one-third">
+                        {% if line_report.consolidated_staff_document.photo %}
+                            <img class="leaver-image" src="{{ line_report.consolidated_staff_document.photo }}" alt="Picture of {{ line_report.consolidated_staff_document.full_name }}" />
+                        {% else %}
+                            <img class="leaver-image" src="{% static 'govuk-frontend/govuk/assets/images/govuk-crest-2x.png' %}" alt="Placeholder picture" />
+                        {% endif %}
+                    </div>
+                    <div class="govuk-grid-column-two-thirds">
+                        <p class="govuk-body govuk-!-font-size-24">
+                            <strong>{{ line_report.person_data.full_name }}</strong>
+                            {% if line_report.consolidated_staff_document.job_title %}
+                                <br />
+                                <strong>{{ line_report.consolidated_staff_document.job_title }}</strong>
+                            {% endif %}
+                            {% if line_report.person_data.email_address %}
+                                <br />
+                                {{ line_report.person_data.email_address }}
+                            {% endif %}
+                        </p>
+                        {% with search_url=new_line_manager_search|add:"?line_report_uuid="|add:line_report.uuid remove_url=remove_new_line_manager|add:"?line_report_uuid="|add:line_report.uuid %}
+                            <div class="govuk-form-group">
+                                {% if line_report.line_manager %}
+                                    <label class="govuk-label">Selected line manager</label>
+                                {% else %}
+                                    <label class="govuk-label">Add new line manager</label>
+                                {% endif %}
+                                {% include "staff_search/search_field.html" with search_identifier=line_report.uuid staff_uuid=line_report.line_manager.staff_uuid remove_text="Remove line manager" %}
+                            </div>
+                        {% endwith %}
+                    </div>
+                </div>
             {% endfor %}
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <form novalidate method="post" enctype="multipart/form-data">
-                {% crispy form %}
-            </form>
+            {% crispy form %}
         </div>
     </div>
 {% endblock content %}

@@ -6,6 +6,7 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
  - search_identifier: string - a unique identifier so we can have multiple on one page
  - search_url: string - the url to post the search to
  - staff_uuid: Optional[string] - the uuid of the staff member to pre-populate the search field with
+ - remove_text: string - the string to display on the remove button
  - remove_url: string - the url to post to when removing a staff member
 
 {% endcomment %}
@@ -20,7 +21,7 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
 </div>
 {% if staff_uuid %}
     {% if remove_url %}
-        <a href="{{ remove_url }}" class="govuk-button govuk-button--secondary">Remove line manager</a>
+        <a href="{{ remove_url }}" class="govuk-button govuk-button--secondary">{% if remove_text %}{{ remove_text }}{% else %}Remove staff member{% endif %}</a>
     {% endif %}
 {% else %}
     <input
@@ -31,9 +32,9 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
         placeholder="Start typing to search"
         hx-post="{{ search_url }}"
         hx-trigger="keyup changed delay:200ms, search"
-        hx-target="#{{ search_identifier }}-search-results"
-        hx-indicator="#{{ search_identifier }}-htmx-indicator"
+        hx-target="#search-results-{{ search_identifier }}"
+        hx-indicator="#htmx-indicator-{{ search_identifier }}"
         hx-params="{{ search_identifier }}_search_terms" />
-    <span id="{{ search_identifier }}-htmx-indicator" class="htmx-indicator"><p class="govuk-body">Searching...</p></span>
-    <div id="{{ search_identifier }}-search-results"></div>
+    <span id="htmx-indicator-{{ search_identifier }}" class="htmx-indicator"><p class="govuk-body">Searching...</p></span>
+    <div id="search-results-{{ search_identifier }}"></div>
 {% endif %}
