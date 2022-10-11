@@ -14,8 +14,6 @@ from help_desk_client.interfaces import (
 from leavers.models import LeavingRequest
 
 logger = logging.getLogger(__name__)
-help_desk_interface = get_help_desk_interface(settings.HELP_DESK_INTERFACE)
-help_desk = help_desk_interface(credentials=settings.HELP_DESK_CREDS)
 
 
 class LSDHelpDeskBase(ABC):
@@ -32,6 +30,11 @@ class LSDHelpDeskStubbed(LSDHelpDeskBase):
 
 
 class LSDHelpDesk(LSDHelpDeskBase):
+    def __init__(self) -> None:
+        super().__init__()
+        help_desk_interface = get_help_desk_interface(settings.HELP_DESK_INTERFACE)
+        self.help_desk = help_desk_interface(credentials=settings.HELP_DESK_CREDS)
+
     def inform_lsd_team_of_leaver(self, leaving_request: LeavingRequest):
         leaver_name = leaving_request.get_leaver_name()
         if not leaver_name:
@@ -63,7 +66,7 @@ class LSDHelpDesk(LSDHelpDeskBase):
             "(where appropriate. SSO, Datahub, Digital Worskspace, OKTA)."
         )
 
-        help_desk.create_ticket(
+        self.help_desk.create_ticket(
             HelpDeskTicket(
                 subject=f"Notification of Leaver: {leaver_name}",
                 comment=HelpDeskComment(
