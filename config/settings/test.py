@@ -64,3 +64,5 @@ SECURITY_TEAM_BUILDING_PASS_EMAIL = "test@example.com"  # /PS-IGNORE
 SECURITY_TEAM_ROSA_EMAIL = "test@example.com"  # /PS-IGNORE
 SRE_EMAIL = "test@example.com"  # /PS-IGNORE
 HR_UKSBS_CORRECTION_EMAIL = "test@example.com"  # /PS-IGNORE
+
+HELP_DESK_INTERFACE = "help_desk_client.interfaces.HelpDeskStubbed"
