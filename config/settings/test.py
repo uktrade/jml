@@ -66,3 +66,8 @@ SRE_EMAIL = "test@example.com"  # /PS-IGNORE
 HR_UKSBS_CORRECTION_EMAIL = "test@example.com"  # /PS-IGNORE
 
 HELP_DESK_INTERFACE = "help_desk_client.interfaces.HelpDeskStubbed"
+STAFF_SSO_INTERFACE = "core.staff_sso.interfaces.StaffSSOStubbed"
+SERVICE_NOW_INTERFACE = "core.service_now.interfaces.ServiceNowStubbed"
+UKSBS_INTERFACE = "core.uksbs.interfaces.UKSBSStubbed"
+PEOPLE_FINDER_INTERFACE = "core.people_finder.interfaces.PeopleFinderStubbed"
+PEOPLE_DATA_INTERFACE = "core.people_data.interfaces.PeopleDataStubbed"

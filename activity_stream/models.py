@@ -10,7 +10,6 @@ class ActivityStreamStaffSSOUserManager(models.Manager):
 
 
 class ActivityStreamStaffSSOUser(models.Model):
-    # TODO: Remove any fields that contain data we don't need.
     identifier = models.CharField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     obj_type = models.CharField(max_length=255)
