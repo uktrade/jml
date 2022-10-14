@@ -468,13 +468,17 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     """
     from core.people_data import get_people_data_interface
 
-    people_data_search = get_people_data_interface()
-    people_data_results = people_data_search.get_people_data(
-        sso_legacy_id=staff_sso_user.user_id,
-    )
-    # Assuming first id is correct
-    employee_number = next(iter(people_data_results["employee_numbers"]), None)
-    uksbs_person_id = people_data_results["uksbs_person_id"] or ""
+    primary_email = staff_sso_user.get_primary_email()
+    employee_number: Optional[str] = None
+    uksbs_person_id: str = ""
+    if primary_email:
+        people_data_search = get_people_data_interface()
+        people_data_result = people_data_search.get_people_data(
+            email_address=primary_email,
+        )
+        # Assuming first id is correct
+        employee_number = next(iter(people_data_result.employee_numbers), None)
+        uksbs_person_id = people_data_result.person_id or ""
 
     """
     Build Staff Document
