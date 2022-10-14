@@ -217,6 +217,7 @@ ingest_activity_stream
 INSERT INTO dit.people_data__jml
 Jira
 JML
+JML_TEAM_CONTACT_EMAIL                                           
 JML_TEAM_CONTACT_EMAIL"
 job_title"
 Joe
@@ -459,6 +460,7 @@ UKSBS Connect
 UKSBS Leavers
 UKSBS Line
 UKSBS_INTERFACE
+uksbs_person_id_override
 UKSBS_POST_LEAVER_SUBMISSION                             
 UKSBS_POST_LEAVER_SUBMISSION                                     | None                                       
 UKSBSBase

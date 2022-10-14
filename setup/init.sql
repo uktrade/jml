@@ -5,8 +5,8 @@ CREATE SCHEMA dit
         id serial PRIMARY KEY,
         email_address varchar(255),
         person_id varchar(20),
-        employee_numbers character varying[]
+        employee_numbers character varying[],
         person_type varchar(255),
         grade varchar(255),
-        grade_level varchar(255),
+        grade_level varchar(255)
     );

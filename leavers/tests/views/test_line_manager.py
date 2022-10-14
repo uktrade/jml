@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from activity_stream.factories import ActivityStreamStaffSSOUserFactory
+from activity_stream.models import ActivityStreamStaffSSOUser
 from core.utils.staff_index import StaffDocument
 from leavers.factories import LeavingRequestFactory
 from leavers.forms.line_manager import (
@@ -51,8 +52,10 @@ class TestLineManagerAccessMixin(TestCase):
         super().setUp()
 
         self.leaver = UserFactory()
-        self.leaver_as_user = ActivityStreamStaffSSOUserFactory(
-            email_user_id=self.leaver.sso_email_user_id
+        self.leaver_as_user: ActivityStreamStaffSSOUser = (
+            ActivityStreamStaffSSOUserFactory(
+                email_user_id=self.leaver.sso_email_user_id
+            )
         )
         self.random = UserFactory()
         self.random_as_user = ActivityStreamStaffSSOUserFactory(
@@ -65,7 +68,7 @@ class TestLineManagerAccessMixin(TestCase):
         self.uksbs_manager = UserFactory()
         self.uksbs_manager_as_user = ActivityStreamStaffSSOUserFactory(
             email_user_id=self.uksbs_manager.sso_email_user_id,
-            uksbs_person_id=self.leaver_as_user.uksbs_person_id + "manager",
+            uksbs_person_id=self.leaver_as_user.get_person_id() + "manager",
         )
         self.processing_manager = UserFactory()
         self.processing_manager_as_user = ActivityStreamStaffSSOUserFactory(

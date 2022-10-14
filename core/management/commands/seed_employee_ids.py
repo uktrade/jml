@@ -13,20 +13,28 @@ class Command(BaseCommand):
 
         employee_id_1 = 10000000
         employee_id_2 = 100000
+        person_id = 10000
 
         with connections["people_data"].cursor() as cursor:
             for user in users:
                 cursor.execute(
-                    "INSERT INTO dit.people_data__jml "
-                    "(email_address, person_id, employee_numbers) VALUES(%s, %s)",
+                    """
+                    INSERT INTO dit.people_data__jml (
+                        email_address,
+                        person_id,
+                        employee_numbers
+                    )
+                    VALUES(%s, %s, %s)
+                    """,
                     (
                         user.email,
-                        user.sso_legacy_user_id,
+                        person_id,
                         [employee_id_1, employee_id_2],
                     ),
                 )
                 employee_id_1 += 1
                 employee_id_2 += 1
+                person_id += 1
             connections["people_data"].commit()
 
         self.stdout.write(

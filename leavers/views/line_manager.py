@@ -105,10 +105,17 @@ class LineManagerViewMixin:
         except ActivityStreamStaffSSOUser.DoesNotExist:
             return False
 
+        user_person_id = user_activitystream_user.get_person_id()
+        leaver_person_id = None
+        if leaving_request.leaver_activitystream_user:
+            leaver_person_id = (
+                leaving_request.leaver_activitystream_user.get_person_id()
+            )
+
         if (
             not leaving_request.leaver_activitystream_user
-            or not leaving_request.leaver_activitystream_user.uksbs_person_id
-            or not user_activitystream_user.uksbs_person_id
+            or not leaver_person_id
+            or not user_person_id
         ):
             return False
 
@@ -116,15 +123,13 @@ class LineManagerViewMixin:
 
         try:
             leaver_hierarchy_data = uksbs_interface.get_user_hierarchy(
-                person_id=leaving_request.leaver_activitystream_user.uksbs_person_id
+                person_id=leaver_person_id
             )
         except (UKSBSUnexpectedResponse, UKSBSPersonNotFound):
             return False
 
         for uksbs_manager in leaver_hierarchy_data.get("manager", []):
-            if str(uksbs_manager["person_id"]) == str(
-                user_activitystream_user.uksbs_person_id
-            ):
+            if str(uksbs_manager["person_id"]) == str(user_person_id):
                 # The user is in UK SBS as the manager of the leaver.
                 leaving_request.processing_manager_activitystream_user = (
                     user_activitystream_user
@@ -694,13 +699,13 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
             leaver_as_user: ActivityStreamStaffSSOUser = (
                 self.leaving_request.leaver_activitystream_user
             )
-
-            if not leaver_as_user.uksbs_person_id:
+            leaver_person_id = leaver_as_user.get_person_id()
+            if not leaver_person_id:
                 raise LeaverDoesNotHaveUKSBSPersonId()
 
             leaver_hierarchy_data: PersonHierarchyData = (
                 uksbs_interface.get_user_hierarchy(
-                    person_id=leaver_as_user.uksbs_person_id,
+                    person_id=leaver_person_id,
                 )
             )
             person_data_line_reports: List[PersonData] = leaver_hierarchy_data.get(

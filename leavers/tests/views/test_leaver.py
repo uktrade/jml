@@ -695,7 +695,7 @@ class TestUpdateDetailsView(TestCase):
         )
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-has-cirrus-equipment"))
+        self.assertEqual(response.url, reverse("leaver-find-details"))
 
         leaver_updates_obj = models.LeaverInformation.objects.get(
             personal_email="someone@example.com",  # /PS-IGNORE

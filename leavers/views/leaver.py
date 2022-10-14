@@ -2,6 +2,7 @@ import uuid
 from datetime import date, datetime
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type, cast
 
+from django.conf import settings
 from django.forms import Form
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
@@ -12,11 +13,17 @@ from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
-from activity_stream.models import ActivityStreamStaffSSOUser, ServiceEmailAddress
+from activity_stream.models import (
+    ActivityStreamStaffSSOUser,
+    ActivityStreamStaffSSOUserEmail,
+    ServiceEmailAddress,
+)
+from core.people_data import get_people_data_interface
 from core.people_finder import get_people_finder_interface
 from core.service_now import get_service_now_interface
 from core.staff_search.views import StaffSearchView
 from core.types import Address
+from core.uksbs import get_uksbs_interface
 from core.utils.helpers import bool_to_yes_no
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
@@ -545,7 +552,7 @@ class LeaverProgressIndicator(ProgressIndicator):
 class UpdateDetailsView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/update_details.html"
     form_class = leaver_forms.LeaverUpdateForm
-    success_url = reverse_lazy("leaver-has-cirrus-equipment")
+    success_url = reverse_lazy("leaver-find-details")
 
     def __init__(self) -> None:
         super().__init__()
@@ -661,6 +668,137 @@ class UpdateDetailsView(LeaverInformationMixin, FormView):
             leaving_date=form.cleaned_data["leaving_date"],
         )
         return super().form_valid(form)
+
+
+class LeaverFindDetailsView(LeaverInformationMixin, FormView):
+    template_name = "leaving/leaver/leaver_find_details.html"
+    form_class = leaver_forms.FindPersonIDForm
+    success_url = reverse_lazy("leaver-has-cirrus-equipment")
+
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
+        sso_email_user_id = user.sso_email_user_id
+        self.leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        if self.leaving_request and self.leaving_request.leaver_complete:
+            return redirect(reverse("leaver-request-received"))
+
+        if self.has_person_id():
+            self.set_default_line_manager()
+            return redirect(self.get_success_url())
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def has_person_id(self) -> bool:
+        return False
+        leaver_person_id = (
+            self.leaving_request.leaver_activitystream_user.get_person_id()
+        )
+        if leaver_person_id:
+            return True
+        return False
+
+    def set_default_line_manager(self):
+        leaver_person_id = (
+            self.leaving_request.leaver_activitystream_user.get_person_id()
+        )
+        uksbs_interface = get_uksbs_interface()
+        leaver_hierarchy = uksbs_interface.get_user_hierarchy(
+            person_id=leaver_person_id
+        )
+        leaver_managers = leaver_hierarchy.get("manager", [])
+        if len(leaver_managers):
+            leaver_manager = leaver_managers[0]
+            leaver_manager_email = leaver_manager.get("email_address")
+            if leaver_manager_email:
+                activity_stream_user_emails = (
+                    ActivityStreamStaffSSOUserEmail.objects.filter(
+                        email_address=leaver_manager_email
+                    )
+                )
+                if activity_stream_user_emails.count() == 1:
+                    leaver_manager_activity_stream_user = (
+                        activity_stream_user_emails.first().staff_sso_user
+                    )
+                    self.leaving_request.manager_activitystream_user = (
+                        leaver_manager_activity_stream_user
+                    )
+                    self.leaving_request.save()
+
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(page_title="Your personal email")
+        return context
+
+    def form_valid(self, form: Form) -> HttpResponse:
+        assert self.leaving_request
+
+        people_data_interface = get_people_data_interface()
+
+        personal_email = form.cleaned_data["personal_email"]
+
+        people_data_result = people_data_interface.get_people_data(
+            email_address=personal_email
+        )
+        if people_data_result.person_id:
+            self.leaving_request.leaver_activitystream_user.uksbs_person_id_override = (
+                people_data_result.person_id
+            )
+            self.leaving_request.leaver_activitystream_user.save()
+            self.set_default_line_manager()
+        else:
+            form.add_error(
+                "personal_email",
+                "We couldn't find details for this email address. Please try "
+                "an alterate email address.",
+            )
+            return self.form_invalid(form)
+
+        return super().form_valid(form)
+
+
+class LeaverFindDetailsHelpView(LeaverInformationMixin, TemplateView):
+    template_name = "leaving/leaver/leaver_find_details_help.html"
+
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
+        sso_email_user_id = user.sso_email_user_id
+        leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        if leaving_request and leaving_request.leaver_complete:
+            return redirect(reverse("leaver-request-received"))
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            page_title="Please reach out to our support team",
+            DIT_OFFBOARDING_EMAIL=settings.DIT_OFFBOARDING_EMAIL,
+        )
+        return context
 
 
 def get_cirrus_assets(request: HttpRequest) -> List[types.CirrusAsset]:

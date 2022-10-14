@@ -226,13 +226,14 @@ def send_line_manager_correction_email(
         leaving_request.manager_activitystream_user
     )
 
-    if not leaver_as_user.uksbs_person_id:
+    leaver_person_id = leaver_as_user.get_person_id()
+    if not leaver_person_id:
         raise LeaverDoesNotHaveUKSBSPersonId()
 
     uksbs_interface = get_uksbs_interface()
 
     uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
-        person_id=leaver_as_user.uksbs_person_id,
+        person_id=leaver_person_id,
     )
 
     uksbs_leaver_managers: List[PersonData] = uksbs_leaver_hierarchy.get("manager", [])

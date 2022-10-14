@@ -102,12 +102,13 @@ class ConfirmLeaverData(LeavingRequestTask):
         if not leaver_as_user:
             errors.append("Leaving Request doesn't have a Leaver")
         else:
-            if not leaver_as_user.uksbs_person_id:
+            leaver_person_id = leaver_as_user.get_person_id()
+            if not leaver_person_id:
                 errors.append("Leaver doesn't have a UK SBS Person ID")
             else:
                 try:
                     uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
-                        person_id=leaver_as_user.uksbs_person_id,
+                        person_id=leaver_person_id,
                     )
                 except UKSBSUnexpectedResponse:
                     errors.append(
@@ -139,12 +140,13 @@ class ConfirmLeaverData(LeavingRequestTask):
         if not manager_as_user:
             errors.append("Leaving Request doesn't have a Manager")
         else:
-            if not manager_as_user.uksbs_person_id:
+            manager_person_id = manager_as_user.get_person_id()
+            if not manager_person_id:
                 errors.append("Manager doesn't have a UK SBS Person ID")
             else:
                 try:
                     uksbs_interface.get_user_hierarchy(
-                        person_id=manager_as_user.uksbs_person_id,
+                        person_id=manager_person_id,
                     )
                 except UKSBSUnexpectedResponse:
                     errors.append(
@@ -157,10 +159,7 @@ class ConfirmLeaverData(LeavingRequestTask):
                         "found"
                     )
                 else:
-                    if (
-                        manager_as_user.uksbs_person_id
-                        not in uksbs_leaver_manager_person_ids
-                    ):
+                    if manager_person_id not in uksbs_leaver_manager_person_ids:
                         errors.append(
                             "Manager's UK SBS Person ID is not in the leaver's "
                             "hierarchy data."
@@ -187,13 +186,13 @@ class CheckUKSBSLeaver(LeavingRequestTask):
         leaver_as_user: ActivityStreamStaffSSOUser = (
             self.leaving_request.leaver_activitystream_user
         )
-
-        if not leaver_as_user.uksbs_person_id:
+        leaver_person_id = leaver_as_user.get_person_id()
+        if not leaver_person_id:
             return ["send_leaver_not_in_uksbs_reminder"], False
 
         try:
             uksbs_interface.get_user_hierarchy(
-                person_id=leaver_as_user.uksbs_person_id,
+                person_id=leaver_person_id,
             )
         except (UKSBSUnexpectedResponse, UKSBSPersonNotFound):
             return ["send_leaver_not_in_uksbs_reminder"], False
@@ -212,15 +211,16 @@ class CheckUKSBSLineManager(LeavingRequestTask):
         leaver_as_user: ActivityStreamStaffSSOUser = (
             self.leaving_request.leaver_activitystream_user
         )
+        leaver_person_id = leaver_as_user.get_person_id()
         line_manager_as_user = self.leaving_request.get_line_manager()
-
-        if not leaver_as_user.uksbs_person_id:
+        manager_person_id = line_manager_as_user.get_person_id()
+        if not leaver_person_id:
             raise LeaverDoesNotHaveUKSBSPersonId()
-        if not line_manager_as_user.uksbs_person_id:
+        if not manager_person_id:
             raise ManagerDoesNotHaveUKSBSPersonId()
 
         uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
-            person_id=leaver_as_user.uksbs_person_id,
+            person_id=leaver_person_id,
         )
 
         uksbs_leaver_managers: List[PersonData] = uksbs_leaver_hierarchy.get(
@@ -231,7 +231,7 @@ class CheckUKSBSLineManager(LeavingRequestTask):
             for uksbs_leaver_manager in uksbs_leaver_managers
         ]
 
-        if line_manager_as_user.uksbs_person_id in uksbs_leaver_manager_person_ids:
+        if manager_person_id in uksbs_leaver_manager_person_ids:
             return ["notify_line_manager"], True
 
         return ["send_line_manager_correction_reminder"], False
