@@ -55,11 +55,6 @@ urlpatterns = [
         name="leaver-find-details-help",
     ),
     path(
-        "leaver/confirm-details/",
-        leaver_views.ConfirmDetailsView.as_view(),
-        name="leaver-confirm-details",
-    ),
-    path(
         "leaver/leaver-dates/remove-line-manager/",
         leaver_views.RemoveLineManagerFromLeavingRequestView.as_view(),
         name="leaver-remove-line-manager",
