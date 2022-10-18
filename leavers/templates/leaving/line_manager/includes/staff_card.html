@@ -7,11 +7,11 @@
                 {% if staff_details.photo %}
                     <img class="leaver-image" src="{{ staff_details.photo }}" alt="Picture of {{ staff_details.first_name }} {{ staff_details.last_name }}" />
                 {% else %}
-                    <img class="leaver-image" src="{% static '/govuk-frontend/govuk/assets/images/govuk-crest-2x.png' %}" alt="Placeholder picture" />
+                    <img class="leaver-image" src="{% static 'govuk-frontend/govuk/assets/images/govuk-crest-2x.png' %}" alt="Placeholder picture" />
                 {% endif %}
             </div>
             <div class="govuk-grid-column-two-thirds">
-                <p class="govuk-body govuk-!-font-size-19">
+                <p class="govuk-body govuk-!-font-size-24">
                     <strong>{{ staff_details.first_name }} {{ staff_details.last_name }}</strong>
                     {% if staff_details.job_title %}
                         <br />

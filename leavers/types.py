@@ -4,6 +4,7 @@ from django.db.models.enums import TextChoices
 
 if TYPE_CHECKING:
     from core.uksbs.types import PersonData
+    from core.utils.staff_index import ConsolidatedStaffDocument
 
 
 class SecurityClearance(TextChoices):
@@ -61,6 +62,7 @@ class CirrusAsset(TypedDict):
 
 
 class LeavingRequestLineReportLineManager(TypedDict):
+    staff_uuid: str
     name: str
     email: str
 
@@ -71,6 +73,7 @@ class LeavingRequestLineReport(TypedDict):
     email: str
     line_manager: Optional[LeavingRequestLineReportLineManager]
     person_data: Optional["PersonData"]
+    consolidated_staff_document: Optional["ConsolidatedStaffDocument"]
 
 
 class ReminderEmailDict(TypedDict):

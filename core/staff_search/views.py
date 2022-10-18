@@ -52,6 +52,7 @@ class StaffSearchView(FormView):
     template_name = "staff_search/search.html"
     search_name: str = "member of staff"
     query_param_name: str = "staff_uuid"
+    success_url: str = ""
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -61,7 +62,7 @@ class StaffSearchView(FormView):
     def get_form_kwargs(self) -> Dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
 
-        form_kwargs["data"] = dict(form_kwargs["data"])
+        form_kwargs["data"] = dict(form_kwargs.get("data", {}))
 
         search_terms = ""
         search_term_keys: List[str] = []
@@ -93,6 +94,7 @@ class StaffSearchView(FormView):
             staff_results=[],
             search_name=self.search_name,
             query_param_name=self.query_param_name,
+            success_url=self.get_success_url(),
         )
         return context
 

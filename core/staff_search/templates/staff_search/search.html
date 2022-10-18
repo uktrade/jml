@@ -16,7 +16,8 @@
                         <p class="govuk-body">({{ staff_details.job_title }}, {{ staff_details.email_addresses.0 }})</p>
                     </th>
                     <td class="govuk-table__cell">
-                        <a href="?{{ query_param_name }}={{ staff_details.uuid }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Select</a></td>
+                        <a href="{{ success_url }}?{{ query_param_name }}={{ staff_details.uuid }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Select</a>
+                    </td>
                 </tr>
             {% endfor %}
         </tbody>

@@ -4,6 +4,7 @@
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            {% back_link back_url %}
             {% error_summary form %}
         </div>
     </div>
@@ -12,13 +13,16 @@
         <div class="govuk-grid-column-two-thirds">
             <span class="govuk-caption-l">Page 2 of 4</span>
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
+
+            {% include "leaving/line_manager/includes/staff_card.html" with staff_details=leaver %}
+
             <p class="govuk-body">The information provided on this page will ensure that {{ leaver_name }} is paid correctly
                 and on time. Please visit the
                 <a class="govuk-link"
                     href="https://workspace.trade.gov.uk/working-at-dit/policies-and-guidance/policies/payment-of-salary/">payment
                     of salary policy</a> for more information.
             </p>
-            <form id="hr_payroll_form" novalidate method="post" enctype="multipart/form-data">
+            <form id="hr_payroll_form" method="post">
                 {% crispy form %}
             </form>
         </div>

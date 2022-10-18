@@ -56,6 +56,7 @@ def get_leaving_request_email_personalisation(
         manager_email=manager_as_user.get_email_addresses_for_contact()[0],
         leaving_date=leaving_date.strftime("%d-%B-%Y %H:%M"),
         last_day=last_day.strftime("%d-%B-%Y %H:%M"),
+        has_data_recipient="no",
         contact_us_link=site_url + reverse("beta-service-feedback"),
         line_manager_link=site_url
         + reverse("line-manager-start", args=[leaving_request.uuid]),
@@ -84,6 +85,14 @@ def get_leaving_request_email_personalisation(
             "%d-%B-%Y %H:%M"
         ),
     )
+
+    if leaving_request.data_recipient_activitystream_user:
+        data_recipient = leaving_request.data_recipient_activitystream_user
+        personalisation.update(
+            has_data_recipient="yes",
+            data_recipient_name=data_recipient.full_name,
+            data_recipient_email=data_recipient.get_primary_email(),
+        ),
 
     return personalisation
 
