@@ -54,6 +54,9 @@ class PeopleDataInterface(PeopleDataBase):
             row = cursor.fetchone()
             if row:
                 dict_row = row_to_dict(cursor=cursor, row=row)
-                people_data_result = types.PeopleDataResult.from_dict(dict_row)
+                people_data_result = types.PeopleDataResult.from_dict(
+                    dict_row,
+                    infer_missing=True,
+                )
 
         return people_data_result
