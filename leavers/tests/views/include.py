@@ -37,19 +37,19 @@ class ViewAccessTest:
         self.assertEqual(response.status_code, 302)
         self.assertTrue(str(settings.LOGIN_URL) in response.url)
 
-    def test_unauthenticated_user_get(self):
+    def test_unauthenticated_user_get(self, *args, **kwargs):
         response = self.client.get(self.get_url())
         self.assert_unauthenticated_pass(response)
 
-    def test_unauthenticated_user_post(self):
+    def test_unauthenticated_user_post(self, *args, **kwargs):
         response = self.client.post(self.get_url(), {})
         self.assert_unauthenticated_pass(response)
 
-    def test_unauthenticated_user_patch(self):
+    def test_unauthenticated_user_patch(self, *args, **kwargs):
         response = self.client.patch(self.get_url(), {})
         self.assert_unauthenticated_pass(response)
 
-    def test_unauthenticated_user_put(self):
+    def test_unauthenticated_user_put(self, *args, **kwargs):
         response = self.client.put(self.get_url(), {})
         self.assert_unauthenticated_pass(response)
 
@@ -61,22 +61,22 @@ class ViewAccessTest:
         status_code = 200 if method in self.allowed_methods else 405
         self.assertEqual(response.status_code, status_code)  # type: ignore
 
-    def test_authenticated_user_get(self):
+    def test_authenticated_user_get(self, *args, **kwargs):
         self.client.force_login(self.authenticated_user)
         response = self.client.get(self.get_url())
         self.assert_authenticated_pass("get", response)
 
-    def test_authenticated_user_post(self):
+    def test_authenticated_user_post(self, *args, **kwargs):
         self.client.force_login(self.authenticated_user)
         response = self.client.post(self.get_url(), {})
         self.assert_authenticated_pass("post", response)
 
-    def test_authenticated_user_patch(self):
+    def test_authenticated_user_patch(self, *args, **kwargs):
         self.client.force_login(self.authenticated_user)
         response = self.client.patch(self.get_url(), {})
         self.assert_authenticated_pass("patch", response)
 
-    def test_authenticated_user_put(self):
+    def test_authenticated_user_put(self, *args, **kwargs):
         self.client.force_login(self.authenticated_user)
         response = self.client.put(self.get_url(), {})
         self.assert_authenticated_pass("put", response)

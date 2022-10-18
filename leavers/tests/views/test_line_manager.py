@@ -1,5 +1,7 @@
 from unittest import mock
+from uuid import uuid4
 
+from django.conf import settings
 from django.test.testcases import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -8,11 +10,45 @@ from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.utils.staff_index import StaffDocument
 from leavers.factories import LeavingRequestFactory
+from leavers.forms.line_manager import (
+    AnnualLeavePaidOrDeducted,
+    DaysHours,
+    FlexiLeavePaidOrDeducted,
+    LeaverPaidUnpaid,
+)
 from leavers.models import LeavingRequest
 from leavers.tests.views.include import ViewAccessTest
 from leavers.views.line_manager import LineManagerViewMixin
 from user.test.factories import UserFactory
 
+STAFF_DOCUMENT = StaffDocument.from_dict(
+    {
+        "uuid": uuid4(),
+        "staff_sso_activity_stream_id": "1",
+        "staff_sso_legacy_id": "123",
+        "staff_sso_contact_email_address": "joe.bloggs@example.com",  # /PS-IGNORE
+        "staff_sso_first_name": "Joe",  # /PS-IGNORE
+        "staff_sso_last_name": "Bloggs",
+        "staff_sso_email_user_id": "joe.bloggs@example.com",  # /PS-IGNORE
+        "staff_sso_email_addresses": [
+            "joe.bloggs@example.com",  # /PS-IGNORE
+        ],
+        "people_finder_directorate": "",
+        "people_finder_first_name": "Joe",  # /PS-IGNORE
+        "people_finder_grade": "Example Grade",
+        "people_finder_job_title": "Job title",
+        "people_finder_last_name": "Bloggs",
+        "people_finder_phone": "0123456789",
+        "people_finder_email": "joe.bloggs@example.com",  # /PS-IGNORE
+        "people_finder_photo": "",
+        "people_finder_photo_small": "",
+        "service_now_user_id": "",
+        "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
+        "service_now_department_name": "Department for International Trade",
+        "people_data_employee_number": "12345",
+        "people_data_uksbs_person_id": "54321",
+    }
+)
 EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
     {
         "uuid": "",
@@ -146,41 +182,44 @@ class TestLineManagerAccessMixin(TestCase):
         )
 
 
-# TODO: Fix tests
-# class TestDataRecipientSearchView(ViewAccessTest, TestCase):
-#     view_name = "line-manager-data-recipient-search"
-#     allowed_methods = ["get", "post", "put"]
+class TestDataRecipientSearchView(ViewAccessTest, TestCase):
+    view_name = "line-manager-data-recipient-search"
+    allowed_methods = ["get", "post", "put"]
 
-#     def setUp(self):
-#         super().setUp()
-#         email = self.authenticated_user.sso_email_user_id
-#         self.leaving_request = LeavingRequestFactory(
-#             leaver_complete=timezone.now(),
-#             manager_activitystream_user__email_user_id=email,
-#         )
-#         self.view_kwargs = {"args": [self.leaving_request.uuid]}
+    def setUp(self):
+        super().setUp()
+        email = self.authenticated_user.sso_email_user_id
+        self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
+            manager_activitystream_user__email_user_id=email,
+        )
+        self.view_kwargs = {"args": [self.leaving_request.uuid]}
 
-#     @mock.patch(
-#         "core.staff_search.views.search_staff_index",
-#         return_value=[],
-#     )
-#     def test_search_no_results(self, mock_search_staff_index):
-#         self.client.force_login(self.authenticated_user)
-#         response = self.client.post(self.get_url(), {"search_terms": "bad search"})
+    @mock.patch(
+        "core.staff_search.views.search_staff_index",
+        return_value=[],
+    )
+    def test_search_no_results(self, mock_search_staff_index):
+        self.client.force_login(self.authenticated_user)
+        response = self.client.post(self.get_url(), {"search_terms": "bad search"})
 
-#         self.assertEqual(response.status_code, 200)
-#         self.assertContains(response, '0 results for "bad search"')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No results found")
 
-#     @mock.patch(
-#         "core.staff_search.views.search_staff_index",
-#         return_value=[EMPTY_STAFF_DOCUMENT],
-#     )
-#     def test_search_with_results(self, mock_search_staff_index):
-#         self.client.force_login(self.authenticated_user)
-#         response = self.client.post(self.get_url(), {"search_terms": "example.com"})
+    @mock.patch(
+        "core.staff_search.views.search_staff_index",
+        return_value=[STAFF_DOCUMENT],
+    )
+    def test_search_with_results(self, mock_search_staff_index):
+        self.client.force_login(self.authenticated_user)
+        response = self.client.post(self.get_url(), {"search_terms": "example.com"})
 
-#         self.assertEqual(response.status_code, 200)
-#         self.assertContains(response, '1 result for "example.com"')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Joe Bloggs")
+        self.assertContains(
+            response,
+            "(Job title, joe.bloggs@example.com)",  # /PS-IGNORE
+        )
 
 
 class TestStartView(ViewAccessTest, TestCase):
@@ -316,53 +355,56 @@ class TestLeaverConfirmationView(ViewAccessTest, TestCase):
         )
 
 
-# TODO: Fix tests
-# class TestDetailsView(ViewAccessTest, TestCase):
-#     view_name = "line-manager-details"
-#     allowed_methods = ["get", "post", "put"]
+@mock.patch(
+    "leavers.views.line_manager.get_staff_document_from_staff_index",
+    return_value=STAFF_DOCUMENT,
+)
+class TestDetailsView(ViewAccessTest, TestCase):
+    view_name = "line-manager-details"
+    allowed_methods = ["get", "post", "put"]
 
-#     def setUp(self):
-#         super().setUp()
-#         email = self.authenticated_user.sso_email_user_id
-#         self.leaving_request = LeavingRequestFactory(
-#             leaver_complete=timezone.now(),
-#             manager_activitystream_user__email_user_id=email,
-#         )
-#         self.view_kwargs = {"args": [self.leaving_request.uuid]}
+    def setUp(self):
+        super().setUp()
+        email = self.authenticated_user.sso_email_user_id
+        self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
+            manager_activitystream_user__email_user_id=email,
+        )
+        self.view_kwargs = {"args": [self.leaving_request.uuid]}
 
-#     """
-#     Functionality tests
-#     """
+    """
+    Functionality tests
+    """
 
-#     def test_no_data(self):
-#         self.client.force_login(self.authenticated_user)
-#         response = self.client.post(self.get_url(), {})
+    def test_no_data(self, mocK_get_staff_document_from_staff_index):
+        self.client.force_login(self.authenticated_user)
+        response = self.client.post(self.get_url(), {})
 
-#         self.assertEqual(response.status_code, 200)
-#         self.assertContains(response, "This field is required.")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This field is required.")
 
-#     def test_with_data(self):
-#         self.client.force_login(self.authenticated_user)
-#         response = self.client.post(
-#             self.get_url(),
-#             {
-#                 "leaver_paid_unpaid": LeaverPaidUnpaid.PAID.value,
-#                 "annual_leave": AnnualLeavePaidOrDeducted.PAID.value,
-#                 "annual_leave_measurement": DaysHours.DAYS.value,
-#                 "annual_number": "1",
-#                 "flexi_leave": FlexiLeavePaidOrDeducted.DEDUCTED.value,
-#                 "flexi_number": "2.5",
-#             },
-#         )
+    def test_with_data(self, mocK_get_staff_document_from_staff_index):
+        self.client.force_login(self.authenticated_user)
+        response = self.client.post(
+            self.get_url(),
+            {
+                "leaver_paid_unpaid": LeaverPaidUnpaid.PAID.value,
+                "annual_leave": AnnualLeavePaidOrDeducted.PAID.value,
+                "annual_leave_measurement": DaysHours.DAYS.value,
+                "annual_number": "1",
+                "flexi_leave": FlexiLeavePaidOrDeducted.DEDUCTED.value,
+                "flexi_number": "2.5",
+            },
+        )
 
-#         self.assertEqual(response.status_code, 302)
-#         self.assertEqual(
-#             response.url,
-#             reverse(
-#                 "line-manager-leaver-line-reports",
-#                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-#             ),
-#         )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse(
+                "line-manager-leaver-line-reports",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            ),
+        )
 
 
 class TestThankYouView(ViewAccessTest, TestCase):

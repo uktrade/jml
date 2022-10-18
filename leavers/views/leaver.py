@@ -757,11 +757,16 @@ class HasCirrusEquipmentView(LeaverInformationMixin, FormView):
         assert user.sso_email_user_id
 
         sso_email_user_id = user.sso_email_user_id
+        leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
         )
-        user_assets = get_cirrus_assets(request=request)
+        if leaving_request and leaving_request.leaver_complete:
+            return redirect(reverse("leaver-request-received"))
 
+        user_assets = get_cirrus_assets(request=request)
         if not user_assets:
             return super().dispatch(request, *args, **kwargs)
         return redirect(self.success_url)
@@ -966,10 +971,14 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
         assert user.sso_email_user_id
 
         sso_email_user_id = user.sso_email_user_id
-
+        leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
         )
+        if leaving_request and leaving_request.leaver_complete:
+            return redirect(reverse("leaver-request-received"))
 
         # If the leaver doesn't have DSE, skip this step.
         if not self.leaver_info.has_dse:
@@ -1132,10 +1141,14 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         assert user.sso_email_user_id
 
         sso_email_user_id = user.sso_email_user_id
+        self.leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
         )
-        self.leaving_request: LeavingRequest = self.leaver_info.leaving_request
+        if self.leaving_request and self.leaving_request.leaver_complete:
+            return redirect(reverse("leaver-request-received"))
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):

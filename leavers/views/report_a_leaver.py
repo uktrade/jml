@@ -206,8 +206,6 @@ class ConfirmationView(FormView):
         if not self.manager_activitystream_user:
             raise Exception("No manager selected.")
 
-        # TODO: Send Leaver Notifier Thank you email
-
         self.create_workflow(
             last_day=form.cleaned_data["last_day"],
         )

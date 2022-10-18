@@ -229,7 +229,6 @@ def search_staff_index(
     staff_documents = []
     for hit in search_results.hits:
         if hit["staff_sso_activity_stream_id"] not in exclude_staff_ids:
-            # TODO: Drop infer_missing=True once we have plugged into all live data
             staff_documents.append(
                 StaffDocument.from_dict(hit.to_dict(), infer_missing=True)
             )
@@ -316,7 +315,6 @@ def get_staff_document_from_staff_index(
 
     hit: Hit = search_results.hits[0]
 
-    # TODO: Drop infer_missing=True once we have plugged into all live data
     return StaffDocument.from_dict(hit.to_dict(), infer_missing=True)
 
 

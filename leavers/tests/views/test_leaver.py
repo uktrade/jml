@@ -1,26 +1,23 @@
-import uuid
-from typing import cast
+from datetime import date, datetime
 from unittest import mock
+from uuid import uuid4
 
 from django.conf import settings
-from django.contrib.sessions.backends.base import SessionBase
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
-from activity_stream.factories import (
-    ActivityStreamStaffSSOUserFactory,
-    ServiceEmailAddressFactory,
-)
-from core.service_now.interfaces import ServiceNowStubbed
+from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from core.utils.staff_index import StaffDocument
-from leavers import factories, models
-from leavers.forms.leaver import ReturnOptions
-from leavers.views.leaver import LeaverInformationMixin
+from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
+from leavers.models import LeavingRequest
+from leavers.types import ReturnOptions, SecurityClearance, StaffType
+from leavers.views.leaver import LINE_MANAGER_SEARCH_PARAM
 from user.test.factories import UserFactory
 
 STAFF_DOCUMENT = StaffDocument.from_dict(
     {
-        "uuid": "",
+        "uuid": uuid4(),
         "staff_sso_activity_stream_id": "1",
         "staff_sso_legacy_id": "123",
         "staff_sso_contact_email_address": "joe.bloggs@example.com",  # /PS-IGNORE
@@ -48,278 +45,8 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
 )
 
 
-@mock.patch(
-    "leavers.views.leaver.get_staff_document_from_staff_index",
-    return_value=STAFF_DOCUMENT,
-)
-class TestLeaverInformationMixin(TestCase):
-
-    """
-    Tests for `get_leaver_information`
-    """
-
-    def setUp(self) -> None:
-        self.leaver = UserFactory()
-        self.leaver_email = self.leaver.sso_email_user_id
-        self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
-            email_user_id=self.leaver_email
-        )
-
-    def test_get_leaver_information_new(self, mock_get_search_results) -> None:
-        LeaverInformationMixin().get_leaver_information(
-            sso_email_user_id=self.leaver_email,
-            requester=UserFactory(),
-        )
-
-        self.assertEqual(models.LeaverInformation.objects.count(), 1)
-        leaver_info_obj = cast(
-            models.LeaverInformation, models.LeaverInformation.objects.first()
-        )
-
-        self.assertEqual(
-            leaver_info_obj.leaving_request.leaver_activitystream_user.email_user_id,
-            self.leaver_email,
-        )
-
-    def test_get_leaver_information_existing(self, mock_get_search_results) -> None:
-        leaver_info = factories.LeaverInformationFactory(
-            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-        )
-
-        LeaverInformationMixin().get_leaver_information(
-            sso_email_user_id=self.leaver_email, requester=UserFactory()
-        )
-
-        self.assertEqual(models.LeaverInformation.objects.count(), 1)
-
-        leaver_info_obj = cast(
-            models.LeaverInformation, models.LeaverInformation.objects.first()
-        )
-
-        self.assertTrue(leaver_info_obj)
-        self.assertEqual(leaver_info_obj.id, leaver_info.id)
-
-    def test_get_leaver_information_other_information(
-        self, mock_get_search_results
-    ) -> None:
-        factories.LeaverInformationFactory.create_batch(5)
-
-        leaver_info = LeaverInformationMixin().get_leaver_information(
-            sso_email_user_id=self.leaver_email,
-            requester=UserFactory(),
-        )
-
-        self.assertEqual(models.LeaverInformation.objects.count(), 6)
-        self.assertEqual(
-            models.LeaverInformation.objects.filter(
-                leaving_request=leaver_info.leaving_request,
-            ).count(),
-            1,
-        )
-
-    """
-    Tests for `get_leaver_details`
-    """
-
-    def test_get_leaver_details_no_results(self, mock_get_search_results) -> None:
-        non_indexed_user_activity_stream = ActivityStreamStaffSSOUserFactory()
-        leaver_details = LeaverInformationMixin().get_leaver_details(
-            sso_email_user_id=non_indexed_user_activity_stream.email_user_id,
-        )
-        self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
-        self.assertEqual(leaver_details["last_name"], "Bloggs")
-        self.assertEqual(leaver_details["job_title"], "Job title")
-
-    def test_get_leaver_details_with_result(self, mock_get_search_results) -> None:
-        leaver_details = LeaverInformationMixin().get_leaver_details(
-            sso_email_user_id=self.leaver_email
-        )
-        self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
-        self.assertEqual(leaver_details["last_name"], "Bloggs")
-        self.assertEqual(leaver_details["job_title"], "Job title")
-
-    def test_get_leaver_details_existing_updates(self, mock_get_search_results) -> None:
-        factories.LeaverInformationFactory(
-            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-            updates={"first_name": "Joey"},  # /PS-IGNORE
-        )
-
-        leaver_details = LeaverInformationMixin().get_leaver_details(
-            sso_email_user_id=self.leaver_email,
-        )
-        self.assertNotEqual(leaver_details["first_name"], "Joey")  # /PS-IGNORE
-
-    """
-    Tests for `get_leaver_detail_updates`
-    """
-
-    def test_get_leaver_detail_updates_no_updates(
-        self, mock_get_search_results
-    ) -> None:
-        leaver_detail_updates = LeaverInformationMixin().get_leaver_detail_updates(
-            sso_email_user_id=self.leaver_email,
-            requester=UserFactory(),
-        )
-        self.assertEqual(leaver_detail_updates, {})
-
-    def test_get_leaver_detail_updates_some_updates(
-        self, mock_get_search_results
-    ) -> None:
-
-        factories.LeaverInformationFactory(
-            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-            updates={"first_name": "Joey"},  # /PS-IGNORE
-        )
-
-        leaver_detail_updates = LeaverInformationMixin().get_leaver_detail_updates(
-            sso_email_user_id=self.leaver_email,
-            requester=UserFactory(),
-        )
-        self.assertEqual(leaver_detail_updates, {"first_name": "Joey"})  # /PS-IGNORE
-
-    """
-    Tests for `store_leaver_detail_updates`
-    """
-
-    def store_leaver_detail_updates_no_changes(self, mock_get_search_results) -> None:
-        LeaverInformationMixin().store_leaver_detail_updates(
-            sso_email_user_id=self.leaver_email,
-            requester=UserFactory(),
-            updates={},
-        )
-        self.assertEqual(
-            models.LeaverInformation.objects.all().count(),
-            1,
-        )
-
-    def store_leaver_detail_updates_some_changes(self, mock_get_search_results) -> None:
-        LeaverInformationMixin().store_leaver_detail_updates(
-            sso_email_user_id=self.leaver_email,
-            requester=UserFactory(),
-            updates={"first_name": "Joey"},  # /PS-IGNORE
-        )
-
-        leaver_updates = models.LeaverInformation.objects.get(
-            leaver_first_name="Joey",
-        )
-        self.assertEqual(leaver_updates.updates, {"first_name": "Joey"})  # /PS-IGNORE
-
-    """
-    Tests for `store_cirrus_kit_information`
-    """
-
-    def test_store_cirrus_kit_information(self, mock_get_search_results) -> None:
-        leaver_info = factories.LeaverInformationFactory(
-            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-        )
-        LeaverInformationMixin().store_cirrus_kit_information(
-            sso_email_user_id=self.leaver_email,
-            requester=UserFactory(),
-            cirrus_assets=[],
-        )
-
-        leaver_info.refresh_from_db()
-
-    """
-    Tests for `store_return_option`
-    """
-
-    def test_store_return_option_home(self, mock_get_search_results) -> None:
-        leaver_info = factories.LeaverInformationFactory(
-            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-        )
-
-        LeaverInformationMixin().store_return_option(
-            sso_email_user_id=self.leaver_email,
-            requester=UserFactory(),
-            return_option=ReturnOptions.HOME.value,
-        )
-
-        leaver_info.refresh_from_db()
-        self.assertEqual(leaver_info.return_option, ReturnOptions.HOME.value)
-
-    def test_store_return_option_office(self, mock_get_search_results) -> None:
-        leaver_info = factories.LeaverInformationFactory(
-            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-        )
-
-        LeaverInformationMixin().store_return_option(
-            sso_email_user_id=self.leaver_email,
-            requester=UserFactory(),
-            return_option=ReturnOptions.OFFICE.value,
-        )
-
-        leaver_info.refresh_from_db()
-        self.assertEqual(leaver_info.return_option, ReturnOptions.OFFICE.value)
-
-    """
-    Tests for `store_return_information`
-    """
-
-    def test_store_return_information_no_address(self, mock_get_search_results) -> None:
-        leaver_info = factories.LeaverInformationFactory(
-            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-        )
-        LeaverInformationMixin().store_return_information(
-            sso_email_user_id=self.leaver_email,
-            requester=UserFactory(),
-            personal_phone="0123451234",
-            contact_email=self.leaver_email,
-            address=None,
-        )
-
-        leaver_info.refresh_from_db()
-        self.assertEqual(leaver_info.return_personal_phone, "0123451234")
-        self.assertEqual(
-            leaver_info.return_contact_email,
-            self.leaver_email,
-        )
-
-    def test_store_return_information_with_address(
-        self, mock_get_search_results
-    ) -> None:
-        leaver_info = factories.LeaverInformationFactory(
-            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-        )
-        LeaverInformationMixin().store_return_information(
-            sso_email_user_id=self.leaver_email,
-            requester=UserFactory(),
-            personal_phone="0123451234",
-            contact_email=self.leaver_email,
-            address={
-                "line_1": "Example Building name",
-                "line_2": "Example Street name",
-                "town_or_city": "Bristol",
-                "county": "Bristol",
-                "postcode": "AB1 2CD",  # /PS-IGNORE
-            },
-        )
-
-        leaver_info.refresh_from_db()
-        self.assertEqual(leaver_info.return_personal_phone, "0123451234")
-        self.assertEqual(
-            leaver_info.return_contact_email,
-            self.leaver_email,
-        )
-        self.assertEqual(
-            leaver_info.return_address_line_1,
-            "Example Building name",
-        )
-        self.assertEqual(
-            leaver_info.return_address_line_2,
-            "Example Street name",
-        )
-        self.assertEqual(leaver_info.return_address_city, "Bristol")
-        self.assertEqual(leaver_info.return_address_county, "Bristol")
-        self.assertEqual(leaver_info.return_address_postcode, "AB1 2CD")  # /PS-IGNORE
-
-
-@mock.patch(
-    "leavers.views.leaver.get_staff_document_from_staff_index",
-    return_value=STAFF_DOCUMENT,
-)
-class TestConfirmDetailsView(TestCase):
-    view_name = "leaver-confirm-details"
+class TestMyManagerSearchView(TestCase):
+    view_name = "leaver-manager-search"
 
     def setUp(self) -> None:
         self.leaver = UserFactory()
@@ -327,110 +54,61 @@ class TestConfirmDetailsView(TestCase):
             email_user_id=self.leaver.sso_email_user_id,
         )
 
-    def test_unauthenticated_user(self, mock_get_search_results) -> None:
-        response = self.client.get(reverse(self.view_name))
+    def test_unauthenticated_user(self) -> None:
+        get_response = self.client.get(reverse(self.view_name))
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(get_response.status_code, 302)
+        self.assertTrue(get_response.url.startswith(reverse("dev_tools:index")))
 
-    # TODO: Fix test
-    # def test_authenticated_user(self, mock_get_search_results) -> None:
-    #     self.client.force_login(self.leaver)
-    #     response = self.client.get(reverse(self.view_name))
+        post_response = self.client.post(reverse(self.view_name), data={})
 
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertContains(response, "Confirm your information")
+        self.assertEqual(post_response.status_code, 302)
+        self.assertTrue(post_response.url.startswith(reverse("dev_tools:index")))
 
-    #     leaver_details: types.LeaverDetails = response.context["leaver_details"]
-    #     self.assertEqual(leaver_details["first_name"], "Joe")  # /PS-IGNORE
-    #     self.assertEqual(leaver_details["job_title"], "Job title")
-    #     self.assertEqual(leaver_details["last_name"], "Bloggs")
-    #     self.assertEqual(leaver_details["staff_id"], "12345")
-    #     self.assertEqual(
-    #         leaver_details["contact_email_address"],
-    #         "joe.bloggs@example.com",  # /PS-IGNORE
-    #     )
-    #     self.assertEqual(leaver_details["photo"], "")
+    @mock.patch(
+        "core.staff_search.views.search_staff_index",
+        return_value=[],
+    )
+    def test_authenticated_user_no_results(self, mock_search_staff_index):
+        self.client.force_login(self.leaver)
 
-    # TODO: Fix test
-    # @mock.patch(
-    #     "leavers.views.leaver.get_staff_document_from_staff_index",
-    #     return_value=STAFF_DOCUMENT,
-    # )
-    # def test_existing_updates(
-    #     self, mock_get_staff_document_from_staff_index, mock_get_search_results
-    # ) -> None:
-    #     updates: types.LeaverDetailUpdates = {
-    #         "first_name": "UpdatedFirstName",  # /PS-IGNORE
-    #         "job_title": "Updated Job Title",
-    #         "last_name": "UpdatedLastName",  # /PS-IGNORE
-    #         "contact_email_address": "Updated Personal Email",
-    #     }
-    #     factories.LeaverInformationFactory(
-    #         leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-    #         updates=updates,
-    #     )
-    #     self.client.force_login(self.leaver)
-    #     response = self.client.get(reverse(self.view_name))
+        get_response = self.client.get(reverse(self.view_name))
 
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertContains(response, "Confirm your information")
-    #     self.assertEqual(
-    #         response.context["leaver_details"],
-    #         {
-    #             "first_name": updates["first_name"],
-    #             "last_name": updates["last_name"],
-    #             "staff_id": "12345",
-    #             "contact_email_address": updates["contact_email_address"],
-    #             "job_title": updates["job_title"],
-    #             "photo": "",
-    #         },
-    #     )
+        self.assertEqual(get_response.status_code, 200)
+        self.assertContains(get_response, "No results found")
 
-    # TODO: Fix test
-    # def test_submit_missing_required_data(self, mock_get_search_results) -> None:
-    #     self.client.force_login(self.leaver)
+        post_response = self.client.post(reverse(self.view_name), data={})
 
-    #     response = self.client.post(reverse(self.view_name), {})
+        self.assertEqual(post_response.status_code, 200)
+        self.assertContains(post_response, "No results found")
 
-    #     self.assertEqual(response.status_code, 200)
+    @mock.patch(
+        "core.staff_search.views.search_staff_index",
+        return_value=[STAFF_DOCUMENT],
+    )
+    def test_authenticated_user_with_results(self, mock_search_staff_index):
+        self.client.force_login(self.leaver)
 
-    # TODO: Fix test
-    # @mock.patch(
-    #     "leavers.views.leaver.get_staff_document_from_staff_index",
-    #     return_value=STAFF_DOCUMENT,
-    # )
-    # def test_submit_contains_required_data(
-    #     self, mock_get_staff_document_from_staff_index, mock_get_search_results
-    # ) -> None:
-    #     updates: types.LeaverDetailUpdates = {
-    #         "first_name": "UpdatedFirstName",  # /PS-IGNORE
-    #         "job_title": "Updated Job Title",
-    #         "last_name": "UpdatedLastName",  # /PS-IGNORE
-    #         "contact_email_address": "new.personal.email@example.com",  # /PS-IGNORE
-    #     }
-    #     factories.LeaverInformationFactory(
-    #         leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-    #         leaving_request__security_clearance="sc",
-    #         leaving_request__is_rosa_user=True,
-    #         leaving_request__holds_government_procurement_card=True,
-    #         updates=updates,
-    #         has_dse=True,
-    #     )
-    #     self.client.force_login(self.leaver)
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "search_terms": "joe",
+            },
+        )
 
-    #     response = self.client.post(
-    #         reverse(self.view_name),
-    #         {},
-    #     )
-
-    #     self.assertEqual(response.status_code, 302)
-    #     self.assertEqual(response.url, reverse("leaver-request-received"))
+        self.assertEqual(post_response.status_code, 200)
+        self.assertNotContains(post_response, "No results found")
+        self.assertContains(post_response, "Joe Bloggs")  # /PS-IGNORE
+        self.assertContains(
+            post_response,
+            "Job title, joe.bloggs@example.com",  # /PS-IGNORE
+        )
+        self.assertContains(
+            post_response,
+            f"?{LINE_MANAGER_SEARCH_PARAM}={STAFF_DOCUMENT.uuid}",
+        )
 
 
-@mock.patch(
-    "leavers.views.leaver.get_staff_document_from_staff_index",
-    return_value=STAFF_DOCUMENT,
-)
 class TestEmploymentProfileView(TestCase):
     view_name = "employment-profile"
 
@@ -440,211 +118,290 @@ class TestEmploymentProfileView(TestCase):
             email_user_id=self.leaver.sso_email_user_id,
         )
 
-    def test_unauthenticated_user(self, mock_get_search_results) -> None:
-        response = self.client.get(reverse(self.view_name))
+    def test_unauthenticated_user(self) -> None:
+        get_response = self.client.get(reverse(self.view_name))
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(get_response.status_code, 302)
+        self.assertTrue(get_response.url.startswith(reverse("dev_tools:index")))
 
-    # TODO: Fix test
-    # def test_authenticated_user(self, mock_get_search_results) -> None:
-    #     self.client.force_login(self.leaver)
+        post_response = self.client.post(reverse(self.view_name), data={})
 
-    #     response = self.client.get(reverse(self.view_name))
+        self.assertEqual(post_response.status_code, 302)
+        self.assertTrue(post_response.url.startswith(reverse("dev_tools:index")))
 
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertContains(response, "Hi Joe Bloggs,")  # /PS-IGNORE
-    #     self.assertContains(
-    #         response, "Please check, update and add any missing information."
-    #     )
+    def test_authenticated_user(self):
+        self.client.force_login(self.leaver)
 
-    #     form = response.context["form"]
-    #     self.assertEqual(form.initial["first_name"], "Joe")  # /PS-IGNORE
-    #     self.assertEqual(form.initial["job_title"], "Job title")
-    #     self.assertEqual(form.initial["last_name"], "Bloggs")  # /PS-IGNORE
-    #     self.assertEqual(form.initial["date_of_birth"], None)
-    #     self.assertEqual(
-    #         form.initial["contact_email_address"],
-    #         "joe.bloggs@example.com",  # /PS-IGNORE
-    #     )
-    #     self.assertEqual(form.initial["contact_phone"], None)
-    #     self.assertEqual(form.initial["contact_address_line_1"], None)
-    #     self.assertEqual(form.initial["contact_address_line_2"], None)
-    #     self.assertEqual(form.initial["contact_address_city"], None)
-    #     self.assertEqual(form.initial["contact_address_county"], None)
-    #     self.assertEqual(form.initial["contact_address_postcode"], None)
-    #     self.assertEqual(form.initial["photo"], "")
+        get_response = self.client.get(reverse(self.view_name))
 
-    # TODO: Fix test
-    # def test_existing_updates(self, mock_get_search_results) -> None:
-    #     updates: types.LeaverDetailUpdates = {
-    #         "first_name": "UpdatedFirstName",  # /PS-IGNORE
-    #         "job_title": "Updated Job Title",
-    #         "last_name": "UpdatedLastName",  # /PS-IGNORE
-    #         "contact_email_address": "Updated Contact Email",
-    #     }
-    #     factories.LeaverInformationFactory(
-    #         leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-    #         updates=updates,
-    #     )
-    #     self.client.force_login(self.leaver)
+        self.assertEqual(get_response.status_code, 200)
+        self.assertContains(get_response, "Your employment profile")
 
-    #     response = self.client.get(reverse(self.view_name))
+        post_response = self.client.post(reverse(self.view_name), data={})
 
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertContains(
-    #         response,
-    #         "Hi UpdatedFirstName UpdatedLastName,",  # /PS-IGNORE
-    #     )
-    #     self.assertContains(
-    #         response, "Please check, update and add any missing information."
-    #     )
+        self.assertEqual(post_response.status_code, 200)
+        self.assertContains(post_response, "There is a problem")
 
-    #     form = response.context["form"]
-    #     self.assertEqual(
-    #         form.initial,
-    #         {
-    #             "photo": "",
-    #             "first_name": updates["first_name"],
-    #             "job_title": updates["job_title"],
-    #             "last_name": updates["last_name"],
-    #             "date_of_birth": None,
-    #             "contact_email_address": updates["contact_email_address"],
-    #             "contact_phone": None,
-    #             "contact_address_line_1": None,
-    #             "contact_address_line_2": None,
-    #             "contact_address_city": None,
-    #             "contact_address_county": None,
-    #             "contact_address_postcode": None,
-    #             "has_dse": None,
-    #             "has_gov_procurement_card": None,
-    #             "has_rosa_kit": None,
-    #             "security_clearance": None,
-    #             "last_day": None,
-    #             "leaving_date": None,
-    #             "staff_id": "12345",
-    #             "staff_type": None,
-    #         },
-    #     )
+        # Ensure we skip the view if the leaver process is already completed.
+        leaving_request = LeavingRequest.objects.get(
+            leaver_activitystream_user=self.leaver_activity_stream_user
+        )
+        leaving_request.leaver_complete = timezone.now()
+        leaving_request.save()
+        already_completed_response = self.client.get(reverse(self.view_name))
 
-    # TODO: Fix test
-    # def test_submit_missing_required_data(self, mock_get_search_results) -> None:
-    #     self.client.force_login(self.leaver)
+        self.assertEqual(already_completed_response.status_code, 302)
+        self.assertEqual(
+            already_completed_response.url, reverse("leaver-request-received")
+        )
 
-    #     response = self.client.post(
-    #         reverse(self.view_name),
-    #         {
-    #             "first_name": "",
-    #             "job_title": "",
-    #             "last_name": "",
-    #             "contact_email_address": "",
-    #             "contact_address_line_1": "",
-    #             "contact_address_line_2": "",
-    #             "contact_address_city": "",
-    #             "contact_address_county": "",
-    #             "contact_address_postcode": "",
-    #         },
-    #     )
+    def test_post_form_data(self):
+        self.client.force_login(self.leaver)
 
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertFormError(
-    #         response,
-    #         "form",
-    #         "first_name",
-    #         "Please tell us your first name.",  # /PS-IGNORE
-    #     )
-    #     self.assertFormError(
-    #         response,
-    #         "form",
-    #         "last_name",
-    #         "Please tell us your last name.",  # /PS-IGNORE
-    #     )
-    #     self.assertFormError(
-    #         response, "form", "job_title", "Please tell us your job title."
-    #     )
-    #     self.assertFormError(
-    #         response,
-    #         "form",
-    #         "contact_email_address",
-    #         "Please tell us your contact email.",
-    #     )
-    #     self.assertFormError(
-    #         response,
-    #         "form",
-    #         "contact_phone",
-    #         "Please tell us your contact phone number.",
-    #     )
-    #     self.assertFormError(
-    #         response,
-    #         "form",
-    #         "contact_address_line_1",
-    #         "Please tell us the first line of your address.",
-    #     )
-    #     self.assertFormError(
-    #         response,
-    #         "form",
-    #         "contact_address_city",
-    #         "Please tell us your town or city.",
-    #     )
-    #     self.assertFormError(
-    #         response, "form", "contact_address_county", "Please tell us your county."
-    #     )
-    #     self.assertFormError(
-    #         response,
-    #         "form",
-    #         "contact_address_postcode",
-    #         "Please tell us your postcode.",
-    #     )
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "first_name": "Charlie",
+                "last_name": "Croker",
+                "date_of_birth_0": "6",
+                "date_of_birth_1": "2",
+                "date_of_birth_2": "2000",
+                "job_title": "Developer",
+                "staff_type": StaffType.CIVIL_SERVANT.value,
+                "security_clearance": SecurityClearance.SC.value,
+            },
+        )
 
-    # TODO: Fix test
-    # def test_submit_contains_required_data(self, mock_get_search_results) -> None:
-    #     self.client.force_login(self.leaver)
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-find-details"))
 
-    #     response = self.client.post(
-    #         reverse(self.view_name),
-    #         {
-    #             "first_name": "FirstName",  # /PS-IGNORE
-    #             "last_name": "LastName",  # /PS-IGNORE
-    #             "date_of_birth_0": 19,
-    #             "date_of_birth_1": 2,
-    #             "date_of_birth_2": 1997,
-    #             "contact_email_address": "someone@example.com",  # /PS-IGNORE
-    #             "contact_phone": "07123123123",
-    #             "contact_address_line_1": "Example House Name",
-    #             "contact_address_line_2": "Some street",
-    #             "contact_address_city": "London",
-    #             "contact_address_county": "Greater London",
-    #             "contact_address_postcode": "AB1 2CD",  # /PS-IGNORE
-    #             "job_title": "Job Title",
-    #             "security_clearance": "sc",
-    #             "has_gov_procurement_card": "yes",
-    #             "has_rosa_kit": "yes",
-    #             "has_dse": "yes",
-    #             "leaving_date_0": 30,
-    #             "leaving_date_1": 12,
-    #             "leaving_date_2": 2022,
-    #             "last_day_0": 15,
-    #             "last_day_1": 12,
-    #             "last_day_2": 2022,
-    #             "staff_type": StaffType.CONTRACTOR.value,
-    #         },
-    #     )
+        leaving_request = LeavingRequest.objects.get(
+            leaver_activitystream_user=self.leaver_activity_stream_user
+        )
+        self.assertEqual(leaving_request.staff_type, StaffType.CIVIL_SERVANT.value)
+        self.assertEqual(leaving_request.security_clearance, SecurityClearance.SC.value)
 
-    #     self.assertEqual(response.status_code, 302)
-    #     self.assertEqual(response.url, reverse("leaver-find-details"))
+        leaver_info = leaving_request.leaver_information.first()
+        self.assertEqual(leaver_info.leaver_first_name, "Charlie")
+        self.assertEqual(leaver_info.leaver_last_name, "Croker")
+        self.assertEqual(leaver_info.leaver_date_of_birth, date(2000, 2, 6))
+        self.assertEqual(leaver_info.job_title, "Developer")
 
-    #     leaver_updates_obj = models.LeaverInformation.objects.get(
-    #         personal_email="someone@example.com",  # /PS-IGNORE
-    #     )
-    #     leaver_updates: types.LeaverDetailUpdates = leaver_updates_obj.updates
 
-    #     self.assertEqual(leaver_updates["first_name"], "FirstName")  # /PS-IGNORE
-    #     self.assertEqual(leaver_updates["job_title"], "Job Title")
-    #     self.assertEqual(leaver_updates["last_name"], "LastName")  # /PS-IGNORE
+class TestRemoveLineManagerFromLeavingRequestView(TestCase):
+    view_name = "leaver-remove-line-manager"
 
-    #     self.assertEqual(
-    #         leaver_updates["contact_email_address"],
-    #         "someone@example.com",  # /PS-IGNORE
-    #     )
+    def setUp(self) -> None:
+        self.leaver = UserFactory()
+        self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.leaver.sso_email_user_id,
+        )
+        self.leaving_request = LeavingRequestFactory(
+            leaver_activitystream_user=self.leaver_activity_stream_user,
+        )
+
+    def test_unauthenticated_user(self) -> None:
+        get_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(get_response.status_code, 302)
+        self.assertTrue(get_response.url.startswith(reverse("dev_tools:index")))
+
+        post_response = self.client.post(reverse(self.view_name), data={})
+
+        self.assertEqual(post_response.status_code, 302)
+        self.assertTrue(post_response.url.startswith(reverse("dev_tools:index")))
+
+    def test_authenticated_user(self):
+        self.client.force_login(self.leaver)
+
+        self.leaving_request.manager_activitystream_user = (
+            ActivityStreamStaffSSOUserFactory()
+        )
+        self.leaving_request.save()
+
+        get_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(get_response.status_code, 302)
+        self.assertEqual(get_response.url, reverse("leaver-dates"))
+        self.leaving_request.refresh_from_db()
+        self.assertIsNone(self.leaving_request.manager_activitystream_user)
+
+        # Ensure we skip the view if the leaver process is already completed.
+        self.leaving_request.leaver_complete = timezone.now()
+        self.leaving_request.save()
+        already_completed_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(already_completed_response.status_code, 302)
+        self.assertEqual(
+            already_completed_response.url, reverse("leaver-request-received")
+        )
+
+
+class TestLeaverDatesView(TestCase):
+    view_name = "leaver-dates"
+
+    def setUp(self) -> None:
+        self.leaver = UserFactory()
+        self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.leaver.sso_email_user_id,
+        )
+        self.leaving_request = LeavingRequestFactory(
+            leaver_activitystream_user=self.leaver_activity_stream_user,
+            manager_activitystream_user=ActivityStreamStaffSSOUserFactory(),
+        )
+
+    def test_unauthenticated_user(self) -> None:
+        get_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(get_response.status_code, 302)
+        self.assertTrue(get_response.url.startswith(reverse("dev_tools:index")))
+
+        post_response = self.client.post(reverse(self.view_name), data={})
+
+        self.assertEqual(post_response.status_code, 302)
+        self.assertTrue(post_response.url.startswith(reverse("dev_tools:index")))
+
+    @mock.patch(
+        "core.utils.staff_index.get_staff_document_from_staff_index",
+        return_value=STAFF_DOCUMENT,
+    )
+    def test_authenticated_user(self, mock_get_staff_document_from_staff_index):
+        self.client.force_login(self.leaver)
+
+        get_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(get_response.status_code, 200)
+
+        # Ensure we skip the view if the leaver process is already completed.
+        self.leaving_request.leaver_complete = timezone.now()
+        self.leaving_request.save()
+        already_completed_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(already_completed_response.status_code, 302)
+        self.assertEqual(
+            already_completed_response.url, reverse("leaver-request-received")
+        )
+
+    @mock.patch(
+        "core.utils.staff_index.get_staff_document_from_staff_index",
+        return_value=STAFF_DOCUMENT,
+    )
+    def test_post_form_data(self, mock_get_staff_document_from_staff_index):
+        self.client.force_login(self.leaver)
+
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "leaving_date_0": "1",
+                "leaving_date_1": "2",
+                "leaving_date_2": "2023",
+                "last_day_0": "1",
+                "last_day_1": "2",
+                "last_day_2": "2023",
+                "leaver_manager": STAFF_DOCUMENT.uuid,
+            },
+        )
+
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-has-assets"))
+
+        leaver_info = self.leaving_request.leaver_information.first()
+        self.assertEqual(
+            leaver_info.leaving_date, timezone.make_aware(datetime(2023, 2, 1))
+        )
+        self.assertEqual(
+            leaver_info.last_day, timezone.make_aware(datetime(2023, 2, 1))
+        )
+
+    @mock.patch(
+        "core.utils.staff_index.get_staff_document_from_staff_index",
+        return_value=STAFF_DOCUMENT,
+    )
+    def test_post_form_data_no_manager(self, mock_get_staff_document_from_staff_index):
+        self.client.force_login(self.leaver)
+
+        self.leaving_request.manager_activitystream_user = None
+        self.leaving_request.save()
+
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "leaving_date_0": "1",
+                "leaving_date_1": "2",
+                "leaving_date_2": "2023",
+                "last_day_0": "1",
+                "last_day_1": "2",
+                "last_day_2": "2023",
+                "leaver_manager": STAFF_DOCUMENT.uuid,
+            },
+        )
+
+        self.assertEqual(post_response.status_code, 200)
+        self.assertContains(post_response, "You must select a line manager")
+
+
+class TestLeaverHasAssetsView(TestCase):
+    view_name = "leaver-has-assets"
+
+    def setUp(self) -> None:
+        self.leaver = UserFactory()
+        self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.leaver.sso_email_user_id,
+        )
+        self.leaving_request = LeavingRequestFactory(
+            leaver_activitystream_user=self.leaver_activity_stream_user,
+            manager_activitystream_user=ActivityStreamStaffSSOUserFactory(),
+        )
+
+    def test_unauthenticated_user(self) -> None:
+        get_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(get_response.status_code, 302)
+        self.assertTrue(get_response.url.startswith(reverse("dev_tools:index")))
+
+        post_response = self.client.post(reverse(self.view_name), data={})
+
+        self.assertEqual(post_response.status_code, 302)
+        self.assertTrue(post_response.url.startswith(reverse("dev_tools:index")))
+
+    def test_authenticated_user(self):
+        self.client.force_login(self.leaver)
+
+        get_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(get_response.status_code, 200)
+
+        # Ensure we skip the view if the leaver process is already completed.
+        self.leaving_request.leaver_complete = timezone.now()
+        self.leaving_request.save()
+        already_completed_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(already_completed_response.status_code, 302)
+        self.assertEqual(
+            already_completed_response.url, reverse("leaver-request-received")
+        )
+
+    def test_post_form_data(self):
+        self.client.force_login(self.leaver)
+
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "has_gov_procurement_card": "yes",
+                "has_rosa_kit": "yes",
+                "has_dse": "yes",
+            },
+        )
+
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-has-cirrus-equipment"))
+
+        self.leaving_request.refresh_from_db()
+        self.assertTrue(self.leaving_request.holds_government_procurement_card)
+        self.assertTrue(self.leaving_request.is_rosa_user)
+
+        leaver_info = self.leaving_request.leaver_information.first()
+        self.assertTrue(leaver_info.has_dse)
 
 
 class TestHasCirrusEquipmentView(TestCase):
@@ -652,66 +409,85 @@ class TestHasCirrusEquipmentView(TestCase):
 
     def setUp(self) -> None:
         self.leaver = UserFactory()
-        self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
+        self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
             email_user_id=self.leaver.sso_email_user_id,
         )
-        self.leaver_information = factories.LeaverInformationFactory(
-            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
-            leaving_request__user_requesting=self.leaver,
-        )
-        ServiceEmailAddressFactory(
-            staff_sso_user=self.leaver_activity_stream_staff_sso,
+        self.leaving_request = LeavingRequestFactory(
+            leaver_activitystream_user=self.leaver_activity_stream_user,
+            manager_activitystream_user=ActivityStreamStaffSSOUserFactory(),
         )
 
     def test_unauthenticated_user(self) -> None:
-        response = self.client.get(reverse(self.view_name))
+        get_response = self.client.get(reverse(self.view_name))
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(get_response.status_code, 302)
+        self.assertTrue(get_response.url.startswith(reverse("dev_tools:index")))
+
+        post_response = self.client.post(reverse(self.view_name), data={})
+
+        self.assertEqual(post_response.status_code, 302)
+        self.assertTrue(post_response.url.startswith(reverse("dev_tools:index")))
 
     @mock.patch(
         "leavers.views.leaver.get_cirrus_assets",
         return_value=[
             {
-                "uuid": str(uuid.uuid4()),
-                "sys_id": "sys_id",
-                "tag": "tag",
-                "name": "name",
+                "uuid": "00000000-0000-0000-0000-000000000000",
+                "sys_id": 1,
+                "name": "Test Asset",
+                "tag": "TAG123",
             }
         ],
     )
-    def test_user_has_assets(self, mock_get_cirrus_assets) -> None:
+    def test_authenticated_user(self, mock_get_cirrus_assets):
         self.client.force_login(self.leaver)
 
-        response = self.client.get(reverse(self.view_name))
+        get_response = self.client.get(reverse(self.view_name))
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
+        self.assertEqual(get_response.status_code, 302)
+        self.assertEqual(get_response.url, reverse("leaver-cirrus-equipment"))
 
-    @mock.patch("leavers.views.leaver.get_cirrus_assets", return_value=[])
-    def test_user_has_no_assets(self, mock_get_cirrus_assets) -> None:
+        mock_get_cirrus_assets.return_value = []
+
+        get_response_no_assets = self.client.get(reverse(self.view_name))
+        self.assertEqual(get_response_no_assets.status_code, 200)
+
+        # Ensure we skip the view if the leaver process is already completed.
+        self.leaving_request.leaver_complete = timezone.now()
+        self.leaving_request.save()
+        already_completed_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(already_completed_response.status_code, 302)
+        self.assertEqual(
+            already_completed_response.url, reverse("leaver-request-received")
+        )
+
+    @mock.patch(
+        "leavers.views.leaver.get_cirrus_assets",
+        return_value=[],
+    )
+    def test_post_form_data(self, mock_get_cirrus_assets):
         self.client.force_login(self.leaver)
 
-        response = self.client.get(reverse(self.view_name))
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "has_cirrus_kit": "yes",
+            },
+        )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-cirrus-equipment"))
 
-    @mock.patch("leavers.views.leaver.get_cirrus_assets", return_value=[])
-    def test_post_yes(self, mock_get_cirrus_assets) -> None:
-        self.client.force_login(self.leaver)
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "has_cirrus_kit": "no",
+            },
+        )
 
-        response = self.client.post(reverse(self.view_name), {"has_cirrus_kit": "yes"})
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
-
-    @mock.patch("leavers.views.leaver.get_cirrus_assets", return_value=[])
-    def test_post_no(self, mock_get_cirrus_assets) -> None:
-        self.client.force_login(self.leaver)
-
-        response = self.client.post(reverse(self.view_name), {"has_cirrus_kit": "no"})
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-display-screen-equipment"))
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-display-screen-equipment"))
 
 
 class TestCirrusEquipmentView(TestCase):
@@ -719,164 +495,145 @@ class TestCirrusEquipmentView(TestCase):
 
     def setUp(self) -> None:
         self.leaver = UserFactory()
-        self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
+        self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
             email_user_id=self.leaver.sso_email_user_id,
         )
-        self.leaver_information = factories.LeaverInformationFactory(
-            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
-            leaving_request__user_requesting=self.leaver,
-        )
-        ServiceEmailAddressFactory(
-            staff_sso_user=self.leaver_activity_stream_staff_sso,
+        self.leaving_request = LeavingRequestFactory(
+            leaver_activitystream_user=self.leaver_activity_stream_user,
+            manager_activitystream_user=ActivityStreamStaffSSOUserFactory(),
         )
 
     def test_unauthenticated_user(self) -> None:
-        response = self.client.get(reverse(self.view_name))
+        get_response = self.client.get(reverse(self.view_name))
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(get_response.status_code, 302)
+        self.assertTrue(get_response.url.startswith(reverse("dev_tools:index")))
 
-    def test_authenticated_user(self) -> None:
+        post_response = self.client.post(reverse(self.view_name), data={})
+
+        self.assertEqual(post_response.status_code, 302)
+        self.assertTrue(post_response.url.startswith(reverse("dev_tools:index")))
+
+    def test_authenticated_user(self):
         self.client.force_login(self.leaver)
 
-        response = self.client.get(reverse(self.view_name))
+        get_response = self.client.get(reverse(self.view_name))
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(get_response.status_code, 200)
 
-    def initiate_session(self) -> SessionBase:
-        session = self.client.session
-        if "cirrus_assets" not in self.client.session:
-            session["cirrus_assets"] = []
-            session.save()
-        return session
+        # Ensure we skip the view if the leaver process is already completed.
+        self.leaving_request.leaver_complete = timezone.now()
+        self.leaving_request.save()
+        already_completed_response = self.client.get(reverse(self.view_name))
 
-    def add_kit_to_session(self, asset_name: str, asset_tag: str) -> uuid.UUID:
-        session = self.initiate_session()
-
-        asset_uuid = uuid.uuid4()
-        session["cirrus_assets"].append(
-            {
-                "uuid": str(asset_uuid),
-                "tag": asset_tag,
-                "name": asset_name,
-            }
+        self.assertEqual(already_completed_response.status_code, 302)
+        self.assertEqual(
+            already_completed_response.url, reverse("leaver-request-received")
         )
-        session.save()
-        return asset_uuid
 
-    @mock.patch("leavers.views.leaver.get_service_now_interface")
-    def test_with_assets_in_session(self, mock_get_service_now_interface) -> None:
-        mock_get_service_now_interface.get_assets_for_user.return_value = []
-
+    def test_post_add_asset_form(self):
         self.client.force_login(self.leaver)
 
-        self.add_kit_to_session("Test Asset 1", "Test Tag 1")
-        self.add_kit_to_session("Test Asset 2", "Test Tag 2")
-        self.add_kit_to_session("Test Asset 3", "Test Tag 3")
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "form_name": "add_asset_form",
+                "asset_name": "New test asset",
+            },
+        )
 
-        response = self.client.get(reverse(self.view_name))
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-cirrus-equipment"))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Test Asset 1")
-        self.assertContains(response, "Test Tag 1")
-        self.assertContains(response, "Test Asset 2")
-        self.assertContains(response, "Test Tag 2")
-        self.assertContains(response, "Test Asset 3")
-        self.assertContains(response, "Test Tag 3")
+        cirrus_assets = post_response.wsgi_request.session["cirrus_assets"]
+        self.assertEqual(len(cirrus_assets), 1)
+        self.assertEqual(cirrus_assets[0]["name"], "New test asset")
 
-    @mock.patch(
-        "leavers.views.leaver.get_service_now_interface",
-        return_value=ServiceNowStubbed(),
-    )
-    @mock.patch(
-        "core.service_now.interfaces.ServiceNowStubbed.get_assets_for_user",
-        return_value=[
-            {
-                "sys_id": "sys_id_1",
-                "tag": "asset_tag_1",
-                "name": "Asset 1",
-            }
-        ],
-    )
-    def test_with_assets_from_service_now(
-        self,
-        mock_get_assets_for_user,
-        mock_get_service_now_interface,
-    ) -> None:
+    def test_post_cirrus_return_office_form(self):
         self.client.force_login(self.leaver)
 
-        response = self.client.get(reverse(self.view_name))
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "form_name": "cirrus_return_form",
+                "return_option": ReturnOptions.OFFICE.value,
+                "office_personal_phone": "0123123123",
+                "office_contact_email": "someone@example.com",  # /PS-IGNORE
+                "home_personal_phone": "",
+                "home_contact_email": "",
+                "home_address_line_1": "",
+                "home_address_line_2": "",
+                "home_address_city": "",
+                "home_address_county": "",
+                "home_address_postcode": "",
+            },
+        )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context["cirrus_assets"][0]["name"], "Asset 1")
-        self.assertEqual(response.context["cirrus_assets"][0]["tag"], "asset_tag_1")
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-display-screen-equipment"))
 
-    def test_post_no_form_name(self) -> None:
+        leaver_info = self.leaving_request.leaver_information.first()
+        self.assertEqual(leaver_info.return_personal_phone, "0123123123")
+        self.assertEqual(
+            leaver_info.return_contact_email,
+            "someone@example.com",  # /PS-IGNORE
+        )
+        self.assertEqual(leaver_info.return_address_line_1, None)
+        self.assertEqual(leaver_info.return_address_line_2, None)
+        self.assertEqual(leaver_info.return_address_city, None)
+        self.assertEqual(leaver_info.return_address_county, None)
+        self.assertEqual(leaver_info.return_address_postcode, None)
+
+    def test_post_cirrus_return_home_form(self):
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(18):
-            response = self.client.post(reverse(self.view_name), {})
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "form_name": "cirrus_return_form",
+                "return_option": ReturnOptions.HOME.value,
+                "office_personal_phone": "",
+                "office_contact_email": "",
+                "home_personal_phone": "0123123123",
+                "home_contact_email": "someone@example.com",  # /PS-IGNORE
+                "home_address_line_1": "Line 1",
+                "home_address_line_2": "Line 2",
+                "home_address_city": "City",
+                "home_address_county": "County",
+                "home_address_postcode": "Postcode",
+            },
+        )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-display-screen-equipment"))
 
-    @mock.patch(
-        "core.service_now.interfaces.ServiceNowStubbed.get_assets_for_user",
-        return_value=[],
-    )
-    def test_post_add_asset_form(self, mock_get_assets_for_user) -> None:
+        leaver_info = self.leaving_request.leaver_information.first()
+        self.assertEqual(leaver_info.return_personal_phone, "0123123123")
+        self.assertEqual(
+            leaver_info.return_contact_email,
+            "someone@example.com",  # /PS-IGNORE
+        )
+        self.assertEqual(leaver_info.return_address_line_1, "Line 1")
+        self.assertEqual(leaver_info.return_address_line_2, "Line 2")
+        self.assertEqual(leaver_info.return_address_city, "City")
+        self.assertEqual(leaver_info.return_address_county, "County")
+        self.assertEqual(leaver_info.return_address_postcode, "Postcode")
+
+    def test_post_cirrus_return_form_no_assets(self):
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(18):
-            response = self.client.post(
-                reverse(self.view_name),
-                {
-                    "form_name": "add_asset_form",
-                    "asset_name": "Test Asset",
-                },
-            )
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "form_name": "cirrus_return_form_no_assets",
+            },
+        )
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse(self.view_name))
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-display-screen-equipment"))
 
-        session_assets = response.client.session["cirrus_assets"]
-        self.assertEqual(len(session_assets), 1)
-
-    # TODO: Fix test
-    # @mock.patch(
-    #     "leavers.views.leaver.LeaverInformationMixin.store_cirrus_kit_information"
-    # )
-    # @mock.patch(
-    #     "core.service_now.interfaces.ServiceNowStubbed.get_assets_for_user",
-    #     return_value=[
-    #         {
-    #             "sys_id": "sys_id_1",
-    #             "tag": "asset_tag_1",
-    #             "name": "Asset 1",
-    #         }
-    #     ],
-    # )
-    # def test_post_cirrus_return_form(
-    #     self,
-    #     mock_get_assets_for_user,
-    #     mock_store_cirrus_kit_information,
-    # ) -> None:
-    #     self.client.force_login(self.leaver)
-
-    #     with self.assertNumQueries(15):
-    #         response = self.client.post(
-    #             reverse(self.view_name),
-    #             {
-    #                 "form_name": "cirrus_return_form",
-    #             },
-    #         )
-
-    #     self.assertEqual(response.status_code, 302)
-    #     self.assertEqual(response.url, reverse("leaver-display-screen-equipment"))
-
-    #     mock_store_cirrus_kit_information.assert_called_once_with(
-    #         sso_email_user_id=self.leaver.sso_email_user_id,
-    #         requester=self.leaver,
-    #         cirrus_assets=response.wsgi_request.session["cirrus_assets"],
-    #     )
+        leaver_info = self.leaving_request.leaver_information.first()
+        self.assertEqual(leaver_info.cirrus_assets, [])
 
 
 class TestDisplayScreenEquipmentView(TestCase):
@@ -884,399 +641,255 @@ class TestDisplayScreenEquipmentView(TestCase):
 
     def setUp(self) -> None:
         self.leaver = UserFactory()
-        self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
+        self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
             email_user_id=self.leaver.sso_email_user_id,
         )
-        self.leaver_information = factories.LeaverInformationFactory(
+        self.leaving_request = LeavingRequestFactory(
+            leaver_activitystream_user=self.leaver_activity_stream_user,
+            manager_activitystream_user=ActivityStreamStaffSSOUserFactory(),
+        )
+        self.leaver_info = LeaverInformationFactory(
+            leaving_request=self.leaving_request,
             has_dse=True,
-            leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
-            leaving_request__user_requesting=self.leaver,
         )
 
     def test_unauthenticated_user(self) -> None:
-        response = self.client.get(reverse(self.view_name))
+        get_response = self.client.get(reverse(self.view_name))
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(get_response.status_code, 302)
+        self.assertTrue(get_response.url.startswith(reverse("dev_tools:index")))
 
-    # TODO: Fix test
-    # def test_authenticated_user(self) -> None:
-    #     self.leaver_information.has_dse = False
-    #     self.leaver_information.save()
+        post_response = self.client.post(reverse(self.view_name), data={})
 
-    #     self.client.force_login(self.leaver)
+        self.assertEqual(post_response.status_code, 302)
+        self.assertTrue(post_response.url.startswith(reverse("dev_tools:index")))
 
-    #     response = self.client.get(reverse(self.view_name))
-
-    #     self.assertEqual(response.status_code, 302)
-    #     self.assertEqual(response.url, reverse("leaver-confirm-details"))
-
-    def test_no_dse(self) -> None:
+    def test_authenticated_user(self):
         self.client.force_login(self.leaver)
 
-        response = self.client.get(reverse(self.view_name))
+        get_response = self.client.get(reverse(self.view_name))
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(get_response.status_code, 200)
 
-    def initiate_session(self) -> SessionBase:
-        session = self.client.session
-        if "dse_assets" not in self.client.session:
-            session["dse_assets"] = []
-            session.save()
-        return session
+        # Ensure we skip the view if the leaver process is already completed.
+        self.leaving_request.leaver_complete = timezone.now()
+        self.leaving_request.save()
+        already_completed_response = self.client.get(reverse(self.view_name))
 
-    def add_kit_to_session(self, asset_name: str) -> uuid.UUID:
-        session = self.initiate_session()
-
-        asset_uuid = uuid.uuid4()
-        session["dse_assets"].append(
-            {
-                "uuid": str(asset_uuid),
-                "name": asset_name,
-            }
+        self.assertEqual(already_completed_response.status_code, 302)
+        self.assertEqual(
+            already_completed_response.url, reverse("leaver-request-received")
         )
-        session.save()
-        return asset_uuid
 
-    @mock.patch("leavers.views.leaver.get_service_now_interface")
-    def test_with_assets_in_session(self, mock_get_service_now_interface) -> None:
-        mock_get_service_now_interface.get_assets_for_user.return_value = []
-
+    def test_post_add_asset_form(self):
         self.client.force_login(self.leaver)
 
-        self.add_kit_to_session("Test Asset 1")
-        self.add_kit_to_session("Test Asset 2")
-        self.add_kit_to_session("Test Asset 3")
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "form_name": "add_asset_form",
+                "asset_name": "New test asset",
+            },
+        )
 
-        response = self.client.get(reverse(self.view_name))
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-display-screen-equipment"))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Test Asset 1")
-        self.assertContains(response, "Test Asset 2")
-        self.assertContains(response, "Test Asset 3")
+        dse_assets = post_response.wsgi_request.session["dse_assets"]
+        self.assertEqual(len(dse_assets), 1)
+        self.assertEqual(dse_assets[0]["name"], "New test asset")
 
-    def test_post_no_form_name(self) -> None:
+    def test_post_submission_form(self):
         self.client.force_login(self.leaver)
 
-        with self.assertNumQueries(13):
-            response = self.client.post(reverse(self.view_name), {})
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "form_name": "submission_form",
+            },
+        )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-contact-details"))
 
-    def test_post_add_asset_form(self) -> None:
-        self.client.force_login(self.leaver)
-
-        with self.assertNumQueries(16):
-            response = self.client.post(
-                reverse(self.view_name),
-                {
-                    "form_name": "add_asset_form",
-                    "asset_name": "Test Asset",
-                },
-            )
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse(self.view_name))
-
-        session_assets = response.client.session["dse_assets"]
-        self.assertEqual(len(session_assets), 1)
-
-    # TODO: Fix test
-    # @mock.patch(
-    #     "leavers.views.leaver.LeaverInformationMixin.store_display_screen_equipment"
-    # )
-    # def test_post_submission_form(self, mock_store_display_screen_equipment) -> None:
-    #     self.client.force_login(self.leaver)
-
-    #     with self.assertNumQueries(10):
-    #         response = self.client.post(
-    #             reverse(self.view_name),
-    #             {
-    #                 "form_name": "submission_form",
-    #             },
-    #         )
-
-    #     self.assertEqual(response.status_code, 302)
-    #     self.assertEqual(response.url, reverse("leaver-confirm-details"))
-
-    #     mock_store_display_screen_equipment.assert_called_once_with(
-    #         sso_email_user_id=self.leaver.sso_email_user_id,
-    #         requester=self.leaver,
-    #         dse_assets=[],
-    #     )
+        leaver_info = self.leaving_request.leaver_information.first()
+        self.assertEqual(leaver_info.dse_assets, [])
 
 
-class TestDeleteCirrusEquipmentView(TestCase):
-    view_name = "leaver-cirrus-equipment-delete"
+class TestLeaverContactDetailsView(TestCase):
+    view_name = "leaver-contact-details"
+
+    def setUp(self) -> None:
+        self.leaver = UserFactory()
+        self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.leaver.sso_email_user_id,
+        )
+        self.leaving_request = LeavingRequestFactory(
+            leaver_activitystream_user=self.leaver_activity_stream_user,
+            manager_activitystream_user=ActivityStreamStaffSSOUserFactory(),
+        )
+        self.leaver_info = LeaverInformationFactory(
+            leaving_request=self.leaving_request,
+            has_dse=True,
+        )
 
     def test_unauthenticated_user(self) -> None:
-        response = self.client.get(reverse(self.view_name, args=[str(uuid.uuid4())]))
+        get_response = self.client.get(reverse(self.view_name))
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(get_response.status_code, 302)
+        self.assertTrue(get_response.url.startswith(reverse("dev_tools:index")))
 
-    def test_authenticated_user(self) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+        post_response = self.client.post(reverse(self.view_name), data={})
 
-        response = self.client.get(reverse(self.view_name, args=[str(uuid.uuid4())]))
+        self.assertEqual(post_response.status_code, 302)
+        self.assertTrue(post_response.url.startswith(reverse("dev_tools:index")))
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
+    def test_authenticated_user(self):
+        self.client.force_login(self.leaver)
 
-    def initiate_session(self) -> SessionBase:
-        session = self.client.session
-        if "cirrus_assets" not in self.client.session:
-            session["cirrus_assets"] = []
-            session.save()
-        return session
+        get_response = self.client.get(reverse(self.view_name))
 
-    def add_kit_to_session(self, asset_name: str, asset_tag: str) -> uuid.UUID:
-        session = self.initiate_session()
+        self.assertEqual(get_response.status_code, 200)
 
-        asset_uuid = uuid.uuid4()
-        session["cirrus_assets"].append(
-            {
-                "uuid": str(asset_uuid),
-                "tag": asset_tag,
-                "name": asset_name,
-            }
+        # Ensure we skip the view if the leaver process is already completed.
+        self.leaving_request.leaver_complete = timezone.now()
+        self.leaving_request.save()
+        already_completed_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(already_completed_response.status_code, 302)
+        self.assertEqual(
+            already_completed_response.url, reverse("leaver-request-received")
         )
-        session.save()
-        return asset_uuid
 
-    def test_existing_uuid(self) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
+    def test_post_form(self):
+        self.client.force_login(self.leaver)
 
-        asset_uuid = self.add_kit_to_session("Test Asset 1", "Test Tag 1")
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={
+                "contact_phone": "0123123123",
+                "contact_email_address": "contact@email.com",  # /PS-IGNORE
+                "contact_address_line_1": "Line 1",
+                "contact_address_line_2": "Line 2",
+                "contact_address_city": "City",
+                "contact_address_county": "County",
+                "contact_address_postcode": "Postcode",
+            },
+        )
 
-        response = self.client.get(reverse(self.view_name, args=[str(asset_uuid)]))
-        session = response.client.session
-        session_assets = session["cirrus_assets"]
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-confirm-details"))
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
-        self.assertEqual(len(session_assets), 0)
-
-    def test_invalid_uuid(self) -> None:
-        user = UserFactory()
-        self.client.force_login(user)
-
-        asset_uuid = self.add_kit_to_session("Test Asset 1", "Test Tag 1")
-
-        response = self.client.get(reverse(self.view_name, args=[str(uuid.uuid4())]))
-        session = response.client.session
-        session_assets = session["cirrus_assets"]
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse("leaver-cirrus-equipment"))
-        self.assertEqual(len(session_assets), 1)
-        self.assertEqual(session_assets[0]["uuid"], str(asset_uuid))
-
-
-# class TestCirrusEquipmentReturnOptionsView(TestCase):
-#     view_name = "leaver-return-options"
-
-#     def setUp(self) -> None:
-#         self.leaver = UserFactory()
-#         self.leaver_activity_stream_staff_sso = ActivityStreamStaffSSOUserFactory(
-#             email_user_id=self.leaver.sso_email_user_id,
-#         )
-#         self.leaver_information = factories.LeaverInformationFactory(
-#             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_staff_sso,
-#             leaving_request__user_requesting=self.leaver,
-#             cirrus_assets=[
-#                 {
-#                     "uuid": str(uuid.uuid4()),
-#                     "tag": "Test Tag 1",
-#                     "name": "Test Asset 1",
-#                 }
-#             ],
-#         )
-
-#     def test_unauthenticated_user(self) -> None:
-#         response = self.client.get(reverse(self.view_name))
-
-#         self.assertEqual(response.status_code, 302)
-
-#     def test_authenticated_user(self) -> None:
-#         self.client.force_login(self.leaver)
-
-#         response = self.client.get(reverse(self.view_name))
-
-#         self.assertEqual(response.status_code, 200)
-
-#     @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_option")
-#     def test_post_home(self, mock_store_return_option) -> None:
-#         self.client.force_login(self.leaver)
-
-#         response = self.client.post(
-#             reverse(self.view_name),
-#             {
-#                 "return_option": ReturnOptions.HOME.value,
-#             },
-#         )
-
-#         self.assertEqual(response.status_code, 302)
-#         self.assertEqual(response.url, reverse("leaver-return-information"))
-#         mock_store_return_option.assert_called_once_with(
-#             sso_email_user_id=self.leaver.sso_email_user_id,
-#             requester=self.leaver,
-#             return_option=ReturnOptions.HOME.value,
-#         )
-
-#     @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_option")
-#     def test_post_office(self, mock_store_return_option) -> None:
-#         self.client.force_login(self.leaver)
-
-#         response = self.client.post(
-#             reverse(self.view_name),
-#             {
-#                 "return_option": ReturnOptions.OFFICE.value,
-#             },
-#         )
-
-#         self.assertEqual(response.status_code, 302)
-#         self.assertEqual(response.url, reverse("leaver-return-information"))
-#         mock_store_return_option.assert_called_once_with(
-#             sso_email_user_id=self.leaver.sso_email_user_id,
-#             requester=self.leaver,
-#             return_option=ReturnOptions.OFFICE.value,
-#         )
-
-#     @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_option")
-#     def test_post_empty(self, mock_store_return_option) -> None:
-#         self.client.force_login(self.leaver)
-
-#         response = self.client.post(reverse(self.view_name), {})
-
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(
-#             response.context["form"].errors,
-#             {"return_option": ["This field is required."]},
-#         )
+        self.leaver_info.refresh_from_db()
+        self.assertEqual(self.leaver_info.contact_phone, "0123123123")
+        self.assertEqual(
+            self.leaver_info.personal_email,
+            "contact@email.com",  # /PS-IGNORE
+        )
+        self.assertEqual(self.leaver_info.contact_address_line_1, "Line 1")
+        self.assertEqual(self.leaver_info.contact_address_line_2, "Line 2")
+        self.assertEqual(self.leaver_info.contact_address_city, "City")
+        self.assertEqual(self.leaver_info.contact_address_county, "County")
+        self.assertEqual(self.leaver_info.contact_address_postcode, "Postcode")
 
 
-# class TestCirrusEquipmentReturnInformationView(TestCase):
-#     view_name = "leaver-return-information"
+class TestConfirmDetailsView(TestCase):
+    view_name = "leaver-confirm-details"
 
-#     def setUp(self) -> None:
-#         self.leaver = UserFactory()
-#         self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
-#             email_user_id=self.leaver.sso_email_user_id,
-#         )
+    def setUp(self) -> None:
+        self.leaver = UserFactory()
+        self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.leaver.sso_email_user_id,
+        )
+        self.leaving_request = LeavingRequestFactory(
+            leaver_activitystream_user=self.leaver_activity_stream_user,
+            manager_activitystream_user=ActivityStreamStaffSSOUserFactory(),
+            staff_type=StaffType.CIVIL_SERVANT.value,
+            security_clearance=SecurityClearance.SC.value,
+        )
+        self.leaver_info = LeaverInformationFactory(
+            leaving_request=self.leaving_request,
+            has_dse=True,
+        )
 
-#     def test_unauthenticated_user(self) -> None:
-#         response = self.client.get(reverse(self.view_name))
+    def test_unauthenticated_user(self) -> None:
+        get_response = self.client.get(reverse(self.view_name))
 
-#         self.assertEqual(response.status_code, 302)
+        self.assertEqual(get_response.status_code, 302)
+        self.assertTrue(get_response.url.startswith(reverse("dev_tools:index")))
 
-#     def test_authenticated_user(self) -> None:
-#         factories.LeaverInformationFactory(
-#             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-#             cirrus_assets=[
-#                 {
-#                     "uuid": str(uuid.uuid4()),
-#                     "tag": "Test Tag 1",
-#                     "name": "Test Asset 1",
-#                 }
-#             ],
-#         )
+        post_response = self.client.post(reverse(self.view_name), data={})
 
-#         self.client.force_login(self.leaver)
+        self.assertEqual(post_response.status_code, 302)
+        self.assertTrue(post_response.url.startswith(reverse("dev_tools:index")))
 
-#         response = self.client.get(reverse(self.view_name))
+    def test_authenticated_user(self):
+        self.client.force_login(self.leaver)
 
-#         self.assertEqual(response.status_code, 200)
+        get_response = self.client.get(reverse(self.view_name))
 
-#     def test_home(self) -> None:
-#         self.client.force_login(self.leaver)
-#         factories.LeaverInformationFactory(
-#             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-#             cirrus_assets=[
-#                 {
-#                     "uuid": str(uuid.uuid4()),
-#                     "tag": "Test Tag 1",
-#                     "name": "Test Asset 1",
-#                 }
-#             ],
-#             return_option=ReturnOptions.HOME.value,
-#         )
+        self.assertEqual(get_response.status_code, 200)
 
-#         response = self.client.get(reverse(self.view_name))
+        # Ensure we skip the view if the leaver process is already completed.
+        self.leaving_request.leaver_complete = timezone.now()
+        self.leaving_request.save()
+        already_completed_response = self.client.get(reverse(self.view_name))
 
-#         self.assertEqual(response.status_code, 200)
-#         context_form = response.context["form"]
-#         self.assertTrue(context_form.fields["address_line_1"].required)
-#         self.assertFalse(context_form.fields["address_line_2"].required)
-#         self.assertTrue(context_form.fields["address_city"].required)
-#         self.assertTrue(context_form.fields["address_county"].required)
-#         self.assertTrue(context_form.fields["address_postcode"].required)
+        self.assertEqual(already_completed_response.status_code, 302)
+        self.assertEqual(
+            already_completed_response.url, reverse("leaver-request-received")
+        )
 
-#     def test_office(self) -> None:
-#         self.client.force_login(self.leaver)
-#         factories.LeaverInformationFactory(
-#             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-#             cirrus_assets=[
-#                 {
-#                     "uuid": str(uuid.uuid4()),
-#                     "tag": "Test Tag 1",
-#                     "name": "Test Asset 1",
-#                 }
-#             ],
-#             return_option=ReturnOptions.OFFICE.value,
-#         )
+    def test_post_form(self):
+        self.client.force_login(self.leaver)
 
-#         response = self.client.get(reverse(self.view_name))
+        post_response = self.client.post(
+            reverse(self.view_name),
+            data={},
+        )
 
-#         self.assertEqual(response.status_code, 200)
-#         context_form = response.context["form"]
-#         self.assertFalse(context_form.fields["address_line_1"].required)
-#         self.assertFalse(context_form.fields["address_line_2"].required)
-#         self.assertFalse(context_form.fields["address_city"].required)
-#         self.assertFalse(context_form.fields["address_county"].required)
-#         self.assertFalse(context_form.fields["address_postcode"].required)
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(post_response.url, reverse("leaver-request-received"))
 
-#     @mock.patch("leavers.views.leaver.LeaverInformationMixin.store_return_information")
-#     def test_post(self, mock_store_return_information) -> None:
-#         self.client.force_login(self.leaver)
-#         factories.LeaverInformationFactory(
-#             leaving_request__leaver_activitystream_user=self.leaver_activity_stream_user,
-#             cirrus_assets=[
-#                 {
-#                     "uuid": str(uuid.uuid4()),
-#                     "tag": "Test Tag 1",
-#                     "name": "Test Asset 1",
-#                 }
-#             ],
-#             return_option=ReturnOptions.HOME.value,
-#         )
 
-#         response = self.client.post(
-#             reverse(self.view_name),
-#             {
-#                 "personal_phone": "0123123123",  # /PS-IGNORE
-#                 "contact_email": "joe.bloggs@example.com",  # /PS-IGNORE
-#                 "address_line_1": "Example Building name",  # /PS-IGNORE
-#                 "address_line_2": "Example Street name",  # /PS-IGNORE
-#                 "address_city": "Bristol",
-#                 "address_county": "Bristol",
-#                 "address_postcode": "AB1 2CD",  # /PS-IGNORE
-#             },
-#         )
+class TestRequestReceivedView(TestCase):
+    view_name = "leaver-request-received"
 
-#         self.assertEqual(response.status_code, 302)
-#         self.assertEqual(response.url, reverse("leaver-display-screen-equipment"))
+    def setUp(self) -> None:
+        self.leaver = UserFactory()
+        self.leaver_activity_stream_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.leaver.sso_email_user_id,
+        )
+        self.leaving_request = LeavingRequestFactory(
+            leaver_activitystream_user=self.leaver_activity_stream_user,
+            manager_activitystream_user=ActivityStreamStaffSSOUserFactory(),
+        )
+        self.leaver_info = LeaverInformationFactory(
+            leaving_request=self.leaving_request,
+            has_dse=True,
+        )
 
-#         mock_store_return_information.assert_called_once_with(
-#             sso_email_user_id=self.leaver.sso_email_user_id,
-#             requester=self.leaver,
-#             personal_phone="0123123123",  # /PS-IGNORE
-#             contact_email="joe.bloggs@example.com",  # /PS-IGNORE
-#             address={
-#                 "line_1": "Example Building name",  # /PS-IGNORE
-#                 "line_2": "Example Street name",
-#                 "town_or_city": "Bristol",
-#                 "county": "Bristol",
-#                 "postcode": "AB1 2CD",  # /PS-IGNORE
-#             },
-#         )
+    def test_unauthenticated_user(self) -> None:
+        get_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(get_response.status_code, 302)
+        self.assertTrue(get_response.url.startswith(reverse("dev_tools:index")))
+
+        post_response = self.client.post(reverse(self.view_name), data={})
+
+        self.assertEqual(post_response.status_code, 302)
+        self.assertTrue(post_response.url.startswith(reverse("dev_tools:index")))
+
+    def test_authenticated_user(self):
+        self.client.force_login(self.leaver)
+
+        get_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(get_response.status_code, 200)
+
+        # Ensure we skip the view if the leaver process is already completed.
+        self.leaving_request.leaver_complete = timezone.now()
+        self.leaving_request.save()
+        already_completed_response = self.client.get(reverse(self.view_name))
+
+        self.assertEqual(already_completed_response.status_code, 200)
