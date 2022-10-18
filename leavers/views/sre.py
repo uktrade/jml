@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.generic import FormView, TemplateView
 
-from core.utils.helpers import make_possessive
+from core.utils.helpers import DATE_FORMAT_STR, make_possessive
 from leavers.forms.sre import (
     ServiceAndToolActions,
     SREAddTaskNoteForm,
@@ -110,7 +110,9 @@ class TaskDetailView(UserPassesTestMixin, TemplateView):
                 if not service_field_task_log.value and service_field_task_log.notes:
                     service_info["comment"] = service_field_task_log.notes
                 else:
-                    created_at = service_field_task_log.created_at.strftime("%d/%m/%Y")
+                    created_at = service_field_task_log.created_at.strftime(
+                        DATE_FORMAT_STR
+                    )
                     if service_field_task_log.user:
                         service_info["comment"] = (
                             f"Last updated by {service_field_task_log.user.get_full_name()}"

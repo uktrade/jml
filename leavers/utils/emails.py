@@ -8,7 +8,7 @@ from activity_stream.models import ActivityStreamStaffSSOUser
 from core import notify
 from core.uksbs import get_uksbs_interface
 from core.uksbs.types import PersonData
-from core.utils.helpers import make_possessive
+from core.utils.helpers import DATE_FORMAT_STR, make_possessive
 from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.models import LeaverInformation, LeavingRequest
 from leavers.types import DisplayScreenEquipmentAsset
@@ -54,8 +54,8 @@ def get_leaving_request_email_personalisation(
         possessive_leaver_name=make_possessive(leaver_name),
         manager_name=manager_as_user.full_name,
         manager_email=manager_as_user.get_email_addresses_for_contact()[0],
-        leaving_date=leaving_date.strftime("%d-%B-%Y %H:%M"),
-        last_day=last_day.strftime("%d-%B-%Y %H:%M"),
+        leaving_date=leaving_date.strftime(DATE_FORMAT_STR),
+        last_day=last_day.strftime(DATE_FORMAT_STR),
         has_data_recipient="no",
         contact_us_link=site_url + reverse("beta-service-feedback"),
         line_manager_link=site_url
@@ -81,9 +81,7 @@ def get_leaving_request_email_personalisation(
         raise ValueError("leaver_date_of_birth is not set")
 
     personalisation.update(
-        date_of_birth=leaver_information.leaver_date_of_birth.strftime(
-            "%d-%B-%Y %H:%M"
-        ),
+        date_of_birth=leaver_information.leaver_date_of_birth.strftime(DATE_FORMAT_STR),
     )
 
     if leaving_request.data_recipient_activitystream_user:

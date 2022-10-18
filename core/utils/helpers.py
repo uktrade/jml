@@ -4,6 +4,11 @@ from typing import Dict, Iterable, List, Literal, Optional, Type
 from django.db.models import Model, QuerySet
 from django.utils import timezone
 
+# 1 January 2022
+DATE_FORMAT_STR = "%d %B %Y"
+# 1 January 2022 13:24
+DATETIME_FORMAT_STR = f"{DATE_FORMAT_STR} %H:%M"
+
 
 class IsoWeekdays(Enum):
     MONDAY = 1

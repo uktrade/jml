@@ -24,6 +24,8 @@ from leavers.forms.line_manager import (
 from leavers.models import LeavingRequest
 from leavers.types import LeavingRequestLineReport
 
+UKSBS_DATE_FORMAT_STR = "%d/%m/%Y %H:%M"
+
 
 class LeaveDetails(TypedDict):
     leaverPaidUnpaid: str
@@ -151,7 +153,7 @@ def build_leaving_data_from_leaving_request(
         "contactPrimaryFlag": "Y",
     }
 
-    submission_datetime = timezone.now().strftime("%d-%B-%Y %H:%M")
+    submission_datetime = timezone.now().strftime(UKSBS_DATE_FORMAT_STR)
 
     service_request_data: ServiceRequestData = {
         "problemSummary": f"Leaver Notification Form - {leaver_full_name} - {submission_datetime}",
@@ -183,7 +185,9 @@ def build_leaving_data_from_leaving_request(
             "Email": line_report["email"],
             "NewManager": line_report_line_manager["name"],
             "NewManagerEmail": line_report_line_manager["email"],
-            "Effectivedate": leaving_request.leaving_date.strftime("%d/%m/%Y %H:%M"),
+            "Effectivedate": leaving_request.leaving_date.strftime(
+                UKSBS_DATE_FORMAT_STR
+            ),
         }
         direct_reports.append(direct_report)
 
@@ -208,7 +212,7 @@ def build_leaving_data_from_leaving_request(
         "leaverOracleID": str(uksbs_leaver["person_id"]),
         "leaverEmployeeNumber": uksbs_leaver["employee_number"],
         "leaverReasonForLeaving": leaving_request.reason_for_leaving,
-        "leaverLastDay": leaving_request.last_day.strftime("%d/%m/%Y %H:%M"),
+        "leaverLastDay": leaving_request.last_day.strftime(UKSBS_DATE_FORMAT_STR),
         # Leaver Correspondance Details
         "newCorrEmail": "",
         "newCorrAddressLine1": "",
@@ -222,7 +226,7 @@ def build_leaving_data_from_leaving_request(
         "submitterEmail": uksbs_leaver_manager["email_address"],
         # TODO: I don't think the person_id is the oracle ID
         "submitterOracleID": str(uksbs_leaver_manager["person_id"]),
-        "submitterDate": timezone.now().strftime("%d/%m/%Y %H:%M"),
+        "submitterDate": timezone.now().strftime(UKSBS_DATE_FORMAT_STR),
         "submitterSelectedLineManager": uksbs_leaver_manager["full_name"],
         "submitterSelectedLineManagerEmail": uksbs_leaver_manager["email_address"],
         # TODO: I don't think the person_id is the oracle ID

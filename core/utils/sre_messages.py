@@ -4,7 +4,7 @@ from django.conf import settings
 from django.urls import reverse
 from slack_sdk.web.slack_response import SlackResponse
 
-from core.utils.helpers import make_possessive
+from core.utils.helpers import DATE_FORMAT_STR, make_possessive
 from core.utils.slack import FailedToSendSlackMessage, send_slack_message
 from leavers.models import SlackMessage
 from leavers.workflow.tasks import EmailIds
@@ -56,7 +56,7 @@ def send_sre_alert_message(*, leaving_request: "LeavingRequest") -> SlackRespons
         )
 
         leaver_name = leaving_request.get_leaver_name()
-        leaving_date_str = leaving_date.date().strftime("%d/%m/%Y")
+        leaving_date_str = leaving_date.date().strftime(DATE_FORMAT_STR)
 
         message_content = (
             f"{leaver_name} is leaving DIT\n"
