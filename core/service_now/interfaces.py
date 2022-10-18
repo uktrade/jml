@@ -10,7 +10,6 @@ from django.core.cache import cache
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.service_now import types
 from core.service_now.client import ServiceNowClient
-from core.utils.helpers import bool_to_yes_no
 from core.utils.staff_index import StaffDocument, get_staff_document_from_staff_index
 from leavers import types as leavers_types
 
@@ -371,8 +370,6 @@ class ServiceNowInterface(ServiceNowBase):
             raise Exception("Unable to get leaver's email")
 
         # Convert Request Data to what the Service Now API expects
-        assets_confirmation = bool_to_yes_no(leaver_info.information_is_correct).title()
-
         leaving_date: str = ""
         if leaver_info.leaving_date:
             leaving_date = leaver_info.leaving_date.strftime("%d/%m/%Y")
@@ -414,8 +411,8 @@ class ServiceNowInterface(ServiceNowBase):
             "variables": {
                 "leaver_staff_id": leaver_details["staff_id"],
                 "leaver_leave_date": leaving_date,
-                "assets_confirmation": assets_confirmation,
-                "Additional_information": leaver_info.additional_information,
+                "assets_confirmation": "yes",
+                "Additional_information": "",
                 "contact_telephone_for_collection": leaver_info.return_personal_phone,
                 "contact_email_for_delivery_collection": leaver_info.return_contact_email,  # noqa E501
                 "collection_address_for_remote_leaver": collection_address_str,

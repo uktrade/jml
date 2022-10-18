@@ -5,59 +5,58 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <a href="{% url 'leaver-update-details' %}" class="govuk-back-link">Back</a>
-            {% include "leaving/progress_indicator.html" with steps=progress_steps %}
+            <a href="{% url 'leaver-has-cirrus-equipment' %}" class="govuk-back-link">Back</a>
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-l">IT equipment</h1>
-            <p class="govuk-body">Please confirm, update or add any IT equipment that has been issued to you such as:</p>
+            <span class="govuk-caption-l">Page 5 of 7</span>
+            <h1 class="govuk-heading-l">{{ page_title }}</h1>
+            <p class="govuk-body">Tell us about any IT equipment, peripherals or home working equipment that were expensed to DIT over £150.</p>
+            <p class="govuk-body">For example:</p>
             <ul class="govuk-list govuk-list--bullet">
-                <li>chairs</li>
-                <li>monitors</li>
-                <li>ergonomic keyboards</li>
-                <li>cameras</li>
+                <li>specialist laptops</li>
+                <li>specialist chairs</li>
+                <li>standing desks</li>
+                <li>network hardware</li>
             </ul>
-            <p class="govuk-body">These do not have to be returned unless they were purchased especially for you and for more than £150.</p>
-            <p class="govuk-body">Delete any items you no longer have from the list below. Please update the details if they are incorrect.</p>
+            <p class="govuk-body">You must also return DIT-provided equipment that was not expensed. For example, Apple M1 developer laptops.</p>
+            <p class="govuk-body">This does not include:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>any expensed equipment under £150</li>
+                <li>any equipment given to you as part of DIT's coronavirus (COVID-19) response (for example, your homeworker's kit)</li>
+            </ul>
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">IT equipment currently assigned to you</h2>
+            <h2 class="govuk-heading-m">Add expensed equipment over £150</h2>
+            <p class="govuk-body">Add brief description of your equipment (for example: developer laptop, standing desk, ergonomic chair).</p>
+            <p class="govuk-body">The IT Ops team will contact you to arrange the return of your equipment.</p>
             {% if dse_assets %}
-                <p class="govuk-body">If the equipment listed below is incorrect, either change it, or if you no longer have the item delete it to remove it from the list.</p>
+                <dl class="govuk-summary-list">
+                    {% for asset in dse_assets %}
+                        <div class="govuk-summary-list__row">
+                            <dd class="govuk-summary-list__value">
+                                {{ asset.name }}
+                            </dd>
+                            <dd class="govuk-summary-list__actions">
+                                <a class="govuk-link" href="{% url 'leaver-display-screen-equipment-delete' asset.uuid %}">
+                                    Remove
+                                </a>
+                            </dd>
+                        </div>
+                    {% endfor %}
+                </dl>
             {% else %}
                 <p class="govuk-body">You currently have no IT equipment assigned to you.</p>
             {% endif %}
-            {% for asset in dse_assets %}
-                <dl class="govuk-summary-list">
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Asset name
-                        </dt>
-                        <dd class="govuk-summary-list__value">
-                            {{ asset.name }}
-                        </dd>
-                    </div>
-                </dl>
-                <a href="{% url 'leaver-display-screen-equipment-delete' asset.uuid %} " class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                    Delete
-                </a>
-            {% endfor %}
-        </div>
-    </div>
-
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Add additional equipment:</h2>
-            <p class="govuk-body">Add any IT equipment you have which are not listed above.</p>
+            <h3 class="govuk-heading-s">Your expensed assets:</h3>
             <form novalidate method='post'>
                 {% csrf_token %}
-                <input type="hidden" name="form_name" value="add_asset_form">
+                <input type="hidden" name="form_name" value="add_asset_form" />
                 {% crispy add_asset_form %}
             </form>
         </div>
@@ -67,9 +66,10 @@
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method='post'>
                 {% csrf_token %}
-                <input type="hidden" name="form_name" value="submission_form">
+                <input type="hidden" name="form_name" value="submission_form" />
                 {% crispy submission_form %}
             </form>
         </div>
     </div>
-{% endblock %}
+
+{% endblock content %}

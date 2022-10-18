@@ -1,50 +1,48 @@
 from django.urls import path
 from django_workflow_engine import workflow_urls
 
+# from leavers.views import report_a_leaver as report_a_leaver_views
 from leavers.views import admin as admin_views
 from leavers.views import flow as flow_views
 from leavers.views import leaver as leaver_views
-from leavers.views import leaving as leaving_views
 from leavers.views import line_manager as line_manager_views
-from leavers.views import report_a_leaver as report_a_leaver_views
 from leavers.views import security_team as security_team_views
 from leavers.views import sre as sre_views
 
 urlpatterns = [
-    path("", leaving_views.LeaversStartView.as_view(), name="start"),
-    path("start/", leaving_views.LeaversStartView.as_view(), name="start"),
-    path("who/", leaving_views.WhoIsLeavingView.as_view(), name="who"),
     # Report a leaver (UNUSED ATM)
-    path(
-        "report-a-leaver/leaver-search/",
-        report_a_leaver_views.LeaverSearchView.as_view(),
-        name="report-a-leaver-search",
-    ),
-    path(
-        "report-a-leaver/manager-search/<uuid:leaving_request_uuid>/",
-        report_a_leaver_views.ManagerSearchView.as_view(),
-        name="report-a-leaver-manager-search",
-    ),
-    path(
-        "report-a-leaver/confirmation/",
-        report_a_leaver_views.ConfirmationView.as_view(),
-        name="report-a-leaver-confirmation",
-    ),
-    path(
-        "report-a-leaver/request-received/",
-        report_a_leaver_views.RequestReceivedView.as_view(),
-        name="report-a-leaver-request-received",
-    ),
+    # path(
+    #     "report-a-leaver/leaver-search/",
+    #     report_a_leaver_views.LeaverSearchView.as_view(),
+    #     name="report-a-leaver-search",
+    # ),
+    # path(
+    #     "report-a-leaver/manager-search/<uuid:leaving_request_uuid>/",
+    #     report_a_leaver_views.ManagerSearchView.as_view(),
+    #     name="report-a-leaver-manager-search",
+    # ),
+    # path(
+    #     "report-a-leaver/confirmation/",
+    #     report_a_leaver_views.ConfirmationView.as_view(),
+    #     name="report-a-leaver-confirmation",
+    # ),
+    # path(
+    #     "report-a-leaver/request-received/",
+    #     report_a_leaver_views.RequestReceivedView.as_view(),
+    #     name="report-a-leaver-request-received",
+    # ),
     # Leaver
+    path("", leaver_views.LeaversStartView.as_view(), name="start"),
+    path("start/", leaver_views.LeaversStartView.as_view(), name="start"),
     path(
         "leaver/manager-search/",
         leaver_views.MyManagerSearchView.as_view(),
         name="leaver-manager-search",
     ),
     path(
-        "leaver/update-details/",
-        leaver_views.UpdateDetailsView.as_view(),
-        name="leaver-update-details",
+        "leaver/employment-profile/",
+        leaver_views.EmploymentProfileView.as_view(),
+        name="employment-profile",
     ),
     path(
         "leaver/personal-email/",
@@ -62,6 +60,21 @@ urlpatterns = [
         name="leaver-confirm-details",
     ),
     path(
+        "leaver/leaver-dates/remove-line-manager/",
+        leaver_views.RemoveLineManagerFromLeavingRequestView.as_view(),
+        name="leaver-remove-line-manager",
+    ),
+    path(
+        "leaver/leaver-dates/",
+        leaver_views.LeaverDatesView.as_view(),
+        name="leaver-dates",
+    ),
+    path(
+        "leaver/leaver-assets/",
+        leaver_views.LeaverHasAssetsView.as_view(),
+        name="leaver-has-assets",
+    ),
+    path(
         "leaver/has-cirrus-equipment/",
         leaver_views.HasCirrusEquipmentView.as_view(),
         name="leaver-has-cirrus-equipment",
@@ -77,16 +90,6 @@ urlpatterns = [
         name="leaver-cirrus-equipment-delete",
     ),
     path(
-        "leaver/cirrus-equipment/return/",
-        leaver_views.CirrusEquipmentReturnOptionsView.as_view(),
-        name="leaver-return-options",
-    ),
-    path(
-        "leaver/cirrus-equipment/return-information/",
-        leaver_views.CirrusEquipmentReturnInformationView.as_view(),
-        name="leaver-return-information",
-    ),
-    path(
         "leaver/display-screen-equipment/",
         leaver_views.DisplayScreenEquipmentView.as_view(),
         name="leaver-display-screen-equipment",
@@ -95,6 +98,16 @@ urlpatterns = [
         "leaver/display-screen-equipment/delete/<uuid:kit_uuid>",
         leaver_views.delete_dse_equipment,
         name="leaver-display-screen-equipment-delete",
+    ),
+    path(
+        "leaver/contact-details/",
+        leaver_views.LeaverContactDetailsView.as_view(),
+        name="leaver-contact-details",
+    ),
+    path(
+        "leaver/confirm-details/",
+        leaver_views.ConfirmDetailsView.as_view(),
+        name="leaver-confirm-details",
     ),
     path(
         "leaver/request-received/",

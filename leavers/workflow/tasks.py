@@ -487,7 +487,6 @@ SRE_REMINDER_EMAIL_IDS: List[EmailIds] = [
 
 class SkipCondition(Enum):
     IS_NOT_ROSA_USER = "is_not_rosa_user"
-    USER_DOES_NOT_HAVE_OAB_LOCKER = "user_does_not_have_oab_locker"
     MANUALLY_OFFBOARDED_FROM_UKSBS = "manually_offboarded_from_uksbs"
 
 
@@ -542,12 +541,6 @@ class EmailTask(LeavingRequestTask):
             skip_condition: str = task_info["skip_condition"]
             if skip_condition == SkipCondition.IS_NOT_ROSA_USER.value:
                 return not self.leaving_request.is_rosa_user
-            elif skip_condition == SkipCondition.USER_DOES_NOT_HAVE_OAB_LOCKER.value:
-                leaver_information: Optional[
-                    LeaverInformation
-                ] = self.leaving_request.leaver_information.first()
-                if leaver_information:
-                    return not leaver_information.has_locker
         return False
 
     def execute(self, task_info):

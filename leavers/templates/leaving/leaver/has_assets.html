@@ -5,19 +5,19 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <a href="{% url 'leaver-cirrus-equipment' %}" class="govuk-back-link">Back</a>
+            <a href="{% url 'leaver-dates' %}" class="govuk-back-link">Back</a>
             {% error_summary form %}
-            {% include "leaving/progress_indicator.html" with steps=progress_steps %}
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-l">Return of Cirrus kit</h1>
-            <h2 class="govuk-heading-m">How would you like to return it?</h2>
+            <span class="govuk-caption-l">Page 3 of 7</span>
+            <h1 class="govuk-heading-l">{{ page_title }}</h1>
             <form novalidate method='post'>
                 {% crispy form %}
             </form>
         </div>
     </div>
-{% endblock %}
+
+{% endblock content %}

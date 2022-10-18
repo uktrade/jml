@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, cast
+from typing import Any, Dict, List, Optional, cast
 from uuid import UUID, uuid4
 
 from django.http import (
@@ -30,7 +30,6 @@ from core.utils.staff_index import (
 from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.forms import line_manager as line_manager_forms
 from leavers.models import LeavingRequest
-from leavers.progress_indicator import ProgressIndicator
 from leavers.types import LeavingRequestLineReport
 from user.models import User
 
@@ -38,26 +37,6 @@ DATA_RECIPIENT_SEARCH_PARAM = "data_recipient_id"
 LINE_REPORT_NEW_LINE_MANAGER_SEARCH_PARAM = "new_line_manager_id"
 LINE_REPORT_SET_NEW_MANAGER_ERROR = "line_report_set_new_manager_error"
 ADD_MISSING_LINE_REPORT_ERROR = "add_missing_line_report_error"
-
-
-class LineManagerProgressIndicator(ProgressIndicator):
-
-    steps: List[Tuple[str, str, str]] = [
-        ("leaver_details", "Leaver's details", "line-manager-leaver-confirmation"),
-        ("hr_payroll", "HR and payroll", "line-manager-details"),
-        ("line_reports", "Leaver's line reports", "line-manager-leaver-line-reports"),
-        ("confirmation", "Confirmation", "line-manager-confirmation"),
-    ]
-
-    def __init__(self, current_step: str, leaving_request_uuid: str) -> None:
-        super().__init__(current_step)
-        self.leaving_request_uuid = leaving_request_uuid
-
-    def get_step_link(self, step) -> str:
-        return reverse_lazy(
-            step[2],
-            kwargs={"leaving_request_uuid": self.leaving_request_uuid},
-        )
 
 
 class LineManagerViewMixin:
@@ -432,10 +411,6 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
-        self.progress_indicator = LineManagerProgressIndicator(
-            current_step="leaver_details",
-            leaving_request_uuid=self.leaving_request.uuid,
-        )
 
         if not self.leaving_request.leaver_complete:
             return HttpResponseNotFound()
@@ -493,7 +468,6 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
                 "line-manager-data-recipient-search",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
-            progress_steps=self.progress_indicator.get_progress_steps(),
         )
         return context
 
@@ -540,10 +514,6 @@ class DetailsView(LineManagerViewMixin, FormView):
     def dispatch(self, request, *args, **kwargs):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-        self.progress_indicator = LineManagerProgressIndicator(
-            current_step="hr_payroll",
-            leaving_request_uuid=self.leaving_request.uuid,
         )
 
         if not self.leaving_request.leaver_complete:
@@ -597,7 +567,6 @@ class DetailsView(LineManagerViewMixin, FormView):
         context.update(
             page_title="HR and payroll",
             leaver_name=self.leaving_request.get_leaver_name(),
-            progress_steps=self.progress_indicator.get_progress_steps(),
         )
 
         return context
@@ -729,10 +698,6 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
-        self.progress_indicator = LineManagerProgressIndicator(
-            current_step="line_reports",
-            leaving_request_uuid=self.leaving_request.uuid,
-        )
 
         if not self.leaving_request.leaver_complete:
             return HttpResponseNotFound()
@@ -778,7 +743,6 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
         context.update(
             page_title="Leaver's line reports",
             leaver_name=self.leaving_request.get_leaver_name(),
-            progress_steps=self.progress_indicator.get_progress_steps(),
             line_reports=self.leaving_request.line_reports,
             new_line_manager_search=reverse(
                 "line-manager-line-report-new-line-manager-search",
@@ -832,10 +796,6 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
     def dispatch(self, request, *args, **kwargs):
         self.leaving_request = get_object_or_404(
             LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-        self.progress_indicator = LineManagerProgressIndicator(
-            current_step="confirmation",
-            leaving_request_uuid=self.leaving_request.uuid,
         )
 
         if not self.leaving_request.leaver_complete:
@@ -906,7 +866,6 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
 
         context.update(
             page_title="Confirm all the information",
-            progress_steps=self.progress_indicator.get_progress_steps(),
             leaver_name=leaver_name,
             possessive_leaver_name=possessive_leaver_name,
             leaver=self.leaver,

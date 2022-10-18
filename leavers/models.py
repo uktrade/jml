@@ -500,16 +500,14 @@ class LeaverInformation(models.Model):
     leaver_first_name = models.CharField(max_length=1000, null=True, blank=True)
     leaver_last_name = models.CharField(max_length=1000, null=True, blank=True)
     leaver_date_of_birth = models.DateField(null=True, blank=True)
-    personal_email = models.EmailField(null=True, blank=True)
     job_title = models.CharField(max_length=1000, null=True, blank=True)
-    staff_id = models.CharField(max_length=1000, null=True, blank=True)
 
     # Extra information
-    has_locker = models.BooleanField(null=True, blank=True)
     has_dse = models.BooleanField(null=True, blank=True)
 
     # Leaver contact informtion
     contact_phone = models.CharField(max_length=1000, null=True, blank=True)
+    personal_email = models.EmailField(null=True, blank=True)
     contact_address_line_1 = models.CharField(max_length=1000, null=True, blank=True)
     contact_address_line_2 = models.CharField(max_length=1000, null=True, blank=True)
     contact_address_city = models.CharField(max_length=1000, null=True, blank=True)
@@ -521,8 +519,6 @@ class LeaverInformation(models.Model):
 
     # Return Cirrus Kit
     cirrus_assets = models.JSONField(null=True, blank=True)
-    information_is_correct = models.BooleanField(null=True)
-    additional_information = models.CharField(max_length=1000)
     return_option = models.CharField(
         max_length=10, choices=ReturnOptions.choices, null=True, blank=True
     )
@@ -534,6 +530,9 @@ class LeaverInformation(models.Model):
     return_address_city = models.CharField(max_length=1000, null=True, blank=True)
     return_address_county = models.CharField(max_length=1000, null=True, blank=True)
     return_address_postcode = models.CharField(max_length=15, null=True, blank=True)
+
+    # UNUSED FIELDS
+    staff_id = models.CharField(max_length=1000, null=True, blank=True)
 
     @property
     def contact_address(self) -> Address:

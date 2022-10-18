@@ -1,9 +1,11 @@
+{% load static %}
+
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-third">
         {% if leaver_details.photo %}
             <img class="leaver-image" src="{{ leaver_details.photo }}" alt="Picture of {{ leaver_details.first_name }} {{ leaver_details.last_name }}" />
         {% else %}
-            <img class="leaver-image" src="/static/govuk-frontend/govuk/assets/images/govuk-crest-2x.png" alt="Placeholder picture" />
+            <img class="leaver-image" src="{% static 'govuk-frontend/govuk/assets/images/govuk-crest-2x.png' %}" alt="Placeholder picture" />
         {% endif %}
     </div>
     <div class="govuk-grid-column-two-thirds">
@@ -55,18 +57,10 @@
     </div>
     <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
-            Has locker
-        </dt>
-        <dd class="govuk-summary-list__value">
-            {{ leaver_info.has_locker|yesno:"Yes,No"}}
-        </dd>
-    </div>
-    <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
             Has Government Procurement Card
         </dt>
         <dd class="govuk-summary-list__value">
-            {{ leaver_info.leaving_request.holds_government_procurement_card|yesno:"Yes,No"}}
+            {{ leaver_info.leaving_request.holds_government_procurement_card|yesno:"Yes,No" }}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
@@ -74,7 +68,7 @@
             Is a ROSA user
         </dt>
         <dd class="govuk-summary-list__value">
-            {{ leaver_info.leaving_request.is_rosa_user|yesno:"Yes,No"}}
+            {{ leaver_info.leaving_request.is_rosa_user|yesno:"Yes,No" }}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
@@ -82,7 +76,7 @@
             Has Display screen equipment
         </dt>
         <dd class="govuk-summary-list__value">
-            {{ leaver_info.has_dse|yesno:"Yes,No"}}
+            {{ leaver_info.has_dse|yesno:"Yes,No" }}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
