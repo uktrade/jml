@@ -4,7 +4,7 @@ from dev_tools import utils
 from dev_tools.forms import ChangeUserForm, CreateUserForm
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.exceptions import SuspiciousOperation, ValidationError
+from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
@@ -42,10 +42,16 @@ def index(request):
 
 @check_dev_tools_enabled
 def create_user(request):
+    context = {
+        "change_user_form": ChangeUserForm(initial={"user": request.user.pk}),
+        "create_user_form": CreateUserForm(),
+    }
+
     form = CreateUserForm(data=request.POST)
 
     if not form.is_valid():
-        raise ValidationError("Invalid change user form")
+        context.update(create_user_form=form)
+        return render(request, "dev_tools/index.html", context=context)
 
     form_data = form.cleaned_data
 
@@ -63,10 +69,16 @@ def create_user(request):
 
 @check_dev_tools_enabled
 def change_user(request):
+    context = {
+        "change_user_form": ChangeUserForm(initial={"user": request.user.pk}),
+        "create_user_form": CreateUserForm(),
+    }
+
     form = ChangeUserForm(data=request.POST)
 
     if not form.is_valid():
-        raise ValidationError("Invalid change user form")
+        context.update(change_user_form=form)
+        return render(request, "dev_tools/index.html", context=context)
 
     utils.change_user(request=request, user_pk=form.cleaned_data["user"])
 
