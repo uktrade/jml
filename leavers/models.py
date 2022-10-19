@@ -210,14 +210,6 @@ class LeavingRequest(models.Model):
         blank=True,
     )
 
-    sso_access_removed = models.OneToOneField(
-        TaskLog,
-        on_delete=models.CASCADE,
-        related_name="sso_access_task_log",
-        null=True,
-        blank=True,
-    )
-
     aws_access_removed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
@@ -389,7 +381,6 @@ class LeavingRequest(models.Model):
             ("gitlab_user_access_removed", "GitLab"),
             ("sentry_access_removed", "Sentry"),
             ("slack_removed", "Slack"),
-            ("sso_access_removed", "SSO"),
             ("aws_access_removed", "AWS"),
             ("jira_access_removed", "Jira"),
         ]
