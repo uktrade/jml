@@ -92,7 +92,7 @@ bash:
 	docker-compose run --rm leavers bash
 
 all-requirements:
-	poetry export -f requirements.txt --output requirements.txt --without-hashes
+	poetry export -f requirements.txt --output requirements.txt --without-hashes --with production --without dev,testing
 
 pytest:
 	docker-compose run --rm leavers pytest --cov --cov-report xml --ds=config.settings.test -raP --capture=sys --ignore=node_modules --ignore=front_end --ignore=features --ignore=staticfiles -n 4

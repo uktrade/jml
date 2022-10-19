@@ -28,6 +28,14 @@
 # Joiners Movers Leavers
 # People Finder
 # Staff
+^1.1.0
+^1.1.0
+^15.1.0"
+^2.4.1"
+^3.2.1
+^3.2.1
+^4.0.0
+^6.3.0
 | SLACK_SRE_CHANNEL_ID                                     | None                                       
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
 | TEMPLATE_ID_OCS_LEAVER_EMAIL                                     | None                                       
@@ -35,6 +43,7 @@
 | TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL |
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LWD                      
 | UKSBS_INTERFACE                                                  
+0.1.0
 0003_add_user_user_id
 0003_add_user_user_id
 0007_activitystreamstaffssouser_is_active
@@ -311,6 +320,7 @@ Mi-Fi Device'
 migrate$(COLOUR_NONE
 minimum_should_match
 Mismatch Email
+MIT
 Mobile
 mock_get_assets_for_user
 mock_store_return_information.assert_called_once_with

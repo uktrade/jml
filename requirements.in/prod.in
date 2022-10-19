@@ -1,4 +1,0 @@
--r base.in
-
-psycogreen==1.0.2
-django-audit-log-middleware
