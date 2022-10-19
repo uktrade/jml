@@ -88,6 +88,8 @@ else:
 
 DATABASES = {"default": env.db()}
 
+DATABASE_ROUTERS = ["core.people_data.routers.PeopleDataRouter"]
+
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 LOGGING = {

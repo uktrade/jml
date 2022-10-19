@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-APPLICATION_NAME="Financial Forecast Tool"
+APPLICATION_NAME="JML"
 
 # Colour coding for output
 COLOUR_NONE=\033[0m
@@ -92,9 +92,7 @@ bash:
 	docker-compose run --rm leavers bash
 
 all-requirements:
-	docker-compose run --rm leavers pip-compile --output-file requirements/base.txt requirements.in/base.in
-	docker-compose run --rm leavers pip-compile --output-file requirements/dev.txt requirements.in/dev.in
-	docker-compose run --rm leavers pip-compile --output-file requirements/prod.txt requirements.in/prod.in
+	poetry export -f requirements.txt --output requirements.txt --without-hashes --with production --without dev,testing
 
 pytest:
 	docker-compose run --rm leavers pytest --cov --cov-report xml --ds=config.settings.test -raP --capture=sys --ignore=node_modules --ignore=front_end --ignore=features --ignore=staticfiles -n 4
