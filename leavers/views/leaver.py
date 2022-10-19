@@ -75,7 +75,6 @@ class LeaverInformationMixin:
     leaver_activitystream_user: Optional[ActivityStreamStaffSSOUser] = None
     leaving_request: Optional[LeavingRequest] = None
     leaver_info: Optional[LeaverInformation] = None
-    leaver_details: Optional[types.LeaverDetails] = None
 
     def get_leaver_activitystream_user(
         self, sso_email_user_id: str
@@ -137,52 +136,6 @@ class LeaverInformationMixin:
             defaults={"updates": {}},
         )
         return self.leaver_info
-
-    def get_leaver_details(self, sso_email_user_id: str) -> types.LeaverDetails:
-        """
-        Get the Leaver details from Index
-        Raises an exception if Index doesn't have a record.
-        """
-
-        if self.leaver_details:
-            return self.leaver_details
-
-        staff_document = get_staff_document_from_staff_index(
-            sso_email_user_id=sso_email_user_id
-        )
-
-        consolidated_staff_document = consolidate_staff_documents(
-            staff_documents=[staff_document]
-        )[0]
-        self.leaver_details: types.LeaverDetails = {
-            # Personal details
-            "first_name": consolidated_staff_document["first_name"],
-            "last_name": consolidated_staff_document["last_name"],
-            "contact_email_address": consolidated_staff_document[
-                "contact_email_address"
-            ],
-            # Professional details
-            "job_title": consolidated_staff_document["job_title"],
-            "staff_id": consolidated_staff_document["staff_id"],
-            # Misc.
-            "photo": consolidated_staff_document["photo"],
-        }
-        return self.leaver_details
-
-    def get_leaver_detail_updates(
-        self, sso_email_user_id: str, requester: User
-    ) -> types.LeaverDetailUpdates:
-        """
-        Get the stored updates for the Leaver.
-        """
-
-        leaver_info = self.get_leaver_information(
-            sso_email_user_id=sso_email_user_id,
-            requester=requester,
-        )
-        leaver_info.refresh_from_db()
-        updates: types.LeaverDetailUpdates = leaver_info.updates
-        return updates
 
     def store_display_screen_equipment(
         self,
