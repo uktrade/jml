@@ -10,6 +10,7 @@ from django.core.cache import cache
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.service_now import types
 from core.service_now.client import ServiceNowClient
+from core.utils.helpers import DATE_FORMAT_STR
 from core.utils.staff_index import StaffDocument, get_staff_document_from_staff_index
 from leavers import types as leavers_types
 
@@ -372,7 +373,7 @@ class ServiceNowInterface(ServiceNowBase):
         # Convert Request Data to what the Service Now API expects
         leaving_date: str = ""
         if leaver_info.leaving_date:
-            leaving_date = leaver_info.leaving_date.strftime("%d/%m/%Y")
+            leaving_date = leaver_info.leaving_date.strftime(DATE_FORMAT_STR)
 
         collection_address = leaver_info.return_address
         collection_address_str: str = ""

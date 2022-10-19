@@ -11,6 +11,7 @@ from help_desk_client.interfaces import (
     TicketType,
 )
 
+from core.utils.helpers import DATE_FORMAT_STR
 from leavers.models import LeavingRequest
 
 logger = logging.getLogger(__name__)
@@ -47,7 +48,7 @@ class LSDHelpDesk(LSDHelpDeskBase):
         leaving_date = leaving_request.get_leaving_date()
         if not leaving_date:
             raise Exception("No leaving date is set on the Leaving Request")
-        leaving_date_str = leaving_date.strftime("%d/%m/%Y")
+        leaving_date_str = leaving_date.strftime(DATE_FORMAT_STR)
 
         if not settings.PROCESS_LEAVING_REQUEST:
             logger.warning(

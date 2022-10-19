@@ -8,6 +8,7 @@ from django.db.models.query import QuerySet
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.types import Address
+from core.utils.helpers import DATETIME_FORMAT_STR
 from leavers.forms.line_manager import (
     AnnualLeavePaidOrDeducted,
     DaysHours,
@@ -411,7 +412,7 @@ class LeavingRequest(models.Model):
                 full_name = field_task_log.user.get_full_name()
             sre_notes.append(
                 TaskNote(
-                    datetime=field_task_log.created_at.strftime("%d/%m/%Y %H:%M"),
+                    datetime=field_task_log.created_at.strftime(DATETIME_FORMAT_STR),
                     full_name=full_name,
                     note=field_task_log.notes or "",
                 )
@@ -432,7 +433,7 @@ class LeavingRequest(models.Model):
                 full_name = task_log.user.get_full_name()
             security_building_pass_notes.append(
                 TaskNote(
-                    datetime=task_log.created_at.strftime("%d/%m/%Y %H:%M"),
+                    datetime=task_log.created_at.strftime(DATETIME_FORMAT_STR),
                     full_name=full_name,
                     note=task_log.notes or "",
                 )
@@ -455,7 +456,7 @@ class LeavingRequest(models.Model):
                 full_name = task_log.user.get_full_name()
             security_rosa_kit_notes.append(
                 TaskNote(
-                    datetime=task_log.created_at.strftime("%d/%m/%Y %H:%M"),
+                    datetime=task_log.created_at.strftime(DATETIME_FORMAT_STR),
                     full_name=full_name,
                     note=task_log.notes or "",
                 )
