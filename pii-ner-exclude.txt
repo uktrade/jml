@@ -287,6 +287,7 @@ leaver_job_title
 leaver_paid_unpaid
 Leaver's Notification Form
 leaverLastDay
+Leavers
 Leavers and Line Managers
 LeaversWorkflow
 Leaving Date - lm
@@ -346,6 +347,7 @@ OPTIONS
 OrderedItem
 PAAS
 Paid
+Palette
 ParsedUKSBSPDF
 ParsedUKSBSPDF"
 Pass notes</h2
