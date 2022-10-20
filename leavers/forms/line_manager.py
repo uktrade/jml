@@ -217,7 +217,7 @@ class LineReportConfirmationForm(forms.Form):
             Submit("submit", "Next"),
         )
 
-    def clean(self) -> Dict[str, Any]:
+    def clean(self) -> Optional[Dict[str, Any]]:
         # Check that all line reports have a Line Manager selected.
         lr_line_reports: List[
             LeavingRequestLineReport

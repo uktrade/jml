@@ -63,7 +63,9 @@ class TestConfirmationView(ViewAccessTest, TestCase):
             self.assertEqual(response.status_code, 405)
         elif method in ["post", "put"]:
             self.assertEqual(response.status_code, 302)
-            self.assertEqual(response.url, reverse("report-a-leaver-request-received"))
+            self.assertEqual(
+                response["Location"], reverse("report-a-leaver-request-received")
+            )
         else:
             self.assertEqual(response.status_code, 200)
 
