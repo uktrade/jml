@@ -9,6 +9,6 @@ This field contains sensitive information that is only to be used for the purpos
 
 ## Project Documentation
 
-- [Environment Variables](/docs/environment-variables.md)
-- [Emails](/docs/emails.md)
-- [UK SBS](/docs/uksbs.md)
+- [Environment Variables](./environment-variables.md)
+- [Emails](./emails.md)
+- [UK SBS](./uksbs.md)
