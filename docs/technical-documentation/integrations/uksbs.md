@@ -1,4 +1,4 @@
-# UK SBS Integration
+# UK SBS
 
 [READ ME FIRST](./index.md#uk-sbs-person-id)
 
