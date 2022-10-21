@@ -82,6 +82,7 @@ pygraphviz = "^1.10"
 pyparsing = "^3.0.9"
 pydot = "^1.4.2"
 poetry = "^1.2.2"
+bpython = "^0.23"
 
 [build-system]
 requires = ["poetry-core"]

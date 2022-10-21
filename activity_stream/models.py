@@ -1,12 +1,22 @@
 from typing import List, Optional
 
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models.query import QuerySet
 
 
-class ActivityStreamStaffSSOUserManager(models.Manager):
+class ActivityStreamStaffSSOUserQuerySet(models.QuerySet):
     def available(self):
         return self.filter(available=True)
+
+    def with_emails(self):
+        return self.annotate(
+            emails=ArrayAgg(
+                "sso_emails__email_address",
+                distinct=True,
+            ),
+        )
 
 
 class ActivityStreamStaffSSOUser(models.Model):
@@ -22,14 +32,17 @@ class ActivityStreamStaffSSOUser(models.Model):
     email_user_id = models.CharField(max_length=255)  # Current SSO id
     contact_email_address = models.EmailField(null=True, max_length=255)
     became_inactive_on = models.DateTimeField(null=True)
+
+    # These fields come from the people_data data source.
     # NEVER EXPOSE THIS FIELD
     uksbs_person_id = models.CharField(max_length=255)
     uksbs_person_id_override = models.CharField(null=True, blank=True, max_length=255)
+    employee_numbers = ArrayField(models.CharField(max_length=255), default=list)
 
     # Used to denote if the user is still returned by the ActivityStream API.
     available = models.BooleanField(default=False)
 
-    objects = ActivityStreamStaffSSOUserManager()
+    objects = ActivityStreamStaffSSOUserQuerySet.as_manager()  # type: ignore
 
     def __str__(self):
         return self.name

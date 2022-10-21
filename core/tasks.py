@@ -3,11 +3,13 @@ from django_workflow_engine.exceptions import WorkflowNotAuthError
 from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
 
-# from activity_stream.utils import ingest_activity_stream
+from activity_stream.utils import ingest_activity_stream
+from celery import shared_task
 from config.celery import celery_app
-
-# from core.people_finder.utils import ingest_people_finder
-# from core.service_now.utils import ingest_service_now
+from core.people_data.utils import ingest_people_data
+from core.people_finder.utils import ingest_people_finder
+from core.service_now.utils import ingest_service_now
+from core.utils.staff_index import index_sso_users
 
 logger = celery_app.log.get_default_logger()
 
@@ -40,19 +42,25 @@ def progress_workflow(self, flow_pk: str):
             logger.warning(f"{e}")
 
 
-# @celery_app.task(bind=True)
-# def update_staff_search_index_from_activity_stream(self):
-#     logger.info("RUNNING update_staff_search_index_from_activity_stream")
-#     ingest_activity_stream()
-#
-#
-# @celery_app.task(bind=True)
-# def update_staff_search_index_from_people_finder(self):
-#     logger.info("RUNNING update_staff_search_index_from_people_finder")
-#     ingest_people_finder()
-#
-#
-# @celery_app.task(bind=True)
-# def update_staff_search_index_from_service_now(self):
-#     logger.info("RUNNING update_staff_search_index_from_service_now")
-#     ingest_service_now()
+@celery_app.task(bind=True)
+def update_staff_sso_users_from_activity_stream(self):
+    logger.info("RUNNING update_staff_sso_users_from_activity_stream")
+    ingest_activity_stream()
+
+
+index_sso_users_task = shared_task(index_sso_users)
+
+
+@celery_app.task(bind=True)
+def update_staff_search_index_from_people_finder(self):
+    logger.info("RUNNING update_staff_search_index_from_people_finder")
+    ingest_people_finder()
+
+
+@celery_app.task(bind=True)
+def update_staff_search_index_from_service_now(self):
+    logger.info("RUNNING update_staff_search_index_from_service_now")
+    ingest_service_now()
+
+
+ingest_people_data_task = shared_task(ingest_people_data)

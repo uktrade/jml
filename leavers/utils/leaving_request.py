@@ -41,6 +41,9 @@ def get_leaver_details(leaving_request: LeavingRequest) -> "LeaverDetails":
             staff_documents=[staff_document],
         )[0]
     )
+
+    assert leaving_request.leaver_activitystream_user.employee_numbers
+
     leaver_details: "LeaverDetails" = {
         # Personal details
         "first_name": consolidated_staff_document["first_name"],
@@ -48,7 +51,8 @@ def get_leaver_details(leaving_request: LeavingRequest) -> "LeaverDetails":
         "contact_email_address": consolidated_staff_document["contact_email_address"],
         # Professional details
         "job_title": consolidated_staff_document["job_title"],
-        "staff_id": consolidated_staff_document["staff_id"],
+        # TODO: [JMLL-1100] We need to find the current employee number.
+        "staff_id": leaving_request.leaver_activitystream_user.employee_numbers[0],
         # Misc.
         "photo": consolidated_staff_document["photo"],
     }

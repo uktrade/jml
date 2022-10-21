@@ -14,7 +14,7 @@ celery_app.conf.beat_schedule = {
     },
     # Nightly tasks to update the Staff search index.
     # "update-staff-search-index-from-activity-stream": {
-    #     "task": "core.tasks.update_staff_search_index_from_activity_stream",
+    #     "task": "core.tasks.update_staff_sso_users_from_activity_stream",
     #     "schedule": crontab(minute="0", hour="1"),
     # },
     # "update-staff-search-index-from-people-finder": {

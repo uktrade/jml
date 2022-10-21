@@ -37,8 +37,6 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
         "service_now_user_id": "",
         "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
         "service_now_department_name": "Department for International Trade",
-        "people_data_employee_number": "12345",
-        "people_data_uksbs_person_id": "54321",
     }
 )
 
@@ -189,6 +187,7 @@ class TestLeaversWorkflow(TestCase):
             last_day=now + timedelta(days=12),
             leaver_complete=now,
             reason_for_leaving=ReasonForLeaving.RESIGNATION.value,
+            leaver_activitystream_user__employee_numbers=["123", "abc"],
         )
         self.leaving_request.processing_manager_activitystream_user = (
             self.leaving_request.manager_activitystream_user

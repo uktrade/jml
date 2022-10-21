@@ -45,8 +45,6 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
         "service_now_user_id": "",
         "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
         "service_now_department_name": "Department for International Trade",
-        "people_data_employee_number": "12345",
-        "people_data_uksbs_person_id": "54321",
     }
 )
 EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
@@ -71,8 +69,6 @@ EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
         "service_now_user_id": "",
         "service_now_department_id": "",
         "service_now_department_name": "",
-        "people_data_employee_number": "",
-        "people_data_uksbs_person_id": "",
     }
 )
 
