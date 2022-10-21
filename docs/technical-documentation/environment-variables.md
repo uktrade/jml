@@ -20,6 +20,7 @@
 | SERVICE_NOW_GET_ASSET_PATH                                       | None                                        |                                                                                                        |
 | SERVICE_NOW_GET_USER_PATH                                        | None                                        |                                                                                                        |
 | SERVICE_NOW_GET_DIRECTORATE_PATH                                 | None                                        |                                                                                                        |
+| SERVICE_NOW_GET_LOCATIONS_PATH                                   | None                                        |                                                                                                        |
 | SERVICE_NOW_DIT_DEPARTMENT_SYS_ID                                | None                                        |                                                                                                        |
 | LEGACY_PEOPLE_FINDER_ES_INDEX                                    | None                                        |                                                                                                        |
 | LEGACY_PEOPLE_FINDER_ES_URL                                      | None                                        |                                                                                                        |
@@ -46,6 +47,7 @@
 | INDEX_CURRENT_USER_MIDDLEWARE                                    | false                                       |                                                                                                        |
 | UKSBS_INTERFACE                                                  | None                                        |                                                                                                        |
 | UKSBS_HIERARCHY_API_URL                                          | None                                        | UK SBS People Hierarchy URL                                                                            |
+| UKSBS_GET_PEOPLE_HIERARCHY                                       | None                                        | UK SBS People Hierarchy path                                                                           |
 | UKSBS_GET_PEOPLE_HIERARCHY                                       | None                                        | UK SBS People Hierarchy path                                                                           |
 | UKSBS_LEAVER_SUBMISSION_API_URL                                  | None                                        | UK SBS Leaver Submission URL                                                                           |
 | UKSBS_POST_LEAVER_SUBMISSION                                     | None                                        | UK SBS Leaver Submission path                                                                          |

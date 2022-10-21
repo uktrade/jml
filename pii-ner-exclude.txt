@@ -40,6 +40,8 @@
 " Task Logs
 " The Asset's
 " The Service Now API Asset
+" The Service Now API Directorate
+" The Service Now API Location
 " The Service Now API User
 "Fake User"
 "Google Drive

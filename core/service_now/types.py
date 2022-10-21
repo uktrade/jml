@@ -1,4 +1,4 @@
-from typing import Optional, TypedDict
+from typing import Literal, Optional, TypedDict
 
 
 class AssetDetails(TypedDict):
@@ -23,7 +23,17 @@ class ServiceNowAsset(TypedDict):
 
 class ServiceNowDirectorate(TypedDict):
     """
-    The Service Now API Directorate response /PS-IGNORE
+    The Service Now API Directorate response
+    """
+
+    sys_id: str
+    name: str
+    u_beis_dit: Literal["", "beis", "dit"]
+
+
+class ServiceNowLocation(TypedDict):
+    """
+    The Service Now API Location response
     """
 
     sys_id: str
@@ -59,5 +69,10 @@ class UserDetails(TypedDict):
 
 
 class DirectorateDetails(TypedDict):
+    sys_id: str
+    name: str
+
+
+class LocationDetails(TypedDict):
     sys_id: str
     name: str

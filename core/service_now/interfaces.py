@@ -53,6 +53,10 @@ class ServiceNowBase(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def get_locations(self) -> List[types.LocationDetails]:
+        raise NotImplementedError
+
+    @abstractmethod
     def submit_leaver_request(
         self,
         leaver_info: "LeaverInformation",
@@ -143,6 +147,13 @@ class ServiceNowStubbed(ServiceNowBase):
                     return [test_directorate]
         return test_directorates
 
+    def get_locations(self) -> List[types.LocationDetails]:
+        logger.info("Getting locations")
+        test_locations: List[types.LocationDetails] = [
+            {},
+        ]
+        return test_locations
+
     def submit_leaver_request(
         self,
         leaver_info: "LeaverInformation",
@@ -168,12 +179,13 @@ class ServiceNowInterface(ServiceNowBase):
         self.GET_USER_PATH = settings.SERVICE_NOW_GET_USER_PATH
         self.GET_ASSET_PATH = settings.SERVICE_NOW_GET_ASSET_PATH
         self.GET_DIRECTORATE_PATH = settings.SERVICE_NOW_GET_DIRECTORATE_PATH
+        self.GET_LOCATIONS_PATH = settings.SERVICE_NOW_GET_LOCATIONS_PATH
         self.POST_LEAVER_REQUEST = settings.SERVICE_NOW_POST_LEAVER_REQUEST
         self.client = ServiceNowClient()
 
     def get_asset_by_tag(self, asset_tag: str) -> types.AssetDetails:
         # Check if there is a cached result
-        cache_key: str = f"asset_{asset_tag}"
+        cache_key: str = f"ServiceNowInterface.asset_{asset_tag}"
         cached_result = cache.get(cache_key)
         if cached_result:
             return cached_result
@@ -213,7 +225,7 @@ class ServiceNowInterface(ServiceNowBase):
 
     def get_assets_for_user(self, email: str) -> List[types.AssetDetails]:
         # Check if there is a cached result
-        cache_key: str = f"assets_for_user_{email}"
+        cache_key: str = f"ServiceNowInterface.assets_for_user_{email}"
         cached_result = cache.get(cache_key)
         if cached_result:
             return cached_result
@@ -244,7 +256,7 @@ class ServiceNowInterface(ServiceNowBase):
 
     def get_users(self, email: str) -> List[types.UserDetails]:
         # Check if there is a cached result
-        cache_key: str = f"get_users_{email}"
+        cache_key: str = f"ServiceNowInterface.get_users_{email}"
         cached_result = cache.get(cache_key)
         if cached_result:
             return cached_result
@@ -287,7 +299,7 @@ class ServiceNowInterface(ServiceNowBase):
         self, sys_id: Optional[str] = None
     ) -> List[types.DepartmentDetails]:
         # Check if there is a cached result
-        cache_key: str = f"get_departments_{sys_id}"
+        cache_key: str = f"ServiceNowInterface.get_departments_{sys_id}"
         cached_result = cache.get(cache_key)
         if cached_result:
             return cached_result
@@ -317,7 +329,7 @@ class ServiceNowInterface(ServiceNowBase):
         self, sys_id: Optional[str] = None, name: Optional[str] = None
     ) -> List[types.DirectorateDetails]:
         # Check if there is a cached result
-        cache_key: str = f"get_directorates{sys_id}_{name}"
+        cache_key: str = f"ServiceNowInterface.get_directorates{sys_id}_{name}"
         cached_result = cache.get(cache_key)
         if cached_result:
             return cached_result
@@ -337,6 +349,7 @@ class ServiceNowInterface(ServiceNowBase):
             sysparm_fields=[
                 "sys_id",
                 "name",
+                "u_beis_dit",
             ],
         )
         # Convert to a list of DirectorateDetails /PS-IGNORE
@@ -346,11 +359,51 @@ class ServiceNowInterface(ServiceNowBase):
                 "name": service_now_directorate["name"],
             }
             for service_now_directorate in service_now_directorates
+            if service_now_directorate["u_beis_dit"] == "dit"
         ]
+
+        # Sort by name
+        directorate_details.sort(key=lambda x: x["name"])
 
         # Store the result in the cache
         cache.set(cache_key, directorate_details)
         return directorate_details
+
+    def get_locations(self) -> List[types.LocationDetails]:
+        # Check if there is a cached result
+        cache_key: str = "ServiceNowInterface.get_locations"
+        cached_result = cache.get(cache_key)
+        if cached_result:
+            return cached_result
+
+        query = ""
+
+        # Get all data from ServiceNow
+        service_now_locations: Iterable[
+            types.ServiceNowLocation
+        ] = self.client.get_results(
+            path=self.GET_LOCATIONS_PATH,
+            sysparm_query=query,
+            sysparm_fields=[
+                "sys_id",
+                "name",
+            ],
+        )
+        # Convert to a list of DirectorateDetails /PS-IGNORE
+        location_details: List[types.LocationDetails] = [
+            {
+                "sys_id": service_now_location["sys_id"],
+                "name": service_now_location["name"],
+            }
+            for service_now_location in service_now_locations
+        ]
+
+        # Sort by name
+        location_details.sort(key=lambda x: x["name"])
+
+        # Store the result in the cache
+        cache.set(cache_key, location_details)
+        return location_details
 
     def submit_leaver_request(
         self,
