@@ -25,6 +25,7 @@ help:
 	@echo -e "$(COLOUR_YELLOW)make all-requirements$(COLOUR_NONE) : Generate pip requirements files"
 	@echo -e "$(COLOUR_YELLOW)make pytest$(COLOUR_NONE) : Run pytest"
 	@echo -e "$(COLOUR_YELLOW)make black$(COLOUR_NONE) : Run black formatter"
+	@echo -e "$(COLOUR_YELLOW)make serve-docs$(COLOUR_NONE) : Serve mkdocs on port 8002"
 
 build:
 	docker-compose build
@@ -111,3 +112,6 @@ model-graphs:
 
 ingest-activity-stream:
 	docker-compose run --rm leavers python manage.py ingest_activity_stream --limit=10
+
+serve-docs:
+	docker-compose up docs

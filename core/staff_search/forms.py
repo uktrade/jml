@@ -64,7 +64,7 @@ def staff_search_autocomplete_field(
         current_value = form.initial.get(field_name)
 
     return [
-        Field.text(field_name, css_id="sadsa", field_width=Fluid.TWO_THIRDS),
+        Field.text(field_name, field_width=Fluid.TWO_THIRDS),
         HTML(
             render(
                 request,

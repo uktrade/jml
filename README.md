@@ -6,29 +6,21 @@
 - Copy the example local settings file `cp config/settings/local.example.py config/settings/local.py`
     - Configure env vars (talk to SRE for values)
 - Install FE dependencies
-    - `npm install` 
+    - `npm install`
 - Build local docker instance:
     - `make build`
-    - `make migrate` or `make first-use` 
+    - `make migrate` or `make first-use`
 - Start the local docker instance `make up`
 - Open a browser at `http://localhost:8001/dev-tools/`
 - Use the "Change user" form to select a user to impersonate
 - Navigate to `http://localhost:8001/leavers/`
 
-## Update requirements files
-
-`make all-requirements`
 
 ## Project documentation
+Our project documentation is in the `docs` folder. It is written in Markdown and is compiled into HTML using MkDocs.
 
-- [Index](/docs/index.md)
-    - [Environment Variables](/docs/environment-variables.md)
-    - [Emails](/docs/emails.md)
-    - [UK SBS](/docs/uksbs.md)
+https://uktrade.github.io/jml
 
-## Project structure
+### Running MkDocs locally
+MkDocs can be run locally using the `make serve-docs` command which runs the `docs` docker container. This will serve the documentation on `http://0.0.0.0:8002`.
 
-- `config/` - Django settings and top-level project config
-- `core/` - Common code and integrations with external systems
-- `leavers/` - Django app for processing leavers
-- `dev_tools/` - Djang app for tooling that helps with development

@@ -8,13 +8,13 @@ networks:
     ipam:
       driver: default
       config:
-      -  subnet: 192.168.3.0/24
+        - subnet: 192.168.3.0/24
 services:
   db:
     image: postgres:11
     networks:
-        - default
-        - inside
+      - default
+      - inside
     environment:
       - POSTGRES_DB=leavers
       - POSTGRES_PASSWORD=postgres
@@ -23,10 +23,10 @@ services:
     volumes:
       - ./setup/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-        test: ["CMD-SHELL", "pg_isready -U postgres"]
-        interval: 5s
-        timeout: 5s
-        retries: 5
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   opensearch:
     image: opensearchproject/opensearch:1.2.3
@@ -39,7 +39,7 @@ services:
       - "discovery.type=single-node"
       - "bootstrap.memory_lock=true"
       - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "DISABLE_INSTALL_DEMO_CONFIG=true" 
+      - "DISABLE_INSTALL_DEMO_CONFIG=true"
       - "DISABLE_SECURITY_PLUGIN=true"
 
   redis:
@@ -54,8 +54,8 @@ services:
       context: .
       dockerfile: "docker/Dockerfile.dev"
     networks:
-        - default
-        - inside
+      - default
+      - inside
     env_file: .env
     command: "python manage.py runserver 0.0.0.0:8000"
     volumes:
@@ -95,3 +95,12 @@ services:
     depends_on:
       - db
       - redis
+
+  docs:
+    image: squidfunk/mkdocs-material
+    networks:
+      - default
+    volumes:
+      - ./:/docs
+    ports:
+      - "8002:8000"

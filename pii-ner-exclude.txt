@@ -26,8 +26,10 @@
 *Actions required:*\n
 # Joiners
 # Joiners Movers Leavers
+# People Data
 # People Finder
 # Staff
+# Technical
 ^1.1.0
 ^1.1.0
 ^15.1.0"
@@ -109,6 +111,7 @@ CLU4_EMAIL                                               |
 COLOUR_GREEN=\033[32;01
 COLOUR_YELLOW=\033[33;01
 Compile SCSS
+component](
 confirm_leaver_data
 contact_address_line_1
 contact_address_postcode
@@ -147,6 +150,7 @@ Department of International Trade
 Desktop'
 Dev
 Dev Tools
+dev_tools/` - Djang
 Developed Vetting
 Digital
 Digital Workspace
@@ -234,6 +238,7 @@ height="30" width="36">
 HELP_DESK_CREDS
 HELP_DESK_INTERFACE
 help_text_and_errors.html
+HelpDeskStubbed|
 hint{%
 Home Use"
 Hours
@@ -245,6 +250,7 @@ href="{%
 href="https://www.nationalarchives.gov.uk
 HSTS
 HTMX
+http://0.0.0.0:8002
 https://fake-uksbs.domain/hierarchy-api/1.0
 id="id
 IE
@@ -257,6 +263,7 @@ INFO
 information</h1
 ingest_activity_stream
 INSERT INTO dit.people_data__jml
+Integrations
 Jira
 JML
 JML_TEAM_CONTACT_EMAIL                                           
@@ -287,6 +294,7 @@ leaver_job_title
 leaver_paid_unpaid
 Leaver's Notification Form
 leaverLastDay
+Leavers
 Leavers and Line Managers
 LeaversWorkflow
 Leaving Date - lm
@@ -321,9 +329,11 @@ migrate$(COLOUR_NONE
 minimum_should_match
 Mismatch Email
 MIT
+mkdocs
 Mobile
 mock_get_assets_for_user
 mock_store_return_information.assert_called_once_with
+Movers and Leavers
 Movers and Leavers Service
 NAME
 name=
@@ -341,11 +351,13 @@ OCS_OAB_LOCKER_EMAIL
 Old Admiralty Building
 one_day_after_ld
 OpenSearch
+OpenSearch URL                                                                                       
 OPENSEARCH_JAVA_OPTS=-Xms512
 OPTIONS
 OrderedItem
 PAAS
 Paid
+Palette
 ParsedUKSBSPDF
 ParsedUKSBSPDF"
 Pass notes</h2
@@ -357,6 +369,7 @@ People Finder API - '
 People Finder Health Check
 People Finder Health Check"
 people_finder_email
+PEOPLE_FINDER_HAWK_ACCESS_ID                                     |                                            
 PEOPLE_FINDER_HAWK_ACCESS_ID                                     |                                            |                                                                                       
 PEOPLE_FINDER_HAWK_SECRET_KEY
 PEOPLE_FINDER_INTERFACE
@@ -400,6 +413,7 @@ ROSA Line
 ROSA Mobile
 rosa_laptop_returned_task_log
 rosa_mobile_returned_task_log
+Running MkDocs
 Security
 SECURITY
 Security Team
@@ -423,6 +437,7 @@ SERVICE_NAME
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID=1234567890
 SERVICE_NOW_INTERFACE
+ServiceNow
 Session
 session.</p
 SIM
@@ -466,6 +481,7 @@ TEMPLATE_ID_CLU4_EMAIL                                           | None         
 TEMPLATE_ID_FEETHAM_SECURITY_PASS_OFFICE_EMAIL                   
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL
+TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL                     | None                                       
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL                     | None                                       |                                                                                       
 TEMPLATE_ID_LINE_MANAGER_NOTIFICATION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  
@@ -506,6 +522,7 @@ the Leaver Form's
 the Leaving DIT
 the Leaving Request
 the Leaving Service                       
+the OCS OAB Locker Team                                                            
 the OCS Team                            
 the Security Team
 the Security Team User Group
