@@ -83,6 +83,8 @@ black:
 isort:
 	docker-compose run --rm leavers isort .
 
+format: black isort
+
 mypy:
 	docker-compose run --rm leavers mypy .
 

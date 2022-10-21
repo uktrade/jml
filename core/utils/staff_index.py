@@ -2,10 +2,13 @@ import logging
 import uuid
 from dataclasses import dataclass
 from datetime import date, timedelta
+from functools import partial, wraps
 from typing import Any, Dict, List, Mapping, Optional, TypedDict
 
 from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import Q
 from django.db.models.query import QuerySet
 from opensearch_dsl import Search
 from opensearch_dsl.response import Hit
@@ -39,14 +42,12 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "people_finder_directorate": {"type": "text"},
             "people_finder_phone": {"type": "text"},
             "people_finder_grade": {"type": "text"},
+            "people_finder_email": {"type": "text"},
             "people_finder_photo": {"type": "text"},
             "people_finder_photo_small": {"type": "text"},
             "service_now_user_id": {"type": "text"},
             "service_now_department_id": {"type": "text"},
             "service_now_department_name": {"type": "text"},
-            "people_data_employee_number": {"type": "text"},
-            # Never expose this value to the end user
-            "people_data_uksbs_person_id": {"type": "text"},
         },
     },
 }
@@ -74,9 +75,6 @@ class StaffDocument(DataClassJsonMixin):
     service_now_user_id: str
     service_now_department_id: str
     service_now_department_name: str
-    people_data_employee_number: Optional[str]
-    # Never expose this value to the end user
-    people_data_uksbs_person_id: Optional[str]
 
 
 class ConsolidatedStaffDocument(TypedDict):
@@ -92,9 +90,6 @@ class ConsolidatedStaffDocument(TypedDict):
     department: str
     department_name: str
     job_title: str
-    staff_id: str
-    # Never expose this value to the end user
-    uksbs_person_id: str
     manager: str
     photo: str
     photo_small: str
@@ -341,8 +336,6 @@ def consolidate_staff_documents(
             "department": staff_document.service_now_department_id or "",
             "department_name": staff_document.service_now_department_name or "",
             "job_title": staff_document.people_finder_job_title or "",
-            "staff_id": staff_document.people_data_employee_number or "",
-            "uksbs_person_id": staff_document.people_data_uksbs_person_id or "",
             "photo": staff_document.people_finder_photo or "",
             "photo_small": staff_document.people_finder_photo_small or "",
             "manager": "",
@@ -461,26 +454,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         "staff_sso_contact_email_address": staff_sso_user.contact_email_address or "",
     }
 
-    """
-    Get People report data
-    """
-    from core.people_data import get_people_data_interface
-
-    primary_email = staff_sso_user.get_primary_email()
-    employee_number: Optional[str] = None
-    uksbs_person_id: str = ""
-    if primary_email:
-        people_data_search = get_people_data_interface()
-        people_data_result = people_data_search.get_people_data(
-            email_address=primary_email,
-        )
-        # Assuming first id is correct
-        employee_number = next(iter(people_data_result.employee_numbers), None)
-        uksbs_person_id = people_data_result.person_id or ""
-
-    """
-    Build Staff Document
-    """
     staff_document_dict: Dict[str, Any] = {
         "uuid": str(uuid.uuid4()),
         # Staff SSO
@@ -489,14 +462,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         **get_people_finder_data(staff_sso_user=staff_sso_user),
         # Service Now
         **get_service_now_data(staff_sso_user=staff_sso_user),
-        # People Data
-        "people_data_employee_number": employee_number,
-        "people_data_uksbs_person_id": uksbs_person_id,
     }
-
-    # Updates to Activity Stream Staff SSO User
-    staff_sso_user.uksbs_person_id = uksbs_person_id
-    staff_sso_user.save()
 
     return StaffDocument.from_dict(staff_document_dict)
 
@@ -542,7 +508,11 @@ def index_all_staff() -> int:
     for staff_sso_user in staff_sso_users:
         try:
             staff_document = build_staff_document(staff_sso_user=staff_sso_user)
-            index_staff_document(staff_document=staff_document)
+            update_staff_document(
+                staff_sso_user.email_user_id,
+                staff_document=staff_document.to_dict(),
+                upsert=True,
+            )
             indexed_count += 1
         except Exception:
             logger.exception(
@@ -569,3 +539,58 @@ def get_csd_for_activitystream_user(
         staff_documents=[staff_document],
     )
     return consolidated_staff_documents[0]
+
+
+def update_staff_document(id, staff_document: dict[str, Any], upsert=False):
+    """Update the related staff document in the staff search index."""
+    search_client = get_search_connection()
+
+    body = {"doc": staff_document}
+
+    if upsert:
+        body |= {"upsert": staff_document}
+
+    # https://opensearch.org/docs/latest/opensearch/index-data/#update-data
+    search_client.update(
+        index=STAFF_INDEX_NAME,
+        body=body,
+        id=id,
+    )
+
+
+def staff_document_updater(func, upsert=False):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        for doc_id, doc in func(*args, **kwargs):
+            update_staff_document(doc_id, doc, upsert=upsert)
+
+    return wrapper
+
+
+@partial(staff_document_updater, upsert=True)
+def index_sso_users():
+    qs = (
+        ActivityStreamStaffSSOUser.objects.annotate(
+            emails=ArrayAgg(
+                "sso_emails__email_address",
+                filter=Q(sso_emails__email_address=False),
+                distinct=True,
+            )
+        )
+        .all()
+        .iterator()
+    )
+
+    for sso_user in qs:
+        doc_id = sso_user.email_user_id
+        doc = {
+            "staff_sso_activity_stream_id": sso_user.identifier,
+            "staff_sso_email_user_id": sso_user.email_user_id,
+            "staff_sso_legacy_id": sso_user.user_id,
+            "staff_sso_first_name": sso_user.first_name,
+            "staff_sso_last_name": sso_user.last_name,
+            "staff_sso_contact_email_address": sso_user.contact_email_address or "",
+            "staff_sso_email_addresses": sso_user.emails,
+        }
+
+        yield doc_id, doc

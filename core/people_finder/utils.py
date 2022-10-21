@@ -29,10 +29,7 @@ def index_people_finder_result(people_finder_result: PersonDetail) -> None:
         "people_finder_email": people_finder_result.email,
     }
 
-    # Only update values that have data.
-    for key, value in mapped_data.items():
-        if value:
-            staff_index_result[key] = value
+    staff_index_result |= mapped_data
 
     index_staff_document(staff_document=StaffDocument.from_dict(staff_index_result))
 

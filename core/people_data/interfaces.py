@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Iterator, Tuple
 
 from django.db import connections
 from django.db.backends.utils import CursorWrapper
@@ -10,6 +10,10 @@ from core.people_data import types
 class PeopleDataBase(ABC):
     @abstractmethod
     def get_people_data(self, email_address: str) -> types.PeopleDataResult:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_all(self) -> Iterator[types.PeopleData]:
         raise NotImplementedError
 
 
@@ -27,6 +31,22 @@ class PeopleDataStubbed(PeopleDataBase):
             grade_level=None,
         )
         return people_data_result
+
+    def get_all(self) -> Iterator[types.PeopleData]:
+        results: list[types.PeopleData] = [
+            {
+                "email_address": "test1@example.com",
+                "employee_numbers": ["1"],
+                "uksbs_person_id": "123",
+            },
+            {
+                "email_address": "test2@example.com",
+                "employee_numbers": ["2", "3"],
+                "uksbs_person_id": "124",
+            },
+        ]
+
+        yield from results
 
 
 def row_to_dict(*, cursor: CursorWrapper, row: Tuple) -> Dict[str, Any]:
@@ -60,3 +80,26 @@ class PeopleDataInterface(PeopleDataBase):
                 )
 
         return people_data_result
+
+    def get_all(self, fetchmany_size: int = 500) -> Iterator[types.PeopleData]:
+        with connections["people_data"].cursor() as cursor:
+            cursor.execute(
+                # If you change the columns here then please don't forget to update the
+                # rest of the function!
+                "SELECT email_address, employee_numbers, person_id"
+                " FROM dit.people_data__jml"
+            )
+
+            while True:
+                results = cursor.fetchmany(fetchmany_size)
+
+                if not results:
+                    break
+
+                for row in results:
+                    # We need to keep this in sync with the SQL query above.
+                    yield {
+                        "email_address": row[0],
+                        "employee_numbers": row[1],
+                        "uksbs_person_id": row[2],
+                    }
