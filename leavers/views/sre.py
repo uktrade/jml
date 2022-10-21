@@ -6,7 +6,7 @@ from django.db.models.query import QuerySet
 from django.forms import Form
 from django.http import Http404
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse
+from django.http.response import HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -68,7 +68,7 @@ class TaskDetailView(UserPassesTestMixin, TemplateView):
             name="SRE",
         ).exists()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
@@ -185,7 +185,7 @@ class TaskServiceAndToolsView(
             name="SRE",
         ).exists()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
@@ -352,7 +352,7 @@ class TaskCompleteConfirmationView(
             name="SRE",
         ).exists()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
@@ -418,7 +418,7 @@ class TaskSummaryView(
             name="SRE",
         ).exists()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
@@ -456,7 +456,7 @@ class ThankYouView(UserPassesTestMixin, TemplateView):
             name="SRE",
         ).exists()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),

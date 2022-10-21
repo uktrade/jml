@@ -8,7 +8,7 @@
 
                     <div class="govuk-cookie-banner__content">
                         <p class="govuk-body">We use some essential cookies to make this service work.</p>
-                        <p class="govuk-body">We’d also like to use analytics cookies so we can understand how you use the service and make improvements.</p>
+                        <p class="govuk-body">We'd also like to use analytics cookies so we can understand how you use the service and make improvements.</p>
                     </div>
                 </div>
             </div>
@@ -16,10 +16,10 @@
             <div class="govuk-button-group">
                 <a href="{% url 'cookie-response' 'accept' %}?next={{ request.path }}" class="govuk-button" data-module="govuk-button">
                     Accept analytics cookies
-                </button>
+                </a>
                 <a href="{% url 'cookie-response' 'reject' %}?next={{ request.path }}" class="govuk-button" data-module="govuk-button">
                     Reject analytics cookies
-                </button>
+                </a>
                 <a class="govuk-link" href="{% url 'cookie-notice' %}">View cookies</a>
             </div>
         </div>

@@ -6,7 +6,7 @@ from django.db.models.query import QuerySet
 from django.forms import Form
 from django.http import Http404
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -80,7 +80,9 @@ class LeavingRequestListing(base.LeavingRequestListing):
 
         return leaving_requests
 
-    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
         self.role = get_security_role(request)
         return super().dispatch(request, *args, **kwargs)
 
@@ -133,7 +135,7 @@ class BuildingPassConfirmationView(
             name="Security Team",
         ).exists()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
@@ -223,7 +225,7 @@ class BuildingPassConfirmationEditView(
             name="Security Team",
         ).exists()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
@@ -382,7 +384,7 @@ class BuidlingPassConfirmationCloseView(
             name="Security Team",
         ).exists()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
@@ -466,7 +468,7 @@ class RosaKitConfirmationView(
             possessive_leaver_name = make_possessive(leaver_name)
         return f"{possessive_leaver_name} ROSA Kit"
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
@@ -579,7 +581,7 @@ class RosaKitFieldView(
             name="Security Team",
         ).exists()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
@@ -742,7 +744,7 @@ class RosaKitConfirmationCloseView(
             name="Security Team",
         ).exists()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
@@ -797,7 +799,7 @@ class TaskSummaryView(
             name="Security Team",
         ).exists()
 
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.leaving_request = get_object_or_404(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),

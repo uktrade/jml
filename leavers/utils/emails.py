@@ -86,10 +86,11 @@ def get_leaving_request_email_personalisation(
 
     if leaving_request.data_recipient_activitystream_user:
         data_recipient = leaving_request.data_recipient_activitystream_user
+        primary_email: str = data_recipient.get_primary_email() or ""
         personalisation.update(
             has_data_recipient="yes",
             data_recipient_name=data_recipient.full_name,
-            data_recipient_email=data_recipient.get_primary_email(),
+            data_recipient_email=primary_email,
         ),
 
     return personalisation

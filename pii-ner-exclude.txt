@@ -38,6 +38,7 @@
 ^3.2.1
 ^4.0.0
 ^6.3.0
+>View cookies</a>
 | SLACK_SRE_CHANNEL_ID                                     | None                                       
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
 | TEMPLATE_ID_OCS_LEAVER_EMAIL                                     | None                                       
@@ -275,6 +276,8 @@ Joe Bloggs
 joe.bloggs@example.com
 Joe"
 Joey
+Joiners
+Joiners, Movers and Leavers
 JS
 Kit
 Kit requests</a
@@ -296,6 +299,7 @@ Leaver's Notification Form
 leaverLastDay
 Leavers
 Leavers and Line Managers
+Leavers</h2
 LeaversWorkflow
 Leaving Date - lm
 Leaving Request
@@ -333,6 +337,7 @@ mkdocs
 Mobile
 mock_get_assets_for_user
 mock_store_return_information.assert_called_once_with
+Movers
 Movers and Leavers
 Movers and Leavers Service
 NAME
@@ -386,8 +391,10 @@ Port Replicator'
 process.</p
 Procurement Card
 Provide a comma
+Python 2
 python manage.py compilescss &&
 python manage.py migrate &&
+PYTHONPATH
 Raises
 Reason for Leaving Resignation
 recorded</h1
@@ -443,6 +450,7 @@ session.</p
 SIM
 sizes="152x152
 Slack
+Slack API
 slack_access_task_log
 SLACK_SRE_CHANNEL_ID
 SlackMessage.objects.create
@@ -565,6 +573,7 @@ WHERE sso_user_id = %
 WhiteNoiseMiddleware
 Windows
 WorkflowExecutor
+WSGI
 x.groups.first
 yet.</p
 You Email

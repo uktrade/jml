@@ -325,7 +325,7 @@ class RemoveDataRecipientFromLeavingRequestView(LineManagerViewMixin, RedirectVi
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
         self.leaving_request.data_recipient_activitystream_user = None
         self.leaving_request.save(update_fields=["data_recipient_activitystream_user"])
 
@@ -757,7 +757,7 @@ class RemoveLineManagerFromLineReportView(LineManagerViewMixin, RedirectView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
         lr_line_reports: List[
             LeavingRequestLineReport
         ] = self.leaving_request.line_reports
@@ -805,9 +805,12 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
             for line_report in person_data_line_reports:
                 consolidated_staff_document: Optional[ConsolidatedStaffDocument] = None
                 try:
-                    consolidated_staff_document = get_staff_document_from_staff_index(
+                    staff_document = get_staff_document_from_staff_index(
                         sso_email_address=line_report["email_address"]
                     )
+                    consolidated_staff_document = consolidate_staff_documents(
+                        staff_documents=[staff_document]
+                    )[0]
                 except (StaffDocumentNotFound, TooManyStaffDocumentsFound):
                     pass
                 lr_line_reports.append(

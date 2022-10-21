@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, cast
 
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Layout, Submit
@@ -15,7 +15,8 @@ class ChoosePrimaryEmailForm(forms.Form):
     def __init__(self, email_addresses: List[str], *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["email_address"].choices = [
+        email_address_field = cast(forms.ChoiceField, self.fields["email_address"])
+        email_address_field.choices = [
             (email_address, email_address) for email_address in email_addresses
         ]
 
