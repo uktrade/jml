@@ -1,7 +1,6 @@
 from unittest import mock
 from uuid import uuid4
 
-from django.conf import settings
 from django.test.testcases import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -42,9 +41,6 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
         "people_finder_email": "joe.bloggs@example.com",  # /PS-IGNORE
         "people_finder_photo": "",
         "people_finder_photo_small": "",
-        "service_now_user_id": "",
-        "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
-        "service_now_department_name": "Department for International Trade",
     }
 )
 EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
@@ -66,9 +62,6 @@ EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
         "people_finder_email": "",
         "people_finder_photo": "",
         "people_finder_photo_small": "",
-        "service_now_user_id": "",
-        "service_now_department_id": "",
-        "service_now_department_name": "",
     }
 )
 
