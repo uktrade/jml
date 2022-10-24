@@ -11,7 +11,6 @@ from activity_stream.models import ActivityStreamStaffSSOUser
 from core.service_now import types
 from core.service_now.client import ServiceNowClient
 from core.utils.helpers import DATE_FORMAT_STR
-from core.utils.staff_index import StaffDocument, get_staff_document_from_staff_index
 from leavers import types as leavers_types
 
 if TYPE_CHECKING:
@@ -65,7 +64,7 @@ class ServiceNowBase(ABC):
 
 class ServiceNowStubbed(ServiceNowBase):
     def get_asset_by_tag(self, asset_tag: str) -> types.AssetDetails:
-        logger.info(f"Getting an asset with the tag {asset_tag}")
+        logger.debug(f"Getting an asset with the tag {asset_tag}")
         return {
             "sys_id": "111",
             "tag": asset_tag,
@@ -73,7 +72,7 @@ class ServiceNowStubbed(ServiceNowBase):
         }
 
     def get_assets_for_user(self, email: str) -> List[types.AssetDetails]:
-        logger.info("Getting assets for a user")
+        logger.debug("Getting assets for a user")
         assets: List[types.AssetDetails] = []
 
         asset_count = choice([0, 1, 2])
@@ -91,7 +90,7 @@ class ServiceNowStubbed(ServiceNowBase):
         return assets
 
     def get_users(self, email: str) -> List[types.UserDetails]:
-        logger.info("Getting users")
+        logger.debug("Getting users")
         return [
             {
                 "sys_id": "1",
@@ -102,7 +101,7 @@ class ServiceNowStubbed(ServiceNowBase):
         ]
 
     def get_user(self, email: str) -> types.UserDetails:
-        logger.info("Getting user")
+        logger.debug("Getting user")
         users = self.get_users(email=email)
         for user in users:
             if user["email"] == email:
@@ -112,7 +111,7 @@ class ServiceNowStubbed(ServiceNowBase):
     def get_departments(
         self, sys_id: Optional[str] = None
     ) -> List[types.DepartmentDetails]:
-        logger.info("Getting departments")
+        logger.debug("Getting departments")
         test_departments: List[types.DepartmentDetails] = [
             {"sys_id": "1", "name": "Department 1"},
             {"sys_id": "2", "name": "Department 2"},
@@ -133,7 +132,7 @@ class ServiceNowStubbed(ServiceNowBase):
     def get_directorates(
         self, sys_id: Optional[str] = None, name: Optional[str] = None
     ) -> List[types.DirectorateDetails]:
-        logger.info("Getting directorates")
+        logger.debug("Getting directorates")
         test_directorates: List[types.DirectorateDetails] = [
             {"sys_id": "1", "name": "Directorate 1"},
             {"sys_id": "2", "name": "Directorate 2"},
@@ -150,10 +149,10 @@ class ServiceNowStubbed(ServiceNowBase):
         leaver_details: leavers_types.LeaverDetails,
         assets: List[types.AssetDetails],
     ):
-        logger.info("Submitting leaver request")
-        logger.info(leaver_info)
-        logger.info(leaver_details)
-        logger.info(assets)
+        logger.debug("Submitting leaver request")
+        logger.debug(leaver_info)
+        logger.debug(leaver_details)
+        logger.debug(assets)
 
 
 class AssetNotFound(Exception):
@@ -389,23 +388,20 @@ class ServiceNowInterface(ServiceNowBase):
         leaver: Optional[
             ActivityStreamStaffSSOUser
         ] = leaving_request.leaver_activitystream_user
+
         if not leaver:
             raise Exception("Unable to get leaver information")
-        leaver_staff_document: StaffDocument = get_staff_document_from_staff_index(
-            sso_email_user_id=leaver.email_user_id,
-        )
-        leaver_service_now_id = leaver_staff_document.service_now_user_id
+
+        leaver_service_now_id = leaver.service_now_user_id
 
         processing_manager: Optional[
             ActivityStreamStaffSSOUser
         ] = leaving_request.processing_manager_activitystream_user
+
         if not processing_manager:
             raise Exception("Unable to get Line Manager information")
 
-        manager_staff_document: StaffDocument = get_staff_document_from_staff_index(
-            sso_email_user_id=processing_manager.email_user_id,
-        )
-        manager_service_now_id = manager_staff_document.service_now_user_id
+        manager_service_now_id = processing_manager.service_now_user_id
 
         service_now_request_data = {
             "sysparm_quantity": "1",

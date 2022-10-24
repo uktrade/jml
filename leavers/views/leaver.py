@@ -14,7 +14,6 @@ from django.views.generic.edit import FormView
 from activity_stream.models import (
     ActivityStreamStaffSSOUser,
     ActivityStreamStaffSSOUserEmail,
-    ServiceEmailAddress,
 )
 from core.people_data import get_people_data_interface
 from core.people_finder import get_people_finder_interface
@@ -710,11 +709,8 @@ def get_cirrus_assets(request: HttpRequest) -> List[types.CirrusAsset]:
         email_user_id=user.sso_email_user_id
     )
 
-    service_now_email: Optional[
-        ServiceEmailAddress
-    ] = ServiceEmailAddress.objects.filter(
-        staff_sso_user=staff_sso_user,
-    ).first()
+    service_now_email: Optional[str] = staff_sso_user.service_now_email_address
+
     if service_now_email:
         if "cirrus_assets" not in request.session:
             service_now_interface = get_service_now_interface()
@@ -726,9 +722,10 @@ def get_cirrus_assets(request: HttpRequest) -> List[types.CirrusAsset]:
                     "name": asset["name"],
                 }
                 for asset in service_now_interface.get_assets_for_user(
-                    email=service_now_email.service_now_email_address,
+                    email=service_now_email,
                 )
             ]
+
     return request.session.get("cirrus_assets", [])
 
 

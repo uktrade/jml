@@ -8,7 +8,6 @@ from factory.django import DjangoModelFactory
 from activity_stream.models import (
     ActivityStreamStaffSSOUser,
     ActivityStreamStaffSSOUserEmail,
-    ServiceEmailAddress,
 )
 
 
@@ -51,13 +50,3 @@ class ActivityStreamStaffSSOUserFactory(DjangoModelFactory):
     )
     uksbs_person_id = factory.fuzzy.FuzzyText(length=6)
     available = True
-
-
-class ServiceEmailAddressFactory(DjangoModelFactory):
-    class Meta:
-        model = ServiceEmailAddress
-
-    staff_sso_user = factory.SubFactory(ActivityStreamStaffSSOUserFactory)
-    service_now_email_address = factory.Sequence(
-        lambda n: f"service.email.address{n}@example.com",  # /PS-IGNORE
-    )

@@ -42,25 +42,8 @@ def progress_workflow(self, flow_pk: str):
             logger.warning(f"{e}")
 
 
-@celery_app.task(bind=True)
-def update_staff_sso_users_from_activity_stream(self):
-    logger.info("RUNNING update_staff_sso_users_from_activity_stream")
-    ingest_activity_stream()
-
-
+ingest_activity_stream_task = shared_task(ingest_activity_stream)
 index_sso_users_task = shared_task(index_sso_users)
-
-
-@celery_app.task(bind=True)
-def update_staff_search_index_from_people_finder(self):
-    logger.info("RUNNING update_staff_search_index_from_people_finder")
-    ingest_people_finder()
-
-
-@celery_app.task(bind=True)
-def update_staff_search_index_from_service_now(self):
-    logger.info("RUNNING update_staff_search_index_from_service_now")
-    ingest_service_now()
-
-
 ingest_people_data_task = shared_task(ingest_people_data)
+ingest_people_finder_task = shared_task(ingest_people_finder)
+ingest_service_now_task = shared_task(ingest_service_now)

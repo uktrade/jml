@@ -3,6 +3,7 @@ from typing import List, Optional
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.db.models import Manager
 from django.db.models.query import QuerySet
 
 
@@ -17,6 +18,11 @@ class ActivityStreamStaffSSOUserQuerySet(models.QuerySet):
                 distinct=True,
             ),
         )
+
+
+ActivityStreamStaffSSOUserManager: Manager[
+    "ActivityStreamStaffSSOUser"
+] = models.Manager.from_queryset(ActivityStreamStaffSSOUserQuerySet)
 
 
 class ActivityStreamStaffSSOUser(models.Model):
@@ -39,10 +45,16 @@ class ActivityStreamStaffSSOUser(models.Model):
     uksbs_person_id_override = models.CharField(null=True, blank=True, max_length=255)
     employee_numbers = ArrayField(models.CharField(max_length=255), default=list)
 
+    # Service Now
+    service_now_user_id = models.CharField(max_length=255, unique=True, null=True)
+    service_now_email_address = models.EmailField(
+        max_length=255, unique=True, null=True
+    )
+
     # Used to denote if the user is still returned by the ActivityStream API.
     available = models.BooleanField(default=False)
 
-    objects = ActivityStreamStaffSSOUserQuerySet.as_manager()  # type: ignore
+    objects = ActivityStreamStaffSSOUserManager()
 
     def __str__(self):
         return self.name
@@ -87,25 +99,15 @@ class ActivityStreamStaffSSOUser(models.Model):
 
 
 class ActivityStreamStaffSSOUserEmail(models.Model):
+    # TODO: Remove type ignore comments once the following PR has been merged and
+    # upgraded to (https://github.com/typeddjango/django-stubs/pull/1030).
     staff_sso_user = models.ForeignKey(
         ActivityStreamStaffSSOUser,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE,  # type: ignore
         related_name="sso_emails",
-    )
+    )  # type: ignore
     email_address = models.EmailField(
         unique=True,
         max_length=255,
     )
     is_primary = models.BooleanField(default=False)
-
-
-class ServiceEmailAddress(models.Model):
-    staff_sso_user = models.ForeignKey(
-        ActivityStreamStaffSSOUser,
-        on_delete=models.CASCADE,
-        related_name="service_emails",
-    )
-    service_now_email_address = models.EmailField(
-        unique=True,
-        max_length=255,
-    )

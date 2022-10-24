@@ -2,7 +2,6 @@ from datetime import date, timedelta
 from typing import Dict, List
 from unittest import mock
 
-from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 from django_workflow_engine.executor import WorkflowExecutor
@@ -34,9 +33,6 @@ STAFF_DOCUMENT = StaffDocument.from_dict(
         "people_finder_email": "joe.bloggs@example.com",  # /PS-IGNORE
         "people_finder_photo": "",
         "people_finder_photo_small": "",
-        "service_now_user_id": "",
-        "service_now_department_id": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
-        "service_now_department_name": "Department for International Trade",
     }
 )
 

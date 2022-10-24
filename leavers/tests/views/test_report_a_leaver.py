@@ -26,9 +26,6 @@ EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
         "people_finder_phone": "",
         "people_finder_photo_small": "",
         "people_finder_photo": "",
-        "service_now_department_id": "",
-        "service_now_department_name": "",
-        "service_now_user_id": "",
     }
 )
 

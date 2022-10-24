@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# This pre-commit hook is for people who want to run the commands using a local
+# virtualenv where possible.
+
+# To install, run the following command from the project root:
+# ln -s -f ../../scripts/pre-commit .git/hooks/
+
+set -ex
+
+poetry run black . --check
+poetry run isort . --check
+poetry run flake8 .
+
+make mypy

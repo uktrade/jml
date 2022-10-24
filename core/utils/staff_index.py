@@ -15,7 +15,7 @@ from opensearch_dsl.response import Hit
 from opensearchpy import OpenSearch
 from opensearchpy.exceptions import NotFoundError
 
-from activity_stream.models import ActivityStreamStaffSSOUser, ServiceEmailAddress
+from activity_stream.models import ActivityStreamStaffSSOUser
 
 logger = logging.getLogger(__name__)
 
@@ -45,9 +45,6 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
             "people_finder_email": {"type": "text"},
             "people_finder_photo": {"type": "text"},
             "people_finder_photo_small": {"type": "text"},
-            "service_now_user_id": {"type": "text"},
-            "service_now_department_id": {"type": "text"},
-            "service_now_department_name": {"type": "text"},
         },
     },
 }
@@ -72,9 +69,6 @@ class StaffDocument(DataClassJsonMixin):
     people_finder_email: str
     people_finder_photo: Optional[str]
     people_finder_photo_small: Optional[str]
-    service_now_user_id: str
-    service_now_department_id: str
-    service_now_department_name: str
 
 
 class ConsolidatedStaffDocument(TypedDict):
@@ -87,7 +81,6 @@ class ConsolidatedStaffDocument(TypedDict):
     email_addresses: List
     contact_phone: str
     grade: str
-    department: str
     department_name: str
     job_title: str
     manager: str
@@ -333,8 +326,8 @@ def consolidate_staff_documents(
             "email_addresses": staff_document.staff_sso_email_addresses or [],
             "contact_phone": staff_document.people_finder_phone or "",
             "grade": staff_document.people_finder_grade or "",
-            "department": staff_document.service_now_department_id or "",
-            "department_name": staff_document.service_now_department_name or "",
+            # For the time being the department is hardcoded.
+            "department_name": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
             "job_title": staff_document.people_finder_job_title or "",
             "photo": staff_document.people_finder_photo or "",
             "photo_small": staff_document.people_finder_photo_small or "",
@@ -417,13 +410,14 @@ def get_service_now_data(
         except ServiceNowUserNotFound:
             continue
         else:
-            ServiceEmailAddress.objects.update_or_create(
-                staff_sso_user=staff_sso_user,
-                service_now_email_address=sso_email_record.email_address,
-            )
             service_now_user_id = service_now_user["sys_id"]
             service_now_data["service_now_user_id"] = service_now_user_id
             logger.info(f"Service Now id found: {service_now_user_id}")
+
+            staff_sso_user.service_now_user_id = service_now_user_id
+            staff_sso_user.service_now_email_address = sso_email_record.email_address
+            staff_sso_user.save()
+
             break
 
     # Get Service Now Department data

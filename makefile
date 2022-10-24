@@ -59,6 +59,9 @@ check-fixme:
 migrations:
 	docker-compose run --rm leavers python manage.py makemigrations
 
+empty-migration:
+	docker-compose run --rm leavers python manage.py makemigrations $(app) --empty --name=$(name)
+
 migrate:
 	docker-compose run --rm leavers python manage.py migrate
 
