@@ -5,7 +5,7 @@
             <span class="govuk-header__logotype dit-header__logotype">
                 <img height="36" width="36" src="{% static 'assets/dit-crest.svg' %}" alt="Department for International Trade crest" />
                 <span class="govuk-header__logotype-text dit-header__logotype-text">
-                    <a href="{% url '/' %}" class="govuk-header__link govuk-header__link--service-name dit-header__link--service-name">{% if service_name %}{{ service_name }}{% else %}{{ SERVICE_NAME }}{% endif %}</a>
+                    <a href="{% url 'start' %}" class="govuk-header__link govuk-header__link--service-name dit-header__link--service-name">{% if service_name %}{{ service_name }}{% else %}{{ SERVICE_NAME }}{% endif %}</a>
                 </span>
             </span>
         </div>
