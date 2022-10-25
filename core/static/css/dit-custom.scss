@@ -5,26 +5,17 @@ $dit-red: #CF102D;
 }
 
 .dit-header_container {
-    border-bottom: 0px !important;
+    border-bottom: 10px solid #0b0c0c !important;
 }
 
 .dit-header__link {
     color: white !important;
 }
 
-.dit-header__logotype img {
-    margin-top: -5px;
-}
-
 .dit-header__logotype-text {
-    position: absolute;
-    // top: 14px;
-    margin-left: 5px;
+    line-height: 40px;
 }
 
-.dit-header__link--service-name {
-    margin-bottom: 0px !important;
-}
 
 .dit-footer-brand {
     border-left: 2px solid $dit-red;

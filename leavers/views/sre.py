@@ -31,7 +31,6 @@ class LeavingRequestListing(base.LeavingRequestListing):
     confirmation_view = "sre-detail"
     summary_view = "sre-summary"
     page_title = "SRE access removal"
-    service_name = "Leaving DIT: SRE actions"
     fields = [
         "leaver_name",
         "work_email",

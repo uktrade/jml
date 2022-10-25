@@ -93,14 +93,6 @@ class LeavingRequestListing(base.LeavingRequestListing):
             return "ROSA Kit requests"
         raise Exception("Unknown security role")
 
-    def get_service_name(self) -> str:
-        if self.role == SecuritySubRole.BUILDING_PASS:
-            return "Leaving DIT: Building pass actions"
-        elif self.role == SecuritySubRole.ROSA_KIT:
-            return "Leaving DIT: ROSA Kit actions"
-
-        raise Exception("Unknown security role")
-
     def get_complete_field(self) -> str:
         if self.role == SecuritySubRole.BUILDING_PASS:
             return "security_team_building_pass_complete"
