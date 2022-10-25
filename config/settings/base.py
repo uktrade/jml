@@ -28,7 +28,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "sass_processor",
     "django_workflow_engine",
     "django_celery_beat",
     "django_celery_results",
@@ -194,16 +193,11 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
-    "sass_processor.finders.CssFinder",
 ]
 
 STATICFILES_DIRS = [
     BASE_DIR / "assets/",
     BASE_DIR / "node_modules/",
-]
-
-SASS_PROCESSOR_INCLUDE_DIRS = [
-    str(BASE_DIR / "node_modules"),
 ]
 
 GTM_CODE = env("GTM_CODE", default=None)

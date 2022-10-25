@@ -69,7 +69,7 @@ checkmigrations:
 	docker-compose run --rm --no-deps leavers python manage.py makemigrations --check
 
 compilescss:
-	docker-compose run --rm leavers python manage.py compilescss
+	npm run build
 
 shell:
 	docker-compose run --rm leavers python manage.py shell

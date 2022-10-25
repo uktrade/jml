@@ -624,17 +624,6 @@ django-ipware = ">=3.0,<4.0"
 kubi-ecs-logger = ">=0.1.0,<0.2.0"
 
 [[package]]
-name = "django-sass-processor"
-version = "1.2.2"
-description = "SASS processor to compile SCSS files into *.css, while rendering, or offline."
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.extras]
-management-command = ["django-compressor (>=2.4)"]
-
-[[package]]
 name = "django-staff-sso-client"
 version = "4.0.1"
 description = "Reusable Django app to facilitate gov.uk Staff Single Sign On"
@@ -1012,17 +1001,6 @@ python-versions = ">=3.6, <4"
 
 [package.dependencies]
 marshmallow = "3.15.0"
-
-[[package]]
-name = "libsass"
-version = "0.20.0"
-description = "Sass for Python: A straightforward binding of libsass for Python."
-category = "main"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-six = "*"
 
 [[package]]
 name = "lockfile"
@@ -2005,7 +1983,7 @@ six = ">=1.14.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "2b990400c82ed7f1cadc9d390e1b1a4968cfba736869b3d2d085060ae7ed5fbc"
+content-hash = "eb9ff27a3c91d9a3c7ea78838ba1976f61331c5d673102c50a11a15d19bae62d"
 
 [metadata.files]
 aiohttp = [
@@ -2463,10 +2441,6 @@ django-log-formatter-ecs = [
     {file = "django_log_formatter_ecs-0.0.5-py3-none-any.whl", hash = "sha256:1e8731dd25a11ac64e789f19931e12fe7ef8ad1a172b7bceb2ea5cab185a583e"},
     {file = "django_log_formatter_ecs-0.0.5.tar.gz", hash = "sha256:6b9784fe31eb1bd6598dc7db0f7f647e03ea6c3926c73cd1c9221adefee289ad"},
 ]
-django-sass-processor = [
-    {file = "django-sass-processor-1.2.2.tar.gz", hash = "sha256:f6098c181cc95a21593df6bb502791e32015615222803de216fdcc8bb42c0f77"},
-    {file = "django_sass_processor-1.2.2-py3-none-any.whl", hash = "sha256:d5e2970228ec9648da83d083a2b468fa682bef80357d0bab8e3f6c6df301681e"},
-]
 django-staff-sso-client = [
     {file = "django_staff_sso_client-4.0.1-py3-none-any.whl", hash = "sha256:f0c81ed9ff53cd454e588caadb3a7db0d56fc3eee9d283dc877a1123f57ca8f1"},
     {file = "django_staff_sso_client-4.0.1.tar.gz", hash = "sha256:1923c9ab7c44572cbf73d21842613821a46476eb1deb56ec623f275efbfb341a"},
@@ -2729,21 +2703,6 @@ kombu = [
 ]
 kubi-ecs-logger = [
     {file = "kubi_ecs_logger-0.1.1.tar.gz", hash = "sha256:9ff1b2a297fa4aa46c268a6897bc9af6f76266588e15d28936e4aed6f8a86281"},
-]
-libsass = [
-    {file = "libsass-0.20.0-cp27-cp27m-macosx_10_14_intel.whl", hash = "sha256:107c409524c6a4ed14410fa9dafa9ee59c6bd3ecae75d73af749ab2b75685726"},
-    {file = "libsass-0.20.0-cp27-cp27m-win32.whl", hash = "sha256:98f6dee9850b29e62977a963e3beb3cfeb98b128a267d59d2c3d675e298c8d57"},
-    {file = "libsass-0.20.0-cp27-cp27m-win_amd64.whl", hash = "sha256:b077261a04ba1c213e932943208471972c5230222acb7fa97373e55a40872cbb"},
-    {file = "libsass-0.20.0-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:e6a547c0aa731dcb4ed71f198e814bee0400ce04d553f3f12a53bc3a17f2a481"},
-    {file = "libsass-0.20.0-cp36-abi3-manylinux1_x86_64.whl", hash = "sha256:74f6fb8da58179b5d86586bc045c16d93d55074bc7bb48b6354a4da7ac9f9dfd"},
-    {file = "libsass-0.20.0-cp36-cp36m-win32.whl", hash = "sha256:a43f3830d83ad9a7f5013c05ce239ca71744d0780dad906587302ac5257bce60"},
-    {file = "libsass-0.20.0-cp36-cp36m-win_amd64.whl", hash = "sha256:fd19c8f73f70ffc6cbcca8139da08ea9a71fc48e7dfc4bb236ad88ab2d6558f1"},
-    {file = "libsass-0.20.0-cp37-abi3-macosx_10_14_x86_64.whl", hash = "sha256:8cf72552b39e78a1852132e16b706406bc76029fe3001583284ece8d8752a60a"},
-    {file = "libsass-0.20.0-cp37-cp37m-win32.whl", hash = "sha256:7555d9b24e79943cfafac44dbb4ca7e62105c038de7c6b999838c9ff7b88645d"},
-    {file = "libsass-0.20.0-cp37-cp37m-win_amd64.whl", hash = "sha256:794f4f4661667263e7feafe5cc866e3746c7c8a9192b2aa9afffdadcbc91c687"},
-    {file = "libsass-0.20.0-cp38-cp38-win32.whl", hash = "sha256:3bc0d68778b30b5fa83199e18795314f64b26ca5871e026343e63934f616f7f7"},
-    {file = "libsass-0.20.0-cp38-cp38-win_amd64.whl", hash = "sha256:5c8ff562b233734fbc72b23bb862cc6a6f70b1e9bf85a58422aa75108b94783b"},
-    {file = "libsass-0.20.0.tar.gz", hash = "sha256:b7452f1df274b166dc22ee2e9154c4adca619bcbbdf8041a7aa05f372a1dacbc"},
 ]
 lockfile = [
     {file = "lockfile-0.12.2-py2.py3-none-any.whl", hash = "sha256:6c3cb24f344923d30b2785d5ad75182c8ea7ac1b6171b08657258ec7429d50fa"},
