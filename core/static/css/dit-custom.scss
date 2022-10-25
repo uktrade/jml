@@ -15,18 +15,3 @@ $dit-red: #CF102D;
 .dit-header__logotype-text {
     line-height: 40px;
 }
-
-
-.dit-footer-brand {
-    border-left: 2px solid $dit-red;
-    padding-left: 10px;
-}
-
-.dit-footer-brand__name {
-    font-size: large;
-    font-family: "GDS Transport", arial, sans-serif;
-}
-
-.dit-footer-brand__logo {
-    filter: invert(100%);
-}
