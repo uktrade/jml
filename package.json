@@ -3,6 +3,11 @@
     "@ministryofjustice/frontend": "^1.5.0",
     "cytoscape": "^3.19.1",
     "cytoscape-dagre": "^2.3.2",
-    "govuk-frontend": "^3.14.0"
+    "govuk-frontend": "^3.14.0",
+    "node-sass": "^7.0.3"
+  },
+  "scripts": {
+    "build": "node-sass --include-path node_modules --output-style compressed --source-map true --source-map-contents true core/static/css/styles.scss core/static/css/styles.css",
+    "watch": "node-sass --include-path node_modules --output-style compressed --source-map true --source-map-contents true core/static/css/styles.scss core/static/css/styles.css --watch"
   }
 }
