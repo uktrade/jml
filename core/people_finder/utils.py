@@ -1,3 +1,5 @@
+from typing import Optional
+
 from core.people_finder import get_people_finder_interface
 from core.people_finder.interfaces import PersonDetail
 from core.utils.staff_index import (
@@ -36,12 +38,24 @@ def index_people_finder_result(people_finder_result: PersonDetail) -> None:
     return None
 
 
-def ingest_people_finder():
+def ingest_people_finder(limit: Optional[int] = None) -> None:
+    """Ingests staff data from the People Finder API.
+
+    Args:
+        limit: The max number of records to process.
+    """
     people_finder = get_people_finder_interface()
     people_finder_results = people_finder.get_all()
 
+    count = 0
+
     for people_finder_result in people_finder_results:
+        if limit and count >= limit:
+            break
+
         try:
             index_people_finder_result(people_finder_result=people_finder_result)
         except Exception:
             continue
+        finally:
+            count += 1

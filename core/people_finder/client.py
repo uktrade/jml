@@ -86,10 +86,14 @@ class PeopleFinderIterator(Iterator):
 
         self.current_index = 0
 
-        sender = get_sender(self.current_url)
+        content_type = "application/json"
+        sender = get_sender(self.current_url, content_type)
         response = requests.get(
             self.current_url,
-            headers={"Authorization": sender.request_header, "Content-Type": ""},
+            headers={
+                "Authorization": sender.request_header,
+                "Content-Type": content_type,
+            },
         )
 
         if response.status_code != 200:

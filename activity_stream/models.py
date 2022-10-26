@@ -13,10 +13,7 @@ class ActivityStreamStaffSSOUserQuerySet(models.QuerySet):
 
     def with_emails(self):
         return self.annotate(
-            emails=ArrayAgg(
-                "sso_emails__email_address",
-                distinct=True,
-            ),
+            emails=ArrayAgg("sso_emails__email_address", distinct=True),
         )
 
 
@@ -102,11 +99,11 @@ class ActivityStreamStaffSSOUserEmail(models.Model):
     # TODO: Remove type ignore comments once the following PR has been merged and
     # upgraded to (https://github.com/typeddjango/django-stubs/pull/1030).
     staff_sso_user = models.ForeignKey(
-        ActivityStreamStaffSSOUser,
+        ActivityStreamStaffSSOUser,  # type: ignore
         on_delete=models.CASCADE,  # type: ignore
         related_name="sso_emails",
     )  # type: ignore
-    email_address = models.EmailField(
+    email_address = models.EmailField(  # type: ignore
         unique=True,
         max_length=255,
     )

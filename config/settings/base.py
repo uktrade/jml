@@ -99,7 +99,7 @@ LOGGING = {
             "()": ECSFormatter,
         },
         "simple": {
-            "format": "{asctime} {levelname} {message}",
+            "format": "{asctime} {levelname} {name} {message}",
             "style": "{",
         },
     },
