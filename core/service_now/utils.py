@@ -1,13 +1,16 @@
 import json
 import logging
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from django.db.models.query import QuerySet
-from django_stubs_ext import WithAnnotations
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.service_now import get_service_now_interface
 from core.service_now.interfaces import ServiceNowUserNotFound
+
+if TYPE_CHECKING:
+    from django_stubs_ext import WithAnnotations
+
 
 logger = logging.getLogger(__name__)
 
