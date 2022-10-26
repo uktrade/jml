@@ -2,6 +2,15 @@ from django.conf import settings
 from django.template.response import TemplateResponse
 
 
+def contact_us_page(request):
+    context = {}
+    context.update(
+        page_title="Contact us",
+        JML_TEAM_CONTACT_EMAIL=settings.JML_TEAM_CONTACT_EMAIL,
+    )
+    return TemplateResponse(request, "landing_pages/contact_us_page.html", context)
+
+
 def leaver_landing_page(request):
     context = {}
     context.update(
