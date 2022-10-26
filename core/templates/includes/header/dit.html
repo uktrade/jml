@@ -1,0 +1,20 @@
+{% load static %}
+<header class="govuk-header dit-header" role="banner" data-module="govuk-header">
+    <div class="govuk-header__container dit-header_container">
+        <div class="govuk-width-container">
+            <div class="govuk-header__logo">
+                <a href="#" class="govuk-header__link govuk-header__link--homepage">
+                    <span class="govuk-header__logotype">
+                        <img class="govuk-header__logotype-crown" height="40" width="40" src="{% static 'assets/dit-crest.svg' %}" alt="Department for International Trade crest" />
+                        <span class="govuk-header__logotype-text dit-header__logotype-text">{{ SERVICE_NAME }}</span>
+                    </span>
+                </a>
+            </div>
+            <div class="govuk-header__content">
+                {% block nav %}
+                    {% include "includes/menu.html" with user=user %}
+                {% endblock nav %}
+            </div>
+        </div>
+    </div>
+</header>

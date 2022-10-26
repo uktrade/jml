@@ -1,0 +1,17 @@
+$dit-red: #CF102D;
+
+.dit-header {
+    background-color: $dit-red !important;
+}
+
+.dit-header_container {
+    border-bottom: 10px solid #0b0c0c !important;
+}
+
+.dit-header__link {
+    color: white !important;
+}
+
+.dit-header__logotype-text {
+    line-height: 40px;
+}

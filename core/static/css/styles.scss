@@ -2,6 +2,7 @@ $govuk-page-width: 1800px;
 $govuk-assets-path: "/static/govuk-frontend/govuk/assets/";
 @import "./node_modules/govuk-frontend/govuk/all";
 @import "./node_modules/@ministryofjustice/frontend/moj/all";
+@import "./core/static/css/dit-custom";
 @import "./core/static/css/healthcheck";
 @import "./core/static/css/pagination";
 @import "./leavers/static/leavers/css/sre_leaving_requests_table";

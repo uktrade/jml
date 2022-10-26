@@ -27,7 +27,6 @@ class LeavingRequestListing(
     show_incomplete: bool = False
     confirmation_view: str = ""
     summary_view: str = ""
-    service_name: Optional[str] = None
     fields: List[str] = [
         "leaver_name",
         "security_clearance",
@@ -80,7 +79,6 @@ class LeavingRequestListing(
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context.update(
-            service_name=self.get_service_name(),
             show_complete=self.show_complete,
             show_incomplete=self.show_incomplete,
             fields=self.fields,
@@ -177,9 +175,6 @@ class LeavingRequestListing(
         if self.show_incomplete and not self.show_complete:
             object_type_name = "outstanding leaving requests"
         return object_type_name
-
-    def get_service_name(self) -> Optional[str]:
-        return self.service_name
 
     def get_summary_view(self) -> str:
         return self.summary_view

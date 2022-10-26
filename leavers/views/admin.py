@@ -33,7 +33,6 @@ class LeavingRequestListingView(base.LeavingRequestListing):
     confirmation_view = "admin-leaving-request-detail"
     summary_view = "admin-leaving-request-detail"
     page_title = ""
-    service_name = "Leaving DIT: Leaving Request Admin"
     fields = [
         "leaver_name",
         "work_email",
