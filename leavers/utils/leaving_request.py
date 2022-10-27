@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING
 
-from django.db.models.query import QuerySet
+from django.conf import settings
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.utils.staff_index import (
@@ -9,11 +9,10 @@ from core.utils.staff_index import (
     consolidate_staff_documents,
     get_staff_document_from_staff_index,
 )
-from leavers.models import LeavingRequest, TaskLog
+from leavers.models import LeavingRequest
 
 if TYPE_CHECKING:
     from leavers.types import LeaverDetails
-    from leavers.workflow.tasks import EmailIds
     from user.models import User
 
 
@@ -29,6 +28,16 @@ def update_or_create_leaving_request(
         leaver_activitystream_user=leaver,
         defaults=defaults,
     )
+
+    # If SERVICE_NOW_ENABLE_ONLINE_PROCESS is false, we need to flag the
+    # LeavingRequest as using the offline process.
+    if (
+        not settings.SERVICE_NOW_ENABLE_ONLINE_PROCESS
+        and not leaving_request.service_now_offline
+    ):
+        leaving_request.service_now_offline = True
+        leaving_request.save(update_fields=["service_now_offline"])
+
     return leaving_request
 
 
@@ -57,15 +66,3 @@ def get_leaver_details(leaving_request: LeavingRequest) -> "LeaverDetails":
         "photo": consolidated_staff_document["photo"],
     }
     return leaver_details
-
-
-def get_email_task_logs(
-    *, leaving_request: LeavingRequest, email_ids: List["EmailIds"]
-) -> Dict["EmailIds", List[TaskLog]]:
-    all_email_task_logs: QuerySet[TaskLog] = leaving_request.email_task_logs.all()
-    email_task_logs: Dict["EmailIds", List[TaskLog]] = {}
-    for email_id in email_ids:
-        email_task_logs[email_id] = list(
-            all_email_task_logs.filter(task_name__icontains=email_id.value)
-        )
-    return email_task_logs

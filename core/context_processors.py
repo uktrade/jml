@@ -18,6 +18,7 @@ def global_context(request):
         "SERVICE_NAME": "DIT Leaving service",
         "COOKIE_RESPONSE": request.COOKIES.get(COOKIE_KEY),
         "GTM_CODE": settings.GTM_CODE,
+        "SERVICE_NOW_OFFLINE_URL": settings.SERVICE_NOW_OFFLINE_URL,
         "GPC_RETURN_ADDRESS": settings.GPC_RETURN_ADDRESS,
         "DEV_LINKS": [],
     }

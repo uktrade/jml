@@ -32,6 +32,7 @@ from leavers.utils.emails import (
     send_leaver_thank_you_email,
     send_line_manager_correction_email,
     send_line_manager_notification_email,
+    send_line_manager_offline_service_now_email,
     send_line_manager_reminder_email,
     send_line_manager_thankyou_email,
     send_ocs_leaver_email,
@@ -330,6 +331,7 @@ class EmailIds(Enum):
     LINE_MANAGER_NOTIFICATION = "line_manager_notification"
     LINE_MANAGER_REMINDER = "line_manager_reminder"
     LINE_MANAGER_THANKYOU = "line_manager_thankyou"
+    LINE_MANAGER_OFFLINE_SERVICE_NOW = "line_manager_offline_service_now"
     # Security Offboarding (Building Pass)
     SECURITY_OFFBOARD_BP_LEAVER_NOTIFICATION = (
         "security_offboard_bp_leaver_notification"
@@ -390,6 +392,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LINE_MANAGER_NOTIFICATION: send_line_manager_notification_email,
     EmailIds.LINE_MANAGER_REMINDER: send_line_manager_reminder_email,
     EmailIds.LINE_MANAGER_THANKYOU: send_line_manager_thankyou_email,
+    EmailIds.LINE_MANAGER_OFFLINE_SERVICE_NOW: send_line_manager_offline_service_now_email,
     EmailIds.SECURITY_OFFBOARD_BP_LEAVER_NOTIFICATION: send_security_team_offboard_bp_leaver_email,
     EmailIds.SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION: send_security_team_offboard_rk_leaver_email,
     EmailIds.SRE_NOTIFICATION: send_sre_notification_email,
@@ -977,6 +980,21 @@ class SendSRESlackMessage(LeavingRequestTask):
             print("Failed to send SRE alert message")
 
         return None, True
+
+
+class HasLineManagerUpdaatedServiceNow(LeavingRequestTask):
+    abstract = False
+    task_name = "has_line_manager_updated_service_now"
+    auto = True
+
+    def execute(self, task_info):
+        if (
+            self.leaving_request.service_now_offline
+            or self.leaving_request.line_manager_service_now_complete
+        ):
+            return ["are_all_tasks_complete"], True
+
+        return ["send_line_manager_offline_service_now_reminder"], False
 
 
 class LeaverCompleteTask(LeavingRequestTask):

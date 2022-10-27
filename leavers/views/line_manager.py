@@ -32,7 +32,7 @@ from core.utils.staff_index import (
 )
 from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.forms import line_manager as line_manager_forms
-from leavers.models import LeavingRequest
+from leavers.models import LeaverInformation, LeavingRequest
 from leavers.types import LeavingRequestLineReport
 from user.models import User
 
@@ -1085,7 +1085,109 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
         ):
             return HttpResponseForbidden()
 
+        self.leaver_information: Optional[
+            LeaverInformation
+        ] = self.leaving_request.leaver_information.first()
+
+        assert self.leaver_information
+
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        assert self.leaver_information
+
+        context = super().get_context_data(**kwargs)
+
+        leaver_name = self.leaving_request.get_leaver_name()
+
+        context.update(
+            page_title="Leaving form completed",
+            leaver_name=leaver_name,
+            leaving_request=self.leaving_request,
+            leaver_information=self.leaver_information,
+            cirrus_assets=self.leaver_information.cirrus_assets,
+            possessive_leaver_name=make_possessive(leaver_name),
+        )
+        return context
+
+
+class OfflineServiceNowMixin:
+    def dispatch(self, request, *args, **kwargs):
+        self.leaving_request = get_object_or_404(
+            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
+        )
+
+        if not self.leaving_request.leaver_complete:
+            return HttpResponseNotFound()
+
+        if not self.leaving_request.service_now_offline:
+            return HttpResponseNotFound()
+
+        if not self.leaving_request.line_manager_complete:
+            return HttpResponseForbidden()
+
+        if not self.line_manager_access(
+            request=request,
+            leaving_request=self.leaving_request,
+        ):
+            return HttpResponseForbidden()
+
+        self.leaver_information: Optional[
+            LeaverInformation
+        ] = self.leaving_request.leaver_information.first()
+        if not self.leaver_information:
+            # This should never happen as the LeaverInformation is created
+            # prior to the Line manager view.
+            raise Exception("Leaver information not found")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class OfflineServiceNowView(OfflineServiceNowMixin, LineManagerViewMixin, FormView):
+    template_name = "leaving/line_manager/offline_service_now.html"
+    form_class = line_manager_forms.OfflineServiceNowForm
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "line-manager-offline-service-now-thank-you",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
+
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+
+        if self.leaving_request.line_manager_service_now_complete:
+            return redirect(self.get_success_url())
+
+        return response
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        assert self.leaver_information
+
+        context = super().get_context_data(**kwargs)
+
+        leaver_name = self.leaving_request.get_leaver_name()
+
+        context.update(
+            page_title="Log a Service Now request",
+            leaver_name=leaver_name,
+            leaving_request=self.leaving_request,
+            leaver_information=self.leaver_information,
+            cirrus_assets=self.leaver_information.cirrus_assets,
+            possessive_leaver_name=make_possessive(leaver_name),
+        )
+        return context
+
+    def form_valid(self, form) -> HttpResponse:
+        self.leaving_request.line_manager_service_now_complete = timezone.now()
+        self.leaving_request.save(update_fields=["line_manager_service_now_complete"])
+
+        return super().form_valid(form)
+
+
+class OfflineServiceNowThankYouView(
+    OfflineServiceNowMixin, LineManagerViewMixin, TemplateView
+):
+    template_name = "leaving/line_manager/offline_service_now_thank_you.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -1093,7 +1195,7 @@ class ThankYouView(LineManagerViewMixin, TemplateView):
         leaver_name = self.leaving_request.get_leaver_name()
 
         context.update(
-            page_title="Leaving form completed",
+            page_title="Thank you",
             leaver_name=leaver_name,
             possessive_leaver_name=make_possessive(leaver_name),
         )

@@ -61,6 +61,7 @@
 7.7-.2
 7</span
 8.7 39.7 21.8l42.7-27.2A97.63
+abc
 active</dd
 activity_stream.activitystreamstaffssouser
 ActivityStream
@@ -239,6 +240,7 @@ HAWK_INCOMING_SECRET_KEY
 height="17
 height="30" width="36">
 HELP_DESK_CREDS
+HELP_DESK_CREDS=
 HELP_DESK_INTERFACE
 help_text_and_errors.html
 HelpDeskStubbed|
@@ -295,11 +297,14 @@ Leaver Email
 Leaver Final Actions Email
 Leaver Final Actions Email |  | X |  | X |  |  |  |
 leaver_activitystream_user__contact_email_address
+leaver_info.contact_address.line_2
 leaver_info.has_dse
 leaver_info.refresh_from_db
+leaver_info.return_address.line_2
 leaver_job_title
 leaver_paid_unpaid
 Leaver's Notification Form
+LeaverInformation
 leaverLastDay
 Leavers
 Leavers and Line Managers
@@ -325,6 +330,7 @@ Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
 line_report.consolidated_staff_document.job_title
 Loan Pool'
+Log a Service Now
 Lost/Stolen'
 LSD_HELP_DESK_LIVE
 manager_activitystream_user
@@ -358,6 +364,7 @@ object.current_task_record
 OCS
 OCS_EMAIL
 OCS_OAB_LOCKER_EMAIL                                             
+offline_service_now_thank_you.html
 Old Admiralty Building
 one_day_after_ld
 OpenSearch
@@ -407,6 +414,7 @@ Reminder Email*
 remove_url=
 Report 2
 Request
+request</h2
 Return Cirrus
 return_contact_email
 ReturnOptions
@@ -506,6 +514,7 @@ TEMPLATE_ID_SECURITY_OFFBOARD_RK_REMINDER_ON_LD
 TEMPLATE_ID_SRE_NOTIFICATION                                     
 TEMPLATE_ID_SRE_REMINDER_ON_LD                                   
 TEMPLATE_ID_SRE_REMINDER_ON_LD                                   | None                                       
+TEMPLATE_ID_SRE_REMINDER_ON_LD                                   | None                                       |                                                                                                        
 Templates
 test_existing_updates
 TestDetailsView(ViewAccessTest
@@ -525,6 +534,7 @@ the CLU4 Team
 the Data Recipient StaffDocument
 the Datahub Group
 the DB Creates
+the Directorate {%
 The DIT Leaving Service
 the Feetham Security Pass Office
 the GPC Return Address                    

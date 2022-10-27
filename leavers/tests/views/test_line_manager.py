@@ -8,7 +8,7 @@ from django.utils import timezone
 from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.utils.staff_index import StaffDocument
-from leavers.factories import LeavingRequestFactory
+from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
 from leavers.forms.line_manager import (
     AnnualLeavePaidOrDeducted,
     DaysHours,
@@ -408,4 +408,56 @@ class TestThankYouView(ViewAccessTest, TestCase):
             manager_activitystream_user__email_user_id=email,
             line_manager_complete=timezone.now(),
         )
+        LeaverInformationFactory(leaving_request=self.leaving_request)
+        self.view_kwargs = {"args": [self.leaving_request.uuid]}
+
+
+class TestOfflineServiceNowView(ViewAccessTest, TestCase):
+    view_name = "line-manager-offline-service-now-details"
+    allowed_methods = ["get", "post", "put"]
+
+    def setUp(self):
+        super().setUp()
+        email = self.authenticated_user.sso_email_user_id
+        self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
+            manager_activitystream_user__email_user_id=email,
+            line_manager_complete=timezone.now(),
+            service_now_offline=True,
+            line_manager_service_now_complete=None,
+        )
+        LeaverInformationFactory(leaving_request=self.leaving_request)
+        self.view_kwargs = {"args": [self.leaving_request.uuid]}
+
+    def assert_authenticated_pass(self, method: str, response):
+        if method in ["post", "put"]:
+            self.assertEqual(response.status_code, 302)
+            self.assertEqual(
+                response.url,
+                reverse(
+                    "line-manager-offline-service-now-thank-you",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                ),
+            )
+            self.leaving_request.refresh_from_db()
+            self.assertIsNotNone(self.leaving_request.line_manager_service_now_complete)
+        elif method == "get":
+            self.assertEqual(response.status_code, 200)
+
+
+class TestOfflineServiceNowThankYouView(ViewAccessTest, TestCase):
+    view_name = "line-manager-offline-service-now-thank-you"
+    allowed_methods = ["get"]
+
+    def setUp(self):
+        super().setUp()
+        email = self.authenticated_user.sso_email_user_id
+        self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
+            manager_activitystream_user__email_user_id=email,
+            line_manager_complete=timezone.now(),
+            service_now_offline=True,
+            line_manager_service_now_complete=timezone.now(),
+        )
+        LeaverInformationFactory(leaving_request=self.leaving_request)
         self.view_kwargs = {"args": [self.leaving_request.uuid]}

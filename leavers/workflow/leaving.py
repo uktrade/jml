@@ -131,6 +131,7 @@ LeaversWorkflow = Workflow(
                 "send_security_bp_notification",
                 "send_security_rk_notification",
                 "send_sre_notification",
+                "has_line_manager_updated_service_now",
             ],
         ),
         # UK SBS
@@ -275,6 +276,25 @@ LeaversWorkflow = Workflow(
                 "skip_condition": SkipCondition.IS_NOT_ROSA_USER.value,
                 "processor_emails": [settings.SECURITY_TEAM_ROSA_EMAIL],
                 **SECURITY_TEAM_RK_REMINDER_EMAILS,  # type: ignore
+            },
+        ),
+        # Line manager
+        Step(
+            step_id="has_line_manager_updated_service_now",
+            task_name="has_line_manager_updated_service_now",
+            targets=[
+                "send_line_manager_offline_service_now_reminder",
+                "are_all_tasks_complete",
+            ],
+        ),
+        Step(
+            step_id="send_line_manager_offline_service_now_reminder",
+            task_name="daily_reminder_email",
+            targets=[
+                "has_line_manager_updated_service_now",
+            ],
+            task_info={
+                "email_id": EmailIds.LINE_MANAGER_OFFLINE_SERVICE_NOW.value,
             },
         ),
         # SRE (Emails & Slack)

@@ -40,7 +40,7 @@
         <dd class="govuk-summary-list__value">
             <address>
                 <p>{{ leaver_info.contact_address.line_1 }}</p>
-                <p>{{ leaver_info.contact_address.line_2 }}</p>
+                {% if leaver_info.contact_address.line_2 %}<p>{{ leaver_info.contact_address.line_2 }}</p>{% endif %}
                 <p>{{ leaver_info.contact_address.town_or_city }}</p>
                 <p>{{ leaver_info.contact_address.county }}</p>
                 <p>{{ leaver_info.contact_address.postcode }}</p>

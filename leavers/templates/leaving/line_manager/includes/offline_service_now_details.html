@@ -1,0 +1,110 @@
+<h3 class="govuk-heading-m">Leaver information</h3>
+<p class="govuk-body">
+    Here is the information {{ leaving_request.get_leaver_name }} has provided. Use this to help you fill in the Service Now Leaver request.
+</p>
+<dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Leaver name
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {{ leaving_request.get_leaver_name }}
+        </dd>
+    </div>
+    {% comment %} We currently don't have the Staff ID {% endcomment %}
+    {% comment %} <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Staff ID
+        </dt>
+        <dd class="govuk-summary-list__value">
+        </dd>
+    </div> {% endcomment %}
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Leaving date
+        </dt>
+        <dd class="govuk-summary-list__value">
+            {{ leaving_request.get_leaving_date.date }}
+        </dd>
+    </div>
+    {% comment %} We currently don't have the Location {% endcomment %}
+    {% comment %} <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Location
+        </dt>
+        <dd class="govuk-summary-list__value">
+        </dd>
+    </div> {% endcomment %}
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Department
+        </dt>
+        <dd class="govuk-summary-list__value">
+            Department for International Trade
+        </dd>
+    </div>
+    {% comment %} We currently don't have the Directorate {% endcomment %}
+    {% comment %} <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">
+            Directorate
+        </dt>
+        <dd class="govuk-summary-list__value">
+        </dd>
+    </div> {% endcomment %}
+</dl>
+<h3 class="govuk-heading-m">Collection address</h3>
+{% if cirrus_assets %}
+    <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Address
+            </dt>
+            <dd class="govuk-summary-list__value">
+                <address>
+                    <p>{{ leaver_information.return_address.line_1 }}</p>
+                    {% if leaver_information.return_address.line_2 %}<p>{{ leaver_information.return_address.line_2 }}</p>{% endif %}
+                    <p>{{ leaver_information.return_address.town_or_city }}</p>
+                    <p>{{ leaver_information.return_address.county }}</p>
+                    <p>{{ leaver_information.return_address.postcode }}</p>
+                </address>
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Telephone
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ leaver_information.return_personal_phone }}
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Email
+            </dt>
+            <dd class="govuk-summary-list__value">
+                {{ leaver_information.return_contact_email }}
+            </dd>
+        </div>
+    </dl>
+{% else %}
+    <p class="govuk-body">No return information collected as the leaver reported no Cirrus equipment.</p>
+{% endif %}
+<h3 class="govuk-heading-m">Cirrus equipment</h3>
+{% if cirrus_assets %}
+    <table class="govuk-table">
+        <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+                <th scope="col" class="govuk-table__header">Asset name</th>
+            </tr>
+        </thead>
+        <tbody class="govuk-table__body">
+            {% for cirrus_asset in cirrus_assets %}
+                <tr class="govuk-table__row">
+                    <td scope="row" class="govuk-table__cell">{{ cirrus_asset.name }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p class="govuk-body">No Cirrus kit listed.</p>
+{% endif %}
