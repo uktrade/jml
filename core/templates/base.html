@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html lang="en" class="govuk-template app-html-class">
     <head>
+        {% include "gtm-head.html" %}
         <meta charset="utf-8" />
         <title>{% block title %}{% if page_title %}{{ page_title }} - {% endif %}{{ SERVICE_NAME }}{% endblock title %}</title>
         <meta name="keywords" content="" />
@@ -27,15 +28,13 @@
         <![endif]-->
 
         <meta property="og:image" content="govuk-frontend/govuk/assets/images/govuk-opengraph-image.png" />
-
-        {% include "gtm-head.html" %}
     </head>
 
     <body class="govuk-template__body app-body-class" data-test="My value" data-other="report:details">
+        {% include "gtm-body.html" %}
         <script>
             document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
         </script>
-        {% include "gtm-body.html" %}
 
         {% include "cookies/banner.html" %}
 
