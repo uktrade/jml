@@ -35,6 +35,7 @@
         <script>
             document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
         </script>
+        {% include "gtm-body.html" %}
 
         {% include "cookies/banner.html" %}
 
@@ -80,8 +81,6 @@
                 event.detail.headers['X-CSRFToken'] = CSRF_TOKEN;
             });
         </script>
-
-        {% include "gtm-body.html" %}
         {% block scripts %}{% endblock scripts %}
     </body>
 
