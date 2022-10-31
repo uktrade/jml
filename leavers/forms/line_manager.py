@@ -347,3 +347,13 @@ class ConfirmLeavingDate(forms.Form):
             self.helper.layout.append(Field("data_recipient"))
 
         self.helper.layout.append(Submit("submit", "Next"))
+
+
+class OfflineServiceNowForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Submit("submit", "I have completed the Service Now request"),
+        )

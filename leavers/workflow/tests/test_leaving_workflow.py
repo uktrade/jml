@@ -111,6 +111,7 @@ class TestLeaversWorkflow(TestCase):
                 "send_security_bp_notification",
                 "send_security_rk_notification",
                 "send_sre_notification",
+                "has_line_manager_updated_service_now",
             ],
         ],
         "send_uksbs_leaver_details": [
@@ -156,6 +157,13 @@ class TestLeaversWorkflow(TestCase):
         ],
         "send_security_rk_reminder": [
             ["have_security_carried_out_rk_leaving_tasks"],
+        ],
+        "has_line_manager_updated_service_now": [
+            ["send_line_manager_offline_service_now_reminder"],
+            ["are_all_tasks_complete"],
+        ],
+        "send_line_manager_offline_service_now_reminder": [
+            ["has_line_manager_updated_service_now"],
         ],
         "send_sre_notification": [
             ["send_sre_slack_message"],
@@ -305,14 +313,13 @@ class TestLeaversWorkflow(TestCase):
             "notify_ocs_of_oab_locker",
             "send_security_bp_notification",
             "send_security_rk_notification",
+            "has_line_manager_updated_service_now",
             "send_sre_notification",
             "send_sre_slack_message",
+            "send_line_manager_offline_service_now_reminder",
             "have_security_carried_out_rk_leaving_tasks",
             "have_security_carried_out_bp_leaving_tasks",
             "are_all_tasks_complete",
-            "are_all_tasks_complete",
-            "send_security_bp_reminder",
-            "have_sre_carried_out_leaving_tasks",
         ]
         self.check_tasks(expected_tasks=expected_tasks)
 
@@ -343,7 +350,7 @@ class TestLeaversWorkflow(TestCase):
             mock_CheckUKSBSLeaver_execute=mock_CheckUKSBSLeaver_execute,
         )
 
-        # Line manager is in UK SBS, notified and hasn't completed the offboarding process
+        # Line manager is in UK SBS, notified and hasn']t completed the offboarding process
         self.run_line_manger_in_uksbs(
             expected_tasks=expected_tasks,
             mock_CheckUKSBSLineManager_execute=mock_CheckUKSBSLineManager_execute,

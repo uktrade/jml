@@ -60,6 +60,10 @@ def get_leaving_request_email_personalisation(
         contact_us_link=site_url + reverse("beta-service-feedback"),
         line_manager_link=site_url
         + reverse("line-manager-start", args=[leaving_request.uuid]),
+        line_manager_offline_service_now_details_link=site_url
+        + reverse(
+            "line-manager-offline-service-now-details", args=[leaving_request.uuid]
+        ),
         security_team_bp_link=site_url
         + reverse(
             "security-team-building-pass-confirmation", args=[leaving_request.uuid]
@@ -345,6 +349,29 @@ def send_line_manager_reminder_email(
 
 
 def send_line_manager_thankyou_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
+    """
+    Send Line Manager a thank you email.
+    """
+    manager_as_user = leaving_request.get_line_manager()
+    assert manager_as_user
+
+    manager_contact_emails = manager_as_user.get_email_addresses_for_contact()
+    if not manager_contact_emails:
+        raise ValueError("manager_contact_emails is not set")
+
+    personalisation = get_leaving_request_email_personalisation(leaving_request)
+
+    notify.email(
+        email_addresses=manager_contact_emails,
+        template_id=notify.EmailTemplates.LINE_MANAGER_THANKYOU_EMAIL,
+        personalisation=personalisation,
+    )
+
+
+def send_line_manager_offline_service_now_email(
     leaving_request: LeavingRequest,
     template_id: Optional[notify.EmailTemplates] = None,
 ):

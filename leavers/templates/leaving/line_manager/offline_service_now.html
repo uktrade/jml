@@ -1,0 +1,19 @@
+{% extends "leaving/leaving_base.html" %}
+{% load static crispy_forms_tags crispy_forms_gds %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            {% error_summary form %}
+            <h1 class="govuk-panel__title">{{ page_title }}</h1>
+            <p class="govuk-body">You must log a Service Now request for your leaver using the information below.</p>
+            <p class="govuk-body">
+                This ensures that their accounts are closed, and any IT equipment is returned. This should be done as soon as possible and no later than 7 days before their leaving date.
+            </p>
+            <p class="govuk-body">
+                <a class="govuk-link" href="{{ SERVICE_NOW_OFFLINE_URL }}">Log Service Now request</a>
+            </p>
+            {% crispy form %}
+            {% include "leaving/line_manager/includes/offline_service_now_details.html" %}
+        </div>
+    </div>
+{% endblock content %}

@@ -137,7 +137,7 @@
                         <dd class="govuk-summary-list__value">
                             <address>
                                 <p>{{ leaver_info.return_address.line_1 }}</p>
-                                <p>{{ leaver_info.return_address.line_2 }}</p>
+                                {% if leaver_info.return_address.line_2 %}<p>{{ leaver_info.return_address.line_2 }}</p>{% endif %}
                                 <p>{{ leaver_info.return_address.town_or_city }}</p>
                                 <p>{{ leaver_info.return_address.county }}</p>
                                 <p>{{ leaver_info.return_address.postcode }}</p>

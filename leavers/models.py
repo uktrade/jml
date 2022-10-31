@@ -55,6 +55,7 @@ class LeavingRequest(models.Model):
     requested_by = models.CharField(
         max_length=255,
     )  # SSO id
+    service_now_offline = models.BooleanField(default=False)
 
     last_day = models.DateTimeField(null=True, blank=True)
     leaving_date = models.DateTimeField(null=True, blank=True)
@@ -158,6 +159,7 @@ class LeavingRequest(models.Model):
     line_reports = models.JSONField(null=True, blank=True)
 
     line_manager_complete = models.DateTimeField(null=True, blank=True)
+    line_manager_service_now_complete = models.DateTimeField(null=True, blank=True)
 
     """
     SRE Access

@@ -33,6 +33,9 @@ class EmailTemplates(Enum):
     )
     LINE_MANAGER_REMINDER_EMAIL = email_template_settings.LINE_MANAGER_REMINDER_EMAIL
     LINE_MANAGER_THANKYOU_EMAIL = email_template_settings.LINE_MANAGER_THANKYOU_EMAIL
+    LINE_MANAGER_OFFLINE_SERVICE_NOW_EMAIL = (
+        email_template_settings.LINE_MANAGER_OFFLINE_SERVICE_NOW_EMAIL
+    )
 
     CLU4_LEAVER_EMAIL = email_template_settings.CLU4_EMAIL
     FEETHAM_SECURITY_PASS_OFFICE_EMAIL = (

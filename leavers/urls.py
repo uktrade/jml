@@ -166,6 +166,16 @@ urlpatterns = [
         line_manager_views.ThankYouView.as_view(),
         name="line-manager-thank-you",
     ),
+    path(
+        "line-manager/<uuid:leaving_request_uuid>/offline-service-now/details/",
+        line_manager_views.OfflineServiceNowView.as_view(),
+        name="line-manager-offline-service-now-details",
+    ),
+    path(
+        "line-manager/<uuid:leaving_request_uuid>/offline-service-now/thank-you/",
+        line_manager_views.OfflineServiceNowThankYouView.as_view(),
+        name="line-manager-offline-service-now-thank-you",
+    ),
     # SRE
     path(
         "leaver/sre/complete-leaving-request/",
