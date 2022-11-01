@@ -10,7 +10,9 @@
                 This ensures that their accounts are closed, and any IT equipment is returned. This should be done as soon as possible and no later than 7 days before their leaving date.
             </p>
             <p class="govuk-body">
-                <a class="govuk-link" href="{{ SERVICE_NOW_OFFLINE_URL }}">Log Service Now request</a>
+                <a class="govuk-link"
+                    href="{{ SERVICE_NOW_OFFLINE_URL }}"
+                    target="_blank">Log Service Now request</a>
             </p>
             {% crispy form %}
             {% include "leaving/line_manager/includes/offline_service_now_details.html" %}
