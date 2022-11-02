@@ -8,12 +8,12 @@ from core.people_data import get_people_data_interface
 from user.models import User
 
 
-def leaver_does_not_have_duplicate_person_ids():
+def leaver_does_not_have_multiple_person_ids():
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
-            SESSION_KEY = "duplicate_person_ids_passed"
-            person_id_error_page = reverse("leaver-duplicate-person-ids-error")
+            SESSION_KEY = "multiple_person_ids_passed"
+            person_id_error_page = reverse("leaver-multiple-person-ids-error")
 
             # The user has already been checked and verified.
             if SESSION_KEY in request.session:

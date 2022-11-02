@@ -2,7 +2,7 @@ from django.urls import path
 from django_workflow_engine import workflow_urls
 
 from core.utils.urls import decorate_urlpatterns
-from leavers.decorators import leaver_does_not_have_duplicate_person_ids
+from leavers.decorators import leaver_does_not_have_multiple_person_ids
 from leavers.views import admin as admin_views
 from leavers.views import flow as flow_views
 from leavers.views import leaver as leaver_views
@@ -90,12 +90,12 @@ leaver_journey_urlpatterns = decorate_urlpatterns(
             name="leaver-request-received",
         ),
     ],
-    leaver_does_not_have_duplicate_person_ids(),
+    leaver_does_not_have_multiple_person_ids(),
 ) + [
     path(
         "leaver/person-id-error/",
-        leaver_views.DuplicatePersonIdErrorView.as_view(),
-        name="leaver-duplicate-person-ids-error",
+        leaver_views.MultiplePersonIdErrorView.as_view(),
+        name="leaver-multiple-person-ids-error",
     ),
 ]
 

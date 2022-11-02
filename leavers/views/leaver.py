@@ -39,8 +39,8 @@ from user.models import User
 LINE_MANAGER_SEARCH_PARAM = "line_manager_uuid"
 
 
-class DuplicatePersonIdErrorView(TemplateView):
-    template_name = "leaving/duplicate_person_id_errors.html"
+class MultiplePersonIdErrorView(TemplateView):
+    template_name = "leaving/multiple_person_id_errors.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)

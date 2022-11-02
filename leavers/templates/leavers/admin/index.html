@@ -10,7 +10,7 @@
             <h2 class="govuk-heading-m">Emails with multiple Person IDs ({{ emails_with_person_ids|length }})</h2>
             {% if emails_with_person_ids %}
                 <p class="govuk-body">
-                    Users with the emails below will NOT be able to use this service until the duplicate Person IDs issue is resolved.
+                    Users with the emails below will NOT be able to use this service until the multiple Person IDs issue is resolved.
                 </p>
                 <ul class="govuk-list govuk-list--bullet">
                     {% for email in emails_with_person_ids %}<li>{{ email }}</li>{% endfor %}
