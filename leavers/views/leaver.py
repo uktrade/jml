@@ -39,6 +39,15 @@ from user.models import User
 LINE_MANAGER_SEARCH_PARAM = "line_manager_uuid"
 
 
+class DuplicatePersonIdErrorView(TemplateView):
+    template_name = "leaving/duplicate_person_id_errors.html"
+
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(JML_TEAM_CONTACT_EMAIL=settings.JML_TEAM_CONTACT_EMAIL)
+        return context
+
+
 class LeaversStartView(TemplateView):
     template_name = "leaving/start.html"
 
