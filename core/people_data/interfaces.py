@@ -78,14 +78,9 @@ class PeopleDataInterface(PeopleDataBase):
                 "SELECT * FROM dit.people_data__jml WHERE email_address = %s",
                 [email_address],
             )
-            rows = cursor.fetchall()
+            row = cursor.fetchone()
 
-        if rows:
-            if len(rows) > 1:
-                raise Exception(
-                    f"Multiple rows found for email address {email_address}"
-                )
-            row = rows[0]
+        if row:
             dict_row = row_to_dict(cursor=cursor, row=row)
             people_data_result = types.PeopleDataResult.from_dict(
                 dict_row,
