@@ -55,20 +55,22 @@
 <h3 class="govuk-heading-m">Collection address</h3>
 {% if cirrus_assets %}
     <dl class="govuk-summary-list">
-        <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-                Address
-            </dt>
-            <dd class="govuk-summary-list__value">
-                <address>
-                    <p>{{ leaver_information.return_address.line_1 }}</p>
-                    {% if leaver_information.return_address.line_2 %}<p>{{ leaver_information.return_address.line_2 }}</p>{% endif %}
-                    <p>{{ leaver_information.return_address.town_or_city }}</p>
-                    <p>{{ leaver_information.return_address.county }}</p>
-                    <p>{{ leaver_information.return_address.postcode }}</p>
-                </address>
-            </dd>
-        </div>
+        {% if leaver_information.return_address %}
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">
+                    Address
+                </dt>
+                <dd class="govuk-summary-list__value">
+                    <address>
+                        <p>{{ leaver_information.return_address.line_1 }}</p>
+                        {% if leaver_information.return_address.line_2 %}<p>{{ leaver_information.return_address.line_2 }}</p>{% endif %}
+                        <p>{{ leaver_information.return_address.town_or_city }}</p>
+                        <p>{{ leaver_information.return_address.county }}</p>
+                        <p>{{ leaver_information.return_address.postcode }}</p>
+                    </address>
+                </dd>
+            </div>
+        {% endif %}
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
                 Telephone
