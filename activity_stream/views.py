@@ -68,6 +68,11 @@ class ChoosePrimaryEmailView(FormView):
         assert self.activitystream_user
         assert self.sso_emails
 
+        # Unset all Primary emails ready to set a new one.
+        self.activitystream_user.sso_emails.all().filter(is_primary=True).update(
+            is_primary=False
+        )
+
         email_address = form.cleaned_data["email_address"]
         for sso_email in self.sso_emails:
             if sso_email.email_address == email_address:
