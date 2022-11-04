@@ -20,11 +20,31 @@ from django.utils.safestring import mark_safe
 from django.views.generic import FormView, TemplateView
 from django_workflow_engine.models import Flow
 
+from core.people_data import get_people_data_interface
 from core.utils.staff_index import get_csd_for_activitystream_user
 from leavers.forms.admin import ManuallyOffboardedFromUKSBSForm
 from leavers.models import LeavingRequest, TaskLog
 from leavers.types import LeavingRequestLineReport
 from leavers.views import base
+
+
+class LeaversAdminView(TemplateView):
+    template_name = "leavers/admin/index.html"
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_context_data(self, **kwargs):
+        people_data_interface = get_people_data_interface()
+        context = super().get_context_data(**kwargs)
+        context.update(
+            page_title="Leavers admin",
+            num_of_leaving_requests=LeavingRequest.objects.filter(
+                leaver_complete__isnull=False
+            ).count(),
+            emails_with_person_ids=people_data_interface.get_emails_with_multiple_person_ids(),
+        )
+        return context
 
 
 class LeavingRequestListingView(base.LeavingRequestListing):

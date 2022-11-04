@@ -1,0 +1,12 @@
+{% extends "leaving/leaving_base.html" %}
+{% load crispy_forms_gds %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">We are unable to offboard you at this time</h1>
+            <p class="govuk-body">
+                An error was encountered which will prevent us from sucessfully offboarding you. Please contact us at <a class="govuk-link" href="mailto:{{ JML_TEAM_CONTACT_EMAIL }}">{{ JML_TEAM_CONTACT_EMAIL }}</a>
+            </p>
+        </div>
+    </div>
+{% endblock content %}

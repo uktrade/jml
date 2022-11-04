@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, Tuple
+from typing import Any, Dict, Iterator, List, Tuple
 
 from django.db import connections
 from django.db.backends.utils import CursorWrapper
@@ -14,6 +14,10 @@ class PeopleDataBase(ABC):
 
     @abstractmethod
     def get_all(self) -> Iterator[types.PeopleData]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_emails_with_multiple_person_ids(self) -> List[str]:
         raise NotImplementedError
 
 
@@ -35,18 +39,21 @@ class PeopleDataStubbed(PeopleDataBase):
     def get_all(self) -> Iterator[types.PeopleData]:
         results: list[types.PeopleData] = [
             {
-                "email_address": "test1@example.com",
+                "email_address": "test1@example.com",  # /PS-IGNORE
                 "employee_numbers": ["1"],
                 "uksbs_person_id": "123",
             },
             {
-                "email_address": "test2@example.com",
+                "email_address": "test2@example.com",  # /PS-IGNORE
                 "employee_numbers": ["2", "3"],
                 "uksbs_person_id": "124",
             },
         ]
 
         yield from results
+
+    def get_emails_with_multiple_person_ids(self) -> List[str]:
+        return ["test_email1", "test_email2", "miss.marple@example.com"]  # /PS-IGNORE
 
 
 def row_to_dict(*, cursor: CursorWrapper, row: Tuple) -> Dict[str, Any]:
@@ -72,12 +79,13 @@ class PeopleDataInterface(PeopleDataBase):
                 [email_address],
             )
             row = cursor.fetchone()
-            if row:
-                dict_row = row_to_dict(cursor=cursor, row=row)
-                people_data_result = types.PeopleDataResult.from_dict(
-                    dict_row,
-                    infer_missing=True,
-                )
+
+        if row:
+            dict_row = row_to_dict(cursor=cursor, row=row)
+            people_data_result = types.PeopleDataResult.from_dict(
+                dict_row,
+                infer_missing=True,
+            )
 
         return people_data_result
 
@@ -103,3 +111,26 @@ class PeopleDataInterface(PeopleDataBase):
                         "employee_numbers": row[1],
                         "uksbs_person_id": row[2],
                     }
+
+    def get_emails_with_multiple_person_ids(self) -> List[str]:
+        with connections["people_data"].cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    email_address,
+                    array_agg(DISTINCT person_id) AS person_ids
+                FROM
+                    dit.people_data__jml
+                WHERE
+                    email_address IS NOT NULL
+                    AND email_address != ''
+                    AND person_id IS NOT NULL
+                GROUP BY
+                    email_address
+                HAVING
+                    array_length(array_agg(DISTINCT person_id), 1) > 1
+                """
+            )
+            rows = cursor.fetchall()
+        emails: List[str] = [row[0] for row in rows]
+        return emails
