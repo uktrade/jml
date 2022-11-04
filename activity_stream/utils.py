@@ -1,8 +1,6 @@
 import logging
 from typing import List, Optional
 
-from django.db.utils import IntegrityError
-
 from activity_stream import models, staff_sso
 
 logger = logging.getLogger(__name__)
@@ -62,15 +60,10 @@ def ingest_activity_stream(limit: Optional[int] = None) -> None:
         )
 
         for email in activity_stream_object["object"]["dit:emailAddress"]:
-            try:
-                models.ActivityStreamStaffSSOUserEmail.objects.update_or_create(
-                    email_address=email,
-                    staff_sso_user=as_staff_sso_user,
-                )
-            except IntegrityError:
-                logger.exception(
-                    f"Error creating email record for '{email}'", exc_info=True
-                )
+            models.ActivityStreamStaffSSOUserEmail.objects.get_or_create(
+                email_address=email,
+                staff_sso_user=as_staff_sso_user,
+            )
 
         created_updated_ids.append(as_staff_sso_user.id)
         logger.info(

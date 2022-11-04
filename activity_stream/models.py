@@ -104,7 +104,14 @@ class ActivityStreamStaffSSOUserEmail(models.Model):
         related_name="sso_emails",
     )  # type: ignore
     email_address = models.EmailField(  # type: ignore
-        unique=True,
         max_length=255,
     )
     is_primary = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["staff_sso_user", "email_address"],
+                name="unique_sso_user_email_address",
+            ),
+        ]
