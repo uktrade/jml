@@ -90,7 +90,7 @@ leaver_journey_urlpatterns = decorate_urlpatterns(
             name="leaver-request-received",
         ),
     ],
-    leaver_does_not_have_multiple_person_ids(),
+    leaver_does_not_have_multiple_person_ids,
 ) + [
     path(
         "leaver/person-id-error/",
