@@ -5,7 +5,6 @@ from core.utils.staff_index import (
     clear_staff_index,
     create_staff_index,
     delete_staff_index,
-    index_all_staff,
     staff_index_mapping_changed,
 )
 
@@ -31,13 +30,4 @@ class Command(BaseCommand):
                 clear_staff_index()
                 self.stdout.write(self.style.WARNING("Staff index cleared"))
 
-        indexed_count = index_all_staff()
-
-        self.stdout.write(
-            self.style.SUCCESS(
-                (
-                    "Job finished successfully\n"
-                    f"{indexed_count} staff successfully indexed\n"
-                )
-            )
-        )
+        self.stdout.write(self.style.SUCCESS("Job finished successfully"))

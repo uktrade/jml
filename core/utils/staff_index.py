@@ -1,7 +1,6 @@
 import logging
 import uuid
 from dataclasses import dataclass
-from datetime import date, timedelta
 from functools import partial, wraps
 from typing import Any, Dict, List, Mapping, Optional, TypedDict
 
@@ -9,7 +8,6 @@ from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Q
-from django.db.models.query import QuerySet
 from opensearch_dsl import Search
 from opensearch_dsl.response import Hit
 from opensearchpy import OpenSearch
@@ -135,39 +133,6 @@ def staff_index_mapping_changed() -> bool:
         raise StaffIndexNotFound()
     current_mapping = mappings.get(STAFF_INDEX_NAME, {}).get("mappings", {})
     return current_mapping != staff_index_mapping
-
-
-def index_staff_document(*, staff_document: StaffDocument):
-    """
-    Delete existing StaffDocument and create a new one in the Staff index.
-    """
-    search_client = get_search_connection()
-    existing_document: Optional[StaffDocument] = None
-    if staff_document.staff_sso_email_user_id:
-        try:
-            existing_document = get_staff_document_from_staff_index(
-                sso_email_user_id=staff_document.staff_sso_email_user_id
-            )
-        except StaffDocumentNotFound:
-            pass
-
-    if existing_document:
-        search_client.delete_by_query(
-            index=STAFF_INDEX_NAME,
-            body={
-                "query": {
-                    "match_phrase": {
-                        "staff_sso_email_user_id": existing_document.staff_sso_email_user_id
-                    }
-                }
-            },
-            ignore=400,
-        )
-
-    search_client.index(
-        index=STAFF_INDEX_NAME,
-        body=staff_document.to_dict(),
-    )
 
 
 def search_staff_index(
@@ -459,61 +424,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     }
 
     return StaffDocument.from_dict(staff_document_dict)
-
-
-def index_staff_by_emails(emails: List[str]) -> None:
-    staff_sso_users: QuerySet[
-        ActivityStreamStaffSSOUser
-    ] = ActivityStreamStaffSSOUser.objects.filter(
-        sso_emails__email_address__in=emails,
-    )
-    for staff_sso_user in staff_sso_users:
-        try:
-            staff_document = build_staff_document(staff_sso_user=staff_sso_user)
-            index_staff_document(staff_document=staff_document)
-        except Exception:
-            logger.exception(
-                f"Could not build index entry for '{staff_sso_user}''", exc_info=True
-            )
-
-
-def index_all_staff() -> int:
-    """
-    Index all staff to the Staff Search Index
-
-    POTENTIALLY LONG RUNNING TASK
-
-    Things to consider:
-    - API rate limits/throttling?
-    - Using asyncronous tasks
-    """
-    indexed_count = 0
-    current_date = date.today()
-    days_ago = 6 * 30
-    last_accessed_datetime = current_date - timedelta(days=days_ago)
-    staff_sso_users: QuerySet[
-        ActivityStreamStaffSSOUser
-    ] = ActivityStreamStaffSSOUser.objects.filter(
-        became_inactive_on__isnull=True,
-        last_accessed__isnull=False,
-        last_accessed__gte=last_accessed_datetime,
-    )
-    # Add documents to the index
-    for staff_sso_user in staff_sso_users:
-        try:
-            staff_document = build_staff_document(staff_sso_user=staff_sso_user)
-            update_staff_document(
-                staff_sso_user.email_user_id,
-                staff_document=staff_document.to_dict(),
-                upsert=True,
-            )
-            indexed_count += 1
-        except Exception:
-            logger.exception(
-                f"Could not build index entry for '{staff_sso_user}''", exc_info=True
-            )
-
-    return indexed_count
 
 
 def get_csd_for_activitystream_user(

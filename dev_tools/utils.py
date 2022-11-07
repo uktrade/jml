@@ -10,7 +10,7 @@ from activity_stream.models import (
     ActivityStreamStaffSSOUser,
     ActivityStreamStaffSSOUserEmail,
 )
-from core.utils.staff_index import build_staff_document, index_staff_document
+from core.utils.staff_index import build_staff_document, update_staff_document
 
 if TYPE_CHECKING:
     from user.models import User
@@ -69,7 +69,11 @@ def create_user(
 
     # Add the user into the Staff Index
     staff_document = build_staff_document(staff_sso_user=staff_sso_user)
-    index_staff_document(staff_document=staff_document)
+    update_staff_document(
+        staff_document.staff_sso_email_user_id,
+        staff_document=staff_document.to_dict(),
+        upsert=True,
+    )
 
     return user, created
 
