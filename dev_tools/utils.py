@@ -20,7 +20,7 @@ else:
 
 def create_user(
     first_name: str, last_name: str, email: str, group: Group
-) -> Tuple["User", bool]:
+) -> Tuple["User", bool, ActivityStreamStaffSSOUser]:
     created = False
     try:
         user = User.objects.get(email=email)
@@ -75,7 +75,7 @@ def create_user(
         upsert=True,
     )
 
-    return user, created
+    return user, created, staff_sso_user
 
 
 def change_user(request: HttpRequest, user_pk: Optional[str]) -> None:
