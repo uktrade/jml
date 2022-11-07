@@ -88,6 +88,7 @@ below.</a>
 Bench
 Bloggs
 bool_to_yes_no
+boolean
 Build Staff Document
 Building Pass
 Building pass '

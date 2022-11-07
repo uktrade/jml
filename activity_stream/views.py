@@ -34,7 +34,7 @@ class ChoosePrimaryEmailView(FormView):
         self.sso_emails: Optional[QuerySet[ActivityStreamStaffSSOUserEmail]] = None
         user = cast("User", self.request.user)
         try:
-            self.activitystream_user = ActivityStreamStaffSSOUser.objects.get(
+            self.activitystream_user = ActivityStreamStaffSSOUser.objects.active().get(
                 email_user_id=user.sso_email_user_id,
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:

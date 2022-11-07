@@ -26,6 +26,7 @@ def update_or_create_leaving_request(
 
     leaving_request, _ = LeavingRequest.objects.prefetch_related().update_or_create(
         leaver_activitystream_user=leaver,
+        leaver_complete__isnull=True,
         defaults=defaults,
     )
 

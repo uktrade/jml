@@ -80,7 +80,7 @@ class LineManagerViewMixin:
         # they can access the view.
         try:
             user_activitystream_user: ActivityStreamStaffSSOUser = (
-                ActivityStreamStaffSSOUser.objects.get(
+                ActivityStreamStaffSSOUser.objects.active().get(
                     email_user_id=user.sso_email_user_id,
                 )
             )
@@ -422,7 +422,7 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
             )
             try:
                 self.data_recipient_activitystream_user = (
-                    ActivityStreamStaffSSOUser.objects.get(
+                    ActivityStreamStaffSSOUser.objects.active().get(
                         identifier=self.data_recipient["staff_sso_activity_stream_id"],
                     )
                 )
@@ -685,7 +685,7 @@ def line_report_set_new_manager(
         )
         try:
             line_manager_as_user: ActivityStreamStaffSSOUser = (
-                ActivityStreamStaffSSOUser.objects.get(
+                ActivityStreamStaffSSOUser.objects.active().get(
                     email_user_id=consolidated_staff_document[
                         "staff_sso_email_user_id"
                     ],

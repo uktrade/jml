@@ -3,13 +3,27 @@ from typing import List, Optional
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import Manager
+from django.db.models import Manager, Q
 from django.db.models.query import QuerySet
 
 
 class ActivityStreamStaffSSOUserQuerySet(models.QuerySet):
-    def available(self):
-        return self.filter(available=True)
+    def filter_by_person_id(self, person_ids: List[str]) -> bool:
+        return self.filter(
+            Q(person_id__in=person_ids) | Q(uksbs_person_id_override__in=person_ids)
+        )
+
+    def active(self):
+        """Filter to only include users that appear in the SSO AND are not inactive."""
+        return self.filter(
+            available=True,
+            became_inactive_on__isnull=True,
+        )
+
+    def not_a_leaver(self):
+        return self.filter(
+            leaving_requests__leaver_complete__isnull=True,
+        )
 
     def with_emails(self):
         return self.annotate(
