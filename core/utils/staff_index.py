@@ -7,7 +7,6 @@ from typing import Any, Dict, List, Mapping, Optional, TypedDict
 from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
 from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Q
 from opensearch_dsl import Search
 from opensearch_dsl.response import Hit
 from opensearchpy import OpenSearch
@@ -462,7 +461,19 @@ def get_csd_for_activitystream_user(
     return consolidated_staff_documents[0]
 
 
-def update_staff_document(id, staff_document: dict[str, Any], upsert=False):
+def get_staff_document(id: str) -> dict[str, Any]:
+    search_client = get_search_connection()
+    return search_client.get(index=STAFF_INDEX_NAME, id=id)
+
+
+def delete_staff_document(id: str) -> None:
+    search_client = get_search_connection()
+    search_client.delete(index=STAFF_INDEX_NAME, id=id)
+
+
+def update_staff_document(
+    id: str, staff_document: dict[str, Any], upsert: bool = False
+) -> None:
     """Update the related staff document in the staff search index."""
     search_client = get_search_connection()
 
@@ -492,11 +503,7 @@ def staff_document_updater(func, upsert=False):
 def index_sso_users():
     qs = (
         ActivityStreamStaffSSOUser.objects.annotate(
-            emails=ArrayAgg(
-                "sso_emails__email_address",
-                filter=Q(sso_emails__email_address=False),
-                distinct=True,
-            )
+            emails=ArrayAgg("sso_emails__email_address", distinct=True)
         )
         .all()
         .iterator()
@@ -505,12 +512,14 @@ def index_sso_users():
     for sso_user in qs:
         doc_id = sso_user.email_user_id
         doc = {
+            "available_in_staff_sso": sso_user.available,
             "staff_sso_activity_stream_id": sso_user.identifier,
             "staff_sso_email_user_id": sso_user.email_user_id,
             "staff_sso_legacy_id": sso_user.user_id,
             "staff_sso_first_name": sso_user.first_name,
             "staff_sso_last_name": sso_user.last_name,
             "staff_sso_contact_email_address": sso_user.contact_email_address or "",
+            # `emails` come from the annotate in the queryset.
             "staff_sso_email_addresses": sso_user.emails,
         }
 

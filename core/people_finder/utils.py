@@ -1,23 +1,20 @@
+import logging
 from typing import Optional
+
+from opensearchpy.exceptions import NotFoundError
 
 from core.people_finder import get_people_finder_interface
 from core.people_finder.interfaces import PersonDetail
-from core.utils.staff_index import (
-    StaffDocument,
-    StaffDocumentNotFound,
-    TooManyStaffDocumentsFound,
-    get_staff_document_from_staff_index,
-    update_staff_document,
-)
+from core.utils.staff_index import update_staff_document
+
+logger = logging.getLogger(__name__)
 
 
 def index_people_finder_result(people_finder_result: PersonDetail) -> None:
-    try:
-        staff_index_result = get_staff_document_from_staff_index(
-            sso_email_address=people_finder_result.email,
-        ).to_dict()
-    except (StaffDocumentNotFound, TooManyStaffDocumentsFound):
-        return None
+    sso_user_id = people_finder_result.sso_user_id
+
+    if not sso_user_id:
+        return
 
     mapped_data = {
         "people_finder_photo": people_finder_result.photo,
@@ -31,16 +28,7 @@ def index_people_finder_result(people_finder_result: PersonDetail) -> None:
         "people_finder_email": people_finder_result.email,
     }
 
-    staff_index_result |= mapped_data
-
-    staff_document = StaffDocument.from_dict(staff_index_result)
-    update_staff_document(
-        id=staff_document.staff_sso_email_user_id,
-        staff_document=staff_document.to_dict(),
-        upsert=True,
-    )
-
-    return None
+    update_staff_document(id=sso_user_id, staff_document=mapped_data)
 
 
 def ingest_people_finder(limit: Optional[int] = None) -> None:
@@ -60,7 +48,11 @@ def ingest_people_finder(limit: Optional[int] = None) -> None:
 
         try:
             index_people_finder_result(people_finder_result=people_finder_result)
-        except Exception:
+        except NotFoundError:
             continue
+        except Exception:
+            logger.exception(
+                "An error occured whilst indexing %s", people_finder_result.sso_user_id
+            )
         finally:
             count += 1
