@@ -26,7 +26,7 @@ def leaver_does_not_have_multiple_person_ids(view_func):
 
         # If we can't get an ActivityStreamStaffSSOUser, then the user
         # can't use our service.
-        activitystream_user = ActivityStreamStaffSSOUser.objects.get(
+        activitystream_user = ActivityStreamStaffSSOUser.objects.active().get(
             email_user_id=user.sso_email_user_id,
         )
 

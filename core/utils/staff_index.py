@@ -27,6 +27,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
     "mappings": {
         "properties": {
             "uuid": {"type": "text"},
+            "available_in_staff_sso": {"type": "boolean"},
             "staff_sso_activity_stream_id": {"type": "text"},
             "staff_sso_email_user_id": {"type": "text"},
             "staff_sso_legacy_id": {"type": "text"},
@@ -51,6 +52,7 @@ STAFF_INDEX_BODY: Mapping[str, Any] = {
 @dataclass
 class StaffDocument(DataClassJsonMixin):
     uuid: str
+    available_in_staff_sso: bool
     staff_sso_activity_stream_id: str
     staff_sso_email_user_id: str
     staff_sso_legacy_id: str
@@ -71,6 +73,7 @@ class StaffDocument(DataClassJsonMixin):
 
 class ConsolidatedStaffDocument(TypedDict):
     uuid: str
+    available_in_staff_sso: bool
     staff_sso_activity_stream_id: str
     staff_sso_email_user_id: str
     first_name: str
@@ -136,10 +139,17 @@ def staff_index_mapping_changed() -> bool:
 
 
 def search_staff_index(
-    *, query: str, exclude_staff_ids: Optional[List[str]] = None
+    *,
+    query: str,
+    exclude_staff_ids: Optional[List[str]] = None,
+    present_in_sso: bool = True,
 ) -> List[StaffDocument]:
     """
     Search the Staff index.
+
+    query: The search query.
+    exclude_staff_ids: A list of staff IDs to exclude from the results.
+    present_in_sso: Whether to only return results that are present in Staff SSO.
     """
     if not exclude_staff_ids:
         exclude_staff_ids = []
@@ -148,6 +158,11 @@ def search_staff_index(
     search_dict = {
         "query": {
             "bool": {
+                "filter": {
+                    "term": {
+                        "available_in_staff_sso": present_in_sso,
+                    },
+                },
                 "should": [
                     {"match": {"staff_sso_first_name": {"query": query, "boost": 5.0}}},
                     {"match": {"staff_sso_last_name": {"query": query, "boost": 5.0}}},
@@ -278,6 +293,7 @@ def consolidate_staff_documents(
     for staff_document in staff_documents:
         consolidated_staff_document: ConsolidatedStaffDocument = {
             "uuid": staff_document.uuid,
+            "available_in_staff_sso": staff_document.available_in_staff_sso,
             "staff_sso_email_user_id": staff_document.staff_sso_email_user_id,
             "staff_sso_activity_stream_id": staff_document.staff_sso_activity_stream_id,
             "first_name": staff_document.staff_sso_first_name
@@ -402,6 +418,7 @@ def get_service_now_data(
 
 def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     staff_sso_data = {
+        "available_in_staff_sso": staff_sso_user.available,
         "staff_sso_legacy_id": staff_sso_user.user_id,
         "staff_sso_email_user_id": staff_sso_user.email_user_id,
         "staff_sso_activity_stream_id": staff_sso_user.identifier,

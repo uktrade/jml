@@ -68,7 +68,7 @@ class LeavingRequest(models.Model):
     leaver_activitystream_user = models.ForeignKey(
         ActivityStreamStaffSSOUser,
         on_delete=models.CASCADE,
-        related_name="+",
+        related_name="leaving_requests",
     )
     # The manager that the Leaver selected
     manager_activitystream_user = models.ForeignKey(

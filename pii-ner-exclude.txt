@@ -88,6 +88,7 @@ below.</a>
 Bench
 Bloggs
 bool_to_yes_no
+boolean
 Build Staff Document
 Building Pass
 Building pass '
@@ -413,6 +414,7 @@ Reason for Leaving Resignation
 recorded</h1
 Reminder Email
 Reminder Email*
+Remove Sequence
 remove_url=
 Report 2
 Request

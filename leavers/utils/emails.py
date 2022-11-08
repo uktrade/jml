@@ -255,8 +255,8 @@ def send_line_manager_correction_email(
     ]
     current_manager_as_users: QuerySet[
         ActivityStreamStaffSSOUser
-    ] = ActivityStreamStaffSSOUser.objects.filter(
-        uksbs_person_id__in=uksbs_leaver_manager_person_ids
+    ] = ActivityStreamStaffSSOUser.objects.active().filter_by_person_id(
+        uksbs_leaver_manager_person_ids
     )
 
     email_personalisation = get_leaving_request_email_personalisation(leaving_request)

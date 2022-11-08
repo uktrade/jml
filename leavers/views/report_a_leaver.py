@@ -102,8 +102,10 @@ class ConfirmationView(FormView):
         request.session.save()
 
         try:
-            self.leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
-                identifier=self.leaver["staff_sso_activity_stream_id"],
+            self.leaver_activitystream_user = (
+                ActivityStreamStaffSSOUser.objects.active().get(
+                    identifier=self.leaver["staff_sso_activity_stream_id"],
+                )
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:
             raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")
@@ -161,7 +163,7 @@ class ConfirmationView(FormView):
             request.session.save()
             try:
                 self.manager_activitystream_user = (
-                    ActivityStreamStaffSSOUser.objects.get(
+                    ActivityStreamStaffSSOUser.objects.active().get(
                         identifier=self.manager["staff_sso_activity_stream_id"],
                     )
                 )

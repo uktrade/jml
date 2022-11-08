@@ -1,26 +1,19 @@
 import logging
-from typing import List, Optional
+from typing import List
 
 from activity_stream import models, staff_sso
 
 logger = logging.getLogger(__name__)
 
 
-def ingest_activity_stream(limit: Optional[int] = None) -> None:
+def ingest_activity_stream() -> None:
     logger.info("Starting activity stream ingest")
-
-    if limit:
-        logger.info(f"Ingest limit {limit}")
 
     created_updated_ids: List[int] = []
 
     # Create and Update Activity Stream SSO objects
     for activity_stream_object in staff_sso.StaffSSOActivityStreamIterator():
         # Break out if we hit processing limit
-
-        if limit and len(created_updated_ids) >= limit:
-            logger.info(f"Reached limit for activity stream: {limit}")
-            break
 
         # Only create objects with type of "dit:StaffSSO:User"
         if activity_stream_object["object"]["type"] != "dit:StaffSSO:User":

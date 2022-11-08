@@ -10,6 +10,7 @@ from leavers.tests.views.include import ViewAccessTest
 EMPTY_STAFF_DOCUMENT = StaffDocument.from_dict(
     {
         "uuid": "",
+        "available_in_staff_sso": True,
         "staff_sso_activity_stream_id": "",
         "staff_sso_contact_email_address": "",
         "staff_sso_first_name": "",

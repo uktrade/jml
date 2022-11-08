@@ -18,9 +18,10 @@ logger = logging.getLogger(__name__)
 def ingest_service_now() -> None:
     service_now_interface = get_service_now_interface()
 
-    sso_users: QuerySet[
-        WithAnnotations[ActivityStreamStaffSSOUser]
-    ] = ActivityStreamStaffSSOUser.objects.with_emails().all()
+    # Only ingest users that are in the SSO, are NOT inactive and are NOT leavers.
+    sso_users: QuerySet[WithAnnotations[ActivityStreamStaffSSOUser]] = (
+        ActivityStreamStaffSSOUser.objects.active().not_a_leaver().with_emails().all()
+    )
 
     for sso_user in sso_users:
         service_now_email: Optional[str] = sso_user.service_now_email_address

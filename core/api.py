@@ -57,9 +57,13 @@ class PeopleFinderUpdateView(APIView):
             )
 
         # Check if the email has been ingested from the Activity Stream:
-        email_in_activity_stream: bool = ActivityStreamStaffSSOUser.objects.filter(
-            sso_emails__email_address=people_finder_email
-        ).exists()
+        email_in_activity_stream: bool = (
+            ActivityStreamStaffSSOUser.objects.active()
+            .filter(
+                sso_emails__email_address=people_finder_email,
+            )
+            .exists()
+        )
         if not email_in_activity_stream:
             # If we can filter the Staff SSO Activity Stream by email,
             # then we should try to do that and ingest the user.

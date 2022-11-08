@@ -1,15 +1,35 @@
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
-from django.db.models import Manager
+from django.db.models import Manager, Q
 from django.db.models.query import QuerySet
+
+if TYPE_CHECKING:
+    # TODO: Remove Sequence import once the following PR has been merged and
+    # upgraded to (https://github.com/typeddjango/django-stubs/pull/1030).
+    from typing import Sequence  # noqa: F401
 
 
 class ActivityStreamStaffSSOUserQuerySet(models.QuerySet):
-    def available(self):
-        return self.filter(available=True)
+    def filter_by_person_id(self, person_ids: List[str]):
+        return self.filter(
+            Q(uksbs_person_id__in=person_ids)
+            | Q(uksbs_person_id_override__in=person_ids)
+        )
+
+    def active(self):
+        """Filter to only include users that appear in the SSO AND are not inactive."""
+        return self.filter(
+            available=True,
+            became_inactive_on__isnull=True,
+        )
+
+    def not_a_leaver(self):
+        return self.filter(
+            leaving_requests__leaver_complete__isnull=True,
+        )
 
     def with_emails(self):
         return self.annotate(
@@ -96,14 +116,12 @@ class ActivityStreamStaffSSOUser(models.Model):
 
 
 class ActivityStreamStaffSSOUserEmail(models.Model):
-    # TODO: Remove type ignore comments once the following PR has been merged and
-    # upgraded to (https://github.com/typeddjango/django-stubs/pull/1030).
     staff_sso_user = models.ForeignKey(
-        ActivityStreamStaffSSOUser,  # type: ignore
-        on_delete=models.CASCADE,  # type: ignore
+        ActivityStreamStaffSSOUser,
+        on_delete=models.CASCADE,
         related_name="sso_emails",
-    )  # type: ignore
-    email_address = models.EmailField(  # type: ignore
+    )
+    email_address = models.EmailField(
         max_length=255,
     )
     is_primary = models.BooleanField(default=False)

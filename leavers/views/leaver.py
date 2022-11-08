@@ -67,8 +67,10 @@ class MyManagerSearchView(StaffSearchView):
     ) -> HttpResponseBase:
         user = cast(User, self.request.user)
         try:
-            leaver_activitystream_user = ActivityStreamStaffSSOUser.objects.get(
-                email_user_id=user.sso_email_user_id,
+            leaver_activitystream_user = (
+                ActivityStreamStaffSSOUser.objects.active().get(
+                    email_user_id=user.sso_email_user_id,
+                )
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:
             raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")
@@ -90,7 +92,7 @@ class LeaverInformationMixin:
         if not self.leaver_activitystream_user:
             try:
                 self.leaver_activity_stream_user = (
-                    ActivityStreamStaffSSOUser.objects.get(
+                    ActivityStreamStaffSSOUser.objects.active().get(
                         email_user_id=sso_email_user_id,
                     )
                 )
@@ -557,10 +559,10 @@ class LeaverDatesView(LeaverInformationMixin, FormView):
                     staff_documents=[staff_document]
                 )[0]
                 try:
-                    self.line_manager = ActivityStreamStaffSSOUser.objects.get(
+                    self.line_manager = ActivityStreamStaffSSOUser.objects.active().get(
                         identifier=self.line_manager_search_document[
                             "staff_sso_activity_stream_id"
-                        ]
+                        ],
                     )
                 except ActivityStreamStaffSSOUser.DoesNotExist:
                     pass
@@ -714,8 +716,8 @@ class LeaverHasAssetsView(LeaverInformationMixin, FormView):
 def get_cirrus_assets(request: HttpRequest) -> List[types.CirrusAsset]:
     user = cast(User, request.user)
 
-    staff_sso_user = ActivityStreamStaffSSOUser.objects.get(
-        email_user_id=user.sso_email_user_id
+    staff_sso_user = ActivityStreamStaffSSOUser.objects.active().get(
+        email_user_id=user.sso_email_user_id,
     )
 
     service_now_email: Optional[str] = staff_sso_user.service_now_email_address

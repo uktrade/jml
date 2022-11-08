@@ -17,6 +17,7 @@ from user.test.factories import UserFactory
 STAFF_DOCUMENT = StaffDocument.from_dict(
     {
         "uuid": uuid4(),
+        "available_in_staff_sso": True,
         "staff_sso_activity_stream_id": "1",
         "staff_sso_legacy_id": "123",
         "staff_sso_contact_email_address": "joe.bloggs@example.com",  # /PS-IGNORE

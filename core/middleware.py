@@ -50,7 +50,7 @@ class IndexCurrentUser:
             # Check if the ActivityStreamStaffSSOUser already exists
             as_users: QuerySet[
                 ActivityStreamStaffSSOUser
-            ] = ActivityStreamStaffSSOUser.objects.filter(
+            ] = ActivityStreamStaffSSOUser.objects.active().filter(
                 email_user_id=user.sso_email_user_id,
             )
             if not as_users.exists():
@@ -111,7 +111,7 @@ class PrimaryEmailMiddleware:
             return self.get_response(request)
 
         try:
-            activitystream_user = ActivityStreamStaffSSOUser.objects.get(
+            activitystream_user = ActivityStreamStaffSSOUser.objects.active().get(
                 email_user_id=user.sso_email_user_id,
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:
