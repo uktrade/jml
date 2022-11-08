@@ -15,7 +15,8 @@ if TYPE_CHECKING:
 class ActivityStreamStaffSSOUserQuerySet(models.QuerySet):
     def filter_by_person_id(self, person_ids: List[str]):
         return self.filter(
-            Q(person_id__in=person_ids) | Q(uksbs_person_id_override__in=person_ids)
+            Q(uksbs_person_id__in=person_ids)
+            | Q(uksbs_person_id_override__in=person_ids)
         )
 
     def active(self):

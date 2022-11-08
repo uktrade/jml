@@ -45,8 +45,6 @@ class ActivityStreamStaffSSOUserFactory(DjangoModelFactory):
     contact_email_address = factory.Sequence(
         lambda n: f"activity_stream_staff_sso_user_{n}_contact@example.com"  # /PS-IGNORE
     )
-    became_inactive_on = factory.fuzzy.FuzzyDateTime(
-        start_dt=timezone.now() - timedelta(days=10),
-    )
+    became_inactive_on = None
     uksbs_person_id = factory.fuzzy.FuzzyText(length=6)
     available = True
