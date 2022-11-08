@@ -55,7 +55,7 @@ def create_user(request):
 
     form_data = form.cleaned_data
 
-    user, _ = utils.create_user(
+    user, _, _ = utils.create_user(
         first_name=form_data["first_name"],
         last_name=form_data["last_name"],
         email=form_data["email"],

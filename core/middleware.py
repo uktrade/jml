@@ -13,7 +13,7 @@ from core.utils.staff_index import (
     StaffDocumentNotFound,
     build_staff_document,
     get_staff_document_from_staff_index,
-    index_staff_document,
+    update_staff_document,
 )
 
 if TYPE_CHECKING:
@@ -82,7 +82,11 @@ class IndexCurrentUser:
             except StaffDocumentNotFound:
                 # Index ActivityStream object
                 staff_document = build_staff_document(staff_sso_user=as_user)
-                index_staff_document(staff_document=staff_document)
+                update_staff_document(
+                    id=staff_document.staff_sso_email_user_id,
+                    staff_document=staff_document.to_dict(),
+                    upsert=True,
+                )
 
             # Mark the session as indexed
             request.session[self.SESSION_KEY] = True

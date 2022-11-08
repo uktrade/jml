@@ -10,7 +10,7 @@ from activity_stream.models import (
     ActivityStreamStaffSSOUser,
     ActivityStreamStaffSSOUserEmail,
 )
-from core.utils.staff_index import build_staff_document, index_staff_document
+from core.utils.staff_index import build_staff_document, update_staff_document
 
 if TYPE_CHECKING:
     from user.models import User
@@ -20,7 +20,7 @@ else:
 
 def create_user(
     first_name: str, last_name: str, email: str, group: Group
-) -> Tuple["User", bool]:
+) -> Tuple["User", bool, ActivityStreamStaffSSOUser]:
     created = False
     try:
         user = User.objects.get(email=email)
@@ -69,9 +69,13 @@ def create_user(
 
     # Add the user into the Staff Index
     staff_document = build_staff_document(staff_sso_user=staff_sso_user)
-    index_staff_document(staff_document=staff_document)
+    update_staff_document(
+        staff_document.staff_sso_email_user_id,
+        staff_document=staff_document.to_dict(),
+        upsert=True,
+    )
 
-    return user, created
+    return user, created, staff_sso_user
 
 
 def change_user(request: HttpRequest, user_pk: Optional[str]) -> None:

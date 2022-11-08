@@ -7,7 +7,7 @@ from core.utils.staff_index import (
     StaffDocumentNotFound,
     TooManyStaffDocumentsFound,
     get_staff_document_from_staff_index,
-    index_staff_document,
+    update_staff_document,
 )
 
 
@@ -33,7 +33,12 @@ def index_people_finder_result(people_finder_result: PersonDetail) -> None:
 
     staff_index_result |= mapped_data
 
-    index_staff_document(staff_document=StaffDocument.from_dict(staff_index_result))
+    staff_document = StaffDocument.from_dict(staff_index_result)
+    update_staff_document(
+        id=staff_document.staff_sso_email_user_id,
+        staff_document=staff_document.to_dict(),
+        upsert=True,
+    )
 
     return None
 
