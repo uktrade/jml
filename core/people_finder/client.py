@@ -1,7 +1,7 @@
 import json
 import logging
 import urllib.parse
-from typing import Any, Iterator, List, Optional, TypedDict
+from typing import Iterator, List, Optional, TypedDict
 
 import requests
 from django.conf import settings
@@ -14,15 +14,23 @@ class FailedToGetPersonRecord(Exception):
     pass
 
 
+class Role(TypedDict):
+    role: str
+    team_name: str
+    team_id: int
+    leader: bool
+
+
 class Person(TypedDict):
+    sso_user_id: Optional[str]
     first_name: str
     last_name: str
+    roles: List[Role]
+    email: str
+    primary_phone_number: Optional[str]
+    grade: Optional[str]
     photo: Optional[str]
     photo_small: Optional[str]
-    email: str
-    grade: str
-    primary_phone_number: str
-    roles: List[Any]
 
 
 def get_sender(url, content_type):
@@ -75,12 +83,12 @@ class PeopleFinderIterator(Iterator):
 
         return value
 
-    def next_page(self):
+    def next_page(self) -> None:
         if not self.next_url or self.current_url == self.next_url:
             raise StopIteration
         self.current_url = self.next_url
 
-    def call_api(self):
+    def call_api(self) -> None:
         if not self.current_url:
             raise StopIteration
 
