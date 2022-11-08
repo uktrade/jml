@@ -19,7 +19,7 @@ else:
 
 
 def create_user(
-    first_name: str, last_name: str, email: str, group: Group
+    first_name: str, last_name: str, email: str, group: Optional[Group] = None
 ) -> Tuple["User", bool, ActivityStreamStaffSSOUser]:
     created = False
     try:
@@ -41,7 +41,8 @@ def create_user(
         user.save()
         created = True
 
-    user.groups.add(group)
+    if group:
+        user.groups.add(group)
 
     staff_sso_user, _ = ActivityStreamStaffSSOUser.objects.get_or_create(
         email_user_id=user.sso_email_user_id,
