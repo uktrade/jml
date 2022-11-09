@@ -1,0 +1,20 @@
+{% extends "leaving/leaving_base.html" %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <a href="{% url 'staff-type' %}" class="govuk-back-link">Back</a>
+        </div>
+    </div>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">{{ page_title }}</h1>
+            <p class="govuk-body">If you are part of the Civil Service Fast Stream, speak with your line manager.</p>
+            <p class="govuk-body">
+                If you need help, email <a class="govuk-link" href="mailto:{{ DIT_OFFBOARDING_EMAIL }}">{{ DIT_OFFBOARDING_EMAIL }}</a>
+            </p>
+            <p class="govuk-body">
+                Go to <a class="govuk-link" href="https://workspace.trade.gov.uk/">Digital Workspace</a>
+            </p>
+        </div>
+    </div>
+{% endblock content %}

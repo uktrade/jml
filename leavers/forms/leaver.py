@@ -61,7 +61,7 @@ class WhyAreYouLeavingForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field.radios("reason"),
-            Submit("submit", "next"),
+            Submit("submit", "Next"),
         )
 
 
@@ -96,11 +96,6 @@ class EmploymentProfileForm(forms.Form):
     last_name = forms.CharField(label="")
     date_of_birth = DateInputField(label="")
     job_title = forms.CharField(label="")
-    staff_type = forms.ChoiceField(
-        label="",
-        widget=forms.RadioSelect,
-        choices=StaffType.choices,
-    )
     security_clearance = forms.ChoiceField(
         label="",
         choices=(
@@ -139,11 +134,6 @@ class EmploymentProfileForm(forms.Form):
             Fieldset(
                 Field.text("job_title", field_width=Fluid.TWO_THIRDS),
                 legend="Job title",
-                legend_size=Size.SMALL,
-            ),
-            Fieldset(
-                Field.radios("staff_type"),
-                legend="What staff type are you?",
                 legend_size=Size.SMALL,
             ),
             Fieldset(

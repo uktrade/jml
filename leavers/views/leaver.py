@@ -32,7 +32,7 @@ from leavers import types
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation, LeavingRequest
-from leavers.types import LeavingReason
+from leavers.types import LeavingReason, StaffType
 from leavers.utils.leaving_request import update_or_create_leaving_request
 from leavers.workflow.utils import get_or_create_leaving_workflow
 from user.models import User
@@ -311,7 +311,7 @@ class WhyAreYouLeavingView(LeaverInformationMixin, FormView):
 
     def get_success_url(self) -> str:
         reason_mapping = {
-            LeavingReason.RETIREMENT: reverse_lazy("staff-type"),
+            LeavingReason.RESIGNATION: reverse_lazy("staff-type"),
             LeavingReason.RETIREMENT: reverse_lazy("leaving-reason-unhandled"),
             LeavingReason.TRANSFER: reverse_lazy("leaving-reason-unhandled"),
         }
@@ -377,12 +377,59 @@ class StaffTypeView(LeaverInformationMixin, FormView):
             return redirect(reverse("leaver-request-received"))
         return super().dispatch(request, *args, **kwargs)
 
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+
+        initial.update(
+            staff_type=self.leaving_request.staff_type,
+        )
+
+        return initial
+
     def form_valid(self, form) -> HttpResponse:
+        staff_type = StaffType(form.cleaned_data["staff_type"])
+
+        if staff_type == StaffType.FAST_STREAMERS:
+            self.success_url = reverse_lazy("leaver-fast-streamer")
+        else:
+            self.leaving_request.staff_type = staff_type
+            self.leaving_request.save(update_fields=["staff_type"])
+
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context.update(page_title="How are you employed by DIT?")
+        return context
+
+
+class LeaverFastStreamerView(LeaverInformationMixin, TemplateView):
+    template_name = "leaving/leaver/fast_streamer.html"
+
+    leaving_request: LeavingRequest
+    leaver_info: LeaverInformation
+
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
+        sso_email_user_id = user.sso_email_user_id
+        self.leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        if self.leaving_request and self.leaving_request.leaver_complete:
+            return redirect(reverse("leaver-request-received"))
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(page_title="This service is unavailable")
         return context
 
 
@@ -420,7 +467,6 @@ class EmploymentProfileView(LeaverInformationMixin, FormView):
             last_name=self.leaver_info.leaver_last_name,
             date_of_birth=self.leaver_info.leaver_date_of_birth,
             job_title=self.leaver_info.job_title,
-            staff_type=self.leaving_request.staff_type,
             security_clearance=self.leaving_request.security_clearance,
         )
 
@@ -439,16 +485,10 @@ class EmploymentProfileView(LeaverInformationMixin, FormView):
                 "job_title",
             ]
         )
-        self.leaving_request.staff_type = form.cleaned_data["staff_type"]
         self.leaving_request.security_clearance = form.cleaned_data[
             "security_clearance"
         ]
-        self.leaving_request.save(
-            update_fields=[
-                "staff_type",
-                "security_clearance",
-            ]
-        )
+        self.leaving_request.save(update_fields=["security_clearance"])
 
         return super().form_valid(form)
 

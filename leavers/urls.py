@@ -25,7 +25,7 @@ leaver_journey_urlpatterns = decorate_urlpatterns(
             name="why-are-you-leaving",
         ),
         path(
-            "leaver/unhandled-reason/",
+            "leaver/why-are-you-leaving/unhandled-reason/",
             leaver_views.UnhandledLeavingReasonView.as_view(),
             name="leaving-reason-unhandled",
         ),
@@ -33,6 +33,11 @@ leaver_journey_urlpatterns = decorate_urlpatterns(
             "leaver/how-are-you-employed/",
             leaver_views.StaffTypeView.as_view(),
             name="staff-type",
+        ),
+        path(
+            "leaver/how-are-you-employed/fast-streamer/",
+            leaver_views.LeaverFastStreamerView.as_view(),
+            name="leaver-fast-streamer",
         ),
         path(
             "leaver/employment-profile/",
