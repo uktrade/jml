@@ -19,6 +19,7 @@ def global_context(request):
         "COOKIE_RESPONSE": request.COOKIES.get(COOKIE_KEY),
         "GTM_CODE": settings.GTM_CODE,
         "SERVICE_NOW_OFFLINE_URL": settings.SERVICE_NOW_OFFLINE_URL,
+        "DIT_OFFBOARDING_EMAIL": settings.DIT_OFFBOARDING_EMAIL,
         "GPC_RETURN_ADDRESS": settings.GPC_RETURN_ADDRESS,
         "DEV_LINKS": [],
     }

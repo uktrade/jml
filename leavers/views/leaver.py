@@ -32,6 +32,7 @@ from leavers import types
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation, LeavingRequest
+from leavers.types import LeavingReason
 from leavers.utils.leaving_request import update_or_create_leaving_request
 from leavers.workflow.utils import get_or_create_leaving_workflow
 from user.models import User
@@ -268,7 +269,60 @@ class LeaverInformationMixin:
 class WhyAreYouLeavingView(LeaverInformationMixin, FormView):
     template_name = "leaving/leaver/why_are_you_leaving.html"
     form_class = leaver_forms.WhyAreYouLeavingForm
-    success_url = reverse_lazy("staff-type")
+    success_url = reverse_lazy("leaving-reason-unhandled")
+
+    leaving_request: LeavingRequest
+    leaver_info: LeaverInformation
+    leaving_reason: Optional[LeavingReason] = None
+
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
+        sso_email_user_id = user.sso_email_user_id
+        self.leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        if self.leaving_request and self.leaving_request.leaver_complete:
+            return redirect(reverse("leaver-request-received"))
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form) -> HttpResponse:
+        reason: str = form.cleaned_data["reason"]
+
+        try:
+            self.leaving_reason = LeavingReason(reason)
+        except ValueError:
+            # This means that the user has selected "None of the above"
+            pass
+
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(page_title="Why are you leaving DIT?")
+        return context
+
+    def get_success_url(self) -> str:
+        reason_mapping = {
+            LeavingReason.RETIREMENT: reverse_lazy("staff-type"),
+            LeavingReason.RETIREMENT: reverse_lazy("leaving-reason-unhandled"),
+            LeavingReason.TRANSFER: reverse_lazy("leaving-reason-unhandled"),
+        }
+        if self.leaving_reason in reason_mapping:
+            return reason_mapping[self.leaving_reason]
+
+        return super().get_success_url()
+
+
+class UnhandledLeavingReasonView(LeaverInformationMixin, TemplateView):
+    template_name = "leaving/leaver/unhandled_reason.html"
 
     leaving_request: LeavingRequest
     leaver_info: LeaverInformation
@@ -291,12 +345,9 @@ class WhyAreYouLeavingView(LeaverInformationMixin, FormView):
             return redirect(reverse("leaver-request-received"))
         return super().dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form) -> HttpResponse:
-        return super().form_valid(form)
-
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(page_title="Why are you leaving DIT?")
+        context.update(page_title="This service is unavailable")
         return context
 
 
@@ -331,7 +382,7 @@ class StaffTypeView(LeaverInformationMixin, FormView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(page_title="Why are you leaving DIT?")
+        context.update(page_title="How are you employed by DIT?")
         return context
 
 
@@ -546,7 +597,6 @@ class LeaverFindDetailsHelpView(LeaverInformationMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context.update(
             page_title="Please reach out to our support team",
-            DIT_OFFBOARDING_EMAIL=settings.DIT_OFFBOARDING_EMAIL,
         )
         return context
 

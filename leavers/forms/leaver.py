@@ -35,11 +35,24 @@ class LeaverConfirmationForm(forms.Form):
         )
 
 
+# Build a new choice list using the TextChoices.
+LEAVING_CHOICES = [
+    Choice(
+        choice.value,
+        choice.label,
+    )
+    for choice in LeavingReason
+]
+# Add the "or" divider and the "None of the above" option.
+LEAVING_CHOICES[-1].divider = "or"
+LEAVING_CHOICES.append(Choice("none_of_the_above", "None of the above"))
+
+
 class WhyAreYouLeavingForm(forms.Form):
     reason = forms.ChoiceField(
         label="",
         widget=forms.RadioSelect,
-        choices=LeavingReason.choices + [("none_of_the_above", "None of the above")],
+        choices=LEAVING_CHOICES,
     )
 
     def __init__(self, *args, **kwargs):
