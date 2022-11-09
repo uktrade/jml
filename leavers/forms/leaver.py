@@ -22,7 +22,7 @@ from django.utils import timezone
 
 from core.forms import YesNoField
 from core.staff_search.forms import staff_search_autocomplete_field
-from leavers.types import ReturnOptions, SecurityClearance, StaffType
+from leavers.types import LeavingReason, ReturnOptions, SecurityClearance, StaffType
 
 
 class LeaverConfirmationForm(forms.Form):
@@ -32,6 +32,40 @@ class LeaverConfirmationForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Submit("submit", "Accept and send"),
+        )
+
+
+class WhyAreYouLeavingForm(forms.Form):
+    reason = forms.ChoiceField(
+        label="",
+        widget=forms.RadioSelect,
+        choices=LeavingReason.choices + [("none_of_the_above", "None of the above")],
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.radios("reason"),
+            Submit("submit", "next"),
+        )
+
+
+class StaffTypeForm(forms.Form):
+    staff_type = forms.ChoiceField(
+        label="",
+        widget=forms.RadioSelect,
+        choices=StaffType.choices,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.radios("staff_type"),
+            Submit("submit", "Next"),
         )
 
 

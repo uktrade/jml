@@ -5,14 +5,14 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <a href="{% url 'staff-type' %}" class="govuk-back-link">Back</a>
+            <a href="{% url 'start' %}" class="govuk-back-link">Back</a>
             {% error_summary form %}
         </div>
     </div>
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <span class="govuk-caption-l">Page 3 of 9</span>
+            <span class="govuk-caption-l">Page 1 of 9</span>
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             {% crispy form %}
         </div>

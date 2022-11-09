@@ -53,7 +53,7 @@ class LeaversStartView(TemplateView):
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(start_url=reverse("employment-profile"))
+        context.update(start_url=reverse("why-are-you-leaving"))
         return context
 
 
@@ -263,6 +263,76 @@ class LeaverInformationMixin:
             leaving_request=leaving_request,
             executed_by=requester,
         )
+
+
+class WhyAreYouLeavingView(LeaverInformationMixin, FormView):
+    template_name = "leaving/leaver/why_are_you_leaving.html"
+    form_class = leaver_forms.WhyAreYouLeavingForm
+    success_url = reverse_lazy("staff-type")
+
+    leaving_request: LeavingRequest
+    leaver_info: LeaverInformation
+
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
+        sso_email_user_id = user.sso_email_user_id
+        self.leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        if self.leaving_request and self.leaving_request.leaver_complete:
+            return redirect(reverse("leaver-request-received"))
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form) -> HttpResponse:
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(page_title="Why are you leaving DIT?")
+        return context
+
+
+class StaffTypeView(LeaverInformationMixin, FormView):
+    template_name = "leaving/leaver/staff_type.html"
+    form_class = leaver_forms.StaffTypeForm
+    success_url = reverse_lazy("employment-profile")
+
+    leaving_request: LeavingRequest
+    leaver_info: LeaverInformation
+
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        user = cast(User, self.request.user)
+
+        assert user.sso_email_user_id
+
+        sso_email_user_id = user.sso_email_user_id
+        self.leaving_request = self.get_leaving_request(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        self.leaver_info = self.get_leaver_information(
+            sso_email_user_id=sso_email_user_id, requester=user
+        )
+        if self.leaving_request and self.leaving_request.leaver_complete:
+            return redirect(reverse("leaver-request-received"))
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form) -> HttpResponse:
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(page_title="Why are you leaving DIT?")
+        return context
 
 
 class EmploymentProfileView(LeaverInformationMixin, FormView):

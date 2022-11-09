@@ -20,6 +20,12 @@ class SecurityClearance(TextChoices):
     EDV = "edv", "Enhanced Developed Vetting (eDV)"
 
 
+class LeavingReason(TextChoices):
+    RESIGNATION = "resignation", "Resignation"
+    RETIREMENT = "retirement", "Retirement"
+    TRANSFER = "transfer", "Transferring to another civil service role"
+
+
 class StaffType(TextChoices):
     CIVIL_SERVANT = "civil_servant", "Civil servant"
     CONTRACTOR = "contractor", "Contractor (for example, Hays)"
