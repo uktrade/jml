@@ -88,7 +88,6 @@ class EmploymentProfileForm(forms.Form):
         "last_name": "Please tell us your last name.",  # /PS-IGNORE
         "date_of_birth": "Please tell us your date of birth.",
         "job_title": "Please tell us your job title.",
-        "staff_type": "Please select your staff type.",
         "security_clearance": "Please select your security clearance from the list.",
     }
 
