@@ -7,7 +7,7 @@ from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import resolve, reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import RedirectView, TemplateView
 from django.views.generic.edit import FormView
@@ -100,8 +100,19 @@ class LeaverInformationMixin:
         self.leaver_info = self.get_leaver_information(
             sso_email_user_id=sso_email_user_id, requester=user
         )
-        if self.leaving_request and self.leaving_request.leaver_complete:
-            return redirect(reverse("leaver-request-received"))
+        if self.leaving_request:
+            current_url = resolve(request.path_info).url_name
+            current_url_is_request_received = bool(
+                current_url == "leaver-request-received"
+            )
+
+            if self.leaving_request.leaver_complete:
+                if current_url_is_request_received:
+                    return None
+                return redirect(reverse("leaver-request-received"))
+            elif current_url_is_request_received:
+                raise Http404
+
         return None
 
     def dispatch(
@@ -1107,22 +1118,6 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
 
 class RequestReceivedView(LeaverInformationMixin, TemplateView):
     template_name = "leaving/leaver/request_received.html"
-
-    def pre_dispatch(self, request: HttpRequest) -> Optional[HttpResponseBase]:
-        user = cast(User, request.user)
-
-        assert user.sso_email_user_id
-
-        sso_email_user_id = user.sso_email_user_id
-        self.leaving_request = self.get_leaving_request(
-            sso_email_user_id=sso_email_user_id, requester=user
-        )
-        self.leaver_info = self.get_leaver_information(
-            sso_email_user_id=sso_email_user_id, requester=user
-        )
-        if self.leaving_request and self.leaving_request.leaver_complete:
-            return None
-        raise Http404
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
