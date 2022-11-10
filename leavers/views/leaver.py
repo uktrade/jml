@@ -121,7 +121,7 @@ class LeaverInformationMixin:
         pre_dispatch_response = self.pre_dispatch(request)
         if pre_dispatch_response:
             return pre_dispatch_response
-        return super().dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)  # type: ignore
 
     def get_leaver_activitystream_user(
         self, sso_email_user_id: str
@@ -137,6 +137,7 @@ class LeaverInformationMixin:
                 raise Exception(
                     f"Unable to find leaver '{sso_email_user_id}' in the Staff SSO ActivityStream."
                 )
+        assert self.leaver_activitystream_user
         return self.leaver_activitystream_user
 
     def get_leaving_request(
@@ -349,8 +350,9 @@ class StaffTypeView(LeaverInformationMixin, FormView):
     success_url = reverse_lazy("employment-profile")
 
     def get_initial(self) -> Dict[str, Any]:
-        initial = super().get_initial()
+        assert self.leaving_request
 
+        initial = super().get_initial()
         initial.update(
             staff_type=self.leaving_request.staff_type,
         )
@@ -358,6 +360,8 @@ class StaffTypeView(LeaverInformationMixin, FormView):
         return initial
 
     def form_valid(self, form) -> HttpResponse:
+        assert self.leaving_request
+
         staff_type = StaffType(form.cleaned_data["staff_type"])
 
         if staff_type == StaffType.FAST_STREAMERS:
@@ -389,8 +393,10 @@ class EmploymentProfileView(LeaverInformationMixin, FormView):
     success_url = reverse_lazy("leaver-find-details")
 
     def get_initial(self) -> Dict[str, Any]:
-        initial = super().get_initial()
+        assert self.leaver_info
+        assert self.leaving_request
 
+        initial = super().get_initial()
         initial.update(
             first_name=self.leaver_info.leaver_first_name,
             last_name=self.leaver_info.leaver_last_name,
@@ -402,6 +408,9 @@ class EmploymentProfileView(LeaverInformationMixin, FormView):
         return initial
 
     def form_valid(self, form) -> HttpResponse:
+        assert self.leaver_info
+        assert self.leaving_request
+
         self.leaver_info.leaver_first_name = form.cleaned_data["first_name"]
         self.leaver_info.leaver_last_name = form.cleaned_data["last_name"]
         self.leaver_info.leaver_date_of_birth = form.cleaned_data["date_of_birth"]
@@ -446,6 +455,8 @@ class LeaverFindDetailsView(LeaverInformationMixin, FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def has_person_id(self) -> bool:
+        assert self.leaving_request
+
         leaver_activitystream_user = cast(
             Optional[ActivityStreamStaffSSOUser],
             self.leaving_request.leaver_activitystream_user,
@@ -542,6 +553,8 @@ class RemoveLineManagerFromLeavingRequestView(LeaverInformationMixin, RedirectVi
     url = reverse_lazy("leaver-dates")
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
+        assert self.leaving_request
+
         self.leaving_request.manager_activitystream_user = None
         self.leaving_request.save(update_fields=["manager_activitystream_user"])
 
@@ -559,6 +572,8 @@ class LeaverDatesView(LeaverInformationMixin, FormView):
         pre_dispatch_response = self.pre_dispatch(request)
         if pre_dispatch_response:
             return pre_dispatch_response
+
+        assert self.leaving_request
 
         self.line_manager: Optional[
             ActivityStreamStaffSSOUser
@@ -601,8 +616,9 @@ class LeaverDatesView(LeaverInformationMixin, FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self) -> Dict[str, Any]:
-        initial = super().get_initial()
+        assert self.leaver_info
 
+        initial = super().get_initial()
         initial.update(
             leaving_date=self.leaver_info.leaving_date,
             last_day=self.leaver_info.last_day,
@@ -621,6 +637,9 @@ class LeaverDatesView(LeaverInformationMixin, FormView):
         return form_kwargs
 
     def form_valid(self, form) -> HttpResponse:
+        assert self.leaver_info
+        assert self.leaving_request
+
         self.leaver_info.leaving_date = form.cleaned_data["leaving_date"]
         self.leaver_info.last_day = form.cleaned_data["last_day"]
         self.leaver_info.save(
@@ -637,6 +656,8 @@ class LeaverDatesView(LeaverInformationMixin, FormView):
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        assert self.leaving_request
+
         context = super().get_context_data(**kwargs)
         manager_activitystream_user = cast(
             Optional[ActivityStreamStaffSSOUser],
@@ -658,8 +679,10 @@ class LeaverHasAssetsView(LeaverInformationMixin, FormView):
     success_url = reverse_lazy("leaver-has-cirrus-equipment")
 
     def get_initial(self) -> Dict[str, Any]:
-        initial = super().get_initial()
+        assert self.leaving_request
+        assert self.leaver_info
 
+        initial = super().get_initial()
         initial.update(
             has_gov_procurement_card=None,
             has_rosa_kit=None,
@@ -688,6 +711,9 @@ class LeaverHasAssetsView(LeaverInformationMixin, FormView):
         return initial
 
     def form_valid(self, form) -> HttpResponse:
+        assert self.leaving_request
+        assert self.leaver_info
+
         self.leaving_request.holds_government_procurement_card = yes_no_to_bool(
             form.cleaned_data["has_gov_procurement_card"]
         )
@@ -1018,8 +1044,9 @@ class LeaverContactDetailsView(LeaverInformationMixin, FormView):
     success_url = reverse_lazy("leaver-confirm-details")
 
     def get_initial(self) -> Dict[str, Any]:
-        initial = super().get_initial()
+        assert self.leaver_info
 
+        initial = super().get_initial()
         initial.update(
             contact_phone=self.leaver_info.contact_phone,
             contact_email_address=self.leaver_info.personal_email,
@@ -1033,6 +1060,8 @@ class LeaverContactDetailsView(LeaverInformationMixin, FormView):
         return initial
 
     def form_valid(self, form) -> HttpResponse:
+        assert self.leaver_info
+
         self.leaver_info.contact_phone = form.cleaned_data.get("contact_phone")
         self.leaver_info.personal_email = form.cleaned_data.get("contact_email_address")
         self.leaver_info.contact_address_line_1 = form.cleaned_data.get(
@@ -1065,6 +1094,8 @@ class LeaverContactDetailsView(LeaverInformationMixin, FormView):
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        assert self.leaver_info
+
         context = super().get_context_data(**kwargs)
         context.update(
             page_title="Personal contact details",
@@ -1079,6 +1110,9 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
     success_url = reverse_lazy("leaver-request-received")
 
     def get_context_data(self, **kwargs):
+        assert self.leaving_request
+        assert self.leaver_info
+
         context = super().get_context_data(**kwargs)
 
         context.update(
@@ -1101,6 +1135,8 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         """
         Check we have all the required information before we continue.
         """
+        assert self.leaving_request
+
         user = cast(User, self.request.user)
 
         assert user.sso_email_user_id
@@ -1120,6 +1156,9 @@ class RequestReceivedView(LeaverInformationMixin, TemplateView):
     template_name = "leaving/leaver/request_received.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        assert self.leaving_request
+        assert self.leaver_info
+
         context = super().get_context_data(**kwargs)
         context.update(
             page_title="Thank you",
