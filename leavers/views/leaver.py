@@ -296,11 +296,8 @@ class WhyAreYouLeavingView(LeaverInformationMixin, FormView):
     def form_valid(self, form) -> HttpResponse:
         reason: str = form.cleaned_data["reason"]
 
-        try:
+        if reason != "none_of_the_above":
             self.leaving_reason = LeavingReason(reason)
-        except ValueError:
-            # This means that the user has selected "None of the above"
-            pass
 
         return super().form_valid(form)
 
