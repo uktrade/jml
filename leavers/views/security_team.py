@@ -368,7 +368,6 @@ class BuidlingPassConfirmationCloseView(
     FormView,
 ):
     template_name = "leaving/security_team/confirmation/building_pass_action.html"
-    page_title: str = "Security Team offboarding: Building pass confirmation"
     form_class = BuildingPassCloseRecordForm
 
     def test_func(self):
@@ -397,11 +396,17 @@ class BuidlingPassConfirmationCloseView(
         self.leaving_request.save()
         return super().form_valid(form)
 
+    def get_page_title(self):
+        possessive_leaver_name = make_possessive(self.leaving_request.get_leaver_name())
+
+        return f"{possessive_leaver_name} Building pass: confirm record is complete"
+
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context.update(
+            leaving_request=self.leaving_request,
             leaving_request_uuid=self.leaving_request.uuid,
-            page_title=self.page_title,
+            page_title=self.get_page_title(),
         )
         return context
 
@@ -486,6 +491,7 @@ class RosaKitConfirmationView(
                 self.leaving_request, rosa_kit_field
             )
             if rosa_task_log:
+                rosa_info["comment"] = rosa_task_log.notes or ""
                 if rosa_task_log.value == RosaKitActions.NOT_STARTED:
                     rosa_info["status_colour"] = "grey"
                     rosa_info["status_text"] = "Not started"

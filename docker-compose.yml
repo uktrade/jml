@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 # Network section required to avoid staff SSO IP collision
 networks:
   inside:
@@ -23,7 +23,7 @@ services:
     volumes:
       - ./setup/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -73,6 +73,7 @@ services:
       context: .
       dockerfile: "docker/Dockerfile.dev"
     networks:
+      - default
       - inside
     env_file: .env
     command: celery -A config.celery worker -l INFO

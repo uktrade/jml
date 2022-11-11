@@ -9,6 +9,7 @@ Usage:
     # Apply limits and skip some data sources.
     python manage.py ingest_staff_data \
         --limit-people-finder=100 \
+        --skip-ingest-staff-records \
         --skip-service-now \
         --skip-index-sso-users \
         --skip-people-finder
@@ -33,15 +34,17 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--limit-people-finder", type=int, default=None)
+        parser.add_argument("--skip-ingest-staff-records", action="store_true")
         parser.add_argument("--skip-index-staff-records", action="store_true")
         parser.add_argument("--skip-people-finder", action="store_true")
         parser.add_argument("--skip-service-now", action="store_true")
 
     def handle(self, *args, **options) -> None:
-        self._run_task(
-            "ingest_staff_records",
-            ingest_activity_stream_task,
-        )
+        if not options["skip_ingest_staff_records"]:
+            self._run_task(
+                "ingest_staff_records",
+                ingest_activity_stream_task,
+            )
 
         if not options["skip_index_staff_records"]:
             self._run_task("index_staff_records", index_sso_users_task)

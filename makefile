@@ -42,81 +42,87 @@ up-detached:
 down:
 	docker-compose down
 
+run = docker-compose run --rm
+manage = python manage.py
+
 first-use:
 	docker-compose down
 	docker-compose up -d db
-	docker-compose run --rm leavers python manage.py createcachetable
-	docker-compose run --rm leavers python manage.py migrate
-	docker-compose run --rm leavers python manage.py initialise_staff_index
-	docker-compose run --rm leavers python manage.py create_test_users
-	docker-compose run --rm leavers python manage.py seed_employee_ids
-	docker-compose run --rm leavers python manage.py update_staff_index
+	$(run) leavers python manage.py createcachetable
+	$(run) leavers python manage.py migrate
+	$(run) leavers python manage.py initialise_staff_index
+	$(run) leavers python manage.py create_test_users
+	$(run) leavers python manage.py seed_employee_ids
+	$(run) leavers python manage.py update_staff_index
 	docker-compose up
 
 check-fixme:
 	! git --no-pager grep -rni fixme -- ':!./makefile' ':!./.circleci/config.yml'
 
 migrations:
-	docker-compose run --rm leavers python manage.py makemigrations
+	$(run) leavers python manage.py makemigrations
 
 empty-migration:
-	docker-compose run --rm leavers python manage.py makemigrations $(app) --empty --name=$(name)
+	$(run) leavers python manage.py makemigrations $(app) --empty --name=$(name)
 
 migrate:
-	docker-compose run --rm leavers python manage.py migrate
+	$(run) leavers python manage.py migrate
 
 checkmigrations:
-	docker-compose run --rm --no-deps leavers python manage.py makemigrations --check
+	$(run) --no-deps leavers python manage.py makemigrations --check
 
 compilescss:
 	npm run build
 
 shell:
-	docker-compose run --rm leavers python manage.py shell
+	$(run) leavers python manage.py shell
 
 utils-shell:
 	docker-compose -f docker-compose.yml -f docker-compose.utils.yml run --rm utils /bin/bash
 
 flake8:
-	docker-compose run --rm leavers flake8 $(file)
+	$(run) leavers flake8 $(file)
 
 black:
-	docker-compose run --rm leavers black .
+	$(run) leavers black .
 
 isort:
-	docker-compose run --rm leavers isort .
+	$(run) leavers isort .
 
 format: black isort
 
 mypy:
-	docker-compose run --rm leavers mypy .
+	$(run) leavers mypy .
 
 collectstatic:
-	docker-compose run --rm leavers python manage.py collectstatic
+	$(run) leavers python manage.py collectstatic
 
 bash:
-	docker-compose run --rm leavers bash
+	$(run) leavers bash
 
 all-requirements:
 	poetry export -f requirements.txt --output requirements.txt --without-hashes --with production --without dev,testing
 
 pytest:
-	docker-compose run --rm leavers pytest --cov --cov-report xml --ds=config.settings.test -raP --capture=sys --ignore=node_modules --ignore=front_end --ignore=features --ignore=staticfiles -n 4
+	$(run) leavers pytest --cov --cov-report xml --ds=config.settings.test -raP --capture=sys --ignore=node_modules --ignore=front_end --ignore=features --ignore=staticfiles -n 4
 
 superuser:
-	docker-compose run --rm leavers python manage.py createsuperuser
+	$(run) leavers python manage.py createsuperuser
 
 test-users:
-	docker-compose run --rm leavers python manage.py create_test_users
+	$(run) leavers python manage.py create_test_users
 
 seed-employee-ids:
-	docker-compose run --rm leavers python manage.py seed_employee_ids
+	$(run) leavers python manage.py seed_employee_ids
 
 model-graphs:
-	docker-compose run --rm leavers python manage.py graph_models -a -g -o jml_data_model.png
+	$(run) leavers python manage.py graph_models -a -g -o jml_data_model.png
 
 ingest-activity-stream:
-	docker-compose run --rm leavers python manage.py ingest_activity_stream --limit=10
+	$(run) leavers python manage.py ingest_activity_stream --limit=10
 
 serve-docs:
 	docker-compose up docs
+
+staff-index:
+	$(run) leavers $(manage) ingest_staff_data --skip-ingest-staff-records --skip-service-now
