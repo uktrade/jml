@@ -1,19 +1,19 @@
 {% extends "leaving/leaving_base.html" %}
 {% load static crispy_forms_tags crispy_forms_gds %}
-
 {% block content %}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <a href="{% url 'leaver-has-cirrus-equipment' %}" class="govuk-back-link">Back</a>
+            <a href="{% url 'leaver-has-cirrus-equipment' %}"
+                class="govuk-back-link">Back</a>
         </div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <span class="govuk-caption-l">Page 5 of 7</span>
+            <span class="govuk-caption-l">Page 7 of 9</span>
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
-            <p class="govuk-body">Tell us about any IT equipment, peripherals or home working equipment that were expensed to DIT over £150.</p>
+            <p class="govuk-body">
+                Tell us about any IT equipment, peripherals or home working equipment that were expensed to DIT over £150.
+            </p>
             <p class="govuk-body">For example:</p>
             <ul class="govuk-list govuk-list--bullet">
                 <li>specialist laptops</li>
@@ -21,19 +21,24 @@
                 <li>standing desks</li>
                 <li>network hardware</li>
             </ul>
-            <p class="govuk-body">You must also return DIT-provided equipment that was not expensed. For example, Apple M1 developer laptops.</p>
+            <p class="govuk-body">
+                You must also return DIT-provided equipment that was not expensed. For example, Apple M1 developer laptops.
+            </p>
             <p class="govuk-body">This does not include:</p>
             <ul class="govuk-list govuk-list--bullet">
                 <li>any expensed equipment under £150</li>
-                <li>any equipment given to you as part of DIT's coronavirus (COVID-19) response (for example, your homeworker's kit)</li>
+                <li>
+                    any equipment given to you as part of DIT's coronavirus (COVID-19) response (for example, your homeworker's kit)
+                </li>
             </ul>
         </div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">Add expensed equipment over £150</h2>
-            <p class="govuk-body">Add brief description of your equipment (for example: developer laptop, standing desk, ergonomic chair).</p>
+            <p class="govuk-body">
+                Add brief description of your equipment (for example: developer laptop, standing desk, ergonomic chair).
+            </p>
             <p class="govuk-body">The IT Ops team will contact you to arrange the return of your equipment.</p>
             {% if dse_assets %}
                 <dl class="govuk-summary-list">
@@ -43,9 +48,8 @@
                                 {{ asset.name }}
                             </dd>
                             <dd class="govuk-summary-list__actions">
-                                <a class="govuk-link" href="{% url 'leaver-display-screen-equipment-delete' asset.uuid %}">
-                                    Remove
-                                </a>
+                                <a class="govuk-link"
+                                    href="{% url 'leaver-display-screen-equipment-delete' asset.uuid %}">Remove</a>
                             </dd>
                         </div>
                     {% endfor %}
@@ -61,7 +65,6 @@
             </form>
         </div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method='post'>
@@ -71,5 +74,4 @@
             </form>
         </div>
     </div>
-
 {% endblock content %}

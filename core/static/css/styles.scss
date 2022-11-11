@@ -8,14 +8,11 @@ $govuk-assets-path: "/static/govuk-frontend/govuk/assets/";
 @import "./core/static/css/pagination";
 @import "./leavers/static/leavers/css/sre_leaving_requests_table";
 
-.leaver-image {
+
+.jml--leaver-image {
     width: 100%;
     margin-bottom: 26px;
     border: 1px solid black;
-}
-
-.back-link-format {
-    padding-top: 10px !important;
 }
 
 .govuk-back-link {

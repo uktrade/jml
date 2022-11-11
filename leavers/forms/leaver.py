@@ -22,7 +22,7 @@ from django.utils import timezone
 
 from core.forms import YesNoField
 from core.staff_search.forms import staff_search_autocomplete_field
-from leavers.types import ReturnOptions, SecurityClearance, StaffType
+from leavers.types import LeavingReason, ReturnOptions, SecurityClearance, StaffType
 
 
 class LeaverConfirmationForm(forms.Form):
@@ -35,13 +35,59 @@ class LeaverConfirmationForm(forms.Form):
         )
 
 
+# Build a new choice list using the TextChoices.
+LEAVING_CHOICES = [
+    Choice(
+        choice.value,
+        choice.label,
+    )
+    for choice in LeavingReason
+]
+# Add the "or" divider and the "None of the above" option.
+LEAVING_CHOICES[-1].divider = "or"
+LEAVING_CHOICES.append(Choice("none_of_the_above", "None of the above"))
+
+
+class WhyAreYouLeavingForm(forms.Form):
+    reason = forms.ChoiceField(
+        label="",
+        widget=forms.RadioSelect,
+        choices=LEAVING_CHOICES,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.radios("reason"),
+            Submit("submit", "Next"),
+        )
+
+
+class StaffTypeForm(forms.Form):
+    staff_type = forms.ChoiceField(
+        label="",
+        widget=forms.RadioSelect,
+        choices=StaffType.choices,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.radios("staff_type"),
+            Submit("submit", "Next"),
+        )
+
+
 class EmploymentProfileForm(forms.Form):
     required_error_messages: Dict[str, str] = {
         "first_name": "Please tell us your first name.",  # /PS-IGNORE
         "last_name": "Please tell us your last name.",  # /PS-IGNORE
         "date_of_birth": "Please tell us your date of birth.",
         "job_title": "Please tell us your job title.",
-        "staff_type": "Please select your staff type.",
         "security_clearance": "Please select your security clearance from the list.",
     }
 
@@ -49,11 +95,6 @@ class EmploymentProfileForm(forms.Form):
     last_name = forms.CharField(label="")
     date_of_birth = DateInputField(label="")
     job_title = forms.CharField(label="")
-    staff_type = forms.ChoiceField(
-        label="",
-        widget=forms.RadioSelect,
-        choices=StaffType.choices,
-    )
     security_clearance = forms.ChoiceField(
         label="",
         choices=(
@@ -92,11 +133,6 @@ class EmploymentProfileForm(forms.Form):
             Fieldset(
                 Field.text("job_title", field_width=Fluid.TWO_THIRDS),
                 legend="Job title",
-                legend_size=Size.SMALL,
-            ),
-            Fieldset(
-                Field.radios("staff_type"),
-                legend="What staff type are you?",
                 legend_size=Size.SMALL,
             ),
             Fieldset(

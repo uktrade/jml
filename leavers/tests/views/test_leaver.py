@@ -177,7 +177,6 @@ class TestEmploymentProfileView(TestCase):
         leaving_request = LeavingRequest.objects.get(
             leaver_activitystream_user=self.leaver_activity_stream_user
         )
-        self.assertEqual(leaving_request.staff_type, StaffType.CIVIL_SERVANT.value)
         self.assertEqual(leaving_request.security_clearance, SecurityClearance.SC.value)
 
         leaver_info = leaving_request.leaver_information.first()
@@ -913,12 +912,11 @@ class TestRequestReceivedView(TestCase):
         self.client.force_login(self.leaver)
 
         get_response = self.client.get(reverse(self.view_name))
-
-        self.assertEqual(get_response.status_code, 200)
+        self.assertEqual(get_response.status_code, 404)
 
         # Ensure we skip the view if the leaver process is already completed.
         self.leaving_request.leaver_complete = timezone.now()
         self.leaving_request.save()
-        already_completed_response = self.client.get(reverse(self.view_name))
 
+        already_completed_response = self.client.get(reverse(self.view_name))
         self.assertEqual(already_completed_response.status_code, 200)

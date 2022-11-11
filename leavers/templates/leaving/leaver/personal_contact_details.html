@@ -1,28 +1,28 @@
 {% extends "leaving/leaving_base.html" %}
 {% load static crispy_forms_tags crispy_forms_gds %}
-
 {% block content %}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {% if not has_dse %}
-                <a href="{% url 'leaver-has-cirrus-equipment' %}" class="govuk-back-link">Back</a>
+                <a href="{% url 'leaver-has-cirrus-equipment' %}"
+                    class="govuk-back-link">Back</a>
             {% else %}
-                <a href="{% url 'leaver-display-screen-equipment' %}" class="govuk-back-link">Back</a>
+                <a href="{% url 'leaver-display-screen-equipment' %}"
+                    class="govuk-back-link">Back</a>
             {% endif %}
             {% error_summary form %}
         </div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <span class="govuk-caption-l">Page 6 of 7</span>
+            <span class="govuk-caption-l">Page 8 of 9</span>
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
-            <p class="govuk-body">This information will only be used for DIT offboarding purposes (for example, to send your P60).</p>
+            <p class="govuk-body">
+                This information will only be used for DIT offboarding purposes (for example, to send your P60).
+            </p>
             <form novalidate method='post'>
                 {% crispy form %}
             </form>
         </div>
     </div>
-
 {% endblock content %}

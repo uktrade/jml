@@ -20,6 +20,26 @@ leaver_journey_urlpatterns = decorate_urlpatterns(
             name="leaver-manager-search",
         ),
         path(
+            "leaver/why-are-you-leaving/",
+            leaver_views.WhyAreYouLeavingView.as_view(),
+            name="why-are-you-leaving",
+        ),
+        path(
+            "leaver/why-are-you-leaving/unhandled-reason/",
+            leaver_views.UnhandledLeavingReasonView.as_view(),
+            name="leaving-reason-unhandled",
+        ),
+        path(
+            "leaver/how-are-you-employed/",
+            leaver_views.StaffTypeView.as_view(),
+            name="staff-type",
+        ),
+        path(
+            "leaver/how-are-you-employed/fast-streamer/",
+            leaver_views.LeaverFastStreamerView.as_view(),
+            name="leaver-fast-streamer",
+        ),
+        path(
             "leaver/employment-profile/",
             leaver_views.EmploymentProfileView.as_view(),
             name="employment-profile",
