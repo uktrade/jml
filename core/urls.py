@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.urls import include, path
+from django.views.decorators.cache import never_cache
 
 from core.utils.urls import decorate_urlpatterns
 
@@ -17,3 +18,4 @@ public_url_patterns = [
 ]
 
 urlpatterns = private_urlpatterns + public_url_patterns
+urlpatterns = decorate_urlpatterns(urlpatterns, never_cache)
