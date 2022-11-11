@@ -1,7 +1,6 @@
 import uuid
 from typing import Any, Dict, List, Literal, Optional, Type, cast
 
-from django.conf import settings
 from django.forms import Form
 from django.http import Http404
 from django.http.request import HttpRequest
