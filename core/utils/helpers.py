@@ -53,7 +53,9 @@ def is_work_day_and_time() -> bool:
     return False
 
 
-def make_possessive(word: str) -> str:
+def make_possessive(word: Optional[str]) -> str:
+    if not word:
+        return ""
     if word.endswith("s"):
         return word + "'"
     return word + "'s"

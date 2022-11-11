@@ -98,9 +98,11 @@ class BuildingPassCloseRecordForm(forms.Form):
             Div(
                 Submit(
                     "save",
-                    "Close record",
+                    "Confirm record is complete",
                     css_class="govuk-button--warning",
                 ),
+            ),
+            Div(
                 HTML(
                     f"<a href='{cancel_url}' class='govuk-button "
                     "govuk-button--secondary'>Cancel</a>"
