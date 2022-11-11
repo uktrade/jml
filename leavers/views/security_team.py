@@ -487,11 +487,12 @@ class RosaKitConfirmationView(
                 status_text="Not started",
             )
 
+            # Get the action stored against the field
             rosa_task_log: Optional[TaskLog] = getattr(
                 self.leaving_request, rosa_kit_field
             )
+
             if rosa_task_log:
-                rosa_info["comment"] = rosa_task_log.notes or ""
                 if rosa_task_log.value == RosaKitActions.NOT_STARTED:
                     rosa_info["status_colour"] = "grey"
                     rosa_info["status_text"] = "Not started"
@@ -501,6 +502,13 @@ class RosaKitConfirmationView(
                 elif rosa_task_log.value == RosaKitActions.RETURNED:
                     rosa_info["status_colour"] = "green"
                     rosa_info["status_text"] = "Returned"
+
+            # Get the most recent note referring to this field.
+            most_recent_rosa_task_log = self.leaving_request.task_logs.filter(
+                reference=f"LeavingRequest.{rosa_kit_field}"
+            ).last()
+            if most_recent_rosa_task_log:
+                rosa_info["comment"] = most_recent_rosa_task_log.notes or ""
 
             kit_info.append(rosa_info)
 
