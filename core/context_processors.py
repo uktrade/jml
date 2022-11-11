@@ -21,7 +21,9 @@ def global_context(request):
         "SERVICE_NOW_OFFLINE_URL": settings.SERVICE_NOW_OFFLINE_URL,
         "DIT_OFFBOARDING_EMAIL": settings.DIT_OFFBOARDING_EMAIL,
         "GPC_RETURN_ADDRESS": settings.GPC_RETURN_ADDRESS,
+        "JML_TEAM_CONTACT_EMAIL": settings.JML_TEAM_CONTACT_EMAIL,
         "DEV_LINKS": [],
+
     }
 
     if "dev_tools.apps.DevToolsConfig" in settings.INSTALLED_APPS:
