@@ -504,9 +504,13 @@ class RosaKitConfirmationView(
                     rosa_info["status_text"] = "Returned"
 
             # Get the most recent note referring to this field.
-            most_recent_rosa_task_log = self.leaving_request.task_logs.filter(
-                reference=f"LeavingRequest.{rosa_kit_field}"
-            ).last()
+            most_recent_rosa_task_log: Optional[TaskLog] = (
+                self.leaving_request.task_logs.filter(
+                    reference=f"LeavingRequest.{rosa_kit_field}"
+                )
+                .order_by("-created_at")
+                .first()
+            )
             if most_recent_rosa_task_log:
                 rosa_info["comment"] = most_recent_rosa_task_log.notes or ""
 
