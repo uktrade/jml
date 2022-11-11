@@ -466,6 +466,7 @@ Session
 session.</p
 SIM
 sizes="152x152
+sizes="16x16
 Slack
 Slack API
 slack_access_task_log
