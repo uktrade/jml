@@ -67,6 +67,8 @@ services:
       - redis
       - opensearch
     restart: always
+    stdin_open: true
+    tty: true
 
   celery:
     build:
@@ -105,3 +107,5 @@ services:
       - ./:/docs
     ports:
       - "8002:8000"
+    profiles:
+      - docs

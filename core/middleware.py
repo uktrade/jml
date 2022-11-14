@@ -42,7 +42,11 @@ class IndexCurrentUser:
 
         if not request.session.get(self.SESSION_KEY, False):
             # Check if the user is authenticated
-            if not request.user.is_authenticated:
+            if not (
+                request.user
+                and request.user.is_authenticated
+                and not request.user.is_anonymous
+            ):
                 return response
 
             user: User = request.user
