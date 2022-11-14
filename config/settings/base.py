@@ -395,9 +395,6 @@ DJANGO_HAWK = {
 # GPC Return Address
 GPC_RETURN_ADDRESS = env.list("GPC_RETURN_ADDRESS", default=[])
 
-# Process leaving requests
-PROCESS_LEAVING_REQUEST = env.bool("PROCESS_LEAVING_REQUEST", default=True)
-
 DIT_OFFBOARDING_EMAIL = env("DIT_OFFBOARDING_EMAIL", default="")
 JML_TEAM_CONTACT_EMAIL = env("JML_TEAM_CONTACT_EMAIL", default="")
 JML_TEAM_EMAILS = env.list("JML_TEAM_EMAILS", default=[])

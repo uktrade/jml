@@ -358,11 +358,6 @@ class ServiceNowInterface(ServiceNowBase):
         leaver_details: leavers_types.LeaverDetails,
         assets: List[types.AssetDetails],
     ):
-        if not settings.PROCESS_LEAVING_REQUEST:
-            full_name = leaver_details["first_name"] + " " + leaver_details["last_name"]
-            logger.warning(f"Submitting leaver request to Service Now for {full_name}")
-            return None
-
         leaving_request: "LeavingRequest" = leaver_info.leaving_request
 
         leaver_email = leaving_request.get_leaver_email()

@@ -103,10 +103,7 @@ def email(
     )
 
     # Send all emails to the JML team
-    if settings.PROCESS_LEAVING_REQUEST:
-        email_addresses += settings.JML_TEAM_EMAILS
-    else:
-        email_addresses = settings.JML_TEAM_EMAILS
+    email_addresses += settings.JML_TEAM_EMAILS
 
     for email_address in email_addresses:
         message_response = notification_client.send_email_notification(

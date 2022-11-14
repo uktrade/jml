@@ -44,7 +44,6 @@
 | UKSBS_GET_PEOPLE_HIERARCHY                                       | None                                       | UK SBS People Hierarchy path                                                                           |
 | UKSBS_LEAVER_SUBMISSION_API_URL                                  | None                                       | UK SBS Leaver Submission URL                                                                           |
 | UKSBS_POST_LEAVER_SUBMISSION                                     | None                                       | UK SBS Leaver Submission path                                                                          |
-| PROCESS_LEAVING_REQUEST                                          | true                                       | Set to 'false' if you want to prevent sending leaving request data to the processors.                  |
 | GPC_RETURN_ADDRESS                                               | []                                         | Set as the comma separated list of each address line for the GPC Return Address                        |
 | TEMPLATE_ID_LEAVER_THANK_YOU_EMAIL                               | None                                       |                                                                                                        |
 | TEMPLATE_ID_LEAVER_NOT_IN_UKSBS_HR_REMINDER                      | None                                       |                                                                                                        |

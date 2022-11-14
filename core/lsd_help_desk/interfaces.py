@@ -50,12 +50,6 @@ class LSDHelpDesk(LSDHelpDeskBase):
             raise Exception("No leaving date is set on the Leaving Request")
         leaving_date_str = leaving_date.strftime(DATE_FORMAT_STR)
 
-        if not settings.PROCESS_LEAVING_REQUEST:
-            logger.warning(
-                f"Creating help desk ticket for LSD team regarding {leaver_name}"
-            )
-            return None
-
         # Create a helpdesk /PS-IGNORE
         comment_body = (
             "We have been informed that the following person is "
