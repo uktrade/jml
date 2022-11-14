@@ -1,8 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
 
-from django.conf import settings
-
 from core.uksbs.client import UKSBSClient
 from core.uksbs.types import LeavingData, PersonHierarchyData
 
@@ -113,8 +111,4 @@ class UKSBSInterface(UKSBSBase):
         Submit the leaver form to inform UK SBS of a leaver.
         """
 
-        if not settings.PROCESS_LEAVING_REQUEST:
-            leaver_name = data["templateData"]["leaverEmail"]
-            logger.warning(f"Submitting leaving data to UK SBS for {leaver_name}")
-            return None
         self.client.post_leaver_form(data=data)
