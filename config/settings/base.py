@@ -258,6 +258,17 @@ CRISPY_TEMPLATE_PACK = "gds"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
+
+# Django REST Framework (DRF)
+
+# Pagination
+# https://www.django-rest-framework.org/api-guide/pagination/
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.CursorPagination",
+    "PAGE_SIZE": 100,
+}
+
+
 # Dev tools & Authbroker
 DEV_TOOLS_ENABLED = env.bool("DEV_TOOLS_ENABLED", default=False)
 

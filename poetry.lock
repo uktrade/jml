@@ -568,6 +568,20 @@ djangorestframework = "*"
 mohawk = "*"
 
 [[package]]
+name = "django-hawk-drf"
+version = "0.0.1"
+description = "Authenticate Django Rest Framework Views with django-hawk"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+Django = ">=2.2,<4.1"
+django-hawk = ">=0.0.1,<1.0"
+djangorestframework = "*"
+mohawk = "*"
+
+[[package]]
 name = "django-health-check"
 version = "3.16.5"
 description = "Run checks on services like databases, queue servers, celery processes, etc."
@@ -1942,7 +1956,7 @@ six = ">=1.14.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "eed6667afd7d2ee4f3d5ac205cf549b728b87edf85a51b0f5273ececa1ad2b17"
+content-hash = "2a45ef3caa6697291268e6a2e14d7abc48e52c09eeb456603a8184fb3d6bce3e"
 
 [metadata.files]
 aiohttp = [
@@ -2379,6 +2393,10 @@ django-extensions = [
 django-hawk = [
     {file = "django-hawk-0.0.2.tar.gz", hash = "sha256:f364cf205f6e996ce5f4798e28c979e7ab3edc56a69b8de87a0afdbb54dc27ac"},
     {file = "django_hawk-0.0.2-py3-none-any.whl", hash = "sha256:885daf40d455bccd4991f104d17ca7f39aa8d41a9c406e9a05f3820314eb78a8"},
+]
+django-hawk-drf = [
+    {file = "django-hawk-drf-0.0.1.tar.gz", hash = "sha256:568971ddfc502ee5fdfc9539ff6d19e4ae62c1ec49adf65b62a5021113ca658b"},
+    {file = "django_hawk_drf-0.0.1-py3-none-any.whl", hash = "sha256:0a4cd160dcb339d3dde20c4e178ea866c8a936c07e087999f815e72dc7329ab5"},
 ]
 django-health-check = [
     {file = "django-health-check-3.16.5.tar.gz", hash = "sha256:1edfd49293ccebbce29f9da609c407f307aee240ab799ab4201031341ae78c0f"},
