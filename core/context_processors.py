@@ -23,7 +23,6 @@ def global_context(request):
         "GPC_RETURN_ADDRESS": settings.GPC_RETURN_ADDRESS,
         "JML_TEAM_CONTACT_EMAIL": settings.JML_TEAM_CONTACT_EMAIL,
         "DEV_LINKS": [],
-
     }
 
     if "dev_tools.apps.DevToolsConfig" in settings.INSTALLED_APPS:

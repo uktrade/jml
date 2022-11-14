@@ -58,6 +58,7 @@
 0123123123
 100px
 234px
+4.2926 4.293h-12.986v2h12.896l-4.1855
 7.7-.2
 7</span
 8.7 39.7 21.8l42.7-27.2A97.63
@@ -74,7 +75,10 @@ Annual Leave
 Annual Leave: "
 API
 Apple
+aria-current="page
 aria-describedby="id
+aria-hidden="true
+aria-label="Page
 aria-label="Show
 aria-labelledby="govuk
 AssetDetails
@@ -240,6 +244,7 @@ H021
 has_cirrus_kit
 HAWK_INCOMING_ACCESS_KEY
 HAWK_INCOMING_SECRET_KEY
+height="13
 height="17
 height="30" width="36">
 HELP_DESK_CREDS
