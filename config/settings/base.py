@@ -225,12 +225,6 @@ AUTHENTICATION_BACKENDS = [
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-        "LOCATION": "django_cache_table",
-    }
-}
 
 # Redis
 if "redis" in VCAP_SERVICES:
@@ -242,6 +236,23 @@ if "redis" in VCAP_SERVICES:
     )
 else:
     REDIS_URL = os.environ.get("REDIS_URL", "")
+
+
+# Cache
+# https://docs.djangoproject.com/en/4.0/topics/cache/
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": REDIS_URL,
+        "KEY_PREFIX": "cache",
+    }
+}
+
+
+# Session
+# https://docs.djangoproject.com/en/4.0/topics/http/sessions/
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+
 
 # Celery
 CELERY_BROKER_URL = REDIS_URL
