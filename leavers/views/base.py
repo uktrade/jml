@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.search import SearchVector
@@ -151,15 +151,19 @@ class LeavingRequestListing(
         page_number: int = int(self.request.GET.get("page", 1))
         page = paginator.page(page_number)
 
-        pagination_pages: List[int] = []
+        pagination_pages: Set[int] = set([1])
 
-        if page_number - 1 > 1:
-            pagination_pages.append(page_number - 1)
+        if page_number != 1:
+            pagination_pages.add(page_number - 1)
+        pagination_pages.add(page_number)
+        if page_number != paginator.num_pages:
+            pagination_pages.add(page_number + 1)
+            pagination_pages.add(paginator.num_pages)
 
-        pagination_pages.append(page_number)
-
-        if page_number + 1 < paginator.num_pages:
-            pagination_pages.append(page_number + 1)
+        # Cleanup the pagination pages set
+        pagination_pages.discard(0)
+        # Sort the set
+        pagination_pages = set(sorted(pagination_pages))
 
         context.update(page=page, pagination_pages=pagination_pages)
 

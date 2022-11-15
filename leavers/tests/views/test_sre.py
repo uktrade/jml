@@ -36,7 +36,10 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
             response,
             "Showing <b>1</b> to <b>19</b> of <b>19</b> outstanding leaving requests",
         )
-        self.assertNotContains(response, '<nav class="pagination')
+        self.assertNotContains(
+            response,
+            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+        )
 
     def test_pagination_multiple_pages_page_1(self) -> None:
         LeavingRequestFactory.create_batch(
@@ -56,7 +59,10 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
             response,
             "Showing <b>1</b> to <b>20</b> of <b>50</b> outstanding leaving requests",
         )
-        self.assertContains(response, '<nav class="pagination')
+        self.assertContains(
+            response,
+            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+        )
 
     def test_pagination_multiple_pages_page_2(self) -> None:
         LeavingRequestFactory.create_batch(
@@ -76,7 +82,10 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
             response,
             "Showing <b>21</b> to <b>40</b> of <b>50</b> outstanding leaving requests",
         )
-        self.assertContains(response, '<nav class="pagination')
+        self.assertContains(
+            response,
+            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+        )
 
     def test_search(self) -> None:
         LeavingRequestFactory.create_batch(
@@ -133,7 +142,10 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
             response,
             "Showing <b>1</b> to <b>19</b> of <b>19</b> complete leaving requests",
         )
-        self.assertNotContains(response, '<nav class="pagination')
+        self.assertNotContains(
+            response,
+            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+        )
 
     def test_pagination_multiple_pages_page_1(self) -> None:
         LeavingRequestFactory.create_batch(
@@ -154,7 +166,10 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
             response,
             "Showing <b>1</b> to <b>20</b> of <b>50</b> complete leaving requests",
         )
-        self.assertContains(response, '<nav class="pagination')
+        self.assertContains(
+            response,
+            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+        )
 
     def test_pagination_multiple_pages_page_2(self) -> None:
         LeavingRequestFactory.create_batch(
@@ -175,7 +190,10 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
             response,
             "Showing <b>21</b> to <b>40</b> of <b>50</b> complete leaving requests",
         )
-        self.assertContains(response, '<nav class="pagination')
+        self.assertContains(
+            response,
+            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+        )
 
     def test_search(self) -> None:
         LeavingRequestFactory.create_batch(
