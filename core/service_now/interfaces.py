@@ -150,7 +150,14 @@ class ServiceNowStubbed(ServiceNowBase):
     def get_locations(self) -> List[types.LocationDetails]:
         logger.info("Getting locations")
         test_locations: List[types.LocationDetails] = [
-            {},
+            {
+                "sys_id": "1",
+                "name": "Location 1",
+            },
+            {
+                "sys_id": "2",
+                "name": "Location 2",
+            },
         ]
         return test_locations
 
