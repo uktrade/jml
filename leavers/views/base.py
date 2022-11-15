@@ -163,7 +163,7 @@ class LeavingRequestListing(
         # Cleanup the pagination pages set
         pagination_pages.discard(0)
         # Sort the set
-        pagination_pages = sorted(pagination_pages)
+        pagination_pages = set(sorted(pagination_pages))
 
         context.update(page=page, pagination_pages=pagination_pages)
 
