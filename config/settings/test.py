@@ -20,6 +20,15 @@ if "core.middleware.IndexCurrentUser" in MIDDLEWARE:
     MIDDLEWARE.remove("core.middleware.IndexCurrentUser")
 
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "cache-for-testing",
+        "KEY_PREFIX": "cache",
+    }
+}
+
+
 # EMAIL TEMPLATES
 TEMPLATE_ID_LEAVER_THANK_YOU_EMAIL = "xxx"
 TEMPLATE_ID_LEAVER_NOT_IN_UKSBS_HR_REMINDER = "xxx"
