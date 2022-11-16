@@ -176,6 +176,10 @@ AUTHBROKER_URL = env("AUTHBROKER_URL", default=None)
 AUTHBROKER_CLIENT_ID = env("AUTHBROKER_CLIENT_ID", default=None)
 AUTHBROKER_CLIENT_SECRET = env("AUTHBROKER_CLIENT_SECRET", default=None)
 AUTHBROKER_SCOPES = "read write"
+AUTHBROKER_ANONYMOUS_URL_NAMES = (
+    "leaving-requests-list",
+    "leaving-requests-detail",
+)
 
 LOGIN_URL = "/auth/login"
 LOGIN_REDIRECT_URL = "/"  # "leavers:leavers_form"
