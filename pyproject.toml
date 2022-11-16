@@ -85,3 +85,40 @@ bpython = "^0.23"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+src_paths = ["config", "core", "leavers", "user", "activity_stream"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "--ds=config.settings.test --ignore=node_modules"
+
+[tool.mypy]
+python_version = "3.9"
+plugins = ["mypy_django_plugin.main"]
+exclude = ["staticfiles"]
+
+[[tool.mypy.overrides]]
+module = [
+    "authbroker_client.*",
+    "celery.*",
+    "crispy_forms_gds.*",
+    "django_log_formatter_ecs.*",
+    "django_workflow_engine.*",
+    "elasticsearch_dsl.*",
+    "environ.*",
+    "factory.*",
+    "health_check.*",
+    "help_desk_client.*",
+    "mohawk.*",
+    "opensearch_dsl.*",
+    "requests_hawk.*",
+    "requests_oauthlib.*",
+    "rest_framework.*",
+    "zenpy.*",
+]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings.test"
