@@ -104,7 +104,10 @@ all-requirements:
 	poetry export -f requirements.txt --output requirements.txt --without-hashes --with production --without dev,testing
 
 pytest:
-	$(run) leavers pytest --cov --cov-report xml --ds=config.settings.test -raP --capture=sys --ignore=node_modules --ignore=front_end --ignore=features --ignore=staticfiles -n 4
+	$(run) leavers pytest --cov --cov-report html -raP --capture=sys -n 4
+
+view-coverage:
+	python -m webbrowser -t htmlcov/index.html
 
 superuser:
 	$(run) leavers python manage.py createsuperuser
