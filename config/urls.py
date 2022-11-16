@@ -14,7 +14,7 @@ private_urlpatterns = [
 private_urlpatterns = decorate_urlpatterns(private_urlpatterns, login_required)
 
 router = routers.DefaultRouter()
-router.register("leavers", LeavingRequestViewSet)
+router.register("leaving-requests", LeavingRequestViewSet, basename="leaving-requests")
 
 public_url_patterns = [
     path("", include("core.urls")),
