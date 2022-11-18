@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from datetime import timedelta
-from typing import Any, Dict, List, Literal, Optional, Set, Tuple
+from typing import Any, Dict, List, Literal, Optional, Set, Tuple, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.search import SearchVector
@@ -9,7 +9,8 @@ from django.db.models import Value
 from django.db.models.functions import Concat
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseBase
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic.edit import FormView
@@ -51,10 +52,15 @@ class LeavingRequestListing(
         self.show_complete = show_complete
         self.show_incomplete = show_incomplete
 
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+        initial["query"] = self.query
+        return initial
+
     def get_leaving_requests(
         self,
-        order_by: List[str],
-        order_direction: Literal["asc", "desc"],
+        order_by: Optional[str] = None,
+        order_direction: Literal["asc", "desc"] = "asc",
     ) -> QuerySet[LeavingRequest]:
         leaving_requests: QuerySet[LeavingRequest] = LeavingRequest.objects.all()
         complete_field = self.get_complete_field()
@@ -100,7 +106,10 @@ class LeavingRequestListing(
         # Return filtered and searched leaving requests
         return leaving_requests
 
-    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        self.query = request.GET.get("query", "")
         self.table_header = self.get_table_header()
         self.order_by, self.order_direction = self.get_ordering(request)
         self.leaving_requests = self.get_leaving_requests(
@@ -111,7 +120,7 @@ class LeavingRequestListing(
 
     def get_leaving_request_data(self) -> List[Dict[str, str]]:
         fields_to_display = [field[0] for field in self.fields]
-        lr_results_data = []
+        lr_results_data: List[Dict[str, str]] = []
         for lr in self.leaving_requests:
             complete_field = self.get_complete_field()
             is_complete: Optional[bool] = None
@@ -211,22 +220,31 @@ class LeavingRequestListing(
 
         return table_header
 
-    def get_ordering(self, request: HttpRequest) -> Tuple[List[str], str]:
+    def get_ordering(
+        self, request: HttpRequest
+    ) -> Tuple[Optional[str], Literal["asc", "desc"]]:
         assert self.table_header
 
         order_by = request.GET.get("order_by", "last_working_day")
-        object_ordering_field_names = []
+        object_ordering_field_name = None
         object_ordering_direction = request.GET.get("order_direction", "asc")
 
         for header_item in self.table_header:
             if header_item[0] == order_by:
-                object_ordering_field_names = header_item[2]["order_by_field_name"]
+                object_ordering_field_name = header_item[2].get("order_by_field_name")
                 object_ordering_direction = (
                     header_item[2]["order_by_direction"] or object_ordering_direction
                 )
                 break
 
-        return object_ordering_field_names, object_ordering_direction
+        if object_ordering_direction not in ["asc", "desc"]:
+            object_ordering_direction = "asc"
+
+        object_ordering_direction = cast(
+            Literal["asc", "desc"],
+            object_ordering_direction,
+        )
+        return object_ordering_field_name, object_ordering_direction
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -293,4 +311,9 @@ class LeavingRequestListing(
 
     def form_valid(self, form: Any) -> HttpResponse:
         self.query = form.cleaned_data["query"]
-        return self.render_to_response(self.get_context_data(form=form))
+        return redirect(
+            f"{self.request.path}"
+            f"?query={self.query}"
+            f"&show_complete={self.show_complete}"
+            f"&show_incomplete={self.show_incomplete}"
+        )

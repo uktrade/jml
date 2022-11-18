@@ -46,7 +46,7 @@ class LeavingRequestListing(base.LeavingRequestListing):
 
     def get_leaving_requests(
         self,
-        order_by: List[str],
+        order_by: str,
         order_direction: Literal["asc", "desc"],
     ) -> QuerySet[LeavingRequest]:
         leaving_requests = super().get_leaving_requests(
