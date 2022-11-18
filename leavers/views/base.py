@@ -1,10 +1,14 @@
+from collections import OrderedDict
 from datetime import timedelta
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Literal, Optional, Set, Tuple
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
+from django.db.models import Value
+from django.db.models.functions import Concat
 from django.db.models.query import QuerySet
+from django.http.request import HttpRequest
 from django.http.response import HttpResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -27,15 +31,15 @@ class LeavingRequestListing(
     show_incomplete: bool = False
     confirmation_view: str = ""
     summary_view: str = ""
-    fields: List[str] = [
-        "leaver_name",
-        "security_clearance",
-        "work_email",
-        "leaving_date",
-        "last_working_day",
-        "days_until_last_working_day",
-        "reported_on",
-        "complete",
+    fields: List[Tuple[str, str]] = [
+        ("leaver_name", "Leaver's name"),
+        ("security_clearance", "Security Clearance level"),
+        ("work_email", "Email"),
+        ("leaving_date", "Leaving date"),
+        ("last_working_day", "Last working day"),
+        ("days_until_last_working_day", "Days left"),
+        ("reported_on", "Reported on"),
+        ("complete", "Status"),
     ]
 
     def __init__(
@@ -47,7 +51,11 @@ class LeavingRequestListing(
         self.show_complete = show_complete
         self.show_incomplete = show_incomplete
 
-    def get_leaving_requests(self) -> QuerySet[LeavingRequest]:
+    def get_leaving_requests(
+        self,
+        order_by: List[str],
+        order_direction: Literal["asc", "desc"],
+    ) -> QuerySet[LeavingRequest]:
         leaving_requests: QuerySet[LeavingRequest] = LeavingRequest.objects.all()
         complete_field = self.get_complete_field()
         if complete_field:
@@ -73,28 +81,38 @@ class LeavingRequestListing(
             )
             leaving_requests = leaving_requests.filter(search=self.query)
 
+        # Add annotations to make ordering easier
+        leaving_requests = leaving_requests.annotate(
+            # Concatonate first and last name. /PS-IGNORE
+            leaver_name=Concat(
+                "leaver_activitystream_user__first_name",
+                Value(" "),
+                "leaver_activitystream_user__last_name",
+            ),
+        )
+
+        if order_by:
+            if order_direction == "asc":
+                leaving_requests = leaving_requests.order_by(order_by)
+            else:
+                leaving_requests = leaving_requests.order_by(f"-{order_by}")
+
         # Return filtered and searched leaving requests
         return leaving_requests
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(
-            show_complete=self.show_complete,
-            show_incomplete=self.show_incomplete,
-            fields=self.fields,
+    def dispatch(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        self.table_header = self.get_table_header()
+        self.order_by, self.order_direction = self.get_ordering(request)
+        self.leaving_requests = self.get_leaving_requests(
+            order_by=self.order_by,
+            order_direction=self.order_direction,
         )
+        return super().dispatch(request, *args, **kwargs)
 
-        # Set object type name
-        object_type_name = self.get_object_type_name()
-        context.update(
-            object_type_name=object_type_name,
-            page_title=self.get_page_title(object_type_name),
-        )
-
-        # Build the results
-        leaving_requests = self.get_leaving_requests()
+    def get_leaving_request_data(self) -> List[Dict[str, str]]:
+        fields_to_display = [field[0] for field in self.fields]
         lr_results_data = []
-        for lr in leaving_requests:
+        for lr in self.leaving_requests:
             complete_field = self.get_complete_field()
             is_complete: Optional[bool] = None
             if complete_field:
@@ -114,7 +132,7 @@ class LeavingRequestListing(
                 "complete": is_complete,
                 "security_clearance": "Not yet known",
                 "leaving_date": "Not yet known",
-                "last_day": "Not yet known",
+                "last_working_day": "Not yet known",
                 "days_until_last_working_day": "Not yet known",
                 "reported_on": "Not yet reported",
             }
@@ -144,7 +162,91 @@ class LeavingRequestListing(
                     days_until_last_working_day=days_until_last_working_day.days,
                 )
 
+            fields_to_display_and_link = fields_to_display + ["link"]
+
+            # Strip out any content we don't want to show.
+            lr_result_data = {
+                key: value
+                for key, value in lr_result_data.items()
+                if key in fields_to_display_and_link
+            }
+            # Sort the dict by the order of the fields.
+            lr_result_data = OrderedDict(
+                sorted(
+                    lr_result_data.items(),
+                    key=lambda x: fields_to_display_and_link.index(x[0]),
+                )
+            )
             lr_results_data.append(lr_result_data)
+        return lr_results_data
+
+    def get_table_header(self) -> List[Tuple[str, str, Dict[str, Optional[str]]]]:
+        table_header = []
+        field_order_by_mapping: Dict[str, str] = {
+            "leaver_name": "leaver_name",
+            "leaving_date": "leaving_date",
+            "last_working_day": "last_day",
+        }
+        field_order_direction_mapping: Dict[str, str] = {
+            "last_working_dat": "asc",
+        }
+
+        for field in self.fields:
+            table_header.append(
+                (
+                    field[0],
+                    field[1],
+                    {
+                        "order_by_field_name": field_order_by_mapping.get(
+                            field[0],
+                            None,
+                        ),
+                        "order_by_direction": field_order_direction_mapping.get(
+                            field[0],
+                            None,
+                        ),
+                    },
+                )
+            )
+
+        return table_header
+
+    def get_ordering(self, request: HttpRequest) -> Tuple[List[str], str]:
+        assert self.table_header
+
+        order_by = request.GET.get("order_by", "last_working_day")
+        object_ordering_field_names = []
+        object_ordering_direction = request.GET.get("order_direction", "asc")
+
+        for header_item in self.table_header:
+            if header_item[0] == order_by:
+                object_ordering_field_names = header_item[2]["order_by_field_name"]
+                object_ordering_direction = (
+                    header_item[2]["order_by_direction"] or object_ordering_direction
+                )
+                break
+
+        return object_ordering_field_names, object_ordering_direction
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        context.update(
+            request=self.request,
+            show_complete=self.show_complete,
+            show_incomplete=self.show_incomplete,
+            table_header=self.get_table_header(),
+            order_by=self.order_by,
+            order_direction=self.order_direction,
+        )
+
+        # Set object type name
+        object_type_name = self.get_object_type_name()
+        context.update(
+            object_type_name=object_type_name,
+            page_title=self.get_page_title(object_type_name),
+        )
+
+        lr_results_data = self.get_leaving_request_data()
 
         # Paginate the results
         paginator = Paginator(lr_results_data, 20)

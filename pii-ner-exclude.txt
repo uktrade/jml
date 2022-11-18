@@ -81,6 +81,7 @@ aria-hidden="true
 aria-label="Page
 aria-label="Show
 aria-labelledby="govuk
+aria-sort="{%
 AssetDetails
 Authbroker                   
 Automation
@@ -503,6 +504,7 @@ Start" %}
 Store DSE
 str
 StreamHandler
+Strip
 super().setUp
 target="_blank">here</a>.</li>
 TaskLog

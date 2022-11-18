@@ -1,76 +1,61 @@
-<table class="govuk-table sre-leaving-requests-table">
+{% load core %}
+<table class="govuk-table">
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-            {% if "leaver_name" in fields %}
-                <th scope="col" class="govuk-table__header">Leaver's name</th>
-            {% endif %}
-            {% if "security_clearance" in fields %}
-                <th scope="col" class="govuk-table__header">Security Clearance level</th>
-            {% endif %}
-            {% if "work_email" in fields %}
-                <th scope="col" class="govuk-table__header">Email</th>
-            {% endif %}
-            {% if "leaving_date" in fields %}
-                <th scope="col" class="govuk-table__header">Leaving date</th>
-            {% endif %}
-            {% if "last_working_day" in fields %}
-                <th scope="col" class="govuk-table__header">Last working day</th>
-            {% endif %}
-            {% if "days_until_last_working_day" in fields %}
-                <th scope="col" class="govuk-table__header">Days left</th>
-            {% endif %}
-            {% if "reported_on" in fields %}
-                <th scope="col" class="govuk-table__header">Reported on</th>
-            {% endif %}
-            {% if "complete" in fields %}
-                <th scope="col" class="govuk-table__header">Status</th>
-            {% endif %}
+            {% for table_header_item in table_header %}
+                <th scope="col"
+                    class="govuk-table__header"
+                    aria-sort="{% spaceless %}{% if not table_header_item.2.order_by_field_name %} none {% else %} {% if order_by == table_header_item.2.order_by_field_name %} {% if order_direction == "asc" %} ascending {% else %} descending {% endif %} {% endif %} {% endif %}{% endspaceless %}">
+                    {% if table_header_item.2.order_by_field_name %}
+                        {% if order_by == table_header_item.2.order_by_field_name %}
+                            {% if order_direction == "asc" %}
+                                <a class="govuk-link"
+                                    href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='desc' %}">{{ table_header_item.1 }}</a>
+                            {% else %}
+                                <a class="govuk-link"
+                                    href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='asc' %}">{{ table_header_item.1 }}</a>
+                            {% endif %}
+                        {% else %}
+                            <a class="govuk-link"
+                                href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='asc' %}">{{ table_header_item.1 }}</a>
+                        {% endif %}
+                    {% else %}
+                        {{ table_header_item.1 }}
+                    {% endif %}
+                </th>
+            {% endfor %}
         </tr>
     </thead>
     <tbody class="govuk-table__body">
         {% for object in page.object_list %}
             <tr class="govuk-table__row">
-                {% if "leaver_name" in fields %}
-                    <th scope="row" class="govuk-table__header">
-                        <a class="govuk-link" href="{{ object.link }}">
-                            {{ object.leaver_name }}
-                        </a>
-                    </th>
-                {% endif %}
-                {% if "security_clearance" in fields %}
-                    <td class="govuk-table__cell">{{ object.security_clearance }}</td>
-                {% endif %}
-                {% if "work_email" in fields %}
-                    <td class="govuk-table__cell">{{ object.work_email }}</td>
-                {% endif %}
-                {% if "leaving_date" in fields %}
-                    <td class="govuk-table__cell">{{ object.leaving_date }}</td>
-                {% endif %}
-                {% if "last_working_day" in fields %}
-                    <td class="govuk-table__cell">{{ object.last_working_day }}</td>
-                {% endif %}
-                {% if "days_until_last_working_day" in fields %}
-                    <td class="govuk-table__cell">{{ object.days_until_last_working_day }}</td>
-                {% endif %}
-                {% if "reported_on" in fields %}
-                    <td class="govuk-table__cell">{{ object.reported_on }}</td>
-                {% endif %}
-                {% if "complete" in fields %}
-                    <td class="govuk-table__cell">
-                        {% if object.complete %}
-                            <strong class="govuk-tag govuk-tag--green">
-                                Complete
-                            </strong>
+                {% for key, value in object.items %}
+                    {% if forloop.first %}
+                        <th scope="row" class="govuk-table__header">
+                    {% else %}
+                        <td class="govuk-table__cell">
+                    {% endif %}
+                    {% if forloop.first %}<a class="govuk-link" href="{{ object.link }}">{% endif %}
+                    {% if key != "link" %}
+                        {% if key == "complete" %}
+                            {% if value %}
+                                <strong class="govuk-tag govuk-tag--green">Complete</strong>
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--grey">Incomplete</strong>
+                            {% endif %}
                         {% else %}
-                            <strong class="govuk-tag govuk-tag--grey">
-                                Incomplete
-                            </strong>
+                            {{ value }}
                         {% endif %}
-                    </td>
-                {% endif %}
+                    {% endif %}
+                    {% if forloop.first %}</a>{% endif %}
+                    {% if forloop.first %}
+                        </th>
+                    {% else %}
+                        </td>
+                    {% endif %}
+                {% endfor %}
             </tr>
         {% endfor %}
     </tbody>
 </table>
-
 {% include "includes/pagination.html" with object_type_name=object_type_name page=page pagination_pages=pagination_pages %}

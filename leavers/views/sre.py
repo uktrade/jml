@@ -31,12 +31,12 @@ class LeavingRequestListing(base.LeavingRequestListing):
     confirmation_view = "sre-detail"
     summary_view = "sre-summary"
     page_title = "SRE access removal"
-    fields = [
-        "leaver_name",
-        "work_email",
-        "last_working_day",
-        "days_until_last_working_day",
-        "complete",
+    fields: List[Tuple[str, str]] = [
+        ("leaver_name", "Leaver's name"),
+        ("work_email", "Email"),
+        ("last_working_day", "Last working day"),
+        ("days_until_last_working_day", "Days left"),
+        ("complete", "Status"),
     ]
 
     def test_func(self):
@@ -44,8 +44,15 @@ class LeavingRequestListing(base.LeavingRequestListing):
             name="SRE",
         ).exists()
 
-    def get_leaving_requests(self) -> QuerySet[LeavingRequest]:
-        leaving_requests = super().get_leaving_requests()
+    def get_leaving_requests(
+        self,
+        order_by: List[str],
+        order_direction: Literal["asc", "desc"],
+    ) -> QuerySet[LeavingRequest]:
+        leaving_requests = super().get_leaving_requests(
+            order_by=order_by,
+            order_direction=order_direction,
+        )
         # Filter out any that haven't been completed by the Line Manager.
         return leaving_requests.exclude(line_manager_complete__isnull=True)
 

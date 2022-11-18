@@ -1,0 +1,48 @@
+[aria-sort] a,
+[aria-sort] a:hover {
+    position: relative;
+}
+
+[aria-sort] a:focus {
+    background-color: $govuk-focus-colour;
+    color: $govuk-focus-text-colour;
+    box-shadow: 0 -2px $govuk-focus-colour, 0 4px $govuk-focus-text-colour;
+    outline: none;
+}
+
+[aria-sort]:first-child a {
+    right: auto;
+}
+
+[aria-sort] a:before {
+    content: "\25bc";
+    position: absolute;
+    left: -10px;
+    top: 9px;
+    font-size: 0.5em;
+}
+
+[aria-sort] a:after {
+    content: "\25b2";
+    position: absolute;
+    left: -10px;
+    top: 1px;
+    font-size: 0.5em;
+}
+
+[aria-sort="ascending"] a:before,
+[aria-sort="descending"] a:before {
+    content: none;
+}
+
+[aria-sort="ascending"] a:after {
+    content: "\25b2";
+    position: static;
+    font-size: .8em;
+}
+
+[aria-sort="descending"] a:after {
+    content: "\25bc";
+    position: static;
+    font-size: .8em;
+}

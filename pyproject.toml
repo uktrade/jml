@@ -23,6 +23,7 @@ django-log-formatter-ecs = "^0.0.5"
 django-staff-sso-client = "^4.0.1"
 django-workflow-engine = "==0.0.21"
 django-elasticsearch-dsl = "^7.2.1"
+django-hawk-drf = "^1.0.0"
 mohawk = "^1.1.0"
 psycopg2 = "^2.8.5"
 pyjwt = "==2.4.0"
@@ -40,6 +41,7 @@ opensearch-dsl = "==1.0.0"
 # GovUK Notify
 notifications-python-client = "^6.3.0"
 help-desk-client = "==0.2.0"
+
 
 [tool.poetry.group.production]
 optional = true
