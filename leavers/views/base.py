@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Literal, Optional, Set, Tuple, cast
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
-from django.db.models import Value
+from django.db.models import Case, Value, When
 from django.db.models.functions import Concat
 from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
@@ -89,11 +89,23 @@ class LeavingRequestListing(
 
         # Add annotations to make ordering easier
         leaving_requests = leaving_requests.annotate(
-            # Concatonate first and last name. /PS-IGNORE
-            leaver_name=Concat(
+            leaver_info_name=Concat(
                 "leaver_information__leaver_first_name",
                 Value(" "),
                 "leaver_information__leaver_last_name",
+            ),
+            leaver_as_name=Concat(
+                "leaver_activitystream_user__first_name",
+                Value(" "),
+                "leaver_activitystream_user__last_name",
+            ),
+            leaver_name=Case(
+                When(
+                    leaver_information__leaver_first_name__isnull=False,
+                    leaver_information__leaver_last_name__isnull=False,
+                    then="leaver_info_name",
+                ),
+                default="leaver_as_name",
             ),
         )
 
