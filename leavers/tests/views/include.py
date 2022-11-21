@@ -80,3 +80,25 @@ class ViewAccessTest:
         self.client.force_login(self.authenticated_user)
         response = self.client.put(self.get_url(), {})
         self.assert_authenticated_pass("put", response)
+
+
+class LeavingRequestListingViewAccessTest(ViewAccessTest):
+    def test_authenticated_user_get(self, *args, **kwargs):
+        self.client.force_login(self.authenticated_user)
+        response = self.client.get(self.get_url())
+        self.assert_authenticated_pass("get", response)
+
+    def test_authenticated_user_post(self, *args, **kwargs):
+        self.client.force_login(self.authenticated_user)
+        response = self.client.post(self.get_url(), {}, follow=True)
+        self.assert_authenticated_pass("post", response)
+
+    def test_authenticated_user_patch(self, *args, **kwargs):
+        self.client.force_login(self.authenticated_user)
+        response = self.client.patch(self.get_url(), {}, follow=True)
+        self.assert_authenticated_pass("patch", response)
+
+    def test_authenticated_user_put(self, *args, **kwargs):
+        self.client.force_login(self.authenticated_user)
+        response = self.client.put(self.get_url(), {}, follow=True)
+        self.assert_authenticated_pass("put", response)
