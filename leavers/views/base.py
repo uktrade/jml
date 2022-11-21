@@ -91,9 +91,9 @@ class LeavingRequestListing(
         leaving_requests = leaving_requests.annotate(
             # Concatonate first and last name. /PS-IGNORE
             leaver_name=Concat(
-                "leaver_activitystream_user__first_name",
+                "leaver_information__leaver_first_name",
                 Value(" "),
-                "leaver_activitystream_user__last_name",
+                "leaver_information__leaver_last_name",
             ),
         )
 
