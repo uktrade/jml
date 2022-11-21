@@ -1,3 +1,4 @@
+{% load core %}
 {% if page.paginator.count != 0 %}
     <p class="govuk-body govuk-!-font-size-19">
         Showing <b>{{ page.start_index }}</b> to <b>{{ page.end_index }}</b> of <b>{{ page.paginator.count }}</b> {{ object_type_name }}
@@ -8,7 +9,7 @@
         {% if page.has_previous %}
             <div class="govuk-pagination__prev">
                 <a class="govuk-link govuk-pagination__link"
-                    href="?page={{ page.previous_page_number }}"
+                    href="{% get_current_url_with_query_params page=page.previous_page_number %}"
                     rel="prev">
                     <svg class="govuk-pagination__icon govuk-pagination__icon--prev"
                         xmlns="http://www.w3.org/2000/svg"
@@ -30,7 +31,7 @@
                 {% endif %}
                 <li class="govuk-pagination__item {% if pagination_page_num == page.number %}govuk-pagination__item--current{% endif %}">
                     <a class="govuk-link govuk-pagination__link"
-                        href="?page={{ pagination_page_num }}"
+                        href="{% get_current_url_with_query_params page=pagination_page_num %}"
                         aria-label="Page {{ pagination_page_num }}"
                         aria-current="page">{{ pagination_page_num }}</a>
                 </li>
@@ -41,7 +42,9 @@
         </ul>
         {% if page.has_next %}
             <div class="govuk-pagination__next">
-                <a class="govuk-link govuk-pagination__link" href="?page={{ page.next_page_number }}" rel="next"> <span class="govuk-pagination__link-title">Next</span>
+                <a class="govuk-link govuk-pagination__link"
+                    href="{% get_current_url_with_query_params page=page.next_page_number %}"
+                    rel="next"> <span class="govuk-pagination__link-title">Next</span>
                     <svg class="govuk-pagination__icon govuk-pagination__icon--next"
                         xmlns="http://www.w3.org/2000/svg"
                         height="13"

@@ -53,13 +53,14 @@ class LeavingRequestListingView(base.LeavingRequestListing):
     confirmation_view = "admin-leaving-request-detail"
     summary_view = "admin-leaving-request-detail"
     page_title = ""
-    fields = [
-        "leaver_name",
-        "work_email",
-        "leaving_date",
-        "last_working_day",
-        "days_until_last_working_day",
-        "reported_on",
+    fields: List[Tuple[str, str]] = [
+        ("leaver_name", "Leaver's name"),
+        ("work_email", "Email"),
+        ("leaving_date", "Leaving date"),
+        ("last_working_day", "Last working day"),
+        ("days_until_last_working_day", "Days left"),
+        ("reported_on", "Reported on"),
+        ("complete", "Status"),
     ]
 
     def test_func(self):

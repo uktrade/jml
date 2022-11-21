@@ -81,6 +81,7 @@ aria-hidden="true
 aria-label="Page
 aria-label="Show
 aria-labelledby="govuk
+aria-sort="{%
 AssetDetails
 Authbroker                   
 Automation
@@ -370,6 +371,7 @@ notify.email
 npm
 OAB
 object.current_task_record
+object.last_name
 OCS
 OCS_EMAIL
 OCS_OAB_LOCKER_EMAIL                                             
@@ -419,6 +421,7 @@ PYTHONPATH
 Raises
 Reason for Leaving Resignation
 recorded</h1
+RedisCache
 Reminder Email
 Reminder Email*
 Remove Sequence
@@ -501,6 +504,7 @@ Start" %}
 Store DSE
 str
 StreamHandler
+Strip
 super().setUp
 target="_blank">here</a>.</li>
 TaskLog

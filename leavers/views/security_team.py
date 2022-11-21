@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Type, cast
+from typing import Any, Dict, List, Literal, Optional, Tuple, Type, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models.query import QuerySet
@@ -51,14 +51,14 @@ ROSA_KIT_FIELD_MAPPING: Dict[str, str] = {
 class LeavingRequestListing(base.LeavingRequestListing):
     template_name = "leaving/security_team/listing.html"
 
-    fields: List[str] = [
-        "leaver_name",
-        "security_clearance",
-        "work_email",
-        "leaving_date",
-        "last_working_day",
-        "days_until_last_working_day",
-        "complete",
+    fields: List[Tuple[str, str]] = [
+        ("leaver_name", "Leaver's name"),
+        ("security_clearance", "Security Clearance level"),
+        ("work_email", "Email"),
+        ("leaving_date", "Leaving date"),
+        ("last_working_day", "Last working day"),
+        ("days_until_last_working_day", "Days left"),
+        ("complete", "Status"),
     ]
 
     building_pass_confirmation_view = "security-team-building-pass-confirmation"
@@ -70,8 +70,15 @@ class LeavingRequestListing(base.LeavingRequestListing):
             name="Security Team",
         ).exists()
 
-    def get_leaving_requests(self) -> QuerySet[LeavingRequest]:
-        leaving_requests = super().get_leaving_requests()
+    def get_leaving_requests(
+        self,
+        order_by: Optional[str] = None,
+        order_direction: Literal["asc", "desc"] = "asc",
+    ) -> QuerySet[LeavingRequest]:
+        leaving_requests = super().get_leaving_requests(
+            order_by=order_by,
+            order_direction=order_direction,
+        )
         # Filter out any that haven't been completed by the Line Manager.
         leaving_requests = leaving_requests.exclude(line_manager_complete__isnull=True)
 

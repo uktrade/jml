@@ -6,10 +6,15 @@ from django.utils import timezone
 
 from leavers.factories import LeavingRequestFactory, SlackMessageFactory
 from leavers.forms.leaver import SecurityClearance
-from leavers.tests.views.include import ViewAccessTest
+from leavers.tests.views.include import (
+    LeavingRequestListingViewAccessTest,
+    ViewAccessTest,
+)
 
 
-class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
+class TestIncompleteLeavingRequestListing(
+    LeavingRequestListingViewAccessTest, TestCase
+):
     view_name = "sre-listing-incomplete"
     allowed_methods = ["get", "post", "put"]
 
@@ -105,7 +110,9 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
         )
 
         self.client.force_login(self.authenticated_user)
-        response = self.client.post(self.get_url(), {"query": "Joe Bloggs"})
+        response = self.client.post(
+            self.get_url(), {"query": "Joe Bloggs"}, follow=True
+        )
 
         self.assertEqual(response.status_code, 200)
 
@@ -114,7 +121,7 @@ class TestIncompleteLeavingRequestListing(ViewAccessTest, TestCase):
         self.assertContains(response, "Outstanding")
 
 
-class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
+class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, TestCase):
     view_name = "sre-listing-complete"
     allowed_methods = ["get", "post", "put"]
 
@@ -215,7 +222,9 @@ class TestCompleteLeavingRequestListing(ViewAccessTest, TestCase):
         )
 
         self.client.force_login(self.authenticated_user)
-        response = self.client.post(self.get_url(), {"query": "Joe Bloggs"})
+        response = self.client.post(
+            self.get_url(), {"query": "Joe Bloggs"}, follow=True
+        )
 
         self.assertEqual(response.status_code, 200)
 
