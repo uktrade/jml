@@ -411,8 +411,7 @@ SEARCH_STAFF_INDEX_NAME = env("SEARCH_STAFF_INDEX_NAME", default="staff")
 if env("INDEX_CURRENT_USER_MIDDLEWARE", default="false") == "true":
     MIDDLEWARE.append("core.middleware.IndexCurrentUser")
 
-# DIT Activity Stream settings
-DIT_ACTIVITY_STREAM_CLIENT_CLASS = "leavers.client.ActivityStreamUserClient"
+# django-hawk
 DJANGO_HAWK = {
     "HAWK_INCOMING_ACCESS_KEY": env("HAWK_INCOMING_ACCESS_KEY"),
     "HAWK_INCOMING_SECRET_KEY": env("HAWK_INCOMING_SECRET_KEY"),

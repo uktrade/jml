@@ -20,7 +20,6 @@ public_url_patterns = [
     path("", include("core.urls")),
     path("dev-tools/", include("dev_tools.urls")),
     path("auth/", include("authbroker_client.urls", namespace="authbroker")),
-    path("dit-activity-stream/", include("dit_activity_stream.urls")),
     path("api/", include(router.urls)),
 ]
 
