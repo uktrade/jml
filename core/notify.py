@@ -105,6 +105,9 @@ def email(
     # Send all emails to the JML team
     email_addresses += settings.JML_TEAM_EMAILS
 
+    if settings.JML_ONLY_SEND_EMAILS_TO_JML_TEAM:
+        email_addresses = settings.JML_TEAM_EMAILS
+
     for email_address in email_addresses:
         message_response = notification_client.send_email_notification(
             email_address=email_address,

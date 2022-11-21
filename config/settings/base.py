@@ -423,6 +423,9 @@ GPC_RETURN_ADDRESS = env.list("GPC_RETURN_ADDRESS", default=[])
 DIT_OFFBOARDING_EMAIL = env("DIT_OFFBOARDING_EMAIL", default="")
 JML_TEAM_CONTACT_EMAIL = env("JML_TEAM_CONTACT_EMAIL", default="")
 JML_TEAM_EMAILS = env.list("JML_TEAM_EMAILS", default=[])
+JML_ONLY_SEND_EMAILS_TO_JML_TEAM = env.bool(
+    "JML_ONLY_SEND_EMAILS_TO_JML_TEAM", default=False
+)
 
 # Help desk interface
 HELP_DESK_INTERFACE = env("HELP_DESK_INTERFACE", default="")
