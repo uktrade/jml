@@ -317,12 +317,12 @@ class LeavingRequest(models.Model):
         leaving_date: Optional[datetime] = None
         if self.leaving_date:
             leaving_date = self.leaving_date
-
-        leaver_information: Optional[
-            "LeaverInformation"
-        ] = self.leaver_information.first()
-        if leaver_information and leaver_information.leaving_date:
-            leaving_date = leaver_information.leaving_date
+        else:
+            leaver_information: Optional[
+                "LeaverInformation"
+            ] = self.leaver_information.first()
+            if leaver_information and leaver_information.leaving_date:
+                leaving_date = leaver_information.leaving_date
 
         # If the leaver is a bench contractor, the leaving date is 1 day after
         # the last day of the contract.
