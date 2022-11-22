@@ -327,8 +327,10 @@ class LeavingRequest(models.Model):
         # If the leaver is a bench contractor, the leaving date is 1 workday
         # day after the last day of the contract.
         if leaving_date:
+            ld_date = leaving_date.date()
             if self.staff_type == StaffType.BENCH_CONTRACTOR.value:
-                leaving_date = get_next_workday(leaving_date)
+                new_leaving_date = get_next_workday(ld_date)
+                leaving_date = datetime.combine(new_leaving_date, leaving_date.time())
 
         return leaving_date
 
@@ -346,8 +348,10 @@ class LeavingRequest(models.Model):
         # If the leaver is a bench contractor, the last date is 1 workday
         # after the last day of the contract.
         if last_day:
+            ld_date = last_day.date()
             if self.staff_type == StaffType.BENCH_CONTRACTOR.value:
-                last_day = get_next_workday(last_day)
+                new_last_day = get_next_workday(ld_date)
+                last_day = datetime.combine(new_last_day, last_day.time())
 
         return last_day
 

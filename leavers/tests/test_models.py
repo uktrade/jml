@@ -32,8 +32,16 @@ class TestLeavingRequest(TestCase):
 
         leaving_request.staff_type = StaffType.BENCH_CONTRACTOR.value
         leaving_request.save()
+        # 2 weeks, plus 1 day, then another because it's a weekend
+        expected_datetime = two_weeks_from_now + timedelta(days=2)
+
         self.assertEqual(
-            leaving_request.get_leaving_date(), two_weeks_from_now + timedelta(days=1)
+            leaving_request.get_leaving_date().date(),
+            expected_datetime.date(),
+        )
+        self.assertEqual(
+            leaving_request.get_leaving_date().time(),
+            expected_datetime.time(),
         )
 
     @freeze_time("2022-12-12 12:00:00")
@@ -55,8 +63,15 @@ class TestLeavingRequest(TestCase):
 
         leaving_request.staff_type = StaffType.BENCH_CONTRACTOR.value
         leaving_request.save()
+        # 2 weeks, plus 1 day, then another because it's a weekend
+        expected_datetime = two_weeks_from_now + timedelta(days=2)
         self.assertEqual(
-            leaving_request.get_last_day(), two_weeks_from_now + timedelta(days=1)
+            leaving_request.get_last_day().date(),
+            expected_datetime.date(),
+        )
+        self.assertEqual(
+            leaving_request.get_last_day().time(),
+            expected_datetime.time(),
         )
 
 
