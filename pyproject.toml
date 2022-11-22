@@ -110,6 +110,7 @@ module = [
     "elasticsearch_dsl.*",
     "environ.*",
     "factory.*",
+    "govuk_bank_holidays.*",
     "health_check.*",
     "help_desk_client.*",
     "mohawk.*",
