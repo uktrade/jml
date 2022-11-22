@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional, Tuple
 
 from django.contrib.auth import get_user_model
@@ -314,15 +314,23 @@ class LeavingRequest(models.Model):
     """
 
     def get_leaving_date(self) -> Optional[datetime]:
+        leaving_date: Optional[datetime] = None
         if self.leaving_date:
-            return self.leaving_date
+            leaving_date = self.leaving_date
 
         leaver_information: Optional[
             "LeaverInformation"
         ] = self.leaver_information.first()
         if leaver_information and leaver_information.leaving_date:
-            return leaver_information.leaving_date
-        return None
+            leaving_date = leaver_information.leaving_date
+
+        # If the leaver is a bench contractor, the leaving date is 1 day after
+        # the last day of the contract.
+        if leaving_date:
+            if self.staff_type == StaffType.BENCH_CONTRACTOR.value:
+                leaving_date += timedelta(days=1)
+
+        return leaving_date
 
     def get_last_day(self) -> Optional[datetime]:
         if self.last_day:
