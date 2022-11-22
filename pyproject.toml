@@ -40,6 +40,7 @@ opensearch-dsl = "==1.0.0"
 # GovUK Notify
 notifications-python-client = "^6.3.0"
 help-desk-client = "==0.2.0"
+govuk-bank-holidays = "^0.11"
 
 
 [tool.poetry.group.production]

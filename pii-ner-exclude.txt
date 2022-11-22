@@ -22,6 +22,8 @@
 " The Service Now API User
 "Google Drive
 "Lost/Stolen"
+"Returns the next work day
+"Returns True
 @media
 *Actions required:*\n
 # Joiners
