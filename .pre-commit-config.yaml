@@ -30,8 +30,8 @@ repos:
       hooks:
           - id: black
       language_version: python3.10
-    - repo: https://gitlab.com/pycqa/flake8
-      rev: 3.9.2
+    - repo: https://github.com/pycqa/flake8
+      rev: 5.0.4
       hooks:
           - id: flake8
     - repo: https://github.com/PyCQA/isort
@@ -45,6 +45,6 @@ repos:
           - id: djcss
           - id: djjs
     - repo: https://github.com/Riverside-Healthcare/djLint
-      rev: v1.19.1
+      rev: v1.19.7
       hooks:
           - id: djlint-django
