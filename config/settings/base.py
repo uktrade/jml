@@ -433,3 +433,6 @@ HELP_DESK_CREDS = env.dict("HELP_DESK_CREDS", default={})
 
 # LSD team
 LSD_HELP_DESK_LIVE = env.bool("LSD_HELP_DESK_LIVE", default=True)
+
+# getAddress() API
+GETADDRESS_TOKEN = env("GETADDRESS_TOKEN")

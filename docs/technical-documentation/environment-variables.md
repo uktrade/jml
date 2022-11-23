@@ -82,3 +82,4 @@
 | TEMPLATE_ID_SRE_REMINDER_ONE_DAY_AFTER_LD                        | None                                        |                                                                                                        |
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_LM                    | None                                        |                                                                                                        |
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC                  | None                                        |                                                                                                        |
+| GETADDRESS_TOKEN                                                 | None                                        | API Key or Domain token for getAddress() autocomplete                                                  |

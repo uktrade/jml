@@ -22,6 +22,21 @@
             </p>
             <form novalidate method='post'>
                 {% crispy form %}
+                <script>
+                    getAddress.autocomplete(
+                        'contact_address_line_1',
+                        '{{ GETADDRESS_TOKEN }}',
+                        {
+                            output_fields:{
+                                line_1:'contact_address_line_1',
+                                line_2:'contact_address_line_2',
+                                town_or_city:'contact_address_city',
+                                county:'contact_address_county',
+                                postcode:'contact_address_postcode',
+                            },
+                        }
+                    );
+                </script>
             </form>
         </div>
     </div>
