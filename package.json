@@ -4,6 +4,7 @@
     "cytoscape": "^3.19.1",
     "cytoscape-dagre": "^2.3.2",
     "dagre": "^0.8.5",
+    "getaddress-autocomplete": "^1.1.4",
     "govuk-frontend": "^4.4.0",
     "htmx.org": "^1.8.4",
     "node-sass": "^7.0.3"
