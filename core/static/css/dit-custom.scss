@@ -5,3 +5,11 @@
 .dit-header__logotype-text {
     line-height: 40px;
 }
+
+.govuk-radios__conditional .govuk-fieldset {
+    margin-bottom: 30px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
