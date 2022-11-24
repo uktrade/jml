@@ -1,6 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
 {% load static crispy_forms_tags crispy_forms_gds %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -9,27 +8,27 @@
             {% include "includes/govt_error_summary.html" with errors=errors %}
         </div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <span class="govuk-caption-l">Page 3 of 4</span>
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
-
             {% include "leaving/line_manager/includes/staff_card.html" with staff_details=leaver %}
-
-            <p class="govuk-body">{{ leaver_name }} has one or more team members that report to them. A new line manager needs to be assigned to each team member.</p>
-
+            <p class="govuk-body">
+                {{ leaver_name }} has one or more team members that report to them. A new line manager needs to be assigned to each team member.
+            </p>
             <h2 class="govuk-heading-m">Team members who report to {{ leaver_name }}</h2>
             {% for line_report in line_reports %}
-                {% if line_report.consolidated_staff_document %}
-                    {{ line_report.consolidated_staff_document }}
-                {% endif %}
+                {% if line_report.consolidated_staff_document %}{{ line_report.consolidated_staff_document }}{% endif %}
                 <div class="govuk-grid-row">
                     <div class="govuk-grid-column-one-third">
                         {% if line_report.consolidated_staff_document.photo %}
-                            <img class="leaver-image" src="{{ line_report.consolidated_staff_document.photo }}" alt="Picture of {{ line_report.consolidated_staff_document.full_name }}" />
+                            <img class="jml--staff-image"
+                                src="{{ line_report.consolidated_staff_document.photo }}"
+                                alt="Picture of {{ line_report.consolidated_staff_document.full_name }}"/>
                         {% else %}
-                            <img class="leaver-image" src="{% static 'govuk-frontend/govuk/assets/images/govuk-crest-2x.png' %}" alt="Placeholder picture" />
+                            <img class="jml--staff-image"
+                                src="{% static 'govuk-frontend/govuk/assets/images/govuk-crest-2x.png' %}"
+                                alt="Placeholder picture"/>
                         {% endif %}
                     </div>
                     <div class="govuk-grid-column-two-thirds">
@@ -59,10 +58,7 @@
             {% endfor %}
         </div>
     </div>
-
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% crispy form %}
-        </div>
+        <div class="govuk-grid-column-two-thirds">{% crispy form %}</div>
     </div>
 {% endblock content %}
