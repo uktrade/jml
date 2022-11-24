@@ -1,16 +1,14 @@
 {% extends "leaving/leaving_base.html" %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <a href="{% url 'security-team-listing-complete' %}" class="govuk-back-link">Back</a>
+            <a href="{% url 'security-team-listing-complete' %}"
+                class="govuk-back-link">Back</a>
         </div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
-
             <table class="govuk-table">
                 <caption class="govuk-table__caption govuk-table__caption--m">Offboarding tasks</caption>
                 <thead class="govuk-table__head">
@@ -24,30 +22,35 @@
                         <td class="govuk-table__cell">Destroy building pass</td>
                         <td class="govuk-table__cell">
                             {% if pass_destroyed %}
-                                <strong class="govuk-tag govuk-tag--green">
-                                    Destroyed
-                                </strong>
+                                <strong class="govuk-tag govuk-tag--green">Destroyed</strong>
                             {% else %}
-                                <strong class="govuk-tag govuk-tag--blue">
-                                    Pending
-                                </strong>
+                                <strong class="govuk-tag govuk-tag--blue">Pending</strong>
                             {% endif %}
                         </td>
                     </tr>
-
                     {% for rosa_kit_task in rosa_kit_tasks %}
                         <tr class="govuk-table__row">
                             <td class="govuk-table__cell">{{ rosa_kit_task.name }}</td>
                             <td class="govuk-table__cell">
-                                <strong class="govuk-tag govuk-tag--{{ rosa_kit_task.status.colour }}">
-                                    {{ rosa_kit_task.status.text }}
-                                </strong>
+                                <strong class="govuk-tag govuk-tag--{{ rosa_kit_task.status.colour }}">{{ rosa_kit_task.status.text }}</strong>
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            <a class="govuk-link" href="{% url 'security-team-listing-complete' %}">Return to completed leaving requests dashboard</a>
+            <div class="govuk-button-group">
+                <a href="{% url 'security-team-building-pass-confirmation' leaving_request_uuid %}"
+                    class="govuk-button govuk-button--secondary"
+                    data-module="govuk-button">
+                    Edit building pass status
+                </a>
+                <a href="{% url 'security-team-rosa-kit-confirmation' leaving_request_uuid %}"
+                    class="govuk-button govuk-button--secondary"
+                    data-module="govuk-button">
+                    Edit ROSA kit status
+                </a>
+                <a class="govuk-link" href="{% url 'security-team-listing-complete' %}">Return to completed leaving requests dashboard</a>
+            </div>
         </div>
     </div>
 {% endblock content %}

@@ -387,6 +387,9 @@ class BuidlingPassConfirmationCloseView(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
         )
+
+        if self.leaving_request.security_team_rosa_kit_complete:
+            return redirect(self.get_success_url())
         return super().dispatch(request, *args, **kwargs)
 
     def get_success_url(self) -> str:
@@ -766,6 +769,9 @@ class RosaKitConfirmationCloseView(
             LeavingRequest,
             uuid=self.kwargs.get("leaving_request_id", None),
         )
+
+        if self.leaving_request.security_team_rosa_kit_complete:
+            return redirect(self.get_success_url())
         return super().dispatch(request, *args, **kwargs)
 
     def get_page_title(self) -> str:
