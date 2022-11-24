@@ -47,7 +47,7 @@ manage = python manage.py
 
 first-use:
 	docker-compose down
-	docker-compose up -d db
+	docker-compose up -d db opensearch
 	$(run) leavers python manage.py createcachetable
 	$(run) leavers python manage.py migrate
 	$(run) leavers python manage.py initialise_staff_index
