@@ -23,6 +23,8 @@ def global_context(request):
         "GPC_RETURN_ADDRESS": settings.GPC_RETURN_ADDRESS,
         "JML_TEAM_CONTACT_EMAIL": settings.JML_TEAM_CONTACT_EMAIL,
         "DEV_LINKS": [],
+        "MAIN_NAV": [],
+        "IS_PRODUCTION": bool(settings.APP_ENV == "production"),
     }
 
     if "dev_tools.apps.DevToolsConfig" in settings.INSTALLED_APPS:
@@ -35,43 +37,37 @@ def global_context(request):
 
     if request.user.is_authenticated:
         if request.user.is_staff:
-            global_context["DEV_LINKS"].append(
+            global_context["MAIN_NAV"].append(
                 (
-                    "Leaving Requests",
+                    "Leaving Requests (admin)",
+                    reverse("admin-leaving-request-listing"),
+                )
+            )
+            global_context["MAIN_NAV"].append(
+                (
+                    "Workflows",
                     reverse("flow-list"),
                 )
             )
         user_group_names: List[str] = [g.name for g in request.user.groups.all()]
         if "Asset Team" in user_group_names:
-            global_context["DEV_LINKS"].append(
+            global_context["MAIN_NAV"].append(
                 (
                     "Asset Registry",
                     reverse("list-assets"),
                 )
             )
         if "SRE" in user_group_names:
-            global_context["DEV_LINKS"].append(
+            global_context["MAIN_NAV"].append(
                 (
-                    "SRE landing page (complete)",
-                    reverse("sre-listing-complete"),
-                )
-            )
-            global_context["DEV_LINKS"].append(
-                (
-                    "SRE landing page (incomplete)",
+                    "Leaving Requests",
                     reverse("sre-listing-incomplete"),
                 )
             )
         if "Security Team" in user_group_names:
-            global_context["DEV_LINKS"].append(
+            global_context["MAIN_NAV"].append(
                 (
-                    "Security landing page (complete)",
-                    reverse("security-team-listing-complete"),
-                )
-            )
-            global_context["DEV_LINKS"].append(
-                (
-                    "Security landing page (incomplete)",
+                    "Leaving Requests",
                     reverse("security-team-listing-incomplete"),
                 )
             )
