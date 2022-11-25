@@ -16,7 +16,7 @@ from core.utils.staff_index import (
 
 
 class Command(BaseCommand):
-    help = "Ingest Staff SSO Activity Stream"
+    help = "Update staff documents to make sure they all have UUIDs"
 
     def handle(self, *args, **options) -> None:
         staff_documents_to_update = self.get_all_staff_documents()
