@@ -20,7 +20,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options) -> None:
         for staff_document in self.get_all_staff_documents():
-            print(staff_document)
             if staff_document.uuid:
                 continue
             if not staff_document.staff_sso_email_user_id:
