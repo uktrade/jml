@@ -2,7 +2,7 @@ import logging
 import uuid
 from dataclasses import dataclass
 from functools import partial, wraps
-from typing import Any, Dict, List, Mapping, Optional, TypedDict
+from typing import Any, Dict, Iterable, List, Mapping, Optional, TypedDict
 
 from dataclasses_json import DataClassJsonMixin
 from django.conf import settings
@@ -526,3 +526,54 @@ def index_sso_users():
         }
 
         yield doc_id, doc
+
+
+def get_all_staff_documents(self) -> Iterable[StaffDocument]:
+    """
+    Get all staff documents from the staff index.
+
+    NOTE: This function will take a long time to run on production.
+    """
+
+    search_client = get_search_connection()
+    search_dict: Dict = {"query": {"match_all": {}}}
+
+    search = (
+        Search(index=STAFF_INDEX_NAME)
+        .using(search_client)
+        .update_from_dict(search_dict)
+    )
+    search_results = search.execute()
+
+    total_document_count = search_results.hits.total.value
+    page_size = 100
+    indexed_count = 0
+
+    while indexed_count < total_document_count:
+        paginated_search = search.extra(from_=indexed_count, size=page_size)
+        paginated_search_results = paginated_search.execute()
+        for hit in paginated_search_results:
+            yield StaffDocument.from_dict(hit.to_dict(), infer_missing=True)
+        indexed_count += page_size
+
+
+def update_all_staff_documents_with_a_uuid():
+    """
+    Make sure all staff documents have a UUID value.
+
+    NOTE: This function will take a long time to run on production.
+    """
+
+    for staff_document in get_all_staff_documents():
+        if staff_document.uuid:
+            continue
+        if not staff_document.staff_sso_email_user_id:
+            continue
+
+        # Calling update_staff_document with a document that has no uuid,
+        # will have one generated.
+        update_staff_document(
+            staff_document.staff_sso_email_user_id,
+            staff_document=staff_document.to_dict(),
+            upsert=False,
+        )

@@ -9,7 +9,10 @@ from config.celery import celery_app
 from core.people_data.utils import ingest_people_data
 from core.people_finder.utils import ingest_people_finder
 from core.service_now.utils import ingest_service_now
-from core.utils.staff_index import index_sso_users
+from core.utils.staff_index import (
+    index_sso_users,
+    update_all_staff_documents_with_a_uuid,
+)
 
 logger = celery_app.log.get_default_logger()
 
@@ -40,6 +43,11 @@ def progress_workflow(self, flow_pk: str):
             executor.run_flow(user=None)
         except WorkflowNotAuthError as e:
             logger.warning(f"{e}")
+
+
+@celery_app.task(bind=True)
+def staff_document_uuid_task(self, flow_pk: str):
+    update_all_staff_documents_with_a_uuid()
 
 
 ingest_activity_stream_task = shared_task(ingest_activity_stream)
