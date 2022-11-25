@@ -430,7 +430,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     }
 
     staff_document_dict: Dict[str, Any] = {
-        "uuid": str(uuid.uuid4()),
         # Staff SSO
         **staff_sso_data,
         # People Finder
@@ -439,7 +438,7 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         **get_service_now_data(staff_sso_user=staff_sso_user),
     }
 
-    return StaffDocument.from_dict(staff_document_dict)
+    return StaffDocument.from_dict(staff_document_dict, infer_missing=True)
 
 
 def get_csd_for_activitystream_user(
@@ -476,6 +475,9 @@ def update_staff_document(
 ) -> None:
     """Update the related staff document in the staff search index."""
     search_client = get_search_connection()
+
+    if "uuid" not in staff_document or not staff_document["uuid"]:
+        staff_document["uuid"] = str(uuid.uuid4())
 
     body = {"doc": staff_document}
 
