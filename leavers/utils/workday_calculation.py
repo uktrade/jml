@@ -70,7 +70,3 @@ def is_date_within_payroll_cutoff(date_to_check: date) -> bool:
         cut_off_end_date = pay_cut_off_date(next_month, year_to_check)
     cut_off_start_date = working_day_delta(cut_off_end_date, PAY_CUT_OFF_INTERVAL)
     return cut_off_start_date <= date_to_check <= cut_off_end_date
-
-
-def calculate_working_day():
-    pass
