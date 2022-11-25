@@ -2,7 +2,7 @@
 Make sure all staff indexed in opensearch have a uuid set.
 """
 
-from typing import List
+from typing import Dict, List
 
 from django.core.management.base import BaseCommand
 from opensearch_dsl import Search
@@ -36,7 +36,7 @@ class Command(BaseCommand):
 
     def get_all_staff_documents(self) -> List[StaffDocument]:
         search_client = get_search_connection()
-        search_dict = {"query": {"match_all": {}}}
+        search_dict: Dict = {"query": {"match_all": {}}}
 
         search = (
             Search(index=STAFF_INDEX_NAME)
