@@ -1,8 +1,9 @@
+from datetime import date, datetime
 from enum import Enum
 from typing import Dict, Iterable, List, Literal, Optional, Type
 
 from django.db.models import Model, QuerySet
-from django.utils import timezone
+from govuk_bank_holidays.bank_holidays import BankHolidays
 
 # 1 January 2022
 DATE_FORMAT_STR = "%d %B %Y"
@@ -32,25 +33,6 @@ def yes_no_to_bool(value: Literal["yes", "no"]) -> bool:
     elif value == "no":
         return False
     raise ValueError("Invalid value for yes_no_to_bool")
-
-
-def is_work_day_and_time() -> bool:
-    """
-    Returns True if it is a work day and during working hours.
-    """
-
-    now = timezone.now()
-    today = now.date()
-    if today.isoweekday() in [
-        IsoWeekdays.SATURDAY.value,
-        IsoWeekdays.SUNDAY.value,
-    ]:
-        return False
-
-    # Check to see if the time is between 9-5.
-    if now.hour >= 9 and now.hour <= 17:
-        return True
-    return False
 
 
 def make_possessive(word: Optional[str]) -> str:
@@ -89,3 +71,25 @@ def queryset_to_specific(initial_queryset: QuerySet) -> Iterable[Type[Model]]:
             yield non_subclass_objects[init_pk]
         else:
             yield subclass_objects[init_pk]
+
+
+def is_work_day_and_time(dt: datetime) -> bool:
+    """Returns True if it is a work day and during working hours."""
+
+    bank_holidays = BankHolidays()
+
+    d = dt.date()
+    if not bank_holidays.is_work_day(date=d):
+        return False
+
+    # Check to see if the time is between 9-5.
+    if dt.hour >= 9 and dt.hour < 17 or (dt.hour == 17 and dt.minute == 0):
+        return True
+    return False
+
+
+def get_next_workday(d: date) -> date:
+    """Returns the next work day."""
+
+    bank_holidays = BankHolidays()
+    return bank_holidays.get_next_work_day(date=d)

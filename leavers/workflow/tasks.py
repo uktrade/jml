@@ -547,7 +547,7 @@ class EmailTask(LeavingRequestTask):
         return False
 
     def execute(self, task_info):
-        if not is_work_day_and_time():
+        if not is_work_day_and_time(timezone.now()):
             return None, False
 
         if not self.should_skip(task_info=task_info):
@@ -855,11 +855,12 @@ class ProcessorReminderEmail(EmailTask):
          - lm = Line Manager
          - proc = Processor
         """
+
         if self.should_skip(task_info=task_info):
             return None, True
 
         # Check to see if it is a work day
-        if not is_work_day_and_time():
+        if not is_work_day_and_time(timezone.now()):
             return None, False
 
         self.processor_emails: List[str] = task_info["processor_emails"]
