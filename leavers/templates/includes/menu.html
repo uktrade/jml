@@ -1,17 +1,24 @@
 <nav>
-    <ul id="navigation" class="govuk-header__navigation " aria-label="Navigation menu">
-        <li class="govuk-header__navigation-item govuk-header__navigation-item--active">
-            <a class="govuk-header__link dit-header__link" href="{% url 'start' %}">Start leaving process</a>
-        </li>
-        {% comment %} DEV LINKS START - Remove before we go live {% endcomment %}
-        {% for dev_link in DEV_LINKS %}
+    <ul id="navigation"
+        class="govuk-header__navigation "
+        aria-label="Navigation menu">
+        {% for nav_link in MAIN_NAV %}
             <li class="govuk-header__navigation-item govuk-header__navigation-item--active">
-                <a class="govuk-header__link dit-header__link" href="{{ dev_link.1 }}">{{ dev_link.0 }}</a>
+                <a class="govuk-header__link dit-header__link" href="{{ nav_link.1 }}">{{ nav_link.0 }}</a>
             </li>
         {% endfor %}
-        {% comment %} DEV LINKS END {% endcomment %}
-        <li class="govuk-header__navigation-item govuk-header__navigation-item--active">
-            {{ user }} ({{ user.groups.first }})
-        </li>
+        {% if not IS_PRODUCTION %}
+            <li class="govuk-header__navigation-item govuk-header__navigation-item--active">
+                <a class="govuk-header__link dit-header__link" href="{% url 'start' %}">Start leaving process</a>
+            </li>
+            {% for dev_link in DEV_LINKS %}
+                <li class="govuk-header__navigation-item govuk-header__navigation-item--active">
+                    <a class="govuk-header__link dit-header__link" href="{{ dev_link.1 }}">{{ dev_link.0 }}</a>
+                </li>
+            {% endfor %}
+            <li class="govuk-header__navigation-item govuk-header__navigation-item--active">
+                {{ user }} ({{ user.groups.first }})
+            </li>
+        {% endif %}
     </ul>
 </nav>
