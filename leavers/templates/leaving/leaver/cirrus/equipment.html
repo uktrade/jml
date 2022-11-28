@@ -1,8 +1,6 @@
 {% extends "leaving/leaving_base.html" %}
 {% load static crispy_forms_tags crispy_forms_gds %}
-
 {% block content %}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <a href="{% url 'leaver-has-assets' %}" class="govuk-back-link">Back</a>
@@ -11,9 +9,7 @@
             {% error_summary cirrus_return_form_no_assets %}
         </div>
     </div>
-
     {% include "leaving/leaver/cirrus/includes/header.html" %}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">Cirrus equipment assigned to you:</h2>
@@ -22,12 +18,12 @@
                     {% for asset in cirrus_assets %}
                         <div class="govuk-summary-list__row">
                             <dd class="govuk-summary-list__value">
-                                {{ asset.name }} {% if asset.tag %}- {{ asset.tag }}{% endif %}
+                                {{ asset.name }}
+                                {% if asset.tag %}- {{ asset.tag }}{% endif %}
                             </dd>
                             <dd class="govuk-summary-list__actions">
-                                <a class="govuk-link" href="{% url 'leaver-cirrus-equipment-delete' asset.uuid %}">
-                                    Remove
-                                </a>
+                                <a class="govuk-link"
+                                    href="{% url 'leaver-cirrus-equipment-delete' asset.uuid %}">Remove</a>
                             </dd>
                         </div>
                     {% endfor %}
@@ -42,13 +38,27 @@
             </form>
         </div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <form novalidate method='post'>
                 {% if cirrus_assets %}
                     <input type="hidden" name="form_name" value="cirrus_return_form" />
                     {% crispy cirrus_return_form %}
+                    <script>
+                        getAddress.autocomplete(
+                            'home_address_line_1',
+                            '{{ GETADDRESS_TOKEN }}',
+                            {
+                                output_fields:{
+                                    line_1:'home_address_line_1',
+                                    line_2:'home_address_line_2',
+                                    town_or_city:'home_address_city',
+                                    county:'home_address_county',
+                                    postcode:'home_address_postcode',
+                                },
+                            }
+                        );
+                    </script>
                 {% else %}
                     <input type="hidden" name="form_name" value="cirrus_return_form_no_assets" />
                     {% crispy cirrus_return_form_no_assets %}

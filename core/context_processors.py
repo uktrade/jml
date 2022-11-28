@@ -22,6 +22,7 @@ def global_context(request):
         "DIT_OFFBOARDING_EMAIL": settings.DIT_OFFBOARDING_EMAIL,
         "GPC_RETURN_ADDRESS": settings.GPC_RETURN_ADDRESS,
         "JML_TEAM_CONTACT_EMAIL": settings.JML_TEAM_CONTACT_EMAIL,
+        "GETADDRESS_TOKEN": settings.GETADDRESS_TOKEN,
         "DEV_LINKS": [],
     }
 

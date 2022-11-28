@@ -47,7 +47,9 @@
         <script>
             document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
         </script>
+        <script src='{% static "getaddress-autocomplete/dist/getaddress-autocomplete-1.1.4.min.js" %}'></script>
         {% include "cookies/banner.html" %}
+
         <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
         {% include "includes/header/dit.html" %}
         {% comment %} {% include "includes/header/govuk.html" %} {% endcomment %}

@@ -457,11 +457,31 @@ class CirrusReturnFormWithAssets(forms.Form):
                 css_class="radio-conditional-field conditional-return_option-home",
             ),
             Fieldset(
-                Field.text("home_address_line_1", field_width=Fluid.TWO_THIRDS),
-                Field.text("home_address_line_2", field_width=Fluid.TWO_THIRDS),
-                Field.text("home_address_city", field_width=Fluid.TWO_THIRDS),
-                Field.text("home_address_county", field_width=Fluid.TWO_THIRDS),
-                Field.text("home_address_postcode", field_width=Fluid.TWO_THIRDS),
+                Field.text(
+                    "home_address_line_1",
+                    id="home_address_line_1",
+                    field_width=Fluid.TWO_THIRDS,
+                ),
+                Field.text(
+                    "home_address_line_2",
+                    id="home_address_line_2",
+                    field_width=Fluid.TWO_THIRDS,
+                ),
+                Field.text(
+                    "home_address_city",
+                    id="home_address_city",
+                    field_width=Fluid.TWO_THIRDS,
+                ),
+                Field.text(
+                    "home_address_county",
+                    id="home_address_county",
+                    field_width=Fluid.TWO_THIRDS,
+                ),
+                Field.text(
+                    "home_address_postcode",
+                    id="home_address_postcode",
+                    field_width=Fluid.TWO_THIRDS,
+                ),
                 legend="Address for courier to pick up your Cirrus kit",
                 legend_size=Size.SMALL,
                 css_class="radio-conditional-field conditional-return_option-home",
@@ -556,10 +576,30 @@ class LeaverContactDetailsForm(forms.Form):
         self.helper.layout = Layout(
             Field.text("contact_email_address", field_width=Fluid.TWO_THIRDS),
             Field.text("contact_phone", field_width=Fluid.TWO_THIRDS),
-            Field.text("contact_address_line_1", field_width=Fluid.TWO_THIRDS),
-            Field.text("contact_address_line_2", field_width=Fluid.TWO_THIRDS),
-            Field.text("contact_address_city", field_width=Fluid.TWO_THIRDS),
-            Field.text("contact_address_county", field_width=Fluid.TWO_THIRDS),
-            Field.text("contact_address_postcode", field_width=Fluid.TWO_THIRDS),
+            Field.text(
+                "contact_address_line_1",
+                id="contact_address_line_1",
+                field_width=Fluid.TWO_THIRDS,
+            ),
+            Field.text(
+                "contact_address_line_2",
+                id="contact_address_line_2",
+                field_width=Fluid.TWO_THIRDS,
+            ),
+            Field.text(
+                "contact_address_city",
+                id="contact_address_city",
+                field_width=Fluid.TWO_THIRDS,
+            ),
+            Field.text(
+                "contact_address_county",
+                id="contact_address_county",
+                field_width=Fluid.TWO_THIRDS,
+            ),
+            Field.text(
+                "contact_address_postcode",
+                id="contact_address_postcode",
+                field_width=Fluid.TWO_THIRDS,
+            ),
             Submit("submit", "Next"),
         )
