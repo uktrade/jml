@@ -1,0 +1,15 @@
+{% extends "leaving/leaving_base.html" %}
+{% block title %}
+    Sorry, there is a problem with the service - {{ SERVICE_NAME }}
+{% endblock title %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">Sorry, there is a problem with the service</h1>
+            <p class="govuk-body">Try again later.</p>
+            <p class="govuk-body">
+                If the problem persists, please <a class="govuk-link" href="mailto:{{ JML_TEAM_CONTACT_EMAIL }}">contact the JML team</a>.
+            </p>
+        </div>
+    </div>
+{% endblock content %}

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.urls import include, path
 from django.views.decorators.cache import never_cache
@@ -19,3 +20,25 @@ public_url_patterns = [
 
 urlpatterns = private_urlpatterns + public_url_patterns
 urlpatterns = decorate_urlpatterns(urlpatterns, never_cache)
+
+if settings.APP_ENV == "dev":
+    from django.shortcuts import render
+
+    def error_400(request):
+        return render(request, "400.html", status=400)
+
+    def error_403(request):
+        return render(request, "403.html", status=403)
+
+    def error_404(request):
+        return render(request, "404.html", status=404)
+
+    def error_500(request):
+        return render(request, "500.html", status=500)
+
+    urlpatterns += [
+        path("test-error/400/", error_400),
+        path("test-error/403/", error_403),
+        path("test-error/404/", error_404),
+        path("test-error/500/", error_500),
+    ]
