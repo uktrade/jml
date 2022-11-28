@@ -189,6 +189,14 @@ class LeavingRequest(models.Model):
         blank=True,
     )
 
+    trello_user_access_removed = models.OneToOneField(
+        TaskLog,
+        on_delete=models.CASCADE,
+        related_name="trello_user_task_log",
+        null=True,
+        blank=True,
+    )
+
     gitlab_user_access_removed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
@@ -378,14 +386,15 @@ class LeavingRequest(models.Model):
         """
 
         sre_service_label_mapping: List[Tuple[str, str]] = [
-            ("vpn_access_removed", "VPN"),
-            ("govuk_paas_access_removed", "GOV UK PaaS"),
+            ("aws_access_removed", "AWS"),
             ("github_user_access_removed", "Github"),
             ("gitlab_user_access_removed", "GitLab"),
+            ("govuk_paas_access_removed", "GOV UK PaaS"),
+            ("jira_access_removed", "Jira"),
             ("sentry_access_removed", "Sentry"),
             ("slack_removed", "Slack"),
-            ("aws_access_removed", "AWS"),
-            ("jira_access_removed", "Jira"),
+            ("trello_user_access_removed", "Trello"),
+            ("vpn_access_removed", "VPN"),
         ]
         sre_services: List[Tuple[str, str, ServiceAndToolActions]] = []
         for service_field, service_label in sre_service_label_mapping:
