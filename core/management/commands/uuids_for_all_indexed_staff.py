@@ -26,11 +26,9 @@ class Command(BaseCommand):
             if not staff_document.staff_sso_email_user_id:
                 continue
 
-            staff_document.uuid = str(uuid.uuid4())
-
             update_staff_document(
                 staff_document.staff_sso_email_user_id,
-                staff_document=staff_document.to_dict(),
+                staff_document={"uuid": str(uuid.uuid4())},
                 upsert=False,
             )
 
