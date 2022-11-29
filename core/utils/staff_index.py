@@ -81,11 +81,11 @@ class ConsolidatedStaffDocument(TypedDict):
     email_addresses: List
     contact_phone: str
     grade: str
-    department_name: str
     job_title: str
     manager: str
     photo: str
     photo_small: str
+    department_name: str
 
 
 def get_search_connection() -> OpenSearch:
@@ -307,7 +307,7 @@ def consolidate_staff_documents(
             "contact_phone": staff_document.people_finder_phone or "",
             "grade": staff_document.people_finder_grade or "",
             # For the time being the department is hardcoded.
-            "department_name": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
+            "department_name": staff_document.service_now_department_name or "",
             "job_title": staff_document.people_finder_job_title or "",
             "photo": staff_document.people_finder_photo or "",
             "photo_small": staff_document.people_finder_photo_small or "",
