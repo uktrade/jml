@@ -476,9 +476,6 @@ def update_staff_document(
     """Update the related staff document in the staff search index."""
     search_client = get_search_connection()
 
-    if "uuid" not in staff_document or not staff_document["uuid"]:
-        staff_document["uuid"] = str(uuid.uuid4())
-
     body = {"doc": staff_document}
 
     if upsert:
@@ -514,6 +511,7 @@ def index_sso_users():
     for sso_user in qs:
         doc_id = sso_user.email_user_id
         doc = {
+            "uuid": str(uuid.uuid4()),
             "available_in_staff_sso": sso_user.available,
             "staff_sso_activity_stream_id": sso_user.identifier,
             "staff_sso_email_user_id": sso_user.email_user_id,
