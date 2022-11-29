@@ -2,6 +2,7 @@
 Make sure all staff indexed in opensearch have a uuid set.
 """
 
+import uuid
 from typing import Dict, Iterable
 
 from django.core.management.base import BaseCommand
@@ -20,16 +21,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options) -> None:
         for staff_document in self.get_all_staff_documents():
-            if staff_document.uuid:
+            if staff_document.uuid and staff_document.uuid.lower() != "none":
                 continue
             if not staff_document.staff_sso_email_user_id:
                 continue
 
-            # Calling update_staff_document with a document that has no uuid,
-            # will have one generated.
             update_staff_document(
                 staff_document.staff_sso_email_user_id,
-                staff_document=staff_document.to_dict(),
+                staff_document={"uuid": str(uuid.uuid4())},
                 upsert=False,
             )
 
