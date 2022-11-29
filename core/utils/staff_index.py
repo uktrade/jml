@@ -81,11 +81,11 @@ class ConsolidatedStaffDocument(TypedDict):
     email_addresses: List
     contact_phone: str
     grade: str
+    department_name: str
     job_title: str
     manager: str
     photo: str
     photo_small: str
-    department_name: str
 
 
 def get_search_connection() -> OpenSearch:
