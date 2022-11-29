@@ -81,7 +81,6 @@ class ConsolidatedStaffDocument(TypedDict):
     email_addresses: List
     contact_phone: str
     grade: str
-    department_name: str
     job_title: str
     manager: str
     photo: str
@@ -307,7 +306,6 @@ def consolidate_staff_documents(
             "contact_phone": staff_document.people_finder_phone or "",
             "grade": staff_document.people_finder_grade or "",
             # For the time being the department is hardcoded.
-            "department_name": settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID,
             "job_title": staff_document.people_finder_job_title or "",
             "photo": staff_document.people_finder_photo or "",
             "photo_small": staff_document.people_finder_photo_small or "",
@@ -367,54 +365,6 @@ def get_people_finder_data(
     return people_finder_data
 
 
-def get_service_now_data(
-    *, staff_sso_user: ActivityStreamStaffSSOUser
-) -> Dict[str, str]:
-    from core.service_now import get_service_now_interface
-    from core.service_now.interfaces import ServiceNowUserNotFound
-
-    service_now_interface = get_service_now_interface()
-
-    service_now_data = {
-        "service_now_user_id": "",
-        "service_now_department_id": "",
-        "service_now_department_name": "",
-    }
-
-    # Iterate through all emails and check for Service Now record
-    for sso_email_record in staff_sso_user.sso_emails.all():
-        try:
-            service_now_user = service_now_interface.get_user(
-                email=sso_email_record.email_address,
-            )
-        except ServiceNowUserNotFound:
-            continue
-        else:
-            service_now_user_id = service_now_user["sys_id"]
-            service_now_data["service_now_user_id"] = service_now_user_id
-            logger.info(f"Service Now id found: {service_now_user_id}")
-
-            staff_sso_user.service_now_user_id = service_now_user_id
-            staff_sso_user.service_now_email_address = sso_email_record.email_address
-            staff_sso_user.save()
-
-            break
-
-    # Get Service Now Department data
-    service_now_data[
-        "service_now_department_id"
-    ] = settings.SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
-    service_now_departments = service_now_interface.get_departments(
-        sys_id=service_now_data["service_now_department_id"],
-    )
-    if len(service_now_departments) == 1:
-        service_now_data["service_now_department_name"] = service_now_departments[0][
-            "name"
-        ]
-
-    return service_now_data
-
-
 def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
     staff_sso_data = {
         "available_in_staff_sso": staff_sso_user.available,
@@ -434,8 +384,6 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
         **staff_sso_data,
         # People Finder
         **get_people_finder_data(staff_sso_user=staff_sso_user),
-        # Service Now
-        **get_service_now_data(staff_sso_user=staff_sso_user),
     }
 
     return StaffDocument.from_dict(staff_document_dict, infer_missing=True)
