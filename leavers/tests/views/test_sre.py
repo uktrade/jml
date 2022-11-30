@@ -62,7 +62,7 @@ class TestIncompleteLeavingRequestListing(
 
         self.assertContains(
             response,
-            "Showing <b>1</b> to <b>20</b> of <b>50</b> outstanding leaving requests",
+            "Showing <b>1</b> to <b>30</b> of <b>50</b> outstanding leaving requests",
         )
         self.assertContains(
             response,
@@ -85,7 +85,7 @@ class TestIncompleteLeavingRequestListing(
 
         self.assertContains(
             response,
-            "Showing <b>21</b> to <b>40</b> of <b>50</b> outstanding leaving requests",
+            "Showing <b>31</b> to <b>50</b> of <b>50</b> outstanding leaving requests",
         )
         self.assertContains(
             response,
@@ -171,7 +171,7 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
 
         self.assertContains(
             response,
-            "Showing <b>1</b> to <b>20</b> of <b>50</b> complete leaving requests",
+            "Showing <b>1</b> to <b>30</b> of <b>50</b> complete leaving requests",
         )
         self.assertContains(
             response,
@@ -195,7 +195,7 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
 
         self.assertContains(
             response,
-            "Showing <b>21</b> to <b>40</b> of <b>50</b> complete leaving requests",
+            "Showing <b>31</b> to <b>50</b> of <b>50</b> complete leaving requests",
         )
         self.assertContains(
             response,
