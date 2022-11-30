@@ -51,8 +51,8 @@ def test_scenario_staff_document():
     assert doc["_source"] == staff_doc | {"age": 42}
 
     # given a doc
-    # when we try to extend it upsert
-    update_staff_document(id=id, staff_document={"hair_colour": "blonde"})
+    # when we try to extend it with upsert
+    update_staff_document(id=id, staff_document={"hair_colour": "blonde"}, upsert=True)
     # then we get the extended doc
     doc = get_staff_document(id=id)
     assert doc["_source"] == staff_doc | {"age": 42} | {"hair_colour": "blonde"}
