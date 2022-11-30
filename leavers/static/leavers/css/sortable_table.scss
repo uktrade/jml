@@ -1,6 +1,7 @@
 [aria-sort] a,
 [aria-sort] a:hover {
     position: relative;
+    text-decoration: none;
 }
 
 [aria-sort] a:focus {
@@ -14,35 +15,15 @@
     right: auto;
 }
 
-[aria-sort] a:before {
-    content: "\25bc";
-    position: absolute;
-    left: -10px;
-    top: 9px;
-    font-size: 0.5em;
-}
-
 [aria-sort] a:after {
-    content: "\25b2";
-    position: absolute;
-    left: -10px;
-    top: 1px;
-    font-size: 0.5em;
-}
-
-[aria-sort="ascending"] a:before,
-[aria-sort="descending"] a:before {
-    content: none;
+    content: "⮁";
+    padding-left: 5px;
 }
 
 [aria-sort="ascending"] a:after {
-    content: "\25b2";
-    position: static;
-    font-size: .8em;
+    content: "🠕";
 }
 
 [aria-sort="descending"] a:after {
-    content: "\25bc";
-    position: static;
-    font-size: .8em;
+    content: "🠗";
 }
