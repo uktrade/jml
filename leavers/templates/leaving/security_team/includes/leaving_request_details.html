@@ -56,15 +56,13 @@
             {% endif %}
         </dt>
         <dd class="govuk-summary-list__value">
-            <ul class="govuk-list">
-                {% if manager_emails|length == 1 %}
-                    {{ manager_emails.0 }}
-                {% else %}
-                    {% for manager_email in manager_emails %}
-                        <li>{{ manager_email }}</li>
-                    {% endfor %}
-                {% endif %}
-            </ul>
+            {% if manager_emails|length == 1 %}
+                {{ manager_emails.0 }}
+            {% else %}
+                <ul class="govuk-list">
+                    {% for manager_email in manager_emails %}<li>{{ manager_email }}</li>{% endfor %}
+                </ul>
+            {% endif %}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
