@@ -57,6 +57,8 @@ def get_leaving_request_email_personalisation(
         leaving_date=leaving_date.strftime(DATE_FORMAT_STR),
         last_day=last_day.strftime(DATE_FORMAT_STR),
         has_data_recipient="no",
+        data_recipient_name="",
+        data_recipient_email="",
         contact_us_link=site_url + reverse("beta-service-feedback"),
         line_manager_link=site_url
         + reverse("line-manager-start", args=[leaving_request.uuid]),
