@@ -20,7 +20,7 @@ from django.http.request import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 
-from core.forms import YesNoField
+from core.forms import BaseForm, YesNoField
 from core.staff_search.forms import staff_search_autocomplete_field
 from leavers.types import LeavingReason, ReturnOptions, SecurityClearance, StaffType
 
@@ -48,7 +48,11 @@ LEAVING_CHOICES[-1].divider = "or"
 LEAVING_CHOICES.append(Choice("none_of_the_above", "None of the above"))
 
 
-class WhyAreYouLeavingForm(forms.Form):
+class WhyAreYouLeavingForm(BaseForm):
+    required_error_messages: Dict[str, str] = {
+        "reason": "Please tell us the reason that you are leaving the department.",
+    }
+
     reason = forms.ChoiceField(
         label="",
         widget=forms.RadioSelect,
@@ -65,7 +69,11 @@ class WhyAreYouLeavingForm(forms.Form):
         )
 
 
-class StaffTypeForm(forms.Form):
+class StaffTypeForm(BaseForm):
+    required_error_messages: Dict[str, str] = {
+        "staff_type": "Please tell us your type of employment.",
+    }
+
     staff_type = forms.ChoiceField(
         label="",
         widget=forms.RadioSelect,
@@ -82,7 +90,7 @@ class StaffTypeForm(forms.Form):
         )
 
 
-class EmploymentProfileForm(forms.Form):
+class EmploymentProfileForm(BaseForm):
     required_error_messages: Dict[str, str] = {
         "first_name": "Please tell us your first name.",  # /PS-IGNORE
         "last_name": "Please tell us your last name.",  # /PS-IGNORE
@@ -104,9 +112,6 @@ class EmploymentProfileForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        for field_name, required_message in self.required_error_messages.items():
-            self.fields[field_name].error_messages["required"] = required_message
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -144,7 +149,11 @@ class EmploymentProfileForm(forms.Form):
         )
 
 
-class FindPersonIDForm(forms.Form):
+class FindPersonIDForm(BaseForm):
+    required_error_messages: Dict[str, str] = {
+        "personal_email": "Please enter an email for us to search for.",
+    }
+
     personal_email = forms.EmailField(label="Personal email")
 
     def __init__(self, *args, **kwargs):
@@ -187,7 +196,11 @@ RETURN_OPTIONS = [
 ]
 
 
-class ReturnOptionForm(forms.Form):
+class ReturnOptionForm(BaseForm):
+    required_error_messages: Dict[str, str] = {
+        "return_option": "Please select how you would like to return your equipment.",
+    }
+
     return_option = forms.ChoiceField(
         label="",
         choices=RETURN_OPTIONS,
@@ -203,7 +216,7 @@ class ReturnOptionForm(forms.Form):
         )
 
 
-class LeaverDatesForm(forms.Form):
+class LeaverDatesForm(BaseForm):
     required_error_messages: Dict[str, str] = {
         "leaving_date": "Please enter the day, month and year of your leaving date.",
         "last_day": "Please enter the day, month and year of your last working day.",
@@ -216,9 +229,6 @@ class LeaverDatesForm(forms.Form):
 
     def __init__(self, request: HttpRequest, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        for field_name, required_message in self.required_error_messages.items():
-            self.fields[field_name].error_messages["required"] = required_message
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -287,7 +297,7 @@ class LeaverDatesForm(forms.Form):
             )
 
 
-class LeaverHasAssetsForm(forms.Form):
+class LeaverHasAssetsForm(BaseForm):
     required_error_messages: Dict[str, str] = {
         "has_gov_procurement_card": "Please tell us if you have a GPC.",
         "has_rosa_kit": "Please tell us if you have ROSA kit.",
@@ -300,9 +310,6 @@ class LeaverHasAssetsForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        for field_name, required_message in self.required_error_messages.items():
-            self.fields[field_name].error_messages["required"] = required_message
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -325,7 +332,11 @@ class LeaverHasAssetsForm(forms.Form):
         )
 
 
-class HasCirrusKitForm(forms.Form):
+class HasCirrusKitForm(BaseForm):
+    required_error_messages: Dict[str, str] = {
+        "has_cirrus_kit": "Please tell us if you have Cirrus equipment.",
+    }
+
     has_cirrus_kit = YesNoField(label="Do you have any Cirrus equipment?")
 
     def __init__(self, *args, **kwargs):
@@ -341,7 +352,10 @@ class HasCirrusKitForm(forms.Form):
         )
 
 
-class AddCirrusAssetForm(forms.Form):
+class AddCirrusAssetForm(BaseForm):
+    required_error_messages: Dict[str, str] = {
+        "asset_name": "Please enter a name for the asset you wish to add.",
+    }
     asset_name = forms.CharField(label="Name of asset")
 
     def __init__(self, *args, **kwargs):
@@ -380,7 +394,7 @@ def radios_with_conditionals(*args, **kwargs) -> Field:
     return field
 
 
-class CirrusReturnFormNoAssets(forms.Form):
+class CirrusReturnFormNoAssets(BaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -390,8 +404,9 @@ class CirrusReturnFormNoAssets(forms.Form):
         )
 
 
-class CirrusReturnFormWithAssets(forms.Form):
+class CirrusReturnFormWithAssets(BaseForm):
     required_error_messages: Dict[str, str] = {
+        "return_option": "Please select how you would like to return your equipment.",
         "office_personal_phone": "Please tell us your contact phone number.",
         "home_personal_phone": "Please tell us your contact phone number.",
         "office_contact_email": "Please tell us your contact email.",
@@ -421,9 +436,6 @@ class CirrusReturnFormWithAssets(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        for field_name, required_message in self.required_error_messages.items():
-            self.fields[field_name].error_messages["required"] = required_message
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -519,7 +531,11 @@ class CirrusReturnFormWithAssets(forms.Form):
                     self.cleaned_data.pop(return_option_field, None)
 
 
-class AddDisplayScreenEquipmentAssetForm(forms.Form):
+class AddDisplayScreenEquipmentAssetForm(BaseForm):
+    required_error_messages: Dict[str, str] = {
+        "asset_name": "Please enter a name for the asset you wish to add.",
+    }
+
     asset_name = forms.CharField(label="Asset name")
 
     def __init__(self, *args, **kwargs):
@@ -546,7 +562,7 @@ class SubmissionForm(forms.Form):
         )
 
 
-class LeaverContactDetailsForm(forms.Form):
+class LeaverContactDetailsForm(BaseForm):
     required_error_messages: Dict[str, str] = {
         "contact_phone": "Please tell us your personal phone number.",
         "contact_email_address": "Please tell us your personal email address.",
@@ -568,9 +584,6 @@ class LeaverContactDetailsForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        for field_name, required_message in self.required_error_messages.items():
-            self.fields[field_name].error_messages["required"] = required_message
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
