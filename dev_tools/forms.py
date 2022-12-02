@@ -27,7 +27,7 @@ class ChangeUserForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("user"),
-            Submit("submit", "Select user"),
+            Submit("submit", "Select user", css_id="change-user-form-submit"),
         )
 
 
@@ -50,7 +50,7 @@ class CreateUserForm(forms.Form):
             Field("last_name"),
             Field("email"),
             Field("group"),
-            Submit("submit", "Create user"),
+            Submit("submit", "Create user", css_id="create-user-form-submit"),
         )
 
     def clean_email(self):
