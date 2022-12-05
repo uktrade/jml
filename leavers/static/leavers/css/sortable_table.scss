@@ -1,29 +1,21 @@
 [aria-sort] a,
 [aria-sort] a:hover {
-    position: relative;
-    text-decoration: none;
+  position: relative;
+  text-decoration: none;
 }
 
 [aria-sort] a:focus {
-    background-color: $govuk-focus-colour;
-    color: $govuk-focus-text-colour;
-    box-shadow: 0 -2px $govuk-focus-colour, 0 4px $govuk-focus-text-colour;
-    outline: none;
+  background-color: $govuk-focus-colour;
+  color: $govuk-focus-text-colour;
+  box-shadow: 0 -2px $govuk-focus-colour, 0 4px $govuk-focus-text-colour;
+  outline: none;
 }
 
 [aria-sort]:first-child a {
-    right: auto;
+  right: auto;
 }
 
-[aria-sort] a:after {
-    content: "⮁";
-    padding-left: 5px;
-}
-
-[aria-sort="ascending"] a:after {
-    content: "🠕";
-}
-
-[aria-sort="descending"] a:after {
-    content: "🠗";
+[aria-sort] > a > img {
+  width: 1em;
+  padding-left: 4px;
 }
