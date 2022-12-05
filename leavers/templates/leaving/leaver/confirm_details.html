@@ -16,9 +16,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">Employment profile</h2>
-            <a href="{% url 'employment-profile' %}"
-                class="govuk-button govuk-button--secondary"
-                data-module="govuk-button">Edit information</a>
+
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
@@ -26,6 +24,11 @@
                     </dt>
                     <dd class="govuk-summary-list__value">
                         {{ leaver_info.leaver_first_name }} {{ leaver_info.leaver_last_name }}
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{% url 'employment-profile' %}">
+                            Change<span class="govuk-visually-hidden"> name</span>
+                        </a>
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -35,6 +38,11 @@
                     <dd class="govuk-summary-list__value">
                         {{ leaver_info.job_title }}
                     </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{% url 'employment-profile' %}">
+                            Change<span class="govuk-visually-hidden"> job title</span>
+                        </a>
+                    </dd>
                 </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
@@ -42,6 +50,11 @@
                     </dt>
                     <dd class="govuk-summary-list__value">
                         {{ leaver_info.leaver_date_of_birth }}
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{% url 'employment-profile' %}">
+                            Change<span class="govuk-visually-hidden"> date of birth</span>
+                        </a>
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -51,6 +64,11 @@
                     <dd class="govuk-summary-list__value">
                         {{ staff_type.label }}
                     </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{% url 'employment-profile' %}">
+                            Change<span class="govuk-visually-hidden"> staff type</span>
+                        </a>
+                    </dd>
                 </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
@@ -59,6 +77,11 @@
                     <dd class="govuk-summary-list__value">
                         {{ security_clearance.label }}
                     </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{% url 'employment-profile' %}">
+                            Change<span class="govuk-visually-hidden"> security clearance</span>
+                        </a>
+                    </dd>
                 </div>
             </dl>
         </div>
@@ -66,9 +89,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">Leaving information</h2>
-            <a href="{% url 'leaver-dates' %}"
-                class="govuk-button govuk-button--secondary"
-                data-module="govuk-button">Edit information</a>
+
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
@@ -76,6 +97,11 @@
                     </dt>
                     <dd class="govuk-summary-list__value">
                         {{ leaver_info.leaving_date }}
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{% url 'leaver-dates' %}">
+                            Change<span class="govuk-visually-hidden"> leaving date</span>
+                        </a>
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -85,6 +111,11 @@
                     <dd class="govuk-summary-list__value">
                         {{ leaver_info.last_day }}
                     </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{% url 'leaver-dates' %}">
+                            Change<span class="govuk-visually-hidden"> last working day</span>
+                        </a>
+                    </dd>
                 </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
@@ -93,6 +124,11 @@
                     <dd class="govuk-summary-list__value">
                         {{ leaving_request.manager_activitystream_user.full_name }}
                     </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{% url 'leaver-dates' %}">
+                            Change<span class="govuk-visually-hidden"> line manager</span>
+                        </a>
+                    </dd>
                 </div>
             </dl>
         </div>
@@ -100,9 +136,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">Return of DIT assets</h2>
-            <a href="{% url 'leaver-has-assets' %}"
-                class="govuk-button govuk-button--secondary"
-                data-module="govuk-button">Edit information</a>
+
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
@@ -110,6 +144,11 @@
                     </dt>
                     <dd class="govuk-summary-list__value">
                         {{ leaving_request.holds_government_procurement_card|yesno:"Yes,No" }}
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{% url 'leaver-has-assets' %}">
+                            Change<span class="govuk-visually-hidden"> has goverment procurement card</span>
+                        </a>
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -119,6 +158,11 @@
                     <dd class="govuk-summary-list__value">
                         {{ leaving_request.is_rosa_user|yesno:"Yes,No" }}
                     </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{% url 'leaver-has-assets' %}">
+                            Change<span class="govuk-visually-hidden"> has ROSA</span>
+                        </a>
+                    </dd>
                 </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
@@ -127,6 +171,11 @@
                     <dd class="govuk-summary-list__value">
                         {{ leaver_info.has_dse|yesno:"Yes,No" }}
                     </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{% url 'leaver-has-assets' %}">
+                            Change<span class="govuk-visually-hidden"> has IT equipment</span>
+                        </a>
+                    </dd>
                 </div>
             </dl>
         </div>
@@ -134,9 +183,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">Return Cirrus kit</h2>
-            <a href="{% url 'leaver-has-cirrus-equipment' %}"
-                class="govuk-button govuk-button--secondary"
-                data-module="govuk-button">Edit information</a>
+
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
@@ -152,6 +199,11 @@
                             No Cirrus kit listed.
                         {% endif %}
                     </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" href="{% url 'leaver-has-cirrus-equipment' %}">
+                            Change<span class="govuk-visually-hidden"> cirrus kit</span>
+                        </a>
+                    </dd>
                 </div>
                 {% if return_option %}
                     <div class="govuk-summary-list__row">
@@ -165,6 +217,11 @@
                                 Return to the office
                             {% endif %}
                         </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="{% url 'leaver-has-cirrus-equipment' %}">
+                                Change<span class="govuk-visually-hidden"> return method</span>
+                            </a>
+                        </dd>
                     </div>
                 {% endif %}
                 {% if return_personal_phone %}
@@ -175,6 +232,11 @@
                         <dd class="govuk-summary-list__value">
                             {{ return_personal_phone }}
                         </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="{% url 'leaver-has-cirrus-equipment' %}">
+                                Change<span class="govuk-visually-hidden"> return contact phone</span>
+                            </a>
+                        </dd>
                     </div>
                 {% endif %}
                 {% if return_contact_email %}
@@ -184,6 +246,11 @@
                         </dt>
                         <dd class="govuk-summary-list__value">
                             {{ return_contact_email }}
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="{% url 'leaver-has-cirrus-equipment' %}">
+                                Change<span class="govuk-visually-hidden"> return contact email</span>
+                            </a>
                         </dd>
                     </div>
                 {% endif %}
@@ -201,6 +268,11 @@
                                 <p>{{ leaver_info.return_address.postcode }}</p>
                             </address>
                         </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="{% url 'leaver-has-cirrus-equipment' %}">
+                                Change<span class="govuk-visually-hidden"> delivery address</span>
+                            </a>
+                        </dd>
                     </div>
                 {% endif %}
             </dl>
@@ -210,9 +282,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
                 <h2 class="govuk-heading-m">Return DIT-owned equipment over £150</h2>
-                <a href="{% url 'leaver-display-screen-equipment' %}"
-                    class="govuk-button govuk-button--secondary"
-                    data-module="govuk-button">Edit information</a>
+
                 <dl class="govuk-summary-list">
                     <div class="govuk-summary-list__row">
                         <dt class="govuk-summary-list__key">
@@ -228,6 +298,11 @@
                                 No IT equipment listed.
                             {% endif %}
                         </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="{% url 'leaver-display-screen-equipment' %}">
+                                Change<span class="govuk-visually-hidden"> IT equipment (expensed)</span>
+                            </a>
+                        </dd>
                     </div>
                 </dl>
             </div>
@@ -236,9 +311,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">Personal contact details</h2>
-            <a href="{% url 'leaver-contact-details' %}"
-                class="govuk-button govuk-button--secondary"
-                data-module="govuk-button">Edit information</a>
+
             <dl class="govuk-summary-list">
                 {% if leaver_info.contact_phone %}
                     <div class="govuk-summary-list__row">
@@ -247,6 +320,11 @@
                         </dt>
                         <dd class="govuk-summary-list__value">
                             {{ leaver_info.contact_phone }}
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="{% url 'leaver-contact-details' %}">
+                                Change<span class="govuk-visually-hidden"> phone</span>
+                            </a>
                         </dd>
                     </div>
                 {% endif %}
@@ -257,6 +335,11 @@
                         </dt>
                         <dd class="govuk-summary-list__value">
                             {{ leaver_info.personal_email }}
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="{% url 'leaver-contact-details' %}">
+                                Change<span class="govuk-visually-hidden"> email</span>
+                            </a>
                         </dd>
                     </div>
                 {% endif %}
@@ -273,6 +356,11 @@
                                 <p>{{ leaver_info.contact_address.county }}</p>
                                 <p>{{ leaver_info.contact_address.postcode }}</p>
                             </address>
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="{% url 'leaver-contact-details' %}">
+                                Change<span class="govuk-visually-hidden"> address</span>
+                            </a>
                         </dd>
                     </div>
                 {% endif %}
