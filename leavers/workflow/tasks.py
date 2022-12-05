@@ -22,7 +22,7 @@ from leavers.exceptions import (
     ManagerDoesNotHaveUKSBSPersonId,
 )
 from leavers.models import LeaverInformation, LeavingRequest, TaskLog
-from leavers.types import ReminderEmailDict
+from leavers.types import LeavingReason, ReminderEmailDict
 from leavers.utils.emails import (
     get_leaving_request_email_personalisation,
     send_clu4_leaver_email,
@@ -44,6 +44,12 @@ from leavers.utils.emails import (
 from leavers.utils.leaving_request import get_leaver_details
 
 
+class SkipCondition(Enum):
+    IS_NOT_ROSA_USER = "is_not_rosa_user"
+    MANUALLY_OFFBOARDED_FROM_UKSBS = "manually_offboarded_from_uksbs"
+    IS_TRANSFER = "is_transfer"
+
+
 class LeavingRequestTask(Task):
     abstract = True
 
@@ -57,6 +63,23 @@ class LeavingRequestTask(Task):
                 "The Flow is missing the LeavingRequest that it relates to."
             )
         self.leaving_request: LeavingRequest = leaving_request
+
+    def should_skip(self, task_info) -> bool:
+        skip_conditions: List[str] = task_info.get("skip_conditions", [])
+        skip_results: List[bool] = []
+        for skip_condition in skip_conditions:
+            if skip_condition == SkipCondition.IS_TRANSFER.value:
+                skip_results.append(
+                    self.leaving_request.reason_for_leaving
+                    == LeavingReason.TRANSFER.value
+                )
+            if skip_condition == SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value:
+                skip_results.append(
+                    bool(self.leaving_request.manually_offboarded_from_uksbs)
+                )
+            if skip_condition == SkipCondition.IS_NOT_ROSA_USER.value:
+                skip_results.append(not self.leaving_request.is_rosa_user)
+        return any(skip_results)
 
 
 class BasicTask(LeavingRequestTask):
@@ -297,13 +320,6 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
     task_name = "send_uksbs_leaver_details"
     auto = True
 
-    def should_skip(self, task_info) -> bool:
-        if "skip_condition" in task_info:
-            skip_condition: str = task_info["skip_condition"]
-            if skip_condition == SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value:
-                return bool(self.leaving_request.manually_offboarded_from_uksbs)
-        return False
-
     def execute(self, task_info):
         from core.uksbs.utils import build_leaving_data_from_leaving_request
 
@@ -488,11 +504,6 @@ SRE_REMINDER_EMAIL_IDS: List[EmailIds] = [
 ]
 
 
-class SkipCondition(Enum):
-    IS_NOT_ROSA_USER = "is_not_rosa_user"
-    MANUALLY_OFFBOARDED_FROM_UKSBS = "manually_offboarded_from_uksbs"
-
-
 class EmailTask(LeavingRequestTask):
     abstract = True
 
@@ -538,13 +549,6 @@ class EmailTask(LeavingRequestTask):
             )
             self.leaving_request.email_task_logs.add(email_task_log)
             self.leaving_request.save()
-
-    def should_skip(self, task_info) -> bool:
-        if "skip_condition" in task_info:
-            skip_condition: str = task_info["skip_condition"]
-            if skip_condition == SkipCondition.IS_NOT_ROSA_USER.value:
-                return not self.leaving_request.is_rosa_user
-        return False
 
     def execute(self, task_info):
         if not is_work_day_and_time(timezone.now()):

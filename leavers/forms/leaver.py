@@ -64,7 +64,7 @@ class WhyAreYouLeavingForm(BaseForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field.radios("reason"),
+            radios_with_conditionals("reason"),
             Submit("submit", "Next"),
         )
 

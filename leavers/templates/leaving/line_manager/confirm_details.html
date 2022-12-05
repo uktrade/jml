@@ -1,124 +1,137 @@
 {% extends "leaving/leaving_base.html" %}
 {% load crispy_forms_tags crispy_forms_gds %}
-
 {% block content %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% error_summary form %}
-        </div>
+        <div class="govuk-grid-column-two-thirds">{% error_summary form %}</div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <span class="govuk-caption-l">Page 4 of 4</span>
+            <span class="govuk-caption-l">Page {{ page_count }} of {{ page_count }}</span>
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             {% include "leaving/line_manager/includes/staff_card.html" with staff_details=leaver %}
         </div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">{{ possessive_leaver_name }} information</h2>
-
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">Leaving date</dt>
-                    <dd class="govuk-summary-list__value">{{ leaving_date }}</dd>
+                    <dt class="govuk-summary-list__key">
+                        Leaving date
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ leaving_date }}
+                    </dd>
                     <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="{{ leaver_confirmation_view_url }}">Edit<span class="govuk-visually-hidden"> leaving date</span></a>
+                        <a class="govuk-link" href="{{ leaver_confirmation_view_url }}">Edit<span class="govuk-visually-hidden">leaving date</span></a>
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">Last working day</dt>
-                    <dd class="govuk-summary-list__value">{{ last_day }}</dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="{{ leaver_confirmation_view_url }}">Edit<span class="govuk-visually-hidden"> last working day</span></a>
+                    <dt class="govuk-summary-list__key">
+                        Last working day
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        {{ last_day }}
                     </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">Reason for leaving</dt>
-                    <dd class="govuk-summary-list__value">{{ reason_for_leaving }}</dd>
                     <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="{{ leaver_confirmation_view_url }}">Edit<span class="govuk-visually-hidden"> reason for leaving</span></a>
+                        <a class="govuk-link" href="{{ leaver_confirmation_view_url }}">Edit<span class="govuk-visually-hidden">last working day</span></a>
                     </dd>
                 </div>
                 {% if data_recipient %}
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">Leaver data transfer </dt>
-                        <dd class="govuk-summary-list__value">{{ data_recipient.first_name }} {{ data_recipient.last_name }}</dd>
+                        <dt class="govuk-summary-list__key">
+                            Leaver data transfer
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ data_recipient.first_name }} {{ data_recipient.last_name }}
+                        </dd>
                         <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link" href="{{ leaver_confirmation_view_url }}">Edit<span class="govuk-visually-hidden"> leaver data transfer recipient</span></a>
+                            <a class="govuk-link" href="{{ leaver_confirmation_view_url }}">Edit<span class="govuk-visually-hidden">leaver data transfer recipient</span></a>
                         </dd>
                     </div>
                 {% endif %}
             </dl>
         </div>
     </div>
-
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">HR and payroll</h2>
-
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">Annual leave</dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ annual_leave }}
-                        {% if has_annual_leave %}
-                            <br />
-                            {{ annual_number }} {{ annual_leave_measurement }}
-                        {% endif %}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="{{ details_view_url }}">Edit<span class="govuk-visually-hidden">annual leave</span></a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">Flexi-leave</dt>
-                    <dd class="govuk-summary-list__value">
-                        {{ flexi_leave }}
-                        {% if has_flexi_leave %}
-                            <br />
-                            {{ flexi_number }} Hours
-                        {% endif %}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="{{ details_view_url }}">Edit<span class="govuk-visually-hidden"> annual leave</span></a>
-                    </dd>
-                </div>
-            </dl>
-        </div>
-    </div>
-
-    {% if line_reports %}
+    {% if leaving_request.show_hr_and_payroll %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-m">Team members</h2>
-
+                <h2 class="govuk-heading-m">HR and payroll</h2>
                 <dl class="govuk-summary-list">
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">Name</dt>
-                        <dt class="govuk-summary-list__key">New line manager</dt>
-                        <dt class="govuk-summary-list__key"></dt>
+                        <dt class="govuk-summary-list__key">
+                            Annual leave
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ annual_leave }}
+                            {% if has_annual_leave %}
+                                <br />
+                                {{ annual_number }} {{ annual_leave_measurement }}
+                            {% endif %}
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="{{ details_view_url }}">Edit<span class="govuk-visually-hidden">annual leave</span></a>
+                        </dd>
                     </div>
-                    {% for line_report in line_reports %}
-                        <div class="govuk-summary-list__row">
-                            <dd class="govuk-summary-list__value">{{ line_report.name }}</dd>
-                            <dd class="govuk-summary-list__value">{{ line_report.line_manager.name }}</dd>
-                            <dd class="govuk-summary-list__actions">
-                                <a class="govuk-link" href="{{ line_reports_view }}">Edit<span class="govuk-visually-hidden"> team members</span></a>
-                            </dd>
-                        </div>
-                    {% endfor %}
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            Flexi-leave
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            {{ flexi_leave }}
+                            {% if has_flexi_leave %}
+                                <br />
+                                {{ flexi_number }} Hours
+                            {% endif %}
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link" href="{{ details_view_url }}">Edit<span class="govuk-visually-hidden">annual leave</span></a>
+                        </dd>
+                    </div>
                 </dl>
             </div>
         </div>
     {% endif %}
-
+    {% if leaving_request.show_line_reports %}
+        {% if line_reports %}
+            <div class="govuk-grid-row">
+                <div class="govuk-grid-column-two-thirds">
+                    <h2 class="govuk-heading-m">Team members</h2>
+                    <dl class="govuk-summary-list">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Name
+                            </dt>
+                            <dt class="govuk-summary-list__key">
+                                New line manager
+                            </dt>
+                            <dt class="govuk-summary-list__key">
+                            </dt>
+                        </div>
+                        {% for line_report in line_reports %}
+                            <div class="govuk-summary-list__row">
+                                <dd class="govuk-summary-list__value">
+                                    {{ line_report.name }}
+                                </dd>
+                                <dd class="govuk-summary-list__value">
+                                    {{ line_report.line_manager.name }}
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    <a class="govuk-link" href="{{ line_reports_view }}">Edit<span class="govuk-visually-hidden">team members</span></a>
+                                </dd>
+                            </div>
+                        {% endfor %}
+                    </dl>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h2 class="govuk-heading-m">Send us {{ possessive_leaver_name }} leaving information</h2>
-            <p class="govuk-body">By sending this information, you are confirming that, to the best of your knowledge, the details you are providing are correct.</p>
+            <p class="govuk-body">
+                By sending this information, you are confirming that, to the best of your knowledge, the details you are providing are correct.
+            </p>
             <p class="govuk-body">You will receive an email after you accept and send.</p>
             {% crispy form %}
         </div>

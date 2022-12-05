@@ -14,10 +14,15 @@ from leavers.forms.line_manager import (
     DaysHours,
     FlexiLeavePaidOrDeducted,
     LeaverPaidUnpaid,
-    ReasonForLeaving,
 )
 from leavers.forms.sre import ServiceAndToolActions
-from leavers.types import ReturnOptions, SecurityClearance, StaffType, TaskNote
+from leavers.types import (
+    LeavingReason,
+    ReturnOptions,
+    SecurityClearance,
+    StaffType,
+    TaskNote,
+)
 
 
 class TaskLog(models.Model):
@@ -124,7 +129,7 @@ class LeavingRequest(models.Model):
         null=True,
     )
     reason_for_leaving = models.CharField(
-        choices=ReasonForLeaving.choices,
+        choices=LeavingReason.choices,
         max_length=255,
         blank=True,
         null=True,
@@ -160,6 +165,14 @@ class LeavingRequest(models.Model):
 
     line_manager_complete = models.DateTimeField(null=True, blank=True)
     line_manager_service_now_complete = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def show_hr_and_payroll(self) -> bool:
+        return self.reason_for_leaving != LeavingReason.TRANSFER.value
+
+    @property
+    def show_line_reports(self) -> bool:
+        return self.reason_for_leaving != LeavingReason.TRANSFER.value
 
     """
     SRE Access

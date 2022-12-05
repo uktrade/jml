@@ -84,3 +84,6 @@
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_LM                    | None                                        |                                                                                                        |
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC                  | None                                        |                                                                                                        |
 | GETADDRESS_TOKEN                                                 | None                                        | API Key or Domain token for getAddress() autocomplete                                                  |
+| PERFORMANCE_REVIEW_URL                                           | None                                        | Link to the performance review forms                                                                   |
+| DIT_EXPERIENCE_SURVEY                                            | None                                        | Link to the DIT Experience Survey                                                                      |
+| TRANSFER_TO_OGD_URL                                              | None                                        | Link to guidance for transferring to another gov department                                            |

@@ -1,5 +1,5 @@
 $govuk-page-width: 1800px;
-$govuk-brand-colour: #cf102d;
+$dit-brand-colour: #CF102D;
 $govuk-assets-path: "/static/govuk-frontend/govuk/assets/";
 @import "./node_modules/govuk-frontend/govuk/all";
 @import "./node_modules/@ministryofjustice/frontend/moj/all";
@@ -30,6 +30,18 @@ $govuk-assets-path: "/static/govuk-frontend/govuk/assets/";
   width: 100%;
   margin-bottom: 26px;
   border: 1px solid black;
+}
+
+$govuk-header-border-color: $dit-brand-colour;
+.govuk-header__container--full-width {
+    border-color: $govuk-header-border-color;
+}
+.govuk-header__container {
+    border-bottom-color: $govuk-header-border-color;
+}
+
+.govuk-back-link {
+    margin-bottom: 40px;
 }
 
 address p {

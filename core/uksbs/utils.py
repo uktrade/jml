@@ -22,7 +22,7 @@ from leavers.forms.line_manager import (
     FlexiLeavePaidOrDeducted,
 )
 from leavers.models import LeavingRequest
-from leavers.types import LeavingRequestLineReport
+from leavers.types import LeavingReason, LeavingRequestLineReport
 
 UKSBS_DATE_FORMAT_STR = "%d/%m/%Y %H:%M"
 
@@ -191,6 +191,11 @@ def build_leaving_data_from_leaving_request(
         }
         direct_reports.append(direct_report)
 
+    reason_for_leaving = LeavingReason(leaving_request.reason_for_leaving)
+    leaver_reason_for_leaving: Literal["resignation", "end_of_contract"] = "resignation"
+    if reason_for_leaving == LeavingReason.END_OF_CONTRACT:
+        leaver_reason_for_leaving = "end_of_contract"
+
     template_data: TemplateData = {
         "additionalDirectReports": [],
         "directReports": direct_reports,
@@ -211,7 +216,7 @@ def build_leaving_data_from_leaving_request(
         # TODO: I don't think the person_id is the oracle ID
         "leaverOracleID": str(uksbs_leaver["person_id"]),
         "leaverEmployeeNumber": uksbs_leaver["employee_number"],
-        "leaverReasonForLeaving": leaving_request.reason_for_leaving,
+        "leaverReasonForLeaving": leaver_reason_for_leaving,
         "leaverLastDay": leaving_request.last_day.strftime(UKSBS_DATE_FORMAT_STR),
         # Leaver Correspondance Details
         "newCorrEmail": "",

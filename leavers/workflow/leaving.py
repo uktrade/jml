@@ -142,7 +142,10 @@ LeaversWorkflow = Workflow(
                 "are_all_tasks_complete",
             ],
             task_info={
-                "skip_condition": SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value,
+                "skip_conditions": [
+                    SkipCondition.IS_TRANSFER.value,
+                    SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value,
+                ],
             },
         ),
         # Service Now
@@ -255,7 +258,7 @@ LeaversWorkflow = Workflow(
             ],
             task_info={
                 "email_id": EmailIds.SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION.value,
-                "skip_condition": SkipCondition.IS_NOT_ROSA_USER.value,
+                "skip_conditions": [SkipCondition.IS_NOT_ROSA_USER.value],
             },
         ),
         Step(
@@ -273,7 +276,7 @@ LeaversWorkflow = Workflow(
                 "have_security_carried_out_rk_leaving_tasks",
             ],
             task_info={
-                "skip_condition": SkipCondition.IS_NOT_ROSA_USER.value,
+                "skip_conditions": [SkipCondition.IS_NOT_ROSA_USER.value],
                 "processor_emails": [settings.SECURITY_TEAM_ROSA_EMAIL],
                 **SECURITY_TEAM_RK_REMINDER_EMAILS,  # type: ignore
             },
