@@ -10,12 +10,13 @@ from activity_stream.models import (
     ActivityStreamStaffSSOUser,
     ActivityStreamStaffSSOUserEmail,
 )
+from core.views import BaseTemplateView
 
 if TYPE_CHECKING:
     from user.models import User
 
 
-class ChoosePrimaryEmailView(FormView):
+class ChoosePrimaryEmailView(FormView, BaseTemplateView):
     template_name = "activity_stream/choose_primary_email.html"
     form_class = ChoosePrimaryEmailForm
 

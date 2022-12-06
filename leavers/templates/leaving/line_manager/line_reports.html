@@ -1,9 +1,9 @@
 {% extends "leaving/leaving_base.html" %}
 {% load static crispy_forms_tags crispy_forms_gds %}
+
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% back_link back_url %}
             {% error_summary form %}
             {% include "includes/govt_error_summary.html" with errors=errors %}
         </div>

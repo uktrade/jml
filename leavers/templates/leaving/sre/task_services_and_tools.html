@@ -2,12 +2,10 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 
 {% block content %}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             {% error_summary update_status_form %}
             {% error_summary add_note_form %}
-            <a href="{% url 'sre-detail' leaving_request_uuid %}" class="govuk-back-link">Back</a>
         </div>
     </div>
 

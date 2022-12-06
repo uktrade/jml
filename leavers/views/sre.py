@@ -8,11 +8,12 @@ from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView
 
 from core.utils.helpers import DATE_FORMAT_STR, make_possessive
+from core.views import BaseTemplateView
 from leavers.forms.sre import (
     ServiceAndToolActions,
     SREAddTaskNoteForm,
@@ -65,9 +66,11 @@ class ServiceInfo(TypedDict):
     status_text: str
 
 
-class TaskDetailView(UserPassesTestMixin, TemplateView):
+class TaskDetailView(UserPassesTestMixin, BaseTemplateView):
     template_name = "leaving/sre/task.html"
     page_title = "SRE access removal confirmation"
+    back_link_url = reverse_lazy("sre-listing-incomplete")
+    back_link_text = "Back to Leaving requests"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -178,7 +181,7 @@ class TaskDetailView(UserPassesTestMixin, TemplateView):
 
 class TaskServiceAndToolsView(
     UserPassesTestMixin,
-    TemplateView,
+    BaseTemplateView,
 ):
     template_name = "leaving/sre/task_services_and_tools.html"
     forms: Dict[str, Type[Form]] = {
@@ -345,10 +348,14 @@ class TaskServiceAndToolsView(
 
         return context
 
+    def get_back_link_url(self):
+        return reverse("sre-detail", args=[self.leaving_request.uuid])
+
 
 class TaskCompleteConfirmationView(
     UserPassesTestMixin,
     FormView,
+    BaseTemplateView,
 ):
     template_name = "leaving/sre/task_confirmation.html"
     form_class = SREConfirmCompleteForm
@@ -413,14 +420,18 @@ class TaskCompleteConfirmationView(
         )
         return context
 
+    def get_back_link_url(self):
+        return reverse("sre-detail", args=[self.leaving_request.uuid])
+
 
 class TaskSummaryView(
     UserPassesTestMixin,
-    TemplateView,
+    BaseTemplateView,
 ):
     template_name = "leaving/sre/summary.html"
     leaving_request = None
     page_title: str = "SRE access removal summary"
+    back_link_url = reverse_lazy("sre-listing-complete")
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -456,7 +467,7 @@ class TaskSummaryView(
         return context
 
 
-class ThankYouView(UserPassesTestMixin, TemplateView):
+class ThankYouView(UserPassesTestMixin, BaseTemplateView):
     template_name = "leaving/sre/thank_you.html"
     page_title: str = "SRE access removal thank you"
 

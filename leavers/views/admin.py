@@ -17,18 +17,19 @@ from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView
 from django_workflow_engine.models import Flow
 
 from core.people_data import get_people_data_interface
 from core.utils.staff_index import get_csd_for_activitystream_user
+from core.views import BaseTemplateView
 from leavers.forms.admin import ManuallyOffboardedFromUKSBSForm
 from leavers.models import LeavingRequest, TaskLog
 from leavers.types import LeavingRequestLineReport
 from leavers.views import base
 
 
-class LeaversAdminView(TemplateView):
+class LeaversAdminView(BaseTemplateView):
     template_name = "leavers/admin/index.html"
 
     def test_func(self):
@@ -67,7 +68,7 @@ class LeavingRequestListingView(base.LeavingRequestListing):
         return self.request.user.is_staff
 
 
-class LeavingRequestDetailView(UserPassesTestMixin, TemplateView):
+class LeavingRequestDetailView(UserPassesTestMixin, BaseTemplateView):
     template_name = "leavers/admin/leaving_request/detail.html"
 
     def test_func(self):
@@ -198,7 +199,7 @@ class LeavingRequestDetailView(UserPassesTestMixin, TemplateView):
         return context
 
 
-class LeavingRequestManuallyOffboarded(UserPassesTestMixin, FormView):
+class LeavingRequestManuallyOffboarded(UserPassesTestMixin, FormView, BaseTemplateView):
     template_name = "leavers/admin/leaving_request/manual_offboard_from_uksbs.html"
     form_class = ManuallyOffboardedFromUKSBSForm
 
@@ -244,3 +245,6 @@ class LeavingRequestManuallyOffboarded(UserPassesTestMixin, FormView):
         )
         self.leaving_request.save()
         return super().form_valid(form)
+
+    def get_back_link_url(self):
+        return reverse("admin-leaving-request-detail", args=[self.leaving_request.uuid])
