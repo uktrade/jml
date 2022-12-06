@@ -1,15 +1,9 @@
 {% extends "leaving/leaving_base.html" %}
 {% load static crispy_forms_tags crispy_forms_gds %}
+
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            {% if not has_dse %}
-                <a href="{% url 'leaver-has-cirrus-equipment' %}"
-                    class="govuk-back-link">Back</a>
-            {% else %}
-                <a href="{% url 'leaver-display-screen-equipment' %}"
-                    class="govuk-back-link">Back</a>
-            {% endif %}
             {% error_summary form %}
         </div>
     </div>

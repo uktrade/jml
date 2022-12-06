@@ -5,7 +5,6 @@ from django.http.request import HttpRequest
 from django.http.response import HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
 from activity_stream.models import ActivityStreamStaffSSOUser
@@ -17,6 +16,7 @@ from core.utils.staff_index import (
     consolidate_staff_documents,
     get_staff_document_from_staff_index,
 )
+from core.views import BaseTemplateView
 from leavers.forms import leaver as leaver_forms
 from leavers.models import LeavingRequest
 from leavers.utils.leaving_request import update_or_create_leaving_request
@@ -61,7 +61,7 @@ class ManagerSearchView(StaffSearchView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ConfirmationView(FormView):
+class ConfirmationView(FormView, BaseTemplateView):
     template_name = "leaving/report_a_leaver/confirm.html"
     form_class = leaver_forms.LeaverConfirmationForm
     success_url = reverse_lazy("report-a-leaver-request-received")
@@ -228,5 +228,5 @@ class ConfirmationView(FormView):
         return context
 
 
-class RequestReceivedView(TemplateView):
+class RequestReceivedView(BaseTemplateView):
     template_name = "leaving/report_a_leaver/request_received.html"

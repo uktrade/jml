@@ -13,7 +13,7 @@ from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import RedirectView
 from django.views.generic.edit import FormView
 
 from activity_stream.models import ActivityStreamStaffSSOUser
@@ -30,6 +30,7 @@ from core.utils.staff_index import (
     consolidate_staff_documents,
     get_staff_document_from_staff_index,
 )
+from core.views import BaseTemplateView
 from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.forms import line_manager as line_manager_forms
 from leavers.models import LeaverInformation, LeavingRequest
@@ -249,7 +250,7 @@ class LineReportNewLineManagerSearchView(LineManagerViewMixin, StaffSearchView):
         return super().dispatch(request, *args, **kwargs)
 
 
-class StartView(LineManagerViewMixin, TemplateView):
+class StartView(LineManagerViewMixin, BaseTemplateView):
     template_name = "leaving/line_manager/start.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -332,7 +333,7 @@ class RemoveDataRecipientFromLeavingRequestView(LineManagerViewMixin, RedirectVi
         return super().get(request, *args, **kwargs)
 
 
-class LeaverConfirmationView(LineManagerViewMixin, FormView):
+class LeaverConfirmationView(LineManagerViewMixin, FormView, BaseTemplateView):
     template_name = "leaving/line_manager/leaver_confirmation.html"
     form_class = line_manager_forms.ConfirmLeavingDate
 
@@ -503,10 +504,6 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
 
         context.update(
             page_title="Confirm leaver's information",
-            back_url=reverse(
-                "line-manager-start",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
             leaver=self.leaver,
             leaver_name=leaver_name,
             possessive_leaver_name=possessive_leaver_name,
@@ -539,8 +536,14 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView):
 
         return super().form_valid(form)
 
+    def get_back_link_url(self):
+        return reverse(
+            "line-manager-start",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
 
-class DetailsView(LineManagerViewMixin, FormView):
+
+class DetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
     template_name = "leaving/line_manager/details.html"
     form_class = line_manager_forms.LineManagerDetailsForm
 
@@ -629,15 +632,19 @@ class DetailsView(LineManagerViewMixin, FormView):
 
         context.update(
             page_title="HR and payroll",
-            back_url=reverse(
-                "line-manager-leaver-confirmation",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
             leaver_name=self.leaving_request.get_leaver_name(),
             leaver=self.get_leaver(),
         )
 
         return context
+
+    def get_back_link_url(self):
+        return (
+            reverse(
+                "line-manager-leaver-confirmation",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            ),
+        )
 
 
 def line_report_set_new_manager(
@@ -772,7 +779,7 @@ class RemoveLineManagerFromLineReportView(LineManagerViewMixin, RedirectView):
         return super().get(request, *args, **kwargs)
 
 
-class LeaverLineReportsView(LineManagerViewMixin, FormView):
+class LeaverLineReportsView(LineManagerViewMixin, FormView, BaseTemplateView):
     template_name = "leaving/line_manager/line_reports.html"
     form_class = line_manager_forms.LineReportConfirmationForm
 
@@ -887,10 +894,6 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
 
         context.update(
             page_title="Leaver's line reports",
-            back_url=reverse(
-                "line-manager-details",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
             leaver_name=self.leaving_request.get_leaver_name(),
             line_reports=self.leaving_request.line_reports,
             leaver=self.get_leaver(),
@@ -912,8 +915,14 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView):
         form_kwargs["leaving_request"] = self.leaving_request
         return form_kwargs
 
+    def get_back_link_url(self):
+        return reverse(
+            "line-manager-details",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
 
-class ConfirmDetailsView(LineManagerViewMixin, FormView):
+
+class ConfirmDetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
     template_name = "leaving/line_manager/confirm_details.html"
     form_class = line_manager_forms.LineManagerConfirmationForm
 
@@ -1023,10 +1032,6 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
 
         context.update(
             page_title="Check and confirm your answers",
-            back_url=reverse(
-                "line-manager-leaver-line-reports",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
             leaver_name=leaver_name,
             possessive_leaver_name=possessive_leaver_name,
             leaver=self.leaver,
@@ -1064,8 +1069,14 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView):
 
         return super().form_valid(form)
 
+    def get_back_link_url(self):
+        return reverse(
+            "line-manager-leaver-line-reports",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
 
-class ThankYouView(LineManagerViewMixin, TemplateView):
+
+class ThankYouView(LineManagerViewMixin, BaseTemplateView):
     template_name = "leaving/line_manager/thank_you.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -1142,7 +1153,9 @@ class OfflineServiceNowMixin:
         return super().dispatch(request, *args, **kwargs)
 
 
-class OfflineServiceNowView(OfflineServiceNowMixin, LineManagerViewMixin, FormView):
+class OfflineServiceNowView(
+    OfflineServiceNowMixin, LineManagerViewMixin, FormView, BaseTemplateView
+):
     template_name = "leaving/line_manager/offline_service_now.html"
     form_class = line_manager_forms.OfflineServiceNowForm
 
@@ -1185,7 +1198,7 @@ class OfflineServiceNowView(OfflineServiceNowMixin, LineManagerViewMixin, FormVi
 
 
 class OfflineServiceNowThankYouView(
-    OfflineServiceNowMixin, LineManagerViewMixin, TemplateView
+    OfflineServiceNowMixin, LineManagerViewMixin, BaseTemplateView
 ):
     template_name = "leaving/line_manager/offline_service_now_thank_you.html"
 

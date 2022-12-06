@@ -28,6 +28,7 @@ from activity_stream.models import ActivityStreamStaffSSOUser
 from core.staff_search.views import StaffSearchView
 from core.utils.helpers import queryset_to_specific
 from core.utils.staff_index import StaffDocument, get_staff_document_from_staff_index
+from core.views import BaseTemplateView
 
 if TYPE_CHECKING:
     from user.models import User
@@ -67,7 +68,7 @@ class AssetViewMixin:
         return super().dispatch(request, *args, **kwargs)  # type: ignore
 
 
-class ListAssetsView(AssetViewMixin, FormView):
+class ListAssetsView(AssetViewMixin, FormView, BaseTemplateView):
     template_name = "asset_registry/list_assets.html"
     form_class = AssetSearchForm
     search_terms: Optional[str] = None
@@ -128,16 +129,17 @@ class ListAssetsView(AssetViewMixin, FormView):
         return super().render_to_response(self.get_context_data(form=form))
 
 
-class CreatePhysicalAssetView(AssetViewMixin, CreateView):
+class CreatePhysicalAssetView(AssetViewMixin, CreateView, BaseTemplateView):
     model = PhysicalAsset
     template_name = "asset_registry/physical/create.html"
     form_class = PhysicalAssetCreateForm
     success_url = reverse_lazy("list-assets")
 
 
-class PhysicalAssetView(AssetViewMixin, DetailView):
+class PhysicalAssetView(AssetViewMixin, DetailView, BaseTemplateView):
     model = PhysicalAsset
     template_name = "asset_registry/physical/detail.html"
+    back_link_url = reverse_lazy("list-assets")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         obj = self.object  # type: ignore
@@ -154,7 +156,7 @@ class PhysicalAssetView(AssetViewMixin, DetailView):
         return context
 
 
-class UpdatePhysicalAssetView(AssetViewMixin, UpdateView):
+class UpdatePhysicalAssetView(AssetViewMixin, UpdateView, BaseTemplateView):
     model = PhysicalAsset
     template_name = "asset_registry/physical/update.html"
     form_class = PhysicalAssetUpdateForm
@@ -164,16 +166,17 @@ class UpdatePhysicalAssetView(AssetViewMixin, UpdateView):
         return reverse("physical-asset", args=[obj.pk])
 
 
-class CreateSoftwareAssetView(AssetViewMixin, CreateView):
+class CreateSoftwareAssetView(AssetViewMixin, CreateView, BaseTemplateView):
     model = SoftwareAsset
     template_name = "asset_registry/software/create.html"
     form_class = SoftwareAssetCreateForm
     success_url = reverse_lazy("list-assets")
 
 
-class SoftwareAssetView(AssetViewMixin, DetailView):
+class SoftwareAssetView(AssetViewMixin, DetailView, BaseTemplateView):
     model = SoftwareAsset
     template_name = "asset_registry/software/detail.html"
+    back_link_url = reverse_lazy("list-assets")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         obj = self.object  # type: ignore
@@ -190,7 +193,7 @@ class SoftwareAssetView(AssetViewMixin, DetailView):
         return context
 
 
-class UpdateSoftwareAssetView(AssetViewMixin, UpdateView):
+class UpdateSoftwareAssetView(AssetViewMixin, UpdateView, BaseTemplateView):
     model = SoftwareAsset
     template_name = "asset_registry/software/update.html"
     form_class = SoftwareAssetUpdateForm
@@ -281,11 +284,12 @@ def add_user_to_asset(request: HttpRequest, pk: int) -> HttpResponse:
     return return_redirect
 
 
-class UserAssetView(AssetViewMixin, DetailView):
+class UserAssetView(AssetViewMixin, DetailView, BaseTemplateView):
     model = ActivityStreamStaffSSOUser
     template_name = "asset_registry/user.html"
     slug_field = "identifier"
     slug_url_kwarg = "asset_user_uuid"
+    back_link_url = reverse_lazy("list-assets")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         obj = self.object  # type: ignore

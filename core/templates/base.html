@@ -66,6 +66,12 @@
                     </span>
                 </p>
             </div>
+
+            {# Back link #}
+            {% if back_link_url %}
+                <a href="{{ back_link_url }}" class="govuk-back-link mb-0">{{ back_link_text|default_if_none:'Back' }}</a>
+            {% endif %}
+
             <main class="govuk-main-wrapper app-main-class {% block main_class_names %}{% endblock main_class_names %}"
                 id="main-content"
                 role="main">

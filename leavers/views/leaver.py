@@ -8,7 +8,7 @@ from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import redirect
 from django.urls import resolve, reverse, reverse_lazy
 from django.utils import timezone
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import RedirectView
 from django.views.generic.edit import FormView
 
 from activity_stream.models import (
@@ -28,6 +28,7 @@ from core.utils.staff_index import (
     get_csd_for_activitystream_user,
     get_staff_document_from_staff_index,
 )
+from core.views import BaseTemplateView
 from leavers import types
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
@@ -40,11 +41,11 @@ from user.models import User
 LINE_MANAGER_SEARCH_PARAM = "line_manager_uuid"
 
 
-class MultiplePersonIdErrorView(TemplateView):
+class MultiplePersonIdErrorView(BaseTemplateView):
     template_name = "leaving/multiple_person_id_errors.html"
 
 
-class LeaversStartView(TemplateView):
+class LeaversStartView(BaseTemplateView):
     template_name = "leaving/start.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -297,10 +298,11 @@ class LeaverInformationMixin:
         )
 
 
-class WhyAreYouLeavingView(LeaverInformationMixin, FormView):
+class WhyAreYouLeavingView(LeaverInformationMixin, FormView, BaseTemplateView):
     template_name = "leaving/leaver/why_are_you_leaving.html"
     form_class = leaver_forms.WhyAreYouLeavingForm
     success_url = reverse_lazy("leaving-reason-unhandled")
+    back_link_url = reverse_lazy("start")
 
     leaving_reason: Optional[LeavingReason] = None
 
@@ -329,8 +331,9 @@ class WhyAreYouLeavingView(LeaverInformationMixin, FormView):
         return super().get_success_url()
 
 
-class UnhandledLeavingReasonView(LeaverInformationMixin, TemplateView):
+class UnhandledLeavingReasonView(LeaverInformationMixin, BaseTemplateView):
     template_name = "leaving/leaver/unhandled_reason.html"
+    back_link_url = reverse_lazy("why-are-you-leaving")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -338,10 +341,11 @@ class UnhandledLeavingReasonView(LeaverInformationMixin, TemplateView):
         return context
 
 
-class StaffTypeView(LeaverInformationMixin, FormView):
+class StaffTypeView(LeaverInformationMixin, FormView, BaseTemplateView):
     template_name = "leaving/leaver/staff_type.html"
     form_class = leaver_forms.StaffTypeForm
     success_url = reverse_lazy("employment-profile")
+    back_link_url = reverse_lazy("why-are-you-leaving")
 
     def get_initial(self) -> Dict[str, Any]:
         assert self.leaving_request
@@ -372,8 +376,9 @@ class StaffTypeView(LeaverInformationMixin, FormView):
         return context
 
 
-class LeaverFastStreamerView(LeaverInformationMixin, TemplateView):
+class LeaverFastStreamerView(LeaverInformationMixin, BaseTemplateView):
     template_name = "leaving/leaver/fast_streamer.html"
+    back_link_url = reverse_lazy("staff-type")
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -381,10 +386,11 @@ class LeaverFastStreamerView(LeaverInformationMixin, TemplateView):
         return context
 
 
-class EmploymentProfileView(LeaverInformationMixin, FormView):
+class EmploymentProfileView(LeaverInformationMixin, FormView, BaseTemplateView):
     template_name = "leaving/leaver/employment_profile.html"
     form_class = leaver_forms.EmploymentProfileForm
     success_url = reverse_lazy("leaver-find-details")
+    back_link_url = reverse_lazy("staff-type")
 
     def get_initial(self) -> Dict[str, Any]:
         assert self.leaver_info
@@ -430,10 +436,11 @@ class EmploymentProfileView(LeaverInformationMixin, FormView):
         return context
 
 
-class LeaverFindDetailsView(LeaverInformationMixin, FormView):
+class LeaverFindDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
     template_name = "leaving/leaver/leaver_find_details.html"
     form_class = leaver_forms.FindPersonIDForm
     success_url = reverse_lazy("leaver-dates")
+    back_link_url = reverse_lazy("employment-profile")
 
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
@@ -532,8 +539,9 @@ class LeaverFindDetailsView(LeaverInformationMixin, FormView):
         return super().form_valid(form)
 
 
-class LeaverFindDetailsHelpView(LeaverInformationMixin, TemplateView):
+class LeaverFindDetailsHelpView(LeaverInformationMixin, BaseTemplateView):
     template_name = "leaving/leaver/leaver_find_details_help.html"
+    back_link_url = reverse_lazy("leaver-find-details")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -555,10 +563,11 @@ class RemoveLineManagerFromLeavingRequestView(LeaverInformationMixin, RedirectVi
         return super().get(request, *args, **kwargs)
 
 
-class LeaverDatesView(LeaverInformationMixin, FormView):
+class LeaverDatesView(LeaverInformationMixin, FormView, BaseTemplateView):
     template_name = "leaving/leaver/dates.html"
     form_class = leaver_forms.LeaverDatesForm
     success_url = reverse_lazy("leaver-has-assets")
+    back_link_url = reverse_lazy("employment-profile")
 
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
@@ -667,10 +676,11 @@ class LeaverDatesView(LeaverInformationMixin, FormView):
         return context
 
 
-class LeaverHasAssetsView(LeaverInformationMixin, FormView):
+class LeaverHasAssetsView(LeaverInformationMixin, FormView, BaseTemplateView):
     template_name = "leaving/leaver/has_assets.html"
     form_class = leaver_forms.LeaverHasAssetsForm
     success_url = reverse_lazy("leaver-has-cirrus-equipment")
+    back_link_url = reverse_lazy("leaver-dates")
 
     def get_initial(self) -> Dict[str, Any]:
         assert self.leaving_request
@@ -762,10 +772,11 @@ def get_cirrus_assets(request: HttpRequest) -> List[types.CirrusAsset]:
     return request.session.get("cirrus_assets", [])
 
 
-class HasCirrusEquipmentView(LeaverInformationMixin, FormView):
+class HasCirrusEquipmentView(LeaverInformationMixin, FormView, BaseTemplateView):
     template_name = "leaving/leaver/cirrus/has_equipment.html"
     form_class = leaver_forms.HasCirrusKitForm
     success_url = reverse_lazy("leaver-cirrus-equipment")
+    back_link_url = reverse_lazy("leaver-has-assets")
 
     def dispatch(self, request, *args, **kwargs):
         pre_dispatch_response = self.pre_dispatch(request)
@@ -801,7 +812,7 @@ def delete_cirrus_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
     return redirect("leaver-cirrus-equipment")
 
 
-class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
+class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
     forms: Dict[str, Type[Form]] = {
         "add_asset_form": leaver_forms.AddCirrusAssetForm,
         "cirrus_return_form": leaver_forms.CirrusReturnFormWithAssets,
@@ -809,6 +820,7 @@ class CirrusEquipmentView(LeaverInformationMixin, TemplateView):
     }
     template_name = "leaving/leaver/cirrus/equipment.html"
     success_url = reverse_lazy("leaver-display-screen-equipment")
+    back_link_url = reverse_lazy("leaver-has-assets")
 
     def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         session = request.session
@@ -948,13 +960,14 @@ def delete_dse_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
     return redirect("leaver-display-screen-equipment")
 
 
-class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
+class DisplayScreenEquipmentView(LeaverInformationMixin, BaseTemplateView):
     forms: Dict[str, Type[Form]] = {
         "add_asset_form": leaver_forms.AddDisplayScreenEquipmentAssetForm,
         "submission_form": leaver_forms.SubmissionForm,
     }
     template_name = "leaving/leaver/display_screen_equipment.html"
     success_url = reverse_lazy("leaver-contact-details")
+    back_link_url = reverse_lazy("leaver-has-cirrus-equipment")
 
     def dispatch(self, request, *args, **kwargs):
         pre_dispatch_response = self.pre_dispatch(request)
@@ -1032,7 +1045,7 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, TemplateView):
         return context
 
 
-class LeaverContactDetailsView(LeaverInformationMixin, FormView):
+class LeaverContactDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
     template_name = "leaving/leaver/personal_contact_details.html"
     form_class = leaver_forms.LeaverContactDetailsForm
     success_url = reverse_lazy("leaver-confirm-details")
@@ -1097,11 +1110,18 @@ class LeaverContactDetailsView(LeaverInformationMixin, FormView):
         )
         return context
 
+    def get_back_link_url(self):
+        if not self.leaver_info.has_dse:
+            return reverse("leaver-has-cirrus-equipment")
 
-class ConfirmDetailsView(LeaverInformationMixin, FormView):
+        return reverse("leaver-display-screen-equipment")
+
+
+class ConfirmDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
     template_name = "leaving/leaver/confirm_details.html"
     form_class = leaver_forms.LeaverConfirmationForm
     success_url = reverse_lazy("leaver-request-received")
+    back_link_url = reverse_lazy("leaver-contact-details")
 
     def get_context_data(self, **kwargs):
         assert self.leaving_request
@@ -1146,7 +1166,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView):
         return super().form_valid(form)
 
 
-class RequestReceivedView(LeaverInformationMixin, TemplateView):
+class RequestReceivedView(LeaverInformationMixin, BaseTemplateView):
     template_name = "leaving/leaver/request_received.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:

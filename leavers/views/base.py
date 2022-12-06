@@ -15,6 +15,7 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic.edit import FormView
 
+from core.views import BaseTemplateView
 from leavers.forms import data_processor as data_processor_forms
 from leavers.forms.leaver import SecurityClearance
 from leavers.models import LeavingRequest
@@ -23,6 +24,7 @@ from leavers.models import LeavingRequest
 class LeavingRequestListing(
     UserPassesTestMixin,
     FormView,
+    BaseTemplateView,
 ):
     form_class = data_processor_forms.LeavingRequestListingSearchForm
 

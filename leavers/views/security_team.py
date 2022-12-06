@@ -10,10 +10,10 @@ from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
 from core.utils.helpers import make_possessive
+from core.views import BaseTemplateView
 from leavers.forms.security_team import (
     AddTaskNoteForm,
     BuildingPassCloseRecordForm,
@@ -125,9 +125,11 @@ class LeavingRequestListing(base.LeavingRequestListing):
 class BuildingPassConfirmationView(
     UserPassesTestMixin,
     FormView,
+    BaseTemplateView,
 ):
     template_name = "leaving/security_team/confirmation/building_pass.html"
     form_class = AddTaskNoteForm
+    back_link_url = reverse_lazy("security-team-listing-incomplete")
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -210,9 +212,12 @@ class BuildingPassConfirmationView(
 class BuildingPassConfirmationEditView(
     UserPassesTestMixin,
     FormView,
+    BaseTemplateView,
 ):
     template_name = "leaving/security_team/confirmation/building_pass_edit.html"
     form_class = BuildingPassForm
+    back_link_url = reverse_lazy("security-team-listing-incomplete")
+    back_link_text = "Back to Building pass requests"
 
     def get_success_url(self) -> str:
         return reverse_lazy(
@@ -373,9 +378,11 @@ class BuildingPassConfirmationEditView(
 class BuidlingPassConfirmationCloseView(
     UserPassesTestMixin,
     FormView,
+    BaseTemplateView,
 ):
     template_name = "leaving/security_team/confirmation/building_pass_action.html"
     form_class = BuildingPassCloseRecordForm
+    back_link_text = "Back to Building pass requests"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -420,6 +427,11 @@ class BuidlingPassConfirmationCloseView(
         )
         return context
 
+    def get_back_link_url(self):
+        return reverse(
+            "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
+        )
+
 
 def get_rosa_kit_statuses(leaving_request: LeavingRequest) -> Dict[str, Dict[str, str]]:
     if not leaving_request.is_rosa_user:
@@ -459,9 +471,10 @@ def get_rosa_kit_statuses(leaving_request: LeavingRequest) -> Dict[str, Dict[str
 
 class RosaKitConfirmationView(
     UserPassesTestMixin,
-    TemplateView,
+    BaseTemplateView,
 ):
     template_name = "leaving/security_team/confirmation/rosa_kit.html"
+    back_link_url = reverse_lazy("security-team-listing-incomplete")
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -588,13 +601,14 @@ class RosaKitConfirmationView(
 
 class RosaKitFieldView(
     UserPassesTestMixin,
-    TemplateView,
+    BaseTemplateView,
 ):
     template_name = "leaving/security_team/confirmation/rosa_kit_edit.html"
     forms: Dict[str, Type[Form]] = {
         "update_status_form": RosaKitFieldForm,
         "add_note_form": AddTaskNoteForm,
     }
+    back_link_text = "Back to ROSA Kit requests"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -751,13 +765,20 @@ class RosaKitFieldView(
 
         return context
 
+    def get_back_link_url(self):
+        return reverse(
+            "security-team-rosa-kit-confirmation", args=[self.leaving_request.uuid]
+        )
+
 
 class RosaKitConfirmationCloseView(
     UserPassesTestMixin,
     FormView,
+    BaseTemplateView,
 ):
     template_name = "leaving/security_team/confirmation/rosa_kit_action.html"
     form_class = RosaKitCloseRecordForm
+    back_link_text = "Back to ROSA Kit requests"
 
     def test_func(self):
         return self.request.user.groups.filter(
@@ -810,12 +831,18 @@ class RosaKitConfirmationCloseView(
         )
         return context
 
+    def get_back_link_url(self):
+        return reverse(
+            "security-team-rosa-kit-confirmation", args=[self.leaving_request.uuid]
+        )
+
 
 class TaskSummaryView(
     UserPassesTestMixin,
-    TemplateView,
+    BaseTemplateView,
 ):
     template_name = "leaving/security_team/summary.html"
+    back_link_url = reverse_lazy("security-team-listing-complete")
 
     def test_func(self):
         return self.request.user.groups.filter(

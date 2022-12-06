@@ -5,12 +5,6 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <a href="{% url 'list-assets' %}" class="govuk-back-link">Back</a>
-        </div>
-    </div>
-
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-heading-l">{{ object }}</h1>
             <a href="{% url 'update-software-asset' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                 Make changes
