@@ -951,6 +951,8 @@ class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
 
         if self.leaving_request and not self.leaving_request.service_now_offline:
             context.update(cirrus_assets=get_cirrus_assets(request=self.request))
+        else:
+            context.update(cirrus_assets=self.request.session.get("cirrus_assets", []))
 
         return context
 
