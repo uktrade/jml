@@ -783,9 +783,12 @@ class HasCirrusEquipmentView(LeaverInformationMixin, FormView, BaseTemplateView)
         if pre_dispatch_response:
             return pre_dispatch_response
 
-        user_assets = get_cirrus_assets(request=request)
-        if user_assets:
-            return redirect(self.success_url)
+        if not self.leaving_request.service_now_offline:
+            user_assets = get_cirrus_assets(request=request)
+
+            if user_assets:
+                return redirect(self.success_url)
+
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):

@@ -2,7 +2,7 @@ from datetime import date, datetime
 from unittest import mock
 from uuid import uuid4
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
@@ -447,6 +447,7 @@ class TestHasCirrusEquipmentView(TestCase):
             }
         ],
     )
+    @override_settings(SERVICE_NOW_ENABLE_ONLINE_PROCESS=True)
     def test_authenticated_user(self, mock_get_cirrus_assets):
         self.client.force_login(self.leaver)
 
