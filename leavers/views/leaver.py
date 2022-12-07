@@ -949,7 +949,9 @@ class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
             form_initial = getattr(self, f"get_initial_{form_name}")()
             context[form_name] = form_class(initial=form_initial)
 
-        context.update(cirrus_assets=get_cirrus_assets(request=self.request))
+        if self.leaving_request and not self.leaving_request.service_now_offline:
+            context.update(cirrus_assets=get_cirrus_assets(request=self.request))
+
         return context
 
 
