@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, List, Optional, Type
 
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.contrib.postgres.fields import ArrayField
@@ -37,8 +37,8 @@ class ActivityStreamStaffSSOUserQuerySet(models.QuerySet):
         )
 
 
-ActivityStreamStaffSSOUserManager: Manager[
-    "ActivityStreamStaffSSOUser"
+ActivityStreamStaffSSOUserManager: Type[
+    Manager["ActivityStreamStaffSSOUser"]
 ] = models.Manager.from_queryset(ActivityStreamStaffSSOUserQuerySet)
 
 
