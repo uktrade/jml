@@ -44,6 +44,7 @@ class EmailTemplates(Enum):
     IT_OPS_ASSET_EMAIL = email_template_settings.IT_OPS_ASSET_EMAIL
     OCS_LEAVER_EMAIL = email_template_settings.OCS_LEAVER_EMAIL
     OCS_OAB_LOCKER_EMAIL = email_template_settings.OCS_OAB_LOCKER_EMAIL
+    COMEA_EMAIL = email_template_settings.COMEA_EMAIL
 
     SECURITY_TEAM_OFFBOARD_BP_LEAVER_EMAIL = (
         email_template_settings.SECURITY_TEAM_OFFBOARD_BP_LEAVER_EMAIL

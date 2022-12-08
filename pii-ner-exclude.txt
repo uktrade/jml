@@ -131,6 +131,8 @@ CLU4_EMAIL
 CLU4_EMAIL                                               |                                             
 COLOUR_GREEN=\033[32;01
 COLOUR_YELLOW=\033[33;01
+COMEA
+COMEA Team Settings
 Compile SCSS
 component](
 confirm_leaver_data
@@ -362,6 +364,7 @@ Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
 line_report.consolidated_staff_document.job_title
 Loan Pool'
+Locker Email
 Log a Service Now
 Lost/Stolen'
 LSD_HELP_DESK_LIVE
@@ -540,6 +543,7 @@ Tech
 TEMPLATE_ID_CLU4_EMAIL
 TEMPLATE_ID_CLU4_EMAIL                                           |
 TEMPLATE_ID_CLU4_EMAIL                                           | None                                       |                                                                                       
+TEMPLATE_ID_COMEA_EMAIL                              | None                                        |                                                                                                        
 TEMPLATE_ID_FEETHAM_SECURITY_PASS_OFFICE_EMAIL                   
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL
@@ -618,6 +622,7 @@ Unit of Measurement
 Unit of Measurement Hours
 UNUSED ATM
 UNUSED FIELDS
+Update Workflows
 Updated Contact Email
 Updated Personal Email
 User

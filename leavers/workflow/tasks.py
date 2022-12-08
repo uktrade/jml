@@ -26,6 +26,7 @@ from leavers.types import LeavingReason, ReminderEmailDict
 from leavers.utils.emails import (
     get_leaving_request_email_personalisation,
     send_clu4_leaver_email,
+    send_comea_email,
     send_feetham_security_pass_office_email,
     send_it_ops_asset_email,
     send_leaver_not_in_uksbs_reminder,
@@ -92,14 +93,23 @@ class BasicTask(LeavingRequestTask):
 
 
 class PauseTask(LeavingRequestTask):
-    # To be used to stop the workflow from progressing.
+    # To be used to stop the workflow from progressing until a given condition
+    # is met.
 
     abstract = False
     task_name = "pause_task"
     auto = True
 
+    def should_pause(self, task_info) -> bool:
+        pass_condition: str = task_info.get("pass_condition", "")
+        if pass_condition == "after_leaving_date" and self.leaving_request.leaving_date:
+            return timezone.now() > self.leaving_request.leaving_date
+        return True
+
     def execute(self, task_info):
-        return [], False
+        if self.should_pause(task_info):
+            return [], False
+        return [], True
 
 
 class ConfirmLeaverData(LeavingRequestTask):
@@ -399,6 +409,7 @@ class EmailIds(Enum):
     CLU4_EMAIL = "clu4_email"
     OCS_EMAIL = "ocs_email"
     OCS_OAB_LOCKER_EMAIL = "ocs_oab_locker_email"
+    COMEA_EMAIL = "comea_email"
 
 
 EMAIL_MAPPING: Dict[EmailIds, Callable] = {
@@ -417,6 +428,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.CLU4_EMAIL: send_clu4_leaver_email,
     EmailIds.OCS_EMAIL: send_ocs_leaver_email,
     EmailIds.OCS_OAB_LOCKER_EMAIL: send_ocs_oab_locker_email,
+    EmailIds.COMEA_EMAIL: send_comea_email,
 }
 PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
     # Security Offboarding (Building Pass)
