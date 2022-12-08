@@ -1,12 +1,14 @@
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
-from django.urls import include, path
+from django.urls import include, path, reverse_lazy
+from django.views.generic.base import RedirectView
 from rest_framework import routers
 
 from core.utils.urls import decorate_urlpatterns
 from leavers.views.api import LeavingRequestViewSet
 
 private_urlpatterns = [
+    path("", RedirectView.as_view(url=reverse_lazy("start"), permanent=False)),
     path("admin/", admin.site.urls),
     path("assets/", include("asset_registry.urls")),
     path("leavers/", include("leavers.urls")),

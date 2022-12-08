@@ -745,7 +745,9 @@ class LeaverHasAssetsView(LeaverInformationMixin, FormView, BaseTemplateView):
         return context
 
 
-def get_cirrus_assets(request: HttpRequest) -> List[types.CirrusAsset]:
+def get_cirrus_assets(
+    request: HttpRequest, leaving_request: LeavingRequest
+) -> List[types.CirrusAsset]:
     user = cast(User, request.user)
 
     staff_sso_user = ActivityStreamStaffSSOUser.objects.active().get(
@@ -754,7 +756,7 @@ def get_cirrus_assets(request: HttpRequest) -> List[types.CirrusAsset]:
 
     service_now_email: Optional[str] = staff_sso_user.service_now_email_address
 
-    if service_now_email:
+    if service_now_email and not leaving_request.service_now_offline:
         if "cirrus_assets" not in request.session:
             service_now_interface = get_service_now_interface()
             request.session["cirrus_assets"] = [
@@ -778,16 +780,19 @@ class HasCirrusEquipmentView(LeaverInformationMixin, FormView, BaseTemplateView)
     success_url = reverse_lazy("leaver-cirrus-equipment")
     back_link_url = reverse_lazy("leaver-has-assets")
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         pre_dispatch_response = self.pre_dispatch(request)
         if pre_dispatch_response:
             return pre_dispatch_response
 
-        if not self.leaving_request.service_now_offline:
-            user_assets = get_cirrus_assets(request=request)
+        assert self.leaving_request
 
-            if user_assets:
-                return redirect(self.success_url)
+        user_assets = get_cirrus_assets(
+            request=request, leaving_request=self.leaving_request
+        )
+
+        if user_assets:
+            return redirect(self.success_url)
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -941,6 +946,8 @@ class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
         return {}
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
+        assert self.leaving_request
+
         context = super().get_context_data(**kwargs)
         context.update(page_title="Return Cirrus kit")
 
@@ -949,10 +956,11 @@ class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
             form_initial = getattr(self, f"get_initial_{form_name}")()
             context[form_name] = form_class(initial=form_initial)
 
-        if self.leaving_request and not self.leaving_request.service_now_offline:
-            context.update(cirrus_assets=get_cirrus_assets(request=self.request))
-        else:
-            context.update(cirrus_assets=self.request.session.get("cirrus_assets", []))
+        context.update(
+            cirrus_assets=get_cirrus_assets(
+                request=self.request, leaving_request=self.leaving_request
+            )
+        )
 
         return context
 

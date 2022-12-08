@@ -1,4 +1,5 @@
-from django.urls import path
+from django.urls import path, reverse_lazy
+from django.views.generic.base import RedirectView
 from django_workflow_engine import workflow_urls
 
 from core.utils.urls import decorate_urlpatterns
@@ -12,7 +13,7 @@ from leavers.views import sre as sre_views
 
 leaver_journey_urlpatterns = decorate_urlpatterns(
     [
-        path("", leaver_views.LeaversStartView.as_view(), name="start"),
+        path("", RedirectView.as_view(url=reverse_lazy("start")), name="leavers-root"),
         path("start/", leaver_views.LeaversStartView.as_view(), name="start"),
         path(
             "leaver/manager-search/",
