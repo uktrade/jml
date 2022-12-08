@@ -26,6 +26,9 @@ help:
 	@echo -e "$(COLOUR_YELLOW)make pytest$(COLOUR_NONE) : Run pytest"
 	@echo -e "$(COLOUR_YELLOW)make black$(COLOUR_NONE) : Run black formatter"
 	@echo -e "$(COLOUR_YELLOW)make serve-docs$(COLOUR_NONE) : Serve mkdocs on port 8002"
+	@echo -e "$(COLOUR_YELLOW)make detect-secrets-init$(COLOUR_NONE) : Initialise the detect-secrets for the project"
+	@echo -e "$(COLOUR_YELLOW)make detect-secrets-scan$(COLOUR_NONE) : detect-secrets scan for the project"
+	@echo -e "$(COLOUR_YELLOW)make detect-secrets-audit$(COLOUR_NONE) : detect-secrets audit for the project"
 
 build:
 	docker-compose build
@@ -44,10 +47,11 @@ down:
 
 run = docker-compose run --rm
 manage = python manage.py
+poetry = $(run) leavers poetry --quiet
 
 first-use:
 	docker-compose down
-	docker-compose up -d db
+	docker-compose up -d db opensearch
 	$(run) leavers python manage.py createcachetable
 	$(run) leavers python manage.py migrate
 	$(run) leavers python manage.py initialise_staff_index
@@ -129,3 +133,12 @@ serve-docs:
 
 staff-index:
 	$(run) leavers $(manage) ingest_staff_data --skip-ingest-staff-records --skip-service-now
+
+detect-secrets-init:
+	$(poetry) run detect-secrets scan > .secrets.baseline
+
+detect-secrets-scan:
+	$(poetry) run detect-secrets scan --baseline .secrets.baseline
+
+detect-secrets-audit:
+	$(poetry) run detect-secrets audit --baseline .secrets.baseline
