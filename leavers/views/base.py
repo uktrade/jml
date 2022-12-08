@@ -109,6 +109,20 @@ class LeavingRequestListing(
                 ),
                 default="leaver_as_name",
             ),
+            leaving_date_agg=Case(
+                When(
+                    leaving_date__isnull=False,
+                    then="leaving_date",
+                ),
+                default="leaver_information__leaving_date",
+            ),
+            last_day_agg=Case(
+                When(
+                    last_day__isnull=False,
+                    then="last_day",
+                ),
+                default="leaver_information__last_day",
+            ),
         )
 
         if order_by:
@@ -207,8 +221,8 @@ class LeavingRequestListing(
         table_header = []
         field_order_by_mapping: Dict[str, str] = {
             "leaver_name": "leaver_name",
-            "leaving_date": "leaving_date",
-            "last_working_day": "last_day",
+            "leaving_date": "leaving_date_agg",
+            "last_working_day": "last_day_agg",
         }
         field_order_direction_mapping: Dict[str, str] = {
             "last_working_dat": "asc",
