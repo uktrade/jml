@@ -8,7 +8,7 @@ from django.db.models.query import QuerySet
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.types import Address
-from core.utils.helpers import DATETIME_FORMAT_STR
+from core.utils.helpers import DATETIME_FORMAT_STR, get_next_workday
 from leavers.forms.line_manager import (
     AnnualLeavePaidOrDeducted,
     DaysHours,
@@ -314,26 +314,46 @@ class LeavingRequest(models.Model):
     """
 
     def get_leaving_date(self) -> Optional[datetime]:
+        leaving_date: Optional[datetime] = None
         if self.leaving_date:
-            return self.leaving_date
+            leaving_date = self.leaving_date
+        else:
+            leaver_information: Optional[
+                "LeaverInformation"
+            ] = self.leaver_information.first()
+            if leaver_information and leaver_information.leaving_date:
+                leaving_date = leaver_information.leaving_date
 
-        leaver_information: Optional[
-            "LeaverInformation"
-        ] = self.leaver_information.first()
-        if leaver_information and leaver_information.leaving_date:
-            return leaver_information.leaving_date
-        return None
+        # If the leaver is a bench contractor, the leaving date is 1 workday
+        # day after the last day of the contract.
+        if leaving_date:
+            ld_date = leaving_date.date()
+            if self.staff_type == StaffType.BENCH_CONTRACTOR.value:
+                new_leaving_date = get_next_workday(ld_date)
+                leaving_date = datetime.combine(new_leaving_date, leaving_date.time())
+
+        return leaving_date
 
     def get_last_day(self) -> Optional[datetime]:
+        last_day: Optional[datetime] = None
         if self.last_day:
-            return self.last_day
+            last_day = self.last_day
+        else:
+            leaver_information: Optional[
+                "LeaverInformation"
+            ] = self.leaver_information.first()
+            if leaver_information and leaver_information.last_day:
+                last_day = leaver_information.last_day
 
-        leaver_information: Optional[
-            "LeaverInformation"
-        ] = self.leaver_information.first()
-        if leaver_information and leaver_information.last_day:
-            return leaver_information.last_day
-        return None
+        # If the leaver is a bench contractor, the last date is 1 workday
+        # after the last day of the contract.
+        if last_day:
+            ld_date = last_day.date()
+            if self.staff_type == StaffType.BENCH_CONTRACTOR.value:
+                new_last_day = get_next_workday(ld_date)
+                last_day = datetime.combine(new_last_day, last_day.time())
+
+        return last_day
 
     def get_leaver_name(self) -> Optional[str]:
         """
