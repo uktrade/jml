@@ -9,6 +9,7 @@ from django.db.models.enums import TextChoices
 from django.http.request import HttpRequest
 from django.urls import reverse
 
+from core.forms import BaseForm
 from core.staff_search.forms import staff_search_autocomplete_field
 from core.utils.helpers import make_possessive
 from core.utils.staff_index import ConsolidatedStaffDocument
@@ -40,7 +41,11 @@ class DaysHours(TextChoices):
     HOURS = "hours", "Hours"
 
 
-class LineManagerDetailsForm(forms.Form):
+class LineManagerDetailsForm(BaseForm):
+    required_error_messages: Dict[str, str] = {
+        "leaver_paid_unpaid": "Please select whether the leaver is paid or unpaid.",
+    }
+
     leaver_paid_unpaid = forms.ChoiceField(
         label="",
         choices=LeaverPaidUnpaid.choices,
@@ -250,9 +255,10 @@ class ReasonForLeaving(TextChoices):
     END_OF_CONTRACT = "end_of_contract", "End of contract"
 
 
-class ConfirmLeavingDate(forms.Form):
+class ConfirmLeavingDate(BaseForm):
     required_error_messages: Dict[str, str] = {
-        "data_recipient": "Please select the Google Drive data transfer recipient",
+        "data_recipient": "Please select the Google Drive data transfer recipient.",
+        "reason_for_leaving": "Please select the reason for they are leaving the department.",
     }
 
     last_day = DateInputField(
@@ -278,9 +284,6 @@ class ConfirmLeavingDate(forms.Form):
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
-
-        for field_name, required_message in self.required_error_messages.items():
-            self.fields[field_name].error_messages["required"] = required_message
 
         leaver_name: str = leaver["first_name"] + " " + leaver["last_name"]
         possessive_leaver_first_name = make_possessive(leaver["first_name"])

@@ -6,8 +6,10 @@ from django import forms
 from django.http.request import HttpRequest
 from django.shortcuts import render
 
+from core.forms import BaseForm
 
-class SearchForm(forms.Form):
+
+class SearchForm(BaseForm):
     required_error_messages: Dict[str, str] = {
         "search_terms": "Please enter a name or email address.",
     }
@@ -18,9 +20,6 @@ class SearchForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        for field_name, required_message in self.required_error_messages.items():
-            self.fields[field_name].error_messages["required"] = required_message
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
