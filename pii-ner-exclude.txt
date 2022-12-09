@@ -312,6 +312,7 @@ kit)</li
 kit</th
 know:</p
 Laptop
+last_day_agg
 Leaver
 Leaver Email
 Leaver Final Actions Email
