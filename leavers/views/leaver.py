@@ -337,7 +337,7 @@ class UnhandledLeavingReasonView(LeaverInformationMixin, BaseTemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(page_title="This service is unavailable")
+        context.update(page_title="You cannot use this service")
         return context
 
 
@@ -382,7 +382,7 @@ class LeaverFastStreamerView(LeaverInformationMixin, BaseTemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(page_title="This service is unavailable")
+        context.update(page_title="You cannot use this service")
         return context
 
 
@@ -509,7 +509,7 @@ class LeaverFindDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update(page_title="Your personal email")
+        context.update(page_title="Your personal email address")
         return context
 
     def form_valid(self, form: Form) -> HttpResponse:
@@ -531,8 +531,7 @@ class LeaverFindDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
         else:
             form.add_error(
                 "personal_email",
-                "We couldn't find details for this email address. Please try "
-                "an alterate email address.",
+                "We cannot find your details. Try a different email address.",
             )
             return self.form_invalid(form)
 
@@ -546,7 +545,7 @@ class LeaverFindDetailsHelpView(LeaverInformationMixin, BaseTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(
-            page_title="Please reach out to our support team",
+            page_title="You cannot use this service",
         )
         return context
 

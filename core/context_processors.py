@@ -26,6 +26,7 @@ def global_context(request):
         "DEV_LINKS": [],
         "MAIN_NAV": [],
         "IS_PRODUCTION": bool(settings.APP_ENV == "production"),
+        "JML_LEAVING_DIT_GUIDANCE_URL": settings.JML_LEAVING_DIT_GUIDANCE_URL,
     }
 
     if "dev_tools.apps.DevToolsConfig" in settings.INSTALLED_APPS:

@@ -33,6 +33,7 @@
 | JML_TEAM_CONTACT_EMAIL                                           | ''                                          |                                                                                                        |
 | JML_TEAM_EMAILS                                                  | []                                          |                                                                                                        |
 | JML_ONLY_SEND_EMAILS_TO_JML_TEAM                                 | False                                       | Whether to only send emails to the JML team. Used on staging to stop GOV.UK Notify errors.             |
+| JML_LEAVING_DIT_GUIDANCE_URL                                     | ''                                          | The URL for the leaving DIT guidance. This is normally a page in Digital Workspace.                    |
 | GOVUK_NOTIFY_API_KEY                                             | None                                        |                                                                                                        |
 | HELP_DESK_CREDS                                                  | None                                        | Dict of credentials for help desk: format will depend on helpdesk                                      |
 | HELP_DESK_INTERFACE                                              | help_desk_client.interfaces.HelpDeskStubbed | Help desk interface to use, use the stub for local dev/tests                                           |
