@@ -154,20 +154,24 @@ class FindPersonIDForm(BaseForm):
         "personal_email": "Please enter an email for us to search for.",
     }
 
-    personal_email = forms.EmailField(label="Personal email")
+    personal_email = forms.EmailField(
+        label="Personal email", help_text="We'll only use this to find your details."
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         cancel_url = reverse("leaver-find-details-help")
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field("personal_email"),
             Div(
-                Submit("submit", "Search"),
+                Submit("submit", "Continue"),
                 HTML(
                     f"<a href='{cancel_url}' class='govuk-button govuk-button--secondary' "
+                    # Hide the cancel button if the form is unbound (fresh, no data).
+                    # Only show the button when a form submission has been attempted.
+                    f"style='{'display: none' if not self.is_bound else ''}'"
                     "data-module='govuk-button'>My email address cannot be found</a>"
                 ),
                 css_class="govuk-button-group",

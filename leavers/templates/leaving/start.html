@@ -2,16 +2,14 @@
 {% load crispy_forms_gds %}
 
 {% block content %}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <h1 class="govuk-heading-l">Leaving DIT: what you need to do</h1>
-            <p class="govuk-body">Use this service if you are leaving DIT, as a:</p>
+            <h1 class="govuk-heading-l">DIT Leaving service: what you need to do</h1>
+            <p class="govuk-body">At the moment, you can use this service if you are:</p>
             <ul class="govuk-list govuk-list--bullet">
-                <li>civil servant</li>
-                <li>contractor</li>
+                <li>resigning from the Civil Service (not transferring to a different department)</li>
+                <li>a contractor at the end of your contract</li>
             </ul>
-            <p class="govuk-body">After you complete and send this form, your line manager will need to confirm some information. They will receive further instructions by email.</p>
 
             <h2 class="govuk-heading-m">Before you start</h2>
             <p class="govuk-body">To complete the form, you will need to know:</p>
@@ -20,11 +18,11 @@
                 <li>the last day you will work at DIT</li>
                 <li>the last date you are employed and paid by DIT (your leaving date)</li>
             </ul>
-            <p class="govuk-body">You and your line manager must have agreed on your last working day and leaving date before you can use this service.</p>
-            <p class="govuk-body">This form should take less than 10 minutes to compete.</p>
+            <p class="govuk-body">You must have agreed this information with your line manager before using this service.</p>
+            <p class="govuk-body">The service should take less than 10 minutes to complete.</p>
+            <p class="govuk-body">If you are leaving DIT for a different reason, <a class="govuk-link" href="{{ JML_LEAVING_DIT_GUIDANCE_URL }}">read the Leaving DIT guidance on Digital Workspace</a>.</p>
 
             {% button_start start_url "Start" %}
         </div>
     </div>
-
 {% endblock content %}

@@ -436,3 +436,6 @@ LSD_HELP_DESK_LIVE = env.bool("LSD_HELP_DESK_LIVE", default=True)
 
 # getAddress() API
 GETADDRESS_TOKEN = env("GETADDRESS_TOKEN")
+
+# Content
+JML_LEAVING_DIT_GUIDANCE_URL = env("JML_LEAVING_DIT_GUIDANCE_URL", default="")
