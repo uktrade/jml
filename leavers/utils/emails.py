@@ -78,21 +78,35 @@ def get_leaving_request_email_personalisation(
         data_recipient_email="",
         contact_us_link=site_url + reverse("beta-service-feedback"),
         line_manager_link=site_url
-        + reverse("line-manager-start", args=[leaving_request.uuid]),
+        + reverse(
+            "line-manager-start",
+            kwargs={"leaving_request_uuid": leaving_request.uuid},
+        ),
         line_manager_thank_you_link=site_url
-        + reverse("line-manager-thank-you", args=[leaving_request.uuid]),
+        + reverse(
+            "line-manager-thank-you",
+            kwargs={"leaving_request_uuid": leaving_request.uuid},
+        ),
         line_manager_offline_service_now_details_link=site_url
         + reverse(
-            "line-manager-offline-service-now-details", args=[leaving_request.uuid]
+            "line-manager-offline-service-now-details",
+            kwargs={"leaving_request_uuid": leaving_request.uuid},
         ),
         security_team_bp_link=site_url
         + reverse(
-            "security-team-building-pass-confirmation", args=[leaving_request.uuid]
+            "security-team-building-pass-confirmation",
+            kwargs={"leaving_request_uuid": leaving_request.uuid},
         ),
         security_team_rk_link=site_url
-        + reverse("security-team-rosa-kit-confirmation", args=[leaving_request.uuid]),
+        + reverse(
+            "security-team-rosa-kit-confirmation",
+            kwargs={"leaving_request_uuid": leaving_request.uuid},
+        ),
         sre_team_link=site_url
-        + reverse("sre-detail", kwargs={"leaving_request_id": leaving_request.uuid}),
+        + reverse(
+            "sre-detail",
+            kwargs={"leaving_request_uuid": leaving_request.uuid},
+        ),
     )
 
     leaver_information: Optional[

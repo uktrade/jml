@@ -39,7 +39,7 @@ class PeopleFinderBase(ABC):
 class PeopleFinderStubbed(PeopleFinderBase):
     def get_details(self, sso_legacy_user_id: str) -> PersonDetail:
         return PersonDetail(
-            sso_user_id="joe.bloggs-31706c8a@example.com",
+            sso_user_id="joe.bloggs-31706c8a@example.com",  # /PS-IGNORE
             first_name="Joe",  # /PS-IGNORE
             last_name="Bloggs",
             job_title="Job title",
@@ -55,7 +55,7 @@ class PeopleFinderStubbed(PeopleFinderBase):
         return iter(
             [
                 PersonDetail(
-                    sso_user_id="joe.bloggs-31706c8a@example.com",
+                    sso_user_id="joe.bloggs-31706c8a@example.com",  # /PS-IGNORE
                     first_name="Joe",  # /PS-IGNORE
                     last_name="Bloggs",
                     job_title="Job title",
@@ -67,7 +67,7 @@ class PeopleFinderStubbed(PeopleFinderBase):
                     photo_small="",
                 ),
                 PersonDetail(
-                    sso_user_id="joe.bloggs-31706c8a@example.com",
+                    sso_user_id="joe.bloggs-31706c8a@example.com",  # /PS-IGNORE
                     first_name="Jane",  # /PS-IGNORE
                     last_name="Doe",
                     job_title="Job title",

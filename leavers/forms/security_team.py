@@ -57,7 +57,7 @@ class BuildingPassForm(forms.Form):
 
         cancel_url = reverse(
             "security-team-building-pass-confirmation",
-            args=[leaving_request_uuid],
+            kwargs={"leaving_request_uuid": leaving_request_uuid},
         )
 
         self.helper = FormHelper()
@@ -90,7 +90,7 @@ class BuildingPassCloseRecordForm(forms.Form):
 
         cancel_url = reverse(
             "security-team-building-pass-confirmation",
-            args=[leaving_request_uuid],
+            kwargs={"leaving_request_uuid": leaving_request_uuid},
         )
 
         self.helper = FormHelper()
@@ -148,7 +148,7 @@ class RosaKitCloseRecordForm(forms.Form):
 
         cancel_url = reverse(
             "security-team-rosa-kit-confirmation",
-            args=[leaving_request_uuid],
+            kwargs={"leaving_request_uuid": leaving_request_uuid},
         )
 
         self.helper = FormHelper()

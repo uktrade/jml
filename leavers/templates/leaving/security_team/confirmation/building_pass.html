@@ -37,9 +37,9 @@
                 {% endif %}
             </dl>
             <p class="govuk-body">To complete this record the pass needs to be marked as deactivated, returned and destroyed.</p>
-            <a href='{% url "security-team-building-pass-confirmation-edit" leaving_request_uuid %}' class="govuk-button">Edit status</a>
+            <a href='{% url "security-team-building-pass-confirmation-edit" leaving_request_uuid=leaving_request.uuid %}' class="govuk-button">Edit status</a>
             {% if can_complete %}
-                <a href='{% url "security-team-buidling-pass-confirmation-close" leaving_request_uuid %}' class="govuk-button govuk-button--warning">Complete</a>
+                <a href='{% url "security-team-buidling-pass-confirmation-close" leaving_request_uuid=leaving_request.uuid %}' class="govuk-button govuk-button--warning">Complete</a>
             {% endif %}
 
             <h2 class="govuk-heading-m">Notes</h2>

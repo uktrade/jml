@@ -63,7 +63,7 @@
                 <tbody class="govuk-table__body">
                     {% for service in services %}
                         <tr class="govuk-table__row">
-                            <td class="govuk-table__cell"><a class="govuk-link" href="{% url 'sre-service-and-tools' leaving_request_uuid service.field_name %}">{{ service.name }}</a></td>
+                            <td class="govuk-table__cell"><a class="govuk-link" href="{% url 'sre-service-and-tools' leaving_request_uuid=leaving_request.uuid field_name=service.field_name %}">{{ service.name }}</a></td>
                             <td class="govuk-table__cell">{{ service.comment }}</td>
                             <td class="govuk-table__cell govuk-!-text-align-right"><strong class="govuk-tag govuk-tag--{{ service.status_colour }}">{{ service.status_text }}</strong></td>
                         </tr>
@@ -74,7 +74,7 @@
     </div>
 
     {% if can_mark_as_complete %}
-        <a href="{% url 'sre-confirm-complete' leaving_request_uuid %}" class="govuk-button" data-module="govuk-button">
+        <a href="{% url 'sre-confirm-complete' leaving_request_uuid=leaving_request.uuid %}" class="govuk-button" data-module="govuk-button">
             Complete
         </a>
     {% endif %}

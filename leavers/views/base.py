@@ -2,7 +2,6 @@ from collections import OrderedDict
 from datetime import timedelta
 from typing import Any, Dict, List, Literal, Optional, Set, Tuple, cast
 
-from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
 from django.db.models import Case, Value, When
@@ -22,9 +21,8 @@ from leavers.models import LeavingRequest
 
 
 class LeavingRequestListing(
-    UserPassesTestMixin,
-    FormView,
     BaseTemplateView,
+    FormView,
 ):
     form_class = data_processor_forms.LeavingRequestListingSearchForm
 
@@ -155,11 +153,11 @@ class LeavingRequestListing(
             if complete_field:
                 is_complete = getattr(lr, self.get_complete_field())
             link = reverse_lazy(
-                self.get_confirmation_view(), kwargs={"leaving_request_id": lr.uuid}
+                self.get_confirmation_view(), kwargs={"leaving_request_uuid": lr.uuid}
             )
             if is_complete:
                 link = reverse_lazy(
-                    self.get_summary_view(), kwargs={"leaving_request_id": lr.uuid}
+                    self.get_summary_view(), kwargs={"leaving_request_uuid": lr.uuid}
                 )
 
             lr_result_data = {

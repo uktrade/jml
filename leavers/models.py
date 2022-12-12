@@ -47,6 +47,11 @@ class TaskLog(models.Model):
 
 
 class LeavingRequest(models.Model):
+    class Meta:
+        permissions = [
+            ("select_leaver", "Can select the user that is leaving"),
+        ]
+
     uuid = models.UUIDField(default=uuid.uuid4)
     flow = models.OneToOneField(
         "django_workflow_engine.Flow",
@@ -165,6 +170,10 @@ class LeavingRequest(models.Model):
 
     line_manager_complete = models.DateTimeField(null=True, blank=True)
     line_manager_service_now_complete = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def leaver(self) -> ActivityStreamStaffSSOUser:
+        return self.leaver_activitystream_user
 
     @property
     def show_hr_and_payroll(self) -> bool:
@@ -521,13 +530,14 @@ class SlackMessage(models.Model):
 
 
 class LeaverInformation(models.Model):
+    # TODO: Change to a OneToOne relationship.
     leaving_request = models.ForeignKey(
         LeavingRequest,
         on_delete=models.CASCADE,
         related_name="leaver_information",
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    updates = models.JSONField()
+    updates = models.JSONField(default=dict)
 
     last_day = models.DateTimeField(null=True, blank=True)
     leaving_date = models.DateTimeField(null=True, blank=True)

@@ -8,7 +8,8 @@ from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import redirect
 from django.urls import resolve, reverse, reverse_lazy
 from django.utils import timezone
-from django.views.generic import RedirectView
+from django.utils.decorators import method_decorator
+from django.views.generic import RedirectView, View
 from django.views.generic.edit import FormView
 
 from activity_stream.models import (
@@ -27,10 +28,12 @@ from core.utils.staff_index import (
     ConsolidatedStaffDocument,
     consolidate_staff_documents,
     get_csd_for_activitystream_user,
+    get_sso_user_by_staff_document_uuid,
     get_staff_document_from_staff_index,
 )
 from core.views import BaseTemplateView
 from leavers import types
+from leavers.decorators import leaver_does_not_have_multiple_person_ids
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation, LeavingRequest
@@ -48,50 +51,147 @@ class MultiplePersonIdErrorView(BaseTemplateView):
 
 class LeaversStartView(BaseTemplateView):
     template_name = "leaving/start.html"
-    extra_context = {"start_url": reverse_lazy("leaver-checks")}
+    extra_context = {"start_url": reverse_lazy("leaver-select-leaver")}
 
 
-class MyManagerSearchView(StaffSearchView):
-    search_name = "manager"
-    query_param_name = LINE_MANAGER_SEARCH_PARAM
-    success_url = reverse_lazy("leaver-dates")
+class LeaverSearchView(StaffSearchView):
+    success_url = reverse_lazy("leaver-select-leaver")
 
+
+class SelectLeaverView(FormView, BaseTemplateView):
+    template_name = "leaving/leaver/select_leaver.html"
+    form_class = leaver_forms.SelectLeaverForm
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.has_perm("leavers.select_leaver"):
+            self.init_leaving_request(request.user.get_sso_user())
+
+            return redirect(self.get_success_url())
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self) -> dict[str, Any]:
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update(request=self.request)
+
+        return form_kwargs
+
+    def get_initial(self) -> dict[str, Any]:
+        initial = {}
+
+        if leaver_uuid := self.request.GET.get("staff_uuid"):
+            initial["leaver_uuid"] = leaver_uuid
+
+        return super().get_initial() | initial
+
+    def form_valid(self, form):
+        leaver_uuid = form.cleaned_data["leaver_uuid"]
+
+        leaver = get_sso_user_by_staff_document_uuid(leaver_uuid)
+
+        self.init_leaving_request(leaver)
+
+        return super().form_valid(form)
+
+    def init_leaving_request(self, leaver: ActivityStreamStaffSSOUser) -> None:
+        assert self.request.user.is_authenticated
+
+        # get or create a LeavingRequest object
+        leaving_request = update_or_create_leaving_request(
+            leaver=leaver, user_requesting=self.request.user
+        )
+        # get or create a LeavingInformation object
+        LeaverInformation.objects.get_or_create(leaving_request=leaving_request)
+
+        # we need to access this from the get_success_url method
+        self.leaving_request = leaving_request
+
+    def get_success_url(self) -> str:
+        return reverse(
+            "leaver-checks",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
+
+
+class LeavingRequestViewMixin(View):
+    people_finder_search = get_people_finder_interface()
+
+    leaver_activitystream_user: ActivityStreamStaffSSOUser
+    leaving_request: LeavingRequest
+    leaver_info: LeaverInformation
+
+    success_viewname: Optional[str] = None
+    back_link_viewname: Optional[str] = None
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+
+        # 1 + len(prefetch_related) database queries
+        self.leaving_request = (
+            LeavingRequest.objects.select_related(
+                "leaver_activitystream_user",
+                "manager_activitystream_user",
+            )
+            .prefetch_related("leaver_information")
+            .get(uuid=self.kwargs["leaving_request_uuid"])
+        )
+        self.leaver_activitystream_user = (
+            self.leaving_request.leaver_activitystream_user
+        )
+        self.leaver_info = self.leaving_request.leaver_information.first()
+
+    def get_view_url(self, viewname, *args, **kwargs):
+        kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
+
+        return reverse(viewname, args=args, kwargs=kwargs)
+
+    def get_success_url(self):
+        if not self.success_viewname:
+            return super().get_success_url()
+
+        return reverse(
+            self.success_viewname,
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
+
+    def get_back_link_url(self):
+        if not self.back_link_viewname:
+            return super().get_back_link_url()
+
+        return reverse(
+            self.back_link_viewname,
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
+
+    def get_context_data(self, **kwargs):
+        context = {
+            "leaving_request": self.leaving_request,
+        }
+
+        return super().get_context_data(**kwargs) | context
+
+    def get_session(self):
+        if "leaving_requests" not in self.request.session:
+            self.request.session["leaving_requests"] = {}
+        return self.request.session["leaving_requests"].get(
+            self.leaving_request.pk,
+            {},
+        )
+
+    def store_session(self, session):
+        current_session = self.get_session()
+        current_session.update(session)
+        self.request.session["leaving_requests"][
+            self.leaving_request.pk
+        ] = current_session
+        self.request.session.save()
+
+
+@method_decorator(leaver_does_not_have_multiple_person_ids, "dispatch")
+class LeavingJourneyViewMixin(LeavingRequestViewMixin):
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
-        user = cast(User, request.user)
-        try:
-            leaver_activitystream_user = (
-                ActivityStreamStaffSSOUser.objects.active().get(
-                    email_user_id=user.sso_email_user_id,
-                )
-            )
-        except ActivityStreamStaffSSOUser.DoesNotExist:
-            raise Exception("Unable to find leaver in the Staff SSO ActivityStream.")
-
-        self.exclude_staff_ids = [leaver_activitystream_user.identifier]
-        return super().dispatch(request, *args, **kwargs)
-
-
-class LeaverInformationMixin:
-    people_finder_search = get_people_finder_interface()
-
-    leaver_activitystream_user: Optional[ActivityStreamStaffSSOUser] = None
-    leaving_request: Optional[LeavingRequest] = None
-    leaver_info: Optional[LeaverInformation] = None
-
-    def pre_dispatch(self, request: HttpRequest) -> Optional[HttpResponseBase]:
-        user = cast(User, request.user)
-
-        assert user.sso_email_user_id
-
-        sso_email_user_id = user.sso_email_user_id
-        self.leaving_request = self.get_leaving_request(
-            sso_email_user_id=sso_email_user_id, requester=user
-        )
-        self.leaver_info = self.get_leaver_information(
-            sso_email_user_id=sso_email_user_id, requester=user
-        )
         if self.leaving_request:
             current_url = resolve(request.path_info).url_name
             current_url_is_request_received = bool(
@@ -99,116 +199,66 @@ class LeaverInformationMixin:
             )
 
             if self.leaving_request.leaver_complete:
-                if current_url_is_request_received:
-                    return None
-                return redirect(reverse("leaver-request-received"))
+                if not current_url_is_request_received:
+                    return redirect(
+                        reverse(
+                            "leaver-request-received",
+                            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                        )
+                    )
             elif current_url_is_request_received:
                 raise Http404
 
-        return None
-
-    def dispatch(
-        self, request: HttpRequest, *args: Any, **kwargs: Any
-    ) -> HttpResponseBase:
-        pre_dispatch_response = self.pre_dispatch(request)
-        if pre_dispatch_response:
-            return pre_dispatch_response
         return super().dispatch(request, *args, **kwargs)  # type: ignore
 
-    def get_leaver_activitystream_user(
-        self, sso_email_user_id: str
-    ) -> ActivityStreamStaffSSOUser:
-        if not self.leaver_activitystream_user:
-            try:
-                self.leaver_activitystream_user = (
-                    ActivityStreamStaffSSOUser.objects.active().get(
-                        email_user_id=sso_email_user_id,
+    def get_cirrus_assets(self) -> List[types.CirrusAsset]:
+        user = cast(User, self.request.user)
+        session = self.get_session()
+
+        staff_sso_user = ActivityStreamStaffSSOUser.objects.active().get(
+            email_user_id=user.sso_email_user_id,
+        )
+
+        service_now_email: Optional[str] = staff_sso_user.service_now_email_address
+
+        if service_now_email and not self.leaving_request.service_now_offline:
+            if "cirrus_assets" not in session:
+                service_now_interface = get_service_now_interface()
+                session["cirrus_assets"] = [
+                    {
+                        "uuid": str(uuid.uuid4()),
+                        "sys_id": asset["sys_id"],
+                        "tag": asset["tag"],
+                        "name": asset["name"],
+                    }
+                    for asset in service_now_interface.get_assets_for_user(
+                        email=service_now_email,
                     )
-                )
-            except ActivityStreamStaffSSOUser.DoesNotExist:
-                raise Exception(
-                    f"Unable to find leaver '{sso_email_user_id}' in the Staff SSO ActivityStream."
-                )
-        assert self.leaver_activitystream_user
-        return self.leaver_activitystream_user
+                ]
+                self.store_session(session)
 
-    def get_leaving_request(
-        self, sso_email_user_id: str, requester: User
-    ) -> LeavingRequest:
-        """
-        Get the Leaving Request for the Leaver
-        """
-
-        if self.leaving_request and self.leaving_request.user_requesting == requester:
-            return self.leaving_request
-
-        leaver_activity_stream_user = self.get_leaver_activitystream_user(
-            sso_email_user_id=sso_email_user_id,
-        )
-
-        self.leaving_request = update_or_create_leaving_request(
-            leaver=leaver_activity_stream_user,
-            user_requesting=requester,
-        )
-
-        return self.leaving_request
-
-    def get_leaver_information(
-        self, sso_email_user_id: str, requester: User
-    ) -> LeaverInformation:
-        """
-        Get the Leaver information stored in the DB
-        Creates a new model if one doesn't exist.
-        """
-        if self.leaver_info:
-            return self.leaver_info
-
-        leaving_request = self.get_leaving_request(
-            sso_email_user_id=sso_email_user_id,
-            requester=requester,
-        )
-
-        (
-            self.leaver_info,
-            _,
-        ) = LeaverInformation.objects.prefetch_related().get_or_create(
-            leaving_request=leaving_request,
-            defaults={"updates": {}},
-        )
-        return self.leaver_info
+        return session.get("cirrus_assets", [])
 
     def store_display_screen_equipment(
         self,
-        sso_email_user_id: str,
-        requester: User,
         dse_assets: List[types.DisplayScreenEquipmentAsset],
     ) -> None:
         """
         Store DSE assets
         """
-
-        leaver_info = self.get_leaver_information(
-            sso_email_user_id=sso_email_user_id, requester=requester
-        )
-        leaver_info.dse_assets = dse_assets
-        leaver_info.save(update_fields=["dse_assets"])
+        self.leaver_info.dse_assets = dse_assets
+        self.leaver_info.save(update_fields=["dse_assets"])
 
     def store_cirrus_kit_information(
         self,
-        sso_email_user_id: str,
-        requester: User,
         cirrus_assets: List[types.CirrusAsset],
     ) -> None:
         """
         Store the Correction information
         """
 
-        leaver_info = self.get_leaver_information(
-            sso_email_user_id=sso_email_user_id, requester=requester
-        )
-
-        leaver_info.cirrus_assets = cirrus_assets
-        leaver_info.save(
+        self.leaver_info.cirrus_assets = cirrus_assets
+        self.leaver_info.save(
             update_fields=[
                 "cirrus_assets",
             ]
@@ -217,63 +267,49 @@ class LeaverInformationMixin:
         if not cirrus_assets:
             # clear any existing cirrus kit information if there is no kit.
             self.store_return_option(
-                sso_email_user_id=sso_email_user_id,
-                requester=requester,
                 return_option=None,
             )
             self.store_return_information(
-                sso_email_user_id=sso_email_user_id,
-                requester=requester,
                 personal_phone=None,
                 contact_email=None,
                 address=None,
             )
 
-    def store_return_option(
-        self, sso_email_user_id: str, requester: User, return_option: Optional[str]
-    ) -> None:
+    def store_return_option(self, return_option: Optional[str]) -> None:
         """
         Store the selected return option.
 
         return_option is a value from ReturnOptions.
         """
-        leaver_info = self.get_leaver_information(
-            sso_email_user_id=sso_email_user_id, requester=requester
-        )
 
-        leaver_info.return_option = return_option
-        leaver_info.save(update_fields=["return_option"])
+        self.leaver_info.return_option = return_option
+        self.leaver_info.save(update_fields=["return_option"])
 
     def store_return_information(
         self,
-        sso_email_user_id: str,
-        requester: User,
         personal_phone: Optional[str],
         contact_email: Optional[str],
         address: Optional[Address],
     ) -> None:
-        leaver_info = self.get_leaver_information(
-            sso_email_user_id=sso_email_user_id, requester=requester
-        )
-        leaver_info.return_personal_phone = personal_phone
-        leaver_info.return_contact_email = contact_email
+        self.leaver_info.return_personal_phone = personal_phone
+        self.leaver_info.return_contact_email = contact_email
 
         # Reset address fields
-        leaver_info.return_address_line_1 = None
-        leaver_info.return_address_line_2 = None
-        leaver_info.return_address_city = None
-        leaver_info.return_address_county = None
-        leaver_info.return_address_postcode = None
+        self.leaver_info.return_address_line_1 = None
+        self.leaver_info.return_address_line_2 = None
+        self.leaver_info.return_address_city = None
+        self.leaver_info.return_address_county = None
+        self.leaver_info.return_address_postcode = None
 
         if address:
-            leaver_info.return_address_line_1 = address["line_1"]
-            leaver_info.return_address_line_2 = address["line_2"]
-            leaver_info.return_address_city = address["town_or_city"]
-            leaver_info.return_address_county = address["county"]
-            leaver_info.return_address_postcode = address["postcode"]
+            self.leaver_info.return_address_line_1 = address["line_1"]
+            self.leaver_info.return_address_line_2 = address["line_2"]
+            self.leaver_info.return_address_city = address["town_or_city"]
+            self.leaver_info.return_address_county = address["county"]
+            self.leaver_info.return_address_postcode = address["postcode"]
 
         # Save leaver information
-        leaver_info.save(
+        self.leaver_info.save(
             update_fields=[
                 "return_personal_phone",
                 "return_contact_email",
@@ -285,26 +321,30 @@ class LeaverInformationMixin:
             ]
         )
 
-    def create_workflow(self, sso_email_user_id: str, requester: User):
-        leaving_request = self.get_leaving_request(
-            sso_email_user_id=sso_email_user_id, requester=requester
-        )
+    def create_workflow(self, requester: User):
         get_or_create_leaving_workflow(
-            leaving_request=leaving_request,
+            leaving_request=self.leaving_request,
             executed_by=requester,
         )
 
 
-class LeaverChecksView(LeaverInformationMixin, RedirectView):
+class MyManagerSearchView(LeavingRequestViewMixin, StaffSearchView):
+    search_name = "manager"
+    query_param_name = LINE_MANAGER_SEARCH_PARAM
+
+    def dispatch(
+        self, request: HttpRequest, *args: Any, **kwargs: Any
+    ) -> HttpResponseBase:
+        self.exclude_staff_ids = [self.leaving_request.leaver.identifier]
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class LeaverChecksView(LeavingRequestViewMixin, RedirectView):
     failure_url = reverse_lazy("unable-to-offboard")
 
-    def get_redirect_url(self, *args: Any, **kwargs: Any) -> str:
-        user = cast(User, self.request.user)
-        assert user.sso_email_user_id
-
-        leaver_activitystream_user = self.get_leaver_activitystream_user(
-            sso_email_user_id=user.sso_email_user_id,
-        )
+    def get_redirect_url(self, *args, **kwargs):
+        leaver_activitystream_user = self.leaving_request.leaver_activitystream_user
 
         person_id = leaver_activitystream_user.get_person_id()
 
@@ -317,27 +357,27 @@ class LeaverChecksView(LeaverInformationMixin, RedirectView):
         except (UKSBSUnexpectedResponse, UKSBSPersonNotFound):
             return self.failure_url
 
-        return reverse("why-are-you-leaving")
+        return reverse(
+            "why-are-you-leaving",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
 
 
-class UnableToOffboardView(LeaverInformationMixin, BaseTemplateView):
+class UnableToOffboardView(LeavingJourneyViewMixin, BaseTemplateView):
     template_name = "leaving/leaver/unable_to_offboard.html"
-    back_link_url = reverse_lazy("why-are-you-leaving")
+    back_link_viewname = "why-are-you-leaving"
     extra_context = {"page_title": "You cannot use this service"}
 
 
-class WhyAreYouLeavingView(LeaverInformationMixin, FormView, BaseTemplateView):
+class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/why_are_you_leaving.html"
     form_class = leaver_forms.WhyAreYouLeavingForm
-    success_url = reverse_lazy("leaving-reason-unhandled")
     back_link_url = reverse_lazy("start")
     extra_context = {"page_title": "What is your reason for leaving DIT?"}
 
     leaving_reason: Optional[LeavingReason] = None
 
     def form_valid(self, form) -> HttpResponse:
-        assert self.leaving_request
-
         reason: str = form.cleaned_data["reason"]
 
         if reason != "none_of_the_above":
@@ -348,41 +388,46 @@ class WhyAreYouLeavingView(LeaverInformationMixin, FormView, BaseTemplateView):
         return super().form_valid(form)
 
     def get_initial(self) -> Dict[str, Any]:
-        assert self.leaving_request
-
         initial = super().get_initial()
         initial["reason"] = self.leaving_request.reason_for_leaving
         return initial
 
     def get_success_url(self) -> str:
         reason_mapping = {
-            LeavingReason.RESIGNATION: reverse_lazy("staff-type"),
+            LeavingReason.RESIGNATION: reverse_lazy(
+                "staff-type",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            ),
             LeavingReason.RETIREMENT: reverse_lazy("leaving-reason-unhandled"),
-            LeavingReason.TRANSFER: reverse_lazy("staff-type"),
-            LeavingReason.END_OF_CONTRACT: reverse_lazy("staff-type"),
+            LeavingReason.TRANSFER: reverse_lazy(
+                "staff-type",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            ),
+            LeavingReason.END_OF_CONTRACT: reverse_lazy(
+                "staff-type",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            ),
         }
         if self.leaving_reason in reason_mapping:
             return reason_mapping[self.leaving_reason]
 
-        return super().get_success_url()
+        return reverse("leaving-reason-unhandled")
 
 
-class UnhandledLeavingReasonView(LeaverInformationMixin, BaseTemplateView):
+class UnhandledLeavingReasonView(LeavingJourneyViewMixin, BaseTemplateView):
     template_name = "leaving/leaver/unhandled_reason.html"
-    back_link_url = reverse_lazy("why-are-you-leaving")
+    back_link_viewname = "why-are-you-leaving"
     extra_context = {"page_title": "Sorry, we are unable to help offbaord you"}
 
 
-class StaffTypeView(LeaverInformationMixin, FormView, BaseTemplateView):
+class StaffTypeView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/staff_type.html"
     form_class = leaver_forms.StaffTypeForm
-    success_url = reverse_lazy("employment-profile")
-    back_link_url = reverse_lazy("why-are-you-leaving")
+    back_link_viewname = "why-are-you-leaving"
+    success_viewname = "employment-profile"
     extra_context = {"page_title": "How are you employed by DIT?"}
 
     def get_initial(self) -> Dict[str, Any]:
-        assert self.leaving_request
-
         initial = super().get_initial()
         initial.update(
             staff_type=self.leaving_request.staff_type,
@@ -391,7 +436,6 @@ class StaffTypeView(LeaverInformationMixin, FormView, BaseTemplateView):
         return initial
 
     def form_valid(self, form) -> HttpResponse:
-        assert self.leaving_request
         assert self.leaving_request.reason_for_leaving
 
         leaving_reason_staff_type_mapping = {
@@ -425,7 +469,7 @@ class StaffTypeView(LeaverInformationMixin, FormView, BaseTemplateView):
         )
 
         if staff_type == StaffType.FAST_STREAMERS:
-            self.success_url = reverse_lazy("leaver-fast-streamer")
+            self.success_viewname = "leaver-fast-streamer"
             return super().form_valid(form)
         else:
             self.leaving_request.staff_type = staff_type
@@ -441,23 +485,20 @@ class StaffTypeView(LeaverInformationMixin, FormView, BaseTemplateView):
         return super().form_valid(form)
 
 
-class LeaverFastStreamerView(LeaverInformationMixin, BaseTemplateView):
+class LeaverFastStreamerView(LeavingJourneyViewMixin, BaseTemplateView):
     template_name = "leaving/leaver/fast_streamer.html"
-    back_link_url = reverse_lazy("staff-type")
     extra_context = {"page_title": "You cannot use this service"}
+    back_link_viewname = "staff-type"
 
 
-class EmploymentProfileView(LeaverInformationMixin, FormView, BaseTemplateView):
+class EmploymentProfileView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/employment_profile.html"
     form_class = leaver_forms.EmploymentProfileForm
-    success_url = reverse_lazy("leaver-find-details")
-    back_link_url = reverse_lazy("staff-type")
+    back_link_viewname = "why-are-you-leaving"
+    success_viewname = "leaver-find-details"
     extra_context = {"page_title": "Your employment profile"}
 
     def get_initial(self) -> Dict[str, Any]:
-        assert self.leaver_info
-        assert self.leaving_request
-
         initial = super().get_initial()
         initial.update(
             first_name=self.leaver_info.leaver_first_name,
@@ -470,9 +511,6 @@ class EmploymentProfileView(LeaverInformationMixin, FormView, BaseTemplateView):
         return initial
 
     def form_valid(self, form) -> HttpResponse:
-        assert self.leaver_info
-        assert self.leaving_request
-
         self.leaver_info.leaver_first_name = form.cleaned_data["first_name"]
         self.leaver_info.leaver_last_name = form.cleaned_data["last_name"]
         self.leaver_info.leaver_date_of_birth = form.cleaned_data["date_of_birth"]
@@ -493,20 +531,16 @@ class EmploymentProfileView(LeaverInformationMixin, FormView, BaseTemplateView):
         return super().form_valid(form)
 
 
-class LeaverFindDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
+class LeaverFindDetailsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/leaver_find_details.html"
     form_class = leaver_forms.FindPersonIDForm
-    success_url = reverse_lazy("leaver-dates")
-    back_link_url = reverse_lazy("employment-profile")
+    back_link_viewname = "employment-profile"
+    success_viewname = "leaver-dates"
     extra_context = {"page_title": "Your personal email address"}
 
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
-        pre_dispatch_response = self.pre_dispatch(request)
-        if pre_dispatch_response:
-            return pre_dispatch_response
-
         if self.has_person_id():
             self.set_default_line_manager()
             return redirect(self.get_success_url())
@@ -514,8 +548,6 @@ class LeaverFindDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
         return super().dispatch(request, *args, **kwargs)
 
     def has_person_id(self) -> bool:
-        assert self.leaving_request
-
         leaver_activitystream_user = cast(
             Optional[ActivityStreamStaffSSOUser],
             self.leaving_request.leaver_activitystream_user,
@@ -561,13 +593,12 @@ class LeaverFindDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
             )
             self.leaving_request.save()
 
-    def get_initial(self) -> Dict[str, Any]:
-        initial = super().get_initial()
-        return initial
+    def get_form_kwargs(self):
+        return {
+            "leaving_request": self.leaving_request,
+        }
 
     def form_valid(self, form: Form) -> HttpResponse:
-        assert self.leaving_request
-
         people_data_interface = get_people_data_interface()
 
         personal_email = form.cleaned_data["personal_email"]
@@ -591,39 +622,31 @@ class LeaverFindDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
         return super().form_valid(form)
 
 
-class LeaverFindDetailsHelpView(LeaverInformationMixin, BaseTemplateView):
+class LeaverFindDetailsHelpView(LeavingJourneyViewMixin, BaseTemplateView):
     template_name = "leaving/leaver/leaver_find_details_help.html"
-    back_link_url = reverse_lazy("leaver-find-details")
+    back_link_viewname = "leaver-find-details"
     extra_context = {"page_title": "You cannot use this service"}
 
 
-class RemoveLineManagerFromLeavingRequestView(LeaverInformationMixin, RedirectView):
-    url = reverse_lazy("leaver-dates")
+class RemoveLineManagerFromLeavingRequestView(LeavingJourneyViewMixin, RedirectView):
+    pattern_name = "leaver-dates"
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
-        assert self.leaving_request
-
         self.leaving_request.manager_activitystream_user = None
         self.leaving_request.save(update_fields=["manager_activitystream_user"])
 
         return super().get(request, *args, **kwargs)
 
 
-class LeaverDatesView(LeaverInformationMixin, FormView, BaseTemplateView):
+class LeaverDatesView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/dates.html"
     form_class = leaver_forms.LeaverDatesForm
-    success_url = reverse_lazy("leaver-has-assets")
-    back_link_url = reverse_lazy("employment-profile")
+    back_link_viewname = "employment-profile"
+    success_viewname = "leaver-has-assets"
 
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
-        pre_dispatch_response = self.pre_dispatch(request)
-        if pre_dispatch_response:
-            return pre_dispatch_response
-
-        assert self.leaving_request
-
         self.line_manager: Optional[
             ActivityStreamStaffSSOUser
         ] = self.leaving_request.manager_activitystream_user
@@ -665,8 +688,6 @@ class LeaverDatesView(LeaverInformationMixin, FormView, BaseTemplateView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self) -> Dict[str, Any]:
-        assert self.leaver_info
-
         initial = super().get_initial()
         initial.update(
             leaving_date=self.leaver_info.leaving_date,
@@ -682,13 +703,13 @@ class LeaverDatesView(LeaverInformationMixin, FormView, BaseTemplateView):
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
-        form_kwargs.update(request=self.request)
+        form_kwargs.update(
+            request=self.request,
+            leaving_request=self.leaving_request,
+        )
         return form_kwargs
 
     def form_valid(self, form) -> HttpResponse:
-        assert self.leaver_info
-        assert self.leaving_request
-
         self.leaver_info.leaving_date = form.cleaned_data["leaving_date"]
         self.leaver_info.last_day = form.cleaned_data["last_day"]
         self.leaver_info.save(
@@ -705,8 +726,6 @@ class LeaverDatesView(LeaverInformationMixin, FormView, BaseTemplateView):
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        assert self.leaving_request
-
         context = super().get_context_data(**kwargs)
         manager_activitystream_user = cast(
             Optional[ActivityStreamStaffSSOUser],
@@ -714,7 +733,10 @@ class LeaverDatesView(LeaverInformationMixin, FormView, BaseTemplateView):
         )
         context.update(
             page_title="Your last working day, leaving date and line manager",
-            manager_search_url=reverse("leaver-manager-search"),
+            manager_search_url=reverse(
+                "leaver-manager-search",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            ),
             leaver_manager=get_csd_for_activitystream_user(
                 activitystream_user=manager_activitystream_user,
             ),
@@ -722,17 +744,14 @@ class LeaverDatesView(LeaverInformationMixin, FormView, BaseTemplateView):
         return context
 
 
-class LeaverHasAssetsView(LeaverInformationMixin, FormView, BaseTemplateView):
+class LeaverHasAssetsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/has_assets.html"
     form_class = leaver_forms.LeaverHasAssetsForm
-    success_url = reverse_lazy("leaver-has-cirrus-equipment")
-    back_link_url = reverse_lazy("leaver-dates")
     extra_context = {"page_title": "Return your pass and other assets"}
+    back_link_viewname = "leaver-dates"
+    success_viewname = "leaver-has-cirrus-equipment"
 
     def get_initial(self) -> Dict[str, Any]:
-        assert self.leaving_request
-        assert self.leaver_info
-
         initial = super().get_initial()
         initial.update(
             has_gov_procurement_card=None,
@@ -762,9 +781,6 @@ class LeaverHasAssetsView(LeaverInformationMixin, FormView, BaseTemplateView):
         return initial
 
     def form_valid(self, form) -> HttpResponse:
-        assert self.leaving_request
-        assert self.leaver_info
-
         self.leaving_request.holds_government_procurement_card = yes_no_to_bool(
             form.cleaned_data["has_gov_procurement_card"]
         )
@@ -787,55 +803,18 @@ class LeaverHasAssetsView(LeaverInformationMixin, FormView, BaseTemplateView):
         return super().form_valid(form)
 
 
-def get_cirrus_assets(
-    request: HttpRequest, leaving_request: LeavingRequest
-) -> List[types.CirrusAsset]:
-    user = cast(User, request.user)
-
-    staff_sso_user = ActivityStreamStaffSSOUser.objects.active().get(
-        email_user_id=user.sso_email_user_id,
-    )
-
-    service_now_email: Optional[str] = staff_sso_user.service_now_email_address
-
-    if service_now_email and not leaving_request.service_now_offline:
-        if "cirrus_assets" not in request.session:
-            service_now_interface = get_service_now_interface()
-            request.session["cirrus_assets"] = [
-                {
-                    "uuid": str(uuid.uuid4()),
-                    "sys_id": asset["sys_id"],
-                    "tag": asset["tag"],
-                    "name": asset["name"],
-                }
-                for asset in service_now_interface.get_assets_for_user(
-                    email=service_now_email,
-                )
-            ]
-
-    return request.session.get("cirrus_assets", [])
-
-
-class HasCirrusEquipmentView(LeaverInformationMixin, FormView, BaseTemplateView):
+class HasCirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/cirrus/has_equipment.html"
     form_class = leaver_forms.HasCirrusKitForm
-    success_url = reverse_lazy("leaver-cirrus-equipment")
-    back_link_url = reverse_lazy("leaver-has-assets")
     extra_context = {"page_title": "Return Cirrus kit"}
+    back_link_viewname = "leaver-has-assets"
+    success_viewname = "leaver-cirrus-equipment"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        pre_dispatch_response = self.pre_dispatch(request)
-        if pre_dispatch_response:
-            return pre_dispatch_response
-
-        assert self.leaving_request
-
-        user_assets = get_cirrus_assets(
-            request=request, leaving_request=self.leaving_request
-        )
+        user_assets = self.get_cirrus_assets()
 
         if user_assets:
-            return redirect(self.success_url)
+            return redirect(self.get_success_url())
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -843,33 +822,45 @@ class HasCirrusEquipmentView(LeaverInformationMixin, FormView, BaseTemplateView)
         has_cirrus_kit: Literal["yes", "no"] = form.cleaned_data["has_cirrus_kit"]
 
         if has_cirrus_kit == "no":
-            self.success_url = reverse_lazy("leaver-display-screen-equipment")
+            self.success_viewname = "leaver-display-screen-equipment"
 
         return super().form_valid(form)
 
 
-def delete_cirrus_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
-    if "cirrus_assets" in request.session:
-        for asset in request.session["cirrus_assets"]:
-            if asset["uuid"] == str(kit_uuid):
-                request.session["cirrus_assets"].remove(asset)
-                request.session.save()
-                break
-    return redirect("leaver-cirrus-equipment")
+class DeleteCirrusEquipmentView(LeavingRequestViewMixin, RedirectView):
+    pattern_name = "leaver-cirrus-equipment"
+
+    def get(
+        self,
+        request: HttpRequest,
+        *args: Any,
+        **kwargs: Any,
+    ) -> HttpResponseBase:
+        kit_uuid: uuid.UUID = kwargs["kit_uuid"]
+
+        session = self.get_session()
+        if "cirrus_assets" in session:
+            for asset in session["cirrus_assets"]:
+                if asset["uuid"] == str(kit_uuid):
+                    session["cirrus_assets"].remove(asset)
+                    self.store_session(session)
+                    break
+
+        return super().get(request, *args, **kwargs)
 
 
-class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
+class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
     forms: Dict[str, Type[Form]] = {
         "add_asset_form": leaver_forms.AddCirrusAssetForm,
         "cirrus_return_form": leaver_forms.CirrusReturnFormWithAssets,
         "cirrus_return_form_no_assets": leaver_forms.CirrusReturnFormNoAssets,
     }
     template_name = "leaving/leaver/cirrus/equipment.html"
-    success_url = reverse_lazy("leaver-display-screen-equipment")
-    back_link_url = reverse_lazy("leaver-has-assets")
+    back_link_viewname = "leaver-has-assets"
+    success_viewname = "leaver-display-screen-equipment"
 
     def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
-        session = request.session
+        session = self.get_session()
         if "cirrus_assets" not in session:
             session["cirrus_assets"] = []
 
@@ -881,36 +872,31 @@ class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
             "name": form.cleaned_data["asset_name"],
         }
         session["cirrus_assets"].append(asset)
-        session.save()
+        self.store_session(session)
 
         # Redirect to the GET method
-        return redirect("leaver-cirrus-equipment")
+        return redirect(
+            "leaver-cirrus-equipment",
+            leaving_request_uuid=self.leaving_request.uuid,
+        )
 
     def post_cirrus_return_form_no_assets(
         self, request: HttpRequest, form: Form, *args, **kwargs
     ):
-        user = cast(User, request.user)
-        sso_email_user_id = cast(str, user.sso_email_user_id)
-
         # Store correction info and assets into the leaver details
         self.store_cirrus_kit_information(
-            sso_email_user_id=sso_email_user_id,
-            requester=user,
             cirrus_assets=[],
         )
-        return redirect(self.success_url)
+        return redirect(self.get_success_url())
 
     def post_cirrus_return_form(
         self, request: HttpRequest, form: Form, *args, **kwargs
     ):
-        user = cast(User, request.user)
-        sso_email_user_id = cast(str, user.sso_email_user_id)
+        session = self.get_session()
 
         # Store correction info and assets into the leaver details
         self.store_cirrus_kit_information(
-            sso_email_user_id=sso_email_user_id,
-            requester=user,
-            cirrus_assets=request.session.get("cirrus_assets", []),
+            cirrus_assets=session.get("cirrus_assets", []),
         )
 
         form_data = form.cleaned_data
@@ -918,14 +904,10 @@ class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
 
         # Store return information
         self.store_return_option(
-            sso_email_user_id=sso_email_user_id,
-            requester=user,
             return_option=return_option,
         )
         if return_option == ReturnOptions.OFFICE.value:
             self.store_return_information(
-                sso_email_user_id=sso_email_user_id,
-                requester=user,
                 personal_phone=form.cleaned_data["office_personal_phone"],
                 contact_email=form.cleaned_data["office_contact_email"],
                 address=None,
@@ -939,14 +921,12 @@ class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
                 "postcode": form_data["home_address_postcode"],
             }
             self.store_return_information(
-                sso_email_user_id=sso_email_user_id,
-                requester=user,
                 personal_phone=form.cleaned_data["home_personal_phone"],
                 contact_email=form.cleaned_data["home_contact_email"],
                 address=return_address,
             )
 
-        return redirect(self.success_url)
+        return redirect(self.get_success_url())
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -967,8 +947,6 @@ class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
         return {}
 
     def get_initial_cirrus_return_form(self):
-        assert self.leaver_info
-
         return {
             "return_option": self.leaver_info.return_option,
             "office_personal_phone": self.leaver_info.return_personal_phone,
@@ -986,8 +964,6 @@ class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
         return {}
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        assert self.leaving_request
-
         context = super().get_context_data(**kwargs)
         context.update(page_title="Return Cirrus kit")
 
@@ -996,47 +972,51 @@ class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
             form_initial = getattr(self, f"get_initial_{form_name}")()
             context[form_name] = form_class(initial=form_initial)
 
-        context.update(
-            cirrus_assets=get_cirrus_assets(
-                request=self.request, leaving_request=self.leaving_request
-            )
-        )
+        context.update(cirrus_assets=self.get_cirrus_assets())
 
         return context
 
 
-def delete_dse_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
-    if "dse_assets" in request.session:
-        for asset in request.session["dse_assets"]:
-            if asset["uuid"] == str(kit_uuid):
-                request.session["dse_assets"].remove(asset)
-                request.session.save()
-                break
-    return redirect("leaver-display-screen-equipment")
+class DeleteDSEView(LeavingRequestViewMixin, RedirectView):
+    pattern_name = "leaver-display-screen-equipment"
+
+    def get(
+        self,
+        request: HttpRequest,
+        *args: Any,
+        **kwargs: Any,
+    ) -> HttpResponseBase:
+        kit_uuid: uuid.UUID = kwargs["kit_uuid"]
+
+        session = self.get_session()
+        if "dse_assets" in session:
+            for asset in session["dse_assets"]:
+                if asset["uuid"] == str(kit_uuid):
+                    session["dse_assets"].remove(asset)
+                    self.store_session(session)
+                    break
+
+        return super().get(request, *args, **kwargs)
 
 
-class DisplayScreenEquipmentView(LeaverInformationMixin, BaseTemplateView):
+class DisplayScreenEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
     forms: Dict[str, Type[Form]] = {
         "add_asset_form": leaver_forms.AddDisplayScreenEquipmentAssetForm,
         "submission_form": leaver_forms.SubmissionForm,
     }
     template_name = "leaving/leaver/display_screen_equipment.html"
-    success_url = reverse_lazy("leaver-contact-details")
-    back_link_url = reverse_lazy("leaver-has-cirrus-equipment")
+    success_viewname = "leaver-contact-details"
+    back_link_viewname = "leaver-has-cirrus-equipment"
 
     def dispatch(self, request, *args, **kwargs):
-        pre_dispatch_response = self.pre_dispatch(request)
-        if pre_dispatch_response:
-            return pre_dispatch_response
-
         # If the leaver doesn't have DSE, skip this step.
         if not self.leaver_info.has_dse:
-            return redirect(self.success_url)
+            return redirect(self.get_success_url())
 
         return super().dispatch(request, *args, **kwargs)
 
     def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
-        session = request.session
+        session = self.get_session()
         if "dse_assets" not in session:
             session["dse_assets"] = []
 
@@ -1046,26 +1026,23 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, BaseTemplateView):
             "name": form.cleaned_data["asset_name"],
         }
         session["dse_assets"].append(asset)
-        session.save()
+        self.store_session(session)
 
         # Redirect to the GET method
-        return redirect("leaver-display-screen-equipment")
+        return redirect(
+            "leaver-display-screen-equipment",
+            leaving_request_uuid=self.leaving_request.uuid,
+        )
 
     def post_submission_form(self, request: HttpRequest, form: Form, *args, **kwargs):
-        user = cast(User, request.user)
-
-        assert user.sso_email_user_id
-
-        sso_email_user_id = user.sso_email_user_id
+        session = self.get_session()
 
         # Store dse assets into the leaver details
         self.store_display_screen_equipment(
-            sso_email_user_id=sso_email_user_id,
-            requester=user,
-            dse_assets=request.session.get("dse_assets", []),
+            dse_assets=session.get("dse_assets", []),
         )
 
-        return redirect(self.success_url)
+        return redirect(self.get_success_url())
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -1083,8 +1060,10 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, BaseTemplateView):
         return self.render_to_response(context)
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
-        if "dse_assets" not in request.session:
-            request.session["dse_assets"] = []
+        session = self.get_session()
+        if "dse_assets" not in session:
+            session["dse_assets"] = []
+            self.store_session(session)
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -1094,20 +1073,20 @@ class DisplayScreenEquipmentView(LeaverInformationMixin, BaseTemplateView):
         # Add form instances to the context.
         for form_name, form_class in self.forms.items():
             context[form_name] = form_class()
-        if "dse_assets" in self.request.session:
-            context["dse_assets"] = self.request.session["dse_assets"]
+
+        session = self.get_session()
+        if "dse_assets" in session:
+            context["dse_assets"] = session["dse_assets"]
 
         return context
 
 
-class LeaverContactDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
+class LeaverContactDetailsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/personal_contact_details.html"
     form_class = leaver_forms.LeaverContactDetailsForm
-    success_url = reverse_lazy("leaver-confirm-details")
+    success_viewname = "leaver-confirm-details"
 
     def get_initial(self) -> Dict[str, Any]:
-        assert self.leaver_info
-
         initial = super().get_initial()
         initial.update(
             contact_phone=self.leaver_info.contact_phone,
@@ -1122,8 +1101,6 @@ class LeaverContactDetailsView(LeaverInformationMixin, FormView, BaseTemplateVie
         return initial
 
     def form_valid(self, form) -> HttpResponse:
-        assert self.leaver_info
-
         self.leaver_info.contact_phone = form.cleaned_data.get("contact_phone")
         self.leaver_info.personal_email = form.cleaned_data.get("contact_email_address")
         self.leaver_info.contact_address_line_1 = form.cleaned_data.get(
@@ -1156,8 +1133,6 @@ class LeaverContactDetailsView(LeaverInformationMixin, FormView, BaseTemplateVie
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        assert self.leaver_info
-
         context = super().get_context_data(**kwargs)
         context.update(
             page_title="Personal contact details",
@@ -1167,21 +1142,24 @@ class LeaverContactDetailsView(LeaverInformationMixin, FormView, BaseTemplateVie
 
     def get_back_link_url(self):
         if not self.leaver_info.has_dse:
-            return reverse("leaver-has-cirrus-equipment")
+            return reverse(
+                "leaver-has-cirrus-equipment",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
 
-        return reverse("leaver-display-screen-equipment")
+        return reverse(
+            "leaver-display-screen-equipment",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
 
 
-class ConfirmDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
+class ConfirmDetailsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/confirm_details.html"
     form_class = leaver_forms.LeaverConfirmationForm
-    success_url = reverse_lazy("leaver-request-received")
-    back_link_url = reverse_lazy("leaver-contact-details")
+    success_viewname = "leaver-request-received"
+    back_link_viewname = "leaver-contact-details"
 
     def get_context_data(self, **kwargs):
-        assert self.leaving_request
-        assert self.leaver_info
-
         context = super().get_context_data(**kwargs)
 
         context.update(
@@ -1204,30 +1182,21 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
         """
         Check we have all the required information before we continue.
         """
-        assert self.leaving_request
-
         user = cast(User, self.request.user)
-
-        assert user.sso_email_user_id
-
-        sso_email_user_id = user.sso_email_user_id
 
         self.leaving_request.leaver_complete = timezone.now()
         self.leaving_request.save()
 
         # Create the workflow
-        self.create_workflow(sso_email_user_id=sso_email_user_id, requester=user)
+        self.create_workflow(requester=user)
 
         return super().form_valid(form)
 
 
-class RequestReceivedView(LeaverInformationMixin, BaseTemplateView):
+class RequestReceivedView(LeavingJourneyViewMixin, BaseTemplateView):
     template_name = "leaving/leaver/request_received.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        assert self.leaving_request
-        assert self.leaver_info
-
         context = super().get_context_data(**kwargs)
         context.update(
             page_title="Thank you",

@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import date
 from typing import Any, Dict, List, Optional, cast
 from uuid import UUID, uuid4
 
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import (
     HttpResponseBadRequest,
     HttpResponseForbidden,
@@ -9,9 +10,9 @@ from django.http import (
     HttpResponseRedirect,
 )
 from django.http.request import HttpRequest
-from django.http.response import HttpResponse, HttpResponseBase
+from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import resolve, reverse
 from django.utils import timezone
 from django.views.generic import RedirectView
 from django.views.generic.edit import FormView
@@ -33,8 +34,9 @@ from core.utils.staff_index import (
 from core.views import BaseTemplateView
 from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.forms import line_manager as line_manager_forms
-from leavers.models import LeaverInformation, LeavingRequest
+from leavers.models import LeavingRequest
 from leavers.types import LeavingReason, LeavingRequestLineReport
+from leavers.views.leaver import LeavingRequestViewMixin
 from user.models import User
 
 DATA_RECIPIENT_SEARCH_PARAM = "data_recipient_id"
@@ -177,116 +179,68 @@ class LineManagerViewMixin:
         return False
 
 
-class DataRecipientSearchView(LineManagerViewMixin, StaffSearchView):
-    search_name = "data recipient"
-    query_param_name = DATA_RECIPIENT_SEARCH_PARAM
-
-    def get_success_url(self) -> str:
-        return reverse(
-            "line-manager-leaver-confirmation",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+class IsReviewUser(UserPassesTestMixin):
+    # TODO: Switch to a permission check
+    def test_func(self):
+        return self.line_manager_access(
+            request=self.request,
+            leaving_request=self.leaving_request,
         )
 
-    def dispatch(
-        self, request: HttpRequest, *args: Any, **kwargs: Any
-    ) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
 
+class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixin):
+    def pre_dispatch(self, request, *args, **kwargs) -> Optional[HttpResponse]:
+        return None
+
+    def dispatch(self, request, *args, **kwargs):
         if not self.leaving_request.leaver_complete:
             return HttpResponseNotFound()
 
-        if self.leaving_request.line_manager_complete:
-            return redirect(
-                reverse(
-                    "line-manager-thank-you",
-                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                )
-            )
-
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
+        if (
+            self.leaving_request.line_manager_complete
+            and resolve(self.request.path).view_name != "line-manager-thank-you"
         ):
-            return HttpResponseForbidden()
+            return redirect(self.get_view_url("line-manager-thank-you"))
+
+        if response := self.pre_dispatch(request, *args, **kwargs):
+            return response
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class DataRecipientSearchView(ReviewViewMixin, StaffSearchView):
+    search_name = "data recipient"
+    query_param_name = DATA_RECIPIENT_SEARCH_PARAM
+    success_viewname = "line-manager-leaver-confirmation"
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
 
         self.exclude_staff_ids = [
             self.leaving_request.leaver_activitystream_user.identifier
         ]
-        return super().dispatch(request, *args, **kwargs)
 
 
-class LineReportNewLineManagerSearchView(LineManagerViewMixin, StaffSearchView):
+class LineReportNewLineManagerSearchView(ReviewViewMixin, StaffSearchView):
     search_name = "new Line Manager"
     query_param_name = LINE_REPORT_NEW_LINE_MANAGER_SEARCH_PARAM
 
-    def get_success_url(self) -> str:
-        return reverse(
-            "line-reports-set-new-manager",
-            kwargs={
-                "leaving_request_uuid": self.leaving_request.uuid,
-                "line_report_uuid": self.request.GET["line_report_uuid"],
-            },
-        )
-
-    def dispatch(
-        self, request: HttpRequest, *args: Any, **kwargs: Any
-    ) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
-
-        if self.leaving_request.line_manager_complete:
-            return redirect(
-                reverse(
-                    "line-manager-thank-you",
-                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                )
-            )
-
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
-        ):
-            return HttpResponseForbidden()
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
 
         self.exclude_staff_ids = [
             self.leaving_request.leaver_activitystream_user.identifier
         ]
 
-        return super().dispatch(request, *args, **kwargs)
-
-
-class StartView(LineManagerViewMixin, BaseTemplateView):
-    template_name = "leaving/line_manager/start.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
+    def get_success_url(self) -> str:
+        return self.get_view_url(
+            "line-reports-set-new-manager",
+            line_report_uuid=self.request.GET["line_report_uuid"],
         )
 
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
 
-        if self.leaving_request.line_manager_complete:
-            return redirect(
-                reverse(
-                    "line-manager-thank-you",
-                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                )
-            )
-
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
-        ):
-            return HttpResponseForbidden()
-
-        return super().dispatch(request, *args, **kwargs)
+class StartView(ReviewViewMixin, BaseTemplateView):
+    template_name = "leaving/line_manager/start.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -300,10 +254,7 @@ class StartView(LineManagerViewMixin, BaseTemplateView):
 
         context.update(
             page_title=page_title,
-            start_url=reverse(
-                "line-manager-leaver-confirmation",
-                kwargs={"leaving_request_uuid": str(self.leaving_request.uuid)},
-            ),
+            start_url=self.get_view_url("line-manager-leaver-confirmation"),
             leaver_name=leaver_name,
             possessive_leaver_name=make_possessive(leaver_name),
             reason_for_leaving=self.leaving_request.reason_for_leaving,
@@ -312,47 +263,22 @@ class StartView(LineManagerViewMixin, BaseTemplateView):
         return context
 
 
-class RemoveDataRecipientFromLeavingRequestView(LineManagerViewMixin, RedirectView):
+class RemoveDataRecipientFromLeavingRequestView(ReviewViewMixin, RedirectView):
     def get_redirect_url(self, *args: Any, **kwargs: Any) -> Optional[str]:
-        return reverse(
-            "line-manager-leaver-confirmation",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
+        return self.get_view_url("line-manager-leaver-confirmation")
 
-    def dispatch(self, request, *args, **kwargs):
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
-
-        if self.leaving_request.line_manager_complete:
-            return redirect(
-                reverse(
-                    "line-manager-thank-you",
-                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                )
-            )
-
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
-        ):
-            return HttpResponseForbidden()
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
+    def get(self, request, *args, **kwargs):
         self.leaving_request.data_recipient_activitystream_user = None
         self.leaving_request.save(update_fields=["data_recipient_activitystream_user"])
 
         return super().get(request, *args, **kwargs)
 
 
-class LeaverConfirmationView(LineManagerViewMixin, FormView, BaseTemplateView):
+class LeaverConfirmationView(ReviewViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/line_manager/leaver_confirmation.html"
     form_class = line_manager_forms.ConfirmLeavingDate
+    success_viewname = "line-manager-details"
+    back_link_viewname = "line-manager-start"
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
@@ -363,12 +289,6 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView, BaseTemplateView):
             needs_data_transfer=self.leaver_has_digital_email,
         )
         return form_kwargs
-
-    def get_success_url(self) -> str:
-        return reverse(
-            "line-manager-details",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
 
     def get_leaver(self) -> ConsolidatedStaffDocument:
         """
@@ -455,27 +375,8 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView, BaseTemplateView):
         )
         self.leaving_request.save()
 
-    def dispatch(self, request, *args, **kwargs):
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
-
-        if self.leaving_request.line_manager_complete:
-            return redirect(
-                reverse(
-                    "line-manager-thank-you",
-                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                )
-            )
-
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
-        ):
-            return HttpResponseForbidden()
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
 
         self.leaver: ConsolidatedStaffDocument = self.get_leaver()
         self.manager: ConsolidatedStaffDocument = self.get_manager()
@@ -493,8 +394,6 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView, BaseTemplateView):
                 ActivityStreamStaffSSOUser
             ] = None
             self.get_data_recipient(request)
-
-        return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
@@ -523,9 +422,8 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView, BaseTemplateView):
             leaver_name=leaver_name,
             possessive_leaver_name=possessive_leaver_name,
             data_recipient=self.data_recipient or self.manager,
-            data_recipient_search=reverse(
-                "line-manager-data-recipient-search",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            data_recipient_search=self.get_view_url(
+                "line-manager-data-recipient-search"
             ),
         )
         return context
@@ -548,22 +446,12 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView, BaseTemplateView):
 
         return super().form_valid(form)
 
-    def get_back_link_url(self):
-        return reverse(
-            "line-manager-start",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
 
-
-class DetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
+class DetailsView(ReviewViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/line_manager/details.html"
     form_class = line_manager_forms.LineManagerDetailsForm
-
-    def get_success_url(self) -> str:
-        return reverse(
-            "line-manager-leaver-line-reports",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
+    success_viewname = "line-manager-leaver-line-reports"
+    back_link_viewname = "line-manager-leaver-confirmation"
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
@@ -577,32 +465,9 @@ class DetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
         )
         return initial
 
-    def dispatch(self, request, *args, **kwargs):
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
-
-        if self.leaving_request.line_manager_complete:
-            return redirect(
-                reverse(
-                    "line-manager-thank-you",
-                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                )
-            )
-
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
-        ):
-            return HttpResponseForbidden()
-
+    def pre_dispatch(self, request, *args, **kwargs):
         if not self.leaving_request.show_hr_and_payroll:
             return redirect(self.get_success_url())
-
-        return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
@@ -654,15 +519,8 @@ class DetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
 
         return context
 
-    def get_back_link_url(self):
-        return (
-            reverse(
-                "line-manager-leaver-confirmation",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
-        )
 
-
+# TODO: Refactor to use the ReviewBaseView
 def line_report_set_new_manager(
     request: HttpRequest, leaving_request_uuid: UUID, line_report_uuid: UUID
 ) -> HttpResponse:
@@ -745,42 +603,17 @@ def line_report_set_new_manager(
     return redirect_response
 
 
-class RemoveLineManagerFromLineReportView(LineManagerViewMixin, RedirectView):
+class RemoveLineManagerFromLineReportView(ReviewViewMixin, RedirectView):
     def get_redirect_url(self, *args: Any, **kwargs: Any) -> Optional[str]:
-        return reverse(
-            "line-manager-leaver-line-reports",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
+        return self.get_view_url("line-manager-leaver-line-reports")
 
-    def dispatch(self, request, *args, **kwargs):
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
-
-        if self.leaving_request.line_manager_complete:
-            return redirect(
-                reverse(
-                    "line-manager-thank-you",
-                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                )
-            )
-
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
-        ):
-            return HttpResponseForbidden()
-
+    def pre_dispatch(self, request, *args, **kwargs):
         self.line_report_uuid = self.request.GET.get("line_report_uuid")
+
         if not self.line_report_uuid:
             return HttpResponseBadRequest()
 
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
+    def get(self, request, *args, **kwargs):
         lr_line_reports: List[
             LeavingRequestLineReport
         ] = self.leaving_request.line_reports
@@ -795,15 +628,11 @@ class RemoveLineManagerFromLineReportView(LineManagerViewMixin, RedirectView):
         return super().get(request, *args, **kwargs)
 
 
-class LeaverLineReportsView(LineManagerViewMixin, FormView, BaseTemplateView):
+class LeaverLineReportsView(ReviewViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/line_manager/line_reports.html"
     form_class = line_manager_forms.LineReportConfirmationForm
-
-    def get_success_url(self) -> str:
-        return reverse(
-            "line-manager-confirmation",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
+    success_viewname = "line-manager-confirmation"
+    back_link_viewname = "line-manager-details"
 
     def initialize_line_reports(self) -> None:
         if not self.leaving_request.line_reports:
@@ -850,28 +679,7 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView, BaseTemplateView):
             self.leaving_request.line_reports = lr_line_reports
             self.leaving_request.save()
 
-    def dispatch(self, request, *args, **kwargs):
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
-
-        if self.leaving_request.line_manager_complete:
-            return redirect(
-                reverse(
-                    "line-manager-thank-you",
-                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                )
-            )
-
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
-        ):
-            return HttpResponseForbidden()
-
+    def pre_dispatch(self, request, *args, **kwargs):
         self.initialize_line_reports()
 
         if not self.leaving_request.line_reports:
@@ -879,8 +687,6 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView, BaseTemplateView):
 
         if not self.leaving_request.show_line_reports:
             return redirect(self.get_success_url())
-
-        return super().dispatch(request, *args, **kwargs)
 
     def get_leaver(self) -> ConsolidatedStaffDocument:
         """
@@ -917,13 +723,11 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView, BaseTemplateView):
             leaver_name=self.leaving_request.get_leaver_name(),
             line_reports=self.leaving_request.line_reports,
             leaver=self.get_leaver(),
-            new_line_manager_search=reverse(
+            new_line_manager_search=self.get_view_url(
                 "line-manager-line-report-new-line-manager-search",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
-            remove_new_line_manager=reverse(
+            remove_new_line_manager=self.get_view_url(
                 "remove-line-manager-from-line-report",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
             errors=errors,
         )
@@ -935,22 +739,16 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView, BaseTemplateView):
         form_kwargs["leaving_request"] = self.leaving_request
         return form_kwargs
 
-    def get_back_link_url(self):
-        return reverse(
-            "line-manager-details",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
 
-
-class ConfirmDetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
+class ConfirmDetailsView(ReviewViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/line_manager/confirm_details.html"
     form_class = line_manager_forms.LineManagerConfirmationForm
+    success_viewname = "line-manager-thank-you"
 
-    def get_success_url(self) -> str:
-        return reverse(
-            "line-manager-thank-you",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.leaver = self.get_leaver()
+        self.data_recipient = self.get_data_recipient()
 
     def get_leaver(self) -> ConsolidatedStaffDocument:
         """
@@ -978,33 +776,6 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
         return consolidate_staff_documents(
             staff_documents=[data_recipient_staff_document],
         )[0]
-
-    def dispatch(self, request, *args, **kwargs):
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
-
-        if self.leaving_request.line_manager_complete:
-            return redirect(
-                reverse(
-                    "line-manager-thank-you",
-                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                )
-            )
-
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
-        ):
-            return HttpResponseForbidden()
-
-        self.leaver = self.get_leaver()
-        self.data_recipient = self.get_data_recipient()
-
-        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -1037,12 +808,12 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
             has_flexi_leave = bool(flexi_leave_enum.value != "None")
 
         leaving_datetime = self.leaving_request.get_leaving_date()
-        leaving_date: Optional[datetime] = None
+        leaving_date: Optional[date] = None
         if leaving_datetime:
             leaving_date = leaving_datetime.date()
 
         last_day_datetime = self.leaving_request.get_last_day()
-        last_day: Optional[datetime] = None
+        last_day: Optional[date] = None
         if last_day_datetime:
             last_day = last_day_datetime.date()
 
@@ -1063,17 +834,14 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
             has_flexi_leave=has_flexi_leave,
             flexi_number=self.leaving_request.flexi_number,
             line_reports=self.leaving_request.line_reports,
-            leaver_confirmation_view_url=reverse_lazy(
+            leaver_confirmation_view_url=self.get_view_url(
                 "line-manager-leaver-confirmation",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
-            details_view_url=reverse_lazy(
+            details_view_url=self.get_view_url(
                 "line-manager-details",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
-            line_reports_view=reverse_lazy(
+            line_reports_view=self.get_view_url(
                 "line-manager-leaver-line-reports",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
         )
 
@@ -1086,54 +854,24 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
         return super().form_valid(form)
 
     def get_back_link_url(self):
-        back_url = reverse(
-            "line-manager-leaver-confirmation",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
+        back_url = self.get_view_url("line-manager-leaver-confirmation")
+
         if self.leaving_request.show_line_reports:
-            back_url = reverse(
-                "line-manager-leaver-line-reports",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            )
+            back_url = self.get_view_url("line-manager-leaver-line-reports")
         elif self.leaving_request.show_hr_and_payroll:
-            back_url = reverse(
-                "line-manager-details",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            )
+            back_url = self.get_view_url("line-manager-details")
+
         return back_url
 
 
-class ThankYouView(LineManagerViewMixin, BaseTemplateView):
+class ThankYouView(ReviewViewMixin, BaseTemplateView):
     template_name = "leaving/line_manager/thank_you.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-
-        if not self.leaving_request.leaver_complete:
-            return HttpResponseNotFound()
-
+    def pre_dispatch(self, request, *args, **kwargs):
         if not self.leaving_request.line_manager_complete:
             return HttpResponseForbidden()
 
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
-        ):
-            return HttpResponseForbidden()
-
-        self.leaver_information: Optional[
-            LeaverInformation
-        ] = self.leaving_request.leaver_information.first()
-
-        assert self.leaver_information
-
-        return super().dispatch(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        assert self.leaver_information
-
         context = super().get_context_data(**kwargs)
 
         leaver_name = self.leaving_request.get_leaver_name()
@@ -1142,19 +880,17 @@ class ThankYouView(LineManagerViewMixin, BaseTemplateView):
             page_title="Leaving form completed",
             leaver_name=leaver_name,
             leaving_request=self.leaving_request,
-            leaver_information=self.leaver_information,
-            cirrus_assets=self.leaver_information.cirrus_assets,
+            leaver_information=self.leaver_info,
+            cirrus_assets=self.leaver_info.cirrus_assets,
             possessive_leaver_name=make_possessive(leaver_name),
         )
         return context
 
 
-class OfflineServiceNowMixin:
+class OfflineServiceNowBaseView(
+    IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixin
+):
     def dispatch(self, request, *args, **kwargs):
-        self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
-        )
-
         if not self.leaving_request.leaver_complete:
             return HttpResponseNotFound()
 
@@ -1164,45 +900,21 @@ class OfflineServiceNowMixin:
         if not self.leaving_request.line_manager_complete:
             return HttpResponseForbidden()
 
-        if not self.line_manager_access(
-            request=request,
-            leaving_request=self.leaving_request,
-        ):
-            return HttpResponseForbidden()
-
-        self.leaver_information: Optional[
-            LeaverInformation
-        ] = self.leaving_request.leaver_information.first()
-        if not self.leaver_information:
-            # This should never happen as the LeaverInformation is created
-            # prior to the Line manager view.
-            raise Exception("Leaver information not found")
         return super().dispatch(request, *args, **kwargs)
 
 
-class OfflineServiceNowView(
-    OfflineServiceNowMixin, LineManagerViewMixin, FormView, BaseTemplateView
-):
+class OfflineServiceNowView(OfflineServiceNowBaseView, BaseTemplateView, FormView):
     template_name = "leaving/line_manager/offline_service_now.html"
     form_class = line_manager_forms.OfflineServiceNowForm
-
-    def get_success_url(self) -> str:
-        return reverse(
-            "line-manager-offline-service-now-thank-you",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
+    success_viewname = "line-manager-offline-service-now-thank-you"
 
     def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
-
         if self.leaving_request.line_manager_service_now_complete:
             return redirect(self.get_success_url())
 
-        return response
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        assert self.leaver_information
-
         context = super().get_context_data(**kwargs)
 
         leaver_name = self.leaving_request.get_leaver_name()
@@ -1211,8 +923,8 @@ class OfflineServiceNowView(
             page_title="Log a Service Now request",
             leaver_name=leaver_name,
             leaving_request=self.leaving_request,
-            leaver_information=self.leaver_information,
-            cirrus_assets=self.leaver_information.cirrus_assets,
+            leaver_information=self.leaver_info,
+            cirrus_assets=self.leaver_info.cirrus_assets,
             possessive_leaver_name=make_possessive(leaver_name),
         )
         return context
@@ -1224,9 +936,7 @@ class OfflineServiceNowView(
         return super().form_valid(form)
 
 
-class OfflineServiceNowThankYouView(
-    OfflineServiceNowMixin, LineManagerViewMixin, BaseTemplateView
-):
+class OfflineServiceNowThankYouView(OfflineServiceNowBaseView, BaseTemplateView):
     template_name = "leaving/line_manager/offline_service_now_thank_you.html"
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:

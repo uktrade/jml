@@ -7,8 +7,8 @@ from django.forms import Form
 from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic.edit import FormView
 
@@ -33,6 +33,7 @@ from leavers.utils.security_team import (
     set_security_role,
 )
 from leavers.views import base
+from leavers.views.leaver import LeavingRequestViewMixin
 from leavers.views.sre import ServiceInfo
 from user.models import User
 
@@ -48,7 +49,19 @@ ROSA_KIT_FIELD_MAPPING: Dict[str, str] = {
 }
 
 
-class LeavingRequestListing(base.LeavingRequestListing):
+class IsSecurityTeamUser(UserPassesTestMixin):
+    # TODO: Switch to a permission check
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="Security Team",
+        ).exists()
+
+
+class SecurityViewMixin(IsSecurityTeamUser, LeavingRequestViewMixin, BaseTemplateView):
+    pass
+
+
+class LeavingRequestListing(IsSecurityTeamUser, base.LeavingRequestListing):
     template_name = "leaving/security_team/listing.html"
 
     fields: List[Tuple[str, str]] = [
@@ -64,11 +77,6 @@ class LeavingRequestListing(base.LeavingRequestListing):
     building_pass_confirmation_view = "security-team-building-pass-confirmation"
     rosa_kit_confirmation_view = "security-team-rosa-kit-confirmation"
     summary_view = "security-team-summary"
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="Security Team",
-        ).exists()
 
     def get_leaving_requests(
         self,
@@ -122,25 +130,13 @@ class LeavingRequestListing(base.LeavingRequestListing):
         return context
 
 
-class BuildingPassConfirmationView(
-    UserPassesTestMixin,
-    FormView,
-    BaseTemplateView,
-):
+class BuildingPassConfirmationView(SecurityViewMixin, FormView):
     template_name = "leaving/security_team/confirmation/building_pass.html"
     form_class = AddTaskNoteForm
+    success_viewname = "security-team-building-pass-confirmation"
     back_link_url = reverse_lazy("security-team-listing-incomplete")
 
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="Security Team",
-        ).exists()
-
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
         set_security_role(request=request, role=SecuritySubRole.BUILDING_PASS)
         return super().dispatch(request, *args, **kwargs)
 
@@ -190,11 +186,6 @@ class BuildingPassConfirmationView(
 
         return context
 
-    def get_success_url(self) -> str:
-        return reverse(
-            "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
-        )
-
     def form_valid(self, form) -> HttpResponse:
         note = form.cleaned_data["note"]
 
@@ -209,31 +200,14 @@ class BuildingPassConfirmationView(
         return super().form_valid(form)
 
 
-class BuildingPassConfirmationEditView(
-    UserPassesTestMixin,
-    FormView,
-    BaseTemplateView,
-):
+class BuildingPassConfirmationEditView(SecurityViewMixin, FormView):
     template_name = "leaving/security_team/confirmation/building_pass_edit.html"
     form_class = BuildingPassForm
+    success_viewname = "security-team-building-pass-confirmation"
     back_link_url = reverse_lazy("security-team-listing-incomplete")
     back_link_text = "Back to Building pass requests"
 
-    def get_success_url(self) -> str:
-        return reverse_lazy(
-            "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
-        )
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="Security Team",
-        ).exists()
-
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
         set_security_role(request=request, role=SecuritySubRole.ROSA_KIT)
         return super().dispatch(request, *args, **kwargs)
 
@@ -334,7 +308,7 @@ class BuildingPassConfirmationEditView(
                     reference="LeavingRequest.security_pass_returned",
                 )
             )
-        # uUmark the pass as returned.
+        # Unmark the pass as returned.
         if (
             BuildingPassSteps.RETURNED.value not in form.cleaned_data["next_steps"]
             and self.leaving_request.security_pass_returned
@@ -375,32 +349,18 @@ class BuildingPassConfirmationEditView(
         return super().form_valid(form)
 
 
-class BuidlingPassConfirmationCloseView(
-    UserPassesTestMixin,
-    FormView,
-    BaseTemplateView,
-):
+class BuidlingPassConfirmationCloseView(SecurityViewMixin, FormView):
     template_name = "leaving/security_team/confirmation/building_pass_action.html"
     form_class = BuildingPassCloseRecordForm
+    success_viewname = "security-team-summary"
+    back_link_viewname = "security-team-building-pass-confirmation"
     back_link_text = "Back to Building pass requests"
 
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="Security Team",
-        ).exists()
-
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-
         if self.leaving_request.security_team_rosa_kit_complete:
             return redirect(self.get_success_url())
-        return super().dispatch(request, *args, **kwargs)
 
-    def get_success_url(self) -> str:
-        return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
@@ -426,11 +386,6 @@ class BuidlingPassConfirmationCloseView(
             page_title=self.get_page_title(),
         )
         return context
-
-    def get_back_link_url(self):
-        return reverse(
-            "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
-        )
 
 
 def get_rosa_kit_statuses(leaving_request: LeavingRequest) -> Dict[str, Dict[str, str]]:
@@ -469,17 +424,10 @@ def get_rosa_kit_statuses(leaving_request: LeavingRequest) -> Dict[str, Dict[str
     return rosa_kit_statuses
 
 
-class RosaKitConfirmationView(
-    UserPassesTestMixin,
-    BaseTemplateView,
-):
+class RosaKitConfirmationView(SecurityViewMixin):
     template_name = "leaving/security_team/confirmation/rosa_kit.html"
+    success_viewname = "security-team-rosa-kit-confirmation"
     back_link_url = reverse_lazy("security-team-listing-incomplete")
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="Security Team",
-        ).exists()
 
     def get_page_title(self) -> str:
         leaver_name = self.leaving_request.get_leaver_name()
@@ -489,10 +437,6 @@ class RosaKitConfirmationView(
         return f"{possessive_leaver_name} ROSA Kit"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
         set_security_role(request=request, role=SecuritySubRole.ROSA_KIT)
         return super().dispatch(request, *args, **kwargs)
 
@@ -593,44 +537,23 @@ class RosaKitConfirmationView(
 
         return context
 
-    def get_success_url(self) -> str:
-        return reverse(
-            "security-team-rosa-kit-confirmation", args=[self.leaving_request.uuid]
-        )
 
-
-class RosaKitFieldView(
-    UserPassesTestMixin,
-    BaseTemplateView,
-):
+class RosaKitFieldView(SecurityViewMixin):
     template_name = "leaving/security_team/confirmation/rosa_kit_edit.html"
     forms: Dict[str, Type[Form]] = {
         "update_status_form": RosaKitFieldForm,
         "add_note_form": AddTaskNoteForm,
     }
+    success_viewname = "security-team-rosa-kit-confirmation"
+    back_link_viewname = "security-team-rosa-kit-confirmation"
     back_link_text = "Back to ROSA Kit requests"
 
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="Security Team",
-        ).exists()
-
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-
         self.field_name = self.kwargs.get("field_name", None)
         if not self.field_name:
             raise Http404
 
         return super().dispatch(request, *args, **kwargs)
-
-    def get_success_url(self) -> str:
-        return reverse(
-            "security-team-rosa-kit-confirmation", args=[self.leaving_request.uuid]
-        )
 
     def get_page_title(self) -> str:
         leaver_name = self.leaving_request.get_leaver_name()
@@ -682,9 +605,8 @@ class RosaKitFieldView(
         )
 
         return redirect(
-            reverse(
-                "security-team-rosa-kit-field",
-                args=[self.leaving_request.uuid, self.field_name],
+            self.get_view_url(
+                "security-team-rosa-kit-field", field_name=self.field_name
             )
         )
 
@@ -765,32 +687,15 @@ class RosaKitFieldView(
 
         return context
 
-    def get_back_link_url(self):
-        return reverse(
-            "security-team-rosa-kit-confirmation", args=[self.leaving_request.uuid]
-        )
 
-
-class RosaKitConfirmationCloseView(
-    UserPassesTestMixin,
-    FormView,
-    BaseTemplateView,
-):
+class RosaKitConfirmationCloseView(SecurityViewMixin, FormView):
     template_name = "leaving/security_team/confirmation/rosa_kit_action.html"
     form_class = RosaKitCloseRecordForm
+    success_viewname = "security-team-summary"
+    back_link_viewname = "security-team-rosa-kit-confirmation"
     back_link_text = "Back to ROSA Kit requests"
 
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="Security Team",
-        ).exists()
-
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-
         if self.leaving_request.security_team_rosa_kit_complete:
             return redirect(self.get_success_url())
         return super().dispatch(request, *args, **kwargs)
@@ -801,9 +706,6 @@ class RosaKitConfirmationCloseView(
         if leaver_name:
             possessive_leaver_name = make_possessive(leaver_name)
         return f"{possessive_leaver_name} ROSA Kit: confirm record is complete"
-
-    def get_success_url(self) -> str:
-        return reverse_lazy("security-team-summary", args=[self.leaving_request.uuid])
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
@@ -831,30 +733,10 @@ class RosaKitConfirmationCloseView(
         )
         return context
 
-    def get_back_link_url(self):
-        return reverse(
-            "security-team-rosa-kit-confirmation", args=[self.leaving_request.uuid]
-        )
 
-
-class TaskSummaryView(
-    UserPassesTestMixin,
-    BaseTemplateView,
-):
+class TaskSummaryView(SecurityViewMixin):
     template_name = "leaving/security_team/summary.html"
     back_link_url = reverse_lazy("security-team-listing-complete")
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="Security Team",
-        ).exists()
-
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-        return super().dispatch(request, *args, **kwargs)
 
     def get_page_title(self) -> str:
         leaver_name = self.leaving_request.get_leaver_name()
@@ -883,7 +765,6 @@ class TaskSummaryView(
 
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
-            leaving_request_uuid=self.leaving_request.uuid,
             pass_disabled=self.leaving_request.security_pass_disabled,
             pass_returned=self.leaving_request.security_pass_returned,
             pass_destroyed=self.leaving_request.security_pass_destroyed,

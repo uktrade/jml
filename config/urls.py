@@ -22,7 +22,7 @@ public_url_patterns = [
     path("", include("core.urls")),
     path("dev-tools/", include("dev_tools.urls")),
     path("auth/", include("authbroker_client.urls", namespace="authbroker")),
-    path("api/", include(router.urls)),
+    path("api/", include((router.urls, "api"))),
 ]
 
 urlpatterns = private_urlpatterns + public_url_patterns

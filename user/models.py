@@ -3,6 +3,9 @@ import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from activity_stream.models import ActivityStreamStaffSSOUser
+from user.groups import GroupName
+
 
 class User(AbstractUser):
     class Meta:
@@ -38,3 +41,11 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
+    def is_in_group(self, group_name: GroupName) -> bool:
+        return self.groups.filter(name=group_name.value).exists()
+
+    def get_sso_user(self):
+        return ActivityStreamStaffSSOUser.objects.get(
+            email_user_id=self.sso_email_user_id,
+        )
