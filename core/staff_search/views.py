@@ -3,7 +3,6 @@ from uuid import UUID
 
 from django.http import Http404
 from django.http.response import HttpResponse
-from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 
 from core.people_finder import get_people_finder_interface
@@ -14,9 +13,10 @@ from core.utils.staff_index import (
     get_staff_document_from_staff_index,
     search_staff_index,
 )
+from core.views import BaseTemplateView
 
 
-class StaffResultView(TemplateView):
+class StaffResultView(BaseTemplateView):
     template_name = "staff_search/staff_result.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -38,7 +38,7 @@ class StaffResultView(TemplateView):
         return context
 
 
-class StaffSearchView(FormView):
+class StaffSearchView(FormView, BaseTemplateView):
     """
     Generic Staff Search View
 
@@ -110,3 +110,11 @@ class StaffSearchView(FormView):
             staff_results=staff_results,
         )
         return self.render_to_response(context)
+
+    def get_success_url(self) -> str:
+        # This enables us to not specify a success_url and have the select anchor POST
+        # back to the same page with the added query parameter.
+        if not self.success_url:
+            return ""
+
+        return super().get_success_url()

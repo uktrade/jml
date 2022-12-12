@@ -22,6 +22,7 @@ from django.utils import timezone
 
 from core.forms import BaseForm, YesNoField
 from core.staff_search.forms import staff_search_autocomplete_field
+from leavers.models import LeavingRequest
 from leavers.types import LeavingReason, ReturnOptions, SecurityClearance, StaffType
 
 
@@ -32,6 +33,30 @@ class LeaverConfirmationForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Submit("submit", "Accept and send"),
+        )
+
+
+class SelectLeaverForm(BaseForm):
+    leaver_uuid = forms.CharField(label="", widget=forms.HiddenInput)
+
+    def __init__(self, request, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(
+                *staff_search_autocomplete_field(
+                    form=self,
+                    request=request,
+                    field_name="leaver_uuid",
+                    search_url=reverse("leaver-leaver-search"),
+                    remove_url=reverse("leaver-select-leaver"),
+                    remove_text="Remove",
+                ),
+                legend="Select a leaver to off-board from DIT",
+                legend_size=Size.LARGE,
+            ),
+            Submit("submit", "Next"),
         )
 
 
@@ -158,9 +183,12 @@ class FindPersonIDForm(BaseForm):
         label="Personal email", help_text="We'll only use this to find your details."
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, leaving_request, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        cancel_url = reverse("leaver-find-details-help")
+        cancel_url = reverse(
+            "leaver-find-details-help",
+            kwargs={"leaving_request_uuid", leaving_request.uuid},
+        )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -231,7 +259,9 @@ class LeaverDatesForm(BaseForm):
     last_day = DateInputField(label="")
     leaver_manager = forms.CharField(label="", widget=forms.HiddenInput)
 
-    def __init__(self, request: HttpRequest, *args, **kwargs):
+    def __init__(
+        self, request: HttpRequest, leaving_request: LeavingRequest, *args, **kwargs
+    ):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
@@ -248,9 +278,15 @@ class LeaverDatesForm(BaseForm):
                     form=self,
                     request=request,
                     field_name="leaver_manager",
-                    search_url=reverse("leaver-manager-search"),
+                    search_url=reverse(
+                        "leaver-manager-search",
+                        kwargs={"leaving_request_uuid": leaving_request.uuid},
+                    ),
                     remove_text="Remove line manager",
-                    remove_url=reverse("leaver-remove-line-manager"),
+                    remove_url=reverse(
+                        "leaver-remove-line-manager",
+                        kwargs={"leaving_request_uuid": leaving_request.uuid},
+                    ),
                 ),
                 legend="Who is your line manager?",
                 legend_size=Size.SMALL,

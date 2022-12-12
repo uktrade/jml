@@ -31,8 +31,6 @@ def create_user(
             first_name=first_name,
             last_name=last_name,
             email=email,
-            is_staff=True,
-            is_superuser=True,
         )
         uuid_str = str(uuid.uuid4())
         user.sso_legacy_user_id = uuid_str

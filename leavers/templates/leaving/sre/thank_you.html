@@ -21,7 +21,7 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-            <a href="{% url 'sre-detail' leaving_request_uuid %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+            <a href="{% url 'sre-detail' leaving_request_uuid=leaving_request.uuid %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                 Edit
             </a>
             {% if complete %}

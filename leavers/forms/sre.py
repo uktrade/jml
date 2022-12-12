@@ -57,7 +57,9 @@ class SREConfirmCompleteForm(forms.Form):
     def __init__(self, leaving_request_uuid: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        cancel_url = reverse("sre-detail", args=[leaving_request_uuid])
+        cancel_url = reverse(
+            "sre-detail", kwargs={"leaving_request_uuid": leaving_request_uuid}
+        )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(

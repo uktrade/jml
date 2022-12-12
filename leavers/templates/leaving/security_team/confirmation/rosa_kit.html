@@ -13,7 +13,7 @@
                 <tbody class="govuk-table__body">
                     {% for ki in kit_info %}
                         <tr class="govuk-table__row">
-                            <td class="govuk-table__cell"><a class="govuk-link" href="{% url 'security-team-rosa-kit-field' leaving_request_uuid ki.field_name %}">{{ ki.name }}</a></td>
+                            <td class="govuk-table__cell"><a class="govuk-link" href="{% url 'security-team-rosa-kit-field' leaving_request_uuid=leaving_request.uuid field_name=ki.field_name %}">{{ ki.name }}</a></td>
                             <td class="govuk-table__cell">{{ ki.comment }}</td>
                             <td class="govuk-table__cell govuk-!-text-align-right"><strong class="govuk-tag govuk-tag--{{ ki.status_colour }}">{{ ki.status_text }}</strong></td>
                         </tr>
@@ -22,7 +22,7 @@
             </table>
 
             {% if can_mark_as_complete %}
-                <a href="{% url 'security-team-rosa-kit-confirmation-close' leaving_request_uuid %}" class="govuk-button" data-module="govuk-button">
+                <a href="{% url 'security-team-rosa-kit-confirmation-close' leaving_request_uuid=leaving_request.uuid %}" class="govuk-button" data-module="govuk-button">
                     Complete record
                 </a>
             {% endif %}

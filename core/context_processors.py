@@ -78,6 +78,14 @@ def global_context(request):
                 )
             )
 
+        if request.user.has_perm("leavers.select_leaver"):
+            global_context["MAIN_NAV"].append(
+                (
+                    "Offboard a leaver",
+                    reverse("leaver-select-leaver"),
+                )
+            )
+
         sso_email_user_id = request.user.sso_email_user_id
         user_is_manager = Q(
             Q(manager_activitystream_user__email_user_id=sso_email_user_id)

@@ -110,6 +110,12 @@ all-requirements:
 pytest:
 	$(run) leavers pytest --cov --cov-report html -raP --capture=sys -n 4
 
+test:
+	$(run) leavers pytest --disable-warnings --reuse-db $(test)
+
+test-fresh:
+	$(run) leavers pytest --disable-warnings --create-db --reuse-db $(test)
+
 view-coverage:
 	python -m webbrowser -t htmlcov/index.html
 

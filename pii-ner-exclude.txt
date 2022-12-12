@@ -27,6 +27,7 @@
 "Returns True
 @media
 *Actions required:*\n
+# Data
 # Joiners
 # Joiners Movers Leavers
 # People Data
@@ -57,6 +58,7 @@
 0003_add_user_user_id
 0007_activitystreamstaffssouser_is_active
 0007_activitystreamstaffssouser_is_active
+0012_activitystreamstaffssouser_uksbs_person_id_override
 0032_leavingrequest_reason_for_leaving
 0048_leaverinformation_leaver_date_of_birth
 0053_leavingrequest_processing_manager_activitystream_user
@@ -84,6 +86,7 @@ Annual Leave
 Annual Leave: "
 API
 Apple
+Args
 aria-current="page
 aria-describedby="id
 aria-hidden="true
@@ -125,6 +128,7 @@ Civil Servants
 Civil Service Fast Stream
 class="govuk-button__start
 class="incomplete">To do</span
+CLI
 CLU4
 CLU4 Leaver Notification Email
 CLU4_EMAIL
@@ -145,6 +149,7 @@ Convert a Queryset
 Convert Request Data
 core.tasks.ingest_people_data_task
 core.tasks.ingest_people_finder_task
+core.people_data
 Correction Email
 Create ActivityStream
 Create Leaving Request
@@ -160,12 +165,14 @@ CRSF
 CSET
 CssFinder
 CTC
+DAMAGES
 Dashboard</a>
 Data
 date_of_birth
 date_of_birth_0"
 date_of_birth_0": 19
 date_of_birth_2
+date</span
 day</span></a
 Days"
 DB
@@ -245,6 +252,7 @@ from:</p>
 Functionality
 Get the Leaver StaffDocument
 Get the Leaving Request for the Leaver
+get_people_data_interface
 GETADDRESS_TOKEN
 Github
 Google
@@ -292,6 +300,7 @@ id="id
 IE
 ill health</li>
 img height="36
+IMPLIED
 include:</p
 include</p
 INDEX_CURRENT_USER_MIDDLEWARE                            
@@ -300,9 +309,11 @@ INFO
 information</h1
 ingest_activity_stream
 INSERT INTO dit.people_data__jml
+Install Cloudfoundry
 Integrations
 International Trade
 IS_PRODUCTION
+is_superuser
 Jira
 JML
 JML_ONLY_SEND_EMAILS_TO_JML_TEAM                                 
@@ -351,11 +362,13 @@ Leaving Request Admin
 leaving_request.holds_government_procurement_card
 leaving_request.is_rosa_user
 leaving_request=self.leaving_request
+LeavingInformation
 LeavingRequest
 LeavingRequest.manually_offboarded_from_uksbs
 LEGACY_PEOPLE_FINDER_ES_INDEX
 li class="moj-primary
 li class="progress-step{%
+LIABILITY
 Line
 Line Manager.</p
 Line Manager</a
@@ -379,6 +392,7 @@ migrate$(COLOUR_NONE
 minimum_should_match
 Mismatch Email
 MIT
+MIT License
 mkdocs
 Mobile
 mock_get_assets_for_user
@@ -442,11 +456,13 @@ picture"/
 PII
 Port Replicator
 Port Replicator'
+POST
 process.</p
 Procurement Card
 Provide a comma
 Python 2
 python manage.py migrate &&
+python:3.10
 PYTHONPATH
 Raises
 Reason for Leaving Resignation
@@ -476,6 +492,10 @@ ROSA Line
 ROSA Mobile
 rosa_laptop_returned_task_log
 rosa_mobile_returned_task_log
+rosa-kit
+rosa-kit/
+rosa-kit/status/<str
+ROSA</span>
 Running MkDocs
 Security
 SECURITY
@@ -485,6 +505,7 @@ security_pass_disabled_task_log
 security_team_building_pass_complete
 SECURITY_TEAM_VETTING_EMAIL
 SECURITY_TEAM_VETTING_EMAIL                                      
+security/
 self.assertEqual(response.status_code
 Send
 Send Feetham Security Pass Office
@@ -512,6 +533,7 @@ Slack API
 slack_access_task_log
 SLACK_SRE_CHANNEL_ID
 SlackMessage.objects.create
+Software
 Software Asset
 Sound Bar'
 Sound Bar"
@@ -578,6 +600,7 @@ Tests for `store_return_information`
 Tests for `store_return_option
 the Cirrus Tech
 the Cirrus Tech Bar
+the Civil Service
 the Civil Service Fast Stream
 the Civil Service Fast Stream.</p
 the CLU4 Team                                     
@@ -605,6 +628,7 @@ The Tech Bar
 the UK SBS API
 to:</p
 TODO Fix
+type</span>
 UK SBS - Unexpected
 UK SBS - Unexpected Response
 UK SBS Correction

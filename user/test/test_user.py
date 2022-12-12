@@ -3,7 +3,9 @@ import uuid
 from django.test import TestCase
 
 from user.backends import CustomAuthbrokerBackend
+from user.groups import GroupName, get_group
 from user.models import User
+from user.test.factories import UserFactory
 
 
 class TestSSOUserProfile(TestCase):
@@ -48,3 +50,13 @@ class TestSSOUserProfile(TestCase):
             user.sso_legacy_user_id,
             self.sso_profile["user_id"],
         )
+
+
+def test_is_in_group(db):
+    group_name = GroupName.HR
+    group = get_group(group_name)
+
+    user = UserFactory()
+    user.groups.add(group)
+
+    assert user.is_in_group(group_name) is True
