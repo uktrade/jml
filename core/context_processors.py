@@ -26,6 +26,7 @@ def global_context(request):
         "PERFORMANCE_REVIEW_URL": settings.PERFORMANCE_REVIEW_URL,
         "DIT_EXPERIENCE_SURVEY": settings.DIT_EXPERIENCE_SURVEY,
         "TRANSFER_TO_OGD_URL": settings.TRANSFER_TO_OGD_URL,
+        "CHANGE_EMPLOYEES_LM_LINK": settings.CHANGE_EMPLOYEES_LM_LINK,
         "DEV_LINKS": [],
         "MAIN_NAV": [],
         "IS_PRODUCTION": bool(settings.APP_ENV == "production"),

@@ -96,6 +96,7 @@ Baseline
 Baseline Personnel Security Standard
 before.</td>
 below.</a>
+below</li>{%
 Bench
 Bloggs
 bool_to_yes_no
