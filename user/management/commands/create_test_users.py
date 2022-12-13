@@ -4,7 +4,6 @@ from dev_tools import utils as dev_tools_utils
 from django.contrib.auth.models import Group
 from django.core.management.base import BaseCommand
 
-from core.utils.staff_index import build_staff_document, update_staff_document
 from user.models import User
 
 # first name, last name, team /PS-IGNORE
@@ -58,13 +57,5 @@ class Command(BaseCommand):
         else:
             self.stdout.write(f"User for '{email}' created")
             self.created += 1
-
-        # Index the user into the staff index
-        staff_document = build_staff_document(staff_sso_user=staff_sso_user)
-        update_staff_document(
-            staff_document.staff_sso_email_user_id,
-            staff_document=staff_document.to_dict(),
-            upsert=True,
-        )
 
         return user

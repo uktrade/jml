@@ -70,6 +70,7 @@ def create_user(
 
     # Add the user into the Staff Index
     staff_document = build_staff_document(staff_sso_user=staff_sso_user)
+    staff_document.uuid = str(uuid.uuid4())
     update_staff_document(
         staff_document.staff_sso_email_user_id,
         staff_document=staff_document.to_dict(),
