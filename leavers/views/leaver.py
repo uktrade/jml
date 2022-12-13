@@ -1205,7 +1205,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
             return_option=self.leaver_info.return_option,
             return_personal_phone=self.leaver_info.return_personal_phone,
             return_contact_email=self.leaver_info.return_contact_email,
-        ),
+        )
         return context
 
     def form_valid(self, form) -> HttpResponse:
