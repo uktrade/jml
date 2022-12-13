@@ -378,7 +378,7 @@ def send_line_manager_offline_service_now_email(
     template_id: Optional[notify.EmailTemplates] = None,
 ):
     """
-    Send Line Manager a thank you email.
+    Send Line Manager a Service Now reminder email.
     """
     manager_as_user = leaving_request.get_line_manager()
     assert manager_as_user
@@ -391,7 +391,7 @@ def send_line_manager_offline_service_now_email(
 
     notify.email(
         email_addresses=manager_contact_emails,
-        template_id=notify.EmailTemplates.LINE_MANAGER_THANKYOU_EMAIL,
+        template_id=notify.EmailTemplates.LINE_MANAGER_OFFLINE_SERVICE_NOW_EMAIL,
         personalisation=personalisation,
     )
 
