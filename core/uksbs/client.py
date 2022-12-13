@@ -90,13 +90,11 @@ class UKSBSClient:
         item: PersonHierarchyData = items[0]
         error_dict = {"error_msg": "Invalid User"}
 
-        if any(
-            [
-                error_dict in item["manager"],
-                error_dict in item["employee"],
-                error_dict in item["report"],
-            ]
-        ):
+        if not item["employee"] or [error_dict] in [
+            item["manager"],
+            item["employee"],
+            item["report"],
+        ]:
             raise UKSBSPersonNotFound("Person not found")
 
         return item
