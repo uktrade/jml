@@ -1241,5 +1241,6 @@ class RequestReceivedView(LeaverInformationMixin, BaseTemplateView):
             page_title="Thank you",
             leaver_info=self.leaver_info,
             leaving_request=self.leaving_request,
+            reason_for_leaving=self.leaving_request.reason_for_leaving,
         )
         return context

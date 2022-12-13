@@ -1,37 +1,33 @@
 {% extends "leaving/leaving_base.html" %}
 {% load static %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <div class="govuk-panel govuk-panel--confirmation">
                 <h1 class="govuk-panel__title">Leaving form sent</h1>
             </div>
-
             <p class="govuk-body">We have sent you a confirmation email.</p>
             <p class="govuk-body">This email provides information about what you need to do before leaving DIT.</p>
-
             {% if leaving_request.holds_government_procurement_card %}
                 <h2 class="govuk-heading-m">Return your GPC</h2>
-
                 <p class="govuk-body">You must clear all of your GPC transactions before leaving DIT.</p>
                 <p class="govuk-body">You must then cut up your GPC and post it to:</p>
                 <address class="govuk-!-margin-bottom-6">
-                    {% for line in GPC_RETURN_ADDRESS %}
-                        <p class="govuk-body govuk-!-margin-0">{{ line }}</p>
-                    {% endfor %}
+                    {% for line in GPC_RETURN_ADDRESS %}<p class="govuk-body govuk-!-margin-0">{{ line }}</p>{% endfor %}
                 </address>
             {% endif %}
-
             <h2 class="govuk-heading-m">What happens next</h2>
-
             <p class="govuk-body">You will be contacted to arrange the return of your equipment.</p>
             <p class="govuk-body">Your line manager has been notified by email to confirm your last working day at DIT.</p>
-            <p class="govuk-body">After they've used the service, the information they have confirmed will be sent to HR & Payroll and Cirrus to make sure:</p>
-            <ul class="govuk-list govuk-list--bullet">
-                <li>you are paid correctly and on time</li>
-                <li>your equipment and pass(es) are returned</li>
-            </ul>
+            {% if reason_for_leaving != "transfer" %}
+                <p class="govuk-body">
+                    After they've used the service, the information they have confirmed will be sent to HR & Payroll and Cirrus to make sure:
+                </p>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>you are paid correctly and on time</li>
+                    <li>your equipment and pass(es) are returned</li>
+                </ul>
+            {% endif %}
         </div>
     </div>
 {% endblock content %}
