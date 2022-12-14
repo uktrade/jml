@@ -8,28 +8,39 @@ $govuk-assets-path: "/static/govuk-frontend/govuk/assets/";
 @import "./leavers/static/leavers/css/sortable_table";
 
 .govuk-width-container {
-  max-width: 960px;
-  margin-left: auto;
-  margin-right: auto;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .govuk-header__logo {
-  width: 40%;
+    width: 40%;
 }
 
 .govuk-header__content {
-  width: 60%;
+    width: 60%;
 }
 
 .govuk-header__navigation {
-  margin-top: 0;
-  margin-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 10px;
 }
 
 .jml--staff-image {
-  width: 100%;
-  margin-bottom: 26px;
-  border: 1px solid black;
+    width: 100%;
+    margin-bottom: 26px;
+    border: 1px solid black;
+}
+
+.jml-workflow-diagram {
+    height: 50%;
+    width: 100%;
+    background: white;
+    position: fixed;
+    top: 475px;
+    left: 0;
+    bottom: 0;
+    right: 0;
 }
 
 $govuk-header-border-color: $dit-brand-colour;
@@ -45,9 +56,9 @@ $govuk-header-border-color: $dit-brand-colour;
 }
 
 address p {
-  margin: auto;
+    margin: auto;
 }
 
 .mb-0 {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
