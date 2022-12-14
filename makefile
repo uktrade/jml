@@ -105,7 +105,7 @@ bash:
 	$(run) leavers bash
 
 all-requirements:
-	poetry export -f requirements.txt --output requirements.txt --without-hashes --with production --without dev,testing
+	$(poetry) export -f requirements.txt --output requirements.txt --without-hashes --with production --without dev,testing
 
 pytest:
 	$(run) leavers pytest --cov --cov-report html -raP --capture=sys -n 4
@@ -142,3 +142,6 @@ detect-secrets-scan:
 
 detect-secrets-audit:
 	$(poetry) run detect-secrets audit --baseline .secrets.baseline
+
+poetry-update:
+	$(poetry) update
