@@ -21,12 +21,29 @@ def get_leaving_request_email_personalisation(
     Build the personalisation dictionary for the email.
 
     leaver_name: The name of the leaver
+    leaver_email: The email address of the leaver
     possessive_leaver_name: The name of the leaver in possessive form
+    date_of_birth: The date of birth of the leaver
+
     manager_name: The name of the Line Manager
+    manager_email: The email address of the Line Manager
+
     leaving_date: The date the leaver is leaving
     last_day: The last day of the leaver
+
+    has_data_recipient: Whether the leaver has a data recipient
+    data_recipient_name: The name of the data recipient
+    data_recipient_email: The email address of the data recipient
+
     contact_us_link: The link to the contact us page
-    date_of_birth: The date of birth of the leaver
+    line_manager_link: The link for the line manager to continue the process
+    line_manager_thank_you_link: The link for the thank you page for the line manager
+    line_manager_offline_service_now_details_link: The link for the line manager
+        to mark that the leaver has been submitted into Service Now.
+    security_team_bp_link: The link for the security team to mark the building pass status
+    security_team_rk_link: The link for the security team to mark the rosa kit status
+    sre_team_link: The link for the SRE team to mark the SRE status
+
     """
 
     personalisation: Dict[str, str] = {}
@@ -62,6 +79,8 @@ def get_leaving_request_email_personalisation(
         contact_us_link=site_url + reverse("beta-service-feedback"),
         line_manager_link=site_url
         + reverse("line-manager-start", args=[leaving_request.uuid]),
+        line_manager_thank_you_link=site_url
+        + reverse("line-manager-thank-you", args=[leaving_request.uuid]),
         line_manager_offline_service_now_details_link=site_url
         + reverse(
             "line-manager-offline-service-now-details", args=[leaving_request.uuid]
@@ -97,7 +116,7 @@ def get_leaving_request_email_personalisation(
             has_data_recipient="yes",
             data_recipient_name=data_recipient.full_name,
             data_recipient_email=primary_email,
-        ),
+        )
 
     return personalisation
 

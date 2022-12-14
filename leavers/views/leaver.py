@@ -1205,7 +1205,7 @@ class ConfirmDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
             return_option=self.leaver_info.return_option,
             return_personal_phone=self.leaver_info.return_personal_phone,
             return_contact_email=self.leaver_info.return_contact_email,
-        ),
+        )
         return context
 
     def form_valid(self, form) -> HttpResponse:
@@ -1241,5 +1241,6 @@ class RequestReceivedView(LeaverInformationMixin, BaseTemplateView):
             page_title="Thank you",
             leaver_info=self.leaver_info,
             leaving_request=self.leaving_request,
+            reason_for_leaving=self.leaving_request.reason_for_leaving,
         )
         return context

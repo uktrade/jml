@@ -34,7 +34,7 @@ from core.views import BaseTemplateView
 from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.forms import line_manager as line_manager_forms
 from leavers.models import LeaverInformation, LeavingRequest
-from leavers.types import LeavingRequestLineReport
+from leavers.types import LeavingReason, LeavingRequestLineReport
 from user.models import User
 
 DATA_RECIPIENT_SEARCH_PARAM = "data_recipient_id"
@@ -293,14 +293,20 @@ class StartView(LineManagerViewMixin, BaseTemplateView):
 
         leaver_name = self.leaving_request.get_leaver_name()
 
+        title_reason = "leaving"
+        if self.leaving_request.reason_for_leaving == LeavingReason.TRANSFER.value:
+            title_reason = "transfering to another Government department"
+        page_title = f"{leaver_name} is {title_reason}: what you need to do"
+
         context.update(
-            page_title=f"{leaver_name} is leaving: what you need to do",
+            page_title=page_title,
             start_url=reverse(
                 "line-manager-leaver-confirmation",
                 kwargs={"leaving_request_uuid": str(self.leaving_request.uuid)},
             ),
             leaver_name=leaver_name,
             possessive_leaver_name=make_possessive(leaver_name),
+            reason_for_leaving=self.leaving_request.reason_for_leaving,
         )
 
         return context
