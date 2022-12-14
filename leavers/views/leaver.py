@@ -21,6 +21,7 @@ from core.service_now import get_service_now_interface
 from core.staff_search.views import StaffSearchView
 from core.types import Address
 from core.uksbs import get_uksbs_interface
+from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.utils.helpers import bool_to_yes_no, yes_no_to_bool
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
@@ -47,11 +48,7 @@ class MultiplePersonIdErrorView(BaseTemplateView):
 
 class LeaversStartView(BaseTemplateView):
     template_name = "leaving/start.html"
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(start_url=reverse("why-are-you-leaving"))
-        return context
+    extra_context = {"start_url": reverse_lazy("leaver-checks")}
 
 
 class MyManagerSearchView(StaffSearchView):
@@ -298,11 +295,43 @@ class LeaverInformationMixin:
         )
 
 
+class LeaverChecksView(LeaverInformationMixin, RedirectView):
+    failure_url = reverse_lazy("unable-to-offboard")
+
+    def get_redirect_url(self, *args: Any, **kwargs: Any) -> str:
+        user = cast(User, self.request.user)
+        assert user.sso_email_user_id
+
+        leaver_activitystream_user = self.get_leaver_activitystream_user(
+            sso_email_user_id=user.sso_email_user_id,
+        )
+
+        person_id = leaver_activitystream_user.get_person_id()
+
+        if not person_id:
+            return self.failure_url
+
+        uksbs_interface = get_uksbs_interface()
+        try:
+            uksbs_interface.get_user_hierarchy(person_id=person_id)
+        except (UKSBSUnexpectedResponse, UKSBSPersonNotFound):
+            return self.failure_url
+
+        return reverse("why-are-you-leaving")
+
+
+class UnableToOffboardView(LeaverInformationMixin, BaseTemplateView):
+    template_name = "leaving/leaver/unable_to_offboard.html"
+    back_link_url = reverse_lazy("why-are-you-leaving")
+    extra_context = {"page_title": "You cannot use this service"}
+
+
 class WhyAreYouLeavingView(LeaverInformationMixin, FormView, BaseTemplateView):
     template_name = "leaving/leaver/why_are_you_leaving.html"
     form_class = leaver_forms.WhyAreYouLeavingForm
     success_url = reverse_lazy("leaving-reason-unhandled")
     back_link_url = reverse_lazy("start")
+    extra_context = {"page_title": "What is your reason for leaving DIT?"}
 
     leaving_reason: Optional[LeavingReason] = None
 
@@ -325,11 +354,6 @@ class WhyAreYouLeavingView(LeaverInformationMixin, FormView, BaseTemplateView):
         initial["reason"] = self.leaving_request.reason_for_leaving
         return initial
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(page_title="What is your reason for leaving DIT?")
-        return context
-
     def get_success_url(self) -> str:
         reason_mapping = {
             LeavingReason.RESIGNATION: reverse_lazy("staff-type"),
@@ -346,11 +370,7 @@ class WhyAreYouLeavingView(LeaverInformationMixin, FormView, BaseTemplateView):
 class UnhandledLeavingReasonView(LeaverInformationMixin, BaseTemplateView):
     template_name = "leaving/leaver/unhandled_reason.html"
     back_link_url = reverse_lazy("why-are-you-leaving")
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(page_title="You cannot use this service")
-        return context
+    extra_context = {"page_title": "Sorry, we are unable to help offbaord you"}
 
 
 class StaffTypeView(LeaverInformationMixin, FormView, BaseTemplateView):
@@ -358,6 +378,7 @@ class StaffTypeView(LeaverInformationMixin, FormView, BaseTemplateView):
     form_class = leaver_forms.StaffTypeForm
     success_url = reverse_lazy("employment-profile")
     back_link_url = reverse_lazy("why-are-you-leaving")
+    extra_context = {"page_title": "How are you employed by DIT?"}
 
     def get_initial(self) -> Dict[str, Any]:
         assert self.leaving_request
@@ -419,20 +440,11 @@ class StaffTypeView(LeaverInformationMixin, FormView, BaseTemplateView):
 
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(page_title="How are you employed by DIT?")
-        return context
-
 
 class LeaverFastStreamerView(LeaverInformationMixin, BaseTemplateView):
     template_name = "leaving/leaver/fast_streamer.html"
     back_link_url = reverse_lazy("staff-type")
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(page_title="You cannot use this service")
-        return context
+    extra_context = {"page_title": "You cannot use this service"}
 
 
 class EmploymentProfileView(LeaverInformationMixin, FormView, BaseTemplateView):
@@ -440,6 +452,7 @@ class EmploymentProfileView(LeaverInformationMixin, FormView, BaseTemplateView):
     form_class = leaver_forms.EmploymentProfileForm
     success_url = reverse_lazy("leaver-find-details")
     back_link_url = reverse_lazy("staff-type")
+    extra_context = {"page_title": "Your employment profile"}
 
     def get_initial(self) -> Dict[str, Any]:
         assert self.leaver_info
@@ -479,17 +492,13 @@ class EmploymentProfileView(LeaverInformationMixin, FormView, BaseTemplateView):
 
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(page_title="Your employment profile")
-        return context
-
 
 class LeaverFindDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
     template_name = "leaving/leaver/leaver_find_details.html"
     form_class = leaver_forms.FindPersonIDForm
     success_url = reverse_lazy("leaver-dates")
     back_link_url = reverse_lazy("employment-profile")
+    extra_context = {"page_title": "Your personal email address"}
 
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
@@ -556,11 +565,6 @@ class LeaverFindDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
         initial = super().get_initial()
         return initial
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(page_title="Your personal email address")
-        return context
-
     def form_valid(self, form: Form) -> HttpResponse:
         assert self.leaving_request
 
@@ -590,13 +594,7 @@ class LeaverFindDetailsView(LeaverInformationMixin, FormView, BaseTemplateView):
 class LeaverFindDetailsHelpView(LeaverInformationMixin, BaseTemplateView):
     template_name = "leaving/leaver/leaver_find_details_help.html"
     back_link_url = reverse_lazy("leaver-find-details")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update(
-            page_title="You cannot use this service",
-        )
-        return context
+    extra_context = {"page_title": "You cannot use this service"}
 
 
 class RemoveLineManagerFromLeavingRequestView(LeaverInformationMixin, RedirectView):
@@ -729,6 +727,7 @@ class LeaverHasAssetsView(LeaverInformationMixin, FormView, BaseTemplateView):
     form_class = leaver_forms.LeaverHasAssetsForm
     success_url = reverse_lazy("leaver-has-cirrus-equipment")
     back_link_url = reverse_lazy("leaver-dates")
+    extra_context = {"page_title": "Return your pass and other assets"}
 
     def get_initial(self) -> Dict[str, Any]:
         assert self.leaving_request
@@ -787,11 +786,6 @@ class LeaverHasAssetsView(LeaverInformationMixin, FormView, BaseTemplateView):
 
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(page_title="Return your pass and other assets")
-        return context
-
 
 def get_cirrus_assets(
     request: HttpRequest, leaving_request: LeavingRequest
@@ -827,6 +821,7 @@ class HasCirrusEquipmentView(LeaverInformationMixin, FormView, BaseTemplateView)
     form_class = leaver_forms.HasCirrusKitForm
     success_url = reverse_lazy("leaver-cirrus-equipment")
     back_link_url = reverse_lazy("leaver-has-assets")
+    extra_context = {"page_title": "Return Cirrus kit"}
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         pre_dispatch_response = self.pre_dispatch(request)
@@ -851,11 +846,6 @@ class HasCirrusEquipmentView(LeaverInformationMixin, FormView, BaseTemplateView)
             self.success_url = reverse_lazy("leaver-display-screen-equipment")
 
         return super().form_valid(form)
-
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-        context.update(page_title="Return Cirrus kit")
-        return context
 
 
 def delete_cirrus_equipment(request: HttpRequest, kit_uuid: uuid.UUID):
@@ -977,6 +967,8 @@ class CirrusEquipmentView(LeaverInformationMixin, BaseTemplateView):
         return {}
 
     def get_initial_cirrus_return_form(self):
+        assert self.leaver_info
+
         return {
             "return_option": self.leaver_info.return_option,
             "office_personal_phone": self.leaver_info.return_personal_phone,

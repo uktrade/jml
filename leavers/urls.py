@@ -16,6 +16,16 @@ leaver_journey_urlpatterns = decorate_urlpatterns(
         path("", RedirectView.as_view(url=reverse_lazy("start")), name="leavers-root"),
         path("start/", leaver_views.LeaversStartView.as_view(), name="start"),
         path(
+            "leaver/checks/",
+            leaver_views.LeaverChecksView.as_view(),
+            name="leaver-checks",
+        ),
+        path(
+            "leaver/unable-to-offboard/",
+            leaver_views.UnableToOffboardView.as_view(),
+            name="unable-to-offboard",
+        ),
+        path(
             "leaver/manager-search/",
             leaver_views.MyManagerSearchView.as_view(),
             name="leaver-manager-search",
