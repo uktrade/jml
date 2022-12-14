@@ -12,7 +12,7 @@ from leavers.factories import (
     TaskLogFactory,
 )
 from leavers.models import LeaverInformation, LeavingRequest
-from leavers.types import ReminderEmailDict
+from leavers.types import LeavingReason, ReminderEmailDict
 from leavers.workflow.tasks import (
     SECURITY_TEAM_BP_REMINDER_EMAILS,
     SRE_REMINDER_EMAILS,
@@ -65,14 +65,14 @@ class TestSkipConditions(TestCase):
         self.leaving_request.save()
         self.assertFalse(
             self.task.should_skip(
-                task_info={"skip_condition": SkipCondition.IS_NOT_ROSA_USER.value},
+                task_info={"skip_conditions": [SkipCondition.IS_NOT_ROSA_USER.value]},
             )
         )
         self.leaving_request.is_rosa_user = False
         self.leaving_request.save()
         self.assertTrue(
             self.task.should_skip(
-                task_info={"skip_condition": SkipCondition.IS_NOT_ROSA_USER.value},
+                task_info={"skip_conditions": [SkipCondition.IS_NOT_ROSA_USER.value]},
             )
         )
 
@@ -80,7 +80,9 @@ class TestSkipConditions(TestCase):
         self.assertFalse(
             self.uk_sbs_task.should_skip(
                 task_info={
-                    "skip_condition": SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value
+                    "skip_conditions": [
+                        SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value
+                    ]
                 },
             )
         )
@@ -89,8 +91,24 @@ class TestSkipConditions(TestCase):
         self.assertTrue(
             self.uk_sbs_task.should_skip(
                 task_info={
-                    "skip_condition": SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value
+                    "skip_conditions": [
+                        SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value
+                    ]
                 },
+            )
+        )
+
+    def test_is_transfer_skip(self):
+        self.assertFalse(
+            self.uk_sbs_task.should_skip(
+                task_info={"skip_conditions": [SkipCondition.IS_TRANSFER.value]},
+            )
+        )
+        self.leaving_request.reason_for_leaving = LeavingReason.TRANSFER.value
+        self.leaving_request.save()
+        self.assertTrue(
+            self.uk_sbs_task.should_skip(
+                task_info={"skip_conditions": [SkipCondition.IS_TRANSFER.value]},
             )
         )
 

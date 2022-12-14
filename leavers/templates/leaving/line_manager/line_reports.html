@@ -10,7 +10,7 @@
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <span class="govuk-caption-l">Page 3 of 4</span>
+            <span class="govuk-caption-l">Page 3 of {{ page_count }}</span>
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             {% include "leaving/line_manager/includes/staff_card.html" with staff_details=leaver %}
             <p class="govuk-body">

@@ -9,7 +9,7 @@ from django_workflow_engine.models import Flow
 
 from core.utils.staff_index import StaffDocument
 from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
-from leavers.forms.line_manager import ReasonForLeaving
+from leavers.types import LeavingReason
 from user.test.factories import UserFactory
 
 STAFF_DOCUMENT = StaffDocument.from_dict(
@@ -191,7 +191,7 @@ class TestLeaversWorkflow(TestCase):
             leaving_date=now + timedelta(days=15),
             last_day=now + timedelta(days=12),
             leaver_complete=now,
-            reason_for_leaving=ReasonForLeaving.RESIGNATION.value,
+            reason_for_leaving=LeavingReason.RESIGNATION.value,
             leaver_activitystream_user__employee_numbers=["123", "abc"],
         )
         self.leaving_request.processing_manager_activitystream_user = (

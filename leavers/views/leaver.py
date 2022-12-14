@@ -307,23 +307,35 @@ class WhyAreYouLeavingView(LeaverInformationMixin, FormView, BaseTemplateView):
     leaving_reason: Optional[LeavingReason] = None
 
     def form_valid(self, form) -> HttpResponse:
+        assert self.leaving_request
+
         reason: str = form.cleaned_data["reason"]
 
         if reason != "none_of_the_above":
             self.leaving_reason = LeavingReason(reason)
+            self.leaving_request.reason_for_leaving = self.leaving_reason
+            self.leaving_request.save(update_fields=["reason_for_leaving"])
 
         return super().form_valid(form)
 
+    def get_initial(self) -> Dict[str, Any]:
+        assert self.leaving_request
+
+        initial = super().get_initial()
+        initial["reason"] = self.leaving_request.reason_for_leaving
+        return initial
+
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(page_title="Why are you leaving DIT?")
+        context.update(page_title="What is your reason for leaving DIT?")
         return context
 
     def get_success_url(self) -> str:
         reason_mapping = {
             LeavingReason.RESIGNATION: reverse_lazy("staff-type"),
             LeavingReason.RETIREMENT: reverse_lazy("leaving-reason-unhandled"),
-            LeavingReason.TRANSFER: reverse_lazy("leaving-reason-unhandled"),
+            LeavingReason.TRANSFER: reverse_lazy("staff-type"),
+            LeavingReason.END_OF_CONTRACT: reverse_lazy("staff-type"),
         }
         if self.leaving_reason in reason_mapping:
             return reason_mapping[self.leaving_reason]
@@ -359,14 +371,51 @@ class StaffTypeView(LeaverInformationMixin, FormView, BaseTemplateView):
 
     def form_valid(self, form) -> HttpResponse:
         assert self.leaving_request
+        assert self.leaving_request.reason_for_leaving
+
+        leaving_reason_staff_type_mapping = {
+            LeavingReason.RESIGNATION.value: {
+                "staff_types": [StaffType.CIVIL_SERVANT],
+                "error_message": "Only Civil Servants can resign.",
+            },
+            LeavingReason.RETIREMENT.value: {
+                "staff_types": [],
+                "error_message": "Only Civil Servants can retire.",
+            },
+            LeavingReason.END_OF_CONTRACT.value: {
+                "staff_types": [StaffType.CONTRACTOR, StaffType.BENCH_CONTRACTOR],
+                "error_message": (
+                    "With the reason for leaving as "
+                    f"'{LeavingReason.END_OF_CONTRACT.label}', the staff type must "
+                    "be 'Contractor' or 'Bench contractor'."
+                ),
+            },
+            LeavingReason.TRANSFER.value: {
+                "staff_types": [StaffType.CIVIL_SERVANT],
+                "error_message": (
+                    "Only Civil Servants can transfer to another department."
+                ),
+            },
+        }
 
         staff_type = StaffType(form.cleaned_data["staff_type"])
+        reason_for_leaving_mapping = leaving_reason_staff_type_mapping.get(
+            self.leaving_request.reason_for_leaving, None
+        )
 
         if staff_type == StaffType.FAST_STREAMERS:
             self.success_url = reverse_lazy("leaver-fast-streamer")
+            return super().form_valid(form)
         else:
             self.leaving_request.staff_type = staff_type
             self.leaving_request.save(update_fields=["staff_type"])
+
+        if (
+            reason_for_leaving_mapping
+            and staff_type not in reason_for_leaving_mapping["staff_types"]
+        ):
+            form.add_error("staff_type", reason_for_leaving_mapping["error_message"])
+            return self.form_invalid(form)
 
         return super().form_valid(form)
 

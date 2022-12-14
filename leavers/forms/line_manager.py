@@ -258,7 +258,6 @@ class ReasonForLeaving(TextChoices):
 class ConfirmLeavingDate(BaseForm):
     required_error_messages: Dict[str, str] = {
         "data_recipient": "Please select the Google Drive data transfer recipient.",
-        "reason_for_leaving": "Please select the reason for they are leaving the department.",
     }
 
     last_day = DateInputField(
@@ -266,11 +265,6 @@ class ConfirmLeavingDate(BaseForm):
     )
     leaving_date = DateInputField(
         label="",
-    )
-    reason_for_leaving = forms.ChoiceField(
-        label="",
-        widget=forms.RadioSelect,
-        choices=ReasonForLeaving.choices,
     )
     data_recipient = forms.CharField(label="", widget=forms.HiddenInput)
 
@@ -309,11 +303,6 @@ class ConfirmLeavingDate(BaseForm):
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("leaving_date"),
                 legend=f"Confirm {possessive_leaver_first_name} leaving date",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                Field("reason_for_leaving"),
-                legend="Reason for leaving",
                 legend_size=Size.MEDIUM,
             ),
         )

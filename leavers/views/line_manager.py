@@ -44,6 +44,17 @@ ADD_MISSING_LINE_REPORT_ERROR = "add_missing_line_report_error"
 
 
 class LineManagerViewMixin:
+    def get_page_count(
+        self,
+        leaving_request: LeavingRequest,
+    ) -> int:
+        page_count = 2
+        if leaving_request.show_hr_and_payroll:
+            page_count += 1
+        if leaving_request.show_line_reports:
+            page_count += 1
+        return page_count
+
     def user_is_manager(
         self,
         request: HttpRequest,
@@ -485,9 +496,6 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView, BaseTemplateView):
         initial["leaving_date"] = self.leaving_request.get_leaving_date()
         initial["last_day"] = self.leaving_request.get_last_day()
 
-        if self.leaving_request.reason_for_leaving:
-            initial["reason_for_leaving"] = self.leaving_request.reason_for_leaving
-
         if self.data_recipient:
             initial.update(
                 data_recipient=self.data_recipient["uuid"],
@@ -504,6 +512,7 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView, BaseTemplateView):
 
         context.update(
             page_title="Confirm leaver's information",
+            page_count=self.get_page_count(leaving_request=self.leaving_request),
             leaver=self.leaver,
             leaver_name=leaver_name,
             possessive_leaver_name=possessive_leaver_name,
@@ -529,9 +538,6 @@ class LeaverConfirmationView(LineManagerViewMixin, FormView, BaseTemplateView):
         # Store the leaving date against the LeavingRequest.
         self.leaving_request.last_day = form.cleaned_data["last_day"]
         self.leaving_request.leaving_date = form.cleaned_data["leaving_date"]
-        self.leaving_request.reason_for_leaving = form.cleaned_data[
-            "reason_for_leaving"
-        ]
         self.leaving_request.save()
 
         return super().form_valid(form)
@@ -587,6 +593,9 @@ class DetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
         ):
             return HttpResponseForbidden()
 
+        if not self.leaving_request.show_hr_and_payroll:
+            return redirect(self.get_success_url())
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self) -> Dict[str, Any]:
@@ -632,6 +641,7 @@ class DetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
 
         context.update(
             page_title="HR and payroll",
+            page_count=self.get_page_count(leaving_request=self.leaving_request),
             leaver_name=self.leaving_request.get_leaver_name(),
             leaver=self.get_leaver(),
         )
@@ -861,6 +871,9 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView, BaseTemplateView):
         if not self.leaving_request.line_reports:
             return redirect(self.get_success_url())
 
+        if not self.leaving_request.show_line_reports:
+            return redirect(self.get_success_url())
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_leaver(self) -> ConsolidatedStaffDocument:
@@ -894,6 +907,7 @@ class LeaverLineReportsView(LineManagerViewMixin, FormView, BaseTemplateView):
 
         context.update(
             page_title="Leaver's line reports",
+            page_count=self.get_page_count(leaving_request=self.leaving_request),
             leaver_name=self.leaving_request.get_leaver_name(),
             line_reports=self.leaving_request.line_reports,
             leaver=self.get_leaver(),
@@ -992,19 +1006,14 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
         leaver_name = self.leaving_request.get_leaver_name()
         possessive_leaver_name = make_possessive(leaver_name)
 
-        reason_for_leaving: Optional[str] = None
-        if self.leaving_request.reason_for_leaving:
-            reason_for_leaving = line_manager_forms.ReasonForLeaving(
-                self.leaving_request.reason_for_leaving
-            ).label
-
         annual_leave: Optional[str] = None
+        has_annual_leave: Optional[bool] = None
         if self.leaving_request.annual_leave:
             annual_leave_enum = line_manager_forms.AnnualLeavePaidOrDeducted(
                 self.leaving_request.annual_leave
             )
             annual_leave = annual_leave_enum.label
-        has_annual_leave = bool(annual_leave_enum.value != "None")
+            has_annual_leave = bool(annual_leave_enum.value != "None")
 
         annual_leave_measurement: Optional[str] = None
         if self.leaving_request.annual_leave_measurement:
@@ -1013,12 +1022,13 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
             ).label
 
         flexi_leave: Optional[str] = None
+        has_flexi_leave: Optional[bool] = None
         if self.leaving_request.flexi_leave:
             flexi_leave_enum = line_manager_forms.FlexiLeavePaidOrDeducted(
                 self.leaving_request.flexi_leave
             )
             flexi_leave = flexi_leave_enum.label
-        has_flexi_leave = bool(flexi_leave_enum.value != "None")
+            has_flexi_leave = bool(flexi_leave_enum.value != "None")
 
         leaving_datetime = self.leaving_request.get_leaving_date()
         leaving_date: Optional[datetime] = None
@@ -1032,13 +1042,13 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
 
         context.update(
             page_title="Check and confirm your answers",
+            page_count=self.get_page_count(leaving_request=self.leaving_request),
             leaver_name=leaver_name,
             possessive_leaver_name=possessive_leaver_name,
             leaver=self.leaver,
             data_recipient=self.data_recipient,
             leaving_date=leaving_date,
             last_day=last_day,
-            reason_for_leaving=reason_for_leaving,
             annual_leave=annual_leave,
             has_annual_leave=has_annual_leave,
             annual_leave_measurement=annual_leave_measurement,
@@ -1070,10 +1080,21 @@ class ConfirmDetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
         return super().form_valid(form)
 
     def get_back_link_url(self):
-        return reverse(
-            "line-manager-leaver-line-reports",
+        back_url = reverse(
+            "line-manager-leaver-confirmation",
             kwargs={"leaving_request_uuid": self.leaving_request.uuid},
         )
+        if self.leaving_request.show_line_reports:
+            back_url = reverse(
+                "line-manager-leaver-line-reports",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
+        elif self.leaving_request.show_hr_and_payroll:
+            back_url = reverse(
+                "line-manager-details",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
+        return back_url
 
 
 class ThankYouView(LineManagerViewMixin, BaseTemplateView):

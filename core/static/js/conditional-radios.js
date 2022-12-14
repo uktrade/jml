@@ -29,7 +29,10 @@ Array.from(govuk_radios).forEach(function(govuk_radio) {
                 govuk_radio_conditional_field_class = "conditional-" + input.name + "-" + input.value;
                 Array.from(gov_radio_conditional_wrappers).forEach(function(gov_radio_conditional_wrapper) {
                     if (gov_radio_conditional_wrapper.id == govuk_radio_conditional_field_class) {
-                        gov_radio_conditional_wrapper.classList.remove("govuk-radios__conditional--hidden");
+                        govuk_radio_conditional_wrapper_form_group = gov_radio_conditional_wrapper.getElementsByClassName("govuk-form-group")[0];
+                        if (govuk_radio_conditional_wrapper_form_group.childElementCount > 0) {
+                            gov_radio_conditional_wrapper.classList.remove("govuk-radios__conditional--hidden");
+                        }
                     }
                 });
             }
@@ -37,7 +40,10 @@ Array.from(govuk_radios).forEach(function(govuk_radio) {
                 govuk_radio_conditional_field_class = "conditional-" + event.target.name + "-" + event.target.value;
                 Array.from(gov_radio_conditional_wrappers).forEach(function(gov_radio_conditional_wrapper) {
                     if (event.target.checked && gov_radio_conditional_wrapper.id == govuk_radio_conditional_field_class) {
-                        gov_radio_conditional_wrapper.classList.remove("govuk-radios__conditional--hidden");
+                        govuk_radio_conditional_wrapper_form_group = gov_radio_conditional_wrapper.getElementsByClassName("govuk-form-group")[0];
+                        if (govuk_radio_conditional_wrapper_form_group.childElementCount > 0) {
+                            gov_radio_conditional_wrapper.classList.remove("govuk-radios__conditional--hidden");
+                        }
                     } else {
                         gov_radio_conditional_wrapper.classList.add("govuk-radios__conditional--hidden");
                     }
@@ -45,4 +51,5 @@ Array.from(govuk_radios).forEach(function(govuk_radio) {
             });
         }
     });
+
 });
