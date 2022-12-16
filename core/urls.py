@@ -10,6 +10,7 @@ from core.utils.urls import decorate_urlpatterns
 private_urlpatterns: List[Union[URLPattern, URLResolver]] = [
     path("", include("core.landing_pages.urls")),
     path("activity-stream/", include("activity_stream.urls")),
+    path("acessibility/", include("core.accessibility.urls")),
     path("cookie/", include("core.cookies.urls")),
     path("feedback/", include("core.feedback.urls")),
     path("staff-search/", include("core.staff_search.urls")),
