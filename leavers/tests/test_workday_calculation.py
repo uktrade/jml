@@ -48,13 +48,13 @@ class TestWorkDayCalculation(TestCase):
         self.assertEqual(working_day_after_good_friday, date(2023, 4, 11))
 
     def test_spring_bankholiday(self):
-        # spring_bankholiday = date(2023, 5, 1)
+        # Spring bankholiday is on 2023-05-29
         working_day_after_bh = calculate_working_day_date(date(2023, 4, 28), 1)
         self.assertEqual(working_day_after_bh, date(2023, 5, 2))
 
     def test_spring_and_coronation_bankholiday(self):
-        # spring_bankholiday = date(2023, 5, 1)
-        # coronation_bankholiday = date(2023, 5, 8)
+        # Spring bankholiday is on 2023-05-29
+        # Coronation bankholiday is on 2023-05-08
         working_day_after_bh = calculate_working_day_date(date(2023, 4, 28), 6)
         # Correctly skipped the weekend and the two bankholiday
         self.assertEqual(working_day_after_bh, date(2023, 5, 10))
