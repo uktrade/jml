@@ -51,9 +51,11 @@ def get_leave_details(*, leaving_request: LeavingRequest) -> LeaveDetails:
     leaver_paid_unpaid = cast(str, leaving_request.leaver_paid_unpaid)
 
     # ANNUAL LEAVE
-    annual_leave_uom = cast(Literal["days", "hours"], leaving_request.annual_leave)
+    annual_leave_uom = cast(
+        Literal["days", "hours"], leaving_request.annual_leave_measurement
+    )
     annual_leave_paid_or_deducted = cast(
-        Literal["paid", "deducted"], leaving_request.annual_leave_measurement
+        Literal["paid", "deducted"], leaving_request.annual_leave
     )
     annual_leave_paid: bool = (
         annual_leave_paid_or_deducted == AnnualLeavePaidOrDeducted.PAID.value
