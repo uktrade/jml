@@ -70,7 +70,7 @@ def pay_cut_off_date(month: int, year: int) -> date:
     return cutoff_day
 
 
-def is_date_within_payroll_cutoff_interval(date_to_check: date) -> bool:
+def is_date_within_payroll_cutoff_interval(date_to_check: date) -> tuple[bool, date]:
     """
     It returns True if the date is in the predefined period
     before the payroll cutoff date, and the system must notify HR
@@ -79,7 +79,7 @@ def is_date_within_payroll_cutoff_interval(date_to_check: date) -> bool:
     area = BankHolidays.ENGLAND_AND_WALES
     if not bank_holidays.is_work_day(date_to_check, division=area):
         # Ignore non working days
-        return False
+        return False, date_to_check
 
     month_to_check = date_to_check.month
     year_to_check = date_to_check.year
@@ -100,4 +100,7 @@ def is_date_within_payroll_cutoff_interval(date_to_check: date) -> bool:
     cut_off_start_date = calculate_working_day_date(
         cut_off_end_date, PAY_CUT_OFF_INTERVAL
     )
-    return cut_off_start_date <= date_to_check <= cut_off_end_date
+    if cut_off_start_date <= date_to_check <= cut_off_end_date:
+        return True, cut_off_end_date
+
+    return False, date_to_check
