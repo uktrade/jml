@@ -1,5 +1,5 @@
 from django.test import TestCase
-from datetime import date, timedelta
+from datetime import date
 from leavers.utils.workday_calculation import (
     calculate_working_day_date,
     is_date_within_payroll_cutoff_interval,
@@ -60,6 +60,17 @@ class TestWorkDayCalculation(TestCase):
         working_day_after_bh = calculate_working_day_date(date(2023, 4, 28), 6)
         # Correctly skipped the weekend and the two bankholiday
         self.assertEqual(working_day_after_bh, date(2023, 5, 10))
+
+
+class TestIsDateWithinPayrollCutoffInterval(TestCase):
+    def test_jan_2023(self):
+        self.assertTrue(is_date_within_payroll_cutoff_interval(date(2022, 12, 30)))
+        # Sunday, so we don't consider it in the cut off period
+        self.assertFalse(is_date_within_payroll_cutoff_interval(date(2023, 1, 1)))
+        # Bank holiday, so we don't consider it in the cut off period
+        self.assertFalse(is_date_within_payroll_cutoff_interval(date(2023, 1, 2)))
+        self.assertTrue(is_date_within_payroll_cutoff_interval(date(2023, 1, 3)))
+        self.assertFalse(is_date_within_payroll_cutoff_interval(date(2023, 1, 4)))
 
 
 class TestPayCutOffDate(TestCase):
