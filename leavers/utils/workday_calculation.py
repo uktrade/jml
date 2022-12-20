@@ -14,6 +14,7 @@ PAY_CUT_OFF_INTERVAL = -4
 DECEMBER = 12
 JANUARY = 1
 
+
 def calculate_working_day_date(start_date: date, working_day_delta: int) -> date:
     """It calculates the date of a working day
     separated from a given date by <working_day_delta> working day
@@ -52,13 +53,14 @@ def pay_cut_off_date(month: int, year: int) -> date:
     cut_off_day_of_week = cutoff_day.weekday()
     # Find out how many days away from the alternative designated day we are
     days = cut_off_day_of_week - ALTERNATIVE_WEEK_DAY_DESIGNATED
-    # We need to find a date BEFORE the calculated one
-    # so if the difference we got is negative, we would end up with a date in the future
-    # add 7 to avoid it
-    # For instance, if the 3rd of the month is on a Friday (days difference would be 0),
-    # and it is a Bankholiday, we need to return the date of the previous Friday.
-    # This case can happen if Easter in on the 5th April, as it would be in 2026
     if days <= 0:
+        # We need to find a date BEFORE the calculated one
+        # so if the difference we got is negative,
+        # we would end up with a date in the future
+        # add 7 to avoid it
+        # For instance, if the 3rd of the month is on a Friday (days difference would be 0),
+        # and it is a Bankholiday, we need to return the date of the previous Friday.
+        # This case can happen if Easter in on the 5th April, as it would be in 2026
         days += 7
     cutoff_day -= timedelta(days)
     # If the previous designated day is also a bankholiday,
@@ -95,6 +97,7 @@ def is_date_within_payroll_cutoff_interval(date_to_check: date) -> bool:
             next_month = JANUARY
             year_to_check += 1
         cut_off_end_date = pay_cut_off_date(next_month, year_to_check)
-    cut_off_start_date = \
-        calculate_working_day_date(cut_off_end_date, PAY_CUT_OFF_INTERVAL)
+    cut_off_start_date = calculate_working_day_date(
+        cut_off_end_date, PAY_CUT_OFF_INTERVAL
+    )
     return cut_off_start_date <= date_to_check <= cut_off_end_date
