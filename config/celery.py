@@ -14,7 +14,7 @@ celery_app.conf.beat_schedule = {
     },
     # Search for uncomplete leavers once a day.
     # Execute daily at 7am
-    "uncomplete-leaverpay-cut-off-task": {
+    "uncomplete-leaver-pay-cut-off-task": {
         "task": "leavers.tasks.notify_hr",
         "schedule": crontab(minute=0, hour=7, day_of_week='mon,tue,wed,thu,fri'),
     },
