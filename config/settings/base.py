@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "leavers",
     "user",
     "core",
+    "core.accessibility",
     "core.cookies",
     "core.feedback",
     "core.landing_pages",
