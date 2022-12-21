@@ -612,5 +612,3 @@ def send_leaver_pay_cut_off_reminder(
         template_id=notify.EmailTemplates.LEAVER_IN_PAY_CUT_OFF_HR_EMAIL,
         personalisation=personalisation | {"recipient_name": manager_as_user.full_name},
     )
-
-
