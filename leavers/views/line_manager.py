@@ -73,11 +73,12 @@ class LineManagerViewMixin:
             return False
 
         # If the user is the manager that the leaver selected, they can access the view.
-        if user.sso_email_user_id == manager_activitystream_user.email_user_id:
+        if (
+            user.sso_email_user_id == manager_activitystream_user.email_user_id
+            or user.has_perm("leavers.select_leaver")
+        ):
             # The user is the manager that the leaver selected
-            leaving_request.processing_manager_activitystream_user = (
-                manager_activitystream_user
-            )
+            leaving_request.processing_manager_activitystream_user = user.get_sso_user()
             leaving_request.save(
                 update_fields=["processing_manager_activitystream_user"]
             )
@@ -157,6 +158,11 @@ class LineManagerViewMixin:
 
         # If we don't know the Leaver, no one can access this view.
         if not leaver_activitystream_user:
+            return False
+
+        user_activitystream_user = user.get_sso_user()
+
+        if leaver_activitystream_user == user_activitystream_user:
             return False
 
         # If the user is the processing manager, they can access the view.

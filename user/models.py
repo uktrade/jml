@@ -46,6 +46,6 @@ class User(AbstractUser):
         return self.groups.filter(name=group_name.value).exists()
 
     def get_sso_user(self):
-        return ActivityStreamStaffSSOUser.objects.get(
+        return ActivityStreamStaffSSOUser.objects.active().get(
             email_user_id=self.sso_email_user_id,
         )
