@@ -138,6 +138,8 @@ contractors</p
 Convert
 Convert a Queryset
 Convert Request Data
+core.tasks.ingest_people_data_task
+core.tasks.ingest_people_finder_task
 Correction Email
 Create ActivityStream
 Create Leaving Request

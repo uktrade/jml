@@ -13,16 +13,24 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(minute="*/5"),
     },
     # Nightly tasks to update the Staff search index.
-    # "update-staff-search-index-from-activity-stream": {
-    #     "task": "core.tasks.update_staff_sso_users_from_activity_stream",
-    #     "schedule": crontab(minute="0", hour="1"),
-    # },
-    # "update-staff-search-index-from-people-finder": {
-    #     "task": "core.tasks.update_staff_search_index_from_people_finder",
-    #     "schedule": crontab(minute="0", hour="2"),
-    # },
-    # "update-staff-search-index-from-service-now": {
-    #     "task": "core.tasks.update_staff_search_index_from_service_now",
-    #     "schedule": crontab(minute="0", hour="2"),
-    # },
+    "ingest-activity-stream-task": {
+        "task": "core.tasks.ingest_activity_stream_task",
+        "schedule": crontab(minute="0", hour="3"),
+    },
+    "index-sso-users-task": {
+        "task": "core.tasks.index_sso_users_task",
+        "schedule": crontab(minute="0", hour="4"),
+    },
+    "ingest-people-data-task": {
+        "task": "core.tasks.ingest_people_data_task",
+        "schedule": crontab(minute="0", hour="5"),
+    },
+    "ingest-people-finder-task": {
+        "task": "core.tasks.ingest_people_finder_task",
+        "schedule": crontab(minute="0", hour="5"),
+    },
+    "ingest-service-now-task": {
+        "task": "core.tasks.ingest_service_now_task",
+        "schedule": crontab(minute="0", hour="5"),
+    },
 }
