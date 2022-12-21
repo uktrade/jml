@@ -581,3 +581,36 @@ def send_feetham_security_pass_office_email(
         template_id=notify.EmailTemplates.FEETHAM_SECURITY_PASS_OFFICE_EMAIL,
         personalisation=personalisation,
     )
+
+
+def send_leaver_pay_cut_off_reminder(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
+    """
+    Send email to inform HR that an incomplete leaver will leave before
+    the next pay cut off period
+    """
+    assert leaving_request.manager_activitystream_user
+    manager_as_user: ActivityStreamStaffSSOUser = (
+        leaving_request.manager_activitystream_user
+    )
+
+    manager_emails = manager_as_user.get_email_addresses_for_contact()
+
+    personalisation = get_leaving_request_email_personalisation(leaving_request)
+
+    # HR Email
+    notify.email(
+        email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],
+        template_id=notify.EmailTemplates.LEAVER_IN_PAY_CUT_OFF_HR_EMAIL,
+        personalisation=personalisation | {"recipient_name": "HR Team"},
+    )
+    # Line Manager email
+    notify.email(
+        email_addresses=manager_emails,
+        template_id=notify.EmailTemplates.LEAVER_IN_PAY_CUT_OFF_HR_EMAIL,
+        personalisation=personalisation | {"recipient_name": manager_as_user.full_name},
+    )
+
+

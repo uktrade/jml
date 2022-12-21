@@ -19,6 +19,9 @@ class EmailTemplates(Enum):
     LEAVER_NOT_IN_UKSBS_LM_REMINDER = (
         email_template_settings.LEAVER_NOT_IN_UKSBS_LM_REMINDER
     )
+    LEAVER_IN_PAY_CUT_OFF_HR_EMAIL = (
+        email_template_settings.LEAVER_IN_PAY_CUT_OFF_HR_EMAIL
+    )
     LINE_MANAGER_CORRECTION_EMAIL = (
         email_template_settings.LINE_MANAGER_CORRECTION_EMAIL
     )

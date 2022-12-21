@@ -13,6 +13,8 @@ class EmailTemplatesSettings:
     LINE_MANAGER_CORRECTION_EMAIL: str
     LINE_MANAGER_CORRECTION_HR_EMAIL: str
     LINE_MANAGER_CORRECTION_REPORTED_LM_EMAIL: str
+    # Uncomplete leaver in pay cut off period
+    LEAVER_IN_PAY_CUT_OFF_HR_EMAIL: str
     # Line Manager emails
     LINE_MANAGER_NOTIFICATION_EMAIL: str
     LINE_MANAGER_REMINDER_EMAIL: str
