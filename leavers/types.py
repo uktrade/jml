@@ -25,6 +25,8 @@ class LeavingReason(TextChoices):
     RETIREMENT = "retirement", "Retirement"
     TRANSFER = "transfer", "Transferring to another Civil Service role"
     END_OF_CONTRACT = "end_of_contract", "End of contract"
+    DISMISSAL = "dismissal", "Dismissal"
+    DEATH_IN_SERVICE = "death_in_service", "Death in service"
 
 
 class StaffType(TextChoices):

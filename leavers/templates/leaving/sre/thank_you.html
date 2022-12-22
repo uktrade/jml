@@ -3,7 +3,7 @@
 {% block content %}
     {% if access_removed_services %}
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-grid-column-full">
                 <div class="govuk-panel govuk-panel--confirmation">
                     <h1 class="govuk-panel__title">SRE team actions recorded</h1>
                 </div>
@@ -12,7 +12,7 @@
     {% endif %}
 
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             {% if access_removed_services %}
                 <p class="govuk-body">You have confirmed {{ leaver_name }}'s access to the following tools and services has been removed:</p>
                 <ul class="govuk-list govuk-list--bullet">

@@ -63,6 +63,13 @@ def global_context(request):
                     reverse("list-assets"),
                 )
             )
+        if "HR" in user_group_names:
+            global_context["MAIN_NAV"].append(
+                (
+                    "Leaving Requests",
+                    reverse("leaving-requests-list"),
+                )
+            )
         if "SRE" in user_group_names:
             global_context["MAIN_NAV"].append(
                 (
@@ -75,14 +82,6 @@ def global_context(request):
                 (
                     "Leaving Requests",
                     reverse("security-team-listing-incomplete"),
-                )
-            )
-
-        if request.user.has_perm("leavers.select_leaver"):
-            global_context["MAIN_NAV"].append(
-                (
-                    "Offboard a leaver",
-                    reverse("leaver-select-leaver"),
                 )
             )
 

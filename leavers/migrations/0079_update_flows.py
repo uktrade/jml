@@ -44,7 +44,7 @@ def update_workflows(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("leavers", "0076_alter_leavingrequest_annual_number_and_more"),
+        ("leavers", "0078_alter_leaverinformation_updates"),
     ]
 
     operations = [

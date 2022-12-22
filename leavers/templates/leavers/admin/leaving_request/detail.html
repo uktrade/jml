@@ -1,9 +1,7 @@
 {% extends "base.html" %}
-
 {% block content %}
-
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <h1 class="govuk-heading-l">{{ leaving_request }}</h1>
             <h2 class="govuk-heading-m">Staff involved</h2>
             <h3 class="govuk-heading-s">Leaver</h3>
@@ -30,7 +28,6 @@
             {% else %}
                 <p class="govuk-body">No data recipient</p>
             {% endif %}
-
             <table class="govuk-table">
                 <caption class="govuk-table__caption govuk-table__caption--m">Details</caption>
                 <thead class="govuk-table__head">
@@ -48,11 +45,11 @@
                     {% endfor %}
                 </tbody>
             </table>
-
             {% if not leaving_request.manually_offboarded_from_uksbs %}
-                <a href="{% url 'admin-leaving-request-manually-offboard-uksbs' leaving_request.uuid %}" class="govuk-button govuk-button--warning" data-module="govuk-button">Manually offboarded from UK SBS</a>
+                <a href="{% url 'admin-leaving-request-manually-offboard-uksbs' leaving_request.uuid %}"
+                    class="govuk-button govuk-button--warning"
+                    data-module="govuk-button">Manually offboarded from UK SBS</a>
             {% endif %}
         </div>
     </div>
-
 {% endblock content %}

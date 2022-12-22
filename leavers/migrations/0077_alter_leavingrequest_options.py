@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("leavers", "0075_update_task_info"),
+        ("leavers", "0076_alter_leavingrequest_annual_number_and_more"),
     ]
 
     operations = [

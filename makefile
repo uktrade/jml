@@ -58,6 +58,8 @@ first-use:
 	$(run) leavers python manage.py create_test_users
 	$(run) leavers python manage.py seed_employee_ids
 	$(run) leavers python manage.py update_staff_index
+	$(run) leavers python manage.py set_permissions
+	$(run) leavers python manage.py create_test_users
 	docker-compose up
 
 check-fixme:

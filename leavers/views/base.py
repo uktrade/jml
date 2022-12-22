@@ -10,14 +10,18 @@ from django.db.models.query import QuerySet
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.views.generic import View
 from django.views.generic.edit import FormView
 
+from activity_stream.models import ActivityStreamStaffSSOUser
+from core.people_finder import get_people_finder_interface
 from core.views import BaseTemplateView
 from leavers.forms import data_processor as data_processor_forms
 from leavers.forms.leaver import SecurityClearance
-from leavers.models import LeavingRequest
+from leavers.models import LeaverInformation, LeavingRequest
+from user.models import User
 
 
 class LeavingRequestListing(
@@ -343,3 +347,83 @@ class LeavingRequestListing(
             f"&show_complete={self.show_complete}"
             f"&show_incomplete={self.show_incomplete}"
         )
+
+
+class LeavingRequestViewMixin(View):
+    people_finder_search = get_people_finder_interface()
+
+    leaver_activitystream_user: ActivityStreamStaffSSOUser
+    leaving_request: LeavingRequest
+    leaver_info: LeaverInformation
+    user_is_leaver: bool
+
+    success_viewname: Optional[str] = None
+    back_link_viewname: Optional[str] = None
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        user = cast(User, request.user)
+
+        # 1 + len(prefetch_related) database queries
+        self.leaving_request = (
+            LeavingRequest.objects.select_related(
+                "leaver_activitystream_user",
+                "manager_activitystream_user",
+            )
+            .prefetch_related("leaver_information")
+            .get(uuid=self.kwargs["leaving_request_uuid"])
+        )
+        self.leaver_activitystream_user = (
+            self.leaving_request.leaver_activitystream_user
+        )
+        self.leaver_info = self.leaving_request.leaver_information.first()
+
+        user_sso_user = user.get_sso_user()
+        self.user_is_leaver = user_sso_user == self.leaver_activitystream_user
+
+    def get_view_url(self, viewname, *args, **kwargs):
+        kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
+
+        return reverse(viewname, args=args, kwargs=kwargs)
+
+    def get_success_url(self):
+        if not self.success_viewname:
+            return super().get_success_url()
+
+        return reverse(
+            self.success_viewname,
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
+
+    def get_back_link_url(self):
+        if not self.back_link_viewname:
+            return super().get_back_link_url()
+
+        return reverse(
+            self.back_link_viewname,
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
+
+    def get_context_data(self, **kwargs):
+        context = {
+            "leaving_request": self.leaving_request,
+            "user_is_leaver": self.user_is_leaver,
+        }
+
+        return super().get_context_data(**kwargs) | context
+
+    def get_session(self):
+        if "leaving_requests" not in self.request.session:
+            self.request.session["leaving_requests"] = {}
+        return self.request.session["leaving_requests"].get(
+            self.leaving_request.pk,
+            {},
+        )
+
+    def store_session(self, session):
+        current_session = self.get_session()
+        current_session.update(session)
+        self.request.session["leaving_requests"][
+            self.leaving_request.pk
+        ] = current_session
+        self.request.session.save()

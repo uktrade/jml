@@ -4,6 +4,7 @@ from django.contrib.auth.models import Group
 from django.test.testcases import TestCase
 from django.utils import timezone
 
+from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from leavers.factories import LeavingRequestFactory, SlackMessageFactory
 from leavers.forms.leaver import SecurityClearance
 from leavers.tests.views.include import (
@@ -23,6 +24,9 @@ class TestIncompleteLeavingRequestListing(
         # Add the SRE User Group (and add the authenticated user to it)
         sre_group, _ = Group.objects.get_or_create(name="SRE")
         self.authenticated_user.groups.add(sre_group.id)
+        self.as_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.authenticated_user.sso_email_user_id
+        )
 
     def test_pagination_one_page(self) -> None:
         LeavingRequestFactory.create_batch(
@@ -130,6 +134,9 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
         # Add the SRE User Group (and add the authenticated user to it)
         sre_group, _ = Group.objects.get_or_create(name="SRE")
         self.authenticated_user.groups.add(sre_group.id)
+        self.as_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.authenticated_user.sso_email_user_id
+        )
 
     def test_pagination_one_page(self) -> None:
         LeavingRequestFactory.create_batch(
@@ -250,6 +257,9 @@ class TestTaskDetailView(ViewAccessTest, TestCase):
         # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE
         sre_group, _ = Group.objects.get_or_create(name="SRE")
         self.authenticated_user.groups.add(sre_group.id)
+        self.as_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.authenticated_user.sso_email_user_id
+        )
         # Update the view_kwargs to pass the leaving_request ID to the view.
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
 
@@ -278,6 +288,9 @@ class TestThankYouView(ViewAccessTest, TestCase):
         # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE
         sre_group, _ = Group.objects.get_or_create(name="SRE")
         self.authenticated_user.groups.add(sre_group.id)
+        self.as_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.authenticated_user.sso_email_user_id
+        )
         # Update the view_kwargs to pass the leaving_request ID to the view.
         self.view_kwargs = {"args": [self.leaving_request.uuid]}
 

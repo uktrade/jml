@@ -205,7 +205,7 @@ leaving_requests_urlpatterns = [
 
 
 leaving_request_urlpatterns: list[URLResolver | URLPattern] = [
-    path("", common_views.empty_view, name="leaving-request-summary"),
+    path("", common_views.LeavingRequestView.as_view(), name="leaving-request-summary"),
     # partial
     path(
         "checks/",

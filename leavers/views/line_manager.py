@@ -46,6 +46,8 @@ ADD_MISSING_LINE_REPORT_ERROR = "add_missing_line_report_error"
 
 
 class LineManagerViewMixin:
+    user_is_line_manager: bool = False
+
     def get_page_count(
         self,
         leaving_request: LeavingRequest,
@@ -74,13 +76,7 @@ class LineManagerViewMixin:
 
         # If the user is the manager that the leaver selected, they can access the view.
         if user.sso_email_user_id == manager_activitystream_user.email_user_id:
-            # The user is the manager that the leaver selected
-            leaving_request.processing_manager_activitystream_user = (
-                manager_activitystream_user
-            )
-            leaving_request.save(
-                update_fields=["processing_manager_activitystream_user"]
-            )
+            self.user_is_line_manager = True
             return True
         return False
 
@@ -133,6 +129,7 @@ class LineManagerViewMixin:
                 leaving_request.save(
                     update_fields=["processing_manager_activitystream_user"]
                 )
+                self.user_is_line_manager = True
                 return True
         return False
 
@@ -159,6 +156,11 @@ class LineManagerViewMixin:
         if not leaver_activitystream_user:
             return False
 
+        user_activitystream_user = user.get_sso_user()
+
+        if leaver_activitystream_user == user_activitystream_user:
+            return False
+
         # If the user is the processing manager, they can access the view.
         processing_manager_activitystream_user: Optional[
             ActivityStreamStaffSSOUser
@@ -174,6 +176,9 @@ class LineManagerViewMixin:
             return True
 
         if self.user_is_uksbs_manager(request=request, leaving_request=leaving_request):
+            return True
+
+        if user.has_perm("leavers.select_leaver"):
             return True
 
         return False
@@ -196,6 +201,8 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
         if not self.leaving_request.leaver_complete:
             return HttpResponseNotFound()
 
+        self.user_is_manager
+
         if (
             self.leaving_request.line_manager_complete
             and resolve(self.request.path).view_name != "line-manager-thank-you"
@@ -205,7 +212,25 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
         if response := self.pre_dispatch(request, *args, **kwargs):
             return response
 
+        user = cast(User, request.user)
+
+        # Make sure the current user is set as the processing manager
+        user_sso_user = user.get_sso_user()
+        if (
+            self.leaving_request.processing_manager_activitystream_user != user_sso_user
+            and resolve(self.request.path).view_name != "line-manager-start"
+        ):
+            self.leaving_request.processing_manager_activitystream_user = user_sso_user
+            self.leaving_request.save(
+                update_fields=["processing_manager_activitystream_user"]
+            )
+
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(user_is_line_manager=self.user_is_line_manager)
+        return context
 
 
 class DataRecipientSearchView(ReviewViewMixin, StaffSearchView):
