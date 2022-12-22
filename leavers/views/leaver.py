@@ -63,8 +63,9 @@ class SelectLeaverView(FormView, BaseTemplateView):
     form_class = leaver_forms.SelectLeaverForm
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.has_perm("leavers.select_leaver"):
-            self.init_leaving_request(request.user.get_sso_user())
+        user = cast(User, self.request.user)
+        if not user.has_perm("leavers.select_leaver"):
+            self.init_leaving_request(user.get_sso_user())
 
             return redirect(self.get_success_url())
 
@@ -96,9 +97,11 @@ class SelectLeaverView(FormView, BaseTemplateView):
     def init_leaving_request(self, leaver: ActivityStreamStaffSSOUser) -> None:
         assert self.request.user.is_authenticated
 
+        user = cast(User, self.request.user)
+
         # get or create a LeavingRequest object
         leaving_request = update_or_create_leaving_request(
-            leaver=leaver, user_requesting=self.request.user
+            leaver=leaver, user_requesting=user
         )
         # get or create a LeavingInformation object
         LeaverInformation.objects.get_or_create(leaving_request=leaving_request)
@@ -107,10 +110,17 @@ class SelectLeaverView(FormView, BaseTemplateView):
         self.leaving_request = leaving_request
 
     def get_success_url(self) -> str:
-        return reverse(
-            "leaver-checks",
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
+        if not self.leaving_request.leaver_complete:
+            return reverse(
+                "leaver-checks",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
+        if not self.leaving_request.line_manager_complete:
+            return reverse(
+                "line-manager-start",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
+        raise Exception("Leaver and line manager are complete")
 
 
 class LeavingRequestViewMixin(View):

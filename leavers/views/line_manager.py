@@ -74,13 +74,6 @@ class LineManagerViewMixin:
 
         # If the user is the manager that the leaver selected, they can access the view.
         if user.sso_email_user_id == manager_activitystream_user.email_user_id:
-            # The user is the manager that the leaver selected
-            leaving_request.processing_manager_activitystream_user = (
-                manager_activitystream_user
-            )
-            leaving_request.save(
-                update_fields=["processing_manager_activitystream_user"]
-            )
             return True
         return False
 
@@ -159,6 +152,11 @@ class LineManagerViewMixin:
         if not leaver_activitystream_user:
             return False
 
+        user_activitystream_user = user.get_sso_user()
+
+        if leaver_activitystream_user == user_activitystream_user:
+            return False
+
         # If the user is the processing manager, they can access the view.
         processing_manager_activitystream_user: Optional[
             ActivityStreamStaffSSOUser
@@ -168,6 +166,9 @@ class LineManagerViewMixin:
             and user.sso_email_user_id
             == processing_manager_activitystream_user.email_user_id
         ):
+            return True
+
+        if user.has_perm("leavers.select_leaver"):
             return True
 
         if self.user_is_manager(request=request, leaving_request=leaving_request):
@@ -204,6 +205,19 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
 
         if response := self.pre_dispatch(request, *args, **kwargs):
             return response
+
+        user = cast(User, request.user)
+
+        # Make sure the current user is set as the processing manager
+        user_sso_user = user.get_sso_user()
+        if (
+            self.leaving_request.processing_manager_activitystream_user != user_sso_user
+            and resolve(self.request.path).view_name != "line-manager-start"
+        ):
+            self.leaving_request.processing_manager_activitystream_user = user_sso_user
+            self.leaving_request.save(
+                update_fields=["processing_manager_activitystream_user"]
+            )
 
         return super().dispatch(request, *args, **kwargs)
 
