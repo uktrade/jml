@@ -9,7 +9,7 @@ from django.shortcuts import redirect
 from django.urls import resolve, reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic import RedirectView, View
+from django.views.generic import RedirectView
 from django.views.generic.edit import FormView
 
 from activity_stream.models import (
@@ -17,7 +17,6 @@ from activity_stream.models import (
     ActivityStreamStaffSSOUserEmail,
 )
 from core.people_data import get_people_data_interface
-from core.people_finder import get_people_finder_interface
 from core.service_now import get_service_now_interface
 from core.staff_search.views import StaffSearchView
 from core.types import Address
@@ -36,9 +35,10 @@ from leavers import types
 from leavers.decorators import leaver_does_not_have_multiple_person_ids
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
-from leavers.models import LeaverInformation, LeavingRequest
+from leavers.models import LeaverInformation
 from leavers.types import LeavingReason, StaffType
 from leavers.utils.leaving_request import update_or_create_leaving_request
+from leavers.views.base import LeavingRequestViewMixin
 from leavers.workflow.utils import get_or_create_leaving_workflow
 from user.models import User
 
@@ -121,80 +121,6 @@ class SelectLeaverView(FormView, BaseTemplateView):
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             )
         raise Exception("Leaver and line manager are complete")
-
-
-class LeavingRequestViewMixin(View):
-    people_finder_search = get_people_finder_interface()
-
-    leaver_activitystream_user: ActivityStreamStaffSSOUser
-    leaving_request: LeavingRequest
-    leaver_info: LeaverInformation
-
-    success_viewname: Optional[str] = None
-    back_link_viewname: Optional[str] = None
-
-    def setup(self, request, *args, **kwargs):
-        super().setup(request, *args, **kwargs)
-
-        # 1 + len(prefetch_related) database queries
-        self.leaving_request = (
-            LeavingRequest.objects.select_related(
-                "leaver_activitystream_user",
-                "manager_activitystream_user",
-            )
-            .prefetch_related("leaver_information")
-            .get(uuid=self.kwargs["leaving_request_uuid"])
-        )
-        self.leaver_activitystream_user = (
-            self.leaving_request.leaver_activitystream_user
-        )
-        self.leaver_info = self.leaving_request.leaver_information.first()
-
-    def get_view_url(self, viewname, *args, **kwargs):
-        kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
-
-        return reverse(viewname, args=args, kwargs=kwargs)
-
-    def get_success_url(self):
-        if not self.success_viewname:
-            return super().get_success_url()
-
-        return reverse(
-            self.success_viewname,
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
-
-    def get_back_link_url(self):
-        if not self.back_link_viewname:
-            return super().get_back_link_url()
-
-        return reverse(
-            self.back_link_viewname,
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
-
-    def get_context_data(self, **kwargs):
-        context = {
-            "leaving_request": self.leaving_request,
-        }
-
-        return super().get_context_data(**kwargs) | context
-
-    def get_session(self):
-        if "leaving_requests" not in self.request.session:
-            self.request.session["leaving_requests"] = {}
-        return self.request.session["leaving_requests"].get(
-            self.leaving_request.pk,
-            {},
-        )
-
-    def store_session(self, session):
-        current_session = self.get_session()
-        current_session.update(session)
-        self.request.session["leaving_requests"][
-            self.leaving_request.pk
-        ] = current_session
-        self.request.session.save()
 
 
 @method_decorator(leaver_does_not_have_multiple_person_ids, "dispatch")
