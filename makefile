@@ -113,6 +113,9 @@ pytest:
 test:
 	$(run) leavers pytest --disable-warnings --reuse-db $(test)
 
+cam:
+	$(run) leavers pytest --disable-warnings --reuse-db leavers/tests/views/test_line_manager.py::TestLineManagerAccessMixin::test_user_has_permission
+
 test-fresh:
 	$(run) leavers pytest --disable-warnings --create-db --reuse-db $(test)
 

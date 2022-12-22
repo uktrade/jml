@@ -73,15 +73,7 @@ class LineManagerViewMixin:
             return False
 
         # If the user is the manager that the leaver selected, they can access the view.
-        if (
-            user.sso_email_user_id == manager_activitystream_user.email_user_id
-            or user.has_perm("leavers.select_leaver")
-        ):
-            # The user is the manager that the leaver selected
-            leaving_request.processing_manager_activitystream_user = user.get_sso_user()
-            leaving_request.save(
-                update_fields=["processing_manager_activitystream_user"]
-            )
+        if user.sso_email_user_id == manager_activitystream_user.email_user_id:
             return True
         return False
 
@@ -176,6 +168,9 @@ class LineManagerViewMixin:
         ):
             return True
 
+        if user.has_perm("leavers.select_leaver"):
+            return True
+
         if self.user_is_manager(request=request, leaving_request=leaving_request):
             return True
 
@@ -210,6 +205,19 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
 
         if response := self.pre_dispatch(request, *args, **kwargs):
             return response
+
+        user = cast(User, request.user)
+
+        # Make sure the current user is set as the processing manager
+        user_sso_user = user.get_sso_user()
+        if (
+            self.leaving_request.processing_manager_activitystream_user != user_sso_user
+            and resolve(self.request.path).view_name != "line-manager-start"
+        ):
+            self.leaving_request.processing_manager_activitystream_user = user_sso_user
+            self.leaving_request.save(
+                update_fields=["processing_manager_activitystream_user"]
+            )
 
         return super().dispatch(request, *args, **kwargs)
 

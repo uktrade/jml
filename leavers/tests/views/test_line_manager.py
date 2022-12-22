@@ -1,12 +1,12 @@
 from unittest import mock
 from uuid import uuid4
 
+from django.contrib.auth.models import Permission
 from django.test.testcases import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
 from activity_stream.factories import ActivityStreamStaffSSOUserFactory
-from activity_stream.models import ActivityStreamStaffSSOUser
 from core.utils.staff_index import StaffDocument
 from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
 from leavers.forms.line_manager import (
@@ -15,7 +15,6 @@ from leavers.forms.line_manager import (
     FlexiLeavePaidOrDeducted,
     LeaverPaidUnpaid,
 )
-from leavers.models import LeavingRequest
 from leavers.tests.views.include import ViewAccessTest
 from leavers.views.line_manager import LineManagerViewMixin
 from user.test.factories import UserFactory
@@ -73,10 +72,8 @@ class TestLineManagerAccessMixin(TestCase):
         super().setUp()
 
         self.leaver = UserFactory()
-        self.leaver_as_user: ActivityStreamStaffSSOUser = (
-            ActivityStreamStaffSSOUserFactory(
-                email_user_id=self.leaver.sso_email_user_id
-            )
+        self.leaver_as_user = ActivityStreamStaffSSOUserFactory(
+            email_user_id=self.leaver.sso_email_user_id
         )
         self.random = UserFactory()
         self.random_as_user = ActivityStreamStaffSSOUserFactory(
@@ -96,7 +93,7 @@ class TestLineManagerAccessMixin(TestCase):
             email_user_id=self.processing_manager.sso_email_user_id
         )
 
-        self.leaving_request: LeavingRequest = LeavingRequestFactory(
+        self.leaving_request = LeavingRequestFactory(
             leaver_complete=timezone.now(),
             leaver_activitystream_user=self.leaver_as_user,
             manager_activitystream_user=self.manager_as_user,
@@ -128,10 +125,6 @@ class TestLineManagerAccessMixin(TestCase):
             request=http_response.wsgi_request, leaving_request=self.leaving_request
         )
         self.leaving_request.refresh_from_db()
-        self.assertEqual(
-            self.leaving_request.processing_manager_activitystream_user,
-            self.manager_as_user,
-        )
         self.assertTrue(response)
         self.assertEqual(self.leaving_request.get_line_manager(), self.manager_as_user)
 
@@ -150,6 +143,21 @@ class TestLineManagerAccessMixin(TestCase):
         self.assertEqual(
             self.leaving_request.get_line_manager(), self.uksbs_manager_as_user
         )
+
+    def test_user_has_permission(self):
+        user = UserFactory()
+        ActivityStreamStaffSSOUserFactory(email_user_id=user.sso_email_user_id)
+        permission = Permission.objects.get(codename="select_leaver")
+        user.user_permissions.add(permission)
+
+        self.client.force_login(user)
+        http_response = self.client.get("")
+        response = LineManagerViewMixin().line_manager_access(
+            request=http_response.wsgi_request, leaving_request=self.leaving_request
+        )
+
+        self.leaving_request.refresh_from_db()
+        self.assertTrue(response)
 
     def test_user_is_processing_manager(self):
         self.leaving_request.processing_manager_activitystream_user = (
@@ -238,6 +246,8 @@ class TestStartView(ViewAccessTest, TestCase):
                 kwargs={"leaving_request_uuid": str(self.leaving_request.uuid)},
             ),
         )
+        self.leaving_request.refresh_from_db()
+        self.assertIsNone(self.leaving_request.processing_manager_activitystream_user)
 
 
 @mock.patch(
@@ -343,6 +353,12 @@ class TestLeaverConfirmationView(ViewAccessTest, TestCase):
                 "line-manager-data-recipient-search",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
+        )
+        self.leaving_request.refresh_from_db()
+        assert self.leaving_request.processing_manager_activitystream_user
+        self.assertEqual(
+            self.authenticated_user.sso_email_user_id,
+            self.leaving_request.processing_manager_activitystream_user.email_user_id,
         )
 
 
