@@ -64,6 +64,8 @@
 0075_update_task_info
 0123123123
 100px
+2.1 AA
+2022.</p
 234px
 4.2926 4.293h-12.986v2h12.896l-4.1855
 400.html
@@ -74,6 +76,7 @@
 9</span
 960px
 abc
+Accessibility Guidelines
 active</dd
 activity_stream.activitystreamstaffssouser
 ActivityStream
@@ -143,9 +146,9 @@ contractors</p
 Convert
 Convert a Queryset
 Convert Request Data
+core.people_data
 core.tasks.ingest_people_data_task
 core.tasks.ingest_people_finder_task
-core.people_data
 Correction Email
 Create ActivityStream
 Create Leaving Request
@@ -161,6 +164,7 @@ CRSF
 CSET
 CssFinder
 CTC
+DAC
 DAMAGES
 Dashboard</a>
 Data
@@ -177,12 +181,14 @@ Department 1
 Department 2
 Department for International Trade
 Department of International Trade
+design</h4
 Desktop'
 Dev
 Dev Tools
 dev_tools/` - Djang
 Developed Vetting
 Digital
+Digital Accessibility
 Digital Workspace
 Digital Worskspace
 directorate_id
@@ -199,6 +205,7 @@ dit.html
 DIT</li
 DjangoCelery
 DjangoTemplates
+DLS
 DO NOT USE ON PRODUCTION
 Dockerfile.dev
 Drop
@@ -307,9 +314,11 @@ ingest_activity_stream
 INSERT INTO dit.people_data__jml
 Install Cloudfoundry
 Integrations
+interactions</h4
 International Trade
 IS_PRODUCTION
 is_superuser
+JAWS
 Jira
 JML
 JML_ONLY_SEND_EMAILS_TO_JML_TEAM                                 
@@ -390,6 +399,7 @@ MIT
 MIT License
 mkdocs
 Mobile
+Mobile Applications
 mock_get_assets_for_user
 mock_store_return_information.assert_called_once_with
 Movers
@@ -404,6 +414,7 @@ None" &&
 Notification Email
 notify.email
 npm
+NVDA
 OAB
 object.current_task_record
 object.last_name
@@ -600,9 +611,12 @@ the CLU4 Team
 the Data Recipient StaffDocument
 the Datahub Group
 the DB Creates
+the Department for International Trade
+the Department for International Trade.</p
 the Directorate {%
 The DIT Leaving Service
 the Feetham Security Pass Office
+the GOV.UK Design System
 the GPC Return Address                    
 the Health and Safety Team</h2
 the Leaver Activity Stream
@@ -650,6 +664,7 @@ value="update_status_form">
 Variables](/docs
 viewBox="0 0 483.2
 visit</li>
+VoiceOver)</li>
 vpn_access_task_log
 WHERE sso_user_id = %
 WhiteNoiseMiddleware

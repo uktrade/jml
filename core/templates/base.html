@@ -55,7 +55,7 @@
         {% comment %} {% include "includes/header/govuk.html" %} {% endcomment %}
         {% block primary_navigation %}
         {% endblock primary_navigation %}
-        <div class="govuk-width-container app-width-container">
+        <div class="{% block container_class_names %}govuk-width-container{% endblock container_class_names %}">
             <div class="govuk-phase-banner">
                 <p class="govuk-phase-banner__content">
                     <strong class="govuk-tag govuk-phase-banner__content__tag">beta</strong>
@@ -72,7 +72,7 @@
                 <a href="{{ back_link_url }}" class="govuk-back-link mb-0">{{ back_link_text|default_if_none:'Back' }}</a>
             {% endif %}
 
-            <main class="govuk-main-wrapper app-main-class {% block main_class_names %}{% endblock main_class_names %}"
+            <main class="{% block main_class_names %}govuk-main-wrapper{% endblock main_class_names %}"
                 id="main-content"
                 role="main">
                 {% block content %}

@@ -4,7 +4,7 @@
     {% include "asset_registry/includes/asset_detail_messages.html" %}
 
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <h1 class="govuk-heading-l">{{ object }}</h1>
             <a href="{% url 'update-software-asset' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
                 Make changes
@@ -42,7 +42,7 @@
     </div>
 
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             {% include "asset_registry/includes/asset_detail_user_table.html" %}
         </div>
     </div>
