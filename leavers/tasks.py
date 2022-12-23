@@ -19,13 +19,14 @@ def notify_hr():
         )
         # Check if there are incomplete leavers with leaving date
         # before or on the cutoff date
+        # All leavers are included, ie contractors and civil servants
         leavers_incomplete_qs = LeavingRequest.objects.filter(
-            staff_type=StaffType.CIVIL_SERVANT,
             line_manager_complete__isnull=True,
             leaving_date__date__lte=cut_off_date,
         )
         if leavers_incomplete_qs.count():
             logger.info(f"Found {leavers_incomplete_qs.count()} uncomplete leavers")
             # Email the list to HR
-            for leaver in leavers_incomplete_qs:
-                send_leaver_pay_cut_off_reminder(leaver)
+            send_leaver_pay_cut_off_reminder(leavers_incomplete_qs)
+        else:
+            logger.info(f"Found no uncomplete leavers")
