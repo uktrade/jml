@@ -591,14 +591,14 @@ def send_leaver_pay_cut_off_reminder(
     Send email to inform HR that an incomplete leaver will leave before
     the next pay cut off period
     """
-    if leaving_requests.Count() == 0:
+    if leaving_requests.count() == 0:
         return
     leaver_name_list_string = ""
     for leaving_request in leaving_requests:
-        leaver_name_list_string  += f"* {leaving_request.get_leaver_name()}\n"
+        leaver_name_list_string += f"* {leaving_request.get_leaver_name()}\n"
     personalisation: Dict[str, str] = {}
     personalisation.update(leaver_name_list=leaver_name_list_string)
-
+    print(f"==== {leaver_name_list_string}")
     # HR Email
     notify.email(
         email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],

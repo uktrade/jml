@@ -2,7 +2,6 @@ from celery import shared_task
 from config.celery import celery_app
 from datetime import date
 from leavers.models import LeavingRequest
-from leavers.types import StaffType
 from leavers.utils.emails import send_leaver_pay_cut_off_reminder
 from leavers.utils.workday_calculation import is_date_within_payroll_cutoff_interval
 
@@ -10,12 +9,12 @@ logger = celery_app.log.get_default_logger()
 
 
 @shared_task()
-def notify_hr():
+def notify_hr(date_to_check=date.today()):
     logger.info("RUNNING task_notify_hr")
-    is_within, cut_off_date = is_date_within_payroll_cutoff_interval(date.today())
+    is_within, cut_off_date = is_date_within_payroll_cutoff_interval(date_to_check)
     if is_within:
         logger.info(
-            f"Today {date.today()} within cut off period ending on {cut_off_date}"
+            f"Today {date_to_check} within cut off period ending on {cut_off_date}"
         )
         # Check if there are incomplete leavers with leaving date
         # before or on the cutoff date
@@ -29,4 +28,4 @@ def notify_hr():
             # Email the list to HR
             send_leaver_pay_cut_off_reminder(leavers_incomplete_qs)
         else:
-            logger.info(f"Found no uncomplete leavers")
+            logger.info("Found no uncomplete leavers")
