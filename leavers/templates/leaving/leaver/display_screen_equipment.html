@@ -2,13 +2,13 @@
 {% load static crispy_forms_tags crispy_forms_gds %}
 {% block content %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             {% error_summary submission_form %}
             {% error_summary add_asset_form %}
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <span class="govuk-caption-l">Page 7 of 9</span>
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             <p class="govuk-body">
@@ -34,7 +34,7 @@
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <h2 class="govuk-heading-m">Add expensed equipment over £150</h2>
             <p class="govuk-body">
                 Add brief description of your equipment (for example: developer laptop, standing desk, ergonomic chair).
@@ -66,7 +66,7 @@
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <form novalidate method='post'>
                 {% csrf_token %}
                 <input type="hidden" name="form_name" value="submission_form" />

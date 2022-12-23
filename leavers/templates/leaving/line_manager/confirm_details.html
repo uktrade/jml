@@ -2,17 +2,19 @@
 {% load crispy_forms_tags crispy_forms_gds %}
 {% block content %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">{% error_summary form %}</div>
+        <div class="govuk-grid-column-full">
+            {% error_summary form %}
+        </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <span class="govuk-caption-l">Page {{ page_count }} of {{ page_count }}</span>
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             {% include "leaving/line_manager/includes/staff_card.html" with staff_details=leaver %}
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <h2 class="govuk-heading-m">{{ possessive_leaver_name }} information</h2>
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
@@ -55,7 +57,7 @@
     </div>
     {% if leaving_request.show_hr_and_payroll %}
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-grid-column-full">
                 <h2 class="govuk-heading-m">HR and payroll</h2>
                 <dl class="govuk-summary-list">
                     <div class="govuk-summary-list__row">
@@ -95,7 +97,7 @@
     {% if leaving_request.show_line_reports %}
         {% if line_reports %}
             <div class="govuk-grid-row">
-                <div class="govuk-grid-column-two-thirds">
+                <div class="govuk-grid-column-full">
                     <h2 class="govuk-heading-m">Team members</h2>
                     <dl class="govuk-summary-list">
                         <div class="govuk-summary-list__row">
@@ -127,7 +129,7 @@
         {% endif %}
     {% endif %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <h2 class="govuk-heading-m">Send us {{ possessive_leaver_name }} leaving information</h2>
             <p class="govuk-body">
                 By sending this information, you are confirming that, to the best of your knowledge, the details you are providing are correct.
