@@ -9,7 +9,7 @@
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <span class="govuk-caption-l">Page 7 of 9</span>
+            {% if user_is_leaver %}<span class="govuk-caption-l">Page 7 of 9</span>{% endif %}
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             <p class="govuk-body">
                 Tell us about any IT equipment, peripherals or home working equipment that were expensed to DIT over £150.
@@ -55,7 +55,11 @@
                     {% endfor %}
                 </dl>
             {% else %}
-                <p class="govuk-body">You currently have no IT equipment assigned to you.</p>
+                {% if user_is_leaver %}
+                    <p class="govuk-body">You currently have no IT equipment assigned to you.</p>
+                {% else %}
+                    <p class="govuk-body">There's currently no IT equipment assigned to the leaver.</p>
+                {% endif %}
             {% endif %}
             <h3 class="govuk-heading-s">Your expensed assets:</h3>
             <form novalidate method='post'>

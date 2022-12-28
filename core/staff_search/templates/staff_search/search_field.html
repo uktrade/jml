@@ -10,22 +10,21 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
  - remove_url: string - the url to post to when removing a staff member
 
 {% endcomment %}
-
-<div
-    id="{{ search_identifier }}-staff-result"
-    {% if staff_uuid %}
-        hx-get="{% url "staff-result" staff_uuid=staff_uuid %}"
-        hx-trigger="load"
-    {% endif %}
->
+<div id="{{ search_identifier }}-staff-result"
+    {% if staff_uuid %} hx-get="{% url "staff-result" staff_uuid=staff_uuid %}" hx-trigger="load" {% endif %}>
 </div>
 {% if staff_uuid %}
     {% if remove_url %}
-        <a href="{{ remove_url }}" class="govuk-button govuk-button--secondary">{% if remove_text %}{{ remove_text }}{% else %}Remove staff member{% endif %}</a>
+        <a href="{{ remove_url }}" class="govuk-button govuk-button--secondary">
+            {% if remove_text %}
+                {{ remove_text }}
+            {% else %}
+                Remove staff member
+            {% endif %}
+        </a>
     {% endif %}
 {% else %}
-    <input
-        id="id_{{ search_identifier }}_hidden"
+    <input id="id_{{ search_identifier }}_search"
         class="govuk-input"
         type="search"
         name="{{ search_identifier }}_search_terms"
@@ -34,7 +33,19 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
         hx-trigger="keyup changed delay:200ms, search"
         hx-target="#search-results-{{ search_identifier }}"
         hx-indicator="#htmx-indicator-{{ search_identifier }}"
-        hx-params="{{ search_identifier }}_search_terms" />
-    <span id="htmx-indicator-{{ search_identifier }}" class="htmx-indicator"><p class="govuk-body">Searching...</p></span>
+        hx-params="{{ search_identifier }}_search_terms"/>
+    <span id="htmx-indicator-{{ search_identifier }}" class="htmx-indicator">
+        <p class="govuk-body">Searching...</p>
+    </span>
     <div id="search-results-{{ search_identifier }}"></div>
+    <script>
+        // Prevent the form from submitting when the user presses enter
+        input = document.getElementById("id_{{ search_identifier }}_search");
+        form = input.closest("form");
+        form.addEventListener("keydown", function (e) {
+            if (e.target === input && e.key === "Enter") {
+                e.preventDefault();
+            }
+        });
+    </script>
 {% endif %}

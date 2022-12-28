@@ -210,6 +210,7 @@ DO NOT USE ON PRODUCTION
 Dockerfile.dev
 Drop
 DSE
+e.preventDefault
 E501
 Elastic
 Email                             
@@ -339,6 +340,7 @@ Kit
 Kit requests</a
 kit_info
 kit)</li
+kit</span>
 kit</th
 know:</p
 Laptop
@@ -354,6 +356,7 @@ leaver_info.refresh_from_db
 leaver_info.return_address.line_2
 leaver_job_title
 leaver_paid_unpaid
+leaver:</h2
 Leaver's Notification Form
 LeaverInformation
 leaverLastDay

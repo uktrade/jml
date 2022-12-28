@@ -67,4 +67,5 @@ def get_or_create_leaving_workflow(
         leaving_request.flow = flow
         leaving_request.save()
 
-    return flow
+        return flow
+    return leaving_request.flow

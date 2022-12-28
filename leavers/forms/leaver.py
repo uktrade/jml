@@ -26,16 +26,6 @@ from leavers.models import LeavingRequest
 from leavers.types import LeavingReason, ReturnOptions, SecurityClearance, StaffType
 
 
-class LeaverConfirmationForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Submit("submit", "Accept and send"),
-        )
-
-
 class SelectLeaverForm(BaseForm):
     leaver_uuid = forms.CharField(label="", widget=forms.HiddenInput)
 
@@ -60,6 +50,31 @@ class SelectLeaverForm(BaseForm):
         )
 
 
+class LeaverJourneyBaseForm(BaseForm):
+    required_error_messages_not_leaver: Dict[str, str] = {}
+
+    def __init__(
+        self,
+        request: HttpRequest,
+        leaving_request: LeavingRequest,
+        user_is_leaver: bool,
+        *args,
+        **kwargs,
+    ):
+        self.request = request
+        self.leaving_request = leaving_request
+        self.user_is_leaver = user_is_leaver
+
+        super().__init__(*args, **kwargs)
+
+        if not self.user_is_leaver:
+            for (
+                field_name,
+                required_message,
+            ) in self.required_error_messages_not_leaver.items():
+                self.fields[field_name].error_messages["required"] = required_message
+
+
 # Build a new choice list using the TextChoices.
 LEAVING_CHOICES = [
     Choice(
@@ -73,9 +88,12 @@ LEAVING_CHOICES[-1].divider = "or"
 LEAVING_CHOICES.append(Choice("none_of_the_above", "None of the above"))
 
 
-class WhyAreYouLeavingForm(BaseForm):
+class WhyAreYouLeavingForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "reason": "Please tell us the reason that you are leaving the department.",
+    }
+    required_error_messages_not_leaver: Dict[str, str] = {
+        "reason": "Please tell us the reason that they are leaving the department."
     }
 
     reason = forms.ChoiceField(
@@ -94,9 +112,12 @@ class WhyAreYouLeavingForm(BaseForm):
         )
 
 
-class StaffTypeForm(BaseForm):
+class StaffTypeForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "staff_type": "Please tell us your type of employment.",
+    }
+    required_error_messages_not_leaver: Dict[str, str] = {
+        "staff_type": "Please tell us the leaver's type of employment.",
     }
 
     staff_type = forms.ChoiceField(
@@ -115,13 +136,20 @@ class StaffTypeForm(BaseForm):
         )
 
 
-class EmploymentProfileForm(BaseForm):
+class EmploymentProfileForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "first_name": "Please tell us your first name.",  # /PS-IGNORE
         "last_name": "Please tell us your last name.",  # /PS-IGNORE
         "date_of_birth": "Please tell us your date of birth.",
         "job_title": "Please tell us your job title.",
         "security_clearance": "Please select your security clearance from the list.",
+    }
+    required_error_messages_not_leaver: Dict[str, str] = {
+        "first_name": "Please tell us the leaver's first name.",  # /PS-IGNORE
+        "last_name": "Please tell us the leaver's last name.",  # /PS-IGNORE
+        "date_of_birth": "Please tell us the leaver's date of birth.",
+        "job_title": "Please tell us the leaver's job title.",
+        "security_clearance": "Please select the leaver's security clearance from the list.",
     }
 
     first_name = forms.CharField(label="")
@@ -138,6 +166,16 @@ class EmploymentProfileForm(BaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        date_of_birth_html = HTML(
+            "<p class='govuk-body'>We need your date of birth to "
+            "identify you and complete your offboarding.</p>"
+        )
+        if not self.user_is_leaver:
+            date_of_birth_html = HTML(
+                "<p class='govuk-body'>We need the leaver's date of birth to "
+                "identify them and complete their offboarding.</p>"
+            )
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
@@ -151,10 +189,7 @@ class EmploymentProfileForm(BaseForm):
                 legend_size=Size.SMALL,
             ),
             Fieldset(
-                HTML(
-                    "<p class='govuk-body'>We need your date of birth to "
-                    "identify you and complete your offboarding.</p>"
-                ),
+                date_of_birth_html,
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("date_of_birth"),
                 legend="Date of birth",
@@ -174,7 +209,7 @@ class EmploymentProfileForm(BaseForm):
         )
 
 
-class FindPersonIDForm(BaseForm):
+class FindPersonIDForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "personal_email": "Please enter an email for us to search for.",
     }
@@ -183,11 +218,18 @@ class FindPersonIDForm(BaseForm):
         label="Personal email", help_text="We'll only use this to find your details."
     )
 
-    def __init__(self, leaving_request, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if not self.user_is_leaver:
+            self.fields["personal_email"].label = "Leaver's personal email"
+            self.fields[
+                "personal_email"
+            ].help_text = "We'll only use this to find the leaver's details."
+
         cancel_url = reverse(
             "leaver-find-details-help",
-            kwargs={"leaving_request_uuid", leaving_request.uuid},
+            kwargs={"leaving_request_uuid", self.leaving_request.uuid},
         )
 
         self.helper = FormHelper()
@@ -200,116 +242,105 @@ class FindPersonIDForm(BaseForm):
                     # Hide the cancel button if the form is unbound (fresh, no data).
                     # Only show the button when a form submission has been attempted.
                     f"style='{'display: none' if not self.is_bound else ''}'"
-                    "data-module='govuk-button'>My email address cannot be found</a>"
+                    "data-module='govuk-button'>Email address cannot be found</a>"
                 ),
                 css_class="govuk-button-group",
             ),
         )
 
 
-RETURN_OPTIONS = [
-    Choice(
-        ReturnOptions.OFFICE.value,
-        ReturnOptions.OFFICE.label,
-        hint=(
-            "On your last working day, return all your equipment to the Cirrus "
-            "tech bar in Old Admiralty Building. Located on the 3rd floor the "
-            "tech bar is open from 9am to 5pm."
-        ),
-    ),
-    Choice(
-        ReturnOptions.HOME.value,
-        ReturnOptions.HOME.label,
-        hint=(
-            "We will send you a box to return your Cirrus kit. This will be "
-            "collected by a courier, instructions will be included in the box."
-        ),
-    ),
-]
-
-
-class ReturnOptionForm(BaseForm):
-    required_error_messages: Dict[str, str] = {
-        "return_option": "Please select how you would like to return your equipment.",
-    }
-
-    return_option = forms.ChoiceField(
-        label="",
-        choices=RETURN_OPTIONS,
-        widget=forms.RadioSelect,
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Field.radios("return_option"),
-            Submit("submit", "Save and continue"),
-        )
-
-
-class LeaverDatesForm(BaseForm):
+class LeaverDatesForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "leaving_date": "Please enter the day, month and year of your leaving date.",
         "last_day": "Please enter the day, month and year of your last working day.",
         "leaver_manager": "Please select your line manager.",
+    }
+    required_error_messages_not_leaver: Dict[str, str] = {
+        "leaving_date": "Please enter the day, month and year of the leaver's leaving date.",
+        "last_day": "Please enter the day, month and year of the leaver's last working day.",
+        "leaver_manager": "Please select the leaver's line manager.",
     }
 
     leaving_date = DateInputField(label="")
     last_day = DateInputField(label="")
     leaver_manager = forms.CharField(label="", widget=forms.HiddenInput)
 
-    def __init__(
-        self, request: HttpRequest, leaving_request: LeavingRequest, *args, **kwargs
-    ):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        line_manager_legend = "Who is your line manager?"
+        line_manager_html = HTML(
+            "<p class='govuk-body'>Your line manager will confirm your leaving "
+            "date. They are responsible for offboarding you from DIT.</p>"
+            "<p class='govuk-body'>Add the person you report to if you do not "
+            "know who your line manager is.</p>"
+        )
+
+        last_day_legend = "When is your last working day?"
+        last_day_html = HTML(
+            "<p class='govuk-body'>This is the last day you will work for DIT. "
+            "After this day, you will not have access to any DIT systems and buildings.</p>"
+        )
+
+        leaving_date_legend = "When is your official leaving day?"
+        leaving_date_html = HTML(
+            "<p class='govuk-body'>This is the last day you will be employed "
+            "and paid by DIT.</p>"
+        )
+        if not self.user_is_leaver:
+            line_manager_legend = "Who is the leaver's line manager?"
+            line_manager_html = HTML(
+                "<p class='govuk-body'>The leaver's line manager will confirm "
+                "their leaving date. The line manger is responsible for "
+                "offboarding the leaver from DIT.</p>"
+            )
+
+            last_day_legend = "When is the leaver's last working day?"
+            last_day_html = HTML(
+                "<p class='govuk-body'>This is the last day that the leaver "
+                "will work for DIT. After this day, the leaver will not have "
+                "access to any DIT systems and buildings.</p>"
+            )
+
+            leaving_date_legend = "When is the leaver's official leaving day?"
+            leaving_date_html = HTML(
+                "<p class='govuk-body'>This is the last day that the leaver "
+                "will be employed and paid by DIT.</p>"
+            )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                HTML(
-                    "<p class='govuk-body'>Your line manager will confirm "
-                    "your leaving date. They are responsible for offboarding "
-                    "you from DIT.</p>"
-                    "<p class='govuk-body'>Add the person you report to if "
-                    "you do not know who your line manager is.</p>"
-                ),
+                line_manager_html,
                 *staff_search_autocomplete_field(
                     form=self,
-                    request=request,
+                    request=self.request,
                     field_name="leaver_manager",
                     search_url=reverse(
                         "leaver-manager-search",
-                        kwargs={"leaving_request_uuid": leaving_request.uuid},
+                        kwargs={"leaving_request_uuid": self.leaving_request.uuid},
                     ),
                     remove_text="Remove line manager",
                     remove_url=reverse(
                         "leaver-remove-line-manager",
-                        kwargs={"leaving_request_uuid": leaving_request.uuid},
+                        kwargs={"leaving_request_uuid": self.leaving_request.uuid},
                     ),
                 ),
-                legend="Who is your line manager?",
+                legend=line_manager_legend,
                 legend_size=Size.SMALL,
             ),
             Fieldset(
-                HTML(
-                    "<p class='govuk-body'>This is the last day you will work "
-                    "for DIT. After this day, you will not have access to any "
-                    "DIT systems and buildings.</p>"
-                ),
+                last_day_html,
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("last_day"),
-                legend="When is your last working day?",
+                legend=last_day_legend,
                 legend_size=Size.SMALL,
             ),
             Fieldset(
-                HTML(
-                    "<p class='govuk-body'>This is the last day you will be "
-                    "employed and paid by DIT.</p>"
-                ),
+                leaving_date_html,
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("leaving_date"),
-                legend="When is your official leaving day?",
+                legend=leaving_date_legend,
                 legend_size=Size.SMALL,
             ),
             Submit("submit", "Next"),
@@ -319,7 +350,7 @@ class LeaverDatesForm(BaseForm):
         today = timezone.now().date()
         yesterday = today - timedelta(days=1)
         leaving_date = self.cleaned_data["leaving_date"]
-        if yesterday > leaving_date:
+        if self.user_is_leaver and yesterday > leaving_date:
             raise forms.ValidationError(
                 "Leaving date must be in the future (or today)",
             )
@@ -333,15 +364,20 @@ class LeaverDatesForm(BaseForm):
         if last_day and leaving_date and last_day > leaving_date:
             self.add_error(
                 "last_day",
-                "Last working day must be before or on the same day as your leaving date.",
+                "Last working day must be before or on the same day as the leaving date.",
             )
 
 
-class LeaverHasAssetsForm(BaseForm):
+class LeaverHasAssetsForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "has_gov_procurement_card": "Please tell us if you have a GPC.",
         "has_rosa_kit": "Please tell us if you have ROSA kit.",
         "has_dse": "Please tell us if you have any IT equipment.",
+    }
+    required_error_messages_not_leaver: Dict[str, str] = {
+        "has_gov_procurement_card": "Please tell us if the leaver has a GPC.",
+        "has_rosa_kit": "Please tell us if the leaver has ROSA kit.",
+        "has_dse": "Please tell us if the leaver has any IT equipment.",
     }
 
     has_gov_procurement_card = YesNoField(label="")
@@ -351,36 +387,53 @@ class LeaverHasAssetsForm(BaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        has_gpc_legned = "Do you have a government procurement card (GPC)?"
+        has_rosa_legend = "Do you have ROSA equipment?"
+        has_dse_legend = "Do you have any IT equipment?"
+
+        if not self.user_is_leaver:
+            has_gpc_legned = "Does the leaver have a government procurement card (GPC)?"
+            has_rosa_legend = "Does the leaver have ROSA equipment?"
+            has_dse_legend = "Does the leaver have any IT equipment?"
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
                 Field.radios("has_gov_procurement_card", inline=False),
-                legend="Do you have a government procurement card (GPC)?",
+                legend=has_gpc_legned,
                 legend_size=Size.SMALL,
             ),
             Fieldset(
                 Field.radios("has_rosa_kit", inline=False),
-                legend="Do you have ROSA equipment?",
+                legend=has_rosa_legend,
                 legend_size=Size.SMALL,
             ),
             Fieldset(
                 Field.radios("has_dse", inline=False),
-                legend="Do you have any IT equipment?",
+                legend=has_dse_legend,
                 legend_size=Size.SMALL,
             ),
             Submit("submit", "Next"),
         )
 
 
-class HasCirrusKitForm(BaseForm):
+class HasCirrusKitForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "has_cirrus_kit": "Please tell us if you have Cirrus equipment.",
+    }
+    required_error_messages_not_leaver: Dict[str, str] = {
+        "has_cirrus_kit": "Please tell us if the leaver has Cirrus equipment.",
     }
 
     has_cirrus_kit = YesNoField(label="Do you have any Cirrus equipment?")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        if not self.user_is_leaver:
+            self.fields[
+                "has_cirrus_kit"
+            ].label = "Does the leaver have any Cirrus equipment?"
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -392,7 +445,7 @@ class HasCirrusKitForm(BaseForm):
         )
 
 
-class AddCirrusAssetForm(BaseForm):
+class AddCirrusAssetForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "asset_name": "Please enter a name for the asset you wish to add.",
     }
@@ -400,32 +453,12 @@ class AddCirrusAssetForm(BaseForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field.text("asset_name", field_width=Fluid.TWO_THIRDS),
             Button.secondary("submit", "Add"),
         )
-
-
-RETURN_OPTIONS = [
-    Choice(
-        ReturnOptions.OFFICE.value,
-        ReturnOptions.OFFICE.label,
-        hint=(
-            "On your last working day, return your Cirrus kit to OAB's Tech "
-            "Bar (on the 3rd floor). The Tech Bar is open Monday to Friday "
-            "from 10am to 4pm."
-        ),
-    ),
-    Choice(
-        ReturnOptions.HOME.value,
-        ReturnOptions.HOME.label,
-        hint=(
-            "We will send you a box with instructions to pack your Cirrus kit. "
-            "Your box will be collected by courier."
-        ),
-    ),
-]
 
 
 def radios_with_conditionals(*args, **kwargs) -> Field:
@@ -434,7 +467,7 @@ def radios_with_conditionals(*args, **kwargs) -> Field:
     return field
 
 
-class CirrusReturnFormNoAssets(BaseForm):
+class CirrusReturnFormNoAssets(LeaverJourneyBaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -444,7 +477,28 @@ class CirrusReturnFormNoAssets(BaseForm):
         )
 
 
-class CirrusReturnFormWithAssets(BaseForm):
+RETURN_OPTIONS = [
+    Choice(
+        ReturnOptions.OFFICE.value,
+        ReturnOptions.OFFICE.label,
+        hint=(
+            "On the last working day, return all of the equipment to the Cirrus "
+            "tech bar in Old Admiralty Building. Located on the 3rd floor the "
+            "tech bar is open from 9am to 5pm."
+        ),
+    ),
+    Choice(
+        ReturnOptions.HOME.value,
+        ReturnOptions.HOME.label,
+        hint=(
+            "We will send a box to return the Cirrus kit. This will be "
+            "collected by a courier, instructions will be included in the box."
+        ),
+    ),
+]
+
+
+class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "return_option": "Please select how you would like to return your equipment.",
         "office_personal_phone": "Please tell us your contact phone number.",
@@ -455,6 +509,17 @@ class CirrusReturnFormWithAssets(BaseForm):
         "home_address_city": "Please tell us your town or city.",
         "home_address_county": "Please tell us your county.",
         "home_address_postcode": "Please tell us your postcode.",
+    }
+    required_error_messages_not_leaver: Dict[str, str] = {
+        "return_option": "Please select how the leaver would like to return their equipment.",
+        "office_personal_phone": "Please tell us the leaver's contact phone number.",
+        "home_personal_phone": "Please tell us the leaver's contact phone number.",
+        "office_contact_email": "Please tell us the leaver's contact email.",
+        "home_contact_email": "Please tell us the leaver's contact email.",
+        "home_address_line_1": "Please tell us the first line of the leaver's address.",
+        "home_address_city": "Please tell us the leaver's town or city.",
+        "home_address_county": "Please tell us the leaver's county.",
+        "home_address_postcode": "Please tell us the leaver's postcode.",
     }
     return_option = forms.ChoiceField(
         label="",
@@ -478,10 +543,18 @@ class CirrusReturnFormWithAssets(BaseForm):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
+
+        return_option_legend = "How would you like to return your Cirrus kit?"
+
+        if not self.user_is_leaver:
+            return_option_legend = (
+                "How would the leaver like to return their Cirrus kit?"
+            )
+
         self.helper.layout = Layout(
             Fieldset(
                 radios_with_conditionals("return_option"),
-                legend="How would you like to return your Cirrus kit?",
+                legend=return_option_legend,
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
@@ -534,7 +607,7 @@ class CirrusReturnFormWithAssets(BaseForm):
                     id="home_address_postcode",
                     field_width=Fluid.TWO_THIRDS,
                 ),
-                legend="Address for courier to pick up your Cirrus kit",
+                legend="Address for courier to pick up the Cirrus kit",
                 legend_size=Size.SMALL,
                 css_class="radio-conditional-field conditional-return_option-home",
             ),
@@ -571,7 +644,7 @@ class CirrusReturnFormWithAssets(BaseForm):
                     self.cleaned_data.pop(return_option_field, None)
 
 
-class AddDisplayScreenEquipmentAssetForm(BaseForm):
+class AddDisplayScreenEquipmentAssetForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "asset_name": "Please enter a name for the asset you wish to add.",
     }
@@ -592,7 +665,7 @@ class AddDisplayScreenEquipmentAssetForm(BaseForm):
         )
 
 
-class SubmissionForm(forms.Form):
+class DisplayScreenEquipmentSubmissionForm(LeaverJourneyBaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -602,7 +675,7 @@ class SubmissionForm(forms.Form):
         )
 
 
-class LeaverContactDetailsForm(BaseForm):
+class LeaverContactDetailsForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "contact_phone": "Please tell us your personal phone number.",
         "contact_email_address": "Please tell us your personal email address.",
@@ -610,6 +683,14 @@ class LeaverContactDetailsForm(BaseForm):
         "contact_address_city": "Please tell us your town or city.",
         "contact_address_county": "Please tell us your county.",
         "contact_address_postcode": "Please tell us your postcode.",
+    }
+    required_error_messages_not_leaver: Dict[str, str] = {
+        "contact_phone": "Please tell us the leaver's personal phone number.",
+        "contact_email_address": "Please tell us the leaver's personal email address.",
+        "contact_address_line_1": "Please tell us the first line of the leaver's address.",
+        "contact_address_city": "Please tell us the leaver's town or city.",
+        "contact_address_county": "Please tell us the leaver's county.",
+        "contact_address_postcode": "Please tell us the leaver's postcode.",
     }
 
     contact_phone = forms.CharField(label="Personal phone number")
@@ -655,4 +736,14 @@ class LeaverContactDetailsForm(BaseForm):
                 field_width=Fluid.TWO_THIRDS,
             ),
             Submit("submit", "Next"),
+        )
+
+
+class LeaverConfirmationForm(LeaverJourneyBaseForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Submit("submit", "Accept and send"),
         )

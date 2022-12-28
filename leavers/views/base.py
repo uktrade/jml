@@ -21,6 +21,7 @@ from core.views import BaseTemplateView
 from leavers.forms import data_processor as data_processor_forms
 from leavers.forms.leaver import SecurityClearance
 from leavers.models import LeaverInformation, LeavingRequest
+from user.models import User
 
 
 class LeavingRequestListing(
@@ -354,12 +355,14 @@ class LeavingRequestViewMixin(View):
     leaver_activitystream_user: ActivityStreamStaffSSOUser
     leaving_request: LeavingRequest
     leaver_info: LeaverInformation
+    user_is_leaver: bool
 
     success_viewname: Optional[str] = None
     back_link_viewname: Optional[str] = None
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
+        user = cast(User, request.user)
 
         # 1 + len(prefetch_related) database queries
         self.leaving_request = (
@@ -374,6 +377,9 @@ class LeavingRequestViewMixin(View):
             self.leaving_request.leaver_activitystream_user
         )
         self.leaver_info = self.leaving_request.leaver_information.first()
+
+        user_sso_user = user.get_sso_user()
+        self.user_is_leaver = user_sso_user == self.leaver_activitystream_user
 
     def get_view_url(self, viewname, *args, **kwargs):
         kwargs.update(leaving_request_uuid=self.leaving_request.uuid)
@@ -401,6 +407,7 @@ class LeavingRequestViewMixin(View):
     def get_context_data(self, **kwargs):
         context = {
             "leaving_request": self.leaving_request,
+            "user_is_leaver": self.user_is_leaver,
         }
 
         return super().get_context_data(**kwargs) | context

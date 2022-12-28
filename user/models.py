@@ -45,7 +45,7 @@ class User(AbstractUser):
     def is_in_group(self, group_name: GroupName) -> bool:
         return self.groups.filter(name=group_name.value).exists()
 
-    def get_sso_user(self):
+    def get_sso_user(self) -> ActivityStreamStaffSSOUser:
         return ActivityStreamStaffSSOUser.objects.active().get(
             email_user_id=self.sso_email_user_id,
         )

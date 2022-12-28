@@ -10,10 +10,16 @@ class LeavingRequestListingSearchForm(forms.Form):
         required=False,
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, full_width: bool = False, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
+
+        if full_width:
+            query_field = Field.text("query")
+        else:
+            query_field = Field.text("query", field_width=Fluid.ONE_QUARTER)
+
         self.helper.layout = Layout(
-            Field.text("query", field_width=Fluid.ONE_QUARTER),
+            query_field,
             Submit("submit", "Search"),
         )

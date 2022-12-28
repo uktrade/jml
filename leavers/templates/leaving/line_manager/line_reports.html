@@ -1,6 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
 {% load static crispy_forms_tags crispy_forms_gds %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
@@ -10,7 +9,7 @@
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <span class="govuk-caption-l">Page 3 of {{ page_count }}</span>
+            {% if user_is_line_manager %}<span class="govuk-caption-l">Page 3 of {{ page_count }}</span>{% endif %}
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             {% include "leaving/line_manager/includes/staff_card.html" with staff_details=leaver %}
             <p class="govuk-body">
@@ -59,8 +58,6 @@
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% crispy form %}
-        </div>
+        <div class="govuk-grid-column-full">{% crispy form %}</div>
     </div>
 {% endblock content %}
