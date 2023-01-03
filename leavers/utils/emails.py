@@ -14,6 +14,21 @@ from leavers.models import LeaverInformation, LeavingRequest
 from leavers.types import DisplayScreenEquipmentAsset
 
 
+def get_name_list_personalisation(
+    leaving_requests: QuerySet[LeavingRequest],
+) -> Dict[str, str]:
+    """
+    Build the personalisation dictionary for the email
+    displaying a list of leavers
+    """
+    leaver_name_list_string = ""
+    for leaving_request in leaving_requests:
+        leaver_name_list_string += f"* {leaving_request.get_leaver_name()}\n"
+    personalisation: Dict[str, str] = {}
+    personalisation.update(leaver_name_list=leaver_name_list_string)
+    return personalisation
+
+
 def get_leaving_request_email_personalisation(
     leaving_request: LeavingRequest,
 ) -> Dict[str, str]:
@@ -583,7 +598,7 @@ def send_feetham_security_pass_office_email(
     )
 
 
-def send_leaver_pay_cut_off_reminder(
+def send_leaver_list_pay_cut_off_reminder(
     leaving_requests: QuerySet[LeavingRequest],
     template_id: Optional[notify.EmailTemplates] = None,
 ):
@@ -593,15 +608,14 @@ def send_leaver_pay_cut_off_reminder(
     """
     if leaving_requests.count() == 0:
         return
-    leaver_name_list_string = ""
-    for leaving_request in leaving_requests:
-        leaver_name_list_string += f"* {leaving_request.get_leaver_name()}\n"
-    personalisation: Dict[str, str] = {}
-    personalisation.update(leaver_name_list=leaver_name_list_string)
-    print(f"==== {leaver_name_list_string}")
-    # HR Email
+
+    if not settings.HR_UKSBS_CORRECTION_EMAIL:
+        raise ValueError("HR_UKSBS_CORRECTION_EMAIL is not set")
+
+    personalisation = get_name_list_personalisation(leaving_requests)
+
     notify.email(
         email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],
         template_id=notify.EmailTemplates.LEAVER_IN_PAY_CUT_OFF_HR_EMAIL,
-        personalisation=personalisation | {"recipient_name": "HR Team"},
+        personalisation=personalisation,
     )
