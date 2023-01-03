@@ -176,9 +176,16 @@ class LineManagerDetailsForm(BaseForm):
                 )
 
             try:
-                float(annual_number)
+                annual_number_float = float(annual_number)
             except ValueError:
-                raise ValidationError("This field must be a number")
+                raise ValidationError("This value must be a number")
+
+            decimal = annual_number_float - int(annual_number_float)
+            if decimal not in [0.0, 0.25, 0.5, 0.75]:
+                raise ValidationError(
+                    "This value must end with one of .00, .25, .50 or .75"
+                )
+
         else:
             if annual_number:
                 raise ValidationError(
@@ -198,9 +205,15 @@ class LineManagerDetailsForm(BaseForm):
                 )
 
             try:
-                float(flexi_number)
+                flexi_number_float = float(flexi_number)
             except ValueError:
-                raise ValidationError("This field must be a number")
+                raise ValidationError("This value must be a number")
+
+            decimal = flexi_number_float - int(flexi_number_float)
+            if decimal not in [0.0, 0.25, 0.5, 0.75]:
+                raise ValidationError(
+                    "This value must end with one of .00, .25, .50 or .75"
+                )
         else:
             if flexi_number:
                 raise ValidationError(
