@@ -69,6 +69,10 @@ class LineManagerDetailsForm(BaseForm):
     annual_number = forms.CharField(
         label="",
         required=False,
+        help_text=(
+            "Accepts a decimal value in increments of 0.25 (e.g. 1.25, 2.5, "
+            "3.75, 4.0)"
+        ),
     )
 
     flexi_leave = forms.ChoiceField(
@@ -79,6 +83,10 @@ class LineManagerDetailsForm(BaseForm):
     flexi_number = forms.CharField(
         label="",
         required=False,
+        help_text=(
+            "Accepts a decimal value in increments of 0.25 (e.g. 1.25, 2.5, "
+            "3.75, 4.0)"
+        ),
     )
 
     def __init__(self, leaver_name: str, *args, **kwargs):
