@@ -152,14 +152,24 @@ class LeavingRequest(models.Model):
         blank=True,
         null=True,
     )
-    annual_number = models.IntegerField(null=True, blank=True)
+    annual_number = models.DecimalField(
+        decimal_places=2,
+        max_digits=7,
+        null=True,
+        blank=True,
+    )
     flexi_leave = models.CharField(
         choices=FlexiLeavePaidOrDeducted.choices,
         max_length=255,
         blank=True,
         null=True,
     )
-    flexi_number = models.IntegerField(null=True, blank=True)
+    flexi_number = models.DecimalField(
+        decimal_places=2,
+        max_digits=7,
+        null=True,
+        blank=True,
+    )
 
     line_reports = models.JSONField(null=True, blank=True)
 

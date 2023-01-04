@@ -626,6 +626,7 @@ class DetailsView(LineManagerViewMixin, FormView, BaseTemplateView):
             )
         if form.cleaned_data["flexi_number"]:
             self.leaving_request.flexi_number = float(form.cleaned_data["flexi_number"])
+
         self.leaving_request.save()
 
         return super().form_valid(form)

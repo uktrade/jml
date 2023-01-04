@@ -69,6 +69,10 @@ class LineManagerDetailsForm(BaseForm):
     annual_number = forms.CharField(
         label="",
         required=False,
+        help_text=(
+            "Accepts a decimal value in increments of 0.25 (e.g. 1.25, 2.5, "
+            "3.75, 4.0)"
+        ),
     )
 
     flexi_leave = forms.ChoiceField(
@@ -79,6 +83,10 @@ class LineManagerDetailsForm(BaseForm):
     flexi_number = forms.CharField(
         label="",
         required=False,
+        help_text=(
+            "Accepts a decimal value in increments of 0.25 (e.g. 1.25, 2.5, "
+            "3.75, 4.0)"
+        ),
     )
 
     def __init__(self, leaver_name: str, *args, **kwargs):
@@ -176,9 +184,13 @@ class LineManagerDetailsForm(BaseForm):
                 )
 
             try:
-                float(annual_number)
+                annual_number_float = float(annual_number)
             except ValueError:
-                raise ValidationError("This field must be a number")
+                raise ValidationError("This value must be a number")
+
+            if annual_number_float % 0.25 != 0.0:
+                raise ValidationError("This value must be given in intervals of .25")
+
         else:
             if annual_number:
                 raise ValidationError(
@@ -198,9 +210,12 @@ class LineManagerDetailsForm(BaseForm):
                 )
 
             try:
-                float(flexi_number)
+                flexi_number_float = float(flexi_number)
             except ValueError:
-                raise ValidationError("This field must be a number")
+                raise ValidationError("This value must be a number")
+
+            if flexi_number_float % 0.25 != 0.0:
+                raise ValidationError("This value must be given in intervals of .25")
         else:
             if flexi_number:
                 raise ValidationError(
