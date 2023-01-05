@@ -128,7 +128,7 @@ LeaversWorkflow = Workflow(
                 "notify_clu4_of_leaving",
                 "notify_ocs_of_leaving",
                 "notify_ocs_of_oab_locker",
-                "should_notify_comea_team",
+                "should_notify_comaea_team",
                 "send_security_bp_notification",
                 "send_security_rk_notification",
                 "send_sre_notification",
@@ -220,25 +220,25 @@ LeaversWorkflow = Workflow(
                 "email_id": EmailIds.OCS_OAB_LOCKER_EMAIL.value,
             },
         ),
-        # COMEA team
+        # COMAEA team
         Step(
-            step_id="should_notify_comea_team",
+            step_id="should_notify_comaea_team",
             task_name="pause_task",
             targets=[
-                "notify_comea_team",
+                "notify_comaea_team",
             ],
             task_info={
                 "pass_condition": "after_leaving_date",
             },
         ),
         Step(
-            step_id="notify_comea_team",
+            step_id="notify_comaea_team",
             task_name="notification_email",
             targets=[
                 "are_all_tasks_complete",
             ],
             task_info={
-                "email_id": EmailIds.COMEA_EMAIL.value,
+                "email_id": EmailIds.COMAEA_EMAIL.value,
             },
         ),
         # SECURITY (Building Pass)

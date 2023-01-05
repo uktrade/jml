@@ -24,7 +24,7 @@ def update_workflows(apps, schema_editor):
 
         new_step = None
         for step in workflow.steps:
-            if step.step_id == "should_notify_comea_team":
+            if step.step_id == "should_notify_comaea_team":
                 new_step = step
                 break
 

@@ -29,7 +29,7 @@
 | SECURITY_TEAM_VETTING_EMAIL                                      | None                                        | Email address for the Security Team (vetting)                                                          |
 | SRE_EMAIL                                                        | None                                        | Email address for the SRE Team                                                                         |
 | HR_UKSBS_CORRECTION_EMAIL                                        | None                                        | Email address for the HR Team member that deals with UK SBS corrections                                |
-| COMEA_EMAIL                                                      | None                                        | Email address for the COMEA team                                                                       |
+| COMAEA_EMAIL                                                      | None                                        | Email address for the COMAEA team                                                                       |
 | DIT_OFFBOARDING_EMAIL                                            | ''                                          |                                                                                                        |
 | JML_TEAM_CONTACT_EMAIL                                           | ''                                          |                                                                                                        |
 | JML_TEAM_EMAILS                                                  | []                                          |                                                                                                        |
@@ -63,7 +63,7 @@
 | TEMPLATE_ID_IT_OPS_ASSET_EMAIL                                   | None                                        |                                                                                                        |
 | TEMPLATE_ID_OCS_LEAVER_EMAIL                                     | None                                        |                                                                                                        |
 | TEMPLATE_ID_OCS_OAB_LOCKER_EMAIL                                 | None                                        |                                                                                                        |
-| TEMPLATE_ID_COMEA_EMAIL                              | None                                        |                                                                                                        |
+| TEMPLATE_ID_COMAEA_EMAIL                              | None                                        |                                                                                                        |
 | TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_BP_LEAVER_EMAIL               | None                                        |                                                                                                        |
 | TEMPLATE_ID_SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD          | None                                        |                                                                                                        |
 | TEMPLATE_ID_SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD     | None                                        |                                                                                                        |

@@ -239,7 +239,7 @@ def send_ocs_oab_locker_email(
     )
 
 
-def send_comea_email(
+def send_comaea_email(
     leaving_request: LeavingRequest,
     template_id: Optional[notify.EmailTemplates] = None,
 ):
@@ -247,14 +247,14 @@ def send_comea_email(
     Send OCS OAB Locker email.
     """
 
-    if not settings.COMEA_EMAIL:
-        raise ValueError("COMEA_EMAIL is not set")
+    if not settings.COMAEA_EMAIL:
+        raise ValueError("COMAEA_EMAIL is not set")
 
     personalisation = get_leaving_request_email_personalisation(leaving_request)
 
     notify.email(
-        email_addresses=[settings.COMEA_EMAIL],
-        template_id=notify.EmailTemplates.COMEA_EMAIL,
+        email_addresses=[settings.COMAEA_EMAIL],
+        template_id=notify.EmailTemplates.COMAEA_EMAIL,
         personalisation=personalisation,
     )
 
