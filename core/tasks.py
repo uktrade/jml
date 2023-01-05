@@ -4,7 +4,6 @@ from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
 
 from activity_stream.utils import ingest_activity_stream
-from celery import shared_task
 from config.celery import celery_app
 from core.people_data.utils import ingest_people_data
 from core.people_finder.utils import ingest_people_finder
@@ -42,8 +41,26 @@ def progress_workflow(self, flow_pk: str):
             logger.warning(f"{e}")
 
 
-ingest_activity_stream_task = shared_task(ingest_activity_stream)
-index_sso_users_task = shared_task(index_sso_users)
-ingest_people_data_task = shared_task(ingest_people_data)
-ingest_people_finder_task = shared_task(ingest_people_finder)
-ingest_service_now_task = shared_task(ingest_service_now)
+@celery_app.task(bind=True)
+def ingest_activity_stream_task():
+    ingest_activity_stream()
+
+
+@celery_app.task(bind=True)
+def index_sso_users_task():
+    index_sso_users()
+
+
+@celery_app.task(bind=True)
+def ingest_people_data_task():
+    ingest_people_data()
+
+
+@celery_app.task(bind=True)
+def ingest_people_finder_task():
+    ingest_people_finder()
+
+
+@celery_app.task(bind=True)
+def ingest_service_now_task():
+    ingest_service_now()
