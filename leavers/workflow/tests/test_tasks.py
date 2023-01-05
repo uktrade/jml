@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import List
+from typing import List, cast
 from unittest import mock
 
 from django.test import TestCase
 from django.utils.timezone import make_aware
+from django_workflow_engine.models import Flow, TaskRecord
 from freezegun import freeze_time
 
 from leavers.factories import (
@@ -31,15 +32,21 @@ class TestSkipConditions(TestCase):
     def setUp(self):
         self.user = UserFactory()
 
-        self.flow = FlowFactory(executed_by=self.user)
-        self.task_record = TaskRecordFactory(executed_by=self.user, flow=self.flow)
-        self.leaving_request: LeavingRequest = LeavingRequestFactory(
-            last_day=make_aware(datetime(2021, 12, 25)),
+        self.flow = cast(Flow, FlowFactory(executed_by=self.user))
+        self.task_record = cast(
+            TaskRecord, TaskRecordFactory(executed_by=self.user, flow=self.flow)
         )
-        self.leaver_information: LeaverInformation = LeaverInformationFactory(
-            leaving_request=self.leaving_request
+        self.leaving_request = cast(
+            LeavingRequest,
+            LeavingRequestFactory(
+                last_day=make_aware(datetime(2021, 12, 25)),
+            ),
         )
-        self.flow.leaving_request = self.leaving_request
+        self.leaver_information = cast(
+            LeaverInformation,
+            LeaverInformationFactory(leaving_request=self.leaving_request),
+        )
+        setattr(self.flow, "leaving_request", self.leaving_request)
         self.flow.save()
 
         self.task = ReminderEmail(

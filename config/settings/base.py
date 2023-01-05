@@ -393,6 +393,9 @@ SRE_EMAIL = env("SRE_EMAIL", default=None)
 # HR Team Settings
 HR_UKSBS_CORRECTION_EMAIL = env("HR_UKSBS_CORRECTION_EMAIL", default=None)
 
+# COMAEA Team Settings
+COMAEA_EMAIL = env("COMAEA_EMAIL", default=None)
+
 # GOV.UK Notify
 GOVUK_NOTIFY_API_KEY = env("GOVUK_NOTIFY_API_KEY", default=None)
 

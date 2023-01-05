@@ -38,6 +38,7 @@ These are notification emails sent to the processor:
 | IT Ops Leaver Notification Email | TEMPLATE_ID_IT_OPS_ASSET_EMAIL | This email is sent to the IT Ops team to inform them of the leaver and their reported assets. |
 | OCS Leaver Notification Email | TEMPLATE_ID_OCS_LEAVER_EMAIL | This email is sent to OCS to inform them of the leaver. |
 | OCS Leaver OAB Locker Email | TEMPLATE_ID_OCS_OAB_LOCKER_EMAIL | This email is sent to the OAB Locker team to inform them of the leaver. |
+| OCS Leaver OAB Locker Email | TEMPLATE_ID_COMAEA_EMAIL | This email is sent to the OAB Locker team to inform them of the leaver. |
 
 ### Processor reminder logic
 

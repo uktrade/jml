@@ -106,11 +106,12 @@ class PeopleDataInterface(PeopleDataBase):
 
                 for row in results:
                     # We need to keep this in sync with the SQL query above.
-                    yield {
+                    people_data: types.PeopleData = {
                         "email_address": row[0],
                         "employee_numbers": row[1],
                         "uksbs_person_id": row[2],
                     }
+                    yield people_data
 
     def get_emails_with_multiple_person_ids(self) -> List[str]:
         with connections["people_data"].cursor() as cursor:

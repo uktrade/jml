@@ -109,6 +109,7 @@ class TestLeaversWorkflow(TestCase):
                 "notify_clu4_of_leaving",
                 "notify_ocs_of_leaving",
                 "notify_ocs_of_oab_locker",
+                "should_notify_comaea_team",
                 "send_security_bp_notification",
                 "send_security_rk_notification",
                 "send_sre_notification",
@@ -137,6 +138,12 @@ class TestLeaversWorkflow(TestCase):
             ["are_all_tasks_complete"],
         ],
         "notify_ocs_of_oab_locker": [
+            ["are_all_tasks_complete"],
+        ],
+        "should_notify_comaea_team": [
+            ["notify_comaea_team"],
+        ],
+        "notify_comaea_team": [
             ["are_all_tasks_complete"],
         ],
         "send_security_bp_notification": [
@@ -312,6 +319,7 @@ class TestLeaversWorkflow(TestCase):
             "notify_clu4_of_leaving",
             "notify_ocs_of_leaving",
             "notify_ocs_of_oab_locker",
+            "should_notify_comaea_team",
             "send_security_bp_notification",
             "send_security_rk_notification",
             "has_line_manager_updated_service_now",
@@ -320,6 +328,7 @@ class TestLeaversWorkflow(TestCase):
             "send_line_manager_offline_service_now_reminder",
             "have_security_carried_out_rk_leaving_tasks",
             "have_security_carried_out_bp_leaving_tasks",
+            "notify_comaea_team",
             "are_all_tasks_complete",
         ]
         self.check_tasks(expected_tasks=expected_tasks)
