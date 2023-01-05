@@ -23,7 +23,7 @@ services:
     volumes:
       - ./setup/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -66,7 +66,7 @@ services:
       - db
       - redis
       - opensearch
-    restart: always
+    restart: unless-stopped
     stdin_open: true
     tty: true
 
