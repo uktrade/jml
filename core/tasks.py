@@ -42,25 +42,25 @@ def progress_workflow(self, flow_pk: str):
 
 
 @celery_app.task(bind=True)
-def ingest_activity_stream_task():
+def ingest_activity_stream_task(self):
     ingest_activity_stream()
 
 
 @celery_app.task(bind=True)
-def index_sso_users_task():
+def index_sso_users_task(self):
     index_sso_users()
 
 
 @celery_app.task(bind=True)
-def ingest_people_data_task():
+def ingest_people_data_task(self):
     ingest_people_data()
 
 
 @celery_app.task(bind=True)
-def ingest_people_finder_task():
+def ingest_people_finder_task(self):
     ingest_people_finder()
 
 
 @celery_app.task(bind=True)
-def ingest_service_now_task():
+def ingest_service_now_task(self):
     ingest_service_now()
