@@ -1,5 +1,4 @@
 {% extends "leaving/leaving_base.html" %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -18,6 +17,23 @@
                         <td class="govuk-table__cell">
                             {% if pass_destroyed %}
                                 <strong class="govuk-tag govuk-tag--green">Destroyed</strong>
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">Pending</strong>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">Manage security clearance</td>
+                        <td class="govuk-table__cell">
+                            {% if security_clearance_status %}
+                                {% if security_clearance_status.value == "lapsed" or security_clearance_status.value == "other" %}
+                                    <strong class="govuk-tag govuk-tag--green">
+                                        {{ security_clearance_status.label }}
+                                        {% if security_clearance_other_value %}({{ security_clearance_other_value }}){% endif %}
+                                    </strong>
+                                {% else %}
+                                    <strong class="govuk-tag govuk-tag--blue">{{ security_clearance_status.label }}</strong>
+                                {% endif %}
                             {% else %}
                                 <strong class="govuk-tag govuk-tag--blue">Pending</strong>
                             {% endif %}

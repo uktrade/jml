@@ -134,6 +134,7 @@ COLOUR_YELLOW=\033[33;01
 COMAEA
 COMAEA Team Settings
 Compile SCSS
+complete</a>
 component](
 confirm_leaver_data
 contact_address_line_1
@@ -479,6 +480,7 @@ Running MkDocs
 Security
 SECURITY
 Security Team
+security_clearance_status_task_log
 security_pass_disabled_task_log
 security_team_building_pass_complete
 SECURITY_TEAM_VETTING_EMAIL

@@ -1,8 +1,11 @@
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Div, Field, Layout, Size, Submit
+from crispy_forms_gds.layout import HTML, Div, Field, Fieldset, Layout, Size, Submit
 from django import forms
 from django.db.models.enums import TextChoices
 from django.urls import reverse
+
+from leavers.forms.leaver import radios_with_conditionals
+from leavers.types import SecurityClearance
 
 
 class AddTaskNoteForm(forms.Form):
@@ -27,6 +30,79 @@ class AddTaskNoteForm(forms.Form):
                 css_class="govuk-button--secondary",
             ),
         )
+
+
+class ClearanceStatus(TextChoices):
+    ACTIVE = "active", "Active"
+    LAPSED = "lapsed", "Lapsed"
+    PAUSED = "paused", "Paused"
+    OTHER = "other", "Other"
+
+
+class SecurityClearanceForm(forms.Form):
+    clearance_level = forms.ChoiceField(
+        label="",
+        choices=SecurityClearance.choices,
+    )
+    status = forms.ChoiceField(
+        label="",
+        choices=ClearanceStatus.choices,
+        widget=forms.RadioSelect,
+    )
+    other_value = forms.CharField(
+        label="",
+        required=False,
+    )
+
+    def __init__(self, leaving_request_uuid: str, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        cancel_url = reverse(
+            "security-team-building-pass-confirmation",
+            args=[leaving_request_uuid],
+        )
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(
+                Field("clearance_level"),
+                legend="Security clearance level",
+                legend_size=Size.MEDIUM,
+            ),
+            Fieldset(
+                radios_with_conditionals("status"),
+                legend="Clearance status",
+                legend_size=Size.MEDIUM,
+            ),
+            Field(
+                "other_value",
+                legend_size=Size.MEDIUM,
+                css_class="radio-conditional-field conditional-status-other",
+            ),
+            Div(
+                Submit(
+                    "submit",
+                    "Save",
+                ),
+                HTML(
+                    f"<a href='{cancel_url}' class='govuk-button govuk-button--secondary' "
+                    "data-module='govuk-button'>Cancel</a>"
+                ),
+                css_class="govuk-button-group",
+            ),
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        status = cleaned_data.get("status")
+        other_value = cleaned_data.get("other_value")
+        if status == ClearanceStatus.OTHER.value and not other_value:
+            self.add_error(
+                "other_value",
+                "A value must be provided when selecting 'Other'",
+            )
+
+        return cleaned_data
 
 
 class BuildingPassStatus(TextChoices):
