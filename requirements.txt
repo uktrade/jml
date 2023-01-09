@@ -17,6 +17,7 @@ colorama==0.4.6 ; python_version >= "3.10" and python_version < "4.0" and platfo
 crispy-forms-gds==0.2.4 ; python_version >= "3.10" and python_version < "4.0"
 dataclasses-json==0.5.7 ; python_version >= "3.10" and python_version < "4.0"
 detect-secrets==1.4.0 ; python_version >= "3.10" and python_version < "4.0"
+dit-activity-stream==0.1.0 ; python_version >= "3.10" and python_version < "4.0"
 django-audit-log-middleware==0.0.4 ; python_version >= "3.10" and python_version < "4.0"
 django-celery-beat==2.4.0 ; python_version >= "3.10" and python_version < "4.0"
 django-celery-results==2.4.0 ; python_version >= "3.10" and python_version < "4.0"

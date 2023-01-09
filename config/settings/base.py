@@ -441,6 +441,10 @@ LSD_HELP_DESK_LIVE = env.bool("LSD_HELP_DESK_LIVE", default=True)
 # getAddress() API
 GETADDRESS_TOKEN = env("GETADDRESS_TOKEN")
 
+DIT_ACTIVITY_STREAM_CLIENT_CLASS = (
+    "core.activity_stream.client.ActivityStreamLeavingRequestClient"
+)
+
 # Content
 JML_LEAVING_DIT_GUIDANCE_URL = env("JML_LEAVING_DIT_GUIDANCE_URL", default="")
 PERFORMANCE_REVIEW_URL = env("PERFORMANCE_REVIEW_URL", default=None)
