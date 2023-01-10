@@ -1,6 +1,8 @@
 import logging
 from typing import List
 
+from django.conf import settings
+
 from activity_stream import models, staff_sso
 
 logger = logging.getLogger(__name__)
@@ -65,6 +67,7 @@ def ingest_activity_stream() -> None:
 
     # Mark the Activity Stream SSO objects that are no longer in the
     # Activity Stream.
-    models.ActivityStreamStaffSSOUser.objects.exclude(
-        id__in=created_updated_ids
-    ).update(available=False)
+    if settings.APP_ENV == "production":
+        models.ActivityStreamStaffSSOUser.objects.exclude(
+            id__in=created_updated_ids
+        ).update(available=False)
