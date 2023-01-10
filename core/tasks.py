@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db.models.query import QuerySet
 from django_workflow_engine.exceptions import WorkflowNotAuthError
 from django_workflow_engine.executor import WorkflowExecutor
@@ -63,4 +64,5 @@ def ingest_people_finder_task(self):
 
 @celery_app.task(bind=True)
 def ingest_service_now_task(self):
-    ingest_service_now()
+    if settings.SERVICE_NOW_ENABLE_ONLINE_PROCESS:
+        ingest_service_now()
