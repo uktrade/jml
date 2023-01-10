@@ -1,3 +1,5 @@
+from typing import Dict
+
 from django.urls import URLPattern, URLResolver, include, path, reverse_lazy
 from django.views.generic.base import RedirectView
 from django_workflow_engine import workflow_urls
@@ -353,8 +355,28 @@ workflow_urlpatterns = [
     ),
 ]
 
+# Redirect URL to new URL name.
+redirect_mapping: Dict[str, str] = {
+    "line-manager/uuid:leaving_request_uuid/information/": "line-manager-start",
+    "line-manager/uuid:leaving_request_uuid/thank-you/": "line-manager-thank-you",
+    "line-manager/uuid:leaving_request_uuid/offline-service-now/details/": (
+        "line-manager-offline-service-now-details"
+    ),
+    "leaver/security-team/uuid:leaving_request_uuid/building-pass/": (
+        "security-team-building-pass-confirmation"
+    ),
+    "leaver/security-team/uuid:leaving_request_uuid/rosa-kit/": (
+        "security-team-rosa-kit-confirmation"
+    ),
+    "leaver/sre/uuid:leaving_request_uuid/": "sre-detail",
+}
 
-urlpatterns = [
+redirect_urlpatterns = [
+    path(p, RedirectView.as_view(pattern_name=new_name))
+    for p, new_name in redirect_mapping.items()
+]
+
+urlpatterns = redirect_urlpatterns + [
     path("", RedirectView.as_view(url=reverse_lazy("start")), name="leavers-root"),
     path("start/", leaver_views.LeaversStartView.as_view(), name="start"),
     # leaving request
