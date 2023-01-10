@@ -468,7 +468,10 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
                 "staff-type",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
-            LeavingReason.RETIREMENT: reverse_lazy("leaving-reason-unhandled"),
+            LeavingReason.RETIREMENT: reverse_lazy(
+                "leaving-reason-unhandled",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            ),
             LeavingReason.TRANSFER: reverse_lazy(
                 "staff-type",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
@@ -489,7 +492,10 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
         if self.leaving_reason in reason_mapping:
             return reason_mapping[self.leaving_reason]
 
-        return reverse("leaving-reason-unhandled")
+        return reverse(
+            "leaving-reason-unhandled",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

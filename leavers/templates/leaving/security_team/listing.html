@@ -1,6 +1,7 @@
 {% extends "leaving/leaving_base.html" %}
 {% load crispy_forms_tags crispy_forms_gds %}
-
+{% block container_class_names %}
+{% endblock container_class_names %}
 {% block primary_navigation %}
     <div class="moj-primary-navigation">
         <div class="govuk-width-container app-width-container">
@@ -9,10 +10,14 @@
                     <nav class="moj-primary-navigation" aria-label="Primary navigation">
                         <ul class="moj-primary-navigation__list">
                             <li class="moj-primary-navigation__item">
-                                <a class="moj-primary-navigation__link" {% if security_role.value == "bp" %}aria-current="page"{% endif %} href='{% url "security-team-listing-incomplete" %}?security-role=bp'>Building pass requests</a>
+                                <a class="moj-primary-navigation__link"
+                                    {% if security_role.value == "bp" %}aria-current="page"{% endif %}
+                                    href='{% url "security-team-listing-incomplete" %}?security-role=bp'>Building pass requests</a>
                             </li>
                             <li class="moj-primary-navigation__item">
-                                <a class="moj-primary-navigation__link" {% if security_role.value == "rk" %}aria-current="page"{% endif %} href='{% url "security-team-listing-incomplete" %}?security-role=rk'>ROSA Kit requests</a>
+                                <a class="moj-primary-navigation__link"
+                                    {% if security_role.value == "rk" %}aria-current="page"{% endif %}
+                                    href='{% url "security-team-listing-incomplete" %}?security-role=rk'>ROSA Kit requests</a>
                             </li>
                         </ul>
                     </nav>
@@ -21,15 +26,11 @@
         </div>
     </div>
 {% endblock primary_navigation %}
-
 {% block content %}
     <div class="govuk-width-container">
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% error_summary form %}
-            </div>
+            <div class="govuk-grid-column-full">{% error_summary form %}</div>
         </div>
-
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-l">{{ page_title }}</h1>
@@ -39,21 +40,16 @@
             </div>
         </div>
     </div>
-
     <div class="govuk-tabs govuk-!-margin-left-9 govuk-!-margin-right-9">
-        <h2 class="govuk-tabs__title">
-            Contents
-        </h2>
+        <h2 class="govuk-tabs__title">Contents</h2>
         <ul class="govuk-tabs__list">
             <li class="govuk-tabs__list-item {% if show_incomplete %}govuk-tabs__list-item--selected{% endif %}">
-                <a class="govuk-tabs__tab" href='{% url "security-team-listing-incomplete" %}'>
-                    Waiting
-                </a>
+                <a class="govuk-tabs__tab"
+                    href='{% url "security-team-listing-incomplete" %}'>Waiting</a>
             </li>
             <li class="govuk-tabs__list-item {% if show_complete %}govuk-tabs__list-item--selected{% endif %}">
-                <a class="govuk-tabs__tab" href='{% url "security-team-listing-complete" %}'>
-                    Completed
-                </a>
+                <a class="govuk-tabs__tab"
+                    href='{% url "security-team-listing-complete" %}'>Completed</a>
             </li>
         </ul>
         <div class="govuk-tabs__panel">

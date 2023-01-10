@@ -113,12 +113,12 @@ leaving_request_security_urlpatterns = [
         name="security-team-building-pass-confirmation",
     ),
     path(
-        "leaver/security-team/<uuid:leaving_request_id>/security-clearance/edit/",
+        "security-clearance/edit/",
         security_team_views.SecurityClearanceConfirmationEditView.as_view(),
         name="security-team-security-clearance-confirmation-edit",
     ),
     path(
-        "leaver/security-team/<uuid:leaving_request_id>/building-pass/edit/",
+        "building-pass/edit/",
         security_team_views.BuildingPassConfirmationEditView.as_view(),
         name="security-team-building-pass-confirmation-edit",
     ),

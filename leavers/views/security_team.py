@@ -240,7 +240,7 @@ class BuildingPassConfirmationEditView(SecurityViewMixin, FormView):
     back_link_text = "Back to Building pass requests"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        set_security_role(request=request, role=SecuritySubRole.ROSA_KIT)
+        set_security_role(request=request, role=SecuritySubRole.BUILDING_PASS)
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -408,7 +408,7 @@ class SecurityClearanceConfirmationEditView(SecurityViewMixin, FormView):
         )
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        set_security_role(request=request, role=SecuritySubRole.ROSA_KIT)
+        set_security_role(request=request, role=SecuritySubRole.BUILDING_PASS)
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
