@@ -287,6 +287,20 @@ class LeavingRequest(models.Model):
         null=True,
         blank=True,
     )
+    security_clearance_status = models.OneToOneField(
+        TaskLog,
+        on_delete=models.CASCADE,
+        related_name="security_clearance_status_task_log",
+        null=True,
+        blank=True,
+    )
+    security_clearance_level = models.OneToOneField(
+        TaskLog,
+        on_delete=models.CASCADE,
+        related_name="security_clearance_level_task_log",
+        null=True,
+        blank=True,
+    )
     security_team_building_pass_complete = models.DateTimeField(null=True, blank=True)
 
     rosa_mobile_returned = models.OneToOneField(

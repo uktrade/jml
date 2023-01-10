@@ -1,5 +1,4 @@
 {% extends "leaving/leaving_base.html" %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
@@ -23,6 +22,23 @@
                             {% endif %}
                         </td>
                     </tr>
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">Manage security clearance</td>
+                        <td class="govuk-table__cell">
+                            {% if security_clearance_status %}
+                                {% if security_clearance_status.value == "lapsed" or security_clearance_status.value == "other" %}
+                                    <strong class="govuk-tag govuk-tag--green">
+                                        {{ security_clearance_status.label }}
+                                        {% if security_clearance_other_value %}({{ security_clearance_other_value }}){% endif %}
+                                    </strong>
+                                {% else %}
+                                    <strong class="govuk-tag govuk-tag--blue">{{ security_clearance_status.label }}</strong>
+                                {% endif %}
+                            {% else %}
+                                <strong class="govuk-tag govuk-tag--blue">Pending</strong>
+                            {% endif %}
+                        </td>
+                    </tr>
                     {% for rosa_kit_task in rosa_kit_tasks %}
                         <tr class="govuk-table__row">
                             <td class="govuk-table__cell">{{ rosa_kit_task.name }}</td>
@@ -37,13 +53,15 @@
                 <a href="{% url 'security-team-building-pass-confirmation' leaving_request_uuid %}"
                     class="govuk-button govuk-button--secondary"
                     data-module="govuk-button">
-                    Edit building pass status
+                    Edit building pass/security clearance status
                 </a>
-                <a href="{% url 'security-team-rosa-kit-confirmation' leaving_request_uuid %}"
-                    class="govuk-button govuk-button--secondary"
-                    data-module="govuk-button">
-                    Edit ROSA kit status
-                </a>
+                {% if is_rosa_user %}
+                    <a href="{% url 'security-team-rosa-kit-confirmation' leaving_request_uuid %}"
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button">
+                        Edit ROSA kit status
+                    </a>
+                {% endif %}
                 <a class="govuk-link" href="{% url 'security-team-listing-complete' %}">Return to completed leaving requests dashboard</a>
             </div>
         </div>
