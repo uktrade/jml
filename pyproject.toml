@@ -42,6 +42,7 @@ notifications-python-client = "^6.3.0"
 help-desk-client = "==0.2.0"
 govuk-bank-holidays = "^0.11"
 detect-secrets = "^1.4.0"
+dit-activity-stream = "^0.1.0"
 
 
 [tool.poetry.group.production]

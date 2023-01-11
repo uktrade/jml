@@ -56,6 +56,7 @@ class LeavingRequest(models.Model):
         blank=True,
     )
 
+    last_modified = models.DateTimeField(auto_now=True)
     requested_at = models.DateTimeField(auto_now_add=True)
     requested_by = models.CharField(
         max_length=255,
