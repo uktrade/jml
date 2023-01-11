@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("leavers", "0079_leavingrequest_security_clearance_level"),
+        ("leavers", "0080_leavingrequest_last_modified"),
     ]
 
     operations = [

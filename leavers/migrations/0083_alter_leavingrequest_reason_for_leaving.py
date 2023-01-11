@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("leavers", "0081_alter_leaverinformation_updates"),
+        ("leavers", "0082_alter_leaverinformation_updates"),
     ]
 
     operations = [
