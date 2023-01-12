@@ -11,7 +11,7 @@
             {% if user_is_leaver %}
                 <p class="govuk-body">Tell us when your:</p>
             {% else %}
-                <p class="govuk-body">Tell us when the leaver's:</p>
+                <p class="govuk-body">Tell us when {{ possessive_leaver_name }}:</p>
             {% endif %}
             <ul class="govuk-list govuk-list--bullet">
                 <li>last day of work is</li>

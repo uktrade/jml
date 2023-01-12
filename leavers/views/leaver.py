@@ -501,11 +501,10 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
         context = super().get_context_data(**kwargs)
 
         leaver_name = self.leaving_request.get_leaver_name()
-        possessive_leaver_name = make_possessive(leaver_name)
 
         page_title = "What is your reason for leaving DIT?"
         if not self.user_is_leaver:
-            page_title = f"What is {possessive_leaver_name} reason for leaving DIT?"
+            page_title = f"Why is {leaver_name} leaving DIT?"
 
         context.update(page_title=page_title)
         return context
@@ -889,6 +888,7 @@ class LeaverDatesView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
         )
         context.update(
             page_title=page_title,
+            possessive_leaver_name=possessive_leaver_name,
             manager_search_url=reverse(
                 "leaver-manager-search",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
@@ -903,7 +903,6 @@ class LeaverDatesView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
 class LeaverHasAssetsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/has_assets.html"
     form_class = leaver_forms.LeaverHasAssetsForm
-    extra_context = {"page_title": "Return pass and other assets"}
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
@@ -959,6 +958,17 @@ class LeaverHasAssetsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
         )
 
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        page_title = "Return pass and other assets"
+        if not self.user_is_leaver:
+            page_title = "Other goverment assets"
+
+        context.update(page_title=page_title)
+
+        return context
 
 
 class HasCirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
