@@ -22,7 +22,7 @@ from core.staff_search.views import StaffSearchView
 from core.types import Address
 from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
-from core.utils.helpers import bool_to_yes_no, yes_no_to_bool
+from core.utils.helpers import bool_to_yes_no, make_possessive, yes_no_to_bool
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
     consolidate_staff_documents,
@@ -500,9 +500,12 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name = make_possessive(leaver_name)
+
         page_title = "What is your reason for leaving DIT?"
         if not self.user_is_leaver:
-            page_title = "What is the leaver's reason for leaving DIT?"
+            page_title = f"What is {possessive_leaver_name} reason for leaving DIT?"
 
         context.update(page_title=page_title)
         return context
@@ -529,9 +532,11 @@ class StaffTypeView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        leaver_name = self.leaving_request.get_leaver_name()
+
         page_title = "How are you employed by DIT?"
         if not self.user_is_leaver:
-            page_title = "How is the leaver employed by DIT?"
+            page_title = f"How is {leaver_name} employed by DIT?"
 
         context.update(page_title=page_title)
         return context
@@ -626,9 +631,12 @@ class EmploymentProfileView(LeavingJourneyViewMixin, BaseTemplateView, FormView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name = make_possessive(leaver_name)
+
         page_title = "Your employment profile"
         if not self.user_is_leaver:
-            page_title = "Leaver's employment profile"
+            page_title = f"{possessive_leaver_name} employment profile"
 
         context.update(page_title=page_title)
         return context
@@ -673,9 +681,12 @@ class LeaverFindDetailsView(LeavingJourneyViewMixin, BaseTemplateView, FormView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name = make_possessive(leaver_name)
+
         page_title = "Your personal email address"
         if not self.user_is_leaver:
-            page_title = "Leaver's personal email address"
+            page_title = f"{possessive_leaver_name} personal email address"
 
         context.update(page_title=page_title)
         return context
@@ -765,9 +776,11 @@ class LeaverFindDetailsHelpView(LeavingJourneyViewMixin, BaseTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        leaver_name = self.leaving_request.get_leaver_name()
+
         page_title = "You cannot use this service"
         if not self.user_is_leaver:
-            page_title = "Cannot use this service for this leaver"
+            page_title = f"Cannot use this service for this {leaver_name}"
 
         context.update(page_title=page_title)
         return context
@@ -863,9 +876,12 @@ class LeaverDatesView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name = make_possessive(leaver_name)
+
         page_title = "Your last working day, leaving date and line manager"
         if not self.user_is_leaver:
-            page_title = "Leaver's last working day, leaving date and line manager"
+            page_title = f"{possessive_leaver_name} last working day, leaving date and line manager"
 
         manager_activitystream_user = cast(
             Optional[ActivityStreamStaffSSOUser],
@@ -1234,7 +1250,6 @@ class DisplayScreenEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
 class LeaverContactDetailsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/personal_contact_details.html"
     form_class = leaver_forms.LeaverContactDetailsForm
-    extra_context = {"page_title": "Personal contact details"}
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
@@ -1284,7 +1299,18 @@ class LeaverContactDetailsView(LeavingJourneyViewMixin, BaseTemplateView, FormVi
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(has_dse=self.leaver_info.has_dse)
+
+        page_title = "Personal contact details"
+        if not self.user_is_leaver:
+            leaver_name = self.leaving_request.get_leaver_name()
+            possessive_leaver_name = make_possessive(leaver_name)
+
+            page_title = f"{possessive_leaver_name} personal contact details"
+
+        context.update(
+            page_title=page_title,
+            has_dse=self.leaver_info.has_dse,
+        )
         return context
 
     def get_back_link_url(self):
@@ -1308,8 +1334,12 @@ class ConfirmDetailsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name = make_possessive(leaver_name)
+
         context.update(
             leaving_request=self.leaving_request,
+            possessive_leaver_name=possessive_leaver_name,
             leaver_info=self.leaver_info,
             staff_type=types.StaffType(self.leaving_request.staff_type),
             security_clearance=types.SecurityClearance(

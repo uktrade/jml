@@ -58,7 +58,7 @@
                 {% if user_is_leaver %}
                     <p class="govuk-body">You currently have no IT equipment assigned to you.</p>
                 {% else %}
-                    <p class="govuk-body">There's currently no IT equipment assigned to the leaver.</p>
+                    <p class="govuk-body">There's currently no IT equipment assigned to {{ leaving_request.get_leaver_name }}.</p>
                 {% endif %}
             {% endif %}
             <h3 class="govuk-heading-s">Your expensed assets:</h3>

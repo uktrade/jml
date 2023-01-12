@@ -7,40 +7,44 @@
             </div>
             {% if leaving_request.service_now_offline %}
                 <p class="govuk-body">
-                    You have now completed the first part of the Line Manager's offboarding process for {{ leaver_name }}. The HR, Security and SRE teams will use the information you provided to complete {{ possessive_leaver_name }} offboarding.
+                    You have now completed the first part of the Line Manager's offboarding process for {{ leaver_name }}. The Payroll, Security and SRE teams will use the information you provided to complete {{ possessive_leaver_name }} offboarding.
                 </p>
             {% else %}
                 <p class="govuk-body">
-                    You have now finished the Line manager's offboarding process for {{ leaver_name }}. The HR, Security and SRE teams will use the information you provided to complete {{ possessive_leaver_name }} offboarding.
+                    You have now finished the Line manager's offboarding process for {{ leaver_name }}. The Payroll, Security and SRE teams will use the information you provided to complete {{ possessive_leaver_name }} offboarding.
                 </p>
                 <p class="govuk-body">We have sent you a confirmation email.</p>
                 <h2 class="govuk-heading-m">What happens next</h2>
                 <p class="govuk-body">
-                    The HR, Security and SRE teams will use the information you provided to complete {{ possessive_leaver_name }} offboarding.
+                    The Payroll, Security and SRE teams will use the information you provided to complete {{ possessive_leaver_name }} offboarding.
                 </p>
             {% endif %}
-            <h2 class="govuk-heading-l">Actions you need to take:</h2>
-            <ul class="govuk-list govuk-list--bullet">
-                <li>
-                    Complete a <a class="govuk-link" href="{{ PERFORMANCE_REVIEW_URL }}">performance review</a> for {{ leaver_name }}
-                </li>
-                <li>
-                    Encourage them to fill out the <a class="govuk-link" href="{{ DIT_EXPERIENCE_SURVEY }}">DIT Experience Survey</a>
-                </li>
-                {% if leaving_request.service_now_offline %}<li>Log a Service Now request using the information below</li>{% endif %}
-                <li>
-                    If your line report has any line reports of their own you must update UKSBS with new line manager details for these team members <a class="govuk-link" href="{{ CHANGE_EMPLOYEES_LM_LINK }}">{{ CHANGE_EMPLOYEES_LM_LINK }}</a>
-                </li>
-            </ul>
+            {% if False %}
+                <h2 class="govuk-heading-l">Actions you need to take:</h2>
+                <ul class="govuk-list govuk-list--bullet">
+                    <li>
+                        Complete a <a class="govuk-link" href="{{ PERFORMANCE_REVIEW_URL }}">performance review</a> for {{ leaver_name }}
+                    </li>
+                    <li>
+                        Encourage them to fill out the <a class="govuk-link" href="{{ DIT_EXPERIENCE_SURVEY }}">DIT Experience Survey</a>
+                    </li>
+                    {% if leaving_request.reason_for_leaving == "transfer" %}
+                        <li>
+                            If your line report has any line reports of their own you must update UKSBS with new line manager details for these team members <a class="govuk-link" href="{{ CHANGE_EMPLOYEES_LM_LINK }}">{{ CHANGE_EMPLOYEES_LM_LINK }}</a>
+                        </li>
+                    {% endif %}
+                    {% if leaving_request.service_now_offline %}<li>Log a ServiceNow request using the information below</li>{% endif %}
+                </ul>
+            {% endif %}
             {% if leaving_request.service_now_offline %}
-                <h3 class="govuk-heading-m">You now need to log a Service Now request</h3>
+                <h3 class="govuk-heading-m">You now need to log a ServiceNow request</h3>
                 <p class="govuk-body">
                     You must log a <a class="govuk-link"href="{{ SERVICE_NOW_OFFLINE_URL }}"
-                        target="_blank">Service Now leaving request for your leaver</a>.
+                        target="_blank">ServiceNow leaving request for your leaver</a>.
                     This ensures that their accounts are closed, and any IT equipment is returned. This should be done as soon as possible and no later than 7 days before their leaving date.
                 </p>
                 <p class="govuk-body">
-                    Here is the information {{ leaver_name }} has provided. Use this to help you fill in the Service Now Leaver request.
+                    Here is the information {{ leaver_name }} has provided. Use this to help you fill in the ServiceNow Leaver request.
                 </p>
                 <p class="govuk-body">We will also email you a link to this information.</p>
                 {% include "leaving/line_manager/includes/offline_service_now_details.html" %}

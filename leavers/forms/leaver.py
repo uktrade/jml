@@ -22,6 +22,7 @@ from django.utils import timezone
 
 from core.forms import BaseForm, YesNoField
 from core.staff_search.forms import staff_search_autocomplete_field
+from core.utils.helpers import make_possessive
 from leavers.models import LeavingRequest
 from leavers.types import LeavingReason, ReturnOptions, SecurityClearance, StaffType
 
@@ -301,23 +302,28 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
             "and paid by DIT.</p>"
         )
         if not self.user_is_leaver:
-            line_manager_legend = "Who is the leaver's line manager?"
+            leaver_name = self.leaving_request.get_leaver_name()
+            possessive_leaver_name = make_possessive(leaver_name)
+
+            line_manager_legend = f"Who is {possessive_leaver_name} line manager?"
             line_manager_html = HTML(
-                "<p class='govuk-body'>The leaver's line manager will confirm "
+                f"<p class='govuk-body'>{possessive_leaver_name} line manager will confirm "
                 "their leaving date. The line manger is responsible for "
                 "offboarding the leaver from DIT.</p>"
             )
 
-            last_day_legend = "When is the leaver's last working day?"
+            last_day_legend = f"When is {possessive_leaver_name} last working day?"
             last_day_html = HTML(
-                "<p class='govuk-body'>This is the last day that the leaver "
-                "will work for DIT. After this day, the leaver will not have "
+                f"<p class='govuk-body'>This is the last day that {leaver_name} "
+                f"will work for DIT. After this day, {leaver_name} will not have "
                 "access to any DIT systems and buildings.</p>"
             )
 
-            leaving_date_legend = "When is the leaver's official leaving day?"
+            leaving_date_legend = (
+                f"When is {possessive_leaver_name} official leaving day?"
+            )
             leaving_date_html = HTML(
-                "<p class='govuk-body'>This is the last day that the leaver "
+                f"<p class='govuk-body'>This is the last day that {leaver_name} "
                 "will be employed and paid by DIT.</p>"
             )
 
@@ -405,9 +411,13 @@ class LeaverHasAssetsForm(LeaverJourneyBaseForm):
         has_dse_legend = "Do you have any IT equipment?"
 
         if not self.user_is_leaver:
-            has_gpc_legned = "Does the leaver have a government procurement card (GPC)?"
-            has_rosa_legend = "Does the leaver have ROSA equipment?"
-            has_dse_legend = "Does the leaver have any IT equipment?"
+            leaver_name = self.leaving_request.get_leaver_name()
+
+            has_gpc_legned = (
+                f"Does {leaver_name} have a government procurement card (GPC)?"
+            )
+            has_rosa_legend = f"Does {leaver_name} have ROSA equipment?"
+            has_dse_legend = f"Does {leaver_name} have any IT equipment?"
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -444,9 +454,11 @@ class HasCirrusKitForm(LeaverJourneyBaseForm):
         super().__init__(*args, **kwargs)
 
         if not self.user_is_leaver:
+            leaver_name = self.leaving_request.get_leaver_name()
+
             self.fields[
                 "has_cirrus_kit"
-            ].label = "Does the leaver have any Cirrus equipment?"
+            ].label = f"Does {leaver_name} have any Cirrus equipment?"
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -560,8 +572,10 @@ class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
         return_option_legend = "How would you like to return your Cirrus kit?"
 
         if not self.user_is_leaver:
+            leaver_name = self.leaving_request.get_leaver_name()
+
             return_option_legend = (
-                "How would the leaver like to return their Cirrus kit?"
+                f"How would {leaver_name} like to return their Cirrus kit?"
             )
 
         self.helper.layout = Layout(

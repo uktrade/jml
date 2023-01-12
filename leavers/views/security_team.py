@@ -135,7 +135,7 @@ class LeavingRequestListing(IsSecurityTeamUser, base.LeavingRequestListing):
 
     def get_page_title(self, object_type_name: str) -> str:
         if self.role == SecuritySubRole.BUILDING_PASS:
-            return "Building pass requests"
+            return "Security requests"
         elif self.role == SecuritySubRole.ROSA_KIT:
             return "ROSA Kit requests"
         raise Exception("Unknown security role")
@@ -414,7 +414,8 @@ class SecurityClearanceConfirmationEditView(SecurityViewMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         leaver_name = self.leaving_request.get_leaver_name()
-        context.update(page_title=f"{leaver_name} building pass")
+        possessive_leaver_name = make_possessive(leaver_name)
+        context.update(page_title=f"{possessive_leaver_name} security clearance")
 
         security_clearance_status: Optional[ClearanceStatus] = None
         if self.leaving_request.security_clearance_status:

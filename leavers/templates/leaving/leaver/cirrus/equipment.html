@@ -14,7 +14,7 @@
             {% if user_is_leaver %}
                 <h2 class="govuk-heading-m">Cirrus equipment assigned to you:</h2>
             {% else %}
-                <h2 class="govuk-heading-m">Cirrus equipment assigned to the leaver:</h2>
+                <h2 class="govuk-heading-m">Cirrus equipment assigned to {{ leaving_request.get_leaver_name }}:</h2>
             {% endif %}
             {% if cirrus_assets %}
                 <dl class="govuk-summary-list">
@@ -34,7 +34,9 @@
                 {% if user_is_leaver %}
                     <p class="govuk-body">If you have any Cirrus kit not listed above, please add them.</p>
                 {% else %}
-                    <p class="govuk-body">If the leaver has any Cirrus kit not listed above, please add them.</p>
+                    <p class="govuk-body">
+                        If {{ leaving_request.get_leaver_name }} has any Cirrus kit not listed above, please add them.
+                    </p>
                 {% endif %}
             {% else %}
                 <p class="govuk-body">Currently no Cirrus kit listed.</p>

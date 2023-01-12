@@ -441,7 +441,7 @@ class LeaverConfirmationView(ReviewViewMixin, BaseTemplateView, FormView):
         possessive_leaver_name = make_possessive(leaver_name)
 
         context.update(
-            page_title="Confirm leaver's information",
+            page_title=f"Confirm {possessive_leaver_name} information",
             page_count=self.get_page_count(leaving_request=self.leaving_request),
             leaver=self.leaver,
             leaver_name=leaver_name,
@@ -743,10 +743,13 @@ class LeaverLineReportsView(ReviewViewMixin, BaseTemplateView, FormView):
             errors.append(add_missing_line_report_error)
             self.request.session[ADD_MISSING_LINE_REPORT_ERROR] = None
 
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name = make_possessive(leaver_name)
+
         context.update(
-            page_title="Leaver's line reports",
+            page_title=f"{possessive_leaver_name} line reports",
             page_count=self.get_page_count(leaving_request=self.leaving_request),
-            leaver_name=self.leaving_request.get_leaver_name(),
+            leaver_name=leaver_name,
             line_reports=self.leaving_request.line_reports,
             leaver=self.get_leaver(),
             new_line_manager_search=self.get_view_url(
