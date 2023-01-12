@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -69,21 +69,22 @@ class SecurityViewMixin(IsSecurityTeamUser, LeavingRequestViewMixin, BaseTemplat
         assert manager_as_user
 
         leaving_datetime = self.leaving_request.get_leaving_date()
-        leaving_date: Optional[datetime] = None
+        leaving_date: Optional[date] = None
         if leaving_datetime:
             leaving_date = leaving_datetime.date()
 
         last_day_datetime = self.leaving_request.get_last_day()
-        last_day: Optional[datetime] = None
+        last_day: Optional[date] = None
         if last_day_datetime:
             last_day = last_day_datetime.date()
+
+        leaver_security_clearance = self.leaving_request.get_security_clearance()
+        assert leaver_security_clearance
 
         context.update(
             leaver_name=leaver_name,
             leaver_email=self.leaving_request.get_leaver_email(),
-            leaver_security_clearance=SecurityClearance(
-                self.leaving_request.security_clearance
-            ).label,
+            leaver_security_clearance=leaver_security_clearance.label,
             manager_name=manager_as_user.full_name,
             manager_emails=manager_as_user.get_email_addresses_for_contact(),
             leaving_date=leaving_date,

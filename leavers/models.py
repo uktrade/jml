@@ -362,6 +362,7 @@ class LeavingRequest(models.Model):
 
     def get_leaving_date(self) -> Optional[datetime]:
         leaving_date: Optional[datetime] = None
+
         if self.leaving_date:
             leaving_date = self.leaving_date
         else:
@@ -444,6 +445,17 @@ class LeavingRequest(models.Model):
             return self.processing_manager_activitystream_user
         if self.manager_activitystream_user:
             return self.manager_activitystream_user
+        return None
+
+    def get_security_clearance(self) -> Optional[SecurityClearance]:
+        """
+        Returns the most up to date security clearance.
+        """
+
+        if self.security_clearance_level:
+            return SecurityClearance(self.security_clearance_level.value)
+        if self.security_clearance:
+            return SecurityClearance(self.security_clearance)
         return None
 
     def sre_services(self) -> List[Tuple[str, str, ServiceAndToolActions]]:

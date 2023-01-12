@@ -19,7 +19,6 @@ from activity_stream.models import ActivityStreamStaffSSOUser
 from core.people_finder import get_people_finder_interface
 from core.views import BaseTemplateView
 from leavers.forms import data_processor as data_processor_forms
-from leavers.forms.leaver import SecurityClearance
 from leavers.models import LeaverInformation, LeavingRequest
 from user.models import User
 
@@ -177,9 +176,9 @@ class LeavingRequestListing(
             }
 
             if lr.security_clearance:
-                lr_result_data.update(
-                    security_clearance=SecurityClearance(lr.security_clearance).label
-                )
+                security_clearance = lr.get_security_clearance()
+                if security_clearance:
+                    lr_result_data.update(security_clearance=security_clearance.label)
 
             if lr.line_manager_complete:
                 lr_result_data.update(reported_on=lr.line_manager_complete.date())
