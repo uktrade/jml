@@ -13,8 +13,6 @@ class EmailTemplatesSettings:
     LINE_MANAGER_CORRECTION_EMAIL: str
     LINE_MANAGER_CORRECTION_HR_EMAIL: str
     LINE_MANAGER_CORRECTION_REPORTED_LM_EMAIL: str
-    # Uncomplete leaver in pay cut off period
-    LEAVER_IN_PAY_CUT_OFF_HR_EMAIL: str
     # Line Manager emails
     LINE_MANAGER_NOTIFICATION_EMAIL: str
     LINE_MANAGER_REMINDER_EMAIL: str
@@ -48,6 +46,8 @@ class EmailTemplatesSettings:
     SRE_REMINDER_DAY_AFTER_LWD: str
     SRE_REMINDER_ONE_DAY_AFTER_LD: str
     SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC: str
+    # Incomplete leaver in pay cut off period
+    LEAVER_IN_PAY_CUT_OFF_HR_EMAIL: str
 
     def __getattr__(self, attr):
         setting_name = "TEMPLATE_ID_" + attr
