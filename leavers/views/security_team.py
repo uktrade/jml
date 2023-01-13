@@ -403,7 +403,7 @@ class SecurityClearanceConfirmationEditView(SecurityViewMixin, FormView):
     form_class = SecurityClearanceForm
     success_viewname = "security-team-building-pass-confirmation"
     back_link_viewname = "security-team-building-pass-confirmation"
-    back_link_text = "Back"
+    back_link_text = "Back to Security request"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         set_security_role(request=request, role=SecuritySubRole.BUILDING_PASS)
