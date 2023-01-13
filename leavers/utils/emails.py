@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, Iterable, List, Optional
 
 from django.conf import settings
 from django.db.models.query import QuerySet
@@ -12,21 +12,6 @@ from core.utils.helpers import DATE_FORMAT_STR, make_possessive
 from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.models import LeaverInformation, LeavingRequest
 from leavers.types import DisplayScreenEquipmentAsset
-
-
-def get_name_list_personalisation(
-    leaving_requests: QuerySet[LeavingRequest],
-) -> Dict[str, str]:
-    """
-    Build the personalisation dictionary for the email
-    displaying a list of leavers
-    """
-    leaver_name_list_string = ""
-    for leaving_request in leaving_requests:
-        leaver_name_list_string += f"* {leaving_request.get_leaver_name()}\n"
-    personalisation: Dict[str, str] = {}
-    personalisation.update(leaver_name_list=leaver_name_list_string)
-    return personalisation
 
 
 def get_leaving_request_email_personalisation(
@@ -146,6 +131,25 @@ def get_leaving_request_email_personalisation(
             data_recipient_name=data_recipient.full_name,
             data_recipient_email=primary_email,
         )
+
+    return personalisation
+
+
+def get_name_list_personalisation(
+    leaving_requests: Iterable[LeavingRequest],
+) -> Dict[str, str]:
+    """
+    Build the personalisation dictionary for the email
+    displaying a list of leavers
+    """
+
+    personalisation: Dict[str, str] = {}
+
+    leaver_name_list_string = ""
+    for leaving_request in leaving_requests:
+        leaver_name_list_string += f"* {leaving_request.get_leaver_name()}\n"
+
+    personalisation.update(leaver_name_list=leaver_name_list_string)
 
     return personalisation
 
@@ -612,7 +616,7 @@ def send_leaver_list_pay_cut_off_reminder(
     if not settings.HR_UKSBS_CORRECTION_EMAIL:
         raise ValueError("HR_UKSBS_CORRECTION_EMAIL is not set")
 
-    personalisation = get_name_list_personalisation(leaving_requests)
+    personalisation = get_name_list_personalisation(leaving_requests=leaving_requests)
 
     notify.email(
         email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],
