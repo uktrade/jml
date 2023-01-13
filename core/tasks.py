@@ -44,25 +44,32 @@ def progress_workflow(self, flow_pk: str):
 
 @celery_app.task(bind=True)
 def ingest_activity_stream_task(self):
+    logger.info("RUNNING ingest_activity_stream_task")
     ingest_activity_stream()
 
 
 @celery_app.task(bind=True)
 def index_sso_users_task(self):
+    logger.info("RUNNING index_sso_users_task")
     index_sso_users()
 
 
 @celery_app.task(bind=True)
 def ingest_people_data_task(self):
+    logger.info("RUNNING ingest_people_data_task")
     ingest_people_data()
 
 
 @celery_app.task(bind=True)
 def ingest_people_finder_task(self):
+    logger.info("RUNNING ingest_people_finder_task")
     ingest_people_finder()
 
 
 @celery_app.task(bind=True)
 def ingest_service_now_task(self):
-    if settings.SERVICE_NOW_ENABLE_ONLINE_PROCESS:
+    service_now_online: bool = settings.SERVICE_NOW_ENABLE_ONLINE_PROCESS
+    logger.info(f"RUNNING ingest_service_now_task {service_now_online}")
+
+    if service_now_online:
         ingest_service_now()

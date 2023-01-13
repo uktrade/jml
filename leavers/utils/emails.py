@@ -602,10 +602,7 @@ def send_feetham_security_pass_office_email(
     )
 
 
-def send_leaver_list_pay_cut_off_reminder(
-    leaving_requests: QuerySet[LeavingRequest],
-    template_id: Optional[notify.EmailTemplates] = None,
-):
+def send_leaver_list_pay_cut_off_reminder(leaving_requests: QuerySet[LeavingRequest]):
     """
     Send email to inform HR that an incomplete leaver will leave before
     the next pay cut off period
