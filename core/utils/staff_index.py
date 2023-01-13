@@ -413,6 +413,14 @@ def get_staff_document(id: str) -> dict[str, Any]:
     return search_client.get(index=STAFF_INDEX_NAME, id=id)
 
 
+def get_sso_user_by_staff_document_uuid(uuid: str) -> ActivityStreamStaffSSOUser:
+    staff_doc = get_staff_document_from_staff_index(staff_uuid=uuid)
+
+    return ActivityStreamStaffSSOUser.objects.get(
+        email_user_id=staff_doc.staff_sso_email_user_id
+    )
+
+
 def delete_staff_document(id: str) -> None:
     search_client = get_search_connection()
     search_client.delete(index=STAFF_INDEX_NAME, id=id)

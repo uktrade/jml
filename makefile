@@ -58,6 +58,8 @@ first-use:
 	$(run) leavers python manage.py create_test_users
 	$(run) leavers python manage.py seed_employee_ids
 	$(run) leavers python manage.py update_staff_index
+	$(run) leavers python manage.py set_permissions
+	$(run) leavers python manage.py create_test_users
 	docker-compose up
 
 check-fixme:
@@ -109,6 +111,12 @@ all-requirements:
 
 pytest:
 	$(run) leavers pytest --cov --cov-report html -raP --capture=sys -n 4
+
+test:
+	$(run) leavers pytest --disable-warnings --reuse-db $(test)
+
+test-fresh:
+	$(run) leavers pytest --disable-warnings --create-db --reuse-db $(test)
 
 view-coverage:
 	python -m webbrowser -t htmlcov/index.html

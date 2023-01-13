@@ -55,7 +55,7 @@
 <h3 class="govuk-heading-m">Collection address</h3>
 {% if cirrus_assets %}
     <dl class="govuk-summary-list">
-        {% if leaver_information.return_address %}
+        {% if leaver_information.return_address and leaver_information.return_address.postcode %}
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
                     Address

@@ -101,7 +101,7 @@ class LineManagerDetailsForm(BaseForm):
         self.helper.layout = Layout(
             Fieldset(
                 "leaver_paid_unpaid",
-                legend="Is the leaver Paid or Unpaid?",
+                legend=f"Is {leaver_name} Paid or Unpaid?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(

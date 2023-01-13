@@ -52,7 +52,7 @@ def send_sre_alert_message(*, leaving_request: "LeavingRequest") -> SlackRespons
 
     try:
         leaving_request_path = reverse(
-            "sre-detail", kwargs={"leaving_request_id": leaving_request.uuid}
+            "sre-detail", kwargs={"leaving_request_uuid": leaving_request.uuid}
         )
 
         leaver_name = leaving_request.get_leaver_name()
@@ -150,7 +150,7 @@ def send_sre_reminder_message(
         possessive_leaver_name = make_possessive(leaver_name)
 
     sre_team_link = reverse(
-        "sre-detail", kwargs={"leaving_request_id": leaving_request.uuid}
+        "sre-detail", kwargs={"leaving_request_uuid": leaving_request.uuid}
     )
 
     try:

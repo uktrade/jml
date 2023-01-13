@@ -10,7 +10,7 @@ class ManuallyOffboardedFromUKSBSForm(forms.Form):
         self.helper = FormHelper()
         back_link = reverse(
             "admin-leaving-request-detail",
-            kwargs={"leaving_request_id": leaving_request_uuid},
+            kwargs={"leaving_request_uuid": leaving_request_uuid},
         )
         self.helper.layout = Layout(
             Submit(

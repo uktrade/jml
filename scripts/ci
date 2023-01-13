@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -ex
+
+# format
+poetry run black .
+poetry run isort .
+
+# lint
+poetry run flake8 .
+
+# type check
+make mypy
+
+# tests
+make pytest

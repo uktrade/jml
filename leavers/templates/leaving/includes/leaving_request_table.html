@@ -9,20 +9,23 @@
                     {% if table_header_item.2.order_by_field_name %}
                         {% if order_by == table_header_item.2.order_by_field_name %}
                             {% if order_direction == "asc" %}
-                                <a class="govuk-link" href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='desc' %}">
+                                <a class="govuk-link"
+                                    href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='desc' %}">
                                     {{ table_header_item.1 }}
-                                    <img src="{% static 'icons/triangle-up.svg' %}" alt="sorted ascending">
+                                    <img src="{% static 'icons/triangle-up.svg' %}" alt="sorted ascending" />
                                 </a>
                             {% else %}
-                                <a class="govuk-link" href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='asc' %}">
+                                <a class="govuk-link"
+                                    href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='asc' %}">
                                     {{ table_header_item.1 }}
-                                    <img src="{% static 'icons/triangle-down.svg' %}" alt="sorted descending">
+                                    <img src="{% static 'icons/triangle-down.svg' %}" alt="sorted descending" />
                                 </a>
                             {% endif %}
                         {% else %}
-                            <a class="govuk-link" href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='asc' %}">
+                            <a class="govuk-link"
+                                href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='asc' %}">
                                 {{ table_header_item.1 }}
-                                <img src="{% static 'icons/triangle-up-down.svg' %}" alt="not sorted">
+                                <img src="{% static 'icons/triangle-up-down.svg' %}" alt="not sorted" />
                             </a>
                         {% endif %}
                     {% else %}

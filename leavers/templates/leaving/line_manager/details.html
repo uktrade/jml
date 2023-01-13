@@ -2,13 +2,11 @@
 {% load static crispy_forms_tags crispy_forms_gds %}
 {% block content %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            {% error_summary form %}
-        </div>
+        <div class="govuk-grid-column-full">{% error_summary form %}</div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <span class="govuk-caption-l">Page 2 of {{ page_count }}</span>
+        <div class="govuk-grid-column-full">
+            {% if user_is_line_manager %}<span class="govuk-caption-l">Page 2 of {{ page_count }}</span>{% endif %}
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             {% include "leaving/line_manager/includes/staff_card.html" with staff_details=leaver %}
             <p class="govuk-body">

@@ -1,7 +1,7 @@
 {% extends "leaving/leaving_base.html" %}
 {% block content %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <h1 class="govuk-heading-l">
                 <em>{{ leaver_name }}</em> service access removal
             </h1>
@@ -33,7 +33,7 @@
                 </tbody>
             </table>
             <div class="govuk-button-group">
-                <a href="{% url 'sre-detail' leaving_request_uuid %}"
+                <a href="{% url 'sre-detail' leaving_request_uuid=leaving_request.uuid %}"
                     class="govuk-button govuk-button--secondary"
                     data-module="govuk-button">
                     Edit

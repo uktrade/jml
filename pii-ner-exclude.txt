@@ -27,6 +27,7 @@
 "Returns True
 @media
 *Actions required:*\n
+# Data
 # Joiners
 # Joiners Movers Leavers
 # People Data
@@ -57,12 +58,15 @@
 0003_add_user_user_id
 0007_activitystreamstaffssouser_is_active
 0007_activitystreamstaffssouser_is_active
+0012_activitystreamstaffssouser_uksbs_person_id_override
 0032_leavingrequest_reason_for_leaving
 0048_leaverinformation_leaver_date_of_birth
 0053_leavingrequest_processing_manager_activitystream_user
 0075_update_task_info
 0123123123
 100px
+2.1 AA
+2022.</p
 234px
 4.2926 4.293h-12.986v2h12.896l-4.1855
 400.html
@@ -72,7 +76,9 @@
 8.7 39.7 21.8l42.7-27.2A97.63
 9</span
 960px
+a Civil Servant
 abc
+Accessibility Guidelines
 active</dd
 activity_stream.activitystreamstaffssouser
 ActivityStream
@@ -84,6 +90,7 @@ Annual Leave
 Annual Leave: "
 API
 Apple
+Args
 aria-current="page
 aria-describedby="id
 aria-hidden="true
@@ -125,6 +132,7 @@ Civil Servants
 Civil Service Fast Stream
 class="govuk-button__start
 class="incomplete">To do</span
+CLI
 CLU4
 CLU4 Leaver Notification Email
 CLU4_EMAIL
@@ -143,6 +151,7 @@ contractors</p
 Convert
 Convert a Queryset
 Convert Request Data
+core.people_data
 core.tasks.ingest_people_data_task
 core.tasks.ingest_people_finder_task
 Correction Email
@@ -160,12 +169,15 @@ CRSF
 CSET
 CssFinder
 CTC
+DAC
+DAMAGES
 Dashboard</a>
 Data
 date_of_birth
 date_of_birth_0"
 date_of_birth_0": 19
 date_of_birth_2
+date</span
 day</span></a
 Days"
 DB
@@ -174,12 +186,14 @@ Department 1
 Department 2
 Department for International Trade
 Department of International Trade
+design</h4
 Desktop'
 Dev
 Dev Tools
 dev_tools/` - Djang
 Developed Vetting
 Digital
+Digital Accessibility
 Digital Workspace
 Digital Worskspace
 directorate_id
@@ -196,10 +210,12 @@ dit.html
 DIT</li
 DjangoCelery
 DjangoTemplates
+DLS
 DO NOT USE ON PRODUCTION
 Dockerfile.dev
 Drop
 DSE
+e.preventDefault
 E501
 Elastic
 Email                             
@@ -245,6 +261,7 @@ from:</p>
 Functionality
 Get the Leaver StaffDocument
 Get the Leaving Request for the Leaver
+get_people_data_interface
 GETADDRESS_TOKEN
 Github
 Google
@@ -292,6 +309,7 @@ id="id
 IE
 ill health</li>
 img height="36
+IMPLIED
 include:</p
 include</p
 INDEX_CURRENT_USER_MIDDLEWARE                            
@@ -300,9 +318,13 @@ INFO
 information</h1
 ingest_activity_stream
 INSERT INTO dit.people_data__jml
+Install Cloudfoundry
 Integrations
+interactions</h4
 International Trade
 IS_PRODUCTION
+is_superuser
+JAWS
 Jira
 JML
 JML_ONLY_SEND_EMAILS_TO_JML_TEAM                                 
@@ -323,6 +345,7 @@ Kit
 Kit requests</a
 kit_info
 kit)</li
+kit</span>
 kit</th
 know:</p
 Laptop
@@ -338,6 +361,7 @@ leaver_info.refresh_from_db
 leaver_info.return_address.line_2
 leaver_job_title
 leaver_paid_unpaid
+leaver:</h2
 Leaver's Notification Form
 LeaverInformation
 leaverLastDay
@@ -351,11 +375,13 @@ Leaving Request Admin
 leaving_request.holds_government_procurement_card
 leaving_request.is_rosa_user
 leaving_request=self.leaving_request
+LeavingInformation
 LeavingRequest
 LeavingRequest.manually_offboarded_from_uksbs
 LEGACY_PEOPLE_FINDER_ES_INDEX
 li class="moj-primary
 li class="progress-step{%
+LIABILITY
 Line
 Line Manager.</p
 Line Manager</a
@@ -379,8 +405,10 @@ migrate$(COLOUR_NONE
 minimum_should_match
 Mismatch Email
 MIT
+MIT License
 mkdocs
 Mobile
+Mobile Applications
 mock_get_assets_for_user
 mock_store_return_information.assert_called_once_with
 Movers
@@ -395,6 +423,7 @@ None" &&
 Notification Email
 notify.email
 npm
+NVDA
 OAB
 object.current_task_record
 object.last_name
@@ -416,6 +445,7 @@ Palette
 ParsedUKSBSPDF
 ParsedUKSBSPDF"
 Pass notes</h2
+Payroll
 Pending
 Pending" %
 People Data
@@ -442,11 +472,13 @@ picture"/
 PII
 Port Replicator
 Port Replicator'
+POST
 process.</p
 Procurement Card
 Provide a comma
 Python 2
 python manage.py migrate &&
+python:3.10
 PYTHONPATH
 Raises
 Reason for Leaving Resignation
@@ -459,6 +491,7 @@ remove_url=
 Report 2
 Request
 request</h2
+requests</a
 Return Cirrus
 return_contact_email
 ReturnOptions
@@ -476,6 +509,10 @@ ROSA Line
 ROSA Mobile
 rosa_laptop_returned_task_log
 rosa_mobile_returned_task_log
+rosa-kit
+rosa-kit/
+rosa-kit/status/<str
+ROSA</span>
 Running MkDocs
 Security
 SECURITY
@@ -485,6 +522,7 @@ security_pass_disabled_task_log
 security_team_building_pass_complete
 SECURITY_TEAM_VETTING_EMAIL
 SECURITY_TEAM_VETTING_EMAIL                                      
+security/
 self.assertEqual(response.status_code
 Send
 Send Feetham Security Pass Office
@@ -502,6 +540,7 @@ SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID=1234567890
 SERVICE_NOW_INTERFACE
 ServiceNow
+ServiceNow Leaver
 Session
 session.</p
 SIM
@@ -512,6 +551,7 @@ Slack API
 slack_access_task_log
 SLACK_SRE_CHANNEL_ID
 SlackMessage.objects.create
+Software
 Software Asset
 Sound Bar'
 Sound Bar"
@@ -578,15 +618,19 @@ Tests for `store_return_information`
 Tests for `store_return_option
 the Cirrus Tech
 the Cirrus Tech Bar
+the Civil Service
 the Civil Service Fast Stream
 the Civil Service Fast Stream.</p
 the CLU4 Team                                     
 the Data Recipient StaffDocument
 the Datahub Group
 the DB Creates
+the Department for International Trade
+the Department for International Trade.</p
 the Directorate {%
 The DIT Leaving Service
 the Feetham Security Pass Office
+the GOV.UK Design System
 the GPC Return Address                    
 the Health and Safety Team</h2
 the Leaver Activity Stream
@@ -605,6 +649,7 @@ The Tech Bar
 the UK SBS API
 to:</p
 TODO Fix
+type</span>
 UK SBS - Unexpected
 UK SBS - Unexpected Response
 UK SBS Correction
@@ -634,6 +679,7 @@ value="update_status_form">
 Variables](/docs
 viewBox="0 0 483.2
 visit</li>
+VoiceOver)</li>
 vpn_access_task_log
 WHERE sso_user_id = %
 WhiteNoiseMiddleware

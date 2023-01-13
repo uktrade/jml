@@ -1,9 +1,8 @@
 {% extends "leaving/leaving_base.html" %}
 {% load static crispy_forms_tags crispy_forms_gds %}
-
 {% block content %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             {% error_summary add_asset_form %}
             {% error_summary cirrus_return_form %}
             {% error_summary cirrus_return_form_no_assets %}
@@ -11,8 +10,12 @@
     </div>
     {% include "leaving/leaver/cirrus/includes/header.html" %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <h2 class="govuk-heading-m">Cirrus equipment assigned to you:</h2>
+        <div class="govuk-grid-column-full">
+            {% if user_is_leaver %}
+                <h2 class="govuk-heading-m">Cirrus equipment assigned to you:</h2>
+            {% else %}
+                <h2 class="govuk-heading-m">Cirrus equipment assigned to {{ leaving_request.get_leaver_name }}:</h2>
+            {% endif %}
             {% if cirrus_assets %}
                 <dl class="govuk-summary-list">
                     {% for asset in cirrus_assets %}
@@ -23,12 +26,18 @@
                             </dd>
                             <dd class="govuk-summary-list__actions">
                                 <a class="govuk-link"
-                                    href="{% url 'leaver-cirrus-equipment-delete' asset.uuid %}">Remove</a>
+                                    href="{% url 'leaver-cirrus-equipment-delete' leaving_request.uuid asset.uuid %}">Remove</a>
                             </dd>
                         </div>
                     {% endfor %}
                 </dl>
-                <p class="govuk-body">If you have any Cirrus kit not listed above, please add them.</p>
+                {% if user_is_leaver %}
+                    <p class="govuk-body">If you have any Cirrus kit not listed above, please add them.</p>
+                {% else %}
+                    <p class="govuk-body">
+                        If {{ leaving_request.get_leaver_name }} has any Cirrus kit not listed above, please add them.
+                    </p>
+                {% endif %}
             {% else %}
                 <p class="govuk-body">Currently no Cirrus kit listed.</p>
             {% endif %}
@@ -39,7 +48,7 @@
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <form novalidate method='post'>
                 {% if cirrus_assets %}
                     <input type="hidden" name="form_name" value="cirrus_return_form" />

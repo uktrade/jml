@@ -58,6 +58,11 @@ class IndexCurrentUser:
                 email_user_id=user.sso_email_user_id,
             )
             if not as_users.exists():
+                if not user.sso_legacy_user_id or not user.sso_email_user_id:
+                    raise Exception(
+                        "User does not have a SSO legacy user id or email user id"
+                    )
+
                 # Create ActivityStream object
                 (as_user, _,) = ActivityStreamStaffSSOUser.objects.update_or_create(
                     identifier=uuid.uuid4(),

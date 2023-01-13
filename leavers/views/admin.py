@@ -48,7 +48,7 @@ class LeaversAdminView(BaseTemplateView):
         return context
 
 
-class LeavingRequestListingView(base.LeavingRequestListing):
+class LeavingRequestListingView(UserPassesTestMixin, base.LeavingRequestListing):
     template_name = "leavers/admin/leaving_request/listing.html"
 
     confirmation_view = "admin-leaving-request-detail"
@@ -76,7 +76,7 @@ class LeavingRequestDetailView(UserPassesTestMixin, BaseTemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_id"]
+            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
         return super().dispatch(request, *args, **kwargs)
 
@@ -209,7 +209,7 @@ class LeavingRequestManuallyOffboarded(UserPassesTestMixin, FormView, BaseTempla
     def get_success_url(self) -> str:
         return reverse(
             "admin-leaving-request-detail",
-            kwargs={"leaving_request_id": self.leaving_request.uuid},
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
         )
 
     def get_form_kwargs(self) -> Dict[str, Any]:
@@ -219,7 +219,7 @@ class LeavingRequestManuallyOffboarded(UserPassesTestMixin, FormView, BaseTempla
 
     def dispatch(self, request, *args, **kwargs):
         self.leaving_request = get_object_or_404(
-            LeavingRequest, uuid=kwargs["leaving_request_id"]
+            LeavingRequest, uuid=kwargs["leaving_request_uuid"]
         )
         if self.leaving_request.manually_offboarded_from_uksbs:
             return redirect(self.get_success_url())
@@ -247,4 +247,7 @@ class LeavingRequestManuallyOffboarded(UserPassesTestMixin, FormView, BaseTempla
         return super().form_valid(form)
 
     def get_back_link_url(self):
-        return reverse("admin-leaving-request-detail", args=[self.leaving_request.uuid])
+        return reverse(
+            "admin-leaving-request-detail",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )

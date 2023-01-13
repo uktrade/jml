@@ -2,14 +2,14 @@
 {% load static crispy_forms_tags crispy_forms_gds %}
 {% block content %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             {% error_summary submission_form %}
             {% error_summary add_asset_form %}
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
-            <span class="govuk-caption-l">Page 7 of 9</span>
+        <div class="govuk-grid-column-full">
+            {% if user_is_leaver %}<span class="govuk-caption-l">Page 7 of 9</span>{% endif %}
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             <p class="govuk-body">
                 Tell us about any IT equipment, peripherals or home working equipment that were expensed to DIT over £150.
@@ -34,7 +34,7 @@
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <h2 class="govuk-heading-m">Add expensed equipment over £150</h2>
             <p class="govuk-body">
                 Add brief description of your equipment (for example: developer laptop, standing desk, ergonomic chair).
@@ -49,13 +49,17 @@
                             </dd>
                             <dd class="govuk-summary-list__actions">
                                 <a class="govuk-link"
-                                   href="{% url 'leaver-display-screen-equipment-delete' asset.uuid %}">Remove</a>
+                                    href="{% url 'leaver-display-screen-equipment-delete' leaving_request.uuid asset.uuid %}">Remove</a>
                             </dd>
                         </div>
                     {% endfor %}
                 </dl>
             {% else %}
-                <p class="govuk-body">You currently have no IT equipment assigned to you.</p>
+                {% if user_is_leaver %}
+                    <p class="govuk-body">You currently have no IT equipment assigned to you.</p>
+                {% else %}
+                    <p class="govuk-body">There's currently no IT equipment assigned to {{ leaving_request.get_leaver_name }}.</p>
+                {% endif %}
             {% endif %}
             <h3 class="govuk-heading-s">Your expensed assets:</h3>
             <form novalidate method='post'>
@@ -66,7 +70,7 @@
         </div>
     </div>
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-grid-column-full">
             <form novalidate method='post'>
                 {% csrf_token %}
                 <input type="hidden" name="form_name" value="submission_form" />

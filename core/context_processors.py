@@ -63,6 +63,13 @@ def global_context(request):
                     reverse("list-assets"),
                 )
             )
+        if "HR" in user_group_names:
+            global_context["MAIN_NAV"].append(
+                (
+                    "Leaving Requests",
+                    reverse("leaving-requests-list"),
+                )
+            )
         if "SRE" in user_group_names:
             global_context["MAIN_NAV"].append(
                 (

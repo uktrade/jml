@@ -1,14 +1,15 @@
 from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type, TypedDict, cast
 
+from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models.query import QuerySet
 from django.forms import Form
 from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponseBase
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import FormView
 
@@ -22,10 +23,22 @@ from leavers.forms.sre import (
 )
 from leavers.models import LeaverInformation, LeavingRequest, TaskLog
 from leavers.views import base
+from leavers.views.leaver import LeavingRequestViewMixin
 from user.models import User
 
 
-class LeavingRequestListing(base.LeavingRequestListing):
+class IsSreUser(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.groups.filter(
+            name="SRE",
+        ).exists()
+
+
+class SreViewMixin(IsSreUser, LeavingRequestViewMixin, BaseTemplateView):
+    pass
+
+
+class LeavingRequestListing(IsSreUser, base.LeavingRequestListing):
     template_name = "leaving/sre/listing.html"
 
     complete_field = "sre_complete"
@@ -39,11 +52,6 @@ class LeavingRequestListing(base.LeavingRequestListing):
         ("days_until_last_working_day", "Days left"),
         ("complete", "Status"),
     ]
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="SRE",
-        ).exists()
 
     def get_leaving_requests(
         self,
@@ -66,23 +74,11 @@ class ServiceInfo(TypedDict):
     status_text: str
 
 
-class TaskDetailView(UserPassesTestMixin, BaseTemplateView):
+class TaskDetailView(SreViewMixin):
     template_name = "leaving/sre/task.html"
     page_title = "SRE access removal confirmation"
     back_link_url = reverse_lazy("sre-listing-incomplete")
     back_link_text = "Back to Leaving requests"
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="SRE",
-        ).exists()
-
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-        return super().dispatch(request, *args, **kwargs)
 
     def get_services(self) -> List[ServiceInfo]:
         services = []
@@ -179,27 +175,16 @@ class TaskDetailView(UserPassesTestMixin, BaseTemplateView):
         return context
 
 
-class TaskServiceAndToolsView(
-    UserPassesTestMixin,
-    BaseTemplateView,
-):
+class TaskServiceAndToolsView(SreViewMixin):
     template_name = "leaving/sre/task_services_and_tools.html"
     forms: Dict[str, Type[Form]] = {
         "update_status_form": SREServiceAndToolsForm,
         "add_note_form": SREAddTaskNoteForm,
     }
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="SRE",
-        ).exists()
+    success_viewname = "sre-detail"
+    back_link_viewname = "sre-detail"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-
         self.field_name = self.kwargs.get("field_name", None)
         if not self.field_name:
             raise Http404
@@ -216,9 +201,6 @@ class TaskServiceAndToolsView(
             raise Http404
 
         return super().dispatch(request, *args, **kwargs)
-
-    def get_success_url(self) -> str:
-        return reverse("sre-detail", args=[self.leaving_request.uuid])
 
     def get_page_title(self) -> str:
         leaver_name = self.leaving_request.get_leaver_name()
@@ -270,10 +252,7 @@ class TaskServiceAndToolsView(
         )
 
         return redirect(
-            reverse(
-                "sre-service-and-tools",
-                args=[self.leaving_request.uuid, self.field_name],
-            )
+            self.get_view_url("sre-service-and-tools", field_name=self.field_name)
         )
 
     def post(self, request, *args, **kwargs):
@@ -348,35 +327,18 @@ class TaskServiceAndToolsView(
 
         return context
 
-    def get_back_link_url(self):
-        return reverse("sre-detail", args=[self.leaving_request.uuid])
 
-
-class TaskCompleteConfirmationView(
-    UserPassesTestMixin,
-    FormView,
-    BaseTemplateView,
-):
+class TaskCompleteConfirmationView(SreViewMixin, FormView):
     template_name = "leaving/sre/task_confirmation.html"
     form_class = SREConfirmCompleteForm
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="SRE",
-        ).exists()
+    success_viewname = "sre-summary"
+    back_link_viewname = "sre-detail"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-
         if self.leaving_request.sre_complete:
             return redirect(self.get_success_url())
-        return super().dispatch(request, *args, **kwargs)
 
-    def get_success_url(self) -> str:
-        return reverse("sre-summary", args=[self.leaving_request.uuid])
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
@@ -399,9 +361,10 @@ class TaskCompleteConfirmationView(
         self.leaving_request.sre_complete = timezone.now()
         self.leaving_request.save(update_fields=["sre_complete"])
 
-        send_sre_complete_message(
-            leaving_request=self.leaving_request,
-        )
+        if settings.APP_ENV == "production":
+            send_sre_complete_message(
+                leaving_request=self.leaving_request,
+            )
 
         return response
 
@@ -420,30 +383,11 @@ class TaskCompleteConfirmationView(
         )
         return context
 
-    def get_back_link_url(self):
-        return reverse("sre-detail", args=[self.leaving_request.uuid])
 
-
-class TaskSummaryView(
-    UserPassesTestMixin,
-    BaseTemplateView,
-):
+class TaskSummaryView(SreViewMixin):
     template_name = "leaving/sre/summary.html"
-    leaving_request = None
     page_title: str = "SRE access removal summary"
     back_link_url = reverse_lazy("sre-listing-complete")
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="SRE",
-        ).exists()
-
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -460,28 +404,15 @@ class TaskSummaryView(
         ]
         context.update(
             leaver_name=self.leaving_request.get_leaver_name(),
-            leaving_request_uuid=self.leaving_request.uuid,
             access_removed_services=access_removed_services,
         )
 
         return context
 
 
-class ThankYouView(UserPassesTestMixin, BaseTemplateView):
+class ThankYouView(SreViewMixin):
     template_name = "leaving/sre/thank_you.html"
     page_title: str = "SRE access removal thank you"
-
-    def test_func(self):
-        return self.request.user.groups.filter(
-            name="SRE",
-        ).exists()
-
-    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        self.leaving_request = get_object_or_404(
-            LeavingRequest,
-            uuid=self.kwargs.get("leaving_request_id", None),
-        )
-        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
