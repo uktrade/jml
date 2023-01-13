@@ -1006,7 +1006,7 @@ class HasLineManagerUpdaatedServiceNow(LeavingRequestTask):
 
     def execute(self, task_info):
         if (
-            self.leaving_request.service_now_offline
+            not self.leaving_request.service_now_offline
             or self.leaving_request.line_manager_service_now_complete
         ):
             return ["are_all_tasks_complete"], True
