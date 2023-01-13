@@ -171,6 +171,7 @@ class BuildingPassConfirmationView(
     form_class = AddTaskNoteForm
     success_viewname = "security-team-building-pass-confirmation"
     back_link_url = reverse_lazy("security-team-listing-incomplete")
+    back_link_text = "Back to Security requests"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         set_security_role(request=request, role=SecuritySubRole.BUILDING_PASS)
@@ -237,8 +238,8 @@ class BuildingPassConfirmationEditView(SecurityViewMixin, FormView):
     template_name = "leaving/security_team/confirmation/building_pass_edit.html"
     form_class = BuildingPassForm
     success_viewname = "security-team-building-pass-confirmation"
-    back_link_url = reverse_lazy("security-team-listing-incomplete")
-    back_link_text = "Back to Building pass requests"
+    back_link_viewname = "security-team-building-pass-confirmation"
+    back_link_text = "Back to Security request"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         set_security_role(request=request, role=SecuritySubRole.BUILDING_PASS)
@@ -363,7 +364,7 @@ class BuidlingPassConfirmationCloseView(SecurityViewMixin, FormView):
     form_class = BuildingPassCloseRecordForm
     success_viewname = "security-team-summary"
     back_link_viewname = "security-team-building-pass-confirmation"
-    back_link_text = "Back to Building pass requests"
+    back_link_text = "Back to Security request"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         response = super().dispatch(request, *args, **kwargs)
@@ -400,13 +401,9 @@ class BuidlingPassConfirmationCloseView(SecurityViewMixin, FormView):
 class SecurityClearanceConfirmationEditView(SecurityViewMixin, FormView):
     template_name = "leaving/security_team/confirmation/building_pass_edit.html"
     form_class = SecurityClearanceForm
-    back_link_url = reverse_lazy("security-team-listing-incomplete")
-    back_link_text = "Back to Building pass requests"
-
-    def get_success_url(self) -> str:
-        return reverse_lazy(
-            "security-team-building-pass-confirmation", args=[self.leaving_request.uuid]
-        )
+    success_viewname = "security-team-building-pass-confirmation"
+    back_link_viewname = "security-team-building-pass-confirmation"
+    back_link_text = "Back"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         set_security_role(request=request, role=SecuritySubRole.BUILDING_PASS)
@@ -577,6 +574,7 @@ class RosaKitConfirmationView(SecurityViewMixin):
     template_name = "leaving/security_team/confirmation/rosa_kit.html"
     success_viewname = "security-team-rosa-kit-confirmation"
     back_link_url = reverse_lazy("security-team-listing-incomplete")
+    back_link_text = "Back to ROSA Kit requests"
 
     def get_page_title(self) -> str:
         leaver_name = self.leaving_request.get_leaver_name()
@@ -672,7 +670,7 @@ class RosaKitFieldView(SecurityViewMixin):
     }
     success_viewname = "security-team-rosa-kit-confirmation"
     back_link_viewname = "security-team-rosa-kit-confirmation"
-    back_link_text = "Back to ROSA Kit requests"
+    back_link_text = "Back to ROSA Kit request"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         self.field_name = self.kwargs.get("field_name", None)
@@ -797,7 +795,7 @@ class RosaKitConfirmationCloseView(SecurityViewMixin, FormView):
     form_class = RosaKitCloseRecordForm
     success_viewname = "security-team-summary"
     back_link_viewname = "security-team-rosa-kit-confirmation"
-    back_link_text = "Back to ROSA Kit requests"
+    back_link_text = "Back to ROSA Kit request"
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         response = super().dispatch(request, *args, **kwargs)
