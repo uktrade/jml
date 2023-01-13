@@ -69,7 +69,7 @@ def ingest_people_finder_task(self):
 @celery_app.task(bind=True)
 def ingest_service_now_task(self):
     service_now_online: bool = settings.SERVICE_NOW_ENABLE_ONLINE_PROCESS
-    logger.info(f"RUNNING ingest_service_now_task {service_now_online}")
+    logger.info(f"RUNNING ingest_service_now_task {service_now_online=}")
 
     if service_now_online:
         ingest_service_now()
