@@ -1,4 +1,4 @@
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, List, Optional
 
 from django.conf import settings
 from django.db.models.query import QuerySet
@@ -131,25 +131,6 @@ def get_leaving_request_email_personalisation(
             data_recipient_name=data_recipient.full_name,
             data_recipient_email=primary_email,
         )
-
-    return personalisation
-
-
-def get_name_list_personalisation(
-    leaving_requests: Iterable[LeavingRequest],
-) -> Dict[str, str]:
-    """
-    Build the personalisation dictionary for the email
-    displaying a list of leavers
-    """
-
-    personalisation: Dict[str, str] = {}
-
-    leaver_name_list_string = ""
-    for leaving_request in leaving_requests:
-        leaver_name_list_string += f"* {leaving_request.get_leaver_name()}\n"
-
-    personalisation.update(leaver_name_list=leaver_name_list_string)
 
     return personalisation
 
@@ -613,7 +594,13 @@ def send_leaver_list_pay_cut_off_reminder(leaving_requests: QuerySet[LeavingRequ
     if not settings.HR_UKSBS_CORRECTION_EMAIL:
         raise ValueError("HR_UKSBS_CORRECTION_EMAIL is not set")
 
-    personalisation = get_name_list_personalisation(leaving_requests=leaving_requests)
+    personalisation: Dict[str, str] = {}
+
+    leaver_name_list_string = ""
+    for leaving_request in leaving_requests:
+        leaver_name_list_string += f"* {leaving_request.get_leaver_name()}\n"
+
+    personalisation.update(leaver_name_list=leaver_name_list_string)
 
     notify.email(
         email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],
