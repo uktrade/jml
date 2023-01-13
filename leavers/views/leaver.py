@@ -1369,6 +1369,10 @@ class ConfirmDetailsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
         """
         user = cast(User, self.request.user)
 
+        # Mark the request as being completed by the leaver or someone else
+        if not self.user_is_leaver:
+            self.leaving_request.completed_by_leaver = False
+
         self.leaving_request.leaver_complete = timezone.now()
         self.leaving_request.save()
 

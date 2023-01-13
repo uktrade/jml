@@ -111,6 +111,7 @@ class LeavingRequest(models.Model):
         null=True,
     )
 
+    completed_by_leaver = models.BooleanField(default=True)
     leaver_complete = models.DateTimeField(null=True, blank=True)
 
     """
@@ -126,7 +127,8 @@ class LeavingRequest(models.Model):
     """
     Line Manager
     """
-    # The manager that processed the Leaver (could be the manager from UK SBS)
+
+    # The manager that processed the Leaver (could be the manager from UK SBS or HR user)
     processing_manager_activitystream_user = models.ForeignKey(
         ActivityStreamStaffSSOUser,
         on_delete=models.CASCADE,
