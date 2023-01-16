@@ -134,61 +134,85 @@ class LeavingJourneyViewMixin(LeavingRequestViewMixin):
             "prev": reverse_lazy("start"),
             "next": "staff-type",
             "conditions": [],
+            "view_name": "Leaving reason",
+            "show_in_summary": True,
         },
         "staff-type": {
             "prev": "why-are-you-leaving",
             "next": "employment-profile",
             "conditions": [],
+            "view_name": "Staff type",
+            "show_in_summary": True,
         },
         "employment-profile": {
             "prev": "why-are-you-leaving",
             "next": "leaver-find-details",
             "conditions": [],
+            "view_name": "Employment profile",
+            "show_in_summary": True,
         },
         "leaver-find-details": {
             "prev": "employment-profile",
             "next": "leaver-dates",
             "conditions": [],
+            "view_name": "Find leaver's details",
+            "show_in_summary": False,
         },
         "leaver-dates": {
             "prev": "employment-profile",
             "next": "leaver-has-assets",
             "conditions": [],
+            "view_name": "Dates",
+            "show_in_summary": True,
         },
         "leaver-has-assets": {
             "prev": "leaver-dates",
             "next": "leaver-has-cirrus-equipment",
             "conditions": [],
+            "view_name": "Leaver's assets",
+            "show_in_summary": True,
         },
         "leaver-has-cirrus-equipment": {
             "prev": "leaver-has-assets",
             "next": "leaver-cirrus-equipment",
             "conditions": [],
+            "view_name": "Leaver's Cirrus equipment?",
+            "show_in_summary": True,
         },
         "leaver-cirrus-equipment": {
             "prev": "leaver-has-assets",
             "next": "leaver-display-screen-equipment",
             "conditions": [],
+            "view_name": "Leaver's Cirrus equipment",
+            "show_in_summary": False,
         },
         "leaver-display-screen-equipment": {
             "prev": "leaver-has-cirrus-equipment",
             "next": "leaver-contact-details",
             "conditions": [],
+            "view_name": "Leaver's display screen equipment",
+            "show_in_summary": True,
         },
         "leaver-contact-details": {
             "prev": "leaver-display-screen-equipment",
             "next": "leaver-confirm-details",
             "conditions": [],
+            "view_name": "Leaver's contact details",
+            "show_in_summary": True,
         },
         "leaver-confirm-details": {
             "prev": "leaver-contact-details",
             "next": "leaver-request-received",
             "conditions": [],
+            "view_name": "Confirm leaver's details",
+            "show_in_summary": True,
         },
         "leaver-request-received": {
             "prev": None,
             "next": None,
             "conditions": [LeaverShowViewConditions.LEAVING_REQUEST_COMPLETE],
+            "view_name": "Leaver thank you",
+            "show_in_summary": False,
         },
     }
 
@@ -244,6 +268,14 @@ class LeavingJourneyViewMixin(LeavingRequestViewMixin):
                 raise Http404
 
         return super().dispatch(request, *args, **kwargs)  # type: ignore
+
+    def get_success_url(self) -> str:
+        if "save_and_close" in self.request.POST:
+            return reverse(
+                "leaving-request-summary",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
+        return super().get_success_url()
 
     def check_multiple_person_ids(self, request: HttpRequest):
         SESSION_KEY = "multiple_person_ids_passed"
@@ -455,7 +487,10 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     def form_valid(self, form) -> HttpResponse:
         reason: str = form.cleaned_data["reason"]
 
-        if reason != "none_of_the_above":
+        if reason == "none_of_the_above":
+            self.leaving_request.reason_for_leaving = None
+            self.leaving_request.save(update_fields=["reason_for_leaving"])
+        else:
             self.leaving_reason = LeavingReason(reason)
             self.leaving_request.reason_for_leaving = self.leaving_reason
             self.leaving_request.save(update_fields=["reason_for_leaving"])
@@ -463,6 +498,12 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
+        if "save_and_close" in self.request.POST:
+            return reverse(
+                "leaving-request-summary",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
+
         reason_mapping = {
             LeavingReason.RESIGNATION: reverse_lazy(
                 "staff-type",
@@ -497,16 +538,18 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
             kwargs={"leaving_request_uuid": self.leaving_request.uuid},
         )
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
+    def get_page_title(self):
         leaver_name = self.leaving_request.get_leaver_name()
 
         page_title = "What is your reason for leaving DIT?"
         if not self.user_is_leaver:
             page_title = f"Why is {leaver_name} leaving DIT?"
 
-        context.update(page_title=page_title)
+        return page_title
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(page_title=self.get_page_title())
         return context
 
 
@@ -866,7 +909,10 @@ class LeaverDatesView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
             ]
         )
 
-        if not self.leaving_request.manager_activitystream_user:
+        if (
+            "save_and_close" not in form.data
+            and not self.leaving_request.manager_activitystream_user
+        ):
             form.add_error(None, "You must select a line manager")
             return self.form_invalid(form)
 
@@ -934,22 +980,25 @@ class LeaverHasAssetsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
         return initial
 
     def form_valid(self, form) -> HttpResponse:
-        self.leaving_request.holds_government_procurement_card = yes_no_to_bool(
-            form.cleaned_data["has_gov_procurement_card"]
-        )
-        self.leaving_request.is_rosa_user = yes_no_to_bool(
-            form.cleaned_data["has_rosa_kit"]
-        )
+        if form.cleaned_data["has_gov_procurement_card"]:
+            self.leaving_request.holds_government_procurement_card = yes_no_to_bool(
+                form.cleaned_data["has_gov_procurement_card"]
+            )
+        if form.cleaned_data["has_rosa_kit"]:
+            self.leaving_request.is_rosa_user = yes_no_to_bool(
+                form.cleaned_data["has_rosa_kit"]
+            )
         self.leaving_request.save(
             update_fields=[
                 "holds_government_procurement_card",
                 "is_rosa_user",
             ]
         )
-        self.leaver_info.has_dse = yes_no_to_bool(form.cleaned_data["has_dse"])
-        # Clear DSE assets
-        if not self.leaver_info.has_dse:
-            self.store_display_screen_equipment(dse_assets=[])
+        if form.cleaned_data["has_dse"]:
+            self.leaver_info.has_dse = yes_no_to_bool(form.cleaned_data["has_dse"])
+            # Clear DSE assets
+            if not self.leaver_info.has_dse:
+                self.store_display_screen_equipment(dse_assets=[])
 
         self.leaver_info.save(
             update_fields=[
@@ -984,8 +1033,19 @@ class HasCirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView, FormView
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+        if self.leaver_info.has_cirrus_kit is not None:
+            initial.update(
+                has_cirrus_kit=bool_to_yes_no(self.leaver_info.has_cirrus_kit),
+            )
+        return initial
+
     def form_valid(self, form):
         has_cirrus_kit: Literal["yes", "no"] = form.cleaned_data["has_cirrus_kit"]
+
+        self.leaver_info.has_cirrus_kit = yes_no_to_bool(has_cirrus_kit)
+        self.leaver_info.save(update_fields=["has_cirrus_kit"])
 
         if has_cirrus_kit == "no":
             self.success_viewname = "leaver-display-screen-equipment"

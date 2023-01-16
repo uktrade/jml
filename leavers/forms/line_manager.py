@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from crispy_forms_gds.fields import DateInputField
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Field, Fieldset, Layout, Size, Submit
+from crispy_forms_gds.layout import HTML, Div, Field, Fieldset, Layout, Size, Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models.enums import TextChoices
@@ -132,8 +132,24 @@ class LineManagerDetailsForm(BaseForm):
                 legend_size=Size.MEDIUM,
                 css_id="flexi_number_fieldset",
             ),
-            Submit("submit", "Next"),
         )
+        # TODO
+        if False:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
     def annual_leave_selected(self) -> bool:
         if "annual_leave" not in self.cleaned_data:
@@ -233,9 +249,25 @@ class LineReportConfirmationForm(forms.Form):
         self.leaving_request = leaving_request
 
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Submit("submit", "Next"),
-        )
+        self.helper.layout = Layout()
+
+        # TODO
+        if False:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
     def clean(self) -> Optional[Dict[str, Any]]:
         # Check that all line reports have a Line Manager selected.
@@ -353,7 +385,23 @@ class ConfirmLeavingDate(BaseForm):
             self.fields["data_recipient"].required = False
             self.helper.layout.append(Field("data_recipient"))
 
-        self.helper.layout.append(Submit("submit", "Next"))
+        # TODO
+        if False:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
 
 class OfflineServiceNowForm(forms.Form):

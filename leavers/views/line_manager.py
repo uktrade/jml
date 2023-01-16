@@ -194,6 +194,39 @@ class IsReviewUser(UserPassesTestMixin):
 
 
 class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixin):
+    JOURNEY = {
+        "line-manager-start": {
+            "prev": None,
+            "next": "line-manager-leaver-confirmation",
+            "view_name": "Manager start",
+            "show_in_summary": False,
+        },
+        "line-manager-leaver-confirmation": {
+            "prev": "line-manager-start",
+            "next": "line-manager-details",
+            "view_name": "Confirm leaver information",
+            "show_in_summary": True,
+        },
+        "line-manager-details": {
+            "prev": "line-manager-leaver-confirmation",
+            "next": "line-manager-leaver-line-reports",
+            "view_name": "HR and Payroll",
+            "show_in_summary": True,
+        },
+        "line-manager-leaver-line-reports": {
+            "prev": "line-manager-details",
+            "next": "line-manager-confirmation",
+            "view_name": "Line reports",
+            "show_in_summary": True,
+        },
+        "line-manager-confirmation": {
+            "prev": "line-manager-details",
+            "next": "line-manager-confirmation",
+            "view_name": "Manager confirmation",
+            "show_in_summary": True,
+        },
+    }
+
     def pre_dispatch(self, request, *args, **kwargs) -> Optional[HttpResponse]:
         return None
 

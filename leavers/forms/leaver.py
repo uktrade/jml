@@ -66,7 +66,15 @@ class LeaverJourneyBaseForm(BaseForm):
         self.leaving_request = leaving_request
         self.user_is_leaver = user_is_leaver
 
+        self.helper = FormHelper()
+        self.helper.layout = Layout()
+
         super().__init__(*args, **kwargs)
+
+        # Allow partial submission when saving and closing.
+        if "save_and_close" in self.data:
+            for field_name in self.fields:
+                self.fields[field_name].required = False
 
         if not self.user_is_leaver:
             for (
@@ -74,6 +82,23 @@ class LeaverJourneyBaseForm(BaseForm):
                 required_message,
             ) in self.required_error_messages_not_leaver.items():
                 self.fields[field_name].error_messages["required"] = required_message
+
+        if self.user_is_leaver:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
 
 # Build a new choice list using the TextChoices.
@@ -122,8 +147,23 @@ class WhyAreYouLeavingForm(LeaverJourneyBaseForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             radios_with_conditionals("reason"),
-            Submit("submit", "Next"),
         )
+        if self.user_is_leaver:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
 
 class StaffTypeForm(LeaverJourneyBaseForm):
@@ -143,11 +183,26 @@ class StaffTypeForm(LeaverJourneyBaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.helper = FormHelper()
         self.helper.layout = Layout(
             Field.radios("staff_type"),
-            Submit("submit", "Next"),
         )
+
+        if self.user_is_leaver:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
 
 class EmploymentProfileForm(LeaverJourneyBaseForm):
@@ -219,8 +274,24 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
                 legend="Security clearance type",
                 legend_size=Size.SMALL,
             ),
-            Submit("submit", "Next"),
         )
+
+        if self.user_is_leaver:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
 
 class FindPersonIDForm(LeaverJourneyBaseForm):
@@ -362,14 +433,34 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
                 legend=leaving_date_legend,
                 legend_size=Size.SMALL,
             ),
-            Submit("submit", "Next"),
         )
+
+        if self.user_is_leaver:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
     def clean_leaving_date(self):
         today = timezone.now().date()
         yesterday = today - timedelta(days=1)
         leaving_date = self.cleaned_data["leaving_date"]
-        if self.user_is_leaver and yesterday > leaving_date:
+        if (
+            "save_and_close" not in self.data
+            and self.user_is_leaver
+            and yesterday > leaving_date
+        ):
             raise forms.ValidationError(
                 "Leaving date must be in the future (or today)",
             )
@@ -380,7 +471,12 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
 
         last_day = self.cleaned_data.get("last_day")
         leaving_date = self.cleaned_data.get("leaving_date")
-        if last_day and leaving_date and last_day > leaving_date:
+        if (
+            "save_and_close" not in self.data
+            and last_day
+            and leaving_date
+            and last_day > leaving_date
+        ):
             self.add_error(
                 "last_day",
                 "Last working day must be before or on the same day as the leaving date.",
@@ -436,8 +532,24 @@ class LeaverHasAssetsForm(LeaverJourneyBaseForm):
                 legend=has_dse_legend,
                 legend_size=Size.SMALL,
             ),
-            Submit("submit", "Next"),
         )
+
+        if self.user_is_leaver:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
 
 class HasCirrusKitForm(LeaverJourneyBaseForm):
@@ -466,8 +578,24 @@ class HasCirrusKitForm(LeaverJourneyBaseForm):
                 "has_cirrus_kit",
                 legend_size=Size.MEDIUM,
             ),
-            Submit("submit", "Next"),
         )
+
+        if self.user_is_leaver:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
 
 class AddCirrusAssetForm(LeaverJourneyBaseForm):
@@ -497,9 +625,24 @@ class CirrusReturnFormNoAssets(LeaverJourneyBaseForm):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Submit("submit", "Next"),
-        )
+        self.helper.layout = Layout()
+
+        if self.user_is_leaver:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
 
 RETURN_OPTIONS = [
@@ -638,8 +781,24 @@ class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
                 legend_size=Size.SMALL,
                 css_class="radio-conditional-field conditional-return_option-home",
             ),
-            Submit("submit", "Next"),
         )
+
+        if self.user_is_leaver:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
     def full_clean(self) -> None:
         super().full_clean()
@@ -697,9 +856,24 @@ class DisplayScreenEquipmentSubmissionForm(LeaverJourneyBaseForm):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Submit("submit", "Next"),
-        )
+        self.helper.layout = Layout()
+
+        if self.user_is_leaver:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
 
 class LeaverContactDetailsForm(LeaverJourneyBaseForm):
@@ -762,8 +936,24 @@ class LeaverContactDetailsForm(LeaverJourneyBaseForm):
                 id="contact_address_postcode",
                 field_width=Fluid.TWO_THIRDS,
             ),
-            Submit("submit", "Next"),
         )
+
+        if self.user_is_leaver:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
 
 class LeaverConfirmationForm(LeaverJourneyBaseForm):

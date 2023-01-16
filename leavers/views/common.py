@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional, cast
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, cast
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -7,7 +7,10 @@ from django.urls import reverse, reverse_lazy
 from core.utils.helpers import make_possessive
 from core.utils.staff_index import get_staff_document_from_staff_index
 from core.views import BaseTemplateView
+from leavers.models import LeaverInformation, LeavingRequest
 from leavers.views.base import LeavingRequestListing, LeavingRequestViewMixin
+from leavers.views.leaver import LeavingJourneyViewMixin
+from leavers.views.line_manager import ReviewViewMixin
 
 if TYPE_CHECKING:
     from user.models import User
@@ -63,8 +66,171 @@ class LeavingRequestView(
         context.update(
             page_title=f"{possessive_leaver_name} leaving request",
             leaving_request=self.leaving_request,
-            continue_offboarding_link=reverse("leaver-select-leaver"),
             staff_uuid=staff_document.uuid,
+            step_statuses=self.get_step_statuses(),
         )
 
         return context
+
+    def get_step_status(
+        self,
+        lr: LeavingRequest,
+        li: LeaverInformation,
+        step_data_mapping: Dict[Any, Any],
+        step_pathname: str,
+        step: Dict[Any, Any],
+        previous_step_complete: bool,
+    ) -> Optional[Tuple[str, str, str, bool]]:
+        if not step["show_in_summary"]:
+            return None
+
+        step_status = "not started"
+        step_data = step_data_mapping[step_pathname]
+
+        if all(step_data):
+            step_status = "complete"
+        elif any(step_data):
+            step_status = "started"
+
+        if (
+            "leaver-has-cirrus-equipment" in step_pathname
+            and li.has_cirrus_kit is not None
+            and li.has_cirrus_kit is False
+        ):
+            step_status = "complete"
+        if (
+            "leaver-display-screen-equipment" in step_pathname
+            and li.has_dse is not None
+            and not li.has_dse
+        ):
+            return None
+        if (
+            "line-manager-leaver-line-reports" in step_pathname
+            and not lr.show_hr_and_payroll
+        ):
+            return None
+        if (
+            "line-manager-leaver-line-reports" in step_pathname
+            and not lr.show_line_reports
+            and not lr.line_reports
+        ):
+            return None
+
+        if not previous_step_complete:
+            step_status = "cannot start yet"
+
+        step_url = reverse(
+            step_pathname,
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
+        return (
+            step_url,
+            step_status,
+            step["view_name"],
+            previous_step_complete,
+        )
+
+    def get_step_statuses(self):
+        step_statuses = []
+
+        lr = self.leaving_request
+        li = self.leaving_request.leaver_information.first()
+
+        line_reports = lr.line_reports or []
+
+        step_data_mapping = {
+            "why-are-you-leaving": [
+                lr.reason_for_leaving,
+            ],
+            "staff-type": [
+                lr.staff_type,
+            ],
+            "employment-profile": [
+                li.leaver_first_name,
+                li.leaver_last_name,
+                li.leaver_date_of_birth,
+                li.job_title,
+                lr.security_clearance,
+            ],
+            "leaver-dates": [
+                li.leaving_date,
+                li.last_day,
+                lr.manager_activitystream_user,
+            ],
+            "leaver-has-assets": [
+                lr.holds_government_procurement_card is not None,
+                lr.is_rosa_user is not None,
+                li.has_dse is not None,
+            ],
+            "leaver-has-cirrus-equipment": [
+                li.cirrus_assets is not None,
+                li.return_option,
+                li.return_personal_phone,
+                li.return_contact_email,
+            ],
+            "leaver-display-screen-equipment": [li.has_dse, li.dse_assets],
+            "leaver-contact-details": [
+                li.contact_phone,
+                li.personal_email,
+                li.contact_address_line_1,
+                li.contact_address_line_2,
+                li.contact_address_city,
+                li.contact_address_county,
+                li.contact_address_postcode,
+            ],
+            "leaver-confirm-details": [
+                lr.leaver_complete,
+            ],
+            "line-manager-leaver-confirmation": [
+                lr.last_day,
+                lr.leaving_date,
+            ],
+            "line-manager-details": [
+                lr.leaver_paid_unpaid,
+                lr.annual_leave,
+                lr.flexi_leave,
+            ],
+            "line-manager-leaver-line-reports": [
+                bool(lr["line_manager"]) for lr in line_reports
+            ],
+            "line-manager-confirmation": [
+                lr.line_manager_complete,
+            ],
+        }
+
+        previous_step_complete = True
+        for step_pathname, step in LeavingJourneyViewMixin.JOURNEY.items():
+            step_status = self.get_step_status(
+                lr=lr,
+                li=li,
+                step_data_mapping=step_data_mapping,
+                step_pathname=step_pathname,
+                step=step,
+                previous_step_complete=previous_step_complete,
+            )
+
+            if step_status is None:
+                continue
+
+            step_statuses.append(step_status)
+            if step_status[1] != "complete":
+                previous_step_complete = False
+
+        for step_pathname, step in ReviewViewMixin.JOURNEY.items():
+            step_status = self.get_step_status(
+                lr=lr,
+                li=li,
+                step_data_mapping=step_data_mapping,
+                step_pathname=step_pathname,
+                step=step,
+                previous_step_complete=previous_step_complete,
+            )
+
+            if step_status is None:
+                continue
+
+            step_statuses.append(step_status)
+            if step_status[1] != "complete":
+                previous_step_complete = False
+
+        return step_statuses

@@ -5,11 +5,22 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-l">{{ page_title }}</h1>
-                {% if not leaving_request.line_manager_complete %}
-                    <a class="govuk-button govuk-button--secondary"
-                        href="{{ continue_offboarding_link }}?staff_uuid={{ staff_uuid }}"
-                        data-module="govuk-button">Continue offboarding</a>
-                {% endif %}
+                <dl class="govuk-summary-list">
+                    {% for step_status in step_statuses %}
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                {% if step_status.3 %}
+                                    <a class="govuk-link" href="{{ step_status.0 }}">{{ step_status.2 }}</a>
+                                {% else %}
+                                    {{ step_status.2 }}
+                                {% endif %}
+                            </dt>
+                            <dd class="govuk-summary-list__actions">
+                                <strong class="govuk-tag {% if step_status.1 != 'complete' %}govuk-tag--grey{% endif %}">{{ step_status.1 }}</strong>
+                            </dd>
+                        </div>
+                    {% endfor %}
+                </dl>
             </div>
         </div>
     </div>
