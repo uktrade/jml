@@ -251,3 +251,42 @@ class LeavingRequestManuallyOffboarded(UserPassesTestMixin, FormView, BaseTempla
             "admin-leaving-request-detail",
             kwargs={"leaving_request_uuid": self.leaving_request.uuid},
         )
+
+
+class OfflineServiceNowAdmin(BaseTemplateView):
+    template_name = "leavers/admin/servicenow_offline.html"
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        leaving_requests = LeavingRequest.objects.filter(
+            line_manager_complete__isnull=False,
+            service_now_offline=True,
+            line_manager_service_now_complete__isnull=True,
+        )
+        data = []
+        for lr in leaving_requests:
+            leaver_name = lr.get_leaver_name()
+            leaver_email = lr.get_leaver_email()
+            manager_name = lr.get_line_manager().name
+            manager_emails = lr.get_line_manager().get_email_addresses_for_contact()
+            data.append(
+                {
+                    "leaver_name": leaver_name,
+                    "leaver_email": leaver_email,
+                    "manager_name": manager_name,
+                    "manager_emails": ",".join(manager_emails),
+                    "service_now_offline_link": reverse(
+                        "line-manager-offline-service-now-details",
+                        kwargs={"leaving_request_uuid": lr.uuid},
+                    ),
+                }
+            )
+        context.update(
+            page_title="ServiceNow Offline not complete",
+            data=data,
+        )
+        return context
