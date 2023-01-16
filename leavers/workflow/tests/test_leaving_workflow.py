@@ -325,11 +325,13 @@ class TestLeaversWorkflow(TestCase):
             "has_line_manager_updated_service_now",
             "send_sre_notification",
             "send_sre_slack_message",
-            "send_line_manager_offline_service_now_reminder",
+            "are_all_tasks_complete",
             "have_security_carried_out_rk_leaving_tasks",
             "have_security_carried_out_bp_leaving_tasks",
             "notify_comaea_team",
+            "send_security_bp_reminder",
             "are_all_tasks_complete",
+            "have_sre_carried_out_leaving_tasks",
         ]
         self.check_tasks(expected_tasks=expected_tasks)
 

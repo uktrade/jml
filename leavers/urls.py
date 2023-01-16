@@ -322,22 +322,27 @@ leaving_request_urlpatterns: list[URLResolver | URLPattern] = [
 
 admin_urlpatterns = [
     path(
-        "admin/",
+        "",
         admin_views.LeaversAdminView.as_view(),
         name="leavers-admin",
     ),
     path(
-        "admin/leaving-requests/",
+        "servicenow-offline/",
+        admin_views.OfflineServiceNowAdmin.as_view(),
+        name="leavers-servicenow-admin",
+    ),
+    path(
+        "leaving-requests/",
         admin_views.LeavingRequestListingView.as_view(),
         name="admin-leaving-request-listing",
     ),
     path(
-        "admin/leaving-requests/<uuid:leaving_request_uuid>/",
+        "leaving-requests/<uuid:leaving_request_uuid>/",
         admin_views.LeavingRequestDetailView.as_view(),
         name="admin-leaving-request-detail",
     ),
     path(
-        "admin/leaving-requests/<uuid:leaving_request_uuid>/manually-offboard-uksbs/",
+        "leaving-requests/<uuid:leaving_request_uuid>/manually-offboard-uksbs/",
         admin_views.LeavingRequestManuallyOffboarded.as_view(),
         name="admin-leaving-request-manually-offboard-uksbs",
     ),

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <h1 class="govuk-heading-l">{{ page_title }}</h1>
+            <h2 class="govuk-heading-m">Leaving Requests ({{ data|length }})</h2>
+            <table class="govuk-table">
+                <thead class="govuk-table__head">
+                    <tr class="govuk-table__row">
+                        <th scope="col" class="govuk-table__header">Leaver name</th>
+                        <th scope="col" class="govuk-table__header">Leaver email</th>
+                        <th scope="col" class="govuk-table__header">Manager name</th>
+                        <th scope="col" class="govuk-table__header">Manager email(s)</th>
+                        <th scope="col" class="govuk-table__header">ServiceNow offline link (for manager)</th>
+                    </tr>
+                </thead>
+                <tbody class="govuk-table__body">
+                    {% for row in data %}
+                        <tr class="govuk-table__row">
+                            <th scope="row" class="govuk-table__header">{{ row.leaver_name }}</th>
+                            <td class="govuk-table__cell">{{ row.leaver_email }}</td>
+                            <td class="govuk-table__cell">{{ row.manager_name }}</td>
+                            <td class="govuk-table__cell">{{ row.manager_emails }}</td>
+                            <td class="govuk-table__cell">
+                                <a href="{{ row.service_now_offline_link }}">ServiceNow offline link</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock content %}
