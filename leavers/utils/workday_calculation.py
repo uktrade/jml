@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+
 from govuk_bank_holidays.bank_holidays import BankHolidays
 
 # In UKBS, the Payroll cutoff is 3rd of each month.

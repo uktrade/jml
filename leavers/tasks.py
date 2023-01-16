@@ -10,7 +10,7 @@ logger = celery_app.log.get_default_logger()
 
 
 @celery_app.task(bind=True)
-def notify_hr(date_to_check: Optional[date] = None) -> None:
+def notify_hr(self, date_to_check: Optional[date] = None) -> None:
     if not date_to_check:
         date_to_check = date.today()
 
