@@ -12,6 +12,12 @@ celery_app.conf.beat_schedule = {
         "task": "core.tasks.progress_workflows",
         "schedule": crontab(minute="*/5"),
     },
+    # Search for incomplete leavers once a day.
+    # Execute daily at 7am
+    "incomplete-leaver-pay-cut-off-task": {
+        "task": "leavers.tasks.notify_hr",
+        "schedule": crontab(minute=0, hour=7, day_of_week="mon,tue,wed,thu,fri"),
+    },
     # Nightly tasks to update the Staff search index.
     "ingest-activity-stream-task": {
         "task": "core.tasks.ingest_activity_stream_task",

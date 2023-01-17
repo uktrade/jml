@@ -217,6 +217,7 @@ Drop
 DSE
 e.preventDefault
 E501
+Easter
 Elastic
 Email                             
 Email Templates
@@ -236,6 +237,7 @@ f"Error
 f"Gsuite
 f"If
 f"Physical Asset
+f"RUNNING
 f"Software Asset
 f"sys_id={sys_id
 f"sys_id={sys_id'

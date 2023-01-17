@@ -581,3 +581,29 @@ def send_feetham_security_pass_office_email(
         template_id=notify.EmailTemplates.FEETHAM_SECURITY_PASS_OFFICE_EMAIL,
         personalisation=personalisation,
     )
+
+
+def send_leaver_list_pay_cut_off_reminder(leaving_requests: QuerySet[LeavingRequest]):
+    """
+    Send email to inform HR that an incomplete leaver will leave before
+    the next pay cut off period
+    """
+    if leaving_requests.count() == 0:
+        return
+
+    if not settings.HR_UKSBS_CORRECTION_EMAIL:
+        raise ValueError("HR_UKSBS_CORRECTION_EMAIL is not set")
+
+    personalisation: Dict[str, str] = {}
+
+    leaver_name_list_string = ""
+    for leaving_request in leaving_requests:
+        leaver_name_list_string += f"* {leaving_request.get_leaver_name()}\n"
+
+    personalisation.update(leaver_name_list=leaver_name_list_string)
+
+    notify.email(
+        email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],
+        template_id=notify.EmailTemplates.LEAVER_IN_PAY_CUT_OFF_HR_EMAIL,
+        personalisation=personalisation,
+    )
