@@ -142,6 +142,7 @@ class LeavingRequestView(
 
         lr = self.leaving_request
         li = self.leaving_request.leaver_information.first()
+        assert li
 
         line_reports = lr.line_reports or []
 

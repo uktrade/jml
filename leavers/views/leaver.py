@@ -129,7 +129,7 @@ class LeaverShowViewConditions(Enum):
 
 
 class LeavingJourneyViewMixin(LeavingRequestViewMixin):
-    JOURNEY = {
+    JOURNEY: Dict[str, Dict[str, Any]] = {
         "why-are-you-leaving": {
             "prev": reverse_lazy("start"),
             "next": "staff-type",
@@ -215,6 +215,9 @@ class LeavingJourneyViewMixin(LeavingRequestViewMixin):
             "show_in_summary": False,
         },
     }
+
+    back_link_url: Optional[str] = None
+    back_link_text: Optional[str] = None
 
     def setup(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None:
         super().setup(request, *args, **kwargs)

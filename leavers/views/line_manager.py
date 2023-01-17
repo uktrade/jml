@@ -187,7 +187,7 @@ class IsReviewUser(UserPassesTestMixin):
 
 
 class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixin):
-    JOURNEY = {
+    JOURNEY: Dict[str, Dict[str, Any]] = {
         "line-manager-start": {
             "prev": None,
             "next": "line-manager-leaver-confirmation",
