@@ -76,7 +76,6 @@ class LineManagerViewMixin:
 
         # If the user is the manager that the leaver selected, they can access the view.
         if user.sso_email_user_id == manager_activitystream_user.email_user_id:
-            self.user_is_line_manager = True
             return True
         return False
 
@@ -129,7 +128,6 @@ class LineManagerViewMixin:
                 leaving_request.save(
                     update_fields=["processing_manager_activitystream_user"]
                 )
-                self.user_is_line_manager = True
                 return True
         return False
 
@@ -161,31 +159,26 @@ class LineManagerViewMixin:
         if leaver_activitystream_user == user_activitystream_user:
             return False
 
-        # If the user is the processing manager, they can access the view.
-        processing_manager_activitystream_user: Optional[
-            ActivityStreamStaffSSOUser
-        ] = leaving_request.processing_manager_activitystream_user
-        if (
-            processing_manager_activitystream_user
-            and user.sso_email_user_id
-            == processing_manager_activitystream_user.email_user_id
-        ):
-            return True
-
+        # Check if the user is the manager that the leaver selected
         if self.user_is_manager(request=request, leaving_request=leaving_request):
+            self.user_is_line_manager = True
             return True
 
+        # Check if the user is the manager that the leaver is currently assigned in UK SBS
         if self.user_is_uksbs_manager(request=request, leaving_request=leaving_request):
+            self.user_is_line_manager = True
             return True
 
+        # If neither of the above is true, then check if the user has access to
+        # offboard other people.
         if user.has_perm("leavers.select_leaver"):
+            self.user_is_line_manager = False
             return True
 
         return False
 
 
 class IsReviewUser(UserPassesTestMixin):
-    # TODO: Switch to a permission check
     def test_func(self):
         return self.line_manager_access(
             request=self.request,
@@ -234,8 +227,6 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
         if not self.leaving_request.leaver_complete:
             return HttpResponseNotFound()
 
-        self.user_is_manager
-
         if (
             self.leaving_request.line_manager_complete
             and resolve(self.request.path).view_name != "line-manager-thank-you"
@@ -264,6 +255,26 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
         context = super().get_context_data(**kwargs)
         context.update(user_is_line_manager=self.user_is_line_manager)
         return context
+
+    def get_success_url(self) -> str:
+        if "save_and_close" in self.request.POST:
+            return reverse(
+                "leaving-request-summary",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
+        return super().get_success_url()
+
+    def get_back_link_url(self):
+        back_link_url = super().get_back_link_url()
+        if back_link_url and not self.user_is_line_manager:
+            self.back_link_viewname = "leaving-request-summary"
+        return back_link_url
+
+    def get_back_link_text(self):
+        back_link_text = super().get_back_link_text()
+        if back_link_text and not self.user_is_line_manager:
+            self.back_link_text = "Back to summary"
+        return back_link_text
 
 
 class DataRecipientSearchView(ReviewViewMixin, StaffSearchView):
@@ -344,6 +355,7 @@ class LeaverConfirmationView(ReviewViewMixin, BaseTemplateView, FormView):
             request=self.request,
             leaving_request_uuid=self.leaving_request.uuid,
             leaver=self.get_leaver(),
+            user_is_line_manager=self.user_is_line_manager,
             needs_data_transfer=self.leaver_has_digital_email,
         )
         return form_kwargs
@@ -529,7 +541,10 @@ class DetailsView(ReviewViewMixin, BaseTemplateView, FormView):
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
-        form_kwargs.update(leaver_name=self.leaving_request.get_leaver_name())
+        form_kwargs.update(
+            leaver_name=self.leaving_request.get_leaver_name(),
+            user_is_line_manager=self.user_is_line_manager,
+        )
         return form_kwargs
 
     def form_valid(self, form) -> HttpResponse:
@@ -798,7 +813,10 @@ class LeaverLineReportsView(ReviewViewMixin, BaseTemplateView, FormView):
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
-        form_kwargs["leaving_request"] = self.leaving_request
+        form_kwargs.update(
+            leaving_request=self.leaving_request,
+            user_is_line_manager=self.user_is_line_manager,
+        )
         return form_kwargs
 
 

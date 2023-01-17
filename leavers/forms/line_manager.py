@@ -89,7 +89,13 @@ class LineManagerDetailsForm(BaseForm):
         ),
     )
 
-    def __init__(self, leaver_name: str, *args, **kwargs):
+    def __init__(
+        self,
+        leaver_name: str,
+        user_is_line_manager: bool,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
 
         self.fields["flexi_leave"].help_text = (
@@ -133,8 +139,8 @@ class LineManagerDetailsForm(BaseForm):
                 css_id="flexi_number_fieldset",
             ),
         )
-        # TODO
-        if False:
+
+        if user_is_line_manager:
             self.helper.layout.append(
                 Submit("submit", "Next"),
             )
@@ -243,7 +249,13 @@ class LineManagerDetailsForm(BaseForm):
 
 
 class LineReportConfirmationForm(forms.Form):
-    def __init__(self, leaving_request: "LeavingRequest", *args, **kwargs):
+    def __init__(
+        self,
+        leaving_request: "LeavingRequest",
+        user_is_line_manager,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
 
         self.leaving_request = leaving_request
@@ -251,8 +263,7 @@ class LineReportConfirmationForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout()
 
-        # TODO
-        if False:
+        if user_is_line_manager:
             self.helper.layout.append(
                 Submit("submit", "Next"),
             )
@@ -320,6 +331,7 @@ class ConfirmLeavingDate(BaseForm):
         request: HttpRequest,
         leaving_request_uuid: str,
         leaver: ConsolidatedStaffDocument,
+        user_is_line_manager: bool,
         needs_data_transfer: bool = False,
         *args,
         **kwargs,
@@ -385,8 +397,7 @@ class ConfirmLeavingDate(BaseForm):
             self.fields["data_recipient"].required = False
             self.helper.layout.append(Field("data_recipient"))
 
-        # TODO
-        if False:
+        if user_is_line_manager:
             self.helper.layout.append(
                 Submit("submit", "Next"),
             )

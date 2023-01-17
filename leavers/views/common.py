@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, cast
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -43,6 +43,9 @@ class LeavingRequestListView(UserPassesTestMixin, LeavingRequestListing):
         return context
 
 
+StepStatus = Tuple[str, str, str, bool]
+
+
 class LeavingRequestView(
     UserPassesTestMixin, BaseTemplateView, LeavingRequestViewMixin
 ):
@@ -63,11 +66,14 @@ class LeavingRequestView(
             sso_email_user_id=self.leaving_request.leaver_activitystream_user.email_user_id,
         )
 
+        leaver_step_statuses, manager_step_statuses = self.get_step_statuses()
+
         context.update(
             page_title=f"{possessive_leaver_name} leaving request",
             leaving_request=self.leaving_request,
             staff_uuid=staff_document.uuid,
-            step_statuses=self.get_step_statuses(),
+            leaver_step_statuses=leaver_step_statuses,
+            manager_step_statuses=manager_step_statuses,
         )
 
         return context
@@ -80,7 +86,7 @@ class LeavingRequestView(
         step_pathname: str,
         step: Dict[Any, Any],
         previous_step_complete: bool,
-    ) -> Optional[Tuple[str, str, str, bool]]:
+    ) -> Optional[StepStatus]:
         if not step["show_in_summary"]:
             return None
 
@@ -130,8 +136,9 @@ class LeavingRequestView(
             previous_step_complete,
         )
 
-    def get_step_statuses(self):
-        step_statuses = []
+    def get_step_statuses(self) -> Tuple[List[StepStatus], List[StepStatus]]:
+        leaver_step_statuses = []
+        manager_step_statuses = []
 
         lr = self.leaving_request
         li = self.leaving_request.leaver_information.first()
@@ -212,7 +219,7 @@ class LeavingRequestView(
             if step_status is None:
                 continue
 
-            step_statuses.append(step_status)
+            leaver_step_statuses.append(step_status)
             if step_status[1] != "complete":
                 previous_step_complete = False
 
@@ -229,8 +236,8 @@ class LeavingRequestView(
             if step_status is None:
                 continue
 
-            step_statuses.append(step_status)
+            manager_step_statuses.append(step_status)
             if step_status[1] != "complete":
                 previous_step_complete = False
 
-        return step_statuses
+        return leaver_step_statuses, manager_step_statuses

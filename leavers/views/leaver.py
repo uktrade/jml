@@ -226,12 +226,17 @@ class LeavingJourneyViewMixin(LeavingRequestViewMixin):
 
     def initialise_journey(self) -> None:
         if self.journey_dict:
-            prev = self.journey_dict.get("prev")
-            if prev:
-                if type(prev) == str:
-                    self.back_link_viewname = prev
-                elif type(prev) == Callable:
-                    self.back_link_url = prev
+            if not self.user_is_leaver:
+                self.back_link_viewname = "leaving-request-summary"
+                self.back_link_text = "Back to summary"
+
+            else:
+                prev = self.journey_dict.get("prev")
+                if prev:
+                    if type(prev) == str:
+                        self.back_link_viewname = prev
+                    elif type(prev) == Callable:
+                        self.back_link_url = prev
             next = self.journey_dict.get("next")
             if next:
                 if type(next) == str:
