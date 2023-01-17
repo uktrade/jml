@@ -3,10 +3,7 @@ from unittest import mock
 from django.test import TestCase
 from django.utils import timezone
 
-from core.utils.sre_messages import (
-    FailedToSendSREReminderMessage,
-    send_sre_reminder_message,
-)
+from core.utils.sre_messages import send_sre_reminder_message
 from leavers.factories import LeavingRequestFactory, SlackMessageFactory
 from leavers.workflow.tasks import EmailIds
 
@@ -31,15 +28,6 @@ class TestSendSREReminderMessage(TestCase):
             leaving_request=self.leaving_request,
         )
         self.assertIsNone(response)
-        self.assertEqual(self.leaving_request.slack_messages.count(), 0)
-        mock_send_slack_message.assert_not_called()
-
-    def test_no_slack_message_found(self, mock_send_slack_message: mock.Mock):
-        with self.assertRaises(FailedToSendSREReminderMessage):
-            send_sre_reminder_message(
-                email_id=EmailIds.SRE_REMINDER_DAY_AFTER_LWD,
-                leaving_request=self.leaving_request,
-            )
         self.assertEqual(self.leaving_request.slack_messages.count(), 0)
         mock_send_slack_message.assert_not_called()
 
