@@ -131,7 +131,7 @@ LeaversWorkflow = Workflow(
                 "should_notify_comaea_team",
                 "send_security_bp_notification",
                 "send_security_rk_notification",
-                "send_sre_notification",
+                "have_sre_carried_out_leaving_tasks",
                 "has_line_manager_updated_service_now",
             ],
         ),
@@ -323,23 +323,6 @@ LeaversWorkflow = Workflow(
             },
         ),
         # SRE (Emails & Slack)
-        Step(
-            step_id="send_sre_notification",
-            task_name="notification_email",
-            targets=[
-                "send_sre_slack_message",
-            ],
-            task_info={
-                "email_id": EmailIds.SRE_NOTIFICATION.value,
-            },
-        ),
-        Step(
-            step_id="send_sre_slack_message",
-            task_name="send_sre_slack_message",
-            targets=[
-                "have_sre_carried_out_leaving_tasks",
-            ],
-        ),
         Step(
             step_id="have_sre_carried_out_leaving_tasks",
             task_name="have_sre_carried_out_leaving_tasks",

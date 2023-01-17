@@ -1,6 +1,7 @@
 from datetime import timedelta
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
+from warnings import warn
 
 from django.db.models.query import QuerySet
 from django.utils import timezone
@@ -40,7 +41,6 @@ from leavers.utils.emails import (
     send_ocs_oab_locker_email,
     send_security_team_offboard_bp_leaver_email,
     send_security_team_offboard_rk_leaver_email,
-    send_sre_notification_email,
 )
 from leavers.utils.leaving_request import get_leaver_details
 
@@ -399,7 +399,6 @@ class EmailIds(Enum):
         "security_offboard_rk_reminder_two_days_after_ld_proc"
     )
     # SRE Offboarding
-    SRE_NOTIFICATION = "sre_notification"
     SRE_REMINDER_DAY_AFTER_LWD = "sre_reminder_day_after_lwd"
     SRE_REMINDER_ONE_DAY_AFTER_LD = "sre_reminder_one_day_after_ld"
     SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC = "sre_reminder_two_days_after_ld_proc"
@@ -422,7 +421,6 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LINE_MANAGER_OFFLINE_SERVICE_NOW: send_line_manager_offline_service_now_email,
     EmailIds.SECURITY_OFFBOARD_BP_LEAVER_NOTIFICATION: send_security_team_offboard_bp_leaver_email,
     EmailIds.SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION: send_security_team_offboard_rk_leaver_email,
-    EmailIds.SRE_NOTIFICATION: send_sre_notification_email,
     EmailIds.FEETHAM_SECURITY_PASS_OFFICE_EMAIL: send_feetham_security_pass_office_email,
     EmailIds.IT_OPS_ASSET_EMAIL: send_it_ops_asset_email,
     EmailIds.CLU4_EMAIL: send_clu4_leaver_email,
@@ -978,10 +976,19 @@ class HaveSRECarriedOutLeavingTasks(LeavingRequestTask):
         return ["send_sre_reminder"], False
 
 
+# TODO: Remove this task in the future
 class SendSRESlackMessage(LeavingRequestTask):
     abstract = False
     auto = True
     task_name = "send_sre_slack_message"
+
+    def __init__(self, *args, **kwargs):
+        warn(
+            f"{self.__class__.__name__} is deprecated and will be removed in the future.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        super().__init__(*args, **kwargs)
 
     def execute(self, task_info):
         from core.utils.sre_messages import (

@@ -489,28 +489,6 @@ def send_security_team_offboard_rk_leaver_email(
     )
 
 
-def send_sre_notification_email(
-    leaving_request: LeavingRequest,
-    template_id: Optional[notify.EmailTemplates] = None,
-):
-    """
-    Send the SRE team an email to inform them of a new leaver to be offboarded.
-    """
-    # Skip this task
-    pass
-
-    # if not settings.SRE_EMAIL:
-    #     raise ValueError("SRE_EMAIL is not set")
-
-    # personalisation = get_leaving_request_email_personalisation(leaving_request)
-
-    # notify.email(
-    #     email_addresses=[settings.SRE_EMAIL],
-    #     template_id=notify.EmailTemplates.SRE_NOTIFICATION,
-    #     personalisation=personalisation,
-    # )
-
-
 def send_it_ops_asset_email(
     leaving_request: LeavingRequest,
     template_id: Optional[notify.EmailTemplates] = None,

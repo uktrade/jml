@@ -112,7 +112,7 @@ class TestLeaversWorkflow(TestCase):
                 "should_notify_comaea_team",
                 "send_security_bp_notification",
                 "send_security_rk_notification",
-                "send_sre_notification",
+                "have_sre_carried_out_leaving_tasks",
                 "has_line_manager_updated_service_now",
             ],
         ],
@@ -172,12 +172,6 @@ class TestLeaversWorkflow(TestCase):
         ],
         "send_line_manager_offline_service_now_reminder": [
             ["has_line_manager_updated_service_now"],
-        ],
-        "send_sre_notification": [
-            ["send_sre_slack_message"],
-        ],
-        "send_sre_slack_message": [
-            ["have_sre_carried_out_leaving_tasks"],
         ],
         "have_sre_carried_out_leaving_tasks": [
             ["send_sre_reminder"],
@@ -323,8 +317,7 @@ class TestLeaversWorkflow(TestCase):
             "send_security_bp_notification",
             "send_security_rk_notification",
             "has_line_manager_updated_service_now",
-            "send_sre_notification",
-            "send_sre_slack_message",
+            "have_sre_carried_out_leaving_tasks",
             "are_all_tasks_complete",
             "have_security_carried_out_rk_leaving_tasks",
             "have_security_carried_out_bp_leaving_tasks",
