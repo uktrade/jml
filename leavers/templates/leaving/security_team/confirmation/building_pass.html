@@ -46,7 +46,7 @@
                 {% endif %}
             </dl>
             <a href='{% url "security-team-building-pass-confirmation-edit" leaving_request_uuid %}'
-               class="govuk-button govuk-button--secondary">Edit pass status</a>
+                class="govuk-button govuk-button--secondary">Edit pass status</a>
             <h2 class="govuk-heading-m">Security clearance</h2>
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
@@ -66,15 +66,15 @@
                 </div>
             </dl>
             <a href='{% url "security-team-security-clearance-confirmation-edit" leaving_request_uuid %}'
-               class="govuk-button govuk-button--secondary">Edit security status</a>
+                class="govuk-button govuk-button--secondary">Edit security status</a>
             <p class="govuk-body">The following needs to happen before this record can be marked as complete:</p>
             <ul class="govuk-list govuk-list--bullet">
                 <li>the pass needs to be marked as deactivated, returned and destroyed</li>
-                <li>security clerance needs to be marked as REVOKED?</li>
+                <li>security clearance needs to be marked as Lapsed or Other</li>
             </ul>
             {% if can_complete %}
                 <a href='{% url "security-team-buidling-pass-confirmation-close" leaving_request_uuid %}'
-                   class="govuk-button govuk-button--warning">Mark record as complete</a>
+                    class="govuk-button govuk-button--warning">Mark record as complete</a>
             {% endif %}
             <h2 class="govuk-heading-m">Notes</h2>
             <form novalidate method='post'>
