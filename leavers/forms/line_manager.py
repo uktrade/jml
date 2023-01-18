@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from crispy_forms_gds.fields import DateInputField
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Field, Fieldset, Layout, Size, Submit
+from crispy_forms_gds.layout import HTML, Div, Field, Fieldset, Layout, Size, Submit
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models.enums import TextChoices
@@ -89,7 +89,13 @@ class LineManagerDetailsForm(BaseForm):
         ),
     )
 
-    def __init__(self, leaver_name: str, *args, **kwargs):
+    def __init__(
+        self,
+        leaver_name: str,
+        user_is_line_manager: bool,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
 
         self.fields["flexi_leave"].help_text = (
@@ -132,8 +138,24 @@ class LineManagerDetailsForm(BaseForm):
                 legend_size=Size.MEDIUM,
                 css_id="flexi_number_fieldset",
             ),
-            Submit("submit", "Next"),
         )
+
+        if user_is_line_manager:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
     def annual_leave_selected(self) -> bool:
         if "annual_leave" not in self.cleaned_data:
@@ -227,15 +249,36 @@ class LineManagerDetailsForm(BaseForm):
 
 
 class LineReportConfirmationForm(forms.Form):
-    def __init__(self, leaving_request: "LeavingRequest", *args, **kwargs):
+    def __init__(
+        self,
+        leaving_request: "LeavingRequest",
+        user_is_line_manager,
+        *args,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
 
         self.leaving_request = leaving_request
 
         self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Submit("submit", "Next"),
-        )
+        self.helper.layout = Layout()
+
+        if user_is_line_manager:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
     def clean(self) -> Optional[Dict[str, Any]]:
         # Check that all line reports have a Line Manager selected.
@@ -288,6 +331,7 @@ class ConfirmLeavingDate(BaseForm):
         request: HttpRequest,
         leaving_request_uuid: str,
         leaver: ConsolidatedStaffDocument,
+        user_is_line_manager: bool,
         needs_data_transfer: bool = False,
         *args,
         **kwargs,
@@ -353,7 +397,22 @@ class ConfirmLeavingDate(BaseForm):
             self.fields["data_recipient"].required = False
             self.helper.layout.append(Field("data_recipient"))
 
-        self.helper.layout.append(Submit("submit", "Next"))
+        if user_is_line_manager:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
 
 
 class OfflineServiceNowForm(forms.Form):

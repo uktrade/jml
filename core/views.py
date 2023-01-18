@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.views.generic import TemplateView
 
 
@@ -14,8 +16,8 @@ class BaseTemplateView(TemplateView):
         ...     back_link_url = reverse_lazy("my-back-url")
     """
 
-    back_link_url: str | None = None
-    back_link_text: str | None = None
+    back_link_url: Optional[str] = None
+    back_link_text: Optional[str] = None
 
     def get_back_link_url(self):
         return self.back_link_url

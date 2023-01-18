@@ -170,12 +170,12 @@ class TestLineManagerAccessMixin(TestCase):
         response = LineManagerViewMixin().line_manager_access(
             request=http_response.wsgi_request, leaving_request=self.leaving_request
         )
+        self.assertFalse(response)
         self.leaving_request.refresh_from_db()
         self.assertEqual(
             self.leaving_request.processing_manager_activitystream_user,
             self.processing_manager_as_user,
         )
-        self.assertTrue(response)
         self.assertEqual(
             self.leaving_request.get_line_manager(), self.processing_manager_as_user
         )
