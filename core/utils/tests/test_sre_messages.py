@@ -1,9 +1,13 @@
 from unittest import mock
 
+from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 
-from core.utils.sre_messages import send_sre_reminder_message
+from core.utils.sre_messages import (
+    send_slack_message_for_leaving_request,
+    send_sre_reminder_message,
+)
 from leavers.factories import LeavingRequestFactory, SlackMessageFactory
 from leavers.workflow.tasks import EmailIds
 
@@ -12,6 +16,29 @@ class MockSlackResponse:
     data = {
         "ts": timezone.now().isoformat(),
     }
+
+
+@mock.patch(
+    "core.utils.sre_messages.send_slack_message_for_leaving_request",
+    return_value=MockSlackResponse(),
+)
+class TestSendSlackMessageForLeavingRequest(TestCase):
+    def setUp(self) -> None:
+        self.leaving_request = LeavingRequestFactory()
+
+    def test_thread(self, mock_send_slack_message_for_leaving_request: mock.Mock):
+        send_slack_message_for_leaving_request(
+            leaving_request=self.leaving_request,
+            channel_id=settings.SLACK_SRE_CHANNEL_ID,
+            message_content="Test message",
+        )
+        self.assertEqual(self.leaving_request.slack_messages.count(), 1)
+        send_slack_message_for_leaving_request(
+            leaving_request=self.leaving_request,
+            channel_id=settings.SLACK_SRE_CHANNEL_ID,
+            message_content="Test message",
+        )
+        self.assertEqual(self.leaving_request.slack_messages.count(), 2)
 
 
 @mock.patch(
