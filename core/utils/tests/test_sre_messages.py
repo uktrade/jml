@@ -19,7 +19,7 @@ class MockSlackResponse:
 
 
 @mock.patch(
-    "core.utils.slack.send_slack_message",
+    "core.utils.sre_messages.send_slack_message",
     return_value=MockSlackResponse(),
 )
 class TestSendSlackMessageForLeavingRequest(TestCase):
@@ -32,12 +32,15 @@ class TestSendSlackMessageForLeavingRequest(TestCase):
             channel_id=settings.SLACK_SRE_CHANNEL_ID,
             message_content="Test message",
         )
+        mock_send_slack_message.assert_called_once()
         self.assertEqual(self.leaving_request.slack_messages.count(), 1)
         send_slack_message_for_leaving_request(
             leaving_request=self.leaving_request,
             channel_id=settings.SLACK_SRE_CHANNEL_ID,
             message_content="Test message",
         )
+        # Assert called twice
+        self.assertEqual(mock_send_slack_message.call_count, 2)
         self.assertEqual(self.leaving_request.slack_messages.count(), 2)
 
 
