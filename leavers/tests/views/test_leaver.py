@@ -435,6 +435,8 @@ class TestHasCirrusEquipmentView(LeavingRequestTestCase):
             post_response["Location"],
             self.leaving_request_url("leaver-cirrus-equipment"),
         )
+        leaver_information = self.leaving_request.leaver_information.first()
+        self.assertTrue(leaver_information.has_cirrus_kit)
 
         post_response = self.client.post(
             self.view_url,
@@ -448,6 +450,8 @@ class TestHasCirrusEquipmentView(LeavingRequestTestCase):
             post_response["Location"],
             self.leaving_request_url("leaver-display-screen-equipment"),
         )
+        leaver_information.refresh_from_db()
+        self.assertFalse(leaver_information.has_cirrus_kit)
 
 
 class TestCirrusEquipmentView(LeavingRequestTestCase):
