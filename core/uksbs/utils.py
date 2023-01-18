@@ -31,22 +31,22 @@ class LeaveDetails(TypedDict):
     leaverPaidUnpaid: str
     annualLeaveUom: Literal["days", "hours"]
     annualLeavePaidOrDeducted: Literal["paid", "deducted"]
-    annualLeaveDaysPaid: int
-    annualLeaveHoursPaid: int
-    annualLeaveDaysDeducted: int
-    annualLeaveHoursDeducted: int
+    annualLeaveDaysPaid: str
+    annualLeaveHoursPaid: str
+    annualLeaveDaysDeducted: str
+    annualLeaveHoursDeducted: str
     flexiPaidOrDeducted: Literal["paid", "deducted"]
-    flexiHoursPaid: int
-    flexiHoursDeducted: int
+    flexiHoursPaid: str
+    flexiHoursDeducted: str
 
 
 def get_leave_details(*, leaving_request: LeavingRequest) -> LeaveDetails:
-    annual_leave_days_paid: int = 0
-    annual_leave_hours_paid: int = 0
-    annual_leave_days_deducted: int = 0
-    annual_leave_hours_deducted: int = 0
-    flexi_hours_paid: int = 0
-    flexi_hours_deducted: int = 0
+    annual_leave_days_paid: str = "0"
+    annual_leave_hours_paid: str = "0"
+    annual_leave_days_deducted: str = "0"
+    annual_leave_hours_deducted: str = "0"
+    flexi_hours_paid: str = "0"
+    flexi_hours_deducted: str = "0"
 
     leaver_paid_unpaid = cast(str, leaving_request.leaver_paid_unpaid)
 
@@ -64,7 +64,7 @@ def get_leave_details(*, leaving_request: LeavingRequest) -> LeaveDetails:
         annual_leave_paid_or_deducted == AnnualLeavePaidOrDeducted.DEDUCTED.value
     )
 
-    annual_number = cast(int, leaving_request.annual_number)
+    annual_number = str(leaving_request.annual_number)
 
     if annual_leave_uom == DaysHours.DAYS.value:
         if annual_leave_paid:
@@ -81,7 +81,7 @@ def get_leave_details(*, leaving_request: LeavingRequest) -> LeaveDetails:
     flexi_paid_or_deducted = cast(
         Literal["paid", "deducted"], leaving_request.flexi_leave
     )
-    flexi_number = cast(int, leaving_request.flexi_number)
+    flexi_number = str(leaving_request.flexi_number)
 
     if flexi_paid_or_deducted == FlexiLeavePaidOrDeducted.PAID.value:
         flexi_hours_paid = flexi_number

@@ -61,13 +61,13 @@ class TemplateData(TypedDict):
     leaverPaidUnpaid: str
     annualLeaveUom: Literal["days", "hours"]
     annualLeavePaidOrDeducted: Literal["paid", "deducted"]
-    annualLeaveDaysPaid: int
-    annualLeaveHoursPaid: int
-    annualLeaveDaysDeducted: int
-    annualLeaveHoursDeducted: int
+    annualLeaveDaysPaid: str
+    annualLeaveHoursPaid: str
+    annualLeaveDaysDeducted: str
+    annualLeaveHoursDeducted: str
     flexiPaidOrDeducted: Literal["paid", "deducted"]
-    flexiHoursPaid: int
-    flexiHoursDeducted: int
+    flexiHoursPaid: str
+    flexiHoursDeducted: str
 
     # Leaver Details
     leaverName: str
