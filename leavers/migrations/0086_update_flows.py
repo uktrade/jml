@@ -47,7 +47,7 @@ def update_workflows(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("leavers", "0084_leavingrequest_completed_by_leaver"),
+        ("leavers", "0085_leaverinformation_has_cirrus_kit"),
     ]
 
     operations = [
