@@ -18,14 +18,22 @@ def send_slack_message_for_leaving_request(
     leaving_request: "LeavingRequest",
     channel_id: str,
     message_content: str,
-    thread_ts: Optional[str] = None,
 ) -> SlackResponse:
+    thread_ts: Optional[str] = None
+
+    # If there is a Slack message already, use the timestamp to thread the message
+    first_slack_message = leaving_request.slack_messages.order_by("-created_at").first()
+    if first_slack_message:
+        thread_ts = first_slack_message.slack_timestamp
+
+    # Send the message
     slack_response = send_slack_message(
         channel_id=channel_id,
         message_content=message_content,
         thread_ts=thread_ts,
     )
 
+    # Log the message against the LeavingRequest
     slack_timestamp = ""
     if type(slack_response.data) == dict:
         slack_timestamp = slack_response.data["ts"]
@@ -139,11 +147,6 @@ def send_sre_reminder_message(
     if email_id not in email_id_mapping:
         return None
 
-    first_slack_message = leaving_request.slack_messages.order_by("-created_at").first()
-
-    if not first_slack_message:
-        raise FailedToSendSREReminderMessage("No Slack messages found")
-
     leaver_name = leaving_request.get_leaver_name()
     possessive_leaver_name = ""
     if leaver_name:
@@ -162,7 +165,6 @@ def send_sre_reminder_message(
                 possessive_leaver_name=possessive_leaver_name,
                 sre_team_link=sre_team_link,
             ),
-            thread_ts=first_slack_message.slack_timestamp,
         )
     except FailedToSendSlackMessage:
         raise FailedToSendSREReminderMessage(
@@ -178,11 +180,6 @@ def send_sre_complete_message(*, leaving_request: "LeavingRequest") -> SlackResp
     if not settings.SLACK_SRE_CHANNEL_ID:
         raise FailedToSendSRECompleteMessage("SLACK_SRE_CHANNEL_ID is not set")
 
-    first_slack_message = leaving_request.slack_messages.order_by("-created_at").first()
-
-    if not first_slack_message:
-        raise FailedToSendSRECompleteMessage("No Slack messages found")
-
     leaver_name = leaving_request.get_leaver_name()
 
     try:
@@ -191,7 +188,6 @@ def send_sre_complete_message(*, leaving_request: "LeavingRequest") -> SlackResp
             channel_id=settings.SLACK_SRE_CHANNEL_ID,
             message_content=f"Thank you for completing the "
             f"SRE leaving process for {leaver_name}",
-            thread_ts=first_slack_message.slack_timestamp,
         )
     except FailedToSendSlackMessage:
         raise FailedToSendSRECompleteMessage(
