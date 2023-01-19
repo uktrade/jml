@@ -64,6 +64,7 @@
 0048_leaverinformation_leaver_date_of_birth
 0053_leavingrequest_processing_manager_activitystream_user
 0075_update_task_info
+0087_leaverinformation_is_floor_liaison_officer_and_more
 0123123123
 100px
 2.1 AA
