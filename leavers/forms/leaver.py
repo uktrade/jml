@@ -483,6 +483,70 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
             )
 
 
+HSFL_OPTIONS = [
+    Choice(
+        "health_and_safety_officer",
+        "Yes, I am a health and safety officer",
+    ),
+    Choice(
+        "floor_liaison_officer",
+        "Yes, I am a floor liaison officer",
+    ),
+    Choice(
+        "neither",
+        "No, I am neither",
+    ),
+]
+
+
+class HSFLOfficerForm(LeaverJourneyBaseForm):
+    required_error_messages: Dict[str, str] = {
+        "hsfl_officer": "Please tell us if you are a HS or FL officer.",
+    }
+    required_error_messages_not_leaver: Dict[str, str] = {
+        "hsfl_officer": "Please tell us if the leaver is a HS or FL officer.",
+    }
+
+    hsfl_officer = forms.MultipleChoiceField(
+        label="",
+        choices=HSFL_OPTIONS,
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.radios("hsfl_officer"),
+        )
+
+        if self.user_is_leaver:
+            self.helper.layout.append(
+                Submit("submit", "Next"),
+            )
+        else:
+            self.helper.layout.append(
+                Div(
+                    Submit("submit", "Save and continue"),
+                    Submit(
+                        "save_and_close",
+                        "Save and close",
+                        css_class="govuk-button--secondary",
+                    ),
+                    css_class="govuk-button-group",
+                ),
+            )
+
+    def clean_hsfl_officer(self):
+        hsfl_officer_value = self.cleaned_data["hsfl_officer"]
+        if "neither" in hsfl_officer_value and len(hsfl_officer_value) > 1:
+            raise forms.ValidationError(
+                "Please select yes or no, not both.",
+            )
+        return hsfl_officer_value
+
+
 class LeaverHasAssetsForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "has_gov_procurement_card": "Please tell us if you have a GPC.",

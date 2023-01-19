@@ -128,6 +128,7 @@ LeaversWorkflow = Workflow(
                 "notify_clu4_of_leaving",
                 "notify_ocs_of_leaving",
                 "notify_ocs_of_oab_locker",
+                "notify_health_and_safety",
                 "should_notify_comaea_team",
                 "send_security_bp_notification",
                 "send_security_rk_notification",
@@ -218,6 +219,18 @@ LeaversWorkflow = Workflow(
             ],
             task_info={
                 "email_id": EmailIds.OCS_OAB_LOCKER_EMAIL.value,
+            },
+        ),
+        # Health and Safety or Floor Liaison officer
+        Step(
+            step_id="notify_health_and_safety",
+            task_name="notification_email",
+            targets=[
+                "are_all_tasks_complete",
+            ],
+            task_info={
+                "email_id": EmailIds.HEALTH_AND_SAFETY_EMAIL.value,
+                "skip_conditions": [SkipCondition.IS_NOT_HSFL_LEAVER.value],
             },
         ),
         # COMAEA team

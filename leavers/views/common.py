@@ -165,6 +165,10 @@ class LeavingRequestView(
                 li.last_day,
                 lr.manager_activitystream_user,
             ],
+            "hsfl-officer": [
+                li.is_health_and_safety_officer is not None,
+                li.is_floor_liaison_officer is not None,
+            ],
             "leaver-has-assets": [
                 lr.holds_government_procurement_card is not None,
                 lr.is_rosa_user is not None,

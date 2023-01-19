@@ -29,6 +29,7 @@ from leavers.utils.emails import (
     send_clu4_leaver_email,
     send_comaea_email,
     send_feetham_security_pass_office_email,
+    send_health_and_safety_email,
     send_it_ops_asset_email,
     send_leaver_not_in_uksbs_reminder,
     send_leaver_thank_you_email,
@@ -49,6 +50,7 @@ class SkipCondition(Enum):
     IS_NOT_ROSA_USER = "is_not_rosa_user"
     MANUALLY_OFFBOARDED_FROM_UKSBS = "manually_offboarded_from_uksbs"
     IS_TRANSFER = "is_transfer"
+    IS_NOT_HSFL_LEAVER = "is_hsfl_leaver"
 
 
 class LeavingRequestTask(Task):
@@ -64,6 +66,9 @@ class LeavingRequestTask(Task):
                 "The Flow is missing the LeavingRequest that it relates to."
             )
         self.leaving_request: LeavingRequest = leaving_request
+        self.leaving_information: Optional[
+            LeaverInformation
+        ] = leaving_request.leaver_information.first()
 
     def should_skip(self, task_info) -> bool:
         skip_conditions: List[str] = task_info.get("skip_conditions", [])
@@ -74,12 +79,21 @@ class LeavingRequestTask(Task):
                     self.leaving_request.reason_for_leaving
                     == LeavingReason.TRANSFER.value
                 )
+
             if skip_condition == SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value:
                 skip_results.append(
                     bool(self.leaving_request.manually_offboarded_from_uksbs)
                 )
+
             if skip_condition == SkipCondition.IS_NOT_ROSA_USER.value:
                 skip_results.append(not self.leaving_request.is_rosa_user)
+
+            if skip_condition == SkipCondition.IS_NOT_HSFL_LEAVER.value:
+                assert self.leaving_information
+                skip_results.append(
+                    not self.leaving_information.is_health_and_safety_officer
+                    and not self.leaving_information.is_floor_liaison_officer
+                )
         return any(skip_results)
 
 
@@ -408,6 +422,7 @@ class EmailIds(Enum):
     CLU4_EMAIL = "clu4_email"
     OCS_EMAIL = "ocs_email"
     OCS_OAB_LOCKER_EMAIL = "ocs_oab_locker_email"
+    HEALTH_AND_SAFETY_EMAIL = "health_and_safety_email"
     COMAEA_EMAIL = "comaea_email"
 
 
@@ -426,6 +441,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.CLU4_EMAIL: send_clu4_leaver_email,
     EmailIds.OCS_EMAIL: send_ocs_leaver_email,
     EmailIds.OCS_OAB_LOCKER_EMAIL: send_ocs_oab_locker_email,
+    EmailIds.HEALTH_AND_SAFETY_EMAIL: send_health_and_safety_email,
     EmailIds.COMAEA_EMAIL: send_comaea_email,
 }
 PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {

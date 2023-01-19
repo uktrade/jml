@@ -3,7 +3,7 @@ from django.db import migrations
 
 def update_workflows(apps, schema_editor):
     """
-    Update Workflows migrate away from the removed steps.
+    Update Workflows to contain the new step.
     """
     from django_workflow_engine.executor import WorkflowExecutor
     from django_workflow_engine.utils import lookup_workflow
@@ -14,34 +14,32 @@ def update_workflows(apps, schema_editor):
     for flow in Flow.objects.all().filter(
         workflow_name="leaving", finished__isnull=True
     ):
-        sre_tasks = flow.tasks.filter(
-            step_id__in=["send_sre_notification", "send_sre_slack_message"],
-            executed_at__isnull=True,
-        )
-        if not sre_tasks.exists():
+        # If setup_scheduled_tasks has been executed, then we need to add the new step.
+        if not flow.tasks.filter(
+            step_id="setup_scheduled_tasks",
+            executed_at__isnull=False,
+        ).exists():
             break
 
         workflow = lookup_workflow(flow.workflow_name)
 
-        next_step = None
+        new_step = None
         for step in workflow.steps:
-            if step.step_id == "have_sre_carried_out_leaving_tasks":
-                next_step = step
+            if step.step_id == "notify_health_and_safety":
+                new_step = step
                 break
 
-        if next_step is None:
+        if new_step is None:
             raise Exception("Step not found")
 
         TaskRecord.objects.create(
             flow=flow,
-            task_name=next_step.task_name,
-            step_id=next_step.step_id,
+            task_name=new_step.task_name,
+            step_id=new_step.step_id,
             executed_by=None,
             executed_at=None,
-            task_info=next_step.task_info or {},
+            task_info=new_step.task_info or {},
         )
-
-        sre_tasks.delete()
 
 
 class Migration(migrations.Migration):
