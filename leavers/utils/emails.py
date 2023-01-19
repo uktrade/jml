@@ -253,6 +253,26 @@ def send_ocs_oab_locker_email(
     )
 
 
+def send_health_and_safety_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
+    """
+    Send Health and Safety email.
+    """
+
+    if not settings.HEALTH_AND_SAFETY_EMAIL:
+        raise ValueError("HEALTH_AND_SAFETY_EMAIL is not set")
+
+    personalisation = get_leaving_request_email_personalisation(leaving_request)
+
+    notify.email(
+        email_addresses=[settings.HEALTH_AND_SAFETY_EMAIL],
+        template_id=notify.EmailTemplates.HEALTH_AND_SAFETY_EMAIL,
+        personalisation=personalisation,
+    )
+
+
 def send_comaea_email(
     leaving_request: LeavingRequest,
     template_id: Optional[notify.EmailTemplates] = None,
