@@ -35,7 +35,7 @@ from leavers import types
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation
-from leavers.types import LeavingReason, StaffType
+from leavers.types import HealthAndSafetyOfficerOptions, LeavingReason, StaffType
 from leavers.utils.leaving_request import update_or_create_leaving_request
 from leavers.views.base import LeavingRequestViewMixin
 from leavers.workflow.utils import get_or_create_leaving_workflow
@@ -974,9 +974,20 @@ class HSFLOfficerView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
         hsfl_officer_value = []
 
         if self.leaver_info.is_health_and_safety_officer:
-            hsfl_officer_value.append("health_and_safety_officer")
+            hsfl_officer_value.append(
+                HealthAndSafetyOfficerOptions.HEALTH_AND_SAFETY_OFFICER.value
+            )
         if self.leaver_info.is_floor_liaison_officer:
-            hsfl_officer_value.append("floor_liaison_officer")
+            hsfl_officer_value.append(
+                HealthAndSafetyOfficerOptions.FLOOR_LIAISON_OFFICER.value
+            )
+        if (
+            self.leaver_info.is_health_and_safety_officer is not None
+            and self.leaver_info.is_health_and_safety_officer is False
+            and self.leaver_info.is_floor_liaison_officer is not None
+            and self.leaver_info.is_floor_liaison_officer is False
+        ):
+            hsfl_officer_value.append(HealthAndSafetyOfficerOptions.NEITHER.value)
 
         initial.update(
             hsfl_officer=hsfl_officer_value,
@@ -986,10 +997,12 @@ class HSFLOfficerView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     def form_valid(self, form) -> HttpResponse:
         hsfl_officer_value = form.cleaned_data["hsfl_officer"]
         self.leaver_info.is_health_and_safety_officer = bool(
-            "health_and_safety_officer" in hsfl_officer_value
+            HealthAndSafetyOfficerOptions.HEALTH_AND_SAFETY_OFFICER.value
+            in hsfl_officer_value
         )
         self.leaver_info.is_floor_liaison_officer = bool(
-            "floor_liaison_officer" in hsfl_officer_value
+            HealthAndSafetyOfficerOptions.FLOOR_LIAISON_OFFICER.value
+            in hsfl_officer_value
         )
         self.leaver_info.save(
             update_fields=[

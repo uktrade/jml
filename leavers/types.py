@@ -41,6 +41,15 @@ class ReturnOptions(TextChoices):
     HOME = "home", "Home collection by courier"
 
 
+class HealthAndSafetyOfficerOptions(TextChoices):
+    HEALTH_AND_SAFETY_OFFICER = (
+        "health_and_safety_officer",
+        "Yes, I am a health and safety officer",
+    )
+    FLOOR_LIAISON_OFFICER = "floor_liaison_officer", "Yes, I am a floor liaison officer"
+    NEITHER = "neither", "No, I am neither"
+
+
 class LeaverDetails(TypedDict):
     first_name: str
     last_name: str

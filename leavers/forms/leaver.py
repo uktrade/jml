@@ -24,7 +24,13 @@ from core.forms import BaseForm, YesNoField
 from core.staff_search.forms import staff_search_autocomplete_field
 from core.utils.helpers import make_possessive
 from leavers.models import LeavingRequest
-from leavers.types import LeavingReason, ReturnOptions, SecurityClearance, StaffType
+from leavers.types import (
+    HealthAndSafetyOfficerOptions,
+    LeavingReason,
+    ReturnOptions,
+    SecurityClearance,
+    StaffType,
+)
 
 
 class SelectLeaverForm(BaseForm):
@@ -483,22 +489,6 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
             )
 
 
-HSFL_OPTIONS = [
-    Choice(
-        "health_and_safety_officer",
-        "Yes, I am a health and safety officer",
-    ),
-    Choice(
-        "floor_liaison_officer",
-        "Yes, I am a floor liaison officer",
-    ),
-    Choice(
-        "neither",
-        "No, I am neither",
-    ),
-]
-
-
 class HSFLOfficerForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
         "hsfl_officer": "Please tell us if you are a HS or FL officer.",
@@ -509,7 +499,7 @@ class HSFLOfficerForm(LeaverJourneyBaseForm):
 
     hsfl_officer = forms.MultipleChoiceField(
         label="",
-        choices=HSFL_OPTIONS,
+        choices=HealthAndSafetyOfficerOptions.choices,
         widget=forms.CheckboxSelectMultiple,
     )
 
