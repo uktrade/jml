@@ -197,6 +197,7 @@ dev_tools/` - Djang
 Developed Vetting
 Digital
 Digital Accessibility
+Digital Accessibility Centre
 Digital Workspace
 Digital Worskspace
 directorate_id
@@ -553,6 +554,7 @@ ServiceNow
 ServiceNow Leaver
 Session
 session.</p
+sessionid
 SIM
 sizes="152x152
 sizes="16x16
@@ -646,6 +648,7 @@ the Health and Safety Team</h2
 the Leaver Activity Stream
 the Leaver Form's
 the Leaving DIT
+The Leaving DIT Service
 the Leaving Request
 the Leaving Service                       
 the OCS OAB Locker Team                                                            
@@ -689,8 +692,10 @@ value="update_status_form">
 Variables](/docs
 viewBox="0 0 483.2
 visit</li>
+VoiceOver
 VoiceOver)</li>
 vpn_access_task_log
+website:</p
 WHERE sso_user_id = %
 WhiteNoiseMiddleware
 Windows

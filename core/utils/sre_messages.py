@@ -78,7 +78,7 @@ def send_sre_alert_message(*, leaving_request: "LeavingRequest") -> SlackRespons
             f"working day after {leaver_name}’s leaving date "
             f"{leaving_date_str}.\n"
             "\n"
-            "DIT Leavers Service"
+            f"{settings.SERVICE_NAME}"
         )
 
         return send_slack_message_for_leaving_request(

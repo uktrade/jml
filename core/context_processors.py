@@ -15,7 +15,7 @@ def global_context(request):
     """
 
     global_context = {
-        "SERVICE_NAME": "DIT Leaving service",
+        "SERVICE_NAME": settings.SERVICE_NAME,
         "COOKIE_RESPONSE": request.COOKIES.get(COOKIE_KEY),
         "GTM_CODE": settings.GTM_CODE,
         "SERVICE_NOW_OFFLINE_URL": settings.SERVICE_NOW_OFFLINE_URL,
