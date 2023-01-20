@@ -506,6 +506,22 @@ class HSFLOfficerForm(LeaverJourneyBaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        if not self.user_is_leaver:
+            hsfl_label_mapping = {
+                HealthAndSafetyOfficerOptions.HEALTH_AND_SAFETY_OFFICER.value: (
+                    "Yes, the leaver is a health and safety officer"
+                ),
+                HealthAndSafetyOfficerOptions.FLOOR_LIAISON_OFFICER.value: (
+                    "Yes, the leaver is a floor liaison officer"
+                ),
+                HealthAndSafetyOfficerOptions.NEITHER.value: (
+                    "No, the leaver is neither"
+                ),
+            }
+            for index, choice in enumerate(self.fields["hsfl_officer"].choices):
+                new_choice = (choice[0], hsfl_label_mapping[choice[0]])
+                self.fields["hsfl_officer"].choices[index] = new_choice
+
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field.radios("hsfl_officer"),
