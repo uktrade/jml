@@ -25,6 +25,12 @@ class LeavingRequestListView(UserPassesTestMixin, LeavingRequestListing):
     # These views will contain the task list for HR to complete/review what was done
     confirmation_view = "leaving-request-summary"
     summary_view = "leaving-request-summary"
+    fields: List[Tuple[str, str]] = [
+        ("leaver_name", "Leaver's name"),
+        ("leaving_date", "Leaving date"),
+        ("last_working_day", "Last working day"),
+        ("complete", "Status"),
+    ]
 
     def test_func(self) -> Optional[bool]:
         user = cast(User, self.request.user)
