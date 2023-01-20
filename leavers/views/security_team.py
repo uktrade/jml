@@ -18,7 +18,6 @@ from leavers.forms.security_team import (
     AddTaskNoteForm,
     BuildingPassCloseRecordForm,
     BuildingPassForm,
-    BuildingPassStatus,
     BuildingPassSteps,
     ClearanceStatus,
     RosaKit,
@@ -267,11 +266,9 @@ class BuildingPassConfirmationEditView(SecurityViewMixin, FormView):
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
 
-        initial["pass_status"] = BuildingPassStatus.ACTIVE.value
-        if self.leaving_request.security_pass_disabled:
-            initial["pass_status"] = BuildingPassStatus.DEACTIVATED.value
-
         initial["next_steps"] = []
+        if self.leaving_request.security_pass_disabled:
+            initial["next_steps"].append(BuildingPassSteps.DEACTIVATED.value)
         if self.leaving_request.security_pass_returned:
             initial["next_steps"].append(BuildingPassSteps.RETURNED.value)
         if self.leaving_request.security_pass_destroyed:
@@ -284,25 +281,25 @@ class BuildingPassConfirmationEditView(SecurityViewMixin, FormView):
 
         # Mark the pass as being deactivated.
         if (
-            form.cleaned_data["pass_status"] == BuildingPassStatus.DEACTIVATED
+            BuildingPassSteps.DEACTIVATED.value in form.cleaned_data["next_steps"]
             and not self.leaving_request.security_pass_disabled
         ):
             self.leaving_request.security_pass_disabled = (
                 self.leaving_request.task_logs.create(
                     user=user,
-                    task_name="Building pass marked as deactivated",
+                    task_name="Building pass 'deactivated' checked",
                     reference="LeavingRequest.security_pass_disabled",
                 )
             )
         # Unmark the pass as being deactivated.
         if (
-            form.cleaned_data["pass_status"] == BuildingPassStatus.ACTIVE
+            BuildingPassSteps.DEACTIVATED.value not in form.cleaned_data["next_steps"]
             and self.leaving_request.security_pass_disabled
         ):
             self.leaving_request.security_pass_disabled = None
             self.leaving_request.task_logs.create(
                 user=user,
-                task_name="Building pass marked as activated",
+                task_name="Building pass 'deactivated' unchecked",
                 reference="LeavingRequest.security_pass_disabled",
             )
 
