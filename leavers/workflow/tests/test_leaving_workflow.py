@@ -109,6 +109,7 @@ class TestLeaversWorkflow(TestCase):
                 "notify_clu4_of_leaving",
                 "notify_ocs_of_leaving",
                 "notify_ocs_of_oab_locker",
+                "notify_health_and_safety",
                 "should_notify_comaea_team",
                 "send_security_bp_notification",
                 "send_security_rk_notification",
@@ -138,6 +139,9 @@ class TestLeaversWorkflow(TestCase):
             ["are_all_tasks_complete"],
         ],
         "notify_ocs_of_oab_locker": [
+            ["are_all_tasks_complete"],
+        ],
+        "notify_health_and_safety": [
             ["are_all_tasks_complete"],
         ],
         "should_notify_comaea_team": [
@@ -313,6 +317,7 @@ class TestLeaversWorkflow(TestCase):
             "notify_clu4_of_leaving",
             "notify_ocs_of_leaving",
             "notify_ocs_of_oab_locker",
+            "notify_health_and_safety",
             "should_notify_comaea_team",
             "send_security_bp_notification",
             "send_security_rk_notification",
