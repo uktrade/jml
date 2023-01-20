@@ -275,7 +275,7 @@ class TestLeaverDatesView(LeavingRequestTestCase):
 
         self.assertEqual(post_response.status_code, 302)
         self.assertEqual(
-            post_response["Location"], self.leaving_request_url("leaver-has-assets")
+            post_response["Location"], self.leaving_request_url("hsfl-officer")
         )
 
         leaver_info = self.leaving_request.leaver_information.first()
