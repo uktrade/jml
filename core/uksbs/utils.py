@@ -219,7 +219,7 @@ def build_leaving_data_from_leaving_request(
         "leaverOracleID": str(uksbs_leaver["person_id"]),
         "leaverEmployeeNumber": uksbs_leaver["employee_number"],
         "leaverReasonForLeaving": leaver_reason_for_leaving,
-        "leaverLastDay": leaving_request.last_day.strftime(UKSBS_DATE_FORMAT_STR),
+        "leaverLastDay": leaving_request.leaving_date.strftime(UKSBS_DATE_FORMAT_STR),
         # Leaver Correspondance Details
         "newCorrEmail": "",
         "newCorrAddressLine1": "",
