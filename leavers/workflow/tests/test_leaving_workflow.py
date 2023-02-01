@@ -111,6 +111,7 @@ class TestLeaversWorkflow(TestCase):
                 "notify_ocs_of_oab_locker",
                 "notify_health_and_safety",
                 "should_notify_comaea_team",
+                "notify_business_continuity_team",
                 "send_security_bp_notification",
                 "send_security_rk_notification",
                 "have_sre_carried_out_leaving_tasks",
@@ -148,6 +149,9 @@ class TestLeaversWorkflow(TestCase):
             ["notify_comaea_team"],
         ],
         "notify_comaea_team": [
+            ["are_all_tasks_complete"],
+        ],
+        "notify_business_continuity_team": [
             ["are_all_tasks_complete"],
         ],
         "send_security_bp_notification": [
@@ -319,6 +323,7 @@ class TestLeaversWorkflow(TestCase):
             "notify_ocs_of_oab_locker",
             "notify_health_and_safety",
             "should_notify_comaea_team",
+            "notify_business_continuity_team",
             "send_security_bp_notification",
             "send_security_rk_notification",
             "has_line_manager_updated_service_now",
