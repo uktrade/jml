@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Optional
 
 from django.http.request import HttpRequest
 from django.shortcuts import redirect
@@ -20,7 +20,11 @@ def cookie_response(request: HttpRequest, response: Literal["accept", "reject"])
     }
     cookie_value = cookie_value_mapping[response]
 
-    redirect_response = redirect(request.GET.get("next", "/"))
+    next_path: Optional[str] = request.GET.get("next")
+    if not next_path:
+        next_path = "/"
+
+    redirect_response = redirect(next_path)
     redirect_response.set_cookie(
         COOKIE_KEY,
         cookie_value,
