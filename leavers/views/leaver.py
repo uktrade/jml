@@ -454,21 +454,24 @@ class MyManagerSearchView(LeavingRequestViewMixin, StaffSearchView):
 
 
 class LeaverChecksView(LeavingRequestViewMixin, RedirectView):
-    failure_url = reverse_lazy("unable-to-offboard")
-
     def get_redirect_url(self, *args, **kwargs):
         leaver_activitystream_user = self.leaving_request.leaver_activitystream_user
 
         person_id = leaver_activitystream_user.get_person_id()
 
+        failure_url = reverse(
+            "unable-to-offboard",
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
+
         if not person_id:
-            return self.failure_url
+            return failure_url
 
         uksbs_interface = get_uksbs_interface()
         try:
             uksbs_interface.get_user_hierarchy(person_id=person_id)
         except (UKSBSUnexpectedResponse, UKSBSPersonNotFound):
-            return self.failure_url
+            return failure_url
 
         return reverse(
             "why-are-you-leaving",
