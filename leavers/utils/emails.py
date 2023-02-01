@@ -301,13 +301,13 @@ def send_buisness_continuity_leaver_email(
     Send Business Continuity Email to notify of a new leaver.
     """
 
-    if not settings.BUSINESS_CONTINUITY_TEAM_EMAIL:
-        raise ValueError("BUSINESS_CONTINUITY_TEAM_EMAIL is not set")
+    if not settings.BUSINESS_CONTINUITY_EMAIL:
+        raise ValueError("BUSINESS_CONTINUITY_EMAIL is not set")
 
     personalisation = get_leaving_request_email_personalisation(leaving_request)
 
     notify.email(
-        email_addresses=[settings.BUSINESS_CONTINUITY_TEAM_EMAIL],
+        email_addresses=[settings.BUSINESS_CONTINUITY_EMAIL],
         template_id=notify.EmailTemplates.BUSINESS_CONTINUITY_LEAVER_EMAIL,
         personalisation=personalisation,
     )
