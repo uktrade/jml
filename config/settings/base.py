@@ -401,6 +401,9 @@ HEALTH_AND_SAFETY_EMAIL = env("HEALTH_AND_SAFETY_EMAIL", default="")
 # COMAEA Team Settings
 COMAEA_EMAIL = env("COMAEA_EMAIL", default=None)
 
+# Business Continuity Team Settings
+BUSINESS_CONTINUITY_EMAIL = env("BUSINESS_CONTINUITY_EMAIL", default=None)
+
 # GOV.UK Notify
 GOVUK_NOTIFY_API_KEY = env("GOVUK_NOTIFY_API_KEY", default=None)
 

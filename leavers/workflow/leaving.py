@@ -130,6 +130,7 @@ LeaversWorkflow = Workflow(
                 "notify_ocs_of_oab_locker",
                 "notify_health_and_safety",
                 "should_notify_comaea_team",
+                "notify_business_continuity_team",
                 "send_security_bp_notification",
                 "send_security_rk_notification",
                 "have_sre_carried_out_leaving_tasks",
@@ -252,6 +253,17 @@ LeaversWorkflow = Workflow(
             ],
             task_info={
                 "email_id": EmailIds.COMAEA_EMAIL.value,
+            },
+        ),
+        # Business Continuity
+        Step(
+            step_id="notify_business_continuity_team",
+            task_name="notification_email",
+            targets=[
+                "are_all_tasks_complete",
+            ],
+            task_info={
+                "email_id": EmailIds.BUISNESS_CONTINUITY_LEAVER_EMAIL.value,
             },
         ),
         # SECURITY (Building Pass)

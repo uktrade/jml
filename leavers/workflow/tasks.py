@@ -26,6 +26,7 @@ from leavers.models import LeaverInformation, LeavingRequest, TaskLog
 from leavers.types import LeavingReason, ReminderEmailDict
 from leavers.utils.emails import (
     get_leaving_request_email_personalisation,
+    send_buisness_continuity_leaver_email,
     send_clu4_leaver_email,
     send_comaea_email,
     send_feetham_security_pass_office_email,
@@ -424,6 +425,7 @@ class EmailIds(Enum):
     OCS_OAB_LOCKER_EMAIL = "ocs_oab_locker_email"
     HEALTH_AND_SAFETY_EMAIL = "health_and_safety_email"
     COMAEA_EMAIL = "comaea_email"
+    BUISNESS_CONTINUITY_LEAVER_EMAIL = "buisness_continuity_leaver_email"
 
 
 EMAIL_MAPPING: Dict[EmailIds, Callable] = {
@@ -443,6 +445,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.OCS_OAB_LOCKER_EMAIL: send_ocs_oab_locker_email,
     EmailIds.HEALTH_AND_SAFETY_EMAIL: send_health_and_safety_email,
     EmailIds.COMAEA_EMAIL: send_comaea_email,
+    EmailIds.BUISNESS_CONTINUITY_LEAVER_EMAIL: send_buisness_continuity_leaver_email,
 }
 PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
     # Security Offboarding (Building Pass)
