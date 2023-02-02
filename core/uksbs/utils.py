@@ -1,4 +1,4 @@
-from typing import List, Literal, Optional, TypedDict, cast
+from typing import Dict, List, Literal, Optional, TypedDict, cast
 
 from django.utils import timezone
 
@@ -8,6 +8,7 @@ from core.uksbs.types import (
     DirectReport,
     LeavingData,
     PersonData,
+    ReasonForLeaving,
     ServiceRequestData,
     ServiceRequestDataContact,
     TemplateData,
@@ -193,10 +194,14 @@ def build_leaving_data_from_leaving_request(
         }
         direct_reports.append(direct_report)
 
+    leaving_reason_mapping: Dict[LeavingReason, ReasonForLeaving] = {
+        LeavingReason.END_OF_CONTRACT: "end_of_contract",
+        LeavingReason.RETIREMENT: "retirement",
+    }
     reason_for_leaving = LeavingReason(leaving_request.reason_for_leaving)
-    leaver_reason_for_leaving: Literal["resignation", "end_of_contract"] = "resignation"
-    if reason_for_leaving == LeavingReason.END_OF_CONTRACT:
-        leaver_reason_for_leaving = "end_of_contract"
+    leaver_reason_for_leaving: ReasonForLeaving = "resignation"
+    if reason_for_leaving in leaving_reason_mapping:
+        leaver_reason_for_leaving = leaving_reason_mapping[reason_for_leaving]
 
     template_data: TemplateData = {
         "additionalDirectReports": [],

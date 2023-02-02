@@ -1,5 +1,11 @@
 from typing import Any, List, Literal, Optional, TypedDict
 
+ReasonForLeaving = Literal[
+    "resignation",
+    "end_of_contract",
+    "retirement",
+]
+
 
 class AccessToken(TypedDict):
     access_token: str
@@ -74,7 +80,7 @@ class TemplateData(TypedDict):
     leaverEmail: str
     leaverOracleID: str
     leaverEmployeeNumber: str
-    leaverReasonForLeaving: str
+    leaverReasonForLeaving: ReasonForLeaving
     leaverLastDay: str
 
     # Leaver Correspondance Details
