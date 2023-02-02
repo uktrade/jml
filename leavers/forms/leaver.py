@@ -234,7 +234,7 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
     security_clearance = forms.ChoiceField(
         label="",
         choices=(
-            [(None, "Select security clearance type")] + SecurityClearance.choices  # type: ignore
+            [(None, "Select security level")] + SecurityClearance.choices  # type: ignore
         ),
     )
 
@@ -277,7 +277,7 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
             ),
             Fieldset(
                 Field("security_clearance"),
-                legend="Security clearance type",
+                legend="Security level",
                 legend_size=Size.SMALL,
             ),
         )

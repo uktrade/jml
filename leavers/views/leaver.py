@@ -528,7 +528,7 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
             LeavingReason.RETIREMENT: reverse_lazy(
-                "leaving-reason-unhandled",
+                "staff-type",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             ),
             LeavingReason.TRANSFER: reverse_lazy(
@@ -618,7 +618,7 @@ class StaffTypeView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
                 "error_message": "Only Civil Servants can resign.",
             },
             LeavingReason.RETIREMENT.value: {
-                "staff_types": [],
+                "staff_types": [StaffType.CIVIL_SERVANT],
                 "error_message": "Only Civil Servants can retire.",
             },
             LeavingReason.END_OF_CONTRACT.value: {
