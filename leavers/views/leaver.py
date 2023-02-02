@@ -522,34 +522,20 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             )
 
-        reason_mapping = {
-            LeavingReason.RESIGNATION: reverse_lazy(
+        handled_reasons = [
+            LeavingReason.RESIGNATION,
+            LeavingReason.RETIREMENT,
+            LeavingReason.ILL_HEALTH_RETIREMENT,
+            LeavingReason.TRANSFER,
+            LeavingReason.END_OF_CONTRACT,
+            LeavingReason.DISMISSAL,
+            LeavingReason.DEATH_IN_SERVICE,
+        ]
+        if self.leaving_reason in handled_reasons:
+            return reverse(
                 "staff-type",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
-            LeavingReason.RETIREMENT: reverse_lazy(
-                "staff-type",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
-            LeavingReason.TRANSFER: reverse_lazy(
-                "staff-type",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
-            LeavingReason.END_OF_CONTRACT: reverse_lazy(
-                "staff-type",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
-            LeavingReason.DISMISSAL: reverse_lazy(
-                "staff-type",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
-            LeavingReason.DEATH_IN_SERVICE: reverse_lazy(
-                "staff-type",
-                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-            ),
-        }
-        if self.leaving_reason in reason_mapping:
-            return reason_mapping[self.leaving_reason]
+            )
 
         return reverse(
             "leaving-reason-unhandled",
@@ -618,6 +604,10 @@ class StaffTypeView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
                 "error_message": "Only Civil Servants can resign.",
             },
             LeavingReason.RETIREMENT.value: {
+                "staff_types": [StaffType.CIVIL_SERVANT],
+                "error_message": "Only Civil Servants can retire.",
+            },
+            LeavingReason.ILL_HEALTH_RETIREMENT.value: {
                 "staff_types": [StaffType.CIVIL_SERVANT],
                 "error_message": "Only Civil Servants can retire.",
             },
