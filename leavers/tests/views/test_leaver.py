@@ -281,10 +281,10 @@ class TestLeaverDatesView(LeavingRequestTestCase):
 
         leaver_info = self.leaving_request.leaver_information.first()
         self.assertEqual(
-            leaver_info.leaving_date, timezone.make_aware(datetime(2023, 2, 1))
+            leaver_info.leaving_date, timezone.make_aware(datetime(next_year, 2, 1))
         )
         self.assertEqual(
-            leaver_info.last_day, timezone.make_aware(datetime(2023, 2, 1))
+            leaver_info.last_day, timezone.make_aware(datetime(next_year, 2, 1))
         )
 
     @mock.patch(

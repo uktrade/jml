@@ -177,6 +177,7 @@ Data
 date_of_birth
 date_of_birth_0"
 date_of_birth_0": 19
+date_of_birth_1
 date_of_birth_2
 date</span
 day</span></a
@@ -467,6 +468,7 @@ PEOPLE_FINDER_HAWK_SECRET_KEY                                    |              
 PEOPLE_FINDER_INTERFACE
 PEOPLE_FINDER_INTERFACE                                  |                                            
 PEOPLE_FINDER_INTERFACE=core.people_finder.interfaces
+people_finder_photo_small
 people_finder_result["email
 people_finder_result["email
 Person
@@ -478,6 +480,7 @@ PII
 Port Replicator
 Port Replicator'
 POST
+Postcode
 process.</p
 Procurement Card
 Provide a comma
