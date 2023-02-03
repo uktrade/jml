@@ -84,6 +84,7 @@ class SecurityViewMixin(IsSecurityTeamUser, LeavingRequestViewMixin, BaseTemplat
         context.update(
             leaver_name=leaver_name,
             leaver_email=self.leaving_request.get_leaver_email(),
+            leaver_date_of_birth=self.leaver_info.leaver_date_of_birth,
             leaver_security_clearance=leaver_security_clearance.label,
             manager_name=manager_as_user.full_name,
             manager_emails=manager_as_user.get_email_addresses_for_contact(),

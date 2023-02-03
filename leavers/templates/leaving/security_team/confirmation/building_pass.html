@@ -7,7 +7,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
-            {% include "leaving/security_team/includes/leaving_request_details.html" %}
+            {% include "leaving/security_team/includes/leaving_request_details.html" with show_leaver_dob=True %}
             <h2 class="govuk-heading-m">Pass status</h2>
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
