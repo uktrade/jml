@@ -197,7 +197,7 @@ def build_leaving_data_from_leaving_request(
     leaving_reason_mapping: Dict[LeavingReason, ReasonForLeaving] = {
         LeavingReason.END_OF_CONTRACT: "end_of_contract",
         LeavingReason.RETIREMENT: "retirement",
-        LeavingReason.ILL_HEALTH_RETIREMENT: "retirement",  # TODO: Confirm this is correct
+        LeavingReason.ILL_HEALTH_RETIREMENT: "retirement",
     }
     reason_for_leaving = LeavingReason(leaving_request.reason_for_leaving)
     leaver_reason_for_leaving: ReasonForLeaving = "resignation"
