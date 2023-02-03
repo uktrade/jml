@@ -258,6 +258,7 @@ class TestLeaverDatesView(LeavingRequestTestCase):
         return_value=STAFF_DOCUMENT,
     )
     def test_post_form_data(self, mock_get_staff_document_from_staff_index):
+        next_year = timezone.now().year + 1
         self.client.force_login(self.leaver)
 
         post_response = self.client.post(
@@ -265,10 +266,10 @@ class TestLeaverDatesView(LeavingRequestTestCase):
             data={
                 "leaving_date_0": "1",
                 "leaving_date_1": "2",
-                "leaving_date_2": "2023",
+                "leaving_date_2": str(next_year),
                 "last_day_0": "1",
                 "last_day_1": "2",
-                "last_day_2": "2023",
+                "last_day_2": str(next_year),
                 "leaver_manager": STAFF_DOCUMENT.uuid,
             },
         )
@@ -291,6 +292,7 @@ class TestLeaverDatesView(LeavingRequestTestCase):
         return_value=STAFF_DOCUMENT,
     )
     def test_post_form_data_no_manager(self, mock_get_staff_document_from_staff_index):
+        next_year = timezone.now().year + 1
         self.client.force_login(self.leaver)
 
         self.leaving_request.manager_activitystream_user = None
@@ -301,10 +303,10 @@ class TestLeaverDatesView(LeavingRequestTestCase):
             data={
                 "leaving_date_0": "1",
                 "leaving_date_1": "2",
-                "leaving_date_2": "2023",
+                "leaving_date_2": str(next_year),
                 "last_day_0": "1",
                 "last_day_1": "2",
-                "last_day_2": "2023",
+                "last_day_2": str(next_year),
                 "leaver_manager": STAFF_DOCUMENT.uuid,
             },
         )
