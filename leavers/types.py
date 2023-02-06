@@ -22,9 +22,10 @@ class SecurityClearance(TextChoices):
 
 class LeavingReason(TextChoices):
     RESIGNATION = "resignation", "Resignation"
-    RETIREMENT = "retirement", "Retirement"
     TRANSFER = "transfer", "Transferring to another Civil Service role"
     END_OF_CONTRACT = "end_of_contract", "End of contract"
+    RETIREMENT = "retirement", "Retirement"
+    ILL_HEALTH_RETIREMENT = "ill_health_retirement", "Retirement due to ill health"
     DISMISSAL = "dismissal", "Dismissal"
     DEATH_IN_SERVICE = "death_in_service", "Death in service"
 
