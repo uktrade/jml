@@ -162,8 +162,24 @@ def search_staff_index(
                     },
                 },
                 "should": [
-                    {"match": {"staff_sso_first_name": {"query": query, "boost": 5.0}}},
-                    {"match": {"staff_sso_last_name": {"query": query, "boost": 5.0}}},
+                    {
+                        "match": {
+                            "staff_sso_first_name": {
+                                "query": query,
+                                "boost": 5.0,
+                            },
+                        },
+                    },
+                    {
+                        "match": {
+                            "staff_sso_last_name": {
+                                "query": query,
+                                "boost": 5.0,
+                                "fuzziness": 2,
+                                "fuzzy_transpositions": True,
+                            },
+                        },
+                    },
                     {
                         "match": {
                             "staff_sso_email_addresses": {
@@ -172,7 +188,12 @@ def search_staff_index(
                             }
                         }
                     },
-                    {"multi_match": {"query": query, "analyzer": "standard"}},
+                    {
+                        "multi_match": {
+                            "query": query,
+                            "analyzer": "standard",
+                        },
+                    },
                 ],
                 "minimum_should_match": 1,
                 "boost": 1.0,
