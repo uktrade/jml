@@ -1,19 +1,25 @@
 {% extends "base.html" %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h1 class="govuk-heading-l">DIT Leaving Service - Beta - {{ page_title }}</h1>
-
+            <h1 class="govuk-heading-l">{{ SERVICE_NAME }} - Beta - {{ page_title }}</h1>
             <h2 class="govuk-heading-m">What it is and why it is needed</h2>
-            <p class="govuk-body">The DIT Leaving Service is intended to replace the multiple forms and other processes currently used when someone leaves DIT.</p>
-            <p class="govuk-body">This means that not only is the experience of leaving DIT more efficient and simple to complete. It also ensures that the department has good record keeping on all leaving aspects.</p>
-
+            <p class="govuk-body">
+                The {{ SERVICE_NAME }} is intended to replace the multiple forms and other processes currently used when someone leaves DIT.
+            </p>
+            <p class="govuk-body">
+                This means that not only is the experience of leaving DIT more efficient and simple to complete. It also ensures that the department has good record keeping on all leaving aspects.
+            </p>
             <h2 class="govuk-heading-m">What it does</h2>
-            <p class="govuk-body">The DIT Leaving Service allows for all contracted or Civil Servant staff to provide information needed by the department for offboarding purposes.</p>
-            <p class="govuk-body">The service automatically notifies the various DIT directorates who have responsibility of ensuring that a leaver’s access to software, tools and services is removed.</p>
-            <p class="govuk-body">When you record any offboarding actions on the service, it will create an audit trail of those activities.</p>
-
+            <p class="govuk-body">
+                The {{ SERVICE_NAME }} allows for all contracted or Civil Servant staff to provide information needed by the department for offboarding purposes.
+            </p>
+            <p class="govuk-body">
+                The service automatically notifies the various DIT directorates who have responsibility of ensuring that a leaver’s access to software, tools and services is removed.
+            </p>
+            <p class="govuk-body">
+                When you record any offboarding actions on the service, it will create an audit trail of those activities.
+            </p>
             <h2 class="govuk-heading-m">What it does not do</h2>
             <p class="govuk-body">Currently, the service acts as a way to record actions taken during a leaving process.</p>
             <p class="govuk-body">It does not currently automate any of those actions such as:</p>
@@ -22,7 +28,9 @@
                 <li>removal of access to software and services</li>
                 <li>payroll system updates</li>
             </ul>
-            <p class="govuk-body">The service does not provide the ability to resign from a post. It assumes that the required official agreement for leaving the department has already taken place.</p>
+            <p class="govuk-body">
+                The service does not provide the ability to resign from a post. It assumes that the required official agreement for leaving the department has already taken place.
+            </p>
             <p class="govuk-body">It does not currently cover:</p>
             <ul class="govuk-list govuk-list--bullet">
                 <li>loans or temporary loans</li>
@@ -31,22 +39,38 @@
                 <li>dismissal</li>
                 <li>death in service</li>
             </ul>
-
             <h2 class="govuk-heading-m">How it works</h2>
-            <p class="govuk-body">Information is provided by the leaver and confirmed by the Line Manager.  It is intended to be entirely sufficient so that you are able to offboard them.</p>
-            <p class="govuk-body">Once you have logged in with Staff Single Sign-on (SSO), the service will guide you through processing information relevant to the leaver’s offboarding.</p>
-            <p class="govuk-body">As you offboard a leaver in the course of your duties you must use this service to record the actions you took.</p>
-
+            <p class="govuk-body">
+                Information is provided by the leaver and confirmed by the Line Manager.  It is intended to be entirely sufficient so that you are able to offboard them.
+            </p>
+            <p class="govuk-body">
+                Once you have logged in with Staff Single Sign-on (SSO), the service will guide you through processing information relevant to the leaver’s offboarding.
+            </p>
+            <p class="govuk-body">
+                As you offboard a leaver in the course of your duties you must use this service to record the actions you took.
+            </p>
             <h2 class="govuk-heading-m">What we would like you to do</h2>
-            <p class="govuk-body">Thank you for agreeing to be part of this private beta.</p>
-            <p class="govuk-body">We would like you to use the service to complete the offboarding areas that you are responsible for.</p>
-            <p class="govuk-body">The service itself is an automated service. It will communicate with you at appropriate moments and guide you in how to use it.</p>
-            <p class="govuk-body">Due to the limited number of participants in this private beta, we would be immensely grateful for any and all feedback on your use of the service.</p>
-            <p class="govuk-body">You will notice a feedback form on every page of the service. Please do use it to let us have any feedback, good or bad.</p>
-
-            <h2 class="govuk-heading-m">Contact us</h2>
-            <p class="govuk-body">Get in touch with any questions, feedback or comments by emailing: <a class="govuk-link" href="mailto:{{ JML_TEAM_CONTACT_EMAIL }}">{{ JML_TEAM_CONTACT_EMAIL }}</a></p>
+            <p class="govuk-body">
+                Thank you for agreeing to be part of this private beta.
+            </p>
+            <p class="govuk-body">
+                We would like you to use the service to complete the offboarding areas that you are responsible for.
+            </p>
+            <p class="govuk-body">
+                The service itself is an automated service. It will communicate with you at appropriate moments and guide you in how to use it.
+            </p>
+            <p class="govuk-body">
+                Due to the limited number of participants in this private beta, we would be immensely grateful for any and all feedback on your use of the service.
+            </p>
+            <p class="govuk-body">
+                You will notice a feedback form on every page of the service. Please do use it to let us have any feedback, good or bad.
+            </p>
+            <h2 class="govuk-heading-m">
+                Contact us
+            </h2>
+            <p class="govuk-body">
+                Get in touch with any questions, feedback or comments by emailing: <a class="govuk-link" href="mailto:{{ JML_TEAM_CONTACT_EMAIL }}">{{ JML_TEAM_CONTACT_EMAIL }}</a>
+            </p>
         </div>
     </div>
-
 {% endblock content %}

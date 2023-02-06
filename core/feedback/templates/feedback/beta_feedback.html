@@ -1,18 +1,13 @@
 {% extends "base.html" %}
 {% load crispy_forms_tags crispy_forms_gds %}
-
 {% block content %}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             {% error_summary form %}
-
-            <h1 class="govuk-heading-l">Give feedback on the DIT Leaving Service</h1>
-
+            <h1 class="govuk-heading-l">Give feedback on the {{ SERVICE_NAME }}</h1>
             <form novalidate method="post">
                 {% crispy form %}
             </form>
         </div>
     </div>
-
 {% endblock content %}
