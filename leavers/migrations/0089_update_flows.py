@@ -42,9 +42,8 @@ def update_workflows(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("leavers", "0086_update_flows"),
+        ("leavers", "0088_update_flows"),
     ]
 
     operations = [
