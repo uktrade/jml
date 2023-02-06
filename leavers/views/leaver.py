@@ -35,7 +35,7 @@ from leavers import types
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation
-from leavers.types import LeavingReason, StaffType
+from leavers.types import HealthAndSafetyOfficerOptions, LeavingReason, StaffType
 from leavers.utils.leaving_request import update_or_create_leaving_request
 from leavers.views.base import LeavingRequestViewMixin
 from leavers.workflow.utils import get_or_create_leaving_workflow
@@ -160,13 +160,20 @@ class LeavingJourneyViewMixin(LeavingRequestViewMixin):
         },
         "leaver-dates": {
             "prev": "employment-profile",
-            "next": "leaver-has-assets",
+            "next": "hsfl-officer",
             "conditions": [],
             "view_name": "Dates",
             "show_in_summary": True,
         },
-        "leaver-has-assets": {
+        "hsfl-officer": {
             "prev": "leaver-dates",
+            "next": "leaver-has-assets",
+            "conditions": [],
+            "view_name": "Health and Safety or Floor Liaison Officer?",
+            "show_in_summary": True,
+        },
+        "leaver-has-assets": {
+            "prev": "hsfl-officer",
             "next": "leaver-has-cirrus-equipment",
             "conditions": [],
             "view_name": "Leaver's assets",
@@ -954,6 +961,70 @@ class LeaverDatesView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
                 activitystream_user=manager_activitystream_user,
             ),
         )
+        return context
+
+
+class HSFLOfficerView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
+    template_name = "leaving/leaver/hsfl_officer.html"
+    form_class = leaver_forms.HSFLOfficerForm
+
+    def get_initial(self) -> Dict[str, Any]:
+        initial = super().get_initial()
+
+        hsfl_officer_value = []
+
+        if self.leaver_info.is_health_and_safety_officer:
+            hsfl_officer_value.append(
+                HealthAndSafetyOfficerOptions.HEALTH_AND_SAFETY_OFFICER.value
+            )
+        if self.leaver_info.is_floor_liaison_officer:
+            hsfl_officer_value.append(
+                HealthAndSafetyOfficerOptions.FLOOR_LIAISON_OFFICER.value
+            )
+        if (
+            self.leaver_info.is_health_and_safety_officer is not None
+            and self.leaver_info.is_health_and_safety_officer is False
+            and self.leaver_info.is_floor_liaison_officer is not None
+            and self.leaver_info.is_floor_liaison_officer is False
+        ):
+            hsfl_officer_value.append(HealthAndSafetyOfficerOptions.NEITHER.value)
+
+        initial.update(
+            hsfl_officer=hsfl_officer_value,
+        )
+        return initial
+
+    def form_valid(self, form) -> HttpResponse:
+        hsfl_officer_value = form.cleaned_data["hsfl_officer"]
+        self.leaver_info.is_health_and_safety_officer = bool(
+            HealthAndSafetyOfficerOptions.HEALTH_AND_SAFETY_OFFICER.value
+            in hsfl_officer_value
+        )
+        self.leaver_info.is_floor_liaison_officer = bool(
+            HealthAndSafetyOfficerOptions.FLOOR_LIAISON_OFFICER.value
+            in hsfl_officer_value
+        )
+        self.leaver_info.save(
+            update_fields=[
+                "is_health_and_safety_officer",
+                "is_floor_liaison_officer",
+            ]
+        )
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        leaver_name = self.leaving_request.get_leaver_name()
+
+        page_title = "Are you a health and safety or floor liaison officer?"
+        if not self.user_is_leaver:
+            page_title = (
+                f"Is {leaver_name} a health and safety or floor liaison officer?"
+            )
+
+        context.update(page_title=page_title)
+
         return context
 
 

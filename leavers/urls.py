@@ -271,6 +271,11 @@ leaving_request_urlpatterns: list[URLResolver | URLPattern] = [
         name="leaver-dates",
     ),
     path(
+        "health-and-safety-or-floor-liaison-officer/",
+        leaver_views.HSFLOfficerView.as_view(),
+        name="hsfl-officer",
+    ),
+    path(
         "leaver-assets/",
         leaver_views.LeaverHasAssetsView.as_view(),
         name="leaver-has-assets",

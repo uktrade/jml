@@ -589,6 +589,8 @@ class LeaverInformation(models.Model):
 
     # Extra information
     has_dse = models.BooleanField(null=True, blank=True)
+    is_health_and_safety_officer = models.BooleanField(null=True, blank=True)
+    is_floor_liaison_officer = models.BooleanField(null=True, blank=True)
 
     # Leaver contact informtion
     contact_phone = models.CharField(max_length=1000, null=True, blank=True)
