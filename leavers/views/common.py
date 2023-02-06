@@ -7,6 +7,7 @@ from django.urls import reverse, reverse_lazy
 from core.utils.helpers import make_possessive
 from core.utils.staff_index import get_staff_document_from_staff_index
 from core.views import BaseTemplateView
+from leavers.forms.data_processor import HRLeavingRequestListingSearchForm
 from leavers.models import LeaverInformation, LeavingRequest
 from leavers.views.base import LeavingRequestListing, LeavingRequestViewMixin
 from leavers.views.leaver import LeavingJourneyViewMixin
@@ -20,6 +21,7 @@ else:
 
 class LeavingRequestListView(UserPassesTestMixin, LeavingRequestListing):
     template_name = "leaving/common/leaving_request_list.html"
+    form_class = HRLeavingRequestListingSearchForm
 
     complete_field = "line_manager_complete"
     # These views will contain the task list for HR to complete/review what was done
