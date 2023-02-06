@@ -105,22 +105,13 @@ class SecurityClearanceForm(forms.Form):
         return cleaned_data
 
 
-class BuildingPassStatus(TextChoices):
-    ACTIVE = "active", "Active"
-    DEACTIVATED = "deactivated", "Deactivated"
-
-
 class BuildingPassSteps(TextChoices):
+    DEACTIVATED = "deactivated", "Deactivated"
     RETURNED = "returned", "Pass returned"
     DESTROYED = "destroyed", "Pass destroyed"
 
 
 class BuildingPassForm(forms.Form):
-    pass_status = forms.ChoiceField(
-        label="Edit pass status",
-        choices=BuildingPassStatus.choices,
-        widget=forms.RadioSelect,
-    )
     next_steps = forms.MultipleChoiceField(
         label="Next steps",
         choices=BuildingPassSteps.choices,
@@ -138,10 +129,6 @@ class BuildingPassForm(forms.Form):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field.radios(
-                "pass_status",
-                legend_size=Size.MEDIUM,
-            ),
             Field.checkboxes(
                 "next_steps",
                 legend_size=Size.MEDIUM,
