@@ -14,6 +14,7 @@
 " Send Leaver
 " Send SRE Team
 " Send the Leaver
+" Send the SRE
 " Set the security role to the Session
 " Store Extra
 " Store the Correction
@@ -224,6 +225,7 @@ Elastic
 Email                             
 Email Templates
 email_id
+EmailIds
 ends.</td
 Enhanced Security Check
 event.detail.headers['X-CSRFToken'

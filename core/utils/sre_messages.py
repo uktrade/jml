@@ -152,7 +152,8 @@ def send_sre_reminder_message(
     if leaver_name:
         possessive_leaver_name = make_possessive(leaver_name)
 
-    sre_team_link = reverse(
+    site_url = settings.SITE_URL
+    sre_team_link = site_url + reverse(
         "sre-detail", kwargs={"leaving_request_uuid": leaving_request.uuid}
     )
 
