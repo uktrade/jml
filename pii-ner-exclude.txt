@@ -122,6 +122,9 @@ Building Pass
 Building pass '
 Building Pass Access Revoked
 building_pass_access_task_log
+Business Continuity
+Business Continuity Team Settings
+BUSINESS_CONTINUITY_EMAIL                                        
 C901
 card</li>{%
 channel_id
@@ -610,6 +613,7 @@ Tech
 TEMPLATE_ID_CLU4_EMAIL
 TEMPLATE_ID_CLU4_EMAIL                                           |
 TEMPLATE_ID_CLU4_EMAIL                                           | None                                       |                                                                                       
+TEMPLATE_ID_COMAEA_EMAIL                                         
 TEMPLATE_ID_COMAEA_EMAIL                              | None                                        |                                                                                                        
 TEMPLATE_ID_FEETHAM_SECURITY_PASS_OFFICE_EMAIL                   
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL

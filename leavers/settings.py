@@ -26,6 +26,7 @@ class EmailTemplatesSettings:
     OCS_OAB_LOCKER_EMAIL: str
     HEALTH_AND_SAFETY_EMAIL: str
     COMAEA_EMAIL: str
+    BUSINESS_CONTINUITY_LEAVER_EMAIL: str
     # Procesor emails: Security Offboarding (Building Pass)
     SECURITY_TEAM_OFFBOARD_BP_LEAVER_EMAIL: str
     SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD: str

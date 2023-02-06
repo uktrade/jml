@@ -293,6 +293,26 @@ def send_comaea_email(
     )
 
 
+def send_buisness_continuity_leaver_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
+    """
+    Send Business Continuity Email to notify of a new leaver.
+    """
+
+    if not settings.BUSINESS_CONTINUITY_EMAIL:
+        raise ValueError("BUSINESS_CONTINUITY_EMAIL is not set")
+
+    personalisation = get_leaving_request_email_personalisation(leaving_request)
+
+    notify.email(
+        email_addresses=[settings.BUSINESS_CONTINUITY_EMAIL],
+        template_id=notify.EmailTemplates.BUSINESS_CONTINUITY_LEAVER_EMAIL,
+        personalisation=personalisation,
+    )
+
+
 def send_line_manager_correction_email(
     leaving_request: LeavingRequest,
     template_id: Optional[notify.EmailTemplates] = None,
