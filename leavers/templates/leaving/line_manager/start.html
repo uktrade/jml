@@ -10,7 +10,9 @@
             <ul class="govuk-list govuk-list--bullet">
                 <li>who will receive {{ possessive_leaver_name }} Google Drive data</li>
                 <li>their last working day and leaving day</li>
-                <li>that you have completed the CSET form and shared it with UKSBS</li>
+                {% if reason_for_leaving == "transfer" %}
+                    <li>that you have completed the CSET form and shared it with UKSBS</li>
+                {% endif %}
                 {% if reason_for_leaving != "transfer" %}<li>any remaining annual or Flexi-leave they have</li>{% endif %}
             </ul>
             {% if leaving_request.show_line_reports and leaving_request.show_hr_and_payroll %}

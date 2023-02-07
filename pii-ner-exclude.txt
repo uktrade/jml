@@ -692,6 +692,7 @@ UKSBS_INTERFACE
 uksbs_person_id_override
 UKSBS_POST_LEAVER_SUBMISSION                             
 UKSBS_POST_LEAVER_SUBMISSION                                     | None                                       
+UKSBS</li
 UKSBSBase
 UKSBSStubbed
 Un
