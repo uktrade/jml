@@ -20,8 +20,10 @@
 " Send the Leaver
 " Send the SRE
 " Set the security role to the Session
+" Store DSE
 " Store Extra
 " Store the Correction
+" Store the selected
 " Task Logs
 " The Asset's
 " The Service Now API Asset
@@ -131,6 +133,7 @@ Bench
 Bloggs
 bool_to_yes_no
 boolean
+BPSS
 Build Staff Document
 Building Pass
 Building pass '
@@ -166,6 +169,7 @@ COMAEA Team Settings
 Compile SCSS
 complete</a>
 component](
+Confirm
 confirm_leaver_data
 contact_address_line_1
 contact_address_postcode
@@ -177,6 +181,7 @@ core.people_data
 core.tasks.ingest_people_data_task
 core.tasks.ingest_people_finder_task
 Correction Email
+Counter Terrorist Check
 Create ActivityStream
 Create Leaving Request
 Create Physical Asset
@@ -216,10 +221,12 @@ Dev
 Dev Tools
 dev_tools/` - Djang
 Developed Vetting
+Developed Vetting (DV
 Digital
 Digital Accessibility
 Digital Accessibility Centre
 Digital Workspace
+Digital Workspace</a
 Digital Worskspace
 directorate_id
 DIRS
@@ -256,6 +263,7 @@ Email Templates
 email_id
 EmailIds
 ends.</td
+Enhanced Developed Vetting
 Enhanced Security Check
 event.detail.headers['X-CSRFToken'
 event.target.checked && gov_radio_conditional_wrapper.id
@@ -298,11 +306,13 @@ form</h1
 found</p
 from:</p>
 Functionality
+GET
 Get the Data Recipient StaffDocument
 Get the Leaver StaffDocument
 Get the Leaver's
 Get the Leaving Request for the Leaver
 get_people_data_interface
+get_success_url
 GETADDRESS_TOKEN
 Github
 GitLab
@@ -459,6 +469,7 @@ max-width
 Mi-Fi Device'
 migrate$(COLOUR_NONE
 minimum_should_match
+Misc
 Mismatch Email
 MIT
 MIT License
@@ -555,6 +566,7 @@ request</h2
 requests</a
 Resignation
 Return Cirrus
+return_address_line_2
 return_contact_email
 ReturnOptions
 risk.\n
@@ -576,8 +588,11 @@ rosa-kit/
 rosa-kit/status/<str
 ROSA</span>
 Running MkDocs
+SC
 Security
 SECURITY
+Security Check (
+Security Clearance
 Security Team
 security_clearance_status_task_log
 security_pass_disabled_task_log
@@ -684,8 +699,8 @@ Tests for `store_leaver_detail_updates` "
 Tests for `store_leaving_dates` "
 Tests for `store_return_information`
 Tests for `store_return_option
-the Cirrus kit
 the ActivityStream API
+the Cirrus kit
 the Cirrus Tech
 the Cirrus Tech Bar
 the Civil Service

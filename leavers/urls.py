@@ -246,6 +246,11 @@ leaving_request_urlpatterns: list[URLResolver | URLPattern] = [
         name="leaver-fast-streamer",
     ),
     path(
+        "how-are-you-employed/loan/",
+        leaver_views.LeaverLoanView.as_view(),
+        name="leaver-loan",
+    ),
+    path(
         "employment-profile/",
         leaver_views.EmploymentProfileView.as_view(),
         name="employment-profile",

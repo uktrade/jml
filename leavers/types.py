@@ -35,6 +35,7 @@ class StaffType(TextChoices):
     CONTRACTOR = "contractor", "Contractor (for example, Hays)"
     BENCH_CONTRACTOR = "bench_contractor", "Bench contractor (for example, Profusion)"
     FAST_STREAMERS = "fast_streamers", "Civil Service Fast Stream"
+    LOAN = "loan", "Loan"
 
 
 class ReturnOptions(TextChoices):
