@@ -373,6 +373,7 @@ kit</th
 know:</p
 Laptop
 last_day_agg
+last_working_day
 Leaver
 Leaver Email
 Leaver Final Actions Email

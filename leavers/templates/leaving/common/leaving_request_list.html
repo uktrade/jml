@@ -13,10 +13,14 @@
             </div>
         </div>
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-two-thirds">
-                <h2 class="govuk-heading-m">Manually off-board someone</h2>
+            <div class="govuk-grid-column-one-third">
+                <h2 class="govuk-heading-m">Create a new leaver</h2>
                 <p class="govuk-body">Manually off-board someone who has left DIT without completing the leaving service.</p>
                 {% button_start offboard_url "Start" %}
+            </div>
+            {% comment %} Empty column {% endcomment %}
+            <div class="govuk-grid-column-one-third">
+                <p class="govuk-body"></p>
             </div>
             <div class="govuk-grid-column-one-third">
                 <form action="" method="post">
@@ -29,7 +33,7 @@
         <h2 class="govuk-tabs__title">Contents</h2>
         <ul class="govuk-tabs__list">
             <li class="govuk-tabs__list-item {% if show_incomplete %}govuk-tabs__list-item--selected{% endif %}">
-                <a class="govuk-tabs__tab" href='{% url "leaving-requests-list" %}'>Waiting</a>
+                <a class="govuk-tabs__tab" href='{% url "leaving-requests-list" %}'>Incomplete</a>
             </li>
             <li class="govuk-tabs__list-item {% if show_complete %}govuk-tabs__list-item--selected{% endif %}">
                 <a class="govuk-tabs__tab"
