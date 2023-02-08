@@ -33,7 +33,8 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
         hx-trigger="keyup changed delay:200ms, search"
         hx-target="#search-results-{{ search_identifier }}"
         hx-indicator="#htmx-indicator-{{ search_identifier }}"
-        hx-params="{{ search_identifier }}_search_terms"/>
+        hx-params="{{ search_identifier }}_search_terms"
+        aria-expanded="false"/>
     <span id="htmx-indicator-{{ search_identifier }}" class="htmx-indicator">
         <p class="govuk-body">Searching...</p>
     </span>
@@ -45,6 +46,18 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
         form.addEventListener("keydown", function (e) {
             if (e.target === input && e.key === "Enter") {
                 e.preventDefault();
+            }
+        });
+        // Make search screen reader friendly
+        document.getElementById("search-results-{{ search_identifier }}").addEventListener("htmx:afterSwap", function (e) {
+            result_value = e.target.innerHTML.trim()
+            // If result_value is empty or contains "No results found", set aria-expanded to false
+            if (result_value === "" || result_value.includes("No results found")) {
+                // If the search results are empty, set aria-expanded to false
+                input.setAttribute("aria-expanded", "false");
+            } else {
+                // If the search results have content, set aria-expanded to true
+                input.setAttribute("aria-expanded", "true");
             }
         });
     </script>
