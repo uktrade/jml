@@ -27,6 +27,7 @@
 "Lost/Stolen"
 "Returns the next work day
 "Returns True
+{ GETADDRESS_TOKEN }}'
 {{
 @media
 *Actions required:*\n
@@ -136,6 +137,7 @@ Charlie"
 checkbox
 Cirrus
 Cirrus Equipment
+Cirrus kit
 Cirrus kit</h2>
 Civil Servant
 Civil Servants
@@ -447,6 +449,7 @@ Movers and Leavers
 Movers and Leavers Service
 NAME
 name=
+name="form_name" value="add_asset_form
 National Insurance
 new_line_report_id"
 None                                       
