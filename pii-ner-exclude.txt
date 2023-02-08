@@ -216,6 +216,7 @@ DIT
 DIT Activity
 DIT Leavers Service
 DIT Offboarding Team
+DIT.</p
 dit.html
 DIT</li
 Django 4.1.4
@@ -647,6 +648,7 @@ Tests for `store_leaver_detail_updates` "
 Tests for `store_leaving_dates` "
 Tests for `store_return_information`
 Tests for `store_return_option
+the Cirrus kit
 the Cirrus Tech
 the Cirrus Tech Bar
 the Civil Service
