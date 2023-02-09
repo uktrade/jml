@@ -8,11 +8,11 @@ class SatisfactionOptions(TextChoices):
     Enum for the satisfaction options.
     """
 
-    VERY_SATISFIED = "very_satisfied", "Very satisfied"
-    SATISFIED = "satisfied", "Satisfied"
-    NEUTRAL = "neutral", "Neither satisfied or dissatisfied"
-    DISSATISFIED = "dissatisfied", "Dissatisfied"
     VERY_DISSATISFIED = "very_dissatisfied", "Very dissatisfied"
+    DISSATISFIED = "dissatisfied", "Dissatisfied"
+    NEUTRAL = "neutral", "Neither satisfied or dissatisfied"
+    SATISFIED = "satisfied", "Satisfied"
+    VERY_SATISFIED = "very_satisfied", "Very satisfied"
 
 
 class BetaServiceFeedback(models.Model):
