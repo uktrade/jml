@@ -236,6 +236,7 @@ dit.html
 DIT</li
 Django 4.1.4
 Django 4.1.6
+Django Crispy Forms
 DjangoCelery
 DjangoTemplates
 DLS
@@ -629,6 +630,7 @@ staff_id"
 STAFF_SSO_ACTIVITY_STREAM_ID
 staff_sso_legacy_id
 StaffDocument
+Star Rating
 Start Line
 Start" %}
 Store DSE
