@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from dev_tools import utils as dev_tools_utils
 from django.contrib.auth.models import Group
@@ -7,12 +7,13 @@ from django.core.management.base import BaseCommand
 from user.models import User
 
 # first name, last name, team /PS-IGNORE
-USERS: List[Tuple[str, str, str]] = [
-    ("John", "Smith", "Hardware Team"),  # /PS-IGNORE
-    ("Jane", "Doe", "SRE"),  # /PS-IGNORE
-    ("Miss", "Marple", "HR"),  # /PS-IGNORE
-    ("Thomas", "Anderson", "Security Team"),  # /PS-IGNORE
-    ("Charlotte", "Blackwood", "Asset Team"),  # /PS-IGNORE
+USERS: List[Tuple[str, str, str, Optional[str]]] = [
+    ("John", "Smith", "Hardware Team", None),  # /PS-IGNORE
+    ("Jane", "Doe", "SRE", None),  # /PS-IGNORE
+    ("Miss", "Marple", "HR", None),  # /PS-IGNORE
+    ("Thomas", "Anderson", "Security Team", None),  # /PS-IGNORE
+    ("Charlotte", "Blackwood", "Asset Team", None),  # /PS-IGNORE
+    ("John", "Watson", "Hardware Team", "digital.trade.gov.uk"),  # /PS-IGNORE
 ]
 
 
@@ -23,8 +24,8 @@ class Command(BaseCommand):
         self.exists = 0
         self.created = 0
 
-        for first_name, last_name, group in USERS:
-            self.create_user(first_name, last_name, group)
+        for first_name, last_name, group, email_domain in USERS:
+            self.create_user(first_name, last_name, group, email_domain)
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -34,8 +35,17 @@ class Command(BaseCommand):
             )
         )
 
-    def create_user(self, first_name: str, last_name: str, group_name: str) -> User:
-        email = f"{first_name.lower()}.{last_name.lower()}@example.com"  # /PS-IGNORE
+    def create_user(
+        self,
+        first_name: str,
+        last_name: str,
+        group_name: str,
+        email_domain: Optional[str],
+    ) -> User:
+        if not email_domain:
+            email_domain = "example.com"
+
+        email = f"{first_name.lower()}.{last_name.lower()}@{email_domain}"  # /PS-IGNORE
 
         try:
             group = Group.objects.get(name=group_name)

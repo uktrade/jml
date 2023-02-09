@@ -36,6 +36,16 @@ class ActivityStreamStaffSSOUserQuerySet(models.QuerySet):
             emails=ArrayAgg("sso_emails__email_address", distinct=True),
         )
 
+    def with_digital_trade_email(self):
+        return self.filter(
+            sso_emails__email_address__contains="@digital.trade.gov.uk",
+        )
+
+    def without_digital_trade_email(self):
+        return self.exclude(
+            sso_emails__email_address__contains="@digital.trade.gov.uk",
+        )
+
 
 ActivityStreamStaffSSOUserManager: Type[
     Manager["ActivityStreamStaffSSOUser"]

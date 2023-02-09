@@ -288,6 +288,9 @@ class DataRecipientSearchView(ReviewViewMixin, StaffSearchView):
         self.exclude_staff_ids = [
             self.leaving_request.leaver_activitystream_user.identifier
         ]
+        # Exclude staff without digital emails
+        for staff in ActivityStreamStaffSSOUser.objects.without_digital_trade_email():
+            self.exclude_staff_ids.append(staff.identifier)
 
 
 class LineReportNewLineManagerSearchView(ReviewViewMixin, StaffSearchView):
@@ -479,7 +482,6 @@ class LeaverConfirmationView(ReviewViewMixin, BaseTemplateView, FormView):
         return initial
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-
         context = super().get_context_data(**kwargs)
 
         leaver_name = f"{self.leaver['first_name']} {self.leaver['last_name']}"
