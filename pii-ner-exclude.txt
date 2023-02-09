@@ -32,6 +32,10 @@
 "Returns True
 { GETADDRESS_TOKEN }}'
 {{
+{{ choice.hint }
+{{ field.auto_id }
+{{ field.html_name }
+{{ field.label|safe }
 @media
 *Actions required:*\n
 && e.key
@@ -93,6 +97,7 @@ active</dd
 activity_stream.activitystreamstaffssouser
 ActivityStream
 add_missing_line_report_error
+address p {
 address=
 Admin Views
 admin@opensearch:9200
@@ -105,6 +110,7 @@ aria-current="page
 aria-describedby="id
 aria-expanded="false"/
 aria-hidden="true
+aria-label=
 aria-label="Navigation menu
 aria-label="Page
 aria-label="Show
@@ -343,6 +349,7 @@ HSTS
 HTMX
 HTMX Staff
 http://0.0.0.0:8002
+http://www.w3.org/2000/svg'
 https://fake-uksbs.domain/hierarchy-api/1.0
 https://opensearch.org/docs/latest/opensearch/index-data/#update-data
 id="id
@@ -443,6 +450,7 @@ manager_id
 Manager</h2
 manager</label
 Mark
+max-width
 Mi-Fi Device'
 migrate$(COLOUR_NONE
 minimum_should_match
@@ -731,6 +739,7 @@ Updated Personal Email
 User
 User
 users.</td
+value=
 value="update_status_form">
 Variables](/docs
 viewBox="0 0 483.2
@@ -746,6 +755,7 @@ WorkflowExecutor
 Workflows
 WSGI
 x.groups.first
+xmlns='http://www.w3.org/2000/svg'
 yet.</p
 You Email
 You Email*
