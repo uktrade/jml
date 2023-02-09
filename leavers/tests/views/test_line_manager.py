@@ -208,28 +208,11 @@ class TestDataRecipientSearchView(ViewAccessTest, TestCase):
 
     @mock.patch(
         "core.staff_search.views.search_staff_index",
-        return_value=[],
-    )
-    def test_search_with_incorrect_email(self, mock_search_staff_index):
-        self.client.force_login(self.authenticated_user)
-        response = self.client.post(self.get_url(), {"search_terms": "example.com"})
-
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "Joe Bloggs")
-        self.assertNotContains(
-            response,
-            "(Job title, joe.bloggs@example.com)",  # /PS-IGNORE
-        )
-
-    @mock.patch(
-        "core.staff_search.views.search_staff_index",
         return_value=[STAFF_DOCUMENT],
     )
-    def test_search_with_digital_trade_email(self, mock_search_staff_index):
+    def test_search_with_results(self, mock_search_staff_index):
         self.client.force_login(self.authenticated_user)
-        response = self.client.post(
-            self.get_url(), {"search_terms": "digital.trade.gov.uk"}
-        )
+        response = self.client.post(self.get_url(), {"search_terms": "example.com"})
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Joe Bloggs")
@@ -238,13 +221,16 @@ class TestDataRecipientSearchView(ViewAccessTest, TestCase):
             "(Job title, joe.bloggs@example.com)",  # /PS-IGNORE
         )
 
+        # Check that digital trade staff are excluded from the search
         exclude_staff_ids = [
+            self.leaving_request.leaver_activitystream_user.identifier
+        ] + [
             as_user.identifier
             for as_user in ActivityStreamStaffSSOUser.objects.without_digital_trade_email()
         ]
 
         mock_search_staff_index.assert_called_once_with(
-            query="['digital.trade.gov.uk']",
+            query="['example.com']",
             exclude_staff_ids=exclude_staff_ids,
         )
 
