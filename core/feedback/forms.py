@@ -30,7 +30,7 @@ class BetaFeedbackForm(ModelForm):
                     "satisfaction",
                     template="widgets/star_rating/star_rating.html",
                 ),
-                legend="Overall, how did you feel about the service you received today",
+                legend="Overall, how did you feel about the service you received today?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
