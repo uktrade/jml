@@ -31,6 +31,7 @@ def global_context(request):
         "MAIN_NAV": [],
         "IS_PRODUCTION": bool(settings.APP_ENV == "production"),
         "JML_LEAVING_DIT_GUIDANCE_URL": settings.JML_LEAVING_DIT_GUIDANCE_URL,
+        "DIT_LOANS_GUIDANCE_URL": settings.DIT_LOANS_GUIDANCE_URL,
     }
 
     if "dev_tools.apps.DevToolsConfig" in settings.INSTALLED_APPS:

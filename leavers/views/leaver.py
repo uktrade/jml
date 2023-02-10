@@ -257,7 +257,6 @@ class LeavingJourneyViewMixin(LeavingRequestViewMixin):
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
-
         multiple_person_id_response = self.check_multiple_person_ids(request=request)
         if multiple_person_id_response:
             return multiple_person_id_response
@@ -646,6 +645,9 @@ class StaffTypeView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
         if staff_type == StaffType.FAST_STREAMERS:
             self.success_viewname = "leaver-fast-streamer"
             return super().form_valid(form)
+        elif staff_type == StaffType.LOAN:
+            self.success_viewname = "leaver-loan"
+            return super().form_valid(form)
         else:
             self.leaving_request.staff_type = staff_type
             self.leaving_request.save(update_fields=["staff_type"])
@@ -669,6 +671,20 @@ class LeaverFastStreamerView(LeavingJourneyViewMixin, BaseTemplateView):
         page_title = "You cannot use this service"
         if not self.user_is_leaver:
             page_title = "Fast Streamers cannot use this service"
+
+        context.update(page_title=page_title)
+        return context
+
+
+class LeaverLoanView(LeavingJourneyViewMixin, BaseTemplateView):
+    template_name = "leaving/leaver/loan.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        page_title = "You cannot use this service"
+        if not self.user_is_leaver:
+            page_title = "People on loan cannot use this service"
 
         context.update(page_title=page_title)
         return context

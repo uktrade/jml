@@ -1,6 +1,9 @@
 -O codecov.sh https://codecov.io/bash
 .00
+.env.ci
+.env.example
 'None" &&
+" Add global context
 " Enum for the satisfaction options
 " Get Service Now
 " Leavers Workflow This can be triggered in 2
@@ -20,8 +23,10 @@
 " Send the Leaver
 " Send the SRE
 " Set the security role to the Session
+" Store DSE
 " Store Extra
 " Store the Correction
+" Store the selected
 " Task Logs
 " The Asset's
 " The Service Now API Asset
@@ -57,12 +62,14 @@
 ^4.0.8
 ^6.3.0
 >View cookies</a>
+|
 | SLACK_SRE_CHANNEL_ID                                     | None                                       
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
 | TEMPLATE_ID_OCS_LEAVER_EMAIL                                     
 | TEMPLATE_ID_OCS_LEAVER_EMAIL                                     | None                                       
 | TEMPLATE_ID_SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD       
 | TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_LEAVER_REMINDER_EMAIL |
+| TEMPLATE_ID_SRE_REMINDER_ON_LD
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LWD                      
 | UKSBS_INTERFACE                                                  
 0.1.0
@@ -104,6 +111,7 @@ admin@opensearch:9200
 Annual Leave
 Annual Leave: "
 API
+API Key
 Apple
 Args
 aria-current="page
@@ -119,8 +127,12 @@ aria-sort="{%
 Assert
 AssetDetails
 Authbroker                   
+AUTHBROKER_CLIENT_ID
+AuthenticationMiddleware
+AutoField
 Automation
 AV Equipment'
+BACKEND
 Base
 Baseline
 Baseline Personnel Security Standard
@@ -131,6 +143,7 @@ Bench
 Bloggs
 bool_to_yes_no
 boolean
+BPSS
 Build Staff Document
 Building Pass
 Building pass '
@@ -141,6 +154,7 @@ Business Continuity Team Settings
 BUSINESS_CONTINUITY_EMAIL                                        
 C901
 card</li>{%
+CHANGE_EMPLOYEES_LM_LINK                                         
 channel_id
 Charlie
 Charlie"
@@ -163,9 +177,12 @@ COLOUR_GREEN=\033[32;01
 COLOUR_YELLOW=\033[33;01
 COMAEA
 COMAEA Team Settings
+CommonMiddleware
 Compile SCSS
 complete</a>
 component](
+config/settings/base.py
+Confirm
 confirm_leaver_data
 contact_address_line_1
 contact_address_postcode
@@ -176,7 +193,9 @@ Convert Request Data
 core.people_data
 core.tasks.ingest_people_data_task
 core.tasks.ingest_people_finder_task
+core/context_processors.py
 Correction Email
+Counter Terrorist Check
 Create ActivityStream
 Create Leaving Request
 Create Physical Asset
@@ -196,6 +215,7 @@ DAMAGES
 Dashboard</a>
 Data
 data_recipient_activitystream_user
+DatabaseScheduler
 date_of_birth
 date_of_birth_0"
 date_of_birth_0": 19
@@ -205,6 +225,7 @@ date</span
 day</span></a
 Days"
 DB
+Default                                     
 delay:200ms
 Department 1
 Department 2
@@ -214,12 +235,16 @@ design</h4
 Desktop'
 Dev
 Dev Tools
+Dev tools & Authbroker
+DEV_TOOLS_ENABLED                                                
 dev_tools/` - Djang
 Developed Vetting
+Developed Vetting (DV
 Digital
 Digital Accessibility
 Digital Accessibility Centre
 Digital Workspace
+Digital Workspace</a
 Digital Worskspace
 directorate_id
 DIRS
@@ -232,12 +257,15 @@ DIT
 DIT Activity
 DIT Leavers Service
 DIT Offboarding Team
+DIT_OFFBOARDING_EMAIL                                            
 DIT.</p
 dit.html
 DIT</li
 Django 4.1.4
 Django 4.1.6
 Django Crispy Forms
+Django REST Framework
+django.middleware.common
 DjangoCelery
 DjangoTemplates
 DLS
@@ -256,6 +284,7 @@ Email Templates
 email_id
 EmailIds
 ends.</td
+Enhanced Developed Vetting
 Enhanced Security Check
 event.detail.headers['X-CSRFToken'
 event.target.checked && gov_radio_conditional_wrapper.id
@@ -279,6 +308,8 @@ f"User
 f"user{n
 f"We
 F401
+F405
+False                                       
 Faulty"
 Feetham Security Pass Office
 Feetham Security Pass Office Leaver Notification Email
@@ -298,11 +329,13 @@ form</h1
 found</p
 from:</p>
 Functionality
+GET
 Get the Data Recipient StaffDocument
 Get the Leaver StaffDocument
 Get the Leaver's
 Get the Leaving Request for the Leaver
 get_people_data_interface
+get_success_url
 GETADDRESS_TOKEN
 Github
 GitLab
@@ -324,6 +357,7 @@ gtm-head.html
 H021
 has_cirrus_kit
 have</li>{%
+HAWK
 HAWK_INCOMING_ACCESS_KEY
 HAWK_INCOMING_SECRET_KEY
 Health and Safety or Floor Liaison
@@ -342,6 +376,7 @@ HelpDeskStubbed|
 hint{%
 Home Use"
 home_address_line_1'
+HOST
 Hours
 HR & Payroll
 HR_UKSBS_CORRECTION_EMAIL
@@ -354,9 +389,11 @@ HSTS
 HTMX
 HTMX Staff
 http://0.0.0.0:8002
+http://localhost:8000
 http://www.w3.org/2000/svg'
 https://fake-uksbs.domain/hierarchy-api/1.0
 https://opensearch.org/docs/latest/opensearch/index-data/#update-data
+https://www.django-rest-framework.org/api-guide/pagination/
 id="id
 IE
 ill health</li>
@@ -427,6 +464,7 @@ LeaversWorkflow
 Leaving Date - lm
 Leaving Request
 Leaving Request Admin
+Leaving Requests (admin
 leaving_request.holds_government_procurement_card
 leaving_request.is_rosa_user
 leaving_request=self.leaving_request
@@ -434,6 +472,7 @@ LeavingInformation
 LeavingRequest
 LeavingRequest.manually_offboarded_from_uksbs
 LEGACY_PEOPLE_FINDER_ES_INDEX
+LEGACY_PEOPLE_FINDER_ES_URL                                      
 li class="moj-primary
 li class="progress-step{%
 LIABILITY
@@ -445,6 +484,7 @@ Line Managers.</p
 Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
 line_report.consolidated_staff_document.job_title
+Link
 Loan Pool'
 Locker Email
 Log a Service Now
@@ -456,9 +496,11 @@ Manager</h2
 manager</label
 Mark
 max-width
+MessageMiddleware
 Mi-Fi Device'
 migrate$(COLOUR_NONE
 minimum_should_match
+Misc
 Mismatch Email
 MIT
 MIT License
@@ -477,7 +519,9 @@ National Insurance
 new_line_report_id"
 None                                       
 None" &&
+Notes                                                                                                  
 Notification Email
+Notify
 notify.email
 npm
 NVDA
@@ -502,6 +546,7 @@ Palette
 ParsedUKSBSPDF
 ParsedUKSBSPDF"
 Pass notes</h2
+PASSWORD
 Payroll
 Pending
 Pending" %
@@ -523,6 +568,7 @@ PEOPLE_FINDER_INTERFACE=core.people_finder.interfaces
 people_finder_photo_small
 people_finder_result["email
 people_finder_result["email
+PEOPLE_FINDER_URL                                                
 Person
 PersonData
 Physical Asset
@@ -555,10 +601,12 @@ request</h2
 requests</a
 Resignation
 Return Cirrus
+return_address_line_2
 return_contact_email
 ReturnOptions
 risk.\n
 role="alert
+ROOT_LOG_LEVEL
 ROSA
 ROSA Access Revoked
 ROSA Kit
@@ -576,8 +624,12 @@ rosa-kit/
 rosa-kit/status/<str
 ROSA</span>
 Running MkDocs
+SC
+SEARCH_STAFF_INDEX_NAME                                          |
 Security
 SECURITY
+Security Check (
+Security Clearance
 Security Team
 security_clearance_status_task_log
 security_pass_disabled_task_log
@@ -600,12 +652,18 @@ Service Now.</p>
 SERVICE_NAME
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID=1234567890
+SERVICE_NOW_GET_ASSET_PATH                                       
+SERVICE_NOW_GET_DIRECTORATE_PATH
+SERVICE_NOW_GET_DIRECTORATE_PATH                                 
 SERVICE_NOW_INTERFACE
+SERVICE_NOW_OFFLINE_URL                                          
+SERVICE_NOW_POST_LEAVER_REQUEST                                  
 ServiceNow
 ServiceNow Leaver
 Session
 session.</p
 sessionid
+SessionMiddleware
 SIM
 sizes="152x152
 sizes="16x16
@@ -634,6 +692,7 @@ Staff
 staff_details.job_title %
 staff_id"
 STAFF_SSO_ACTIVITY_STREAM_ID
+STAFF_SSO_ACTIVITY_STREAM_SECRET                                 
 staff_sso_legacy_id
 StaffDocument
 Star Rating
@@ -644,6 +703,7 @@ str
 StreamHandler
 Strip
 super().setUp
+Survey                                                                      
 target="_blank">here</a>.</li>
 TaskLog
 TaskRecord
@@ -655,6 +715,7 @@ TEMPLATE_ID_CLU4_EMAIL                                           | None         
 TEMPLATE_ID_COMAEA_EMAIL                                         
 TEMPLATE_ID_COMAEA_EMAIL                              | None                                        |                                                                                                        
 TEMPLATE_ID_FEETHAM_SECURITY_PASS_OFFICE_EMAIL                   
+TEMPLATE_ID_IT_OPS_ASSET_EMAIL                                   |
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL                     | None                                       
@@ -666,11 +727,14 @@ TEMPLATE_ID_LINE_MANAGER_REMINDER_EMAIL                  | None                 
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL                  
 TEMPLATE_ID_LINE_MANAGER_THANKYOU_EMAIL |  |
+TEMPLATE_ID_SECURITY_OFFBOARD_BP_REMINDER_ON_LD                  
 TEMPLATE_ID_SECURITY_OFFBOARD_RK_REMINDER_ON_LD                  
+TEMPLATE_ID_SECURITY_TEAM_OFFBOARD_BP_LEAVER_EMAIL               
 TEMPLATE_ID_SRE_NOTIFICATION                                     
 TEMPLATE_ID_SRE_REMINDER_ON_LD                                   
 TEMPLATE_ID_SRE_REMINDER_ON_LD                                   | None                                       
 TEMPLATE_ID_SRE_REMINDER_ON_LD                                   | None                                       |                                                                                                        
+TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_LM                    
 Templates
 test_existing_updates
 TestDetailsView(ViewAccessTest
@@ -684,8 +748,8 @@ Tests for `store_leaver_detail_updates` "
 Tests for `store_leaving_dates` "
 Tests for `store_return_information`
 Tests for `store_return_option
-the Cirrus kit
 the ActivityStream API
+the Cirrus kit
 the Cirrus Tech
 the Cirrus Tech Bar
 the Civil Service
@@ -726,10 +790,13 @@ type</span>
 UK SBS - Unexpected
 UK SBS - Unexpected Response
 UK SBS Correction
+UK SBS Leaver Submission URL                                                                           
 UKSBS
 UKSBS Connect
 UKSBS Leavers
 UKSBS Line
+UKSBS_HIERARCHY_API_URL
+UKSBS_HIERARCHY_API_URL                                          
 UKSBS_INTERFACE
 uksbs_person_id_override
 UKSBS_POST_LEAVER_SUBMISSION                             
@@ -752,6 +819,7 @@ users.</td
 value=
 value="update_status_form">
 Variables](/docs
+VCAP_SERVICES
 viewBox="0 0 483.2
 visit</li>
 VoiceOver
