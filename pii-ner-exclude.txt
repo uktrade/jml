@@ -115,6 +115,7 @@ API Key
 Apple
 Args
 aria-current="page
+aria-current="page"{%
 aria-describedby="id
 aria-expanded="false"/
 aria-hidden="true
@@ -204,6 +205,7 @@ create_physical_asset
 Create/Update Staff ES
 Crispy
 crispy_forms_gds
+crispy_forms_tags crispy_forms_gds %
 Croker
 Crown
 CRSF
@@ -223,6 +225,7 @@ date_of_birth_1
 date_of_birth_2
 date</span
 day</span></a
+Days
 Days"
 DB
 Default                                     
@@ -450,6 +453,7 @@ leaver_info.contact_address.line_2
 leaver_info.has_dse
 leaver_info.refresh_from_db
 leaver_info.return_address.line_2
+leaver_information__last_day
 leaver_job_title
 leaver_paid_unpaid
 leaver:</h2
