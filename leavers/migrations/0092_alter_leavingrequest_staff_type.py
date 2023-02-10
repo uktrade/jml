@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("leavers", "0090_update_flows"),
+        ("leavers", "0091_leavingrequest_docker_user_access_removed"),
     ]
 
     operations = [
