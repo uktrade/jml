@@ -41,7 +41,7 @@
             {% else %}
                 <p class="govuk-body">Currently no Cirrus kit listed.</p>
             {% endif %}
-            <form novalidate method='post'>
+            <form novalidate method="post">
                 <input type="hidden" name="form_name" value="add_asset_form" />
                 {% crispy add_asset_form %}
             </form>

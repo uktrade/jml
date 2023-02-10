@@ -227,10 +227,10 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
         "security_clearance": "Please select the leaver's security clearance from the list.",
     }
 
-    first_name = forms.CharField(label="")
-    last_name = forms.CharField(label="")
+    first_name = forms.CharField(label="First name")  # /PS-IGNORE
+    last_name = forms.CharField(label="Last name")  # /PS-IGNORE
     date_of_birth = DateInputField(label="")
-    job_title = forms.CharField(label="")
+    job_title = forms.CharField(label="Job title")
     security_clearance = forms.ChoiceField(
         label="",
         choices=(
@@ -253,15 +253,15 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Fieldset(
-                Field.text("first_name", field_width=Fluid.TWO_THIRDS),
-                legend="First name",  # /PS-IGNORE
-                legend_size=Size.SMALL,
+            Field.text(
+                "first_name",
+                field_width=Fluid.TWO_THIRDS,
+                label_size=Size.SMALL,
             ),
-            Fieldset(
-                Field.text("last_name", field_width=Fluid.TWO_THIRDS),
-                legend="Last name",  # /PS-IGNORE
-                legend_size=Size.SMALL,
+            Field.text(
+                "last_name",
+                field_width=Fluid.TWO_THIRDS,
+                label_size=Size.SMALL,
             ),
             Fieldset(
                 date_of_birth_html,
@@ -270,13 +270,13 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
                 legend="Date of birth",
                 legend_size=Size.SMALL,
             ),
-            Fieldset(
-                Field.text("job_title", field_width=Fluid.TWO_THIRDS),
-                legend="Job title",
-                legend_size=Size.SMALL,
+            Field.text(
+                "job_title",
+                field_width=Fluid.TWO_THIRDS,
+                label_size=Size.SMALL,
             ),
             Fieldset(
-                Field("security_clearance"),
+                Field.select("security_clearance"),
                 legend="Security level",
                 legend_size=Size.SMALL,
             ),
@@ -565,41 +565,41 @@ class LeaverHasAssetsForm(LeaverJourneyBaseForm):
         "has_dse": "Please tell us if the leaver has any IT equipment.",
     }
 
-    has_gov_procurement_card = YesNoField(label="")
-    has_rosa_kit = YesNoField(label="")
-    has_dse = YesNoField(label="")
+    has_gov_procurement_card = YesNoField(
+        label="Do you have a government procurement card (GPC)?"
+    )
+    has_rosa_kit = YesNoField(label="Do you have ROSA equipment?")
+    has_dse = YesNoField(label="Do you have any IT equipment?")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        has_gpc_legned = "Do you have a government procurement card (GPC)?"
-        has_rosa_legend = "Do you have ROSA equipment?"
-        has_dse_legend = "Do you have any IT equipment?"
-
         if not self.user_is_leaver:
             leaver_name = self.leaving_request.get_leaver_name()
 
-            has_gpc_legned = (
-                f"Does {leaver_name} have a government procurement card (GPC)?"
-            )
-            has_rosa_legend = f"Does {leaver_name} have ROSA equipment?"
-            has_dse_legend = f"Does {leaver_name} have any IT equipment?"
+            self.fields[
+                "has_gov_procurement_card"
+            ].label = f"Does {leaver_name} have a government procurement card (GPC)?"
+            self.fields[
+                "has_rosa_kit"
+            ].label = f"Does {leaver_name} have ROSA equipment?"
+            self.fields["has_dse"].label = f"Does {leaver_name} have any IT equipment?"
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Fieldset(
-                Field.radios("has_gov_procurement_card", inline=False),
-                legend=has_gpc_legned,
+            Field.radios(
+                "has_gov_procurement_card",
+                inline=False,
                 legend_size=Size.SMALL,
             ),
-            Fieldset(
-                Field.radios("has_rosa_kit", inline=False),
-                legend=has_rosa_legend,
+            Field.radios(
+                "has_rosa_kit",
+                inline=False,
                 legend_size=Size.SMALL,
             ),
-            Fieldset(
-                Field.radios("has_dse", inline=False),
-                legend=has_dse_legend,
+            Field.radios(
+                "has_dse",
+                inline=False,
                 legend_size=Size.SMALL,
             ),
         )
@@ -676,6 +676,8 @@ class AddCirrusAssetForm(LeaverJourneyBaseForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["asset_name"].widget.attrs.update(autofocus=True)
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -760,16 +762,30 @@ class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
         "home_address_postcode": "Please tell us the leaver's postcode.",
     }
     return_option = forms.ChoiceField(
-        label="",
+        label="How would you like to return your Cirrus kit?",
         choices=RETURN_OPTIONS,
         widget=forms.RadioSelect,
     )
 
-    office_personal_phone = forms.CharField(label="", max_length=16, required=False)
-    office_contact_email = forms.EmailField(label="", required=False)
+    office_personal_phone = forms.CharField(
+        label="Contact phone",
+        max_length=16,
+        required=False,
+    )
+    office_contact_email = forms.EmailField(
+        label="Contact email",
+        required=False,
+    )
 
-    home_personal_phone = forms.CharField(label="", max_length=16, required=False)
-    home_contact_email = forms.EmailField(label="", required=False)
+    home_personal_phone = forms.CharField(
+        label="Contact phone",
+        max_length=16,
+        required=False,
+    )
+    home_contact_email = forms.EmailField(
+        label="Contact email",
+        required=False,
+    )
 
     home_address_line_1 = forms.CharField(label="Address line 1", required=False)
     home_address_line_2 = forms.CharField(label="Address line 2", required=False)
@@ -782,73 +798,68 @@ class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
 
         self.helper = FormHelper()
 
-        return_option_legend = "How would you like to return your Cirrus kit?"
-
         if not self.user_is_leaver:
             leaver_name = self.leaving_request.get_leaver_name()
-
-            return_option_legend = (
-                f"How would {leaver_name} like to return their Cirrus kit?"
-            )
+            self.fields[
+                "return_option"
+            ].label = f"How would {leaver_name} like to return their Cirrus kit?"
 
         self.helper.layout = Layout(
-            Fieldset(
-                radios_with_conditionals("return_option"),
-                legend=return_option_legend,
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                Field.text("office_personal_phone", field_width=Fluid.TWO_THIRDS),
-                legend="Contact phone",
-                legend_size=Size.SMALL,
+            radios_with_conditionals("return_option", legend_size=Size.MEDIUM),
+            Div(
+                Field.text(
+                    "office_personal_phone",
+                    field_width=Fluid.TWO_THIRDS,
+                    label_size=Size.SMALL,
+                ),
+                Field.text(
+                    "office_contact_email",
+                    field_width=Fluid.TWO_THIRDS,
+                    label_size=Size.SMALL,
+                ),
                 css_class="radio-conditional-field conditional-return_option-office",
             ),
-            Fieldset(
-                Field.text("office_contact_email", field_width=Fluid.TWO_THIRDS),
-                legend="Contact email",
-                legend_size=Size.SMALL,
-                css_class="radio-conditional-field conditional-return_option-office",
-            ),
-            Fieldset(
-                Field.text("home_personal_phone", field_width=Fluid.TWO_THIRDS),
-                legend="Contact phone",
-                legend_size=Size.SMALL,
-                css_class="radio-conditional-field conditional-return_option-home",
-            ),
-            Fieldset(
-                Field.text("home_contact_email", field_width=Fluid.TWO_THIRDS),
-                legend="Contact email",
-                legend_size=Size.SMALL,
-                css_class="radio-conditional-field conditional-return_option-home",
-            ),
-            Fieldset(
+            Div(
                 Field.text(
-                    "home_address_line_1",
-                    id="home_address_line_1",
+                    "home_personal_phone",
                     field_width=Fluid.TWO_THIRDS,
+                    label_size=Size.SMALL,
                 ),
                 Field.text(
-                    "home_address_line_2",
-                    id="home_address_line_2",
+                    "home_contact_email",
                     field_width=Fluid.TWO_THIRDS,
+                    label_size=Size.SMALL,
                 ),
-                Field.text(
-                    "home_address_city",
-                    id="home_address_city",
-                    field_width=Fluid.TWO_THIRDS,
+                Fieldset(
+                    Field.text(
+                        "home_address_line_1",
+                        id="home_address_line_1",
+                        field_width=Fluid.TWO_THIRDS,
+                    ),
+                    Field.text(
+                        "home_address_line_2",
+                        id="home_address_line_2",
+                        field_width=Fluid.TWO_THIRDS,
+                    ),
+                    Field.text(
+                        "home_address_city",
+                        id="home_address_city",
+                        field_width=Fluid.TWO_THIRDS,
+                    ),
+                    Field.text(
+                        "home_address_county",
+                        id="home_address_county",
+                        field_width=Fluid.TWO_THIRDS,
+                    ),
+                    Field.text(
+                        "home_address_postcode",
+                        id="home_address_postcode",
+                        field_width=Fluid.TWO_THIRDS,
+                    ),
+                    legend="Address for courier to pick up the Cirrus kit",
+                    legend_size=Size.SMALL,
+                    css_class="govuk-!-margin-top-6",
                 ),
-                Field.text(
-                    "home_address_county",
-                    id="home_address_county",
-                    field_width=Fluid.TWO_THIRDS,
-                ),
-                Field.text(
-                    "home_address_postcode",
-                    id="home_address_postcode",
-                    field_width=Fluid.TWO_THIRDS,
-                ),
-                legend="Address for courier to pick up the Cirrus kit",
-                legend_size=Size.SMALL,
                 css_class="radio-conditional-field conditional-return_option-home",
             ),
         )
@@ -909,6 +920,8 @@ class AddDisplayScreenEquipmentAssetForm(LeaverJourneyBaseForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["asset_name"].widget.attrs.update(autofocus=True)
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
