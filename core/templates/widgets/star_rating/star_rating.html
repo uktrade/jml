@@ -1,0 +1,35 @@
+{% comment %}
+    Star Rating widget for Django Crispy Forms.
+
+    Reference:
+    https://github.com/uktrade/trade-remedies-public/blob/develop/trade_remedies_public/templates/v2/feedback/collect_feedback.html
+{% endcomment %}
+{% load i18n crispy_forms_field crispy_forms_gds %}
+
+{% if field.is_hidden %}
+    {{ field }}
+{% else %}
+    {% if max_characters or max_words %}
+        <div
+            class="govuk-character-count"
+            data-module="govuk-character-count"
+            {% if max_characters %}
+                data-maxlength="{{ max_characters }}"
+            {% else %}
+                data-maxwords="{{ max_words }}"
+            {% endif %}
+            {% if threshold %}
+                data-threshold="{{ threshold }}"
+            {% endif %}>
+    {% endif %}
+
+    <{% if tag %}{{ tag }}{% else %}div{% endif %}
+    id="div_{{ field.auto_id }}"
+    class="govuk-form-group{% if form_show_errors %}{% if field.errors %} govuk-form-group--error{% endif %}{% endif %}{% if wrapper_class %} {{ wrapper_class }}{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}"
+    >
+
+    {% include "widgets/star_rating/radios.html" %}
+
+    </{% if tag %}{{ tag }}{% else %}div{% endif %}>
+    {% if max_characters or max_words %}</div>{% endif %}
+{% endif %}

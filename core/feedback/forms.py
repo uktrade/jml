@@ -22,11 +22,15 @@ class BetaFeedbackForm(ModelForm):
         self.fields["comment"].required = True
 
         self.helper = FormHelper()
+
         self.helper.layout = Layout(
             Field("submitter"),
             Fieldset(
-                Field.radios("satisfaction"),
-                legend="Overall, how did you feel about the service you received today",
+                Field.radios(
+                    "satisfaction",
+                    template="widgets/star_rating/star_rating.html",
+                ),
+                legend="Overall, how did you feel about the service you received today?",
                 legend_size=Size.MEDIUM,
             ),
             Fieldset(
