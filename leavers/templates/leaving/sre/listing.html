@@ -1,5 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
-{% load crispy_forms_tags crispy_forms_gds %}
+{% load core crispy_forms_tags crispy_forms_gds %}
 {% block container_class_names %}
 {% endblock container_class_names %}
 {% block content %}
@@ -7,6 +7,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">{% error_summary form %}</div>
         </div>
+
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-l">{{ page_title }}</h1>
@@ -15,21 +16,26 @@
                 {% elif show_incomplete and not show_complete %}
                     <p class="govuk-body">Select the leaver to confirm removal of their access from tools and services.</p>
                 {% endif %}
-                <h2 class="govuk-heading-m"></h2>
                 <form action="" method="post">
                     {% crispy form %}
                 </form>
             </div>
         </div>
+
+        {% if has_query %}
+            <p class="govuk-body">
+                <a class="govuk-link" href="{% get_current_url_without_query_params %}">Clear search</a>
+            </p>
+        {% endif %}
     </div>
     <div class="govuk-tabs govuk-!-margin-left-9 govuk-!-margin-right-9">
         <h2 class="govuk-tabs__title">Contents</h2>
         <ul class="govuk-tabs__list">
             <li class="govuk-tabs__list-item {% if show_incomplete %}govuk-tabs__list-item--selected{% endif %}">
-                <a class="govuk-tabs__tab" href="{% url 'sre-listing-incomplete' %}">Waiting</a>
+                <a class="govuk-tabs__tab" href="{% url_with_query_params 'sre-listing-incomplete' %}">Waiting</a>
             </li>
             <li class="govuk-tabs__list-item {% if show_complete %}govuk-tabs__list-item--selected{% endif %}">
-                <a class="govuk-tabs__tab" href="{% url 'sre-listing-complete' %}">Completed</a>
+                <a class="govuk-tabs__tab" href="{% url_with_query_params 'sre-listing-complete' %}">Completed</a>
             </li>
         </ul>
         <div class="govuk-tabs__panel">
