@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from activity_stream.factories import ActivityStreamStaffSSOUserFactory
+from activity_stream.models import ActivityStreamStaffSSOUser
 from core.utils.staff_index import StaffDocument
 from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
 from leavers.forms.line_manager import (
@@ -218,6 +219,19 @@ class TestDataRecipientSearchView(ViewAccessTest, TestCase):
         self.assertContains(
             response,
             "(Job title, joe.bloggs@example.com)",  # /PS-IGNORE
+        )
+
+        # Check that digital trade staff are excluded from the search
+        exclude_staff_ids = [
+            self.leaving_request.leaver_activitystream_user.identifier
+        ] + [
+            as_user.identifier
+            for as_user in ActivityStreamStaffSSOUser.objects.without_digital_trade_email()
+        ]
+
+        mock_search_staff_index.assert_called_once_with(
+            query="['example.com']",
+            exclude_staff_ids=exclude_staff_ids,
         )
 
 

@@ -195,6 +195,7 @@ DAC
 DAMAGES
 Dashboard</a>
 Data
+data_recipient_activitystream_user
 date_of_birth
 date_of_birth_0"
 date_of_birth_0": 19
@@ -283,6 +284,8 @@ Feetham Security Pass Office
 Feetham Security Pass Office Leaver Notification Email
 Feetham Security Pass Office Settings
 feetham_security_pass_office_email
+FIELD
+Filter
 Finder Raises
 FL
 Flexi Impacting Pay
@@ -295,6 +298,7 @@ form</h1
 found</p
 from:</p>
 Functionality
+Get the Data Recipient StaffDocument
 Get the Leaver StaffDocument
 Get the Leaver's
 Get the Leaving Request for the Leaver
@@ -530,6 +534,7 @@ Port Replicator'
 POST
 Postcode
 process.</p
+processing_manager_activitystream_user
 Procurement Card
 Provide a comma
 Python 2
@@ -625,6 +630,7 @@ SSO
 sso_access_task_log
 sso_email_user_id
 sso_email_user_id = user.sso_email_user_id
+Staff
 staff_details.job_title %
 staff_id"
 STAFF_SSO_ACTIVITY_STREAM_ID
@@ -679,12 +685,14 @@ Tests for `store_leaving_dates` "
 Tests for `store_return_information`
 Tests for `store_return_option
 the Cirrus kit
+the ActivityStream API
 the Cirrus Tech
 the Cirrus Tech Bar
 the Civil Service
 the Civil Service Fast Stream
 the Civil Service Fast Stream.</p
 the CLU4 Team                                     
+the Data Recipient
 the Data Recipient StaffDocument
 the Datahub Group
 the DB Creates
