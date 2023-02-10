@@ -216,6 +216,14 @@ class LeavingRequest(models.Model):
         blank=True,
     )
 
+    docker_user_access_removed = models.OneToOneField(
+        TaskLog,
+        on_delete=models.CASCADE,
+        related_name="docker_user_task_log",
+        null=True,
+        blank=True,
+    )
+
     github_user_access_removed = models.OneToOneField(
         TaskLog,
         on_delete=models.CASCADE,
@@ -468,6 +476,7 @@ class LeavingRequest(models.Model):
 
         sre_service_label_mapping: List[Tuple[str, str]] = [
             ("aws_access_removed", "AWS"),
+            ("docker_user_access_removed", "Docker"),
             ("github_user_access_removed", "Github"),
             ("gitlab_user_access_removed", "GitLab"),
             ("govuk_paas_access_removed", "GOV UK PaaS"),
