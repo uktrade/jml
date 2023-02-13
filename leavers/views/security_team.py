@@ -180,7 +180,14 @@ class BuildingPassConfirmationView(
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         leaver_name = self.leaving_request.get_leaver_name()
-        context.update(page_title=f"{leaver_name} building pass")
+        possessive_leaver_name = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
+        context.update(
+            page_title=f"{possessive_leaver_name} building pass",
+            leaver_name=leaver_name,
+            possessive_leaver_name=possessive_leaver_name,
+        )
 
         security_clearance_can_complete: bool = False
         security_clearance_status: Optional[ClearanceStatus] = None
@@ -232,6 +239,25 @@ class BuildingPassConfirmationView(
             reference="LeavingRequest.security_team_building_pass_complete",
         )
         return super().form_valid(form)
+
+
+class BuildingPassConfirmationReadOnlyView(BuildingPassConfirmationView):
+    back_link_viewname = "security-team-summary"
+    back_link_text = "Back"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
+
+        context.update(
+            read_only=True,
+            page_title=f"{possessive_leaver_name} building pass summary",
+        )
+        return context
 
 
 class BuildingPassConfirmationEditView(SecurityViewMixin, FormView):

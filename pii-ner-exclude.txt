@@ -41,6 +41,10 @@
 {{ field.auto_id }
 {{ field.html_name }
 {{ field.label|safe }
+{{ pass_destroyed.created_at
+{{ pass_disabled.created_at
+{{ pass_returned.created_at }
+{{ security_clearance_status_task_log.user.get_full_name }}
 @media
 *Actions required:*\n
 && e.key
@@ -640,6 +644,7 @@ Security Team
 security_clearance_status_task_log
 security_pass_disabled_task_log
 security_team_building_pass_complete
+security_team_rosa_kit_complete
 SECURITY_TEAM_VETTING_EMAIL
 SECURITY_TEAM_VETTING_EMAIL                                      
 security/

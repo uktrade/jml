@@ -120,6 +120,11 @@ leaving_request_security_urlpatterns = [
         name="security-team-building-pass-confirmation",
     ),
     path(
+        "building-pass/summary/",
+        security_team_views.BuildingPassConfirmationReadOnlyView.as_view(),
+        name="security-team-building-pass-confirmation-read-only",
+    ),
+    path(
         "security-clearance/edit/",
         security_team_views.SecurityClearanceConfirmationEditView.as_view(),
         name="security-team-security-clearance-confirmation-edit",
