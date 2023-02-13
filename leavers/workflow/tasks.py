@@ -387,11 +387,11 @@ class EmailIds(Enum):
     SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD = (
         "security_offboard_bp_reminder_one_day_after_ld"
     )
-    SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM = (
-        "security_offboard_bp_reminder_two_days_after_ld_lm"
+    SECURITY_OFFBOARD_BP_REMINDER_FIVE_DAYS_AFTER_LD_LM = (
+        "security_offboard_bp_reminder_five_days_after_ld_lm"
     )
-    SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC = (
-        "security_offboard_bp_reminder_two_days_after_ld_proc"
+    SECURITY_OFFBOARD_BP_REMINDER_FIVE_DAYS_AFTER_LD_PROC = (
+        "security_offboard_bp_reminder_five_days_after_ld_proc"
     )
     # Security Offboarding (ROSA Kit)
     SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION = (
@@ -407,16 +407,16 @@ class EmailIds(Enum):
     SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD = (
         "security_offboard_rk_reminder_one_day_after_ld"
     )
-    SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM = (
-        "security_offboard_rk_reminder_two_days_after_ld_lm"
+    SECURITY_OFFBOARD_RK_REMINDER_FIVE_DAYS_AFTER_LD_LM = (
+        "security_offboard_rk_reminder_five_days_after_ld_lm"
     )
-    SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC = (
-        "security_offboard_rk_reminder_two_days_after_ld_proc"
+    SECURITY_OFFBOARD_RK_REMINDER_FIVE_DAYS_AFTER_LD_PROC = (
+        "security_offboard_rk_reminder_five_days_after_ld_proc"
     )
     # SRE Offboarding
     SRE_REMINDER_DAY_AFTER_LWD = "sre_reminder_day_after_lwd"
     SRE_REMINDER_ONE_DAY_AFTER_LD = "sre_reminder_one_day_after_ld"
-    SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC = "sre_reminder_two_days_after_ld_proc"
+    SRE_REMINDER_FIVE_DAYS_AFTER_LD_PROC = "sre_reminder_five_days_after_ld_proc"
 
     FEETHAM_SECURITY_PASS_OFFICE_EMAIL = "feetham_security_pass_office_email"
     IT_OPS_ASSET_EMAIL = "it_ops_asset_email"
@@ -461,10 +461,10 @@ PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
     EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD: (
         EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD
     ),
-    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM: (
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_FIVE_DAYS_AFTER_LD_LM: (
         EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM
     ),
-    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_FIVE_DAYS_AFTER_LD_PROC: (
         EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC
     ),
     # Security Offboarding (Rosa Kit)
@@ -480,10 +480,10 @@ PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
     EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD: (
         EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD
     ),
-    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM: (
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_FIVE_DAYS_AFTER_LD_LM: (
         EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM
     ),
-    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_FIVE_DAYS_AFTER_LD_PROC: (
         EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC
     ),
     # SRE Offboarding
@@ -491,7 +491,7 @@ PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
     EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD: (
         EmailTemplates.SRE_REMINDER_ONE_DAY_AFTER_LD
     ),
-    EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+    EmailIds.SRE_REMINDER_FIVE_DAYS_AFTER_LD_PROC: (
         EmailTemplates.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC
     ),
 }
@@ -501,9 +501,9 @@ SECURITY_TEAM_BP_REMINDER_EMAILS: ReminderEmailDict = {
     "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD.value,
     "on_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ON_LD.value,
     "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD.value,
-    "five_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM.value,
+    "five_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_FIVE_DAYS_AFTER_LD_LM.value,
     "five_days_after_ld_proc": (
-        EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC.value
+        EmailIds.SECURITY_OFFBOARD_BP_REMINDER_FIVE_DAYS_AFTER_LD_PROC.value
     ),
 }
 
@@ -512,9 +512,9 @@ SECURITY_TEAM_RK_REMINDER_EMAILS: ReminderEmailDict = {
     "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD.value,
     "on_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ON_LD.value,
     "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD.value,
-    "five_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM.value,
+    "five_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_FIVE_DAYS_AFTER_LD_LM.value,
     "five_days_after_ld_proc": (
-        EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC.value
+        EmailIds.SECURITY_OFFBOARD_RK_REMINDER_FIVE_DAYS_AFTER_LD_PROC.value
     ),
 }
 
@@ -524,7 +524,7 @@ SRE_REMINDER_EMAILS: ReminderEmailDict = {
     "on_ld": None,
     "one_day_after_ld": EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD.value,
     "five_days_after_ld_lm": None,
-    "five_days_after_ld_proc": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC.value,
+    "five_days_after_ld_proc": EmailIds.SRE_REMINDER_FIVE_DAYS_AFTER_LD_PROC.value,
 }
 SRE_REMINDER_EMAIL_IDS: List[EmailIds] = [
     EmailIds(sre_reminder_email_id)  # type: ignore
