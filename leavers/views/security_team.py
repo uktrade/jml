@@ -908,6 +908,7 @@ class TaskSummaryView(SecurityViewMixin):
             pass_destroyed=self.leaving_request.security_pass_destroyed,
             security_clearance_status=security_clearance_status,
             security_clearance_other_value=security_clearance_other_value,
+            is_rosa_user=self.leaving_request.is_rosa_user,
             rosa_kit_tasks=rosa_kit_tasks,
             rosa_kit_complete=bool(
                 self.leaving_request.security_team_rosa_kit_complete
