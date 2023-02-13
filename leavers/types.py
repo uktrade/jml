@@ -101,8 +101,8 @@ class ReminderEmailDict(TypedDict):
     two_days_after_lwd: Optional[str]
     on_ld: Optional[str]
     one_day_after_ld: Optional[str]
-    two_days_after_ld_lm: Optional[str]
-    two_days_after_ld_proc: Optional[str]
+    five_days_after_ld_lm: Optional[str]
+    five_days_after_ld_proc: Optional[str]
 
 
 class TaskNote(TypedDict):
