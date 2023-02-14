@@ -13,6 +13,7 @@ class EmailTemplates(Enum):
     """
 
     LEAVER_THANK_YOU_EMAIL = email_template_settings.LEAVER_THANK_YOU_EMAIL
+    LEAVER_QUESTIONNAIRE_EMAIL = email_template_settings.LEAVER_QUESTIONNAIRE_EMAIL
     LEAVER_NOT_IN_UKSBS_HR_REMINDER = (
         email_template_settings.LEAVER_NOT_IN_UKSBS_HR_REMINDER
     )

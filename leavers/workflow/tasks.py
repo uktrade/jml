@@ -33,6 +33,7 @@ from leavers.utils.emails import (
     send_health_and_safety_email,
     send_it_ops_asset_email,
     send_leaver_not_in_uksbs_reminder,
+    send_leaver_questionnaire_email,
     send_leaver_thank_you_email,
     send_line_manager_correction_email,
     send_line_manager_notification_email,
@@ -367,6 +368,7 @@ class UKSBSSendLeaverDetails(LeavingRequestTask):
 
 class EmailIds(Enum):
     LEAVER_THANK_YOU_EMAIL = "leaver_thank_you_email"
+    LEAVER_QUESTIONNAIRE_EMAIL = "leaver_questionnaire_email"
     LEAVER_NOT_IN_UKSBS_REMINDER = "leaver_not_in_uksbs_reminder"
     LINE_MANAGER_CORRECTION = "line_manager_correction"
     LINE_MANAGER_NOTIFICATION = "line_manager_notification"
@@ -430,6 +432,7 @@ class EmailIds(Enum):
 
 EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LEAVER_THANK_YOU_EMAIL: send_leaver_thank_you_email,
+    EmailIds.LEAVER_QUESTIONNAIRE_EMAIL: send_leaver_questionnaire_email,
     EmailIds.LEAVER_NOT_IN_UKSBS_REMINDER: send_leaver_not_in_uksbs_reminder,
     EmailIds.LINE_MANAGER_CORRECTION: send_line_manager_correction_email,
     EmailIds.LINE_MANAGER_NOTIFICATION: send_line_manager_notification_email,

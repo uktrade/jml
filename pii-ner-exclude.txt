@@ -4,8 +4,10 @@
 .env.example
 'None" &&
 " Add global context
+" Build the personalisation dictionary
 " Enum for the satisfaction options
 " Get Service Now
+" GOV.UK Notify
 " Leavers Workflow This can be triggered in 2
 " Line Manager
 " Local Development Settings
@@ -17,8 +19,12 @@
 " Returns the Line Manager
 " Returns the most up to date security clearance
 " Returns True
+" Send Cluster 4 Email
+" Send Feetham Security Pass Office
 " Send Health and Safety
+" Send IT Ops
 " Send Leaver
+" Send OCS Email
 " Send SRE Team
 " Send the email
 " Send the Leaver
@@ -119,6 +125,7 @@ address p {
 address=
 Admin Views
 admin@opensearch:9200
+ALWAYS
 Annual Leave
 Annual Leave: "
 API
@@ -198,6 +205,7 @@ Confirm
 confirm_leaver_data
 contact_address_line_1
 contact_address_postcode
+Context/Notes
 contractors</p
 Convert
 Convert a Queryset
@@ -206,6 +214,7 @@ core.people_data
 core.tasks.ingest_people_data_task
 core.tasks.ingest_people_finder_task
 core/context_processors.py
+core/notify.py
 Correction Email
 Counter Terrorist Check
 Create ActivityStream
@@ -224,6 +233,7 @@ CSET
 CssFinder
 CTC
 DAC
+Daily
 DAMAGES
 Dashboard</a>
 Data
@@ -298,6 +308,7 @@ Email
 Email Templates
 email_id
 EmailIds
+Emails & Slack
 ends.</td
 Enhanced Developed Vetting
 Enhanced Security Check
@@ -339,6 +350,7 @@ Flexi Impacting Pay
 Flexi Leave
 Flexi leave.</li>
 floor_liaison_officer
+Flow
 for.</p
 Form
 form</h1
@@ -373,6 +385,7 @@ grey{%
 gtm-head.html
 H021
 has_cirrus_kit
+hasn']t
 have</li>{%
 HAWK
 HAWK_INCOMING_ACCESS_KEY
@@ -459,6 +472,7 @@ last_day_agg
 last_working_day
 Leaver
 Leaver Email
+Leaver Final Actions
 Leaver Final Actions Email
 Leaver Final Actions Email |  | X |  | X |  |  |  |
 leaver_activitystream_user__contact_email_address
@@ -477,6 +491,7 @@ LeaverInformation
 leaverLastDay
 Leavers
 Leavers and Line Managers
+Leavers Workflow This
 Leavers</h2
 LeaversWorkflow
 Leaving Date - lm
@@ -505,6 +520,7 @@ line_report.consolidated_staff_document.job_title
 Link
 Loan Pool'
 Locker Email
+LocMemCache
 Log a Service Now
 Lost/Stolen'
 LSD_HELP_DESK_LIVE
@@ -538,15 +554,19 @@ new_line_report_id"
 None                                       
 None" &&
 Notes                                                                                                  
+Notification
 Notification Email
 Notify
 notify.email
 npm
 NVDA
 OAB
+OAB Locker
 object.current_task_record
 object.last_name
 OCS
+OCS Leaver Notification Email
+OCS Leaver OAB Locker
 OCS_EMAIL
 OCS_OAB_LOCKER_EMAIL                                             
 offline_service_now_thank_you.html
@@ -603,6 +623,7 @@ processing_manager_activitystream_user
 Processor
 Procurement Card
 Provide a comma
+Purpose
 Python 2
 python manage.py migrate &&
 python:3.10
@@ -663,10 +684,12 @@ SECURITY_TEAM_VETTING_EMAIL
 security/
 self.assertEqual(response.status_code
 Send
+Send Business Continuity
 Send Feetham Security Pass Office
 Send Line
 Send OCS Email
 Send OCS OAB Locker
+Send Security Team
 send_leaver_thank_you_email
 Sensitive and Personal
 Service
@@ -722,6 +745,7 @@ StaffDocument
 Star Rating
 Start Line
 Start" %}
+Step
 Store DSE
 str
 StreamHandler
@@ -733,12 +757,15 @@ TaskLog
 TaskRecord
 Team Zendesk
 Tech
+Template ID Environment Variable
+TEMPLATE_ID
 TEMPLATE_ID_CLU4_EMAIL
 TEMPLATE_ID_CLU4_EMAIL                                           |
 TEMPLATE_ID_CLU4_EMAIL                                           | None                                       |                                                                                       
 TEMPLATE_ID_COMAEA_EMAIL                                         
 TEMPLATE_ID_COMAEA_EMAIL                              | None                                        |                                                                                                        
 TEMPLATE_ID_FEETHAM_SECURITY_PASS_OFFICE_EMAIL                   
+TEMPLATE_ID_IT_OPS_ASSET_EMAIL
 TEMPLATE_ID_IT_OPS_ASSET_EMAIL                                   |
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL
 TEMPLATE_ID_LINE_MANAGER_CORRECTION_HR_EMAIL
@@ -795,6 +822,7 @@ the GPC Return Address
 the Health and Safety Team</h2
 the Leaver Activity Stream
 the Leaver Form's
+the Leavers Workflow
 the Leaving DIT
 The Leaving DIT Service
 the Leaving Request
@@ -818,6 +846,7 @@ UK SBS - Unexpected Response
 UK SBS Correction
 UK SBS Leaver Submission URL                                                                           
 UK SBS Person ID
+UK SBS Person ID' - FAC - Buildings, airpor
 UKSBS
 UKSBS Connect
 UKSBS Leavers

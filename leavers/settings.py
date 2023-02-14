@@ -7,6 +7,7 @@ env.read_env()
 
 class EmailTemplatesSettings:
     LEAVER_THANK_YOU_EMAIL: str
+    LEAVER_QUESTIONNAIRE_EMAIL: str
     # UK SBS Correction emails
     LEAVER_NOT_IN_UKSBS_HR_REMINDER: str
     LEAVER_NOT_IN_UKSBS_LM_REMINDER: str

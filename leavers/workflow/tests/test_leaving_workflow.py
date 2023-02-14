@@ -69,6 +69,9 @@ class TestLeaversWorkflow(TestCase):
             ["send_leaver_thank_you_email"],
         ],
         "send_leaver_thank_you_email": [
+            ["send_leaver_questionnaire_email"],
+        ],
+        "send_leaver_questionnaire_email": [
             ["check_uksbs_leaver"],
         ],
         "check_uksbs_leaver": [
