@@ -89,6 +89,8 @@
 | TEMPLATE_ID_SRE_REMINDER_ONE_DAY_AFTER_LD                        | None                                        |                                                                                                        |
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_LM                    | None                                        |                                                                                                        |
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC                  | None                                        |                                                                                                        |
+| TEMPLATE_ID_WORKFORCE_PLANNING_LAST_WEEK_LEAVERS_EMAIL           | None                                        |                                                                                                        |
+| TEMPLATE_ID_LEAVER_IN_PAY_CUT_OFF_HR_EMAIL                       | None                                        |                                                                                                        |
 | GETADDRESS_TOKEN                                                 | None                                        | API Key or Domain token for getAddress() autocomplete                                                  |
 | PERFORMANCE_REVIEW_URL                                           | None                                        | Link to the performance review forms                                                                   |
 | DIT_EXPERIENCE_SURVEY                                            | None                                        | Link to the DIT Experience Survey                                                                      |

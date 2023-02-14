@@ -51,6 +51,8 @@ class EmailTemplatesSettings:
     SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC: str
     # Incomplete leaver in pay cut off period
     LEAVER_IN_PAY_CUT_OFF_HR_EMAIL: str
+    # Workforce planning email
+    WORKFORCE_PLANNING_LAST_WEEK_LEAVERS_EMAIL: str
 
     def __getattr__(self, attr):
         setting_name = "TEMPLATE_ID_" + attr

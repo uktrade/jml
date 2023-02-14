@@ -11,7 +11,7 @@ from core.uksbs.types import PersonData
 from core.utils.helpers import DATE_FORMAT_STR, make_possessive
 from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.models import LeaverInformation, LeavingRequest
-from leavers.types import DisplayScreenEquipmentAsset
+from leavers.types import DisplayScreenEquipmentAsset, LeavingReason
 
 
 def get_leaving_request_email_personalisation(
@@ -648,5 +648,40 @@ def send_leaver_list_pay_cut_off_reminder(leaving_requests: QuerySet[LeavingRequ
     notify.email(
         email_addresses=[settings.HR_UKSBS_CORRECTION_EMAIL],
         template_id=notify.EmailTemplates.LEAVER_IN_PAY_CUT_OFF_HR_EMAIL,
+        personalisation=personalisation,
+    )
+
+
+def send_workforce_planning_leavers_email(
+    leaving_requests: QuerySet[LeavingRequest], week_ending: str
+):
+    """
+    Send email to inform the Workforce Planning team of leavers from the past week.
+    """
+    if leaving_requests.count() == 0:
+        return
+
+    if not settings.WORKFORCE_PLANNING_EMAIL:
+        raise ValueError("WORKFORCE_PLANNING_EMAIL is not set")
+
+    personalisation: Dict[str, str] = {}
+
+    leaver_list = []
+    for leaving_request in leaving_requests:
+        leaver_name = leaving_request.get_leaver_name()
+        leaver_email = leaving_request.get_leaver_email()
+        leaving_reason = LeavingReason(leaving_request.reason_for_leaving).label
+        leaving_date = str(leaving_request.get_leaving_date())
+        leaver_list.append(
+            f"* {leaver_name} | {leaver_email} | {leaving_reason} | {leaving_date}\n"
+        )
+    personalisation.update(
+        leaver_list="".join(leaver_list),
+        week_ending=week_ending,
+    )
+
+    notify.email(
+        email_addresses=[settings.WORKFORCE_PLANNING_EMAIL],
+        template_id=notify.EmailTemplates.WORKFORCE_PLANNING_LAST_WEEK_LEAVERS_EMAIL,
         personalisation=personalisation,
     )

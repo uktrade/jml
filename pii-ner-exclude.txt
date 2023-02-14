@@ -58,6 +58,7 @@
 {{ return_contact_email }
 {{ return_personal_phone }
 {{ security_clearance_status_task_log.user.get_full_name }}
+{leaving_reason}
 @media
 *Actions required:*\n
 && e.key
@@ -330,6 +331,7 @@ f"Gsuite
 f"If
 f"Physical Asset
 f"RUNNING
+f"RUNNING weekly_leavers_email
 f"Software Asset
 f"sys_id={sys_id
 f"sys_id={sys_id'
@@ -789,6 +791,7 @@ TEMPLATE_ID_SRE_REMINDER_ON_LD
 TEMPLATE_ID_SRE_REMINDER_ON_LD                                   | None                                       
 TEMPLATE_ID_SRE_REMINDER_ON_LD                                   | None                                       |                                                                                                        
 TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_LM                    
+TEMPLATE_ID_WORKFORCE_PLANNING_LAST_WEEK_LEAVERS_EMAIL           
 Templates
 test_existing_updates
 TestDetailsView(ViewAccessTest
@@ -892,6 +895,7 @@ WhiteNoiseMiddleware
 Windows
 WorkflowExecutor
 Workflows
+Workforce Planning
 WSGI
 x.groups.first
 xmlns='http://www.w3.org/2000/svg'

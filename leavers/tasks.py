@@ -1,9 +1,12 @@
-from datetime import date
+from datetime import date, timedelta
 from typing import Optional
 
 from config.celery import celery_app
 from leavers.models import LeavingRequest
-from leavers.utils.emails import send_leaver_list_pay_cut_off_reminder
+from leavers.utils.emails import (
+    send_leaver_list_pay_cut_off_reminder,
+    send_workforce_planning_leavers_email,
+)
 from leavers.utils.workday_calculation import is_date_within_payroll_cutoff_interval
 
 logger = celery_app.log.get_default_logger()
@@ -35,3 +38,24 @@ def notify_hr(self, date_to_check: Optional[date] = None) -> None:
             send_leaver_list_pay_cut_off_reminder(leavers_incomplete_qs)
         else:
             logger.info("Found no incomplete leavers")
+
+
+@celery_app.task(bind=True)
+def weekly_leavers_email(self) -> None:
+    # If today is monday
+    if date.today().weekday() != 0:
+        return None
+
+    logger.info("RUNNING weekly_leavers_email")
+
+    past_monday = date.today() - timedelta(days=7)
+    past_sunday = date.today() - timedelta(days=1)
+    leavers_last_week = LeavingRequest.objects.all().filter(
+        line_manager_complete__isnull=False,
+        leaving_date__date__gte=past_monday,
+        leaving_date__date__lte=past_sunday,
+    )
+    send_workforce_planning_leavers_email(
+        leaving_requests=leavers_last_week,
+        week_ending=past_sunday.strftime("%d/%m/%Y"),
+    )
