@@ -247,6 +247,7 @@ class TestLeaversWorkflow(TestCase):
         expected_tasks += [
             "setup_leaving",
             "send_leaver_thank_you_email",
+            "send_leaver_questionnaire_email",
             "check_uksbs_leaver",
             "send_leaver_not_in_uksbs_reminder",
         ]
