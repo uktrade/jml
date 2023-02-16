@@ -41,6 +41,10 @@
 {{ field.auto_id }
 {{ field.html_name }
 {{ field.label|safe }
+{{ pass_destroyed.created_at
+{{ pass_disabled.created_at
+{{ pass_returned.created_at }
+{{ security_clearance_status_task_log.user.get_full_name }}
 @media
 *Actions required:*\n
 && e.key
@@ -351,6 +355,7 @@ GOVUK_NOTIFY_API_KEY
 govuk_paas_access_removed
 govuk_paas_access_task_log
 govuk_radio_conditional_wrapper_form_group.childElementCount
+govuk-!-text
 GPC
 GPC Return Address
 Graphs
@@ -599,6 +604,7 @@ Reminder Email
 Reminder Email*
 Remove Sequence
 remove_url=
+Removed
 Report 2
 Request
 request</h2
@@ -638,6 +644,7 @@ Security Team
 security_clearance_status_task_log
 security_pass_disabled_task_log
 security_team_building_pass_complete
+security_team_rosa_kit_complete
 SECURITY_TEAM_VETTING_EMAIL
 SECURITY_TEAM_VETTING_EMAIL                                      
 security/

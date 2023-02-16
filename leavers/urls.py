@@ -87,9 +87,14 @@ leaving_request_sre_urlpatterns = [
         name="sre-detail",
     ),
     path(
-        "service-and-tools/<str:field_name>/",
+        "service-and-tools/<str:field_name>/edit/",
         sre_views.TaskServiceAndToolsView.as_view(),
         name="sre-service-and-tools",
+    ),
+    path(
+        "service-and-tools/<str:field_name>/read/",
+        sre_views.TaskServiceAndToolsViewReadOnly.as_view(),
+        name="sre-service-and-tools-read-only",
     ),
     path(
         "confirm/",
@@ -113,6 +118,11 @@ leaving_request_security_urlpatterns = [
         "building-pass/",
         security_team_views.BuildingPassConfirmationView.as_view(),
         name="security-team-building-pass-confirmation",
+    ),
+    path(
+        "building-pass/summary/",
+        security_team_views.BuildingPassConfirmationReadOnlyView.as_view(),
+        name="security-team-building-pass-confirmation-read-only",
     ),
     path(
         "security-clearance/edit/",

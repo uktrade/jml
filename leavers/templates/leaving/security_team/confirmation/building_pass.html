@@ -45,8 +45,10 @@
                     </div>
                 {% endif %}
             </dl>
-            <a href='{% url "security-team-building-pass-confirmation-edit" leaving_request_uuid %}'
-                class="govuk-button govuk-button--secondary">Edit pass status</a>
+            {% if not read_only %}
+                <a href='{% url "security-team-building-pass-confirmation-edit" leaving_request_uuid %}'
+                    class="govuk-button govuk-button--secondary">Edit pass status</a>
+            {% endif %}
             <h2 class="govuk-heading-m">Security clearance</h2>
             <dl class="govuk-summary-list">
                 <div class="govuk-summary-list__row">
@@ -65,22 +67,33 @@
                     {% endif %}
                 </div>
             </dl>
-            <a href='{% url "security-team-security-clearance-confirmation-edit" leaving_request_uuid %}'
-                class="govuk-button govuk-button--secondary">Edit security status</a>
+            {% if not read_only %}
+                <a href='{% url "security-team-security-clearance-confirmation-edit" leaving_request_uuid %}'
+                    class="govuk-button govuk-button--secondary">Edit security status</a>
+            {% endif %}
             <p class="govuk-body">The following needs to happen before this record can be marked as complete:</p>
             <ul class="govuk-list govuk-list--bullet">
                 <li>the pass needs to be marked as deactivated, returned and destroyed</li>
                 <li>security clearance needs to be marked as Lapsed or Other</li>
             </ul>
-            {% if can_complete %}
+            {% if not read_only and can_complete %}
                 <a href='{% url "security-team-buidling-pass-confirmation-close" leaving_request_uuid %}'
                     class="govuk-button govuk-button--warning">Mark record as complete</a>
             {% endif %}
             <h2 class="govuk-heading-m">Notes</h2>
-            <form novalidate method='post'>
-                {% crispy form %}
-            </form>
+            {% if not read_only %}
+                <form novalidate method='post'>
+                    {% crispy form %}
+                </form>
+            {% endif %}
             {% include "leaving/includes/task_notes.html" with task_notes=task_notes %}
+            {% if read_only %}
+                <a href="{% url 'security-team-building-pass-confirmation' leaving_request_uuid=leaving_request.uuid %}"
+                    class="govuk-button"
+                    data-module="govuk-button">
+                    Edit record
+                </a>
+            {% endif %}
         </div>
     </div>
 {% endblock content %}

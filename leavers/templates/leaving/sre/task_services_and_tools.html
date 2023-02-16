@@ -1,17 +1,19 @@
 {% extends "leaving/leaving_base.html" %}
 {% load crispy_forms_tags crispy_forms_gds %}
-
 {% block content %}
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% error_summary update_status_form %}
-            {% error_summary add_note_form %}
+    {% if not read_only %}
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-full">
+                {% error_summary update_status_form %}
+                {% error_summary add_note_form %}
+            </div>
         </div>
-    </div>
-
+    {% endif %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h1 class="govuk-heading-l"><em>{{ leaver_name }}</em> SRE off-boarding</h1>
+            <h1 class="govuk-heading-l">
+                <em>{{ leaver_name }}</em> SRE off-boarding
+            </h1>
             <table class="govuk-table">
                 <tbody class="govuk-table__body">
                     <tr class="govuk-table__row">
@@ -54,22 +56,31 @@
             </table>
         </div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h2 class="govuk-heading-l">{{ service_name }}</h2>
-
-            <form novalidate method='post'>
-                <input type="hidden" name="form_name" value="update_status_form" />
-                {% crispy update_status_form %}
-            </form>
-
-            <h3 class="govuk-heading-m">Notes</h3>
-            <form novalidate method='post'>
-                <input type="hidden" name="form_name" value="add_note_form" />
-                {% crispy add_note_form %}
-            </form>
-
+            {% if read_only and comment %}
+                <table class="govuk-table">
+                    <tbody class="govuk-table__body">
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">{{ comment }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            {% endif %}
+            {% if not read_only %}
+                <form novalidate method='post'>
+                    <input type="hidden" name="form_name" value="update_status_form" />
+                    {% crispy update_status_form %}
+                </form>
+            {% endif %}
+            {% if not read_only or task_notes %}<h3 class="govuk-heading-m">Notes</h3>{% endif %}
+            {% if not read_only %}
+                <form novalidate method='post'>
+                    <input type="hidden" name="form_name" value="add_note_form" />
+                    {% crispy add_note_form %}
+                </form>
+            {% endif %}
             {% include "leaving/includes/task_notes.html" with task_notes=task_notes %}
         </div>
     </div>

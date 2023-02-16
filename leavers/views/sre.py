@@ -38,34 +38,6 @@ class SreViewMixin(IsSreUser, LeavingRequestViewMixin, BaseTemplateView):
     pass
 
 
-class LeavingRequestListing(IsSreUser, base.LeavingRequestListing):
-    template_name = "leaving/sre/listing.html"
-
-    complete_field = "sre_complete"
-    confirmation_view = "sre-detail"
-    summary_view = "sre-summary"
-    page_title = "SRE access removal"
-    fields: List[Tuple[str, str]] = [
-        ("leaver_name", "Leaver's name"),
-        ("work_email", "Email"),
-        ("last_working_day", "Last working day"),
-        ("days_until_last_working_day", "Days left"),
-        ("complete", "Status"),
-    ]
-
-    def get_leaving_requests(
-        self,
-        order_by: Optional[str] = None,
-        order_direction: Literal["asc", "desc"] = "asc",
-    ) -> QuerySet[LeavingRequest]:
-        leaving_requests = super().get_leaving_requests(
-            order_by=order_by,
-            order_direction=order_direction,
-        )
-        # Filter out any that haven't been completed by the Line Manager.
-        return leaving_requests.exclude(line_manager_complete__isnull=True)
-
-
 class ServiceInfo(TypedDict):
     field_name: str
     name: str
@@ -74,12 +46,7 @@ class ServiceInfo(TypedDict):
     status_text: str
 
 
-class TaskDetailView(SreViewMixin):
-    template_name = "leaving/sre/task.html"
-    page_title = "SRE access removal confirmation"
-    back_link_url = reverse_lazy("sre-listing-incomplete")
-    back_link_text = "Back to Leaving requests"
-
+class SreTaskViewMixin(SreViewMixin):
     def get_services(self) -> List[ServiceInfo]:
         services = []
 
@@ -130,6 +97,41 @@ class TaskDetailView(SreViewMixin):
 
         return services
 
+
+class LeavingRequestListing(IsSreUser, base.LeavingRequestListing):
+    template_name = "leaving/sre/listing.html"
+
+    complete_field = "sre_complete"
+    confirmation_view = "sre-detail"
+    summary_view = "sre-summary"
+    page_title = "SRE access removal"
+    fields: List[Tuple[str, str]] = [
+        ("leaver_name", "Leaver's name"),
+        ("work_email", "Email"),
+        ("last_working_day", "Last working day"),
+        ("days_until_last_working_day", "Days left"),
+        ("complete", "Status"),
+    ]
+
+    def get_leaving_requests(
+        self,
+        order_by: Optional[str] = None,
+        order_direction: Literal["asc", "desc"] = "asc",
+    ) -> QuerySet[LeavingRequest]:
+        leaving_requests = super().get_leaving_requests(
+            order_by=order_by,
+            order_direction=order_direction,
+        )
+        # Filter out any that haven't been completed by the Line Manager.
+        return leaving_requests.exclude(line_manager_complete__isnull=True)
+
+
+class TaskDetailView(SreTaskViewMixin):
+    template_name = "leaving/sre/task.html"
+    page_title = "SRE access removal confirmation"
+    back_link_url = reverse_lazy("sre-listing-incomplete")
+    back_link_text = "Back to Leaving requests"
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -175,7 +177,7 @@ class TaskDetailView(SreViewMixin):
         return context
 
 
-class TaskServiceAndToolsView(SreViewMixin):
+class TaskServiceAndToolsView(SreTaskViewMixin):
     template_name = "leaving/sre/task_services_and_tools.html"
     forms: Dict[str, Type[Form]] = {
         "update_status_form": SREServiceAndToolsForm,
@@ -260,7 +262,6 @@ class TaskServiceAndToolsView(SreViewMixin):
         if "form_name" in request.POST:
             form_name = request.POST["form_name"]
             if form_name in self.forms:
-
                 form = self.forms[form_name](request.POST)
                 if form.is_valid():
                     # Call the "post_{form_name}" method to handle the form POST logic.
@@ -328,7 +329,31 @@ class TaskServiceAndToolsView(SreViewMixin):
         return context
 
 
-class TaskCompleteConfirmationView(SreViewMixin, FormView):
+class TaskServiceAndToolsViewReadOnly(TaskServiceAndToolsView):
+    back_link_viewname = "sre-summary"
+
+    def get_service(self) -> ServiceInfo:
+        services = self.get_services()
+
+        for service in services:
+            if service["field_name"] == self.field_name:
+                return service
+
+        raise Exception(f"Service not found for field_name: {self.field_name}")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        service = self.get_service()
+
+        context.update(
+            read_only=True,
+            comment=service["comment"],
+        )
+        return context
+
+
+class TaskCompleteConfirmationView(SreTaskViewMixin, FormView):
     template_name = "leaving/sre/task_confirmation.html"
     form_class = SREConfirmCompleteForm
     success_viewname = "sre-summary"
@@ -384,27 +409,62 @@ class TaskCompleteConfirmationView(SreViewMixin, FormView):
         return context
 
 
-class TaskSummaryView(SreViewMixin):
+class TaskSummaryView(SreTaskViewMixin):
     template_name = "leaving/sre/summary.html"
     page_title: str = "SRE access removal summary"
     back_link_url = reverse_lazy("sre-listing-complete")
+    back_link_text = "Back to Leaving requests"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(page_title=self.page_title)
 
-        access_removed_services: List[Tuple[str, str, TaskLog]] = [
-            (
-                sre_service[0],
-                sre_service[1],
-                getattr(self.leaving_request, sre_service[0]),
-            )
-            for sre_service in self.leaving_request.sre_services()
-            if sre_service[2] == ServiceAndToolActions.REMOVED
-        ]
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name: str = ""
+        if leaver_name:
+            possessive_leaver_name = make_possessive(leaver_name)
         context.update(
+            leaver_name=leaver_name,
+            possessive_leaver_name=possessive_leaver_name,
+        )
+
+        leaving_datetime = self.leaving_request.get_leaving_date()
+        leaving_date: Optional[datetime] = None
+        if leaving_datetime:
+            leaving_date = leaving_datetime.date()
+
+        last_day_datetime = self.leaving_request.get_last_day()
+        last_day: Optional[datetime] = None
+        if last_day_datetime:
+            last_day = last_day_datetime.date()
+
+        leaver_information: Optional[
+            LeaverInformation
+        ] = self.leaving_request.leaver_information.first()
+
+        leaver_job_title: Optional[str] = None
+        if leaver_information:
+            leaver_job_title = leaver_information.job_title
+
+        can_mark_as_complete: bool = True
+        for _, _, service_status in self.leaving_request.sre_services():
+            if service_status not in [
+                ServiceAndToolActions.NOT_APPLICABLE,
+                ServiceAndToolActions.REMOVED,
+            ]:
+                can_mark_as_complete = False
+
+        context.update(
+            leaving_request_uuid=self.leaving_request.uuid,
+            page_title=self.page_title,
             leaver_name=self.leaving_request.get_leaver_name(),
-            access_removed_services=access_removed_services,
+            leaver_email=self.leaving_request.get_leaver_email(),
+            leaver_job_title=leaver_job_title,
+            leaving_date=leaving_date,
+            last_day=last_day,
+            complete=bool(self.leaving_request.sre_complete),
+            services=self.get_services(),
+            can_mark_as_complete=can_mark_as_complete,
         )
 
         return context

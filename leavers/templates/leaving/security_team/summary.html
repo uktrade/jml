@@ -50,15 +50,15 @@
                 </tbody>
             </table>
             <div class="govuk-button-group">
-                <a href="{% url 'security-team-building-pass-confirmation' leaving_request_uuid=leaving_request.uuid %}"
-                   class="govuk-button govuk-button--secondary"
-                   data-module="govuk-button">
-                    Edit building pass/security clearance status
+                <a href="{% url 'security-team-building-pass-confirmation-read-only' leaving_request_uuid=leaving_request.uuid %}"
+                    class="govuk-button govuk-button--secondary"
+                    data-module="govuk-button">
+                    View/Edit building pass/security clearance status
                 </a>
                 {% if is_rosa_user %}
                     <a href="{% url 'security-team-rosa-kit-confirmation' leaving_request_uuid %}"
-                       class="govuk-button govuk-button--secondary"
-                       data-module="govuk-button">
+                        class="govuk-button govuk-button--secondary"
+                        data-module="govuk-button">
                         Edit ROSA kit status
                     </a>
                 {% endif %}
