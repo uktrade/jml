@@ -6,6 +6,7 @@
 | Email name                                                  | Template ID Environment Variable                      | Context/Notes |
 | ----------                                                  | --------------------------------                      | ------------- |
 | Leaver Thank You Email                                      | TEMPLATE_ID_LEAVER_THANK_YOU_EMAIL                    | This email is sent after the Leaver has informed the service that they are leaving. |
+| Leaver Questionnaire Email                                  | TEMPLATE_ID_LEAVER_QUESTIONNAIRE_EMAIL                | This email is sent after the Leaver has informed the service that they are leaving. |
 | Leaver not in UK SBS (HR) Email                             | TEMPLATE_ID_LEAVER_NOT_IN_UKSBS_HR_REMINDER           | ??? |
 | Leaver not in UK SBS (LM) Email                             | TEMPLATE_ID_LEAVER_NOT_IN_UKSBS_LM_REMINDER           | ??? |
 | UKSBS Line Manager Correction Email (UK SBS manager)        | TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL             | This email is sent to the listed Line Manager in UK SBS to request that they update the Line Manager to be the one that the Leaver selected |

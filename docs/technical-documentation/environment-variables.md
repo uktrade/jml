@@ -51,6 +51,7 @@
 | UKSBS_POST_LEAVER_SUBMISSION                                     | None                                        | UK SBS Leaver Submission path                                                                          |
 | GPC_RETURN_ADDRESS                                               | []                                          | Set as the comma separated list of each address line for the GPC Return Address                        |
 | TEMPLATE_ID_LEAVER_THANK_YOU_EMAIL                               | None                                        |                                                                                                        |
+| TEMPLATE_ID_LEAVER_QUESTIONNAIRE_EMAIL                           | None                                        |                                                                                                        |
 | TEMPLATE_ID_LEAVER_NOT_IN_UKSBS_HR_REMINDER                      | None                                        |                                                                                                        |
 | TEMPLATE_ID_LEAVER_NOT_IN_UKSBS_LM_REMINDER                      | None                                        |                                                                                                        |
 | TEMPLATE_ID_LINE_MANAGER_CORRECTION_EMAIL                        | None                                        |                                                                                                        |

@@ -160,6 +160,31 @@ def send_leaver_thank_you_email(
     )
 
 
+def send_leaver_questionnaire_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
+    """
+    Send the Leaver an email to ask them to fill out the leaving
+    questionnaire.
+    """
+    assert leaving_request.leaver_activitystream_user
+    leaver_as_user: ActivityStreamStaffSSOUser = (
+        leaving_request.leaver_activitystream_user
+    )
+
+    contact_emails = leaver_as_user.get_email_addresses_for_contact()
+    if not contact_emails:
+        raise ValueError("Can't get contact email for the Leaver")
+
+    personalisation = get_leaving_request_email_personalisation(leaving_request)
+    notify.email(
+        email_addresses=contact_emails,
+        template_id=notify.EmailTemplates.LEAVER_QUESTIONNAIRE_EMAIL,
+        personalisation=personalisation,
+    )
+
+
 def send_leaver_not_in_uksbs_reminder(
     leaving_request: LeavingRequest,
     template_id: Optional[notify.EmailTemplates] = None,
