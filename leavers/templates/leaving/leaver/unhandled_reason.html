@@ -1,12 +1,15 @@
 {% extends "leaving/leaving_base.html" %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
-            <p class="govuk-body">This service is only for colleagues who are resigning from the Civil Service or ending their contract with DIT.</p>
-            <p class="govuk-body">If you need help, email <a class="govuk-link" href="mailto:{{ DIT_OFFBOARDING_EMAIL }}">{{ DIT_OFFBOARDING_EMAIL }}</a></p>
-            <p class="govuk-body">If you are leaving DIT for a different reason, <a class="govuk-link" href="{{ JML_LEAVING_DIT_GUIDANCE_URL }}">read the Leaving DIT guidance on Digital Workspace</a>.</p>
+            <p class="govuk-body">This service cannot be used if you are partially retiring or taking a career break.</p>
+            <p class="govuk-body">
+                If you need help, email <a class="govuk-link" href="mailto:{{ DIT_OFFBOARDING_EMAIL }}">{{ DIT_OFFBOARDING_EMAIL }}</a>
+            </p>
+            <p class="govuk-body">
+                If you are leaving DIT for a different reason, <a class="govuk-link" href="{{ JML_LEAVING_DIT_GUIDANCE_URL }}">read the Leaving DIT guidance on Digital Workspace</a>.
+            </p>
         </div>
     </div>
 {% endblock content %}

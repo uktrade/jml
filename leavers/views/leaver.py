@@ -551,7 +551,7 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     def get_page_title(self):
         leaver_name = self.leaving_request.get_leaver_name()
 
-        page_title = "What is your reason for leaving DIT?"
+        page_title = "Why are you leaving DIT?"
         if not self.user_is_leaver:
             page_title = f"Why is {leaver_name} leaving DIT?"
 
@@ -565,13 +565,16 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
 
 class UnhandledLeavingReasonView(LeavingJourneyViewMixin, BaseTemplateView):
     template_name = "leaving/leaver/unhandled_reason.html"
+    back_link_viewname = "why-are-you-leaving"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        page_title = "Sorry, we are unable to help offbaord you"
+        leaver_name = self.leaving_request.get_leaver_name()
+
+        page_title = "You cannot use this service"
         if not self.user_is_leaver:
-            page_title = "Sorry, we are unable to help offbaord the leaver"
+            page_title = f"{leaver_name} cannot use this service"
 
         context.update(page_title=page_title)
         return context

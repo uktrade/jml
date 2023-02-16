@@ -152,7 +152,7 @@ class WhyAreYouLeavingForm(LeaverJourneyBaseForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            radios_with_conditionals("reason"),
+            Field.radios("reason"),
         )
         if self.user_is_leaver:
             self.helper.layout.append(
