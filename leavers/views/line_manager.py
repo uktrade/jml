@@ -43,6 +43,7 @@ DATA_RECIPIENT_SEARCH_PARAM = "data_recipient_id"
 LINE_REPORT_NEW_LINE_MANAGER_SEARCH_PARAM = "new_line_manager_id"
 LINE_REPORT_SET_NEW_MANAGER_ERROR = "line_report_set_new_manager_error"
 ADD_MISSING_LINE_REPORT_ERROR = "add_missing_line_report_error"
+RETURN_TO_CONFIRMATION_QUERY_PARAM = "return_to_confirmation"
 
 
 class LineManagerViewMixin:
@@ -262,6 +263,12 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
                 "leaving-request-summary",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             )
+        if RETURN_TO_CONFIRMATION_QUERY_PARAM in self.request.GET:
+            return reverse(
+                "line-manager-confirmation",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
+
         return super().get_success_url()
 
     def get_back_link_url(self):
@@ -925,6 +932,7 @@ class ConfirmDetailsView(ReviewViewMixin, BaseTemplateView, FormView):
             line_reports_view=self.get_view_url(
                 "line-manager-leaver-line-reports",
             ),
+            return_to_confirmation_query=RETURN_TO_CONFIRMATION_QUERY_PARAM,
         )
 
         return context

@@ -42,9 +42,15 @@
 {{ field.auto_id }
 {{ field.html_name }
 {{ field.label|safe }
+{{ flexi_number }} Hours
+{{ last_day }
+{{ leaver_info.leaving_date }
+{{ leaver_info.personal_email }
 {{ pass_destroyed.created_at
 {{ pass_disabled.created_at
 {{ pass_returned.created_at }
+{{ return_contact_email }
+{{ return_personal_phone }
 {{ security_clearance_status_task_log.user.get_full_name }}
 @media
 *Actions required:*\n

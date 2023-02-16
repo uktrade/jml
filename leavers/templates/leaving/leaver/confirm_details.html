@@ -23,7 +23,7 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}">
+                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                             Change<span class="govuk-visually-hidden">name</span>
                         </a>
                     </dd>
@@ -37,7 +37,7 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}">
+                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                             Change<span class="govuk-visually-hidden">job title</span>
                         </a>
                     </dd>
@@ -51,7 +51,7 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}">
+                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                             Change<span class="govuk-visually-hidden">date of birth</span>
                         </a>
                     </dd>
@@ -65,7 +65,7 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}">
+                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                             Change<span class="govuk-visually-hidden">staff type</span>
                         </a>
                     </dd>
@@ -79,7 +79,7 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}">
+                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                             Change<span class="govuk-visually-hidden">security clearance</span>
                         </a>
                     </dd>
@@ -100,7 +100,7 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                            href="{% url 'leaver-dates' leaving_request_uuid=leaving_request.uuid %}">
+                            href="{% url 'leaver-dates' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                             Change<span class="govuk-visually-hidden">leaving date</span>
                         </a>
                     </dd>
@@ -114,7 +114,7 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                            href="{% url 'leaver-dates' leaving_request_uuid=leaving_request.uuid %}">
+                            href="{% url 'leaver-dates' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                             Change<span class="govuk-visually-hidden">last working day</span>
                         </a>
                     </dd>
@@ -128,7 +128,7 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                            href="{% url 'leaver-dates' leaving_request_uuid=leaving_request.uuid %}">
+                            href="{% url 'leaver-dates' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                             Change<span class="govuk-visually-hidden">line manager</span>
                         </a>
                     </dd>
@@ -149,7 +149,7 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                            href="{% url 'leaver-has-assets' leaving_request_uuid=leaving_request.uuid %}">
+                            href="{% url 'leaver-has-assets' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                             Change<span class="govuk-visually-hidden">has goverment procurement card</span>
                         </a>
                     </dd>
@@ -163,7 +163,7 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                            href="{% url 'leaver-has-assets' leaving_request_uuid=leaving_request.uuid %}">
+                            href="{% url 'leaver-has-assets' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                             Change<span class="govuk-visually-hidden">has ROSA</span>
                         </a>
                     </dd>
@@ -177,7 +177,7 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                            href="{% url 'leaver-has-assets' leaving_request_uuid=leaving_request.uuid %}">
+                            href="{% url 'leaver-has-assets' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                             Change<span class="govuk-visually-hidden">has IT equipment</span>
                         </a>
                     </dd>
@@ -205,7 +205,7 @@
                     </dd>
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link"
-                            href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}">
+                            href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                             Change<span class="govuk-visually-hidden">cirrus kit</span>
                         </a>
                     </dd>
@@ -224,7 +224,7 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
-                                href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}">
+                                href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                                 Change<span class="govuk-visually-hidden">return method</span>
                             </a>
                         </dd>
@@ -240,7 +240,7 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
-                                href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}">
+                                href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                                 Change<span class="govuk-visually-hidden">return contact phone</span>
                             </a>
                         </dd>
@@ -256,7 +256,7 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
-                                href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}">
+                                href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                                 Change<span class="govuk-visually-hidden">return contact email</span>
                             </a>
                         </dd>
@@ -280,7 +280,7 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
-                                href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}">
+                                href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                                 Change<span class="govuk-visually-hidden"> delivery address</span>
                             </a>
                         </dd>
@@ -312,7 +312,7 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
-                                href="{% url 'leaver-display-screen-equipment' leaving_request_uuid=leaving_request.uuid %}">
+                                href="{% url 'leaver-display-screen-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                                 Change<span class="govuk-visually-hidden"> IT equipment (expensed)</span>
                             </a>
                         </dd>
@@ -337,7 +337,7 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
-                                href="{% url 'leaver-contact-details' leaving_request_uuid=leaving_request.uuid %}">
+                                href="{% url 'leaver-contact-details' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                                 Change<span class="govuk-visually-hidden"> phone</span>
                             </a>
                         </dd>
@@ -353,7 +353,7 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
-                                href="{% url 'leaver-contact-details' leaving_request_uuid=leaving_request.uuid %}">
+                                href="{% url 'leaver-contact-details' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                                 Change<span class="govuk-visually-hidden"> email</span>
                             </a>
                         </dd>
@@ -385,7 +385,7 @@
                         </dd>
                         <dd class="govuk-summary-list__actions">
                             <a class="govuk-link"
-                                href="{% url 'leaver-contact-details' leaving_request_uuid=leaving_request.uuid %}">
+                                href="{% url 'leaver-contact-details' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
                                 Change<span class="govuk-visually-hidden"> address</span>
                             </a>
                         </dd>

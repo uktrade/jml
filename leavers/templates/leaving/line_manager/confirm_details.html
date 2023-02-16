@@ -23,7 +23,8 @@
                         {{ leaving_date }}
                     </dd>
                     <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="{{ leaver_confirmation_view_url }}">Edit<span class="govuk-visually-hidden">leaving date</span></a>
+                        <a class="govuk-link"
+                            href="{{ leaver_confirmation_view_url }}?{{ return_to_confirmation_query }}">Edit<span class="govuk-visually-hidden">leaving date</span></a>
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -34,7 +35,8 @@
                         {{ last_day }}
                     </dd>
                     <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" href="{{ leaver_confirmation_view_url }}">Edit<span class="govuk-visually-hidden">last working day</span></a>
+                        <a class="govuk-link"
+                            href="{{ leaver_confirmation_view_url }}?{{ return_to_confirmation_query }}">Edit<span class="govuk-visually-hidden">last working day</span></a>
                     </dd>
                 </div>
                 {% if data_recipient %}
@@ -46,7 +48,8 @@
                             {{ data_recipient.first_name }} {{ data_recipient.last_name }}
                         </dd>
                         <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link" href="{{ leaver_confirmation_view_url }}">Edit<span class="govuk-visually-hidden">leaver data transfer recipient</span></a>
+                            <a class="govuk-link"
+                                href="{{ leaver_confirmation_view_url }}?{{ return_to_confirmation_query }}">Edit<span class="govuk-visually-hidden">leaver data transfer recipient</span></a>
                         </dd>
                     </div>
                 {% endif %}
@@ -70,7 +73,8 @@
                             {% endif %}
                         </dd>
                         <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link" href="{{ details_view_url }}">Edit<span class="govuk-visually-hidden">annual leave</span></a>
+                            <a class="govuk-link"
+                                href="{{ details_view_url }}?{{ return_to_confirmation_query }}">Edit<span class="govuk-visually-hidden">annual leave</span></a>
                         </dd>
                     </div>
                     <div class="govuk-summary-list__row">
@@ -85,7 +89,8 @@
                             {% endif %}
                         </dd>
                         <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link" href="{{ details_view_url }}">Edit<span class="govuk-visually-hidden">annual leave</span></a>
+                            <a class="govuk-link"
+                                href="{{ details_view_url }}?{{ return_to_confirmation_query }}">Edit<span class="govuk-visually-hidden">annual leave</span></a>
                         </dd>
                     </div>
                 </dl>
@@ -117,7 +122,8 @@
                                     {{ line_report.line_manager.name }}
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
-                                    <a class="govuk-link" href="{{ line_reports_view }}">Edit<span class="govuk-visually-hidden">team members</span></a>
+                                    <a class="govuk-link"
+                                        href="{{ line_reports_view }}?{{ return_to_confirmation_query }}">Edit<span class="govuk-visually-hidden">team members</span></a>
                                 </dd>
                             </div>
                         {% endfor %}

@@ -42,6 +42,7 @@ from leavers.workflow.utils import get_or_create_leaving_workflow
 from user.models import User
 
 LINE_MANAGER_SEARCH_PARAM = "line_manager_uuid"
+RETURN_TO_CONFIRMATION_QUERY_PARAM = "return_to_confirmation"
 
 
 class MultiplePersonIdErrorView(BaseTemplateView):
@@ -289,6 +290,12 @@ class LeavingJourneyViewMixin(LeavingRequestViewMixin):
                 "leaving-request-summary",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             )
+        if RETURN_TO_CONFIRMATION_QUERY_PARAM in self.request.GET:
+            return reverse(
+                "leaver-confirm-details",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
+
         return super().get_success_url()
 
     def check_multiple_person_ids(self, request: HttpRequest):
@@ -1508,6 +1515,7 @@ class ConfirmDetailsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
             return_option=self.leaver_info.return_option,
             return_personal_phone=self.leaver_info.return_personal_phone,
             return_contact_email=self.leaver_info.return_contact_email,
+            return_to_confirmation_query=RETURN_TO_CONFIRMATION_QUERY_PARAM,
         )
         return context
 
