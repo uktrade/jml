@@ -8,28 +8,10 @@
         <div class="govuk-grid-column-full">
             {% if user_is_leaver %}<span class="govuk-caption-l">Page 1 of 10</span>{% endif %}
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
+            <p class="govuk-body">
+                If you are transferring to another Civil Service role, you must have agreed a start date with your hiring manager.
+            </p>
             {% crispy form %}
-            <div class="radio-conditional-field conditional-reason-transfer">
-                <div class="govuk-notification-banner govuk-!-margin-bottom-0"
-                    role="alert"
-                    aria-labelledby="govuk-notification-banner-title"
-                    data-module="govuk-notification-banner">
-                    <div class="govuk-notification-banner__header">
-                        <h2 class="govuk-notification-banner__title"
-                            id="govuk-notification-banner-title">Important</h2>
-                    </div>
-                    <div class="govuk-notification-banner__content">
-                        <h3 class="govuk-notification-banner__heading">
-                            Before filling in this form you must have agreed a start date with your new department.
-                        </h3>
-                        <p class="govuk-body">
-                            See the Intranet guidance for <a class="govuk-notification-banner__link"
-                                href="{{ TRANSFER_TO_OGD_URL }}">transfering to another government department</a>.
-                        </p>
-                        <p class="govuk-body">This service is not suitable if you are a Contractor or in the Civil Service Fast Stream.</p>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 {% endblock content %}

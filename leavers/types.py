@@ -21,9 +21,9 @@ class SecurityClearance(TextChoices):
 
 
 class LeavingReason(TextChoices):
-    RESIGNATION = "resignation", "Resignation"
     TRANSFER = "transfer", "Transferring to another Civil Service role"
     END_OF_CONTRACT = "end_of_contract", "End of contract"
+    RESIGNATION = "resignation", "Resignation"
     RETIREMENT = "retirement", "Retirement"
     ILL_HEALTH_RETIREMENT = "ill_health_retirement", "Retirement due to ill health"
     DISMISSAL = "dismissal", "Dismissal"
@@ -34,22 +34,12 @@ class StaffType(TextChoices):
     CIVIL_SERVANT = "civil_servant", "Civil servant"
     CONTRACTOR = "contractor", "Contractor (for example, Hays)"
     BENCH_CONTRACTOR = "bench_contractor", "Bench contractor (for example, Profusion)"
-    FAST_STREAMERS = "fast_streamers", "Civil Service Fast Stream"
-    LOAN = "loan", "Loan"
+    OTHER = "other", "Other"
 
 
 class ReturnOptions(TextChoices):
     OFFICE = "office", "In-person return at OAB"
     HOME = "home", "Home collection by courier"
-
-
-class HealthAndSafetyOfficerOptions(TextChoices):
-    HEALTH_AND_SAFETY_OFFICER = (
-        "health_and_safety_officer",
-        "Yes, I am a health and safety officer",
-    )
-    FLOOR_LIAISON_OFFICER = "floor_liaison_officer", "Yes, I am a floor liaison officer"
-    NEITHER = "neither", "No, I am neither"
 
 
 class LeaverDetails(TypedDict):

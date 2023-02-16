@@ -12,11 +12,16 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             {% if user_is_leaver %}
-                <h2 class="govuk-heading-m">Cirrus equipment assigned to you:</h2>
+                <h2 class="govuk-heading-m">Cirrus equipment assigned to you</h2>
             {% else %}
-                <h2 class="govuk-heading-m">Cirrus equipment assigned to {{ leaving_request.get_leaver_name }}:</h2>
+                <h2 class="govuk-heading-m">Cirrus equipment assigned to {{ leaving_request.get_leaver_name }}</h2>
             {% endif %}
             {% if cirrus_assets %}
+                {% if user_is_leaver %}
+                    <p class="govuk-body">If you no longer have the items listed, please remove them.</p>
+                {% else %}
+                    <p class="govuk-body">If {{ leaving_request.get_leaver_name }} no longer has the items listed, please remove them.</p>
+                {% endif %}
                 <dl class="govuk-summary-list">
                     {% for asset in cirrus_assets %}
                         <div class="govuk-summary-list__row">
@@ -31,13 +36,6 @@
                         </div>
                     {% endfor %}
                 </dl>
-                {% if user_is_leaver %}
-                    <p class="govuk-body">If you have any Cirrus kit not listed above, please add them.</p>
-                {% else %}
-                    <p class="govuk-body">
-                        If {{ leaving_request.get_leaver_name }} has any Cirrus kit not listed above, please add them.
-                    </p>
-                {% endif %}
             {% else %}
                 <p class="govuk-body">Currently no Cirrus kit listed.</p>
             {% endif %}

@@ -251,14 +251,9 @@ leaving_request_urlpatterns: list[URLResolver | URLPattern] = [
         name="staff-type",
     ),
     path(
-        "how-are-you-employed/fast-streamer/",
-        leaver_views.LeaverFastStreamerView.as_view(),
-        name="leaver-fast-streamer",
-    ),
-    path(
-        "how-are-you-employed/loan/",
-        leaver_views.LeaverLoanView.as_view(),
-        name="leaver-loan",
+        "how-are-you-employed/cannot-use-service/",
+        leaver_views.LeaverCannotUseServiceView.as_view(),
+        name="cannot-use-service",
     ),
     path(
         "employment-profile/",
