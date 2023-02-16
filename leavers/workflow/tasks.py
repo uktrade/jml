@@ -387,11 +387,11 @@ class EmailIds(Enum):
     SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD = (
         "security_offboard_bp_reminder_one_day_after_ld"
     )
-    SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM = (
-        "security_offboard_bp_reminder_two_days_after_ld_lm"
+    SECURITY_OFFBOARD_BP_REMINDER_FIVE_DAYS_AFTER_LD_LM = (
+        "security_offboard_bp_reminder_five_days_after_ld_lm"
     )
-    SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC = (
-        "security_offboard_bp_reminder_two_days_after_ld_proc"
+    SECURITY_OFFBOARD_BP_REMINDER_FIVE_DAYS_AFTER_LD_PROC = (
+        "security_offboard_bp_reminder_five_days_after_ld_proc"
     )
     # Security Offboarding (ROSA Kit)
     SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION = (
@@ -407,16 +407,16 @@ class EmailIds(Enum):
     SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD = (
         "security_offboard_rk_reminder_one_day_after_ld"
     )
-    SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM = (
-        "security_offboard_rk_reminder_two_days_after_ld_lm"
+    SECURITY_OFFBOARD_RK_REMINDER_FIVE_DAYS_AFTER_LD_LM = (
+        "security_offboard_rk_reminder_five_days_after_ld_lm"
     )
-    SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC = (
-        "security_offboard_rk_reminder_two_days_after_ld_proc"
+    SECURITY_OFFBOARD_RK_REMINDER_FIVE_DAYS_AFTER_LD_PROC = (
+        "security_offboard_rk_reminder_five_days_after_ld_proc"
     )
     # SRE Offboarding
     SRE_REMINDER_DAY_AFTER_LWD = "sre_reminder_day_after_lwd"
     SRE_REMINDER_ONE_DAY_AFTER_LD = "sre_reminder_one_day_after_ld"
-    SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC = "sre_reminder_two_days_after_ld_proc"
+    SRE_REMINDER_FIVE_DAYS_AFTER_LD_PROC = "sre_reminder_five_days_after_ld_proc"
 
     FEETHAM_SECURITY_PASS_OFFICE_EMAIL = "feetham_security_pass_office_email"
     IT_OPS_ASSET_EMAIL = "it_ops_asset_email"
@@ -461,10 +461,10 @@ PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
     EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD: (
         EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD
     ),
-    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM: (
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_FIVE_DAYS_AFTER_LD_LM: (
         EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM
     ),
-    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+    EmailIds.SECURITY_OFFBOARD_BP_REMINDER_FIVE_DAYS_AFTER_LD_PROC: (
         EmailTemplates.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC
     ),
     # Security Offboarding (Rosa Kit)
@@ -480,10 +480,10 @@ PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
     EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD: (
         EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD
     ),
-    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM: (
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_FIVE_DAYS_AFTER_LD_LM: (
         EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM
     ),
-    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+    EmailIds.SECURITY_OFFBOARD_RK_REMINDER_FIVE_DAYS_AFTER_LD_PROC: (
         EmailTemplates.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC
     ),
     # SRE Offboarding
@@ -491,7 +491,7 @@ PROCESSOR_REMINDER_EMAIL_MAPPING: Dict[EmailIds, EmailTemplates] = {
     EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD: (
         EmailTemplates.SRE_REMINDER_ONE_DAY_AFTER_LD
     ),
-    EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+    EmailIds.SRE_REMINDER_FIVE_DAYS_AFTER_LD_PROC: (
         EmailTemplates.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC
     ),
 }
@@ -501,9 +501,9 @@ SECURITY_TEAM_BP_REMINDER_EMAILS: ReminderEmailDict = {
     "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD.value,
     "on_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ON_LD.value,
     "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD.value,
-    "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM.value,
-    "two_days_after_ld_proc": (
-        EmailIds.SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC.value
+    "five_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_BP_REMINDER_FIVE_DAYS_AFTER_LD_LM.value,
+    "five_days_after_ld_proc": (
+        EmailIds.SECURITY_OFFBOARD_BP_REMINDER_FIVE_DAYS_AFTER_LD_PROC.value
     ),
 }
 
@@ -512,9 +512,9 @@ SECURITY_TEAM_RK_REMINDER_EMAILS: ReminderEmailDict = {
     "two_days_after_lwd": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD.value,
     "on_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ON_LD.value,
     "one_day_after_ld": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD.value,
-    "two_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM.value,
-    "two_days_after_ld_proc": (
-        EmailIds.SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC.value
+    "five_days_after_ld_lm": EmailIds.SECURITY_OFFBOARD_RK_REMINDER_FIVE_DAYS_AFTER_LD_LM.value,
+    "five_days_after_ld_proc": (
+        EmailIds.SECURITY_OFFBOARD_RK_REMINDER_FIVE_DAYS_AFTER_LD_PROC.value
     ),
 }
 
@@ -523,8 +523,8 @@ SRE_REMINDER_EMAILS: ReminderEmailDict = {
     "two_days_after_lwd": None,
     "on_ld": None,
     "one_day_after_ld": EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD.value,
-    "two_days_after_ld_lm": None,
-    "two_days_after_ld_proc": EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC.value,
+    "five_days_after_ld_lm": None,
+    "five_days_after_ld_proc": EmailIds.SRE_REMINDER_FIVE_DAYS_AFTER_LD_PROC.value,
 }
 SRE_REMINDER_EMAIL_IDS: List[EmailIds] = [
     EmailIds(sre_reminder_email_id)  # type: ignore
@@ -688,8 +688,8 @@ class ProcessorReminderEmail(EmailTask):
     two_days_after_lwd_email_id: Optional[EmailIds] = None
     on_ld_email_id: Optional[EmailIds] = None
     one_day_after_ld_email_id: Optional[EmailIds] = None
-    two_days_after_ld_lm_email_id: Optional[EmailIds] = None
-    two_days_after_ld_proc_email_id: Optional[EmailIds] = None
+    five_days_after_ld_lm_email_id: Optional[EmailIds] = None
+    five_days_after_ld_proc_email_id: Optional[EmailIds] = None
 
     def should_send_email(
         self,
@@ -750,7 +750,7 @@ class ProcessorReminderEmail(EmailTask):
             for item in [
                 self.day_after_lwd_email_id,
                 self.one_day_after_ld_email_id,
-                self.two_days_after_ld_proc_email_id,
+                self.five_days_after_ld_proc_email_id,
             ]
             if item is not None
         ]
@@ -759,7 +759,7 @@ class ProcessorReminderEmail(EmailTask):
             for item in [
                 self.two_days_after_lwd_email_id,
                 self.on_ld_email_id,
-                self.two_days_after_ld_lm_email_id,
+                self.five_days_after_ld_lm_email_id,
             ]
             if item is not None
         ]
@@ -836,7 +836,7 @@ class ProcessorReminderEmail(EmailTask):
                 template_id=template_id,
             )
 
-    def send_two_days_after_leaving_date_line_manager_email(
+    def send_five_days_after_leaving_date_line_manager_email(
         self, task_info: Dict[Any, Any]
     ):
         today = timezone.now()
@@ -844,20 +844,22 @@ class ProcessorReminderEmail(EmailTask):
         if not leaving_date:
             raise Exception("Leaving Request doesn't have a leaving date")
 
-        two_days_after_leaving_date = leaving_date + timedelta(days=2)
-        if today >= two_days_after_leaving_date:
-            two_days_after_ld_lm: Optional[str] = task_info.get("two_days_after_ld_lm")
-            if two_days_after_ld_lm:
-                self.two_days_after_ld_lm_email_id = EmailIds(two_days_after_ld_lm)
+        five_days_after_leaving_date = leaving_date + timedelta(days=5)
+        if today >= five_days_after_leaving_date:
+            five_days_after_ld_lm: Optional[str] = task_info.get(
+                "five_days_after_ld_lm"
+            )
+            if five_days_after_ld_lm:
+                self.five_days_after_ld_lm_email_id = EmailIds(five_days_after_ld_lm)
                 template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
-                    self.two_days_after_ld_lm_email_id
+                    self.five_days_after_ld_lm_email_id
                 ]
                 self.send_email(
-                    email_id=self.two_days_after_ld_lm_email_id,
+                    email_id=self.five_days_after_ld_lm_email_id,
                     template_id=template_id,
                 )
 
-    def send_two_days_after_leaving_date_processor_email(
+    def send_five_days_after_leaving_date_processor_email(
         self, task_info: Dict[Any, Any]
     ):
         today = timezone.now()
@@ -865,18 +867,20 @@ class ProcessorReminderEmail(EmailTask):
         if not leaving_date:
             raise Exception("Leaving Request doesn't have a leaving date")
 
-        two_days_after_leaving_date = leaving_date + timedelta(days=2)
-        if today >= two_days_after_leaving_date:
-            two_days_after_ld_proc: Optional[str] = task_info.get(
-                "two_days_after_ld_proc"
+        five_days_after_leaving_date = leaving_date + timedelta(days=5)
+        if today >= five_days_after_leaving_date:
+            five_days_after_ld_proc: Optional[str] = task_info.get(
+                "five_days_after_ld_proc"
             )
-            if two_days_after_ld_proc:
-                self.two_days_after_ld_proc_email_id = EmailIds(two_days_after_ld_proc)
+            if five_days_after_ld_proc:
+                self.five_days_after_ld_proc_email_id = EmailIds(
+                    five_days_after_ld_proc
+                )
                 template_id = PROCESSOR_REMINDER_EMAIL_MAPPING[
-                    self.two_days_after_ld_proc_email_id
+                    self.five_days_after_ld_proc_email_id
                 ]
                 self.send_email(
-                    email_id=self.two_days_after_ld_proc_email_id,
+                    email_id=self.five_days_after_ld_proc_email_id,
                     template_id=template_id,
                 )
 
@@ -920,11 +924,11 @@ class ProcessorReminderEmail(EmailTask):
         self.send_one_day_after_leaving_date_email(task_info=task_info)
 
         # Two days after Leaving date
-        self.send_two_days_after_leaving_date_line_manager_email(
+        self.send_five_days_after_leaving_date_line_manager_email(
             task_info=task_info,
         )
 
-        self.send_two_days_after_leaving_date_processor_email(
+        self.send_five_days_after_leaving_date_processor_email(
             task_info=task_info,
         )
 

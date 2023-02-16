@@ -85,7 +85,7 @@ class TestSendSREReminderMessage(TestCase):
         self.assertEqual(mock_send_slack_message.call_count, 2)
 
         response = send_sre_reminder_message(
-            email_id=EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC,
+            email_id=EmailIds.SRE_REMINDER_FIVE_DAYS_AFTER_LD_PROC,
             leaving_request=self.leaving_request,
         )
         self.assertIsNotNone(response)

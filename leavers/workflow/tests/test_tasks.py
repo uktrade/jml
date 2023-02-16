@@ -746,11 +746,11 @@ class TestProcessorReminderEmail(TestCase):
 
     @freeze_time("2022-12-11 12:00:00")  # Sunday
     @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
-    def test_two_days_after_ld_weekend(self, mock_get_send_email_method):
+    def test_five_days_after_ld_weekend(self, mock_get_send_email_method):
         for _, email_id in self.email_ids.items():
             if email_id not in [
-                self.email_ids["two_days_after_ld_lm"],
-                self.email_ids["two_days_after_ld_proc"],
+                self.email_ids["five_days_after_ld_lm"],
+                self.email_ids["five_days_after_ld_proc"],
             ]:
                 self.leaving_request.email_task_logs.create(
                     user=self.user,
@@ -760,13 +760,13 @@ class TestProcessorReminderEmail(TestCase):
         self.task.execute(task_info=self.task_info)
         mock_get_send_email_method.assert_not_called()
 
-    @freeze_time("2022-12-12 12:00:00")  # Monday
+    @freeze_time("2022-12-15 12:00:00")  # Monday
     @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
-    def test_two_days_after_ld_weekday(self, mock_get_send_email_method):
+    def test_five_days_after_ld_weekday(self, mock_get_send_email_method):
         for _, email_id in self.email_ids.items():
             if email_id not in [
-                self.email_ids["two_days_after_ld_lm"],
-                self.email_ids["two_days_after_ld_proc"],
+                self.email_ids["five_days_after_ld_lm"],
+                self.email_ids["five_days_after_ld_proc"],
             ]:
                 self.leaving_request.email_task_logs.create(
                     user=self.user,
@@ -777,13 +777,13 @@ class TestProcessorReminderEmail(TestCase):
         calls = mock_get_send_email_method.call_args_list
 
         self.assertEqual(
-            calls[0].kwargs["email_id"].value, self.email_ids["two_days_after_ld_lm"]
+            calls[0].kwargs["email_id"].value, self.email_ids["five_days_after_ld_lm"]
         )
         self.assertEqual(
-            calls[1].kwargs["email_id"].value, self.email_ids["two_days_after_ld_proc"]
+            calls[1].kwargs["email_id"].value, self.email_ids["five_days_after_ld_proc"]
         )
 
-    @freeze_time("2022-12-12 12:00:00")  # Monday
+    @freeze_time("2022-12-15 12:00:00")  # Monday
     @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
     def test_different_ld_and_lwd(self, mock_get_send_email_method):
         self.task.execute(task_info=self.task_info)
@@ -795,10 +795,10 @@ class TestProcessorReminderEmail(TestCase):
         self.assertIn(self.email_ids["two_days_after_lwd"], called_email_ids)
         self.assertIn(self.email_ids["on_ld"], called_email_ids)
         self.assertIn(self.email_ids["one_day_after_ld"], called_email_ids)
-        self.assertIn(self.email_ids["two_days_after_ld_lm"], called_email_ids)
-        self.assertIn(self.email_ids["two_days_after_ld_proc"], called_email_ids)
+        self.assertIn(self.email_ids["five_days_after_ld_lm"], called_email_ids)
+        self.assertIn(self.email_ids["five_days_after_ld_proc"], called_email_ids)
 
-    @freeze_time("2022-12-12 12:00:00")  # Monday
+    @freeze_time("2022-12-15 12:00:00")  # Monday
     @mock.patch("leavers.workflow.tasks.ProcessorReminderEmail.get_send_email_method")
     def test_same_ld_and_lwd(self, mock_get_send_email_method):
         self.task2.execute(task_info=self.task_info)
@@ -810,8 +810,8 @@ class TestProcessorReminderEmail(TestCase):
         self.assertNotIn(self.email_ids["two_days_after_lwd"], called_email_ids)
         self.assertIn(self.email_ids["on_ld"], called_email_ids)
         self.assertIn(self.email_ids["one_day_after_ld"], called_email_ids)
-        self.assertIn(self.email_ids["two_days_after_ld_lm"], called_email_ids)
-        self.assertIn(self.email_ids["two_days_after_ld_proc"], called_email_ids)
+        self.assertIn(self.email_ids["five_days_after_ld_lm"], called_email_ids)
+        self.assertIn(self.email_ids["five_days_after_ld_proc"], called_email_ids)
 
 
 class TestSREProcessorReminderEmail(TestCase):
@@ -944,13 +944,13 @@ class TestSREProcessorReminderEmail(TestCase):
 
     @freeze_time("2022-12-18 12:00:00")  # Sunday
     @mock.patch("core.utils.sre_messages.send_sre_reminder_message")
-    def test_two_days_after_ld_weekend(
+    def test_five_days_after_ld_weekend(
         self, mock_send_sre_reminder_message: mock.MagicMock
     ):
         for _, email_id in self.email_ids.items():
             if email_id not in [
-                self.email_ids["two_days_after_ld_lm"],
-                self.email_ids["two_days_after_ld_proc"],
+                self.email_ids["five_days_after_ld_lm"],
+                self.email_ids["five_days_after_ld_proc"],
             ]:
                 self.leaving_request.email_task_logs.create(
                     user=self.user,
@@ -960,15 +960,15 @@ class TestSREProcessorReminderEmail(TestCase):
         self.task.execute(task_info=self.task_info)
         mock_send_sre_reminder_message.assert_not_called()
 
-    @freeze_time("2022-12-19 12:00:00")  # Monday
+    @freeze_time("2022-12-22 12:00:00")  # Monday
     @mock.patch("core.utils.sre_messages.send_sre_reminder_message")
-    def test_two_days_after_ld_weekday(
+    def test_five_days_after_ld_weekday(
         self, mock_send_sre_reminder_message: mock.MagicMock
     ):
         for _, email_id in self.email_ids.items():
             if email_id not in [
-                self.email_ids["two_days_after_ld_lm"],
-                self.email_ids["two_days_after_ld_proc"],
+                self.email_ids["five_days_after_ld_lm"],
+                self.email_ids["five_days_after_ld_proc"],
             ]:
                 self.leaving_request.email_task_logs.create(
                     user=self.user,
@@ -978,7 +978,7 @@ class TestSREProcessorReminderEmail(TestCase):
         self.task.execute(task_info=self.task_info)
         mock_send_sre_reminder_message.assert_called_once()
 
-    @freeze_time("2022-12-19 12:00:00")  # Monday
+    @freeze_time("2022-12-22 12:00:00")  # Monday
     @mock.patch("core.utils.sre_messages.send_sre_reminder_message")
     def test_different_ld_and_lwd(self, mock_send_sre_reminder_message: mock.MagicMock):
         self.task.execute(task_info=self.task_info)
@@ -988,9 +988,9 @@ class TestSREProcessorReminderEmail(TestCase):
 
         self.assertIn(self.email_ids["day_after_lwd"], called_email_ids)
         self.assertIn(self.email_ids["one_day_after_ld"], called_email_ids)
-        self.assertIn(self.email_ids["two_days_after_ld_proc"], called_email_ids)
+        self.assertIn(self.email_ids["five_days_after_ld_proc"], called_email_ids)
 
-    @freeze_time("2022-12-19 12:00:00")  # Monday
+    @freeze_time("2022-12-22 12:00:00")  # Monday
     @mock.patch("core.utils.sre_messages.send_sre_reminder_message")
     def test_same_ld_and_lwd(self, mock_send_sre_reminder_message: mock.MagicMock):
         self.task2.execute(task_info=self.task_info)
@@ -999,4 +999,4 @@ class TestSREProcessorReminderEmail(TestCase):
         called_email_ids: List[str] = [call.kwargs["email_id"].value for call in calls]
 
         self.assertIn(self.email_ids["one_day_after_ld"], called_email_ids)
-        self.assertIn(self.email_ids["two_days_after_ld_proc"], called_email_ids)
+        self.assertIn(self.email_ids["five_days_after_ld_proc"], called_email_ids)

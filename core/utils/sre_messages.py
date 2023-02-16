@@ -128,7 +128,7 @@ def send_sre_reminder_message(
             "systems has been removed.\n"
             "{sre_team_link}"
         ),
-        EmailIds.SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC: (
+        EmailIds.SRE_REMINDER_FIVE_DAYS_AFTER_LD_PROC: (
             "Our records show that {possessive_leaver_name} access to DIT tools "
             "and systems still has not been removed.\n"
             "\n"
