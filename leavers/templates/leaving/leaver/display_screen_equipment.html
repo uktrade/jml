@@ -12,35 +12,29 @@
             {% if user_is_leaver %}<span class="govuk-caption-l">Page 8 of 10</span>{% endif %}
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             <p class="govuk-body">
-                Tell us about any IT equipment, peripherals or home working equipment that were expensed to DIT over £150.
+                This includes kit that you have claimed on expenses as well as kit provided by DIT. It must be worth over £150.
             </p>
-            <p class="govuk-body">For example:</p>
+            <p class="govuk-body">
+                If you got your kit in coronavirus (COVID-19) and it is worth less than £150, you can keep it.
+            </p>
+            <p class="govuk-body">This could be:</p>
             <ul class="govuk-list govuk-list--bullet">
-                <li>specialist laptops</li>
+                <li>specialist laptops, including Apple M1 laptops</li>
                 <li>specialist chairs</li>
                 <li>standing desks</li>
                 <li>network hardware</li>
-            </ul>
-            <p class="govuk-body">
-                You must also return DIT-provided equipment that was not expensed. For example, Apple M1 developer laptops.
-            </p>
-            <p class="govuk-body">This does not include:</p>
-            <ul class="govuk-list govuk-list--bullet">
-                <li>any expensed equipment under £150</li>
-                <li>
-                    any equipment given to you as part of DIT's coronavirus (COVID-19) response (for example, your homeworker's kit)
-                </li>
             </ul>
         </div>
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-m">Add expensed equipment over £150</h2>
-            <p class="govuk-body">
-                Add brief description of your equipment (for example: developer laptop, standing desk, ergonomic chair).
-            </p>
-            <p class="govuk-body">The IT Ops team will contact you to arrange the return of your equipment.</p>
+            <h2 class="govuk-heading-m">Add your kit</h2>
             {% if dse_assets %}
+                {% if user_is_leaver %}
+                    <h3 class="govuk-heading-s">Your expensed assets:</h3>
+                {% else %}
+                    <h3 class="govuk-heading-s">The leaver's expensed assets:</h3>
+                {% endif %}
                 <dl class="govuk-summary-list">
                     {% for asset in dse_assets %}
                         <div class="govuk-summary-list__row">
@@ -54,19 +48,13 @@
                         </div>
                     {% endfor %}
                 </dl>
-            {% else %}
-                {% if user_is_leaver %}
-                    <p class="govuk-body">You currently have no IT equipment assigned to you.</p>
-                {% else %}
-                    <p class="govuk-body">There's currently no IT equipment assigned to {{ leaving_request.get_leaver_name }}.</p>
-                {% endif %}
             {% endif %}
-            <h3 class="govuk-heading-s">Your expensed assets:</h3>
             <form novalidate method='post'>
                 {% csrf_token %}
                 <input type="hidden" name="form_name" value="add_asset_form" />
                 {% crispy add_asset_form %}
             </form>
+            <p class="govuk-body">The IT Ops team will contact you to arrange the return of your equipment.</p>
         </div>
     </div>
     <div class="govuk-grid-row">

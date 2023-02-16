@@ -1086,7 +1086,6 @@ class LeaverHasAssetsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
 class HasCirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/cirrus/has_equipment.html"
     form_class = leaver_forms.HasCirrusKitForm
-    extra_context = {"page_title": "Return Cirrus kit"}
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
         user_assets = self.get_cirrus_assets()
@@ -1114,6 +1113,16 @@ class HasCirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView, FormView
             self.success_viewname = "leaver-display-screen-equipment"
 
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        page_title = "Return your Cirrus kit"
+        if not self.user_is_leaver:
+            page_title = "Return the leaver's Cirrus kit"
+
+        context.update(page_title=page_title)
+        return context
 
 
 class DeleteCirrusEquipmentView(LeavingRequestViewMixin, RedirectView):
@@ -1149,7 +1158,6 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
         "cirrus_return_form_no_assets": leaver_forms.CirrusReturnFormNoAssets,
     }
     template_name = "leaving/leaver/cirrus/equipment.html"
-    extra_context = {"page_title": "Return Cirrus kit"}
 
     def post_add_asset_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         session = self.get_session()
@@ -1260,6 +1268,12 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
+        page_title = "Return your Cirrus kit"
+        if not self.user_is_leaver:
+            page_title = "Return the leaver's Cirrus kit"
+
+        context.update(page_title=page_title)
+
         # Add form instances to the context.
         for form_name, form_class in self.forms.items():
             form_initial = getattr(self, f"get_initial_{form_name}")()
@@ -1304,7 +1318,6 @@ class DisplayScreenEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
         "submission_form": leaver_forms.DisplayScreenEquipmentSubmissionForm,
     }
     template_name = "leaving/leaver/display_screen_equipment.html"
-    extra_context = {"page_title": "Return DIT-owned equipment over £150"}
 
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
@@ -1366,8 +1379,14 @@ class DisplayScreenEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
             self.store_session(session)
         return super().get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
+
+        page_title = "Tell us about any other kit you have over £150"
+        if not self.user_is_leaver:
+            page_title = "Tell us about any other kit the leaver has over £150"
+
+        context.update(page_title=page_title)
 
         # Add form instances to the context.
         for form_name, form_class in self.forms.items():

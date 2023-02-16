@@ -131,6 +131,7 @@ Annual Leave: "
 API
 API Key
 Apple
+Apple M1
 Args
 aria-current="page
 aria-current="page"{%
@@ -217,6 +218,7 @@ core/context_processors.py
 core/notify.py
 Correction Email
 Counter Terrorist Check
+COVID-19
 Create ActivityStream
 Create Leaving Request
 Create Physical Asset
@@ -280,6 +282,7 @@ Display Screen Equipment
 Disposed Of"
 DIT
 DIT Activity
+DIT kit</h2
 DIT Leavers Service
 DIT Offboarding Team
 DIT_OFFBOARDING_EMAIL                                            

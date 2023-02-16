@@ -733,17 +733,17 @@ RETURN_OPTIONS = [
         ReturnOptions.OFFICE.value,
         ReturnOptions.OFFICE.label,
         hint=(
-            "On the last working day, return all of the equipment to the Cirrus "
-            "tech bar in Old Admiralty Building. Located on the 3rd floor the "
-            "tech bar is open from 9am to 5pm."
+            "On your last working day, return your Cirrus kit to OAB's Tech "
+            "Bar (on the 3rd floor). The Tech Bar is open Monday to Friday"
+            " from 10am to 4pm."
         ),
     ),
     Choice(
         ReturnOptions.HOME.value,
         ReturnOptions.HOME.label,
         hint=(
-            "We will send a box to return the Cirrus kit. This will be "
-            "collected by a courier, instructions will be included in the box."
+            "We will send you a box with instructions to pack your Cirrus kit."
+            " Your box will be collected by courier."
         ),
     ),
 ]
@@ -927,7 +927,10 @@ class AddDisplayScreenEquipmentAssetForm(LeaverJourneyBaseForm):
         "asset_name": "Please enter a name for the asset you wish to add.",
     }
 
-    asset_name = forms.CharField(label="Asset name")
+    asset_name = forms.CharField(
+        label="Describe your item",
+        help_text="For example, Apple M1 laptop",
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
