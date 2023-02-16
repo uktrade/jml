@@ -24,13 +24,7 @@ from core.forms import BaseForm, YesNoField
 from core.staff_search.forms import staff_search_autocomplete_field
 from core.utils.helpers import make_possessive
 from leavers.models import LeavingRequest
-from leavers.types import (
-    HealthAndSafetyOfficerOptions,
-    LeavingReason,
-    ReturnOptions,
-    SecurityClearance,
-    StaffType,
-)
+from leavers.types import LeavingReason, ReturnOptions, SecurityClearance, StaffType
 
 
 class SelectLeaverForm(BaseForm):
@@ -53,7 +47,7 @@ class SelectLeaverForm(BaseForm):
                 legend="Select a leaver to off-board from DIT",
                 legend_size=Size.LARGE,
             ),
-            Submit("submit", "Next"),
+            Submit("submit", "Continue"),
         )
 
 
@@ -91,7 +85,7 @@ class LeaverJourneyBaseForm(BaseForm):
 
         if self.user_is_leaver:
             self.helper.layout.append(
-                Submit("submit", "Next"),
+                Submit("submit", "Continue"),
             )
         else:
             self.helper.layout.append(
@@ -156,7 +150,7 @@ class WhyAreYouLeavingForm(LeaverJourneyBaseForm):
         )
         if self.user_is_leaver:
             self.helper.layout.append(
-                Submit("submit", "Next"),
+                Submit("submit", "Continue"),
             )
         else:
             self.helper.layout.append(
@@ -195,7 +189,7 @@ class StaffTypeForm(LeaverJourneyBaseForm):
 
         if self.user_is_leaver:
             self.helper.layout.append(
-                Submit("submit", "Next"),
+                Submit("submit", "Continue"),
             )
         else:
             self.helper.layout.append(
@@ -284,7 +278,7 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
 
         if self.user_is_leaver:
             self.helper.layout.append(
-                Submit("submit", "Next"),
+                Submit("submit", "Continue"),
             )
         else:
             self.helper.layout.append(
@@ -443,7 +437,7 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
 
         if self.user_is_leaver:
             self.helper.layout.append(
-                Submit("submit", "Next"),
+                Submit("submit", "Continue"),
             )
         else:
             self.helper.layout.append(
@@ -491,45 +485,41 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
 
 class HSFLOfficerForm(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
-        "hsfl_officer": "Please tell us if you are a HS or FL officer.",
+        "health_and_safety_officer": "Please tell us if you are a health and safety officer.",
+        "floor_liaison_officer": "Please tell us if you are a floor liaison officer.",
     }
     required_error_messages_not_leaver: Dict[str, str] = {
-        "hsfl_officer": "Please tell us if the leaver is a HS or FL officer.",
+        "health_and_safety_officer": "Please tell us if the leaver is a HS or FL officer.",
+        "floor_liaison_officer": "Please tell us if the leaver is a HS or FL officer.",
     }
 
-    hsfl_officer = forms.MultipleChoiceField(
-        label="",
-        choices=HealthAndSafetyOfficerOptions.choices,
-        widget=forms.CheckboxSelectMultiple,
+    health_and_safety_officer = YesNoField(
+        label="Are you a health and safety officer?",
+    )
+    floor_liaison_officer = YesNoField(
+        label="Are you a floor liaison officer?",
     )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         if not self.user_is_leaver:
-            hsfl_label_mapping = {
-                HealthAndSafetyOfficerOptions.HEALTH_AND_SAFETY_OFFICER.value: (
-                    "Yes, the leaver is a health and safety officer"
-                ),
-                HealthAndSafetyOfficerOptions.FLOOR_LIAISON_OFFICER.value: (
-                    "Yes, the leaver is a floor liaison officer"
-                ),
-                HealthAndSafetyOfficerOptions.NEITHER.value: (
-                    "No, the leaver is neither"
-                ),
-            }
-            for index, choice in enumerate(self.fields["hsfl_officer"].choices):
-                new_choice = (choice[0], hsfl_label_mapping[choice[0]])
-                self.fields["hsfl_officer"].choices[index] = new_choice
+            self.fields[
+                "health_and_safety_officer"
+            ].label = "Is the leaver a health and safety officer?"
+            self.fields[
+                "floor_liaison_officer"
+            ].label = "Is the leaver a floor liaison officer?"
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Field.radios("hsfl_officer"),
+            Field.radios("health_and_safety_officer", legend_size=Size.SMALL),
+            Field.radios("floor_liaison_officer", legend_size=Size.SMALL),
         )
 
         if self.user_is_leaver:
             self.helper.layout.append(
-                Submit("submit", "Next"),
+                Submit("submit", "Continue"),
             )
         else:
             self.helper.layout.append(
@@ -543,14 +533,6 @@ class HSFLOfficerForm(LeaverJourneyBaseForm):
                     css_class="govuk-button-group",
                 ),
             )
-
-    def clean_hsfl_officer(self):
-        hsfl_officer_value = self.cleaned_data["hsfl_officer"]
-        if "neither" in hsfl_officer_value and len(hsfl_officer_value) > 1:
-            raise forms.ValidationError(
-                "Please select yes or no, not both.",
-            )
-        return hsfl_officer_value
 
 
 class LeaverHasAssetsForm(LeaverJourneyBaseForm):
@@ -566,16 +548,33 @@ class LeaverHasAssetsForm(LeaverJourneyBaseForm):
     }
 
     has_gov_procurement_card = YesNoField(
-        label="Do you have a government procurement card (GPC)?"
+        label="Do you have a government procurement card (GPC)?",
+        help_text="This is a Visa based card used for departmental purchases.",
     )
-    has_rosa_kit = YesNoField(label="Do you have ROSA equipment?")
+    has_rosa_kit = YesNoField(
+        label="Do you have ROSA equipment?",
+        help_text="Rosa is the cross-government SECRET IT service.",
+    )
     has_dse = YesNoField(label="Do you have any IT equipment?")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        building_pass_content = [HTML("<h2 class='govuk-heading-s'>Building pass</h2>")]
+
         if not self.user_is_leaver:
             leaver_name = self.leaving_request.get_leaver_name()
+
+            building_pass_content.append(
+                HTML(
+                    f"""
+                    <p class='govuk-body'>
+                        {leaver_name} will be contacted by security to arrange
+                        the return of your building pass.
+                    </p>
+                    """
+                )
+            )
 
             self.fields[
                 "has_gov_procurement_card"
@@ -584,6 +583,17 @@ class LeaverHasAssetsForm(LeaverJourneyBaseForm):
                 "has_rosa_kit"
             ].label = f"Does {leaver_name} have ROSA equipment?"
             self.fields["has_dse"].label = f"Does {leaver_name} have any IT equipment?"
+        else:
+            building_pass_content.append(
+                HTML(
+                    """
+                    <p class='govuk-body'>
+                        You will be contacted by security to arrange the return
+                        of your building pass.
+                    </p>
+                    """
+                )
+            )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -602,11 +612,12 @@ class LeaverHasAssetsForm(LeaverJourneyBaseForm):
                 inline=False,
                 legend_size=Size.SMALL,
             ),
+            *building_pass_content,
         )
 
         if self.user_is_leaver:
             self.helper.layout.append(
-                Submit("submit", "Next"),
+                Submit("submit", "Continue"),
             )
         else:
             self.helper.layout.append(
@@ -652,7 +663,7 @@ class HasCirrusKitForm(LeaverJourneyBaseForm):
 
         if self.user_is_leaver:
             self.helper.layout.append(
-                Submit("submit", "Next"),
+                Submit("submit", "Continue"),
             )
         else:
             self.helper.layout.append(
@@ -701,7 +712,7 @@ class CirrusReturnFormNoAssets(LeaverJourneyBaseForm):
 
         if self.user_is_leaver:
             self.helper.layout.append(
-                Submit("submit", "Next"),
+                Submit("submit", "Continue"),
             )
         else:
             self.helper.layout.append(
@@ -866,7 +877,7 @@ class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
 
         if self.user_is_leaver:
             self.helper.layout.append(
-                Submit("submit", "Next"),
+                Submit("submit", "Continue"),
             )
         else:
             self.helper.layout.append(
@@ -943,7 +954,7 @@ class DisplayScreenEquipmentSubmissionForm(LeaverJourneyBaseForm):
 
         if self.user_is_leaver:
             self.helper.layout.append(
-                Submit("submit", "Next"),
+                Submit("submit", "Continue"),
             )
         else:
             self.helper.layout.append(
@@ -1023,7 +1034,7 @@ class LeaverContactDetailsForm(LeaverJourneyBaseForm):
 
         if self.user_is_leaver:
             self.helper.layout.append(
-                Submit("submit", "Next"),
+                Submit("submit", "Continue"),
             )
         else:
             self.helper.layout.append(

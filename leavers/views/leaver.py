@@ -35,7 +35,7 @@ from leavers import types
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation
-from leavers.types import HealthAndSafetyOfficerOptions, LeavingReason, StaffType
+from leavers.types import LeavingReason, StaffType
 from leavers.utils.leaving_request import update_or_create_leaving_request
 from leavers.views.base import LeavingRequestViewMixin
 from leavers.workflow.utils import get_or_create_leaving_workflow
@@ -146,7 +146,7 @@ class LeavingJourneyViewMixin(LeavingRequestViewMixin):
             "show_in_summary": True,
         },
         "employment-profile": {
-            "prev": "why-are-you-leaving",
+            "prev": "staff-type",
             "next": "leaver-find-details",
             "conditions": [],
             "view_name": "Employment profile",
@@ -652,11 +652,8 @@ class StaffTypeView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
             self.leaving_request.reason_for_leaving, None
         )
 
-        if staff_type == StaffType.FAST_STREAMERS:
-            self.success_viewname = "leaver-fast-streamer"
-            return super().form_valid(form)
-        elif staff_type == StaffType.LOAN:
-            self.success_viewname = "leaver-loan"
+        if staff_type == StaffType.OTHER:
+            self.success_viewname = "cannot-use-service"
             return super().form_valid(form)
         else:
             self.leaving_request.staff_type = staff_type
@@ -672,29 +669,16 @@ class StaffTypeView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
         return super().form_valid(form)
 
 
-class LeaverFastStreamerView(LeavingJourneyViewMixin, BaseTemplateView):
-    template_name = "leaving/leaver/fast_streamer.html"
+class LeaverCannotUseServiceView(LeavingJourneyViewMixin, BaseTemplateView):
+    template_name = "leaving/leaver/cannot_use_service.html"
+    back_link_viewname = "staff-type"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         page_title = "You cannot use this service"
         if not self.user_is_leaver:
-            page_title = "Fast Streamers cannot use this service"
-
-        context.update(page_title=page_title)
-        return context
-
-
-class LeaverLoanView(LeavingJourneyViewMixin, BaseTemplateView):
-    template_name = "leaving/leaver/loan.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        page_title = "You cannot use this service"
-        if not self.user_is_leaver:
-            page_title = "People on loan cannot use this service"
+            page_title = "The leaver cannot use this service"
 
         context.update(page_title=page_title)
         return context
@@ -987,38 +971,26 @@ class HSFLOfficerView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
 
-        hsfl_officer_value = []
-
-        if self.leaver_info.is_health_and_safety_officer:
-            hsfl_officer_value.append(
-                HealthAndSafetyOfficerOptions.HEALTH_AND_SAFETY_OFFICER.value
+        if self.leaver_info.is_health_and_safety_officer is not None:
+            initial.update(
+                health_and_safety_officer=bool_to_yes_no(
+                    self.leaver_info.is_health_and_safety_officer
+                ),
             )
-        if self.leaver_info.is_floor_liaison_officer:
-            hsfl_officer_value.append(
-                HealthAndSafetyOfficerOptions.FLOOR_LIAISON_OFFICER.value
+        if self.leaver_info.is_floor_liaison_officer is not None:
+            initial.update(
+                floor_liaison_officer=bool_to_yes_no(
+                    self.leaver_info.is_floor_liaison_officer
+                ),
             )
-        if (
-            self.leaver_info.is_health_and_safety_officer is not None
-            and self.leaver_info.is_health_and_safety_officer is False
-            and self.leaver_info.is_floor_liaison_officer is not None
-            and self.leaver_info.is_floor_liaison_officer is False
-        ):
-            hsfl_officer_value.append(HealthAndSafetyOfficerOptions.NEITHER.value)
-
-        initial.update(
-            hsfl_officer=hsfl_officer_value,
-        )
         return initial
 
     def form_valid(self, form) -> HttpResponse:
-        hsfl_officer_value = form.cleaned_data["hsfl_officer"]
-        self.leaver_info.is_health_and_safety_officer = bool(
-            HealthAndSafetyOfficerOptions.HEALTH_AND_SAFETY_OFFICER.value
-            in hsfl_officer_value
+        self.leaver_info.is_health_and_safety_officer = yes_no_to_bool(
+            form.cleaned_data["health_and_safety_officer"]
         )
-        self.leaver_info.is_floor_liaison_officer = bool(
-            HealthAndSafetyOfficerOptions.FLOOR_LIAISON_OFFICER.value
-            in hsfl_officer_value
+        self.leaver_info.is_floor_liaison_officer = yes_no_to_bool(
+            form.cleaned_data["floor_liaison_officer"]
         )
         self.leaver_info.save(
             update_fields=[
@@ -1033,11 +1005,9 @@ class HSFLOfficerView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
 
         leaver_name = self.leaving_request.get_leaver_name()
 
-        page_title = "Are you a health and safety or floor liaison officer?"
+        page_title = "Tell us about any other responsibilities you have"
         if not self.user_is_leaver:
-            page_title = (
-                f"Is {leaver_name} a health and safety or floor liaison officer?"
-            )
+            page_title = f"Tell us about any other responsibilities {leaver_name} has"
 
         context.update(page_title=page_title)
 
@@ -1108,13 +1078,8 @@ class LeaverHasAssetsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        page_title = "Return pass and other assets"
-        if not self.user_is_leaver:
-            page_title = "Other goverment assets"
-
+        page_title = "Other goverment assets"
         context.update(page_title=page_title)
-
         return context
 
 
