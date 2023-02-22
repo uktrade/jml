@@ -18,6 +18,12 @@ celery_app.conf.beat_schedule = {
         "task": "leavers.tasks.notify_hr",
         "schedule": crontab(minute=0, hour=7, day_of_week="mon,tue,wed,thu,fri"),
     },
+    # Send weekly email to notify of last week's leavers.
+    # Execute on monday morning at 8 am
+    "weekly-leavers-email-task": {
+        "task": "leavers.tasks.weekly_leavers_email",
+        "schedule": crontab(minute=0, hour=8, day_of_week="mon"),
+    },
     # Nightly tasks to update the Staff search index.
     "ingest-activity-stream-task": {
         "task": "core.tasks.ingest_activity_stream_task",
