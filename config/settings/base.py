@@ -180,6 +180,7 @@ AUTHBROKER_SCOPES = "read write"
 AUTHBROKER_ANONYMOUS_URL_NAMES = (
     "leaving-requests-list",
     "leaving-requests-detail",
+    "dit_activity_stream",
 )
 
 LOGIN_URL = "/auth/login"
