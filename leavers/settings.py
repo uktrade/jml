@@ -53,6 +53,8 @@ class EmailTemplatesSettings:
     LEAVER_IN_PAY_CUT_OFF_HR_EMAIL: str
     # Workforce planning email
     WORKFORCE_PLANNING_LAST_WEEK_LEAVERS_EMAIL: str
+    # Notify the team of feedback
+    FEEDBACK_NOTIFICATION_EMAIL: str
 
     def __getattr__(self, attr):
         setting_name = "TEMPLATE_ID_" + attr

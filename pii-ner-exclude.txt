@@ -52,6 +52,7 @@
 {{ last_day }
 {{ leaver_info.leaving_date }
 {{ leaver_info.personal_email }
+{{ object.submitted_at|date:"d
 {{ pass_destroyed.created_at
 {{ pass_disabled.created_at
 {{ pass_returned.created_at }
@@ -293,6 +294,7 @@ dit.html
 DIT</li
 Django 4.1.4
 Django 4.1.6
+Django 4.1.7
 Django Crispy Forms
 Django REST Framework
 django.conf
@@ -771,6 +773,7 @@ TEMPLATE_ID_CLU4_EMAIL                                           |
 TEMPLATE_ID_CLU4_EMAIL                                           | None                                       |                                                                                       
 TEMPLATE_ID_COMAEA_EMAIL                                         
 TEMPLATE_ID_COMAEA_EMAIL                              | None                                        |                                                                                                        
+TEMPLATE_ID_FEEDBACK_NOTIFICATION_EMAIL           
 TEMPLATE_ID_FEETHAM_SECURITY_PASS_OFFICE_EMAIL                   
 TEMPLATE_ID_IT_OPS_ASSET_EMAIL
 TEMPLATE_ID_IT_OPS_ASSET_EMAIL                                   |

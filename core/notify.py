@@ -106,6 +106,7 @@ class EmailTemplates(Enum):
     WORKFORCE_PLANNING_LAST_WEEK_LEAVERS_EMAIL = (
         email_template_settings.WORKFORCE_PLANNING_LAST_WEEK_LEAVERS_EMAIL
     )
+    FEEDBACK_NOTIFICATION_EMAIL = email_template_settings.FEEDBACK_NOTIFICATION_EMAIL
 
 
 def email(
