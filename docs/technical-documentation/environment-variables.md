@@ -90,6 +90,7 @@
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_LM                    | None                                        |                                                                                                        |
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_PROC                  | None                                        |                                                                                                        |
 | TEMPLATE_ID_WORKFORCE_PLANNING_LAST_WEEK_LEAVERS_EMAIL           | None                                        |                                                                                                        |
+| TEMPLATE_ID_FEEDBACK_NOTIFICATION_EMAIL                          | None                                        |                                                                                                        |
 | TEMPLATE_ID_LEAVER_IN_PAY_CUT_OFF_HR_EMAIL                       | None                                        |                                                                                                        |
 | GETADDRESS_TOKEN                                                 | None                                        | API Key or Domain token for getAddress() autocomplete                                                  |
 | PERFORMANCE_REVIEW_URL                                           | None                                        | Link to the performance review forms                                                                   |
