@@ -34,7 +34,7 @@ class UserCanViewFeedback(UserPassesTestMixin):
 class FeedbackListingView(UserCanViewFeedback, ListView):
     template_name = "feedback/feedback_listing.html"
     model = BetaServiceFeedback
-    paginate_by = 10
+    paginate_by = 25
     context_object_name = "feedbacks"
 
     def get_queryset(self):
