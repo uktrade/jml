@@ -23,7 +23,7 @@ class BetaFeedbackView(FormView):
         form.save()
         # Send an email to inform the team of the feedback
         notify.email(
-            email_addresses=settings.JML_TEAM_CONTACT_EMAIL,
+            email_addresses=[settings.JML_TEAM_CONTACT_EMAIL],
             template_id=notify.EmailTemplates.FEEDBACK_NOTIFICATION_EMAIL,
             personalisation={
                 "feedback_url": settings.SITE_URL + reverse("feedback-listing"),
