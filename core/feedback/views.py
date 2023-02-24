@@ -1,8 +1,10 @@
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import render
 from django.urls import reverse_lazy
-from django.views.generic import FormView
+from django.views.generic import FormView, ListView
 
 from core.feedback.forms import BetaFeedbackForm
+from core.feedback.models import BetaServiceFeedback
 
 
 class BetaFeedbackView(FormView):
@@ -22,3 +24,18 @@ class BetaFeedbackView(FormView):
 
 def feedback_thank_you(request):
     return render(request, "feedback/thank_you.html")
+
+
+class UserCanViewFeedback(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.has_perm("feedback.view_betaservicefeedback")
+
+
+class FeedbackListingView(UserCanViewFeedback, ListView):
+    template_name = "feedback/feedback_listing.html"
+    model = BetaServiceFeedback
+    paginate_by = 25
+    context_object_name = "feedbacks"
+
+    def get_queryset(self):
+        return BetaServiceFeedback.objects.all().order_by("-pk")
