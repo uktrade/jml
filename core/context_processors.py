@@ -85,6 +85,13 @@ def global_context(request):
                     reverse("security-team-listing-incomplete"),
                 )
             )
+        if request.user.has_perm("feedback.view_betaservicefeedback"):
+            global_context["MAIN_NAV"].append(
+                (
+                    "Submitted feedback",
+                    reverse("feedback-listing"),
+                )
+            )
 
         sso_email_user_id = request.user.sso_email_user_id
         user_is_manager = Q(
