@@ -49,7 +49,7 @@ It should be accessible at:
 
 The first page you see when you set up the project for the first time should be the [Dev tools](http://localhost:8001/dev-tools/) page. This page contains a drop down form so you can select from a list of premade users. It also contains a form for you to create your own users.
 
-![Dev tools page](./images/dev-tools-page.png){ loading=lazy }
+![Dev tools page](./images/dev-tools-page.png)
 
 #### Preconfigured users
 

@@ -11,7 +11,7 @@ The Staff search uses an OpenSearch index to store the data.
 
 ## Staff search component
 
-![Staff search component](../../images/staff-search-component.gif){ loading=lazy }
+![Staff search component](../../images/staff-search-component.gif)
 
 ### Example implementation
 
