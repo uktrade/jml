@@ -82,6 +82,7 @@
 ^6.3.0
 >View cookies</a>
 |
+| `asset_registry/`
 | SLACK_SRE_CHANNEL_ID                                     | None                                       
 | SLACK_SRE_CHANNEL_ID                                     | None                                       |                                                           
 | TEMPLATE_ID_OCS_LEAVER_EMAIL                                     
@@ -148,6 +149,7 @@ aria-label="Show
 aria-labelledby="govuk
 aria-sort="{%
 Assert
+Asset Team
 AssetDetails
 Authbroker                   
 AUTHBROKER_CLIENT_ID
@@ -181,6 +183,7 @@ CHANGE_EMPLOYEES_LM_LINK
 channel_id
 Charlie
 Charlie"
+Charlotte Blackwood
 checkbox
 Cirrus
 Cirrus Equipment
@@ -204,6 +207,7 @@ CommonMiddleware
 Compile SCSS
 complete</a>
 component](
+config/` |
 config/settings/base.py
 Confirm
 confirm_leaver_data
@@ -217,6 +221,7 @@ Convert Request Data
 core.people_data
 core.tasks.ingest_people_data_task
 core.tasks.ingest_people_finder_task
+core/
 core/context_processors.py
 core/notify.py
 Correction Email
@@ -229,6 +234,7 @@ Create Software Asset
 create_physical_asset
 Create/Update Staff ES
 Crispy
+Crispy Forms
 crispy_forms_gds
 crispy_forms_tags crispy_forms_gds %
 Croker
@@ -261,12 +267,15 @@ Department 1
 Department 2
 Department for International Trade
 Department of International Trade
+Description
 design</h4
 Desktop'
 Dev
 Dev Tools
 Dev tools & Authbroker
+Dev tools](http://localhost:8001/dev-tools/
 DEV_TOOLS_ENABLED                                                
+dev_tools/
 dev_tools/` - Djang
 Developed Vetting
 Developed Vetting (DV
@@ -288,10 +297,13 @@ DIT Activity
 DIT kit</h2
 DIT Leavers Service
 DIT Offboarding Team
+DIT Service
+DIT Service
 DIT_OFFBOARDING_EMAIL                                            
 DIT.</p
 dit.html
 DIT</li
+Div
 Django 4.1.4
 Django 4.1.6
 Django 4.1.7
@@ -304,6 +316,7 @@ DjangoTemplates
 DLS
 DO NOT USE ON PRODUCTION
 Docker
+docker container
 Dockerfile.dev
 document.getElementById("id
 Drop
@@ -360,12 +373,16 @@ Flexi Leave
 Flexi leave.</li>
 floor_liaison_officer
 Flow
+Folder
 for.</p
 Form
 form</h1
+FormHelper
+FormHelper
 found</p
 from:</p>
 Functionality
+Generic Staff Search View
 GET
 Get the Data Recipient StaffDocument
 Get the Leaver StaffDocument
@@ -391,8 +408,11 @@ GPC Return Address
 Graphs
 Green Park
 grey{%
+Groups
 gtm-head.html
 H021
+Hardware Team
+Hardware Team
 has_cirrus_kit
 hasn']t
 have</li>{%
@@ -412,7 +432,9 @@ HELP_DESK_CREDS=
 HELP_DESK_INTERFACE
 help_text_and_errors.html
 HelpDeskStubbed|
+Hierarchy
 hint{%
+Holds
 Home Use"
 home_address_line_1'
 HOST
@@ -431,6 +453,7 @@ http://0.0.0.0:8002
 http://localhost:8000
 http://www.w3.org/2000/svg'
 https://fake-uksbs.domain/hierarchy-api/1.0
+https://github.com/uktrade/jml/
 https://opensearch.org/docs/latest/opensearch/index-data/#update-data
 https://www.django-rest-framework.org/api-guide/pagination/
 id="id
@@ -452,6 +475,7 @@ interactions</h4
 International Trade
 IS_PRODUCTION
 is_superuser
+Jane
 JAWS
 Jira
 JML
@@ -466,6 +490,8 @@ Joe Bloggs
 joe.bloggs@example.com
 Joe"
 Joey
+John Smith
+John Watson
 Joiners
 Joiners, Movers and Leavers
 JS
@@ -476,6 +502,7 @@ kit)</li
 kit</span>
 kit</th
 know:</p
+lang
 Laptop
 last_day_agg
 last_working_day
@@ -539,12 +566,14 @@ Manager</h2
 manager</label
 Mark
 max-width
+MEDIUM
 MessageMiddleware
 Mi-Fi Device'
 migrate$(COLOUR_NONE
 minimum_should_match
 Misc
 Mismatch Email
+Miss Marple
 MIT
 MIT License
 mkdocs
@@ -555,6 +584,7 @@ mock_store_return_information.assert_called_once_with
 Movers
 Movers and Leavers
 Movers and Leavers Service
+myignore/
 NAME
 name=
 name="form_name" value="add_asset_form
@@ -568,6 +598,7 @@ Notification Email
 Notify
 notify.email
 npm
+npm install
 NVDA
 OAB
 OAB Locker
@@ -721,6 +752,7 @@ session.</p
 sessionid
 SessionMiddleware
 SIM
+Size
 sizes="152x152
 sizes="16x16
 Slack
@@ -747,10 +779,12 @@ sso_email_user_id = user.sso_email_user_id
 Staff
 staff_details.job_title %
 staff_id"
+staff_search_autocomplete_field
 STAFF_SSO_ACTIVITY_STREAM_ID
 STAFF_SSO_ACTIVITY_STREAM_SECRET                                 
 staff_sso_legacy_id
 StaffDocument
+StaffSearchView
 Star Rating
 Start Line
 Start" %}
@@ -761,6 +795,7 @@ StreamHandler
 Strip
 super().setUp
 Survey                                                                      
+Tablesort(table
 target="_blank">here</a>.</li>
 TaskLog
 TaskRecord
@@ -828,6 +863,7 @@ the Directorate {%
 The DIT Leaving Service
 the Feetham Security Pass Office
 The Flow
+the GDS Design System
 the GOV.UK Design System
 the GPC Return Address                    
 the Health and Safety Team</h2
@@ -847,6 +883,7 @@ the SRE Team
 the SRE User Group
 The Tech Bar
 the UK SBS API
+Thomas Anderson
 to:</p
 TODO Fix
 Trello

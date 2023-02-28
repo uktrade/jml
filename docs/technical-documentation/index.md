@@ -2,8 +2,14 @@
 
 ## Project structure
 
-- `config/` - Django settings and top-level project config
-- `core/` - Common code and integrations with external systems
-- `dev_tools/` - Djang app for tooling that helps with development
-- `leavers/` - Django app for processing leavers
-- `activity_stream/` - Manages the integration with Staff SSO
+| Folder name | Description |
+| ----------- | ----------- |
+| `activity_stream/` | Manages the integration with Staff SSO |
+| `asset_registry/` | Holds code for the asset registry that was an early prototype during discovery |
+| `config/` | Django settings and top-level project config |
+| `core/` | Common code and integrations with external systems |
+| `dev_tools/` | Django app for tooling that helps with development |
+| `docs/` | Documentation for the project |
+| `leavers/` | Django app for processing leavers |
+| `myignore/` | A Git ignored folder for you to place any code that you don't want to commit, but find useful |
+

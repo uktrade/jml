@@ -46,6 +46,8 @@ class StaffSearchView(FormView, BaseTemplateView):
     to customise the view text and behaviour:
     - search_name: A more specific name for the type of staff you are searching for.
     - query_param_name: The name of the query parameter the staff ID will be passed on success.
+
+    Documentation: docs/technical-documentation/custom-functionality/staff-search.md
     """
 
     form_class = SearchForm
