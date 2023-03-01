@@ -1,4 +1,5 @@
 -O codecov.sh https://codecov.io/bash
+-Xmx512m
 .00
 .env.ci
 .env.example
@@ -92,6 +93,7 @@
 | TEMPLATE_ID_SRE_REMINDER_ON_LD
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LWD                      
 | UKSBS_INTERFACE                                                  
+0.0.0.0:8000
 0.1.0
 0003_add_user_user_id
 0003_add_user_user_id
@@ -117,6 +119,7 @@
 7</span
 8.7 39.7 21.8l42.7-27.2A97.63
 9</span
+9600:9600
 960px
 a Civil Servant
 abc
@@ -577,6 +580,7 @@ Miss Marple
 MIT
 MIT License
 mkdocs
+mkdocs gh-deploy
 Mobile
 Mobile Applications
 mock_get_assets_for_user
