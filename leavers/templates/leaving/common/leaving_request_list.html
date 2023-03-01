@@ -15,7 +15,9 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-one-third">
                 <h2 class="govuk-heading-m">Create a new leaver</h2>
-                <p class="govuk-body">Manually off-board someone who has left DIT without completing the leaving service.</p>
+                <p class="govuk-body">
+                    Manually off-board someone who has left {{ DEPARTMENT_ACRONYM }} without completing the leaving service.
+                </p>
                 {% button_start offboard_url "Start" %}
             </div>
             {% comment %} Empty column {% endcomment %}
