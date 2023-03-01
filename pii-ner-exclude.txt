@@ -177,6 +177,7 @@ Building Pass
 Building pass '
 Building Pass Access Revoked
 building_pass_access_task_log
+Builds a StaffDocument
 Business Continuity
 Business Continuity Team Settings
 BUSINESS_CONTINUITY_EMAIL                                        
@@ -214,6 +215,9 @@ config/` |
 config/settings/base.py
 Confirm
 confirm_leaver_data
+Consolidate
+ConsolidatedStaffDocuments
+ConsolidatedStaffDocuments
 contact_address_line_1
 contact_address_postcode
 Context/Notes
@@ -234,6 +238,7 @@ Create ActivityStream
 Create Leaving Request
 Create Physical Asset
 Create Software Asset
+Create the Staff
 create_physical_asset
 Create/Update Staff ES
 Crispy
@@ -282,6 +287,8 @@ dev_tools/
 dev_tools/` - Djang
 Developed Vetting
 Developed Vetting (DV
+dict[str
+dict[str'
 Digital
 Digital Accessibility
 Digital Accessibility Centre
@@ -321,6 +328,7 @@ DO NOT USE ON PRODUCTION
 Docker
 docker container
 Dockerfile.dev
+document_to_index
 document.getElementById("id
 Drop
 DSE
@@ -328,6 +336,7 @@ e.preventDefault
 E501
 Easter
 Elastic
+Elasticsearch
 Email                             
 Email Templates
 email_id
@@ -557,6 +566,7 @@ Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
 line_report.consolidated_staff_document.job_title
 Link
+List[Union[Field
 Loan Pool'
 Locker Email
 LocMemCache
@@ -571,6 +581,7 @@ Mark
 max-width
 MEDIUM
 MessageMiddleware
+method ```python self.helper = FormHelper
 Mi-Fi Device'
 migrate$(COLOUR_NONE
 minimum_should_match
@@ -787,7 +798,10 @@ staff_search_autocomplete_field
 STAFF_SSO_ACTIVITY_STREAM_ID
 STAFF_SSO_ACTIVITY_STREAM_SECRET                                 
 staff_sso_legacy_id
+staff_sso_user
 StaffDocument
+StaffDocuments
+StaffDocuments
 StaffSearchView
 Star Rating
 Start Line
@@ -925,6 +939,7 @@ Updated Personal Email
 User
 User
 users.</td
+UUID
 value=
 value="update_status_form">
 Variables](/docs

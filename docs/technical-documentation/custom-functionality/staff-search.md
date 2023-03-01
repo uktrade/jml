@@ -22,9 +22,9 @@ Add a char field to a form to hold the inital staff_uuid value and use the HTMX 
 --8<-- "leavers/forms/leaver.py:30:52"
 ```
 
-Suppling `search_url` to the `staff_search_autocomplete_field` method, will tell the component which search view to use that will handle storing the data.
+Suppling `search_url` to the [`staff_search_autocomplete_field`](../../code-docs/staff-search-forms/#core.staff_search.forms.staff_search_autocomplete_field) method, will tell the component which search view to use that will handle storing the data.
 
-Suppling `remove_url` to the `staff_search_autocomplete_field` method, will tell the component which view will handle the logic to clear the data.
+Suppling `remove_url` to the [`staff_search_autocomplete_field`](../../code-docs/staff-search-forms/#core.staff_search.forms.staff_search_autocomplete_field) method, will tell the component which view will handle the logic to clear the data.
 
 
 #### Create a custom search view

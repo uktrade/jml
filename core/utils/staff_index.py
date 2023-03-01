@@ -88,28 +88,33 @@ class ConsolidatedStaffDocument(TypedDict):
 
 
 def get_search_connection() -> OpenSearch:
+    """Get the OpenSearch connection.
+
+    Raises:
+        Exception: If the Elasticsearch hosts are not configured.
+
+    Returns:
+        OpenSearch: The OpenSearch connection.
+    """
     if not HOST_URLS:
         raise Exception("Elasticsearch hosts not configured")
     return OpenSearch(HOST_URLS)
 
 
 def create_staff_index():
+    """Create the Staff index."""
     search_client = get_search_connection()
     search_client.indices.create(index=STAFF_INDEX_NAME, body=STAFF_INDEX_BODY)
 
 
 def delete_staff_index():
-    """
-    Delete the entire index.
-    """
+    """Delete the entire index."""
     search_client = get_search_connection()
     search_client.indices.delete(index=STAFF_INDEX_NAME)
 
 
 def clear_staff_index():
-    """
-    Delete all documents from the index.
-    """
+    """Delete all documents from the index."""
     search_client = get_search_connection()
     search_client.delete_by_query(
         index=STAFF_INDEX_NAME,
@@ -123,8 +128,13 @@ class StaffIndexNotFound(Exception):
 
 
 def staff_index_mapping_changed() -> bool:
-    """
-    Check to see if the existing mapping and our expected mapping differ.
+    """Check to see if the existing mapping and our expected mapping differ.
+
+    Raises:
+        StaffIndexNotFound: If the index does not exist.
+
+    Returns:
+        bool: True if the mapping has changed, False otherwise.
     """
     staff_index_mapping = STAFF_INDEX_BODY["mappings"]
     search_client = get_search_connection()
@@ -142,12 +152,20 @@ def search_staff_index(
     exclude_staff_ids: Optional[List[str]] = None,
     present_in_sso: bool = True,
 ) -> List[StaffDocument]:
-    """
-    Search the Staff index.
+    """Search the Staff index.
 
-    query: The search query.
-    exclude_staff_ids: A list of staff IDs to exclude from the results.
-    present_in_sso: Whether to only return results that are present in Staff SSO.
+    Args:
+        query (str):
+            The search query.
+        exclude_staff_ids (Optional[List[str]], optional):
+            A list of staff IDs to exclude from the results.
+            Defaults to None.
+        present_in_sso (bool, optional):
+            Whether to only return results that are present in Staff SSO.
+            Defaults to True.
+
+    Returns:
+        List[StaffDocument]
     """
     if not exclude_staff_ids:
         exclude_staff_ids = []
@@ -237,8 +255,26 @@ def get_staff_document_from_staff_index(
     staff_uuid: Optional[str] = None,
     sso_email_address: Optional[str] = None,
 ) -> StaffDocument:
-    """
-    Get a Staff document from the Staff index.
+    """Get a Staff document from the Staff index.
+
+    Args:
+        sso_email_user_id (Optional[str], optional):
+            The email user id to search for. Defaults to None.
+        staff_uuid (Optional[str], optional):
+            The staff UUID to search for. Defaults to None.
+        sso_email_address (Optional[str], optional):
+            The SSO email address to search for. Defaults to None.
+
+    Raises:
+        ValueError:
+            If more than one of sso_email_user_id, staff_uuid or sso_email_address are provided.
+        StaffDocumentNotFound:
+            If no StaffDocument is found.
+        TooManyStaffDocumentsFound:
+            If more than one StaffDocument is found.
+
+    Returns:
+        StaffDocument
     """
     values = []
     if sso_email_user_id:
@@ -308,6 +344,16 @@ def get_staff_document_from_staff_index(
 def consolidate_staff_documents(
     *, staff_documents: List[StaffDocument]
 ) -> List[ConsolidatedStaffDocument]:
+    """Convert a list of StaffDocuments into ConsolidatedStaffDocuments.
+
+    Args:
+        staff_documents (List[StaffDocument]):
+            The list of StaffDocuments to consolidate.
+
+    Returns:
+        List[ConsolidatedStaffDocument]:
+            The list of ConsolidatedStaffDocuments.
+    """
     consolidated_staff_documents: List[ConsolidatedStaffDocument] = []
     for staff_document in staff_documents:
         consolidated_staff_document: ConsolidatedStaffDocument = {
@@ -339,6 +385,14 @@ def consolidate_staff_documents(
 def get_people_finder_data(
     *, staff_sso_user: ActivityStreamStaffSSOUser
 ) -> Dict[str, str]:
+    """Get the people finder data for a staff user.
+
+    Args:
+        staff_sso_user (ActivityStreamStaffSSOUser): The staff user to get the data for.
+
+    Returns:
+        Dict[str, str]: The people finder data.
+    """
     from core.people_finder import get_people_finder_interface
     from core.people_finder.interfaces import PeopleFinderPersonNotFound, PersonDetail
 
@@ -386,7 +440,19 @@ def get_people_finder_data(
     return people_finder_data
 
 
-def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
+def build_staff_document(
+    *, staff_sso_user: ActivityStreamStaffSSOUser
+) -> StaffDocument:
+    """Builds a StaffDocument from a StaffSSOUser.
+
+    Args:
+        staff_sso_user (ActivityStreamStaffSSOUser):
+            The StaffSSOUser to build the StaffDocument from.
+
+    Returns:
+        StaffDocument:
+            The StaffDocument built from the StaffSSOUser.
+    """
     staff_sso_data = {
         "available_in_staff_sso": staff_sso_user.available,
         "staff_sso_legacy_id": staff_sso_user.user_id,
@@ -413,6 +479,14 @@ def build_staff_document(*, staff_sso_user: ActivityStreamStaffSSOUser):
 def get_csd_for_activitystream_user(
     *, activitystream_user: Optional[ActivityStreamStaffSSOUser]
 ) -> Optional[ConsolidatedStaffDocument]:
+    """Get the consolidated staff document for the given activity stream user.
+
+    Args:
+        activitystream_user (Optional[ActivityStreamStaffSSOUser]): The activity stream user.
+
+    Returns:
+        Optional[ConsolidatedStaffDocument]: The consolidated staff document.
+    """
     if not activitystream_user:
         return None
 
@@ -429,12 +503,15 @@ def get_csd_for_activitystream_user(
     return consolidated_staff_documents[0]
 
 
-def get_staff_document(id: str) -> dict[str, Any]:
-    search_client = get_search_connection()
-    return search_client.get(index=STAFF_INDEX_NAME, id=id)
-
-
 def get_sso_user_by_staff_document_uuid(uuid: str) -> ActivityStreamStaffSSOUser:
+    """Get the staff SSO user from the staff index using it's UUID.
+
+    Args:
+        uuid (str): The Staff's UUID.
+
+    Returns:
+        ActivityStreamStaffSSOUser: The staff SSO user.
+    """
     staff_doc = get_staff_document_from_staff_index(staff_uuid=uuid)
 
     return ActivityStreamStaffSSOUser.objects.get(
@@ -443,6 +520,7 @@ def get_sso_user_by_staff_document_uuid(uuid: str) -> ActivityStreamStaffSSOUser
 
 
 def delete_staff_document(id: str) -> None:
+    """Delete the related staff document in the staff search index."""
     search_client = get_search_connection()
     search_client.delete(index=STAFF_INDEX_NAME, id=id)
 
@@ -467,6 +545,18 @@ def update_staff_document(
 
 
 def staff_document_updater(func, upsert=False):
+    """Decorator to update the staff document in the staff search index.
+
+    Args:
+        func (Callable):
+            The function to decorate.
+        upsert (bool, optional):
+            Whether to upsert the document if it doesn't exist. Defaults to False.
+
+    Returns:
+        func (Callable): The decorated function.
+    """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         for doc_id, doc in func(*args, **kwargs):
@@ -477,6 +567,11 @@ def staff_document_updater(func, upsert=False):
 
 @partial(staff_document_updater, upsert=True)
 def index_sso_users():
+    """Index all SSO users in the staff search index.
+
+    Yields:
+        document_to_index (Tuple[str, dict[str, Any]]): The document ID and document to be indexed.
+    """
     qs = (
         ActivityStreamStaffSSOUser.objects.annotate(
             emails=ArrayAgg("sso_emails__email_address", distinct=True)
@@ -487,7 +582,7 @@ def index_sso_users():
 
     for sso_user in qs:
         doc_id = sso_user.email_user_id
-        doc = {
+        doc: Dict[str, Any] = {
             "uuid": str(uuid.uuid4()),
             "available_in_staff_sso": sso_user.available,
             "staff_sso_activity_stream_id": sso_user.identifier,

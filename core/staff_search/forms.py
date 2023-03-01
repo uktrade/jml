@@ -37,11 +37,30 @@ def staff_search_autocomplete_field(
     remove_text: Optional[str] = None,
     remove_url: Optional[str] = None
 ) -> List[Union[Field, HTML]]:
-    """
-    Crispy forms field for an autocomplete field.
+    """Crispy forms field for an autocomplete field.
 
-    Usage (inside the Form's __init__ method):
-    self.helper = FormHelper()
+    Args:
+        form (forms.Form):
+            The form the field belongs to.
+        request (HttpRequest):
+            The request object.
+        field_name (str):
+            The name of the field.
+        search_url (str):
+            The URL to the search view.
+        remove_text (Optional[str], optional):
+            The text to display on the remove button. Defaults to None.
+        remove_url (Optional[str], optional):
+            The URL to the remove view. Defaults to None.
+
+    Returns:
+        List[Union[Field, HTML]]:
+            A list of crispy form fields.
+
+    Usage:
+        Inside the Form's __init__ method
+        ```python
+        self.helper = FormHelper()
         self.helper.layout = Layout(
             ...
             *staff_search_autocomplete_field(
@@ -55,7 +74,7 @@ def staff_search_autocomplete_field(
             ),
             ...
         )
-    )
+        ```
     """
 
     current_value = form[field_name].value()

@@ -1,13 +1,20 @@
+from typing import Any
 from unittest import skip
 
 import pytest
 from opensearchpy.exceptions import NotFoundError
 
 from core.utils.staff_index import (
+    STAFF_INDEX_NAME,
     delete_staff_document,
-    get_staff_document,
+    get_search_connection,
     update_staff_document,
 )
+
+
+def get_staff_document(id: str) -> dict[str, Any]:
+    search_client = get_search_connection()
+    return search_client.get(index=STAFF_INDEX_NAME, id=id)
 
 
 @skip("We don't run opensearch in CI")

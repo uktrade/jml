@@ -698,10 +698,10 @@ class AddCirrusAssetForm(LeaverJourneyBaseForm):
 
 
 def radios_with_conditionals(*args, **kwargs) -> Field:
-    """
-    A wrapper function for Field.radios to add our custom JS to the field.
+    """A wrapper function for Field.radios to add our custom JS to the field.
 
-    Documentation: docs/technical-documentation/custom-functionality/conditional-radios.md
+    Returns:
+        field (Field): A Field object with the radios method applied to it.
     """
 
     field = Field.radios(*args, **kwargs)
