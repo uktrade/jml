@@ -1,4 +1,4 @@
-# Leaving DIT Service
+# Leaving DBT Service
 
 ## Project documentation
 

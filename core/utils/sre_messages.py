@@ -67,7 +67,7 @@ def send_sre_alert_message(*, leaving_request: "LeavingRequest") -> SlackRespons
         leaving_date_str = leaving_date.date().strftime(DATE_FORMAT_STR)
 
         message_content = (
-            f"{leaver_name} is leaving DIT\n"
+            f"{leaver_name} is leaving {settings.DEPARTMENT_ACRONYM}\n"
             "\n"
             "*Actions required:*\n"
             f"We need you to confirm that {leaver_name}'s access to tools "
@@ -105,41 +105,45 @@ def send_sre_reminder_message(
     email_id_mapping: Dict[EmailIds, str] = {
         EmailIds.SRE_REMINDER_DAY_AFTER_LWD: (
             "Yesterday was the date given as {possessive_leaver_name} "
-            "last working day in DIT.\n"
+            "last working day in {DEPARTMENT_ACRONYM}.\n"
             "\n"
             "Please ensure that their record on the Leaving Service is updated "
-            "to show that their access to DIT services and tools has been removed.\n"
+            "to show that their access to {DEPARTMENT_ACRONYM} "
+            "services and tools has been removed.\n"
             "{sre_team_link}"
             "\n"
             "This should happen as soon as possible to avoid the risk of a "
             "security breach."
         ),
         EmailIds.SRE_REMINDER_ONE_DAY_AFTER_LD: (
-            "Our records show that {possessive_leaver_name} access to DIT tools "
-            "and systems has not been removed.\n"
+            "Our records show that {possessive_leaver_name} access to "
+            "{DEPARTMENT_ACRONYM} tools and systems has not been "
+            "removed.\n"
             "\n"
-            "They left DIT yesterday.\n"
+            "They left {DEPARTMENT_ACRONYM} yesterday.\n"
             "\n"
             "This is now being classed as an ongoing security risk."
             "\n"
             "What you need to do:\n"
             "Please process this record today to confirm that "
-            "{possessive_leaver_name} access to all of their DIT tools and "
+            "{possessive_leaver_name} access to all of their "
+            "{DEPARTMENT_ACRONYM} tools and "
             "systems has been removed.\n"
             "{sre_team_link}"
         ),
         EmailIds.SRE_REMINDER_FIVE_DAYS_AFTER_LD_PROC: (
-            "Our records show that {possessive_leaver_name} access to DIT tools "
-            "and systems still has not been removed.\n"
+            "Our records show that {possessive_leaver_name} access to "
+            "{DEPARTMENT_ACRONYM} tools and systems still has not been "
+            "removed.\n"
             "\n"
             "As mentioned in our message yesterday, this is now being classed as "
             "an ongoing security risk.\n"
             "\n"
             "What you need to do:\n"
             "This is your last chance to process this record to confirm that "
-            "{possessive_leaver_name} access to all of their DIT tools and "
-            "systems has been removed. If not done, it will be marked as not "
-            "completed and escalated.\n"
+            "{possessive_leaver_name} access to all of their "
+            "{DEPARTMENT_ACRONYM} tools and systems has been removed. If not "
+            "done, it will be marked as not completed and escalated.\n"
             "{sre_team_link}"
         ),
     }
@@ -165,6 +169,7 @@ def send_sre_reminder_message(
                 leaver_name=leaver_name,
                 possessive_leaver_name=possessive_leaver_name,
                 sre_team_link=sre_team_link,
+                DEPARTMENT_ACRONYM=settings.DEPARTMENT_ACRONYM,
             ),
         )
     except FailedToSendSlackMessage:

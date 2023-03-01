@@ -16,6 +16,7 @@ from crispy_forms_gds.layout import (
     Submit,
 )
 from django import forms
+from django.conf import settings
 from django.http.request import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
@@ -44,7 +45,10 @@ class SelectLeaverForm(BaseForm):
                     remove_url=reverse("leaver-select-leaver"),
                     remove_text="Remove",
                 ),
-                legend="Select a leaver to off-board from DIT",
+                legend=(
+                    "Select a leaver to off-board from "
+                    f"{settings.DEPARTMENT_ACRONYM}"
+                ),
                 legend_size=Size.LARGE,
             ),
             Submit("submit", "Continue"),
@@ -356,21 +360,24 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
         line_manager_legend = "Who is your line manager?"
         line_manager_html = HTML(
             "<p class='govuk-body'>Your line manager will confirm your leaving "
-            "date. They are responsible for offboarding you from DIT.</p>"
+            "date. They are responsible for offboarding you from "
+            f"{settings.DEPARTMENT_ACRONYM}.</p>"
             "<p class='govuk-body'>Add the person you report to if you do not "
             "know who your line manager is.</p>"
         )
 
         last_day_legend = "When is your last working day?"
         last_day_html = HTML(
-            "<p class='govuk-body'>This is the last day you will work for DIT. "
-            "After this day, you will not have access to any DIT systems and buildings.</p>"
+            "<p class='govuk-body'>This is the last day you will work for "
+            f"{settings.DEPARTMENT_ACRONYM}. After this day, you will not have "
+            f"access to any {settings.DEPARTMENT_ACRONYM} systems and "
+            "buildings.</p>"
         )
 
         leaving_date_legend = "When is your official leaving day?"
         leaving_date_html = HTML(
             "<p class='govuk-body'>This is the last day you will be employed "
-            "and paid by DIT.</p>"
+            f"and paid by {settings.DEPARTMENT_ACRONYM}.</p>"
         )
         if not self.user_is_leaver:
             leaver_name = self.leaving_request.get_leaver_name()
@@ -380,14 +387,15 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
             line_manager_html = HTML(
                 f"<p class='govuk-body'>{possessive_leaver_name} line manager will confirm "
                 "their leaving date. The line manger is responsible for "
-                "offboarding the leaver from DIT.</p>"
+                f"offboarding the leaver from {settings.DEPARTMENT_ACRONYM}.</p>"
             )
 
             last_day_legend = f"When is {possessive_leaver_name} last working day?"
             last_day_html = HTML(
                 f"<p class='govuk-body'>This is the last day that {leaver_name} "
-                f"will work for DIT. After this day, {leaver_name} will not have "
-                "access to any DIT systems and buildings.</p>"
+                f"will work for {settings.DEPARTMENT_ACRONYM}. After this day, "
+                f"{leaver_name} will not have access to any "
+                f"{settings.DEPARTMENT_ACRONYM} systems and buildings.</p>"
             )
 
             leaving_date_legend = (
@@ -395,7 +403,7 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
             )
             leaving_date_html = HTML(
                 f"<p class='govuk-body'>This is the last day that {leaver_name} "
-                "will be employed and paid by DIT.</p>"
+                f"will be employed and paid by {settings.DEPARTMENT_ACRONYM}.</p>"
             )
 
         self.helper = FormHelper()

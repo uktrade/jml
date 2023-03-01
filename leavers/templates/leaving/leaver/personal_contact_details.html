@@ -10,11 +10,11 @@
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             {% if user_is_leaver %}
                 <p class="govuk-body">
-                    This information will only be used for DIT offboarding purposes (for example, to send your P60).
+                    This information will only be used for {{ DEPARTMENT_ACRONYM }} offboarding purposes (for example, to send your P60).
                 </p>
             {% else %}
                 <p class="govuk-body">
-                    This information will only be used for DIT offboarding purposes (for example, to send the leaver's P60).
+                    This information will only be used for {{ DEPARTMENT_ACRONYM }} offboarding purposes (for example, to send the leaver's P60).
                 </p>
             {% endif %}
             <form novalidate method='post'>
