@@ -204,11 +204,13 @@ CLU4 Leaver Notification Email
 CLU4_EMAIL
 CLU4_EMAIL                                               |                                             
 COLOUR_GREEN=\033[32;01
+COLOUR_NONE=\033[0m
 COLOUR_YELLOW=\033[33;01
 COMAEA
 COMAEA Team Settings
 CommonMiddleware
 Compile SCSS
+compilescss$(COLOUR_NONE
 complete</a>
 component](
 config/` |
@@ -327,6 +329,7 @@ DLS
 DO NOT USE ON PRODUCTION
 Docker
 docker container
+docker-compose.utils.yml run --rm utils
 Dockerfile.dev
 document_to_index
 document.getElementById("id
@@ -476,6 +479,7 @@ IMPLIED
 include:</p
 include</p
 INDEX_CURRENT_USER_MIDDLEWARE                            
+index.html
 Index](/docs
 INFO
 information</h1
@@ -614,6 +618,7 @@ Notify
 notify.email
 npm
 npm install
+npm run
 NVDA
 OAB
 OAB Locker
@@ -721,6 +726,8 @@ rosa-kit
 rosa-kit/
 rosa-kit/status/<str
 ROSA</span>
+Run Django
+Run Django BDD
 Running MkDocs
 SC
 SEARCH_STAFF_INDEX_NAME                                          |
@@ -747,6 +754,7 @@ Send OCS OAB Locker
 Send Security Team
 send_leaver_thank_you_email
 Sensitive and Personal
+Serve mkdocs
 Service
 Service Now
 Service Now Health Check
@@ -766,6 +774,7 @@ Session
 session.</p
 sessionid
 SessionMiddleware
+SHELL
 SIM
 Size
 sizes="152x152
