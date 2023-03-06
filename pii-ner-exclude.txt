@@ -413,6 +413,7 @@ Get the Data Recipient StaffDocument
 Get the Leaver StaffDocument
 Get the Leaver's
 Get the Leaving Request for the Leaver
+get_last_day
 get_people_data_interface
 get_success_url
 GETADDRESS_TOKEN
@@ -753,7 +754,9 @@ security_clearance_status_task_log
 security_offboard_bp_reminder_day_after_lwd
 security_pass_disabled_task_log
 security_team_building_pass_complete
+security_team_building_pass_returned
 security_team_rosa_kit_complete
+security_team_rosa_laptop_status
 SECURITY_TEAM_VETTING_EMAIL
 SECURITY_TEAM_VETTING_EMAIL                                      
 security/
