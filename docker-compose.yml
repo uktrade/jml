@@ -100,7 +100,9 @@ services:
       - redis
 
   docs:
-    image: squidfunk/mkdocs-material
+    build:
+      context: .
+      dockerfile: "docker/Dockerfile.docs"
     networks:
       - default
     volumes:

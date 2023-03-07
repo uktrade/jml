@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-APPLICATION_NAME="JML"
+APPLICATION_NAME="Leaving service"
 
 # Colour coding for output
 COLOUR_NONE=\033[0m

@@ -1,4 +1,5 @@
 -O codecov.sh https://codecov.io/bash
+-Xmx512m
 .00
 .env.ci
 .env.example
@@ -96,6 +97,7 @@
 | TEMPLATE_ID_SRE_REMINDER_ON_LD
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LWD                      
 | UKSBS_INTERFACE                                                  
+0.0.0.0:8000
 0.1.0
 0003_add_user_user_id
 0003_add_user_user_id
@@ -121,6 +123,7 @@
 7</span
 8.7 39.7 21.8l42.7-27.2A97.63
 9</span
+9600:9600
 960px
 a Civil Servant
 abc
@@ -179,6 +182,7 @@ Building Pass
 Building pass '
 Building Pass Access Revoked
 building_pass_access_task_log
+Builds a StaffDocument
 Business Continuity
 Business Continuity Team Settings
 BUSINESS_CONTINUITY_EMAIL                                        
@@ -206,17 +210,22 @@ CLU4 Leaver Notification Email
 CLU4_EMAIL
 CLU4_EMAIL                                               |                                             
 COLOUR_GREEN=\033[32;01
+COLOUR_NONE=\033[0m
 COLOUR_YELLOW=\033[33;01
 COMAEA
 COMAEA Team Settings
 CommonMiddleware
 Compile SCSS
+compilescss$(COLOUR_NONE
 complete</a>
 component](
 config/` |
 config/settings/base.py
 Confirm
 confirm_leaver_data
+Consolidate
+ConsolidatedStaffDocuments
+ConsolidatedStaffDocuments
 contact_address_line_1
 contact_address_postcode
 Context/Notes
@@ -237,6 +246,7 @@ Create ActivityStream
 Create Leaving Request
 Create Physical Asset
 Create Software Asset
+Create the Staff
 create_physical_asset
 Create/Update Staff ES
 Crispy
@@ -288,6 +298,8 @@ dev_tools/
 dev_tools/` - Djang
 Developed Vetting
 Developed Vetting (DV
+dict[str
+dict[str'
 Digital
 Digital Accessibility
 Digital Accessibility Centre
@@ -327,7 +339,9 @@ DLS
 DO NOT USE ON PRODUCTION
 Docker
 docker container
+docker-compose.utils.yml run --rm utils
 Dockerfile.dev
+document_to_index
 document.getElementById("id
 Drop
 DSE
@@ -335,6 +349,7 @@ e.preventDefault
 E501
 Easter
 Elastic
+Elasticsearch
 Email                             
 Email Templates
 email_id
@@ -474,6 +489,7 @@ IMPLIED
 include:</p
 include</p
 INDEX_CURRENT_USER_MIDDLEWARE                            
+index.html
 Index](/docs
 INFO
 information</h1
@@ -565,6 +581,7 @@ Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
 line_report.consolidated_staff_document.job_title
 Link
+List[Union[Field
 Loan Pool'
 Locker Email
 LocMemCache
@@ -580,6 +597,7 @@ max-width
 ME FIRST](./index.md#uk-sbs
 MEDIUM
 MessageMiddleware
+method ```python self.helper = FormHelper
 Mi-Fi Device'
 migrate$(COLOUR_NONE
 minimum_should_match
@@ -589,6 +607,7 @@ Miss Marple
 MIT
 MIT License
 mkdocs
+mkdocs gh-deploy
 Mobile
 Mobile Applications
 mock_get_assets_for_user
@@ -611,6 +630,7 @@ Notify
 notify.email
 npm
 npm install
+npm run
 NVDA
 OAB
 OAB Locker
@@ -719,6 +739,8 @@ rosa-kit
 rosa-kit/
 rosa-kit/status/<str
 ROSA</span>
+Run Django
+Run Django BDD
 Running MkDocs
 SC
 SEARCH_STAFF_INDEX_NAME                                          |
@@ -745,6 +767,7 @@ Send OCS OAB Locker
 Send Security Team
 send_leaver_thank_you_email
 Sensitive and Personal
+Serve mkdocs
 Service
 Service Now
 Service Now Health Check
@@ -764,6 +787,7 @@ Session
 session.</p
 sessionid
 SessionMiddleware
+SHELL
 SIM
 Single Sign
 Size
@@ -797,7 +821,10 @@ staff_search_autocomplete_field
 STAFF_SSO_ACTIVITY_STREAM_ID
 STAFF_SSO_ACTIVITY_STREAM_SECRET                                 
 staff_sso_legacy_id
+staff_sso_user
 StaffDocument
+StaffDocuments
+StaffDocuments
 StaffSearchView
 Star Rating
 Start Line
@@ -941,6 +968,7 @@ Updated Personal Email
 User
 User
 users.</td
+UUID
 value=
 value="update_status_form">
 Variables](/docs

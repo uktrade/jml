@@ -4,12 +4,13 @@ In the GDS Design System, we have a pattern for [conditionally revealing a relat
 
 To acheive this in this project we have added some simple JS that will find content that relates to a radio select and show/hide it based on the radio select being selected. (see: core/static/js/conditional-radios.js).
 
-Since our forms are generated using Crispy Forms, you can use the `radios_with_conditionals` method to your form `__init__` method to apply the JS logic:
+Since our forms are generated using Crispy Forms, you can use the [`radios_with_conditionals`](../../code-docs/leaver-forms/#leavers.forms.leaver.radios_with_conditionals) method to your form `__init__` method to apply the JS logic:
 
 ```python
 from django import forms
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Layout, Size
+from leavers.forms.leaver import radios_with_conditionals
 
 
 class ExampleForm(forms.Form):
@@ -46,7 +47,7 @@ class ExampleForm(forms.Form):
 
 ```
 
-The `radios_with_conditionals` method is a wrapper to the `Field.radios` method, which means you can pass through the same arguments as you would to the `radios` method.
+The [`radios_with_conditionals`](../../code-docs/leaver-forms/#leavers.forms.leaver.radios_with_conditionals) method is a wrapper to the `Field.radios` method, which means you can pass through the same arguments as you would to the `radios` method.
 
 You can then add a wrapper `Div` with a `css_class` that dentotes which radio select it relates to:
 

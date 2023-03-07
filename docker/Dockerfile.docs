@@ -1,0 +1,2 @@
+FROM --platform=linux/amd64 squidfunk/mkdocs-material
+RUN pip install --no-cache-dir mkdocstrings-python
