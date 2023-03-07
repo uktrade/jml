@@ -9,6 +9,7 @@ from leavers.serializers import LeavingRequestSerializer
 
 class PrimaryKeyCursorPagination(pagination.CursorPagination):
     ordering = "pk"
+    page_size = 10
 
 
 hawk_response = decorator_from_middleware(HawkResponseMiddleware)
