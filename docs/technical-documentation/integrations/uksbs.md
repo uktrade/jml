@@ -2,7 +2,7 @@
 
 [READ ME FIRST](./index.md#uk-sbs-person-id)
 
-The Leaving DIT Service integrates with UK SBS to inform Payroll of someone leaving the department. Below are the tasks that integrate with UK SBS...
+The Leaving DBS Service integrates with UK SBS to inform Payroll of someone leaving the department. Below are the tasks that integrate with UK SBS...
 
 ## The Leaver selects their Line Manager
 

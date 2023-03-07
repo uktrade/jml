@@ -45,6 +45,8 @@
 { GETADDRESS_TOKEN }}'
 {{
 {{ choice.hint }
+{{ DEPARTMENT_ACRONYM
+{{ DEPARTMENT_NAME
 {{ field.auto_id }
 {{ field.html_name }
 {{ field.label|safe }
@@ -52,6 +54,8 @@
 {{ last_day }
 {{ leaver_info.leaving_date }
 {{ leaver_info.personal_email }
+{{ leaver_information.return_contact_email }
+{{ leaving_request.get_leaver_name
 {{ object.submitted_at|date:"d
 {{ pass_destroyed.created_at
 {{ pass_disabled.created_at
@@ -130,6 +134,7 @@ address=
 Admin Views
 admin@opensearch:9200
 ALWAYS
+Announce
 Annual Leave
 Annual Leave: "
 API
@@ -188,6 +193,7 @@ checkbox
 Cirrus
 Cirrus Equipment
 Cirrus kit
+Cirrus kit listed.</p
 Cirrus kit</h2>
 Civil Servant
 Civil Servants
@@ -261,10 +267,13 @@ day</span></a
 Days
 Days"
 DB
+DBT
+DBT Service
 Default                                     
 delay:200ms
 Department 1
 Department 2
+Department for Business and Trade
 Department for International Trade
 Department of International Trade
 Description
@@ -285,6 +294,7 @@ Digital Accessibility Centre
 Digital Workspace
 Digital Workspace</a
 Digital Worskspace
+Directorate
 directorate_id
 DIRS
 Discuss
@@ -495,6 +505,7 @@ John Watson
 Joiners
 Joiners, Movers and Leavers
 JS
+keyboard</li
 Kit
 Kit requests</a
 kit_info
@@ -566,6 +577,7 @@ Manager</h2
 manager</label
 Mark
 max-width
+ME FIRST](./index.md#uk-sbs
 MEDIUM
 MessageMiddleware
 Mi-Fi Device'
@@ -618,6 +630,7 @@ OpenSearch URL
 OPENSEARCH_JAVA_OPTS=-Xms512
 OPTIONS
 OrderedItem
+P60
 PAAS
 Paid
 Palette
@@ -752,6 +765,7 @@ session.</p
 sessionid
 SessionMiddleware
 SIM
+Single Sign
 Size
 sizes="152x152
 sizes="16x16
@@ -795,6 +809,7 @@ StreamHandler
 Strip
 super().setUp
 Survey                                                                      
+svg aria-hidden="true
 Tablesort(table
 target="_blank">here</a>.</li>
 TaskLog
@@ -861,6 +876,7 @@ the Department for International Trade
 the Department for International Trade.</p
 the Directorate {%
 The DIT Leaving Service
+The Equality and Human Rights Commission
 the Feetham Security Pass Office
 The Flow
 the GDS Design System
@@ -869,7 +885,9 @@ the GPC Return Address
 the Health and Safety Team</h2
 the Leaver Activity Stream
 the Leaver Form's
+the Leaver has Line
 the Leavers Workflow
+The Leaving DBS Service
 the Leaving DIT
 The Leaving DIT Service
 the Leaving Request
@@ -883,6 +901,7 @@ the SRE Team
 the SRE User Group
 The Tech Bar
 the UK SBS API
+the Web Content Accessibility Guidelines
 Thomas Anderson
 to:</p
 TODO Fix
@@ -891,6 +910,7 @@ true;j.src=
 type</span>
 UK SBS - Unexpected
 UK SBS - Unexpected Response
+UK SBS Connect
 UK SBS Correction
 UK SBS Leaver Submission URL                                                                           
 UK SBS Person ID

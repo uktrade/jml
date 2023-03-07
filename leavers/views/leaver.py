@@ -2,6 +2,7 @@ import uuid
 from enum import Enum
 from typing import Any, Callable, Dict, List, Literal, Optional, Type, cast
 
+from django.conf import settings
 from django.forms import Form
 from django.http import Http404
 from django.http.request import HttpRequest
@@ -551,9 +552,9 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     def get_page_title(self):
         leaver_name = self.leaving_request.get_leaver_name()
 
-        page_title = "Why are you leaving DIT?"
+        page_title = f"Why are you leaving {settings.DEPARTMENT_ACRONYM}?"
         if not self.user_is_leaver:
-            page_title = f"Why is {leaver_name} leaving DIT?"
+            page_title = f"Why is {leaver_name} leaving {settings.DEPARTMENT_ACRONYM}?"
 
         return page_title
 
@@ -589,9 +590,11 @@ class StaffTypeView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
 
         leaver_name = self.leaving_request.get_leaver_name()
 
-        page_title = "How are you employed by DIT?"
+        page_title = f"How are you employed by {settings.DEPARTMENT_ACRONYM}?"
         if not self.user_is_leaver:
-            page_title = f"How is {leaver_name} employed by DIT?"
+            page_title = (
+                f"How is {leaver_name} employed by {settings.DEPARTMENT_ACRONYM}?"
+            )
 
         context.update(page_title=page_title)
         return context

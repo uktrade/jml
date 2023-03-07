@@ -16,6 +16,8 @@ def global_context(request):
 
     global_context = {
         "SERVICE_NAME": settings.SERVICE_NAME,
+        "DEPARTMENT_NAME": settings.DEPARTMENT_NAME,
+        "DEPARTMENT_ACRONYM": settings.DEPARTMENT_ACRONYM,
         "COOKIE_RESPONSE": request.COOKIES.get(COOKIE_KEY),
         "GTM_CODE": settings.GTM_CODE,
         "SERVICE_NOW_OFFLINE_URL": settings.SERVICE_NOW_OFFLINE_URL,

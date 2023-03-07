@@ -299,7 +299,9 @@ else:
     AUTHENTICATION_BACKENDS.append("user.backends.CustomAuthbrokerBackend")
     MIDDLEWARE.append("authbroker_client.middleware.ProtectAllViewsMiddleware")
 
-SERVICE_NAME = "Leaving DIT service"
+DEPARTMENT_NAME = "Department for Business and Trade"
+DEPARTMENT_ACRONYM = "DBT"
+SERVICE_NAME = f"Leaving {DEPARTMENT_ACRONYM} service"
 
 # Slack
 SLACK_API_TOKEN = env("SLACK_API_TOKEN", default=None)

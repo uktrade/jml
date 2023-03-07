@@ -4,6 +4,7 @@ from crispy_forms_gds.fields import DateInputField
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import HTML, Div, Field, Fieldset, Layout, Size, Submit
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models.enums import TextChoices
 from django.http.request import HttpRequest
@@ -346,8 +347,10 @@ class ConfirmLeavingDate(BaseForm):
             Fieldset(
                 HTML(
                     f"<p class='govuk-body'>This is the last date {leaver_name} "
-                    "will work for DIT. After this date they will not have "
-                    "access to any of the DIT-provided systems and buildings.</p>"
+                    f"will work for {settings.DEPARTMENT_ACRONYM}. After this "
+                    "date they will not have access to any of the "
+                    f"{settings.DEPARTMENT_ACRONYM}-provided systems and "
+                    "buildings.</p>"
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("last_day"),
@@ -357,7 +360,8 @@ class ConfirmLeavingDate(BaseForm):
             Fieldset(
                 HTML(
                     f"<p class='govuk-body'>This is the last date {leaver_name} "
-                    "will be employed and paid by DIT.</p>"
+                    "will be employed and paid by "
+                    f"{settings.DEPARTMENT_ACRONYM}.</p>"
                 ),
                 HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("leaving_date"),

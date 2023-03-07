@@ -3,7 +3,7 @@ hide:
   - navigation
 ---
 
-# Leaving DIT Service
+# Leaving DBT Service
 
 ## Developer notes
 Notes that must be read and understood by developers working on the service.
