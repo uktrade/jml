@@ -9,6 +9,7 @@ from leavers.serializers import LeavingRequestSerializer
 
 class PrimaryKeyCursorPagination(pagination.CursorPagination):
     ordering = "pk"
+    page_size = 10
 
 
 hawk_response = decorator_from_middleware(HawkResponseMiddleware)
@@ -17,7 +18,7 @@ hawk_response = decorator_from_middleware(HawkResponseMiddleware)
 @method_decorator(hawk_response, name="list")
 @method_decorator(hawk_response, name="retrieve")
 class LeavingRequestViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = LeavingRequest.objects.filter(leaver_complete__isnull=False).only("uuid")
+    queryset = LeavingRequest.objects.filter(leaver_complete__isnull=False)
     serializer_class = LeavingRequestSerializer
     authentication_classes = [HawkAuthentication]
     permission_classes: list[permissions.BasePermission] = []
