@@ -92,6 +92,8 @@ class LeavingRequestSerializer(serializers.ModelSerializer):
         return task_log.value
 
     def get_payroll_request_sent(self, obj: LeavingRequest) -> Optional[datetime]:
+        # TODO: Fix this once Django Workflow Engine has had Task Records fixed.
+        return None
         flow = cast(Flow, obj.flow)
         if not flow:
             return None
