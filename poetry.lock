@@ -660,7 +660,7 @@ pytz = "*"
 
 [[package]]
 name = "django-workflow-engine"
-version = "0.1.0rc6"
+version = "0.1.0rc7"
 description = ""
 category = "main"
 optional = false
@@ -2009,7 +2009,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "555f3ce913c25951aedcc85ce4cc41ede825ec6aee081776b52b7be54fea7b80"
+content-hash = "d010b532859a880ef2c9bf0e998fa1fcd1e5b3ac70d6ec562a92ef558cb2c0e9"
 
 [metadata.files]
 aiohttp = [
@@ -2558,8 +2558,8 @@ django-timezone-field = [
     {file = "django_timezone_field-5.0-py3-none-any.whl", hash = "sha256:199f211082eeac7e83563929b8ce41399c1c0f00dfc2f36bc00bea381027eaaa"},
 ]
 django-workflow-engine = [
-    {file = "django_workflow_engine-0.1.0rc6-py3-none-any.whl", hash = "sha256:0d0227e66fc1e7ab30746a98d13d04a48725862d676a18c5bd92149225d70c63"},
-    {file = "django_workflow_engine-0.1.0rc6.tar.gz", hash = "sha256:9f4e9e218821d3c8942c6072cadb48cfac943b701b91a957e4e18913403f5c8a"},
+    {file = "django_workflow_engine-0.1.0rc7-py3-none-any.whl", hash = "sha256:7ec929faf9f41299dc534a551ac17fe07dad6161348217af9980df08c3b09c28"},
+    {file = "django_workflow_engine-0.1.0rc7.tar.gz", hash = "sha256:86a04518ac7cc0484a1dd7db3866faea9526aa2b0afc60d9d8ea270eb86136db"},
 ]
 djangorestframework = [
     {file = "djangorestframework-3.14.0-py3-none-any.whl", hash = "sha256:eb63f58c9f218e1a7d064d17a70751f528ed4e1d35547fdade9aaf4cd103fd08"},
