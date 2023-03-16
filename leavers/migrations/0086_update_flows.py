@@ -45,9 +45,11 @@ def update_workflows(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("leavers", "0085_leaverinformation_has_cirrus_kit"),
+    ]
+    run_before = [
+        ("django_workflow_engine", "0008_remove_taskrecord_broke_flow"),
     ]
 
     operations = [

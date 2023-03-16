@@ -45,6 +45,9 @@ class Migration(migrations.Migration):
     dependencies = [
         ("leavers", "0089_alter_leavingrequest_reason_for_leaving"),
     ]
+    run_before = [
+        ("django_workflow_engine", "0008_remove_taskrecord_broke_flow"),
+    ]
 
     operations = [
         migrations.RunPython(update_workflows, migrations.RunPython.noop),

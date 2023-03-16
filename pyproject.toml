@@ -21,7 +21,6 @@ django-environ = "^0.8.1"
 django-health-check = "==3.16.5"
 django-log-formatter-ecs = "^0.0.5"
 django-staff-sso-client = "^4.0.1"
-django-workflow-engine = "==0.0.21"
 django-elasticsearch-dsl = "^7.2.1"
 mohawk = "^1.1.0"
 psycopg2 = "^2.8.5"
@@ -43,6 +42,7 @@ help-desk-client = "==0.2.0"
 govuk-bank-holidays = "^0.11"
 detect-secrets = "^1.4.0"
 dit-activity-stream = "^0.1.0"
+django-workflow-engine = "0.1.0rc6"
 
 
 [tool.poetry.group.production]
