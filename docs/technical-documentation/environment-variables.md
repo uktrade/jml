@@ -97,3 +97,4 @@
 | DIT_EXPERIENCE_SURVEY                                            | None                                        | Link to the DIT Experience Survey                                                                      |
 | TRANSFER_TO_OGD_URL                                              | None                                        | Link to guidance for transferring to another gov department                                            |
 | CHANGE_EMPLOYEES_LM_LINK                                         | None                                        | Link to guidance for changing the line manager for an employee                                         |
+| RUN_DJANGO_WORKFLOWS                                             | False                                       | Enable/disable processing the workflows                                                                |
