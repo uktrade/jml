@@ -336,6 +336,8 @@ STAFF_SSO_ACTIVITY_STREAM_SECRET = env("STAFF_SSO_ACTIVITY_STREAM_SECRET", defau
 DJANGO_WORKFLOWS = {
     "leaving": "leavers.workflow.leaving.LeaversWorkflow",
 }
+RUN_DJANGO_WORKFLOWS = env.bool("RUN_DJANGO_WORKFLOWS", default=False)
+
 
 # Site's own URL
 SITE_URL = env("SITE_URL")

@@ -22,6 +22,10 @@ def debug_task(self):
 
 @celery_app.task(bind=True)
 def progress_workflows(self):
+    if not settings.RUN_DJANGO_WORKFLOWS:
+        logger.info("RUNNING progress_workflows - disabled")
+        return None
+
     logger.info("RUNNING progress_workflows")
     in_progress_flows: QuerySet[Flow] = Flow.objects.filter(finished__isnull=True)
     for flow in in_progress_flows:
@@ -31,6 +35,10 @@ def progress_workflows(self):
 
 @celery_app.task(bind=True)
 def progress_workflow(self, flow_pk: str):
+    if not settings.RUN_DJANGO_WORKFLOWS:
+        logger.info(f"RUNNING progress_workflow {flow_pk=} - disabled")
+        return None
+
     logger.info(f"RUNNING progress_workflow {flow_pk=}")
     # Get workflow from task
     flow: Flow = Flow.objects.get(pk=flow_pk)
