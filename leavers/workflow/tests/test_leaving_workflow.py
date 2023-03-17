@@ -75,15 +75,13 @@ class TestLeaversWorkflow(TestCase):
             ["check_uksbs_leaver"],
         ],
         "check_uksbs_leaver": [
-            ["send_leaver_not_in_uksbs_reminder"],
-            ["check_uksbs_line_manager"],
+            ["send_leaver_not_in_uksbs_reminder", "check_uksbs_line_manager"],
         ],
         "send_leaver_not_in_uksbs_reminder": [
             ["check_uksbs_leaver"],
         ],
         "check_uksbs_line_manager": [
-            ["send_line_manager_correction_reminder"],
-            ["notify_line_manager"],
+            ["send_line_manager_correction_reminder", "notify_line_manager"],
         ],
         "send_line_manager_correction_reminder": [
             ["check_uksbs_line_manager"],
@@ -92,8 +90,7 @@ class TestLeaversWorkflow(TestCase):
             ["has_line_manager_completed"],
         ],
         "has_line_manager_completed": [
-            ["send_line_manager_reminder"],
-            ["thank_line_manager"],
+            ["send_line_manager_reminder", "thank_line_manager"],
         ],
         "send_line_manager_reminder": [
             ["has_line_manager_completed"],
@@ -253,14 +250,7 @@ class TestLeaversWorkflow(TestCase):
         ]
         self.check_tasks(expected_tasks=expected_tasks)
 
-        # Return back to the check leaver task
-        self.executor.run_flow(user=None)
-        expected_tasks += [
-            "check_uksbs_leaver",
-        ]
-        self.check_tasks(expected_tasks=expected_tasks)
-
-    def run_leaver_in_uksb_line_manager_not_in_uksbs(
+    def run_leaver_in_uksbs_line_manager_not_in_uksbs(
         self, expected_tasks, mock_CheckUKSBSLeaver_execute
     ):
         mock_CheckUKSBSLeaver_execute.return_value = (
@@ -268,16 +258,10 @@ class TestLeaversWorkflow(TestCase):
             True,
         )
         self.executor.run_flow(user=None)
-        expected_tasks += [
-            "check_uksbs_line_manager",
-            "send_line_manager_correction_reminder",
-        ]
-        self.check_tasks(expected_tasks=expected_tasks)
-
-        # Return back to the check line manager task
         self.executor.run_flow(user=None)
         expected_tasks += [
             "check_uksbs_line_manager",
+            "send_line_manager_correction_reminder",
         ]
         self.check_tasks(expected_tasks=expected_tasks)
 
@@ -289,17 +273,11 @@ class TestLeaversWorkflow(TestCase):
             True,
         )
         self.executor.run_flow(user=None)
+        self.executor.run_flow(user=None)
         expected_tasks += [
             "notify_line_manager",
             "has_line_manager_completed",
             "send_line_manager_reminder",
-        ]
-        self.check_tasks(expected_tasks=expected_tasks)
-
-        # Return back to the check line manager has completed task
-        self.executor.run_flow(user=None)
-        expected_tasks += [
-            "has_line_manager_completed",
         ]
         self.check_tasks(expected_tasks=expected_tasks)
 
@@ -313,6 +291,7 @@ class TestLeaversWorkflow(TestCase):
         self.leaving_request.line_manager_complete = timezone.now()
         self.leaving_request.save(update_fields=["line_manager_complete"])
 
+        self.executor.run_flow(user=None)
         self.executor.run_flow(user=None)
         expected_tasks += [
             "thank_line_manager",
@@ -332,11 +311,11 @@ class TestLeaversWorkflow(TestCase):
             "send_security_rk_notification",
             "has_line_manager_updated_service_now",
             "have_sre_carried_out_leaving_tasks",
-            "send_sre_reminder",
             "are_all_tasks_complete",
-            "have_security_carried_out_rk_leaving_tasks",
-            "have_security_carried_out_bp_leaving_tasks",
             "notify_comaea_team",
+            "have_security_carried_out_bp_leaving_tasks",
+            "have_security_carried_out_rk_leaving_tasks",
+            "send_sre_reminder",
         ]
         self.check_tasks(expected_tasks=expected_tasks)
 
@@ -362,7 +341,7 @@ class TestLeaversWorkflow(TestCase):
         )
 
         # Leaver is in UK SBS and Line manager is not in UK SBS
-        self.run_leaver_in_uksb_line_manager_not_in_uksbs(
+        self.run_leaver_in_uksbs_line_manager_not_in_uksbs(
             expected_tasks=expected_tasks,
             mock_CheckUKSBSLeaver_execute=mock_CheckUKSBSLeaver_execute,
         )
@@ -414,18 +393,10 @@ class TestLeaversWorkflow(TestCase):
         # Run a few more times without progression to make sure nothing odd happens.
         for _ in range(10):
             self.executor.run_flow(user=None)
-            expected_tasks += [
-                "send_leaver_not_in_uksbs_reminder",
-            ]
-            self.check_tasks(expected_tasks=expected_tasks)
-            self.executor.run_flow(user=None)
-            expected_tasks += [
-                "check_uksbs_leaver",
-            ]
             self.check_tasks(expected_tasks=expected_tasks)
 
         # Leaver is in UK SBS and Line manager is not in UK SBS
-        self.run_leaver_in_uksb_line_manager_not_in_uksbs(
+        self.run_leaver_in_uksbs_line_manager_not_in_uksbs(
             expected_tasks=expected_tasks,
             mock_CheckUKSBSLeaver_execute=mock_CheckUKSBSLeaver_execute,
         )
@@ -433,14 +404,6 @@ class TestLeaversWorkflow(TestCase):
         # Run a few more times without progression to make sure nothing odd happens.
         for _ in range(10):
             self.executor.run_flow(user=None)
-            expected_tasks += [
-                "send_line_manager_correction_reminder",
-            ]
-            self.check_tasks(expected_tasks=expected_tasks)
-            self.executor.run_flow(user=None)
-            expected_tasks += [
-                "check_uksbs_line_manager",
-            ]
             self.check_tasks(expected_tasks=expected_tasks)
 
         # Line manager is in UK SBS, notified and hasn't completed the
@@ -453,14 +416,6 @@ class TestLeaversWorkflow(TestCase):
         # Run a few more times without progression to make sure nothing odd happens.
         for _ in range(10):
             self.executor.run_flow(user=None)
-            expected_tasks += [
-                "send_line_manager_reminder",
-            ]
-            self.check_tasks(expected_tasks=expected_tasks)
-            self.executor.run_flow(user=None)
-            expected_tasks += [
-                "has_line_manager_completed",
-            ]
             self.check_tasks(expected_tasks=expected_tasks)
 
         # Line manager has completed the offboarding process
@@ -468,3 +423,14 @@ class TestLeaversWorkflow(TestCase):
             expected_tasks=expected_tasks,
             mock_get_staff_document_from_staff_index=mock_get_staff_document_from_staff_index,
         )
+
+        # Check to make sure all task targets are correct
+        for task in self.flow.tasks.filter(executed_at__isnull=False).order_by(
+            "started_at"
+        ):
+            task_targets: List[str] = [
+                task_target.target_string for task_target in task.targets.all()
+            ]
+            self.assertTrue(
+                task_targets in self.TASK_TARGET_MAPPING.get(task.step_id, [])
+            )
