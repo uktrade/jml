@@ -7,7 +7,7 @@ from django.db.models.query import QuerySet
 from django.utils import timezone
 from django_workflow_engine import Task
 from django_workflow_engine.dataclass import Step
-from django_workflow_engine.models import Flow, TaskRecord
+from django_workflow_engine.models import Flow, TaskStatus
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.lsd_help_desk import get_lsd_help_desk_interface
@@ -1053,7 +1053,7 @@ class LeaverCompleteTask(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        task_record: TaskRecord = self.task_record
+        task_record: TaskStatus = self.task_record
         flow: Flow = self.flow
 
         leaver_complete_step: Step = flow.workflow.get_step(task_record.step_id)
@@ -1069,7 +1069,7 @@ class LeaverCompleteTask(LeavingRequestTask):
         all_previous_steps_complete: bool = True
 
         for previous_step in previous_steps:
-            previous_step_tasks: QuerySet[TaskRecord] = flow.tasks.filter(
+            previous_step_tasks: QuerySet[TaskStatus] = flow.tasks.filter(
                 step_id=previous_step.step_id
             )
             if not previous_step_tasks.filter(done=True).exists():

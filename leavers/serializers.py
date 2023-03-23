@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional, cast
 
-from django_workflow_engine.models import Flow, TaskRecord
+from django_workflow_engine.models import Flow, TaskStatus
 from rest_framework import serializers
 
 from leavers.models import LeavingRequest
@@ -97,7 +97,7 @@ class LeavingRequestSerializer(serializers.ModelSerializer):
         flow = cast(Flow, obj.flow)
         if not flow:
             return None
-        send_uksbs_task: Optional[TaskRecord] = flow.tasks.filter(
+        send_uksbs_task: Optional[TaskStatus] = flow.tasks.filter(
             step_id="send_uksbs_leaver_details", done=True
         ).first()
         if not send_uksbs_task:

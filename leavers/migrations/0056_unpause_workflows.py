@@ -12,9 +12,12 @@ def migrate_workflows(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("leavers", "0055_auto_20220823_1350"),
+        ("django_workflow_engine", "0005_rename_finished_at_taskrecord_executed_at"),
+    ]
+    run_before = [
+        ("django_workflow_engine", "0008_remove_taskrecord_broke_flow"),
     ]
 
     operations = [

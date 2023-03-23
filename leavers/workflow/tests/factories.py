@@ -1,4 +1,4 @@
-from django_workflow_engine.models import Flow, TaskRecord
+from django_workflow_engine.models import Flow, TaskStatus
 from factory import Faker, SubFactory
 from factory.django import DjangoModelFactory
 
@@ -14,9 +14,9 @@ class FlowFactory(DjangoModelFactory):
     executed_by = SubFactory(UserFactory)
 
 
-class TaskRecordFactory(DjangoModelFactory):
+class TaskStatusFactory(DjangoModelFactory):
     class Meta:
-        model = TaskRecord
+        model = TaskStatus
 
     uuid = Faker("uuid4")
     flow = SubFactory(FlowFactory)

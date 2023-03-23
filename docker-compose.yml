@@ -11,7 +11,7 @@ networks:
         - subnet: 192.168.3.0/24
 services:
   db:
-    image: postgres:11
+    image: postgres:13
     networks:
       - default
       - inside

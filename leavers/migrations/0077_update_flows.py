@@ -42,9 +42,11 @@ def update_workflows(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("leavers", "0076_alter_leavingrequest_annual_number_and_more"),
+    ]
+    run_before = [
+        ("django_workflow_engine", "0008_remove_taskrecord_broke_flow"),
     ]
 
     operations = [

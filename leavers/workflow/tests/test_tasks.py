@@ -4,7 +4,7 @@ from unittest import mock
 
 from django.test import TestCase
 from django.utils.timezone import make_aware
-from django_workflow_engine.models import Flow, TaskRecord
+from django_workflow_engine.models import Flow, TaskStatus
 from freezegun import freeze_time
 
 from leavers.factories import (
@@ -24,7 +24,7 @@ from leavers.workflow.tasks import (
     SkipCondition,
     UKSBSSendLeaverDetails,
 )
-from leavers.workflow.tests.factories import FlowFactory, TaskRecordFactory
+from leavers.workflow.tests.factories import FlowFactory, TaskStatusFactory
 from user.test.factories import UserFactory
 
 
@@ -34,7 +34,7 @@ class TestSkipConditions(TestCase):
 
         self.flow = cast(Flow, FlowFactory(executed_by=self.user))
         self.task_record = cast(
-            TaskRecord, TaskRecordFactory(executed_by=self.user, flow=self.flow)
+            TaskStatus, TaskStatusFactory(executed_by=self.user, flow=self.flow)
         )
         self.leaving_request = cast(
             LeavingRequest,
@@ -125,7 +125,7 @@ class TestDailyReminderEmail(TestCase):
         self.user = UserFactory()
 
         self.flow = FlowFactory(executed_by=self.user)
-        self.task_record = TaskRecordFactory(executed_by=self.user, flow=self.flow)
+        self.task_record = TaskStatusFactory(executed_by=self.user, flow=self.flow)
         self.leaving_request = LeavingRequestFactory(
             last_day=make_aware(datetime(2021, 12, 15)),
         )
@@ -194,7 +194,7 @@ class TestReminderEmail(TestCase):
         self.user = UserFactory()
 
         self.flow = FlowFactory(executed_by=self.user)
-        self.task_record = TaskRecordFactory(executed_by=self.user, flow=self.flow)
+        self.task_record = TaskStatusFactory(executed_by=self.user, flow=self.flow)
         self.leaving_request = LeavingRequestFactory(
             last_day=make_aware(datetime(2021, 12, 15)),
         )
@@ -628,7 +628,7 @@ class TestProcessorReminderEmail(TestCase):
 
         # Leaving Request with different dates
         self.flow = FlowFactory(executed_by=self.user)
-        self.task_record = TaskRecordFactory(executed_by=self.user, flow=self.flow)
+        self.task_record = TaskStatusFactory(executed_by=self.user, flow=self.flow)
         self.leaving_request = LeavingRequestFactory(
             last_day=make_aware(datetime(2022, 12, 5)),  # Monday
             leaving_date=make_aware(datetime(2022, 12, 9)),  # Friday
@@ -638,7 +638,7 @@ class TestProcessorReminderEmail(TestCase):
 
         # Leaving Request with same dates
         self.flow2 = FlowFactory(executed_by=self.user)
-        self.task_record2 = TaskRecordFactory(executed_by=self.user, flow=self.flow2)
+        self.task_record2 = TaskStatusFactory(executed_by=self.user, flow=self.flow2)
         self.leaving_request2 = LeavingRequestFactory(
             last_day=make_aware(datetime(2022, 12, 9)),  # Friday
             leaving_date=make_aware(datetime(2022, 12, 9)),  # Friday
@@ -820,7 +820,7 @@ class TestSREProcessorReminderEmail(TestCase):
 
         # Leaving Request with different dates
         self.flow = FlowFactory(executed_by=self.user)
-        self.task_record = TaskRecordFactory(executed_by=self.user, flow=self.flow)
+        self.task_record = TaskStatusFactory(executed_by=self.user, flow=self.flow)
         self.leaving_request = LeavingRequestFactory(
             last_day=make_aware(datetime(2022, 12, 12)),  # Monday
             leaving_date=make_aware(datetime(2022, 12, 16)),  # Friday
@@ -834,7 +834,7 @@ class TestSREProcessorReminderEmail(TestCase):
 
         # Leaving Request with same dates
         self.flow2 = FlowFactory(executed_by=self.user)
-        self.task_record2 = TaskRecordFactory(executed_by=self.user, flow=self.flow2)
+        self.task_record2 = TaskStatusFactory(executed_by=self.user, flow=self.flow2)
         self.leaving_request2 = LeavingRequestFactory(
             last_day=make_aware(datetime(2022, 12, 16)),  # Friday
             leaving_date=make_aware(datetime(2022, 12, 16)),  # Friday

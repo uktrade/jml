@@ -21,9 +21,11 @@ def update_uksbs_task_info(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("leavers", "0058_tasklog_reference"),
+    ]
+    run_before = [
+        ("django_workflow_engine", "0008_remove_taskrecord_broke_flow"),
     ]
 
     operations = [
