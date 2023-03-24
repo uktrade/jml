@@ -1053,10 +1053,10 @@ class LeaverCompleteTask(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
-        task_record: TaskStatus = self.task_record
+        task_status: TaskStatus = self.task_status
         flow: Flow = self.flow
 
-        leaver_complete_step: Step = flow.workflow.get_step(task_record.step_id)
+        leaver_complete_step: Step = flow.workflow.get_step(task_status.step_id)
 
         # Get all steps that point to the current step.
         previous_steps: List[Step] = [
