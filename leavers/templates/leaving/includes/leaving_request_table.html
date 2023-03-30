@@ -67,4 +67,4 @@
         {% endfor %}
     </tbody>
 </table>
-{% include "includes/pagination.html" with object_type_name=object_type_name page=page pagination_pages=pagination_pages %}
+{% gds_pagination page_obj=page page_obj_name=object_type_name %}

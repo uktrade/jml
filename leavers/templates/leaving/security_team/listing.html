@@ -31,7 +31,6 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">{% error_summary form %}</div>
         </div>
-
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-l">{{ page_title }}</h1>
@@ -40,7 +39,6 @@
                 </form>
             </div>
         </div>
-
         {% if has_query %}
             <p class="govuk-body">
                 <a class="govuk-link" href="{% get_current_url_without_query_params %}">Clear search</a>
@@ -60,7 +58,7 @@
             </li>
         </ul>
         <div class="govuk-tabs__panel">
-            {% include "leaving/includes/leaving_request_table.html" with object_type_name=object_type_name page=page pagination_pages=pagination_pages %}
+            {% include "leaving/includes/leaving_request_table.html" with object_type_name=object_type_name page=page paginator=paginator %}
         </div>
     </div>
 {% endblock content %}

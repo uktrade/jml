@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from datetime import timedelta
-from typing import Any, Dict, List, Literal, Optional, Set, Tuple, cast
+from typing import Any, Dict, List, Literal, Optional, Tuple, cast
 
 from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
@@ -300,22 +300,7 @@ class LeavingRequestListing(
         paginator = Paginator(lr_results_data, 30)
         page_number: int = int(self.request.GET.get("page", 1))
         page = paginator.page(page_number)
-
-        pagination_pages: Set[int] = set([1])
-
-        if page_number != 1:
-            pagination_pages.add(page_number - 1)
-        pagination_pages.add(page_number)
-        if page_number != paginator.num_pages:
-            pagination_pages.add(page_number + 1)
-            pagination_pages.add(paginator.num_pages)
-
-        # Cleanup the pagination pages set
-        pagination_pages.discard(0)
-        # Sort the set
-        pagination_pages = set(sorted(pagination_pages))
-
-        context.update(page=page, pagination_pages=pagination_pages)
+        context.update(page=page, paginator=paginator)
 
         return context
 
