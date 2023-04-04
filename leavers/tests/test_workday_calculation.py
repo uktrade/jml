@@ -102,6 +102,7 @@ class TestPayCutOffDate(TestCase):
 
 # get_next_payroll_cut_off_date
 class TestGetNextPayrollCutOffDate(TestCase):
+    # Payroll cut off in January 2023 is on a work day.
     def test_1_jan_2023(self):
         self.assertEqual(
             get_next_payroll_cut_off_date(date(2023, 1, 1)),
@@ -126,6 +127,7 @@ class TestGetNextPayrollCutOffDate(TestCase):
             date(2023, 2, 3),
         )
 
+    # Payroll cut off in June 2023 is on a weekend.
     def test_1_jun_2023(self):
         self.assertEqual(
             get_next_payroll_cut_off_date(date(2023, 6, 1)),
