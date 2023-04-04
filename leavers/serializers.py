@@ -1,10 +1,11 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional, cast
 
 from django_workflow_engine.models import Flow, TaskStatus
 from rest_framework import serializers
 
 from leavers.models import LeavingRequest
+from leavers.utils.workday_calculation import get_next_payroll_cut_off_date
 
 
 class LeavingRequestSerializer(serializers.ModelSerializer):
@@ -93,8 +94,6 @@ class LeavingRequestSerializer(serializers.ModelSerializer):
         return task_log.value
 
     def get_payroll_request_sent(self, obj: LeavingRequest) -> Optional[datetime]:
-        # TODO: Fix this once Django Workflow Engine has had Task Records fixed.
-        return None
         flow = cast(Flow, obj.flow)
         if not flow:
             return None
@@ -107,6 +106,8 @@ class LeavingRequestSerializer(serializers.ModelSerializer):
 
     def get_payroll_cut_off_after_leaving_date(
         self, obj: LeavingRequest
-    ) -> Optional[datetime]:
-        # TODO: payroll cut off for leaving date
-        return None
+    ) -> Optional[date]:
+        leaving_date = obj.get_leaving_date()
+        if not leaving_date:
+            return None
+        return get_next_payroll_cut_off_date(leaving_date.date())
