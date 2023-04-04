@@ -64,6 +64,7 @@
 {{ return_contact_email }
 {{ return_personal_phone }
 {{ security_clearance_status_task_log.user.get_full_name }}
+{{ table_header_item.1 }
 {leaving_reason}
 @media
 *Actions required:*\n
@@ -194,6 +195,7 @@ C901
 card</li>{%
 CHANGE_EMPLOYEES_LM_LINK                                         
 channel_id
+Charles III
 Charlie
 Charlie"
 Charlotte Blackwood
@@ -354,8 +356,10 @@ DSE
 e.preventDefault
 E501
 Easter
+Easter Monday
 Elastic
 Elasticsearch
+ELLIPSIS
 Email                             
 Email Templates
 email_id
@@ -434,6 +438,7 @@ GOVUK_NOTIFY_API_KEY
 govuk_paas_access_removed
 govuk_paas_access_task_log
 govuk_radio_conditional_wrapper_form_group.childElementCount
+govuk-!-font-size-19
 govuk-!-text
 GPC
 GPC Return Address
@@ -627,6 +632,7 @@ NAME
 name=
 name="form_name" value="add_asset_form
 National Insurance
+New Year’s Day
 new_line_report_id"
 None                                       
 None" &&

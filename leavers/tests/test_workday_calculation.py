@@ -1,5 +1,7 @@
-from django.test import TestCase
 from datetime import date
+
+from django.test import TestCase
+
 from leavers.utils.workday_calculation import (
     calculate_working_day_date,
     is_date_within_payroll_cutoff_interval,
