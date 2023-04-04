@@ -25,6 +25,7 @@ class LeavingRequestSerializer(serializers.ModelSerializer):
     security_team_rosa_laptop_status = serializers.SerializerMethodField()
     security_team_rosa_key_status = serializers.SerializerMethodField()
     payroll_request_sent = serializers.SerializerMethodField()
+    payroll_cut_off_after_leaving_date = serializers.SerializerMethodField()
 
     class Meta:
         model = LeavingRequest
@@ -103,3 +104,9 @@ class LeavingRequestSerializer(serializers.ModelSerializer):
         if not send_uksbs_task:
             return None
         return send_uksbs_task.executed_at
+
+    def get_payroll_cut_off_after_leaving_date(
+        self, obj: LeavingRequest
+    ) -> Optional[datetime]:
+        # TODO: payroll cut off for leaving date
+        return None
