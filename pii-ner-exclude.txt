@@ -195,6 +195,7 @@ C901
 card</li>{%
 CHANGE_EMPLOYEES_LM_LINK                                         
 channel_id
+Charles III
 Charlie
 Charlie"
 Charlotte Blackwood
@@ -355,6 +356,7 @@ DSE
 e.preventDefault
 E501
 Easter
+Easter Monday
 Elastic
 Elasticsearch
 ELLIPSIS
@@ -630,6 +632,7 @@ NAME
 name=
 name="form_name" value="add_asset_form
 National Insurance
+New Year’s Day
 new_line_report_id"
 None                                       
 None" &&
