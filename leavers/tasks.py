@@ -7,7 +7,7 @@ from leavers.utils.emails import (
     send_leaver_list_pay_cut_off_reminder,
     send_workforce_planning_leavers_email,
 )
-from leavers.utils.workday_calculation import is_date_within_payroll_cutoff_interval
+from leavers.utils.workday_calculation import is_date_within_payroll_cut_off_interval
 
 logger = celery_app.log.get_default_logger()
 
@@ -18,7 +18,7 @@ def notify_hr(self, date_to_check: Optional[date] = None) -> None:
         date_to_check = date.today()
 
     logger.info(f"RUNNING notify_hr {date_to_check=}")
-    is_within, cut_off_date = is_date_within_payroll_cutoff_interval(
+    is_within, cut_off_date = is_date_within_payroll_cut_off_interval(
         date_to_check=date_to_check,
     )
     if is_within:
@@ -26,7 +26,7 @@ def notify_hr(self, date_to_check: Optional[date] = None) -> None:
             f"Today {date_to_check} within cut off period ending on {cut_off_date}"
         )
         # Check if there are incomplete leavers with leaving date
-        # before or on the cutoff date
+        # before or on the cut off date
         # All leavers are included, ie contractors and civil servants
         leavers_incomplete_qs = LeavingRequest.objects.filter(
             line_manager_complete__isnull=True,

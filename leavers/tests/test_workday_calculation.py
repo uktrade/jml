@@ -4,7 +4,8 @@ from django.test import TestCase
 
 from leavers.utils.workday_calculation import (
     calculate_working_day_date,
-    is_date_within_payroll_cutoff_interval,
+    get_next_payroll_cut_off_date,
+    is_date_within_payroll_cut_off_interval,
     pay_cut_off_date,
 )
 
@@ -64,19 +65,19 @@ class TestWorkDayCalculation(TestCase):
         self.assertEqual(working_day_after_bh, date(2023, 5, 10))
 
 
-class TestIsDateWithinPayrollCutoffInterval(TestCase):
+class TestIsDateWithinPayrollCutOffInterval(TestCase):
     def test_jan_2023(self):
-        is_within, _ = is_date_within_payroll_cutoff_interval(date(2022, 12, 30))
+        is_within, _ = is_date_within_payroll_cut_off_interval(date(2022, 12, 30))
         self.assertTrue(is_within)
         # Sunday, so we don't consider it in the cut off period
-        is_within, _ = is_date_within_payroll_cutoff_interval(date(2023, 1, 1))
+        is_within, _ = is_date_within_payroll_cut_off_interval(date(2023, 1, 1))
         self.assertFalse(is_within)
         # Bankholiday, so we don't consider it in the cut off period
-        is_within, _ = is_date_within_payroll_cutoff_interval(date(2023, 1, 2))
+        is_within, _ = is_date_within_payroll_cut_off_interval(date(2023, 1, 2))
         self.assertFalse(is_within)
-        is_within, _ = is_date_within_payroll_cutoff_interval(date(2023, 1, 3))
+        is_within, _ = is_date_within_payroll_cut_off_interval(date(2023, 1, 3))
         self.assertTrue(is_within)
-        is_within, _ = is_date_within_payroll_cutoff_interval(date(2023, 1, 4))
+        is_within, _ = is_date_within_payroll_cut_off_interval(date(2023, 1, 4))
         self.assertFalse(is_within)
 
 
@@ -97,3 +98,56 @@ class TestPayCutOffDate(TestCase):
         self.assertEqual(pay_cut_off_date(11, 2023), date(2023, 11, 3))
         # 3rd December on Sunday
         self.assertEqual(pay_cut_off_date(12, 2023), date(2023, 12, 1))
+
+
+# get_next_payroll_cut_off_date
+class TestGetNextPayrollCutOffDate(TestCase):
+    # Payroll cut off in January 2023 is on a work day.
+    def test_1_jan_2023(self):
+        self.assertEqual(
+            get_next_payroll_cut_off_date(date(2023, 1, 1)),
+            date(2023, 1, 3),
+        )
+
+    def test_2_jan_2023(self):
+        self.assertEqual(
+            get_next_payroll_cut_off_date(date(2023, 1, 2)),
+            date(2023, 1, 3),
+        )
+
+    def test_3_jan_2023(self):
+        self.assertEqual(
+            get_next_payroll_cut_off_date(date(2023, 1, 3)),
+            date(2023, 1, 3),
+        )
+
+    def test_4_jan_2023(self):
+        self.assertEqual(
+            get_next_payroll_cut_off_date(date(2023, 1, 4)),
+            date(2023, 2, 3),
+        )
+
+    # Payroll cut off in June 2023 is on a weekend.
+    def test_1_jun_2023(self):
+        self.assertEqual(
+            get_next_payroll_cut_off_date(date(2023, 6, 1)),
+            date(2023, 6, 2),
+        )
+
+    def test_2_jun_2023(self):
+        self.assertEqual(
+            get_next_payroll_cut_off_date(date(2023, 6, 2)),
+            date(2023, 6, 2),
+        )
+
+    def test_3_jun_2023(self):
+        self.assertEqual(
+            get_next_payroll_cut_off_date(date(2023, 6, 3)),
+            date(2023, 7, 3),
+        )
+
+    def test_4_jun_2023(self):
+        self.assertEqual(
+            get_next_payroll_cut_off_date(date(2023, 6, 4)),
+            date(2023, 7, 3),
+        )

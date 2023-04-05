@@ -2,15 +2,15 @@ from datetime import date, timedelta
 
 from govuk_bank_holidays.bank_holidays import BankHolidays
 
-# In UKBS, the Payroll cutoff is 3rd of each month.
+# In UKSBS, the Payroll cut off is 3rd of each month.
 # if not a working day, it is the last Friday before the 3rd.
-# The cutoff is the last day when changes to the current month payroll are accepted
-PAY_CUT_OFF_DAY = 3  # The third of the month is the designated cutoff date
+# The cut off is the last day when changes to the current month payroll are accepted
+PAY_CUT_OFF_DAY = 3  # The third of the month is the designated cut off date
 ALTERNATIVE_WEEK_DAY_DESIGNATED = 4  # Friday
 
 # We need to inform HR that there are incomplete leaver requests
-# when we are approaching the payroll cutoff date
-# The period when we inform HR is starting 4 working days before the cutoff date
+# when we are approaching the payroll cut off date
+# The period when we inform HR is starting 4 working days before the cut off date
 PAY_CUT_OFF_INTERVAL = -4
 DECEMBER = 12
 JANUARY = 1
@@ -42,16 +42,16 @@ def calculate_working_day_date(start_date: date, working_day_delta: int) -> date
 
 
 def pay_cut_off_date(month: int, year: int) -> date:
-    # Payroll cutoff is 3rd of each month,
+    # Payroll cut off is 3rd of each month,
     # if not a working day, the last friday before the 3rd.
     bank_holidays = BankHolidays()
     area = BankHolidays.ENGLAND_AND_WALES
-    cutoff_day = date(year, month, PAY_CUT_OFF_DAY)
-    if bank_holidays.is_work_day(cutoff_day, division=area):
-        return cutoff_day
+    cut_off_day = date(year, month, PAY_CUT_OFF_DAY)
+    if bank_holidays.is_work_day(cut_off_day, division=area):
+        return cut_off_day
 
     # Find the designated date, in this case the previous Friday
-    cut_off_day_of_week = cutoff_day.weekday()
+    cut_off_day_of_week = cut_off_day.weekday()
     # Find out how many days away from the alternative designated day we are
     days = cut_off_day_of_week - ALTERNATIVE_WEEK_DAY_DESIGNATED
     if days <= 0:
@@ -63,18 +63,18 @@ def pay_cut_off_date(month: int, year: int) -> date:
         # and it is a Bankholiday, we need to return the date of the previous Friday.
         # This case can happen if Easter in on the 5th April, as it would be in 2026
         days += 7
-    cutoff_day -= timedelta(days)
+    cut_off_day -= timedelta(days)
     # If the previous designated day is also a bankholiday,
     # return the previous working day
-    while not bank_holidays.is_work_day(cutoff_day, division=area):
-        cutoff_day -= timedelta(-1)
-    return cutoff_day
+    while not bank_holidays.is_work_day(cut_off_day, division=area):
+        cut_off_day -= timedelta(-1)
+    return cut_off_day
 
 
-def is_date_within_payroll_cutoff_interval(date_to_check: date) -> tuple[bool, date]:
+def is_date_within_payroll_cut_off_interval(date_to_check: date) -> tuple[bool, date]:
     """
     It returns True if the date is in the predefined period
-    before the payroll cutoff date, and the system must notify HR
+    before the payroll cut off date, and the system must notify HR
     """
     bank_holidays = BankHolidays()
     area = BankHolidays.ENGLAND_AND_WALES
@@ -105,3 +105,21 @@ def is_date_within_payroll_cutoff_interval(date_to_check: date) -> tuple[bool, d
         return True, cut_off_end_date
 
     return False, date_to_check
+
+
+def get_next_payroll_cut_off_date(date_to_check: date) -> date:
+    """Get the next payroll cut off date after the given date."""
+    if date_to_check.day <= PAY_CUT_OFF_DAY:
+        # Payroll cut off has not happened yet.
+        payroll_cut_off_date = pay_cut_off_date(date_to_check.month, date_to_check.year)
+        # If the cut off date for this month has passed, then we need to check the next month.
+        if date_to_check.day <= payroll_cut_off_date.day:
+            return payroll_cut_off_date
+
+    # Payroll cut off has happened already, so we need to check the next month.
+    if date_to_check.month == DECEMBER:
+        # Special case for December
+        return pay_cut_off_date(JANUARY, date_to_check.year + 1)
+
+    next_month = date_to_check.month + 1 if date_to_check.month < 12 else 1
+    return pay_cut_off_date(next_month, date_to_check.year)
