@@ -55,6 +55,7 @@ class LeavingRequestSerializer(serializers.ModelSerializer):
             "security_team_rosa_kit_complete",
             "security_team_complete",
             "payroll_request_sent",
+            "payroll_cut_off_after_leaving_date",
         ]
 
     def get_security_clearance(self, obj: LeavingRequest) -> Optional[str]:
