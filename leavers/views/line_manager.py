@@ -738,6 +738,13 @@ class LeaverLineReportsView(ReviewViewMixin, BaseTemplateView, FormView):
 
             lr_line_reports: List[LeavingRequestLineReport] = []
             for line_report in person_data_line_reports:
+                if (
+                    not line_report["email_address"]
+                    or not line_report["person_id"]
+                    or not line_report["employee_number"]
+                ):
+                    continue
+
                 consolidated_staff_document: Optional[ConsolidatedStaffDocument] = None
                 try:
                     staff_document = get_staff_document_from_staff_index(
