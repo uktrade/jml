@@ -1,3 +1,5 @@
+{% load govuk_frontend_django %}
+
 <dl class="govuk-summary-list">
     <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">
@@ -81,9 +83,9 @@
         </dt>
         <dd class="govuk-summary-list__value">
             {% if complete %}
-                <strong class="govuk-tag govuk-tag--green">Complete</strong>
+                {% gds_component "tag" classes="govuk-tag--green" text="Complete" %}
             {% else %}
-                <strong class="govuk-tag govuk-tag--grey">Incomplete</strong>
+                {% gds_component "tag" classes="govuk-tag--grey" text="Incomplete" %}
             {% endif %}
         </dd>
     </div>

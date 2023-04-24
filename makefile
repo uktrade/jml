@@ -100,7 +100,10 @@ black:
 isort:
 	$(run) leavers isort .
 
-format: black isort
+djlint:
+	$(run) leavers djlint .
+
+format: black isort djlint
 
 mypy:
 	$(run) leavers mypy .

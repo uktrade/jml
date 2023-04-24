@@ -58,7 +58,7 @@
             </li>
         </ul>
         <div class="govuk-tabs__panel">
-            {% include "leaving/includes/leaving_request_table.html" with object_type_name=object_type_name page=page paginator=paginator %}
+            {% include "leaving/includes/leaving_request_table.html" with object_type_name=object_type_name page_obj=page_obj paginator=paginator %}
         </div>
     </div>
 {% endblock content %}

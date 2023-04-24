@@ -55,6 +55,8 @@
 {{ field.label|safe }
 {{ flexi_number }} Hours
 {{ last_day }
+{{ last_working_day }
+{{ leaver_email }
 {{ leaver_info.leaving_date }
 {{ leaver_info.personal_email }
 {{ leaver_information.return_contact_email }
@@ -67,6 +69,12 @@
 {{ return_personal_phone }
 {{ security_clearance_status_task_log.user.get_full_name }}
 {{ table_header_item.1 }
+{% gds_summary_list_card_title
+{% gds_summary_list_card_title %
+{% gds_summary_list_card_title text="Leaving
+{% gds_summary_list_card_title text="Return Cirrus kit" %
+{% gds_summary_list_card_title text="Return kit worth
+{% gds_summary_list_row %
 {leaving_reason}
 @media
 *Actions required:*\n
@@ -80,6 +88,7 @@
 # People Finder
 # Staff
 # Technical
+% gds_summary_list_row_key
 ^1.1.0
 ^1.1.0
 ^1.3.1
@@ -167,6 +176,7 @@ aria-label="Navigation menu
 aria-label="Page
 aria-label="Show
 aria-labelledby="govuk
+aria-labelledby="govuk-notification
 aria-sort="{%
 Assert
 AssertionError
@@ -243,6 +253,7 @@ ConsolidatedStaffDocuments
 ConsolidatedStaffDocuments
 contact_address_line_1
 contact_address_postcode
+contact_url
 Context/Notes
 contractors</p
 Convert
@@ -268,6 +279,7 @@ Crispy
 Crispy Forms
 crispy_forms_gds
 crispy_forms_tags crispy_forms_gds %
+crispy_forms_tags crispy_forms_gds govuk_frontend_django %
 Croker
 Crown
 CRSF
@@ -277,6 +289,7 @@ CTC
 cytoscape && cp -r
 cytoscape && npm
 cytoscape-dagre && npm
+custom_blocks="gds_footer
 DAC
 dagre && npm
 Daily
@@ -434,6 +447,10 @@ found</p
 from:</p>
 function(event
 Functionality
+gds_footer
+gds_footer_meta
+gds_summary_list_card_title
+gds_summary_list_row_key
 Generic Staff Search View
 GET
 Get the Data Recipient StaffDocument
@@ -451,6 +468,7 @@ Google Analytics
 Google Drive
 Google Drive or Sharepoint
 GOVUK PAAS
+govuk_frontend_django
 GOVUK_NOTIFY_API_KEY
 govuk_paas_access_removed
 govuk_paas_access_task_log
@@ -480,6 +498,7 @@ health_and_safety_email
 HEALTH_AND_SAFETY_EMAIL
 height="13
 height="17
+height="30
 height="30" width="36">
 HELP_DESK_CREDS
 HELP_DESK_CREDS=
@@ -499,6 +518,7 @@ HR_UKSBS_CORRECTION_EMAIL
 href="?page=
 href="{%
 href="https://www.nationalarchives.gov.uk
+href="https://www.nationalarchives.gov.uk/information-management
 HS
 HSTS
 HTMX
@@ -533,6 +553,7 @@ interactions</h4
 International Trade
 IS_PRODUCTION
 is_superuser
+isStartButton=True %
 Jane
 JAWS
 Jira
@@ -557,6 +578,7 @@ JSON
 keyboard</li
 Kit
 Kit requests</a
+Kit status</h2
 kit_info
 kit)</li
 kit</span>
@@ -613,6 +635,7 @@ Line Managers.</p
 Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
 line_report.consolidated_staff_document.job_title
+line_reports_table_headers
 Link
 List[Union[Field
 Loan Pool'
@@ -623,6 +646,7 @@ Lost/Stolen'
 LSD_HELP_DESK_LIVE
 manage.py migrate &&
 manager_activitystream_user
+manager_emails|length
 manager_id
 Manager</h2
 manager</label
@@ -828,6 +852,7 @@ SERVICE_NOW_POST_LEAVER_REQUEST
 service_now_user
 ServiceNow
 ServiceNow Leaver
+services_table_columns
 Session
 session.</p
 sessionid

@@ -1,75 +1,62 @@
 {% extends "leaving/leaving_base.html" %}
-{% load crispy_forms_tags crispy_forms_gds %}
+{% load crispy_forms_tags crispy_forms_gds govuk_frontend_django %}
+
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">{% error_summary form %}</div>
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h1 class="govuk-heading-l">
-                <em>{{ leaver_name }}</em> SRE off-boarding
-            </h1>
-            <table class="govuk-table">
-                <tbody class="govuk-table__body">
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Leaver's name</th>
-                        <td class="govuk-table__cell">{{ leaver_name }}</td>
-                    </tr>
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Work email</th>
-                        <td class="govuk-table__cell">{{ leaver_email }}</td>
-                    </tr>
-                    {% if leaver_job_title %}
-                        <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header">Job title</th>
-                            <td class="govuk-table__cell">{{ leaver_job_title }}</td>
-                        </tr>
-                    {% endif %}
-                    {% if last_day %}
-                        <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header">Last working day</th>
-                            <td class="govuk-table__cell">{{ last_day }}</td>
-                        </tr>
-                    {% endif %}
-                    {% if leaving_date %}
-                        <tr class="govuk-table__row">
-                            <th scope="row" class="govuk-table__header">Leaving date</th>
-                            <td class="govuk-table__cell">{{ leaving_date }}</td>
-                        </tr>
-                    {% endif %}
-                    <tr class="govuk-table__row">
-                        <th scope="row" class="govuk-table__header">Status</th>
-                        <td class="govuk-table__cell">
-                            {% if complete %}
-                                <strong class="govuk-tag govuk-tag--green">Complete</strong>
-                            {% else %}
-                                <strong class="govuk-tag govuk-tag--grey">To do</strong>
-                            {% endif %}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <h1 class="govuk-heading-l"><em>{{ leaver_name }}</em> SRE off-boarding</h1>
+
+            {% gds_summary_list %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Leaver's name" %}
+                    {% gds_summary_list_row_value text=leaver_name %}
+                {% endgds_summary_list_row %}
+
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Work email" %}
+                    {% gds_summary_list_row_value text=leaver_email %}
+                {% endgds_summary_list_row %}
+
+                {% if leaver_job_title %}
+                    {% gds_summary_list_row %}
+                        {% gds_summary_list_row_key text="Job title" %}
+                        {% gds_summary_list_row_value text=leaver_job_title %}
+                    {% endgds_summary_list_row %}
+                {% endif %}
+
+                {% if last_day %}
+                    {% gds_summary_list_row %}
+                        {% gds_summary_list_row_key text="Last working day" %}
+                        {% gds_summary_list_row_value text=last_day %}
+                    {% endgds_summary_list_row %}
+                {% endif %}
+
+                {% if leaving_date %}
+                    {% gds_summary_list_row %}
+                        {% gds_summary_list_row_key text="Leaving date" %}
+                        {% gds_summary_list_row_value text=leaving_date %}
+                    {% endgds_summary_list_row %}
+                {% endif %}
+
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Status" %}
+                    {% gds_summary_list_row_value %}
+                        {% if complete %}
+                            {% gds_component "tag" classes="govuk-tag--green" text="Complete" %}
+                        {% else %}
+                            {% gds_component "tag" classes="govuk-tag--grey" text="To do" %}
+                        {% endif %}
+                    {% endgds_summary_list_row_value %}
+                {% endgds_summary_list_row %}
+            {% endgds_summary_list %}
         </div>
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-m">Tools and services to offboard</h2>
-            <table class="govuk-table">
-                <tbody class="govuk-table__body">
-                    {% for service in services %}
-                        <tr class="govuk-table__row">
-                            <td class="govuk-table__cell">
-                                <a class="govuk-link"
-                                    href="{% url 'sre-service-and-tools' leaving_request_uuid=leaving_request.uuid field_name=service.field_name %}">{{ service.name }}</a>
-                            </td>
-                            <td class="govuk-table__cell">{{ service.comment }}</td>
-                            <td class="govuk-table__cell govuk-!-text-align-right">
-                                <strong class="govuk-tag govuk-tag--{{ service.status_colour }}">{{ service.status_text }}</strong>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            {% gds_table caption="Tools and services to offboard" captionClasses="govuk-heading-m" columns=services_table_columns rows=services_table_rows %}
         </div>
     </div>
     {% if can_mark_as_complete %}

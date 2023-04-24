@@ -1,5 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
-{% load crispy_forms_tags crispy_forms_gds %}
+{% load crispy_forms_tags crispy_forms_gds govuk_frontend_django %}
 
 {% block content %}
     <div class="govuk-grid-row">
@@ -15,7 +15,10 @@
                         <tr class="govuk-table__row">
                             <td class="govuk-table__cell"><a class="govuk-link" href="{% url 'security-team-rosa-kit-field' leaving_request_uuid=leaving_request.uuid field_name=ki.field_name %}">{{ ki.name }}</a></td>
                             <td class="govuk-table__cell">{{ ki.comment }}</td>
-                            <td class="govuk-table__cell govuk-!-text-align-right"><strong class="govuk-tag govuk-tag--{{ ki.status_colour }}">{{ ki.status_text }}</strong></td>
+                            <td class="govuk-table__cell govuk-!-text-align-right">
+                                {% set tag_classes %}govuk-tag--{{ ki.status_colour }}{% endset %}
+                                {% gds_component "tag" classes=tag_classes text=ki.status_text %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

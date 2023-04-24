@@ -1,12 +1,11 @@
 {% extends "leaving/leaving_base.html" %}
+{% load govuk_frontend_django %}
 
 {% block content %}
     {% if access_removed_services %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <div class="govuk-panel govuk-panel--confirmation">
-                    <h1 class="govuk-panel__title">SRE team actions recorded</h1>
-                </div>
+                {% gds_component "panel" titleText="SRE team actions recorded" %}
             </div>
         </div>
     {% endif %}

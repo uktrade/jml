@@ -1,4 +1,6 @@
 {% extends "leaving/leaving_base.html" %}
+{% load govuk_frontend_django %}
+
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
@@ -16,9 +18,9 @@
                         <td class="govuk-table__cell">Destroy building pass</td>
                         <td class="govuk-table__cell">
                             {% if pass_destroyed %}
-                                <strong class="govuk-tag govuk-tag--green">Destroyed</strong>
+                                {% gds_component "tag" classes="govuk-tag--green" text="Destroyed" %}
                             {% else %}
-                                <strong class="govuk-tag govuk-tag--blue">Pending</strong>
+                                {% gds_component "tag" classes="govuk-tag--blue" text="Pending" %}
                             {% endif %}
                         </td>
                     </tr>
@@ -27,15 +29,16 @@
                         <td class="govuk-table__cell">
                             {% if security_clearance_status %}
                                 {% if security_clearance_status.value == "lapsed" or security_clearance_status.value == "other" %}
-                                    <strong class="govuk-tag govuk-tag--green">
+                                    {% set tag_text %}
                                         {{ security_clearance_status.label }}
                                         {% if security_clearance_other_value %}({{ security_clearance_other_value }}){% endif %}
-                                    </strong>
+                                    {% endset %}
+                                    {% gds_component "tag" classes="govuk-tag--green" text=tag_text %}
                                 {% else %}
-                                    <strong class="govuk-tag govuk-tag--blue">{{ security_clearance_status.label }}</strong>
+                                    {% gds_component "tag" classes="govuk-tag--blue" text=security_clearance_status.label %}
                                 {% endif %}
                             {% else %}
-                                <strong class="govuk-tag govuk-tag--blue">Pending</strong>
+                                {% gds_component "tag" classes="govuk-tag--blue" text="Pending" %}
                             {% endif %}
                         </td>
                     </tr>
@@ -43,7 +46,8 @@
                         <tr class="govuk-table__row">
                             <td class="govuk-table__cell">{{ rosa_kit_task.name }}</td>
                             <td class="govuk-table__cell">
-                                <strong class="govuk-tag govuk-tag--{{ rosa_kit_task.status.colour }}">{{ rosa_kit_task.status.text }}</strong>
+                                {% set tag_classes %}govuk-tag--{{ rosa_kit_task.status.colour }}{% endset %}
+                                {% gds_component "tag" classes=tag_classes text=rosa_kit_task.status.text %}
                             </td>
                         </tr>
                     {% endfor %}

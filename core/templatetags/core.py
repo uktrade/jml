@@ -1,5 +1,4 @@
 from django import template
-from django.core.paginator import Page
 from django.template.defaulttags import URLNode, url
 
 from core.utils.helpers import make_possessive
@@ -48,16 +47,3 @@ def url_with_query_params(parser, token):
     url_node = url(parser, token)
     custom_url_node = URLNodeWithUrlQuery.from_url_node(url_node)
     return custom_url_node
-
-
-@register.inclusion_tag("includes/pagination.html")
-def gds_pagination(page_obj: Page, page_obj_name: str = "pages"):
-    return {
-        "page_obj": page_obj,
-        "page_numbers": list(
-            page_obj.paginator.get_elided_page_range(
-                page_obj.number, on_each_side=2, on_ends=1
-            )
-        ),
-        "page_obj_name": page_obj_name,
-    }

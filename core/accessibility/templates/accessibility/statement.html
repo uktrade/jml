@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load govuk_frontend_django %}
+
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
@@ -25,7 +27,7 @@
             <h2 class="govuk-heading-m">About the accessibility of this service</h2>
             <p class="govuk-body">
                 We used components in the GOV.UK Design System to build this service. The <a href="https://design-system.service.gov.uk/accessibility/"
-                    class="govuk-link">Design System accessibility statement</a> explains the current state of accessibility for these components.
+    class="govuk-link">Design System accessibility statement</a> explains the current state of accessibility for these components.
             </p>
             <p class="govuk-body">Parts of this website are not fully accessible. For example:</p>
             <ul class="govuk-list govuk-list--bullet">
@@ -42,112 +44,79 @@
             <p class="govuk-body">We are currently working to improve the service based on the audit's findings.</p>
             <h3 class="govuk-heading-s">Findings for improvements to service and current status</h3>
             <h4 class="govuk-heading-s">Page design</h4>
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Finding 4
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        Not all fields in a form correctly linked to their label
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Fix
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        Add a relationship attribute to forms and fields
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Status
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        To be done
-                    </dd>
-                </div>
-            </dl>
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Finding 5
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        Grouped form elements do not have appropriate group title
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Fix
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        Create legend for form elements to denote relationships
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Status
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        To be done
-                    </dd>
-                </div>
-            </dl>
+
+            {% gds_summary_list %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Finding 4" %}
+                    {% gds_summary_list_row_value text="Not all fields in a form correctly linked to their label" %}
+                {% endgds_summary_list_row %}
+
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Fix" %}
+                    {% gds_summary_list_row_value text="Add a relationship attribute to forms and fields" %}
+                {% endgds_summary_list_row %}
+
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Status" %}
+                    {% gds_summary_list_row_value text="To be done" %}
+                {% endgds_summary_list_row %}
+            {% endgds_summary_list %}
+
+            {% gds_summary_list %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Finding 5" %}
+                    {% gds_summary_list_row_value text="Grouped form elements do not have appropriate group title" %}
+                {% endgds_summary_list_row %}
+
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Fix" %}
+                    {% gds_summary_list_row_value text="Create legend for form elements to denote relationships" %}
+                {% endgds_summary_list_row %}
+
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Status" %}
+                    {% gds_summary_list_row_value text="To be done" %}
+                {% endgds_summary_list_row %}
+            {% endgds_summary_list %}
+
             <h4 class="govuk-heading-s">Assistive technology interactions</h4>
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Finding 6
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        Staff search results not available to assistive technologies
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Fix
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        Announce search results to assistive technology in use
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Status
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        To be done
-                    </dd>
-                </div>
-            </dl>
+
+            {% gds_summary_list %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Finding 6" %}
+                    {% gds_summary_list_row_value text="Staff search results not available to assistive technologies" %}
+                {% endgds_summary_list_row %}
+
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Fix" %}
+                    {% gds_summary_list_row_value text="Announce search results to assistive technology in use" %}
+                {% endgds_summary_list_row %}
+
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Status" %}
+                    {% gds_summary_list_row_value text="To be done" %}
+                {% endgds_summary_list_row %}
+            {% endgds_summary_list %}
+
             <h4 class="govuk-heading-s">Page behaviour</h4>
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Finding 7
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        Pages with multiple forms have unexpected return behaviours when forms are submitted
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Fix
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        Return user to last position in a given form (focus)
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Status
-                    </dt>
-                    <dd class="govuk-summary-list__value">
-                        To be done
-                    </dd>
-                </div>
-            </dl>
+
+            {% gds_summary_list %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Finding 7" %}
+                    {% gds_summary_list_row_value text="Pages with multiple forms have unexpected return behaviours when forms are submitted" %}
+                {% endgds_summary_list_row %}
+
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Fix" %}
+                    {% gds_summary_list_row_value text="Return user to last position in a given form (focus)" %}
+                {% endgds_summary_list_row %}
+
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key text="Status" %}
+                    {% gds_summary_list_row_value text="To be done" %}
+                {% endgds_summary_list_row %}
+            {% endgds_summary_list %}
+
             <h2 class="govuk-heading-m">What to do if you can't access part of this service</h2>
             <p class="govuk-body">
                 If you need information on this website in a different format, you can request support in the following ways:
@@ -156,82 +125,54 @@
                 <li>
                     email <a class="govuk-link" href="mailto:{{ JML_TEAM_CONTACT_EMAIL }}">{{ JML_TEAM_CONTACT_EMAIL }}</a>
                 </li>
-                <li>
-                    the {{ SERVICE_NAME }} feedback form
-                </li>
+                <li>the {{ SERVICE_NAME }} feedback form</li>
             </ul>
-            <h2 class="govuk-heading-m">
-                Reporting accessibility problems
-            </h2>
-            <p class="govuk-body">
-                We're always looking to improve the accessibility of this online service.
-            </p>
+            <h2 class="govuk-heading-m">Reporting accessibility problems</h2>
+            <p class="govuk-body">We're always looking to improve the accessibility of this online service.</p>
             <p class="govuk-body">
                 If you find any problems not listed on this page, or think we are not meeting accessibility requirements, contact us on <a class="govuk-link" href="mailto:{{ JML_TEAM_CONTACT_EMAIL }}">{{ JML_TEAM_CONTACT_EMAIL }}</a>.
             </p>
-            <p class="govuk-body">
-                When contacting us, give as much detail as you can about:
-            </p>
+            <p class="govuk-body">When contacting us, give as much detail as you can about:</p>
             <ul class="govuk-list govuk-list--bullet">
-                <li>
-                    your issues or concerns with the service
-                </li>
-                <li>
-                    any assistive technologies you are using
-                </li>
+                <li>your issues or concerns with the service</li>
+                <li>any assistive technologies you are using</li>
             </ul>
-            <h2 class="govuk-heading-m">
-                Enforcement procedure
-            </h2>
+            <h2 class="govuk-heading-m">Enforcement procedure</h2>
             <p class="govuk-body">
                 The Equality and Human Rights Commission (EHRC) is responsible for enforcing the accessibility regulations.
             </p>
             <p class="govuk-body">
                 If you're not happy with how we respond to your complaint, contact the <a href="https://www.equalityadvisoryservice.com/" class="govuk-link">Equality Advisory and Support Service (EASS)</a>.
             </p>
-            <h2 class="govuk-heading-m">
-                Technical information about this service's accessibility
-            </h2>
+            <h2 class="govuk-heading-m">Technical information about this service's accessibility</h2>
             <p class="govuk-body">
                 The {{ DEPARTMENT_NAME }} is committed to making its online services accessible, in accordance with the <a href="https://www.legislation.gov.uk/uksi/2018/852/contents/made"
-                    class="govuk-link">Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018</a>.
+    class="govuk-link">Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018</a>.
             </p>
             <p class="govuk-body">
                 This online service is partially compliant with the <a href="https://www.w3.org/TR/WCAG21/" class="govuk-link">Web Content Accessibility Guidelines version 2.1</a> AA standard, due to the non-compliance issues listed on this page.
             </p>
-            <h2 class="govuk-heading-m">
-                Issues with interactive tools and transactions
-            </h2>
+            <h2 class="govuk-heading-m">Issues with interactive tools and transactions</h2>
             <p class="govuk-body">
                 There are known issues with the GOV.UK Design System, as explained in the Design System accessibility guide. We will update our service with any accessibility fixes once they are released to the GOV.UK Design System.
             </p>
-            <h2 class="govuk-heading-m">
-                How we tested this online service
-            </h2>
-            <p class="govuk-body">
-                Basic tests were carried out on this online service in October and November of 2022.
-            </p>
+            <h2 class="govuk-heading-m">How we tested this online service</h2>
+            <p class="govuk-body">Basic tests were carried out on this online service in October and November of 2022.</p>
             <p class="govuk-body">
                 The service was tested from start to finish with keyboard testing, screen readers and zooming in to 300%. These tests were carried out by the {{ DEPARTMENT_NAME }}.
             </p>
             <p class="govuk-body">
                 In November 2022 we completed an external accessibility audit service to complete a thorough audit of the service.In December 2022, we began the process of implementing recommendations provided by the service.
             </p>
-            <h2 class="govuk-heading-m">
-                What we're doing to improve accessibility
-            </h2>
+            <h2 class="govuk-heading-m">What we're doing to improve accessibility</h2>
             <p class="govuk-body">
                 We are in the process of making changes to the service based on recommendations from the full WCAG 2.1 audit. We aim to implement these by 31 December 2022.
             </p>
-            <p class="govuk-body">
-                This statement was prepared on 1 December 2022. It was last reviewed on 9 December 2022.
-            </p>
+            <p class="govuk-body">This statement was prepared on 1 December 2022. It was last reviewed on 9 December 2022.</p>
             <p class="govuk-body">
                 This service was last tested during the week beginning 14 November 2022. Tests were done to check compliance with WCAG v2.1, levels A and AA. The tests were carried out by DAC (Digital Accessibility Centre).
             </p>
-            <p class="govuk-body">
-                This statement was written on 1 December 2022.
-            </p>
+            <p class="govuk-body">This statement was written on 1 December 2022.</p>
         </div>
     </div>
 {% endblock content %}

@@ -1,22 +1,17 @@
 {% extends "asset_registry_base.html" %}
 {% load crispy_forms_tags crispy_forms_gds %}
-
 {% block content %}
     {% error_summary form %}
-
     <h1 class="govuk-heading-l">Assets</h1>
-
-    <a href="{% url 'create-physical-asset' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-        Create Physical Asset
-    </a>
-    <a href="{% url 'create-software-asset' %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-        Create Software Asset
-    </a>
-
+    <a href="{% url 'create-physical-asset' %}"
+       class="govuk-button govuk-button--secondary"
+       data-module="govuk-button">Create Physical Asset</a>
+    <a href="{% url 'create-software-asset' %}"
+       class="govuk-button govuk-button--secondary"
+       data-module="govuk-button">Create Software Asset</a>
     <form novalidate method='post'>
         {% crispy form %}
     </form>
-
     {% if object_list %}
         <table class="govuk-table">
             <thead class="govuk-table__head">
@@ -27,7 +22,9 @@
             <tbody class="govuk-table__body">
                 {% for asset in object_list %}
                     <tr class="govuk-table__row">
-                        <td class="govuk-table__cell"><a href="{% url 'view-asset' asset.pk %}">{{ asset }}</a></td>
+                        <td class="govuk-table__cell">
+                            <a href="{% url 'view-asset' asset.pk %}">{{ asset }}</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -35,5 +32,4 @@
     {% else %}
         <p>No assets yet.</p>
     {% endif %}
-
 {% endblock content %}

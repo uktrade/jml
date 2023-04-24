@@ -1,4 +1,4 @@
-{% load static core %}
+{% load static core govuk_frontend_django %}
 <table class="govuk-table">
     <thead class="govuk-table__head">
         <tr class="govuk-table__row">
@@ -36,7 +36,7 @@
         </tr>
     </thead>
     <tbody class="govuk-table__body">
-        {% for object in page.object_list %}
+        {% for object in page_obj.object_list %}
             <tr class="govuk-table__row">
                 {% for key, value in object.items %}
                     {% if forloop.first %}
@@ -67,4 +67,11 @@
         {% endfor %}
     </tbody>
 </table>
-{% gds_pagination page_obj=page page_obj_name=object_type_name %}
+{% if page_obj.paginator.count != 0 %}
+<p class="govuk-body govuk-!-font-size-19">
+    Showing <b>{{ page_obj.start_index }}</b> to <b>{{ page_obj.end_index }}</b> of <b>{{ page_obj.paginator.count }}</b> {{ object_type_name }}
+</p>
+{% endif %}
+{% if page_obj.paginator.num_pages > 1 %}
+    {% gds_pagination page_obj %}
+{% endif %}

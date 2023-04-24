@@ -43,6 +43,7 @@ govuk-bank-holidays = "^0.11"
 detect-secrets = "^1.4.0"
 dit-activity-stream = "^0.1.0"
 django-workflow-engine = "0.2.0"
+govuk-frontend-django = "^0.3.0"
 
 
 [tool.poetry.group.production]
@@ -84,6 +85,7 @@ pyparsing = "^3.0.9"
 pydot = "^1.4.2"
 poetry = "^1.3.1"
 bpython = "^0.23"
+djlint = "^1.23.3"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-material = "^9.1.5"
@@ -133,6 +135,12 @@ module = [
     "zenpy.*",
 ]
 ignore_missing_imports = true
+
+[tool.djlint]
+profile="django"
+ignore="H021,H006"
+exclude="node_modules,staticfiles,myignore,htmlcov,.vscode,.pytest_cache,.pii-secret-hook,.devcontainer,.cache,__pycache__"
+custom_blocks="gds_header,gds_header_nav_item,gds_footer,gds_footer_meta,gds_summary_list,gds_summary_list_card,gds_summary_list_card_title,gds_summary_list_row,gds_summary_list_row_key,gds_summary_list_row_value,gds_summary_list_row_actions,gds_summary_list_row_actions_item"
 
 [tool.django-stubs]
 django_settings_module = "config.settings.test"
