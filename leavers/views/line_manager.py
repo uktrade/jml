@@ -738,10 +738,12 @@ class LeaverLineReportsView(ReviewViewMixin, BaseTemplateView, FormView):
 
             lr_line_reports: List[LeavingRequestLineReport] = []
             for line_report in person_data_line_reports:
-                if (
-                    not line_report["email_address"]
-                    or not line_report["person_id"]
-                    or not line_report["employee_number"]
+                if not all(
+                    [
+                        line_report["email_address"],
+                        line_report["person_id"],
+                        line_report["employee_number"],
+                    ]
                 ):
                     continue
 
