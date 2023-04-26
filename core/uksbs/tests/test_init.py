@@ -4,6 +4,16 @@ from core.uksbs import get_uksbs_interface
 from core.uksbs.interfaces import UKSBSInterface, UKSBSStubbed
 
 
+@override_settings(
+    UKSBS_CLIENT_ID="xxx",
+    UKSBS_CLIENT_SECRET="xxx",  # pragma: allowlist secret
+    UKSBS_AUTHORISATION_URL="https://fake-uksbs.domain/authorize",
+    UKSBS_TOKEN_URL="https://fake-uksbs.domain/getAccessToken",
+    UKSBS_HIERARCHY_API_URL="https://fake-uksbs.domain/hierarchy-api/1.0",
+    UKSBS_GET_PEOPLE_HIERARCHY="/{person_id}/hierarchy",
+    UKSBS_LEAVER_API_URL="https://fake-uksbs.domain/leaver-submission-api/1.0",
+    UKSBS_POST_LEAVER_SUBMISSION="/new-leaver",
+)
 class TestGetUKSBSInterface(TestCase):
     @override_settings(UKSBS_INTERFACE=None)
     def test_not_set(self):
