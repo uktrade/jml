@@ -14,6 +14,8 @@ def global_context(request):
     Note: remove DEV_LINKS when deploying to production.
     """
 
+    IS_PRODUCTION = bool(settings.APP_ENV == "production")
+
     global_context = {
         "SERVICE_NAME": settings.SERVICE_NAME,
         "DEPARTMENT_NAME": settings.DEPARTMENT_NAME,
@@ -31,12 +33,12 @@ def global_context(request):
         "CHANGE_EMPLOYEES_LM_LINK": settings.CHANGE_EMPLOYEES_LM_LINK,
         "DEV_LINKS": [],
         "MAIN_NAV": [],
-        "IS_PRODUCTION": bool(settings.APP_ENV == "production"),
+        "IS_PRODUCTION": IS_PRODUCTION,
         "JML_LEAVING_DIT_GUIDANCE_URL": settings.JML_LEAVING_DIT_GUIDANCE_URL,
         "DIT_LOANS_GUIDANCE_URL": settings.DIT_LOANS_GUIDANCE_URL,
     }
 
-    if "dev_tools.apps.DevToolsConfig" in settings.INSTALLED_APPS:
+    if "dev_tools.apps.DevToolsConfig" in settings.INSTALLED_APPS and IS_PRODUCTION:
         global_context["DEV_LINKS"].append(
             (
                 "Dev tools",
@@ -109,7 +111,7 @@ def global_context(request):
             .filter(user_is_manager)
             .last()
         )
-        if latest_leaving_request:
+        if latest_leaving_request and IS_PRODUCTION:
             global_context["DEV_LINKS"].append(
                 (
                     "Start Line Manager process",
