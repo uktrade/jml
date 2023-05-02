@@ -1,26 +1,30 @@
-{% load static %}
-<header class="govuk-header dit-header"
-        role="banner"
-        data-module="govuk-header">
-    <div class="govuk-header__container dit-header_container">
-        <div class="govuk-width-container">
-            <div class="govuk-header__logo">
-                <a href="#" class="govuk-header__link govuk-header__link--homepage">
-                    <span class="govuk-header__logotype">
-                        <img class="govuk-header__logotype-crown"
-                             height="40"
-                             width="40"
-                             src="{% static 'assets/dit-crest.svg' %}"
-                             alt="{{ DEPARTMENT_NAME }} crest" />
-                        <span class="govuk-header__logotype-text dit-header__logotype-text">{{ SERVICE_NAME }}</span>
-                    </span>
-                </a>
-            </div>
-            <div class="govuk-header__content">
-                {% block nav %}
-                    {% include "includes/menu.html" with user=user %}
-                {% endblock nav %}
-            </div>
-        </div>
-    </div>
-</header>
+{% load static govuk_frontend_django %}
+{% comment %}<div class="govuk-header__container dit-header_container">{% endcomment %}
+
+{% comment %} <img class="govuk-header__logotype-crown"
+    height="40"
+    width="40"
+    src="{% static 'assets/dit-crest.svg' %}"
+    alt="{{ DEPARTMENT_NAME }} crest"/>
+<span class="govuk-header__logotype-text dit-header__logotype-text">{{ SERVICE_NAME }}</span> {% endcomment %}
+
+{% url "start" as leavers_url %}
+{% set user_item %}{{ user }} ({{ user.groups.first }}){% endset %}
+
+{% comment %}
+FIXME: Things that need considering:
+- Replace GOV.UK logo with DBT logo
+- Replace GOV.UK text
+{% endcomment %}
+{% gds_header classes="dit-header" homepageUrl="#" productName=SERVICE_NAME serviceUrl="/" %}
+    {% for nav_link in MAIN_NAV %}
+        {% gds_header_nav_item href=nav_link.1 text=nav_link.0 %}
+    {% endfor %}
+    {% if not IS_PRODUCTION %}
+        {% gds_header_nav_item href=leavers_url text="Start leaving process" %}
+    {% endif %}
+    {% for dev_link in DEV_LINKS %}
+        {% gds_header_nav_item href=dev_link.1 text=dev_link.0 %}
+    {% endfor %}
+    {% gds_header_nav_item href="" text=user_item %}
+{% endgds_header %}
