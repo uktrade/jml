@@ -117,6 +117,7 @@
 0123123123
 100px
 12/02/2023
+127.0.0.1:8002
 2.1 AA
 2022.</p
 234px
@@ -605,6 +606,7 @@ manager_id
 Manager</h2
 manager</label
 Mark
+materialx.emoji.twemoji
 max-width
 ME FIRST](./index.md#uk-sbs
 MEDIUM
@@ -620,6 +622,10 @@ MIT
 MIT License
 mkdocs
 mkdocs gh-deploy
+mkdocs-awesome
+mkdocs-material
+mkdocs-minify
+mkdocs-tech-docs-template
 Mobile
 Mobile Applications
 mock_get_assets_for_user

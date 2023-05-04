@@ -99,16 +99,3 @@ services:
     depends_on:
       - db
       - redis
-
-  docs:
-    build:
-      context: .
-      dockerfile: "docker/Dockerfile.docs"
-    networks:
-      - default
-    volumes:
-      - ./:/docs
-    ports:
-      - "8002:8000"
-    profiles:
-      - docs
