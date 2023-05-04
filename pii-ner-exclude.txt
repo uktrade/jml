@@ -509,6 +509,7 @@ information</h1
 ingest_activity_stream
 INSERT INTO dit.people_data__jml
 Install Cloudfoundry
+Install Poetry
 Integrations
 interactions</h4
 International Trade
