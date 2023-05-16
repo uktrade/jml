@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import responses
 from django.test import TestCase, override_settings
 from django.utils import timezone
@@ -11,8 +13,8 @@ from leavers.factories import LeavingRequestFactory
 from leavers.types import LeavingReason
 
 TODAY = timezone.now()
-YESTERDAY = timezone.now() - timezone.timedelta(days=1)
-ONE_WEEK_FROM_NOW = TODAY + timezone.timedelta(days=7)
+YESTERDAY = timezone.now() - timedelta(days=1)
+ONE_WEEK_FROM_NOW = TODAY + timedelta(days=7)
 
 FAKE_PERSON_DATA: PersonData = {
     "person_id": "666",
