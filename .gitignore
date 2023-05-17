@@ -148,3 +148,17 @@ media/
 .pii-secret-hook/
 
 .env.old
+
+static/govuk-frontend/
+
+static/css/
+
+static/cytoscape/
+
+static/cytoscape-dagre/
+
+static/dagre/
+
+static/getaddress-autocomplete/
+
+static/htmx.org/

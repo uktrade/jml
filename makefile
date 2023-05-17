@@ -32,6 +32,8 @@ help:
 
 build:
 	docker-compose build
+	npm install
+	npm run build
 
 utils-build:
 	docker-compose -f docker-compose.yml -f docker-compose.utils.yml build utils
@@ -50,10 +52,13 @@ manage = python manage.py
 poetry = $(run) leavers poetry --quiet
 
 first-use:
+	npm install
+	npm run build
 	docker-compose down
 	docker-compose up -d db opensearch
 	$(run) leavers python manage.py createcachetable
 	$(run) leavers python manage.py migrate
+	$(run) leavers python manage.py collectstatic --no-input
 	$(run) leavers python manage.py initialise_staff_index
 	$(run) leavers python manage.py create_test_users
 	$(run) leavers python manage.py seed_employee_ids
@@ -78,7 +83,7 @@ checkmigrations:
 	$(run) --no-deps leavers python manage.py makemigrations --check
 
 compilescss:
-	npm run build
+	npm run css:build
 
 shell:
 	$(run) leavers python manage.py shell
