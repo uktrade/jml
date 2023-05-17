@@ -366,9 +366,11 @@ Email Templates
 email_id
 EmailIds
 Emails & Slack
+endif]--
 ends.</td
 Enhanced Developed Vetting
 Enhanced Security Check
+equiv="X-UA-Compatible
 event.detail.headers['X-CSRFToken'
 event.target.checked && gov_radio_conditional_wrapper.id
 Example Building
@@ -417,6 +419,7 @@ FormHelper
 FormHelper
 found</p
 from:</p>
+function(event
 Functionality
 Generic Staff Search View
 GET
@@ -496,6 +499,7 @@ https://opensearch.org/docs/latest/opensearch/index-data/#update-data
 https://www.django-rest-framework.org/api-guide/pagination/
 id="id
 IE
+IE 9
 ill health</li>
 img height="36
 IMPLIED
@@ -815,6 +819,7 @@ Single Sign
 Size
 sizes="152x152
 sizes="16x16
+sizes="16x16 32x32 48x48
 Slack
 Slack API
 slack_access_task_log
