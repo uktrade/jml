@@ -202,8 +202,7 @@ STATICFILES_FINDERS = [
 ]
 
 STATICFILES_DIRS = [
-    BASE_DIR / "assets/",
-    BASE_DIR / "node_modules/",
+    BASE_DIR / "static/",
 ]
 
 GTM_CODE = env("GTM_CODE", default=None)
