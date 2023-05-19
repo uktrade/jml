@@ -1,31 +1,29 @@
 {% extends "leaving/leaving_base.html" %}
 {% load govuk_frontend_django %}
-
 {% block content %}
     {% if access_removed_services %}
         <div class="govuk-grid-row">
-            <div class="govuk-grid-column-full">
-                {% gds_component "panel" titleText="SRE team actions recorded" %}
-            </div>
+            <div class="govuk-grid-column-full">{% gds_component "panel" titleText="SRE team actions recorded" %}</div>
         </div>
     {% endif %}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             {% if access_removed_services %}
-                <p class="govuk-body">You have confirmed {{ leaver_name }}'s access to the following tools and services has been removed:</p>
+                <p class="govuk-body">
+                    You have confirmed {{ leaver_name }}'s access to the following tools and services has been removed:
+                </p>
                 <ul class="govuk-list govuk-list--bullet">
-                    {% for service in access_removed_services %}
-                        <li>{{ service }}</li>
-                    {% endfor %}
+                    {% for service in access_removed_services %}<li>{{ service }}</li>{% endfor %}
                 </ul>
             {% endif %}
-            <a href="{% url 'sre-detail' leaving_request_uuid=leaving_request.uuid %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                Edit
-            </a>
+            <a href="{% url 'sre-detail' leaving_request_uuid=leaving_request.uuid %}"
+               class="govuk-button govuk-button--secondary"
+               data-module="govuk-button">Edit</a>
             {% if complete %}
                 <h2 class="govuk-heading-m">What happens next?</h2>
-                <p class="govuk-body">An email has been sent to <em>{{ line_manager_name }}</em> to confirm access has been removed.</p>
+                <p class="govuk-body">
+                    An email has been sent to <em>{{ line_manager_name }}</em> to confirm access has been removed.
+                </p>
             {% else %}
                 {% comment %} TODO: Messaging around submitting this. {% endcomment %}
             {% endif %}

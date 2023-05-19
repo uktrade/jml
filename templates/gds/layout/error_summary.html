@@ -5,25 +5,29 @@ https://github.com/wildfish/crispy-forms-gds/blob/master/src/crispy_forms_gds/te
 Shows errors of visible and non visibile fields.
 For hidden fields, append_hidden to the link so we can relate to a different anchor.
 {% endcomment %}
-
 {% load i18n crispy_forms_gds %}
-
 {% if form.helper.form_show_errors and form.errors %}
-    <div class="govuk-error-summary" aria-labelledby="error-summary-title" role="alert" tabindex="-1" data-module="govuk-error-summary">
-        <h2 class="govuk-error-summary__title" id="error-summary-title">
-            {% trans "There is a problem" %}
-        </h2>
+    <div class="govuk-error-summary"
+         aria-labelledby="error-summary-title"
+         role="alert"
+         tabindex="-1"
+         data-module="govuk-error-summary">
+        <h2 class="govuk-error-summary__title" id="error-summary-title">{% trans "There is a problem" %}</h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
                 {% with first_id=form.0.auto_id %}
                     {% for error in form.non_field_errors %}
-                        <li><a href="#{{ first_id }}">{{ error }}</a></li>
+                        <li>
+                            <a href="#{{ first_id }}">{{ error }}</a>
+                        </li>
                     {% endfor %}
                 {% endwith %}
                 {% for field in form %}
                     {% for field_id, errors in field|field_errors %}
                         {% for error in errors %}
-                            <li><a href="#{{ field_id }}{% if field.is_hidden %}_hidden{% endif %}">{{ error }}</a></li>
+                            <li>
+                                <a href="#{{ field_id }}{% if field.is_hidden %}_hidden{% endif %}">{{ error }}</a>
+                            </li>
                         {% endfor %}
                     {% endfor %}
                 {% endfor %}

@@ -10,20 +10,20 @@
                         {% if order_by == table_header_item.2.order_by_field_name %}
                             {% if order_direction == "asc" %}
                                 <a class="govuk-link"
-                                    href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='desc' %}">
+                                   href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='desc' %}">
                                     {{ table_header_item.1 }}
                                     <img src="{% static 'icons/triangle-up.svg' %}" alt="sorted ascending" />
                                 </a>
                             {% else %}
                                 <a class="govuk-link"
-                                    href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='asc' %}">
+                                   href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='asc' %}">
                                     {{ table_header_item.1 }}
                                     <img src="{% static 'icons/triangle-down.svg' %}" alt="sorted descending" />
                                 </a>
                             {% endif %}
                         {% else %}
                             <a class="govuk-link"
-                                href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='asc' %}">
+                               href="{% get_current_url_with_query_params page=1 order_by=table_header_item.0 order_direction='asc' %}">
                                 {{ table_header_item.1 }}
                                 <img src="{% static 'icons/triangle-up-down.svg' %}" alt="not sorted" />
                             </a>
@@ -39,28 +39,25 @@
         {% for object in page_obj.object_list %}
             <tr class="govuk-table__row">
                 {% for key, value in object.items %}
+                    {% set cell_content %}
+                        {% if key != "link" %}
+                            {% if key == "complete" %}
+                                {% if value %}
+                                    <strong class="govuk-tag govuk-tag--green">Complete</strong>
+                                {% else %}
+                                    <strong class="govuk-tag govuk-tag--grey">Incomplete</strong>
+                                {% endif %}
+                            {% else %}
+                                {{ value }}
+                            {% endif %}
+                        {% endif %}
+                    {% endset %}
                     {% if forloop.first %}
                         <th scope="row" class="govuk-table__header">
-                    {% else %}
-                        <td class="govuk-table__cell">
-                    {% endif %}
-                    {% if forloop.first %}<a class="govuk-link" href="{{ object.link }}">{% endif %}
-                    {% if key != "link" %}
-                        {% if key == "complete" %}
-                            {% if value %}
-                                <strong class="govuk-tag govuk-tag--green">Complete</strong>
-                            {% else %}
-                                <strong class="govuk-tag govuk-tag--grey">Incomplete</strong>
-                            {% endif %}
-                        {% else %}
-                            {{ value }}
-                        {% endif %}
-                    {% endif %}
-                    {% if forloop.first %}</a>{% endif %}
-                    {% if forloop.first %}
+                            <a class="govuk-link" href="{{ object.link }}">{{ cell_content }}</a>
                         </th>
                     {% else %}
-                        </td>
+                        <td class="govuk-table__cell">{{ cell_content }}</td>
                     {% endif %}
                 {% endfor %}
             </tr>
@@ -68,9 +65,9 @@
     </tbody>
 </table>
 {% if page_obj.paginator.count != 0 %}
-<p class="govuk-body govuk-!-font-size-19">
-    Showing <b>{{ page_obj.start_index }}</b> to <b>{{ page_obj.end_index }}</b> of <b>{{ page_obj.paginator.count }}</b> {{ object_type_name }}
-</p>
+    <p class="govuk-body govuk-!-font-size-19">
+        Showing <b>{{ page_obj.start_index }}</b> to <b>{{ page_obj.end_index }}</b> of <b>{{ page_obj.paginator.count }}</b> {{ object_type_name }}
+    </p>
 {% endif %}
 {% if page_obj.paginator.num_pages > 1 %}
     {% gds_pagination page_obj %}

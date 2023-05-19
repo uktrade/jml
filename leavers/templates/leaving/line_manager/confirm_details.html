@@ -13,68 +13,65 @@
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            {% set leaver_confirmation_href %}{{ leaver_confirmation_view_url }}?{{ return_to_confirmation_query }}{% endset %}
-
+            {% set leaver_confirmation_href %}
+                {{ leaver_confirmation_view_url }}?{{ return_to_confirmation_query }}
+            {% endset %}
             {% gds_summary_list %}
                 {% gds_summary_list_card %}
                     {% gds_summary_list_card_title %}
                         {{ possessive_leaver_name }} information
                     {% endgds_summary_list_card_title %}
                 {% endgds_summary_list_card %}
-
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Leaving date" %}
+                    {% gds_summary_list_row_key_inline text="Leaving date" %}
                     {% gds_summary_list_row_value %}
                         {{ leaving_date }}
                     {% endgds_summary_list_row_value %}
                     {% gds_summary_list_row_actions %}
                         {% gds_summary_list_row_actions_item href=leaver_confirmation_href %}
-                            Edit<span class="govuk-visually-hidden"> leaving date</span>
+                            Edit<span class="govuk-visually-hidden">leaving date</span>
                         {% endgds_summary_list_row_actions_item %}
                     {% endgds_summary_list_row_actions %}
                 {% endgds_summary_list_row %}
-
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Last working day" %}
+                    {% gds_summary_list_row_key_inline text="Last working day" %}
                     {% gds_summary_list_row_value %}
                         {{ last_day }}
                     {% endgds_summary_list_row_value %}
                     {% gds_summary_list_row_actions %}
                         {% gds_summary_list_row_actions_item href=leaver_confirmation_href %}
-                            Edit<span class="govuk-visually-hidden"> last working day</span>
+                            Edit<span class="govuk-visually-hidden">last working day</span>
                         {% endgds_summary_list_row_actions_item %}
                     {% endgds_summary_list_row_actions %}
                 {% endgds_summary_list_row %}
-
                 {% if data_recipient %}
                     {% gds_summary_list_row %}
-                        {% gds_summary_list_row_key text="Leaver data transfer" %}
+                        {% gds_summary_list_row_key_inline text="Leaver data transfer" %}
                         {% gds_summary_list_row_value %}
                             {{ data_recipient.first_name }} {{ data_recipient.last_name }}
                         {% endgds_summary_list_row_value %}
                         {% gds_summary_list_row_actions %}
                             {% gds_summary_list_row_actions_item href=leaver_confirmation_href %}
-                                Edit<span class="govuk-visually-hidden"> leaver data transfer recipient</span>
+                                Edit<span class="govuk-visually-hidden">leaver data transfer recipient</span>
                             {% endgds_summary_list_row_actions_item %}
                         {% endgds_summary_list_row_actions %}
                     {% endgds_summary_list_row %}
                 {% endif %}
             {% endgds_summary_list %}
-
         </div>
     </div>
     {% if leaving_request.show_hr_and_payroll %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                {% set hr_payroll_href %}{{ details_view_url }}?{{ return_to_confirmation_query }}{% endset %}
-
+                {% set hr_payroll_href %}
+                    {{ details_view_url }}?{{ return_to_confirmation_query }}
+                {% endset %}
                 {% gds_summary_list %}
                     {% gds_summary_list_card %}
-                        {% gds_summary_list_card_title text="HR and payroll" %}
+                        {% gds_summary_list_card_title_inline text="HR and payroll" %}
                     {% endgds_summary_list_card %}
-
                     {% gds_summary_list_row %}
-                        {% gds_summary_list_row_key text="Annual leave" %}
+                        {% gds_summary_list_row_key_inline text="Annual leave" %}
                         {% gds_summary_list_row_value %}
                             {{ annual_leave }}
                             {% if has_annual_leave %}
@@ -84,13 +81,12 @@
                         {% endgds_summary_list_row_value %}
                         {% gds_summary_list_row_actions %}
                             {% gds_summary_list_row_actions_item href=hr_payroll_href %}
-                                Edit<span class="govuk-visually-hidden"> annual leave</span>
+                                Edit<span class="govuk-visually-hidden">annual leave</span>
                             {% endgds_summary_list_row_actions_item %}
                         {% endgds_summary_list_row_actions %}
                     {% endgds_summary_list_row %}
-
                     {% gds_summary_list_row %}
-                        {% gds_summary_list_row_key text="Flexi-leave" %}
+                        {% gds_summary_list_row_key_inline text="Flexi-leave" %}
                         {% gds_summary_list_row_value %}
                             {{ flexi_leave }}
                             {% if has_flexi_leave %}
@@ -100,7 +96,7 @@
                         {% endgds_summary_list_row_value %}
                         {% gds_summary_list_row_actions %}
                             {% gds_summary_list_row_actions_item href=hr_payroll_href %}
-                                Edit<span class="govuk-visually-hidden"> flexi leave</span>
+                                Edit<span class="govuk-visually-hidden">flexi leave</span>
                             {% endgds_summary_list_row_actions_item %}
                         {% endgds_summary_list_row_actions %}
                     {% endgds_summary_list_row %}

@@ -1,48 +1,43 @@
 {% extends "leaving/leaving_base.html" %}
 {% load crispy_forms_tags crispy_forms_gds govuk_frontend_django %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">{% error_summary form %}</div>
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h1 class="govuk-heading-l"><em>{{ leaver_name }}</em> SRE off-boarding</h1>
-
+            <h1 class="govuk-heading-l">
+                <em>{{ leaver_name }}</em> SRE off-boarding
+            </h1>
             {% gds_summary_list %}
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Leaver's name" %}
-                    {% gds_summary_list_row_value text=leaver_name %}
+                    {% gds_summary_list_row_key_inline text="Leaver's name" %}
+                    {% gds_summary_list_row_value_inline text=leaver_name %}
                 {% endgds_summary_list_row %}
-
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Work email" %}
-                    {% gds_summary_list_row_value text=leaver_email %}
+                    {% gds_summary_list_row_key_inline text="Work email" %}
+                    {% gds_summary_list_row_value_inline text=leaver_email %}
                 {% endgds_summary_list_row %}
-
                 {% if leaver_job_title %}
                     {% gds_summary_list_row %}
-                        {% gds_summary_list_row_key text="Job title" %}
-                        {% gds_summary_list_row_value text=leaver_job_title %}
+                        {% gds_summary_list_row_key_inline text="Job title" %}
+                        {% gds_summary_list_row_value_inline text=leaver_job_title %}
                     {% endgds_summary_list_row %}
                 {% endif %}
-
                 {% if last_day %}
                     {% gds_summary_list_row %}
-                        {% gds_summary_list_row_key text="Last working day" %}
-                        {% gds_summary_list_row_value text=last_day %}
+                        {% gds_summary_list_row_key_inline text="Last working day" %}
+                        {% gds_summary_list_row_value_inline text=last_day %}
                     {% endgds_summary_list_row %}
                 {% endif %}
-
                 {% if leaving_date %}
                     {% gds_summary_list_row %}
-                        {% gds_summary_list_row_key text="Leaving date" %}
-                        {% gds_summary_list_row_value text=leaving_date %}
+                        {% gds_summary_list_row_key_inline text="Leaving date" %}
+                        {% gds_summary_list_row_value_inline text=leaving_date %}
                     {% endgds_summary_list_row %}
                 {% endif %}
-
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Status" %}
+                    {% gds_summary_list_row_key_inline text="Status" %}
                     {% gds_summary_list_row_value %}
                         {% if complete %}
                             {% gds_component "tag" classes="govuk-tag--green" text="Complete" %}
@@ -61,9 +56,7 @@
     </div>
     {% if can_mark_as_complete %}
         <a href="{% url 'sre-confirm-complete' leaving_request_uuid=leaving_request.uuid %}"
-            class="govuk-button"
-            data-module="govuk-button">
-            Complete record
-        </a>
+           class="govuk-button"
+           data-module="govuk-button">Complete record</a>
     {% endif %}
 {% endblock content %}

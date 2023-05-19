@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load govuk_frontend_django %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
@@ -44,79 +43,64 @@
             <p class="govuk-body">We are currently working to improve the service based on the audit's findings.</p>
             <h3 class="govuk-heading-s">Findings for improvements to service and current status</h3>
             <h4 class="govuk-heading-s">Page design</h4>
-
             {% gds_summary_list %}
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Finding 4" %}
-                    {% gds_summary_list_row_value text="Not all fields in a form correctly linked to their label" %}
+                    {% gds_summary_list_row_key_inline text="Finding 4" %}
+                    {% gds_summary_list_row_value_inline text="Not all fields in a form correctly linked to their label" %}
                 {% endgds_summary_list_row %}
-
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Fix" %}
-                    {% gds_summary_list_row_value text="Add a relationship attribute to forms and fields" %}
+                    {% gds_summary_list_row_key_inline text="Fix" %}
+                    {% gds_summary_list_row_value_inline text="Add a relationship attribute to forms and fields" %}
                 {% endgds_summary_list_row %}
-
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Status" %}
-                    {% gds_summary_list_row_value text="To be done" %}
+                    {% gds_summary_list_row_key_inline text="Status" %}
+                    {% gds_summary_list_row_value_inline text="To be done" %}
                 {% endgds_summary_list_row %}
             {% endgds_summary_list %}
-
             {% gds_summary_list %}
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Finding 5" %}
-                    {% gds_summary_list_row_value text="Grouped form elements do not have appropriate group title" %}
+                    {% gds_summary_list_row_key_inline text="Finding 5" %}
+                    {% gds_summary_list_row_value_inline text="Grouped form elements do not have appropriate group title" %}
                 {% endgds_summary_list_row %}
-
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Fix" %}
-                    {% gds_summary_list_row_value text="Create legend for form elements to denote relationships" %}
+                    {% gds_summary_list_row_key_inline text="Fix" %}
+                    {% gds_summary_list_row_value_inline text="Create legend for form elements to denote relationships" %}
                 {% endgds_summary_list_row %}
-
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Status" %}
-                    {% gds_summary_list_row_value text="To be done" %}
+                    {% gds_summary_list_row_key_inline text="Status" %}
+                    {% gds_summary_list_row_value_inline text="To be done" %}
                 {% endgds_summary_list_row %}
             {% endgds_summary_list %}
-
             <h4 class="govuk-heading-s">Assistive technology interactions</h4>
-
             {% gds_summary_list %}
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Finding 6" %}
-                    {% gds_summary_list_row_value text="Staff search results not available to assistive technologies" %}
+                    {% gds_summary_list_row_key_inline text="Finding 6" %}
+                    {% gds_summary_list_row_value_inline text="Staff search results not available to assistive technologies" %}
                 {% endgds_summary_list_row %}
-
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Fix" %}
-                    {% gds_summary_list_row_value text="Announce search results to assistive technology in use" %}
+                    {% gds_summary_list_row_key_inline text="Fix" %}
+                    {% gds_summary_list_row_value_inline text="Announce search results to assistive technology in use" %}
                 {% endgds_summary_list_row %}
-
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Status" %}
-                    {% gds_summary_list_row_value text="To be done" %}
+                    {% gds_summary_list_row_key_inline text="Status" %}
+                    {% gds_summary_list_row_value_inline text="To be done" %}
                 {% endgds_summary_list_row %}
             {% endgds_summary_list %}
-
             <h4 class="govuk-heading-s">Page behaviour</h4>
-
             {% gds_summary_list %}
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Finding 7" %}
-                    {% gds_summary_list_row_value text="Pages with multiple forms have unexpected return behaviours when forms are submitted" %}
+                    {% gds_summary_list_row_key_inline text="Finding 7" %}
+                    {% gds_summary_list_row_value_inline text="Pages with multiple forms have unexpected return behaviours when forms are submitted" %}
                 {% endgds_summary_list_row %}
-
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Fix" %}
-                    {% gds_summary_list_row_value text="Return user to last position in a given form (focus)" %}
+                    {% gds_summary_list_row_key_inline text="Fix" %}
+                    {% gds_summary_list_row_value_inline text="Return user to last position in a given form (focus)" %}
                 {% endgds_summary_list_row %}
-
                 {% gds_summary_list_row %}
-                    {% gds_summary_list_row_key text="Status" %}
-                    {% gds_summary_list_row_value text="To be done" %}
+                    {% gds_summary_list_row_key_inline text="Status" %}
+                    {% gds_summary_list_row_value_inline text="To be done" %}
                 {% endgds_summary_list_row %}
             {% endgds_summary_list %}
-
             <h2 class="govuk-heading-m">What to do if you can't access part of this service</h2>
             <p class="govuk-body">
                 If you need information on this website in a different format, you can request support in the following ways:

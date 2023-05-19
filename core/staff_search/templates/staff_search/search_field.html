@@ -42,13 +42,13 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
         // Prevent the form from submitting when the user presses enter
         input = document.getElementById("id_{{ search_identifier }}_search");
         form = input.closest("form");
-        form.addEventListener("keydown", function (e) {
+        form.addEventListener("keydown", function(e) {
             if (e.target === input && e.key === "Enter") {
                 e.preventDefault();
             }
         });
         // Make search screen reader friendly
-        document.getElementById("search-results-{{ search_identifier }}").addEventListener("htmx:afterSwap", function (e) {
+        document.getElementById("search-results-{{ search_identifier }}").addEventListener("htmx:afterSwap", function(e) {
             result_value = e.target.innerHTML.trim()
             // If result_value is empty or contains "No results found", set aria-expanded to false
             if (result_value === "" || result_value.includes("No results found")) {

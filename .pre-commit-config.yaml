@@ -39,8 +39,9 @@ repos:
     hooks:
       - id: isort
   - repo: https://github.com/Riverside-Healthcare/djLint
-    rev: v1.25.0
+    rev: v1.29.0
     hooks:
+      - id: djlint-reformat-django
       - id: djlint-django
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.4.0

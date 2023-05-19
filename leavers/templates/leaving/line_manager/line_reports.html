@@ -22,12 +22,12 @@
                     <div class="govuk-grid-column-one-third">
                         {% if line_report.consolidated_staff_document.photo %}
                             <img class="jml--staff-image"
-                                src="{{ line_report.consolidated_staff_document.photo }}"
-                                alt="Picture of {{ line_report.consolidated_staff_document.full_name }}"/>
+                                 src="{{ line_report.consolidated_staff_document.photo }}"
+                                 alt="Picture of {{ line_report.consolidated_staff_document.full_name }}" />
                         {% else %}
                             <img class="jml--staff-image"
-                                src="{% static 'govuk-frontend/govuk/assets/images/govuk-crest-2x.png' %}"
-                                alt="Placeholder picture"/>
+                                 src="{% static 'govuk-frontend/govuk/assets/images/govuk-crest-2x.png' %}"
+                                 alt="Placeholder picture" />
                         {% endif %}
                     </div>
                     <div class="govuk-grid-column-two-thirds">

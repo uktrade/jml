@@ -11,13 +11,13 @@
                         <ul class="moj-primary-navigation__list">
                             <li class="moj-primary-navigation__item">
                                 <a class="moj-primary-navigation__link"
-                                    {% if security_role.value == "bp" %}aria-current="page"{% endif %}
-                                    href='{% url "security-team-listing-incomplete" %}?security-role=bp'>Security requests</a>
+                                   {% if security_role.value == "bp" %}aria-current="page"{% endif %}
+                                   href='{% url "security-team-listing-incomplete" %}?security-role=bp'>Security requests</a>
                             </li>
                             <li class="moj-primary-navigation__item">
                                 <a class="moj-primary-navigation__link"
-                                    {% if security_role.value == "rk" %}aria-current="page"{% endif %}
-                                    href='{% url "security-team-listing-incomplete" %}?security-role=rk'>ROSA Kit requests</a>
+                                   {% if security_role.value == "rk" %}aria-current="page"{% endif %}
+                                   href='{% url "security-team-listing-incomplete" %}?security-role=rk'>ROSA Kit requests</a>
                             </li>
                         </ul>
                     </nav>
@@ -50,11 +50,11 @@
         <ul class="govuk-tabs__list">
             <li class="govuk-tabs__list-item {% if show_incomplete %}govuk-tabs__list-item--selected{% endif %}">
                 <a class="govuk-tabs__tab"
-                    href='{% url_with_query_params "security-team-listing-incomplete" %}'>Waiting</a>
+                   href='{% url_with_query_params "security-team-listing-incomplete" %}'>Waiting</a>
             </li>
             <li class="govuk-tabs__list-item {% if show_complete %}govuk-tabs__list-item--selected{% endif %}">
                 <a class="govuk-tabs__tab"
-                    href='{% url_with_query_params "security-team-listing-complete" %}'>Completed</a>
+                   href='{% url_with_query_params "security-team-listing-complete" %}'>Completed</a>
             </li>
         </ul>
         <div class="govuk-tabs__panel">

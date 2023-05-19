@@ -1,10 +1,14 @@
 {% load govuk_frontend_django %}
-
 {% if not COOKIE_RESPONSE %}
-    {% set accept_cookies_url %}{% url 'cookie-response' 'accept' %}?next={{ request.path }}{% endset %}
-    {% set reject_cookies_url %}{% url 'cookie-response' 'reject' %}?next={{ request.path }}{% endset %}
-    {% set cookie_notice_url %}{% url 'cookie-notice' %}{% endset %}
-
+    {% set accept_cookies_url %}
+        {% url 'cookie-response' 'accept' %}?next={{ request.path }}
+    {% endset %}
+    {% set reject_cookies_url %}
+        {% url 'cookie-response' 'reject' %}?next={{ request.path }}
+    {% endset %}
+    {% set cookie_notice_url %}
+        {% url 'cookie-notice' %}
+    {% endset %}
     {% gds_cookie_banner %}
         {% gds_cookie_banner_message headingText="Cookies on Joiners, Movers and Leavers" %}
             <p class="govuk-body">We use some essential cookies to make this service work.</p>

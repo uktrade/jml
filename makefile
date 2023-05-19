@@ -101,9 +101,9 @@ isort:
 	$(run) leavers isort .
 
 djlint:
-	$(run) leavers djlint .
+	$(run) leavers djlint . --reformat --format-css --format-js
 
-format: black isort djlint
+format: flake8 black isort djlint
 
 mypy:
 	$(run) leavers mypy .

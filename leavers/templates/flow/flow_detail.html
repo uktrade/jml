@@ -3,35 +3,27 @@
     <h1 class="govuk-heading-l">{{ page_title }}</h1>
     <dl class="govuk-summary-list">
         <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-                Started
-            </dt>
+            <dt class="govuk-summary-list__key">Started</dt>
             <dd class="govuk-summary-list__value">
                 {{ object.started }}
             </dd>
         </div>
         <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-                Started by
-            </dt>
+            <dt class="govuk-summary-list__key">Started by</dt>
             <dd class="govuk-summary-list__value">
                 {{ object.executed_by.get_full_name }}
             </dd>
         </div>
         {% if object.finished %}
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    Finished?
-                </dt>
+                <dt class="govuk-summary-list__key">Finished?</dt>
                 <dd class="govuk-summary-list__value">
                     {{ object.finished }}
                 </dd>
             </div>
         {% else %}
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    Status
-                </dt>
+                <dt class="govuk-summary-list__key">Status</dt>
                 <dd class="govuk-summary-list__value">
                     {{ object.nice_name }}
                 </dd>
@@ -50,12 +42,11 @@
         fetch("{% url 'flow-diagram' object.pk %}")
             .then((response) => response.json())
             .then((json) => {
-            const cy = cytoscape({
-                container: document.getElementById("cy"),
-                elements: json.elements,
-                userZoomingEnabled: false,
-                style: [
-                    {
+                const cy = cytoscape({
+                    container: document.getElementById("cy"),
+                    elements: json.elements,
+                    userZoomingEnabled: false,
+                    style: [{
                         selector: "node",
                         style: {
                             "background-color": "#fff",
@@ -69,8 +60,7 @@
                             'text-halign': 'center',
                             label: "data(label)",
                         },
-                    },
-                    {
+                    }, {
                         selector: "edge",
                         style: {
                             width: 3,
@@ -80,53 +70,47 @@
                             "arrow-scale": 2,
                             "curve-style": "bezier",
                         },
-                    },
-                    {
+                    }, {
                         selector: "node[?start]",
                         style: {
                             "background-color": "#5694ca",
                             "color": "white",
                         },
-                    },
-                    {
+                    }, {
                         selector: "node[?end][?done]",
                         style: {
                             "background-color": "#00703c",
                             "color": "white",
                         },
-                    },
-                    {
+                    }, {
                         selector: "node[?decision]",
                         style: {
                             shape: 'diamond',
                             height: '100px',
                         },
-                    },
-                    {
+                    }, {
                         selector: "node[?done][!start][!end]",
                         style: {
                             "background-color": "lightgray",
                         },
-                    },
-                    {
+                    }, {
                         selector: "node[?current]",
                         style: {
                             "border-width": "4px",
                             "background-color": "#f47738",
                             "color": "white",
                         },
-                    }
-                ],
-                layout: {
-                    name: 'dagre',
-                    directed: true,
-                    roots: ["create_requirement"],
-                    fit: true,
-                    spacingFactor: 1.4,
-                    padding: 0,
-                    nodeDimensionsIncludeLabels: true,
-                },
+                    }],
+                    layout: {
+                        name: 'dagre',
+                        directed: true,
+                        roots: ["create_requirement"],
+                        fit: true,
+                        spacingFactor: 1.4,
+                        padding: 0,
+                        nodeDimensionsIncludeLabels: true,
+                    },
+                });
             });
-        });
     </script>
 {% endblock scripts %}

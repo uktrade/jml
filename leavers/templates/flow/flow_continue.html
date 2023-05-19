@@ -1,7 +1,5 @@
 {% extends "flow/flow_base.html" %}
-
 {% block content %}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <form novalidate method='post'>
@@ -9,10 +7,12 @@
                     {% csrf_token %}
                     <input type="hidden" name="uuid" value="{{ flow.current_task_record.uuid }}" />
                     {% include "includes/govt_uk_form.html" with form=form %}
-                    <input type="submit" value="Submit" class="govuk-button govuk-button" data-module="govuk-button"/>
+                    <input type="submit"
+                           value="Submit"
+                           class="govuk-button govuk-button"
+                           data-module="govuk-button" />
                 </fieldset>
             </form>
         </div>
     </div>
-
 {% endblock content %}

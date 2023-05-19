@@ -1,6 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
 {% load govuk_frontend_django %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
@@ -46,7 +45,9 @@
                         <tr class="govuk-table__row">
                             <td class="govuk-table__cell">{{ rosa_kit_task.name }}</td>
                             <td class="govuk-table__cell">
-                                {% set tag_classes %}govuk-tag--{{ rosa_kit_task.status.colour }}{% endset %}
+                                {% set tag_classes %}
+                                    govuk-tag--{{ rosa_kit_task.status.colour }}
+                                {% endset %}
                                 {% gds_component "tag" classes=tag_classes text=rosa_kit_task.status.text %}
                             </td>
                         </tr>
@@ -55,16 +56,12 @@
             </table>
             <div class="govuk-button-group">
                 <a href="{% url 'security-team-building-pass-confirmation-read-only' leaving_request_uuid=leaving_request.uuid %}"
-                    class="govuk-button govuk-button--secondary"
-                    data-module="govuk-button">
-                    View/Edit building pass/security clearance status
-                </a>
+                   class="govuk-button govuk-button--secondary"
+                   data-module="govuk-button">View/Edit building pass/security clearance status</a>
                 {% if is_rosa_user %}
                     <a href="{% url 'security-team-rosa-kit-confirmation' leaving_request_uuid %}"
-                        class="govuk-button govuk-button--secondary"
-                        data-module="govuk-button">
-                        Edit ROSA kit status
-                    </a>
+                       class="govuk-button govuk-button--secondary"
+                       data-module="govuk-button">Edit ROSA kit status</a>
                 {% endif %}
                 <a class="govuk-link" href="{% url 'security-team-listing-complete' %}">Return to completed leaving requests dashboard</a>
             </div>
