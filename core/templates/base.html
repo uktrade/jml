@@ -1,98 +1,71 @@
+{% extends "govuk_frontend_django/base.html" %}
 {% load static govuk_frontend_django %}
 
-<!DOCTYPE html>
-<html lang="en" class="govuk-template app-html-class">
-    <head>
-        {% include "gtm-head.html" %}
-        <meta charset="utf-8" />
-        <title>
-            {% block title %}
-                {% if page_title %}{{ page_title }} -{% endif %}
-                {{ SERVICE_NAME }}
-            {% endblock title %}
-        </title>
-        <meta name="keywords" content="" />
-        <meta name="description" content="" />
-        <meta name="robots" content="noindex" />
-        <meta name="viewport"
-              content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="blue" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <link rel="shortcut icon"
-              sizes="16x16 32x32 48x48"
-              href='{% static "assets/favicon.ico" %}'
-              type="image/x-icon" />
-        <link rel="mask-icon"
-              href='{% static "govuk-frontend/govuk/assets/images/govuk-mask-icon.svg" %}'
-              color="blue" />
-        <link rel="apple-touch-icon"
-            sizes="180x180"
-            href='{% static "govuk-frontend/govuk/assets/images/govuk-apple-touch-icon-180x180.png" %}'/>
-        <link rel="apple-touch-icon"
-            sizes="167x167"
-            href='{% static "govuk-frontend/govuk/assets/images/govuk-apple-touch-icon-167x167.png" %}'/>
-        <link rel="apple-touch-icon"
-            sizes="152x152"
-            href='{% static "govuk-frontend/govuk/assets/images/govuk-apple-touch-icon-152x152.png" %}'/>
-        <link rel="apple-touch-icon"
-            href='{% static "govuk-frontend/govuk/assets/images/govuk-apple-touch-icon.png" %}'/>
-        <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css" />
-        <!--[if lt IE 9]>
-            <script src="/html5-shiv/html5shiv.js"></script>
-        <![endif]-->
-        <meta property="og:image"
-              content="govuk-frontend/govuk/assets/images/govuk-opengraph-image.png" />
-    </head>
-    <body class="govuk-template__body app-body-class">
-        {% include "gtm-body.html" %}
-        <script>
-            document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');
-        </script>
-        <script src='{% static "getaddress-autocomplete/dist/getaddress-autocomplete-1.1.7.min.js" %}'></script>
+{% block title %}
+    {% if page_title %}{{ page_title }} -{% endif %}
+    {{ SERVICE_NAME }}
+{% endblock title %}
 
-        {% include "cookies/banner.html" %}
+{% block head %}
+    {% include "gtm-head.html" %}
 
-        {% gds_component "skip-link" text="Skip to main content" href="#main-content" %}
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="robots" content="noindex" />
 
-        {% include "includes/header/dit.html" %}
+    {{ block.super }}
 
-        {% block primary_navigation %}
-        {% endblock primary_navigation %}
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css" />
+    <!--[if lt IE 9]>
+        <script src="/html5-shiv/html5shiv.js"></script>
+    <![endif]-->
+    <meta property="og:image" content="govuk-frontend/govuk/assets/images/govuk-opengraph-image.png" />
+{% endblock head %}
 
-        <div class="{% block container_class_names %}govuk-width-container{% endblock container_class_names %}">
-            {% gds_phase_banner %}
-                {% gds_component "tag" text="beta" %}
-                This is a new service - your <a class="govuk-link" href="{% url 'beta-service-feedback' %}" target="_blank">feedback</a> will help us to improve it.
-            {% endgds_phase_banner %}
+{% block body_start %}
+    {% include "gtm-body.html" %}
+    <script src='{% static "getaddress-autocomplete/dist/getaddress-autocomplete-1.1.7.min.js" %}'></script>
+{% endblock body_start %}
 
-            {% if back_link_url %}
-                {% set back_link_text %}{{ back_link_text|default_if_none:'Back' }}{% endset %}
-                {% gds_component "back-link" classes="mb-0" href=back_link_url text=back_link_text %}
-            {% endif %}
-            <main class="{% block main_class_names %}govuk-main-wrapper{% endblock main_class_names %}"
-                  id="main-content"
-                  role="main">
-                {% block content %}
-                {% endblock content %}
-            </main>
-        </div>
+{% block header %}
+    {% include "cookies/banner.html" %}
+    {% include "includes/header/dit.html" %}
 
-        {% include "includes/footer/dit.html" %}
+    <div class="govuk-width-container">
+        {% gds_phase_banner %}
+        {% gds_component "tag" text="beta" %}
+            This is a new service - your <a class="govuk-link" href="{% url 'beta-service-feedback' %}" target="_blank">feedback</a> will help us to improve it.
+        {% endgds_phase_banner %}
 
-        <script src='{% static "govuk-frontend/govuk/all.js" %}'></script>
-        <script src='{% static "cytoscape/dist/cytoscape.min.js" %}'></script>
-        <script src='{% static "dagre/dist/dagre.min.js" %}'></script>
-        <script src='{% static "cytoscape-dagre/cytoscape-dagre.js" %}'></script>
-        <script src='{% static "js/conditional-radios.js" %}'></script>
-        <script src='{% static "htmx.org/dist/htmx.min.js" %}'></script>
-        <script>
-            const CSRF_TOKEN = "{{ csrf_token }}";
+        {% block primary_navigation %}{% endblock primary_navigation %}
 
-            document.body.addEventListener('htmx:configRequest', function(event) {
-                event.detail.headers['X-CSRFToken'] = CSRF_TOKEN;
-            });
-        </script>
-        {% block scripts %}
-        {% endblock scripts %}
-    </body>
-</html>
+        {% if back_link_url %}
+            {% set back_link_text %}{{ back_link_text|default_if_none:'Back' }}{% endset %}
+            {% gds_component "back-link" classes="mb-0" href=back_link_url text=back_link_text %}
+        {% endif %}
+    </div>
+{% endblock header %}
+
+{% block content %}
+    {{ block.super }}
+{% endblock content %}
+
+{% block footer %}
+    {% include "includes/footer/dit.html" %}
+{% endblock footer %}
+
+{% block body_end %}
+    {{ block.super }}
+    <script src='{% static "cytoscape/dist/cytoscape.min.js" %}'></script>
+    <script src='{% static "dagre/dist/dagre.min.js" %}'></script>
+    <script src='{% static "cytoscape-dagre/cytoscape-dagre.js" %}'></script>
+    <script src='{% static "js/conditional-radios.js" %}'></script>
+    <script src='{% static "htmx.org/dist/htmx.min.js" %}'></script>
+    <script>
+        const CSRF_TOKEN = "{{ csrf_token }}";
+
+        document.body.addEventListener('htmx:configRequest', function(event) {
+            event.detail.headers['X-CSRFToken'] = CSRF_TOKEN;
+        });
+    </script>
+{% endblock body_end %}

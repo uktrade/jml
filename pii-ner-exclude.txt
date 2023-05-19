@@ -47,6 +47,7 @@
 "Returns True
 { GETADDRESS_TOKEN }}'
 {{
+{{ block.super }
 {{ choice.hint }
 {{ DEPARTMENT_ACRONYM
 {{ DEPARTMENT_NAME
@@ -286,10 +287,10 @@ CRSF
 CSET
 CssFinder
 CTC
+custom_blocks="gds_footer
 cytoscape && cp -r
 cytoscape && npm
 cytoscape-dagre && npm
-custom_blocks="gds_footer
 DAC
 dagre && npm
 Daily
@@ -469,6 +470,7 @@ Google Drive
 Google Drive or Sharepoint
 GOVUK PAAS
 govuk_frontend_django
+govuk_frontend_django/base.html" %
 GOVUK_NOTIFY_API_KEY
 govuk_paas_access_removed
 govuk_paas_access_task_log
