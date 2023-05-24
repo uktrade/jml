@@ -34,6 +34,8 @@ FAKE_PERSON_DATA: PersonData = {
 
 @override_settings(
     UKSBS_INTERFACE="core.uksbs.interfaces.UKSBSInterface",
+    UKSBS_CLIENT_ID="fake_client_id",
+    UKSBS_CLIENT_SECRET="fake_client_secret",  # pragma: allowlist secret
     UKSBS_AUTHORISATION_URL="https://fake-uksbs.domain/authorize",
     UKSBS_TOKEN_URL="https://fake-uksbs.domain/getAccessToken",
     UKSBS_HIERARCHY_API_URL="https://fake-uksbs.domain/hierarchy-api/1.0",

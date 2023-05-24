@@ -34,7 +34,7 @@ class ActivityStreamStaffSSOUserFactory(DjangoModelFactory):
     first_name = factory.fuzzy.FuzzyText(length=50)
     last_name = factory.fuzzy.FuzzyText(length=50)
     user_id = factory.fuzzy.FuzzyText(length=255)
-    status = factory.fuzzy.FuzzyText(length=255)
+    status = "active"
     last_accessed = factory.fuzzy.FuzzyDateTime(
         start_dt=timezone.now() - timedelta(days=10),
     )

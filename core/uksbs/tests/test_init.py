@@ -13,6 +13,11 @@ class TestGetUKSBSInterface(TestCase):
     def test_stubbed(self):
         self.assertEqual(type(get_uksbs_interface()), UKSBSStubbed)
 
-    @override_settings(UKSBS_INTERFACE="core.uksbs.interfaces.UKSBSInterface")
+    @override_settings(
+        UKSBS_INTERFACE="core.uksbs.interfaces.UKSBSInterface",
+        UKSBS_TOKEN_URL="fake_token_url",
+        UKSBS_CLIENT_ID="fake_client_id",
+        UKSBS_CLIENT_SECRET="fake_client_secret",  # pragma: allowlist secret
+    )
     def test_interface(self):
         self.assertEqual(type(get_uksbs_interface()), UKSBSInterface)
