@@ -23,6 +23,7 @@ class ActivityStreamStaffSSOUserQuerySet(models.QuerySet):
         """Filter to only include users that appear in the SSO AND are not inactive."""
         return self.filter(
             available=True,
+            status="active",
             became_inactive_on__isnull=True,
         )
 
