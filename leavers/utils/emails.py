@@ -432,7 +432,7 @@ def send_line_manager_notification_email(
     """
     Send Line Manager an email to notify them of a Leaver they need to process.
     """
-    manager_as_user = leaving_request.get_line_manager()
+    manager_as_user = leaving_request.get_processing_line_manager()
     assert manager_as_user
 
     manager_contact_emails = manager_as_user.get_email_addresses_for_contact()
@@ -455,7 +455,7 @@ def send_line_manager_reminder_email(
     """
     Send Line Manager a reminder email to notify them of a Leaver they need to process.
     """
-    manager_as_user = leaving_request.get_line_manager()
+    manager_as_user = leaving_request.get_processing_line_manager()
     assert manager_as_user
 
     manager_contact_emails = manager_as_user.get_email_addresses_for_contact()
@@ -478,7 +478,9 @@ def send_line_manager_thankyou_email(
     """
     Send Line Manager a thank you email.
     """
+    # TODO: Decide:
     manager_as_user = leaving_request.get_line_manager()
+    manager_as_user = leaving_request.get_processing_line_manager()
     assert manager_as_user
 
     manager_contact_emails = manager_as_user.get_email_addresses_for_contact()
@@ -501,7 +503,9 @@ def send_line_manager_offline_service_now_email(
     """
     Send Line Manager a thank you email.
     """
+    # TODO: Decide:
     manager_as_user = leaving_request.get_line_manager()
+    manager_as_user = leaving_request.get_processing_line_manager()
     assert manager_as_user
 
     manager_contact_emails = manager_as_user.get_email_addresses_for_contact()

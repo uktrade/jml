@@ -19,6 +19,7 @@
 " Returns the Line
 " Returns the Line Manager
 " Returns the most up to date security clearance
+" Returns the user that is/should be processing the request
 " Returns True
 " Send Cluster 4 Email
 " Send Feetham Security Pass Office
@@ -657,6 +658,7 @@ name="form_name" value="add_asset_form
 National Insurance
 New Year’s Day
 new_line_report_id"
+NewManager
 None                                       
 None" &&
 Notes                                                                                                  
@@ -685,6 +687,7 @@ OpenSearch
 OpenSearch URL                                                                                       
 OPENSEARCH_JAVA_OPTS=-Xms512
 OPTIONS
+Oracle
 OrderedItem
 P60
 PAAS
@@ -819,6 +822,7 @@ SERVICE_NOW_GET_DIRECTORATE_PATH
 SERVICE_NOW_INTERFACE
 SERVICE_NOW_OFFLINE_URL                                          
 SERVICE_NOW_POST_LEAVER_REQUEST                                  
+service_now_user
 ServiceNow
 ServiceNow Leaver
 Session
@@ -855,6 +859,7 @@ sso_email_user_id
 sso_email_user_id = user.sso_email_user_id
 Staff
 staff_details.job_title %
+staff_id
 staff_id"
 staff_search_autocomplete_field
 STAFF_SSO_ACTIVITY_STREAM_ID
@@ -873,6 +878,7 @@ Store DSE
 str
 StreamHandler
 Strip
+Submitter Details
 super().setUp
 Survey                                                                      
 svg aria-hidden="true
