@@ -478,8 +478,6 @@ def send_line_manager_thankyou_email(
     """
     Send Line Manager a thank you email.
     """
-    # TODO: Decide:
-    manager_as_user = leaving_request.get_line_manager()
     manager_as_user = leaving_request.get_processing_line_manager()
     assert manager_as_user
 
@@ -503,8 +501,6 @@ def send_line_manager_offline_service_now_email(
     """
     Send Line Manager a thank you email.
     """
-    # TODO: Decide:
-    manager_as_user = leaving_request.get_line_manager()
     manager_as_user = leaving_request.get_processing_line_manager()
     assert manager_as_user
 
