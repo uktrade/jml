@@ -279,6 +279,13 @@ class LeavingRequest(models.Model):
         null=True,
         blank=True,
     )
+    passman_access_removed = models.OneToOneField(
+        TaskLog,
+        on_delete=models.CASCADE,
+        related_name="passman_access_task_log",
+        null=True,
+        blank=True,
+    )
 
     sre_complete = models.DateTimeField(null=True, blank=True)
 
@@ -488,6 +495,7 @@ class LeavingRequest(models.Model):
             ("gitlab_user_access_removed", "GitLab"),
             ("govuk_paas_access_removed", "GOV UK PaaS"),
             ("jira_access_removed", "Jira"),
+            ("passman_access_removed", "Passman"),
             ("sentry_access_removed", "Sentry"),
             ("slack_removed", "Slack"),
             ("trello_user_access_removed", "Trello"),
