@@ -451,11 +451,18 @@ class LeavingRequest(models.Model):
         Returns the Line Manager that is in use.
         """
 
-        if self.processing_manager_activitystream_user:
-            return self.processing_manager_activitystream_user
         if self.manager_activitystream_user:
             return self.manager_activitystream_user
         return None
+
+    def get_processing_line_manager(self) -> Optional[ActivityStreamStaffSSOUser]:
+        """
+        Returns the user that is/should be processing the request.
+        """
+
+        if self.processing_manager_activitystream_user:
+            return self.processing_manager_activitystream_user
+        return self.get_line_manager()
 
     def get_security_clearance(self) -> Optional[SecurityClearance]:
         """

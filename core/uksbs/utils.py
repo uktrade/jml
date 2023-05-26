@@ -109,19 +109,17 @@ def build_leaving_data_from_leaving_request(
     uksbs_interface = get_uksbs_interface()
 
     assert leaving_request.leaver_activitystream_user
-    assert leaving_request.processing_manager_activitystream_user
+    assert leaving_request.manager_activitystream_user
     assert leaving_request.leaving_date
     assert leaving_request.last_day
     assert leaving_request.reason_for_leaving
 
     leaver_as: ActivityStreamStaffSSOUser = leaving_request.leaver_activitystream_user
-    processing_manager_as: ActivityStreamStaffSSOUser = (
-        leaving_request.processing_manager_activitystream_user
-    )
+    manager_as: ActivityStreamStaffSSOUser = leaving_request.manager_activitystream_user
     leaver_person_id = leaver_as.get_person_id()
     if not leaver_person_id:
         raise LeaverDoesNotHaveUKSBSPersonId()
-    manager_person_id = processing_manager_as.get_person_id()
+    manager_person_id = manager_as.get_person_id()
     if not manager_person_id:
         raise ManagerDoesNotHaveUKSBSPersonId()
 

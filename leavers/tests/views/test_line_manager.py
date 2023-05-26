@@ -177,8 +177,10 @@ class TestLineManagerAccessMixin(TestCase):
             self.leaving_request.processing_manager_activitystream_user,
             self.processing_manager_as_user,
         )
+        self.assertEqual(self.leaving_request.get_line_manager(), self.manager_as_user)
         self.assertEqual(
-            self.leaving_request.get_line_manager(), self.processing_manager_as_user
+            self.leaving_request.get_processing_line_manager(),
+            self.processing_manager_as_user,
         )
 
 

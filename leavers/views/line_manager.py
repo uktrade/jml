@@ -123,11 +123,15 @@ class LineManagerViewMixin:
         for uksbs_manager in leaver_hierarchy_data.get("manager", []):
             if str(uksbs_manager["person_id"]) == str(user_person_id):
                 # The user is in UK SBS as the manager of the leaver.
+                leaving_request.manager_activitystream_user = user_activitystream_user
                 leaving_request.processing_manager_activitystream_user = (
                     user_activitystream_user
                 )
                 leaving_request.save(
-                    update_fields=["processing_manager_activitystream_user"]
+                    update_fields=[
+                        "manager_activitystream_user",
+                        "processing_manager_activitystream_user",
+                    ]
                 )
                 return True
         return False
@@ -143,7 +147,7 @@ class LineManagerViewMixin:
         - The manager that the Leaver selected
         - The manager that the Leaver is currently assigned to in UK SBS
 
-        Sets the leaving_reqeust.processing_manager_activitystream_user accordingly.
+        Sets the leaving_request.processing_manager_activitystream_user accordingly.
         """
 
         user = cast(User, request.user)

@@ -138,7 +138,7 @@ class TestUKSBSClient(TestCase):
         )
         leaver: ActivityStreamStaffSSOUser = leaving_request.leaver_activitystream_user
         leaver_person_id = leaver.get_person_id()
-        manager = leaving_request.processing_manager_activitystream_user
+        manager = leaving_request.manager_activitystream_user
         manager_person_data = FAKE_PERSON_DATA.copy()
         if manager:
             manager_person_data["person_id"] = manager.get_person_id()

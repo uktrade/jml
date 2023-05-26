@@ -389,14 +389,14 @@ class ServiceNowInterface(ServiceNowBase):
 
         leaver_service_now_id = leaver.service_now_user_id
 
-        processing_manager: Optional[
+        manager: Optional[
             ActivityStreamStaffSSOUser
-        ] = leaving_request.processing_manager_activitystream_user
+        ] = leaving_request.manager_activitystream_user
 
-        if not processing_manager:
+        if not manager:
             raise Exception("Unable to get Line Manager information")
 
-        manager_service_now_id = processing_manager.service_now_user_id
+        manager_service_now_id = manager.service_now_user_id
 
         service_now_request_data = {
             "sysparm_quantity": "1",
