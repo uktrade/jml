@@ -7,11 +7,11 @@
         "getaddress-autocomplete": "^1.1.4",
         "govuk-frontend": "^4.4.0",
         "htmx.org": "^1.8.4",
-        "node-sass": "^8.0.0"
+        "sass": "^1.62.1"
     },
     "scripts": {
-        "css:build": "node-sass --include-path node_modules --output-style compressed --source-map true --source-map-contents true core/static/css/styles.scss static/css/styles.css",
-        "css:watch": "node-sass --include-path node_modules --output-style compressed --source-map true --source-map-contents true core/static/css/styles.scss static/css/styles.css --watch",
+        "css:build": "sass --load-path=./ --quiet-deps --style=compressed core/static/css/styles.scss static/css/styles.css",
+        "css:watch": "sass --load-path=./ --quiet-deps --style=compressed core/static/css/styles.scss static/css/styles.css --watch",
         "assets:cytoscape-dagre": "mkdir -p static/cytoscape-dagre && cp -r node_modules/cytoscape-dagre/* static/cytoscape-dagre",
         "assets:cytoscape": "mkdir -p static/cytoscape && cp -r node_modules/cytoscape/* static/cytoscape",
         "assets:dagre": "mkdir -p static/dagre && cp -r node_modules/dagre/* static/dagre",
