@@ -25,7 +25,34 @@ from core.forms import BaseForm, YesNoField
 from core.staff_search.forms import staff_search_autocomplete_field
 from core.utils.helpers import make_possessive
 from leavers.models import LeavingRequest
-from leavers.types import LeavingReason, ReturnOptions, SecurityClearance, StaffType
+from leavers.types import (
+    LeavingReason,
+    ReturnOptions,
+    SecurityClearance,
+    StaffType,
+    WhoIsLeaving,
+)
+
+
+class WhoIsLeavingForm(BaseForm):
+    required_error_messages: Dict[str, str] = {
+        "who": "Please tell us who you are offboarding.",
+    }
+
+    who = forms.ChoiceField(
+        label="",
+        widget=forms.RadioSelect,
+        choices=WhoIsLeaving.choices,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field.radios("who"),
+            Submit("submit", "Continue"),
+        )
 
 
 class SelectLeaverForm(BaseForm):

@@ -7,6 +7,11 @@ if TYPE_CHECKING:
     from core.utils.staff_index import ConsolidatedStaffDocument
 
 
+class WhoIsLeaving(TextChoices):
+    ME = "me", "I am leaving the department"
+    SOMEONE_ELSE = "someone-else", "I am completing this form on behalf of someone else"
+
+
 class SecurityClearance(TextChoices):
     """
     Security Clearance levels
