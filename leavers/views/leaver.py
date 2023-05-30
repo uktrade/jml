@@ -67,12 +67,14 @@ class WhoIsLeavingView(BaseTemplateView, FormView):
 
         self.who: WhoIsLeaving = form.cleaned_data["who"]
 
-        if self.who == WhoIsLeaving.SOMEONE_ELSE and not user.has_perm(
-            "leavers.select_leaver"
-        ):
+        if self.who == WhoIsLeaving.SOMEONE_ELSE:
+            if user.has_perm("leavers.select_leaver"):
+                return redirect(reverse("leaver-select-leaver"))
             return redirect(reverse("someone-else-is-leaving-error"))
-
-        return super().form_valid(form)
+        return redirect(
+            reverse("leaver-select-leaver")
+            + f"?{SelectLeaverView.OFFBOARD_SELF_QUERY_PARAM}=True"
+        )
 
     def get_page_title(self):
         return f"Who is leaving {settings.DEPARTMENT_ACRONYM}?"
@@ -97,9 +99,13 @@ class SelectLeaverView(FormView, BaseTemplateView):
     template_name = "leaving/leaver/select_leaver.html"
     form_class = leaver_forms.SelectLeaverForm
 
+    OFFBOARD_SELF_QUERY_PARAM = "offboard-self"
+
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
-        if not user.has_perm("leavers.select_leaver"):
+        if not user.has_perm("leavers.select_leaver") or request.GET.get(
+            self.OFFBOARD_SELF_QUERY_PARAM
+        ):
             self.init_leaving_request(user.get_sso_user())
 
             return redirect(self.get_success_url())
