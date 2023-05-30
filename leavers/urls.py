@@ -220,6 +220,11 @@ leaving_request_urlpatterns: list[URLResolver | URLPattern] = [
     path("", common_views.LeavingRequestView.as_view(), name="leaving-request-summary"),
     # partial
     path(
+        "already-submitted/",
+        leaver_views.LeavingRequestAlreadySubmittedView.as_view(),
+        name="leaving-request-already-submitted",
+    ),
+    path(
         "checks/",
         leaver_views.LeaverChecksView.as_view(),
         name="leaver-checks",
