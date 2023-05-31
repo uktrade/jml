@@ -153,11 +153,20 @@ class SelectLeaverView(FormView, BaseTemplateView):
         self.leaving_request = leaving_request
 
     def get_success_url(self) -> str:
+        user = cast(User, self.request.user)
+
         if not self.leaving_request.leaver_complete:
             return reverse(
                 "leaver-checks",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
             )
+
+        if self.leaving_request.leaver_activitystream_user == user.get_sso_user():
+            return reverse(
+                "leaving-request-already-submitted",
+                kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+            )
+
         if not self.leaving_request.line_manager_complete:
             return reverse(
                 "line-manager-start",
@@ -505,6 +514,11 @@ class MyManagerSearchView(LeavingRequestViewMixin, StaffSearchView):
         self.exclude_staff_ids = [self.leaving_request.leaver.identifier]
 
         return super().dispatch(request, *args, **kwargs)
+
+
+class LeavingRequestAlreadySubmittedView(LeavingRequestViewMixin, BaseTemplateView):
+    template_name = "leaving/leaver/already_submitted.html"
+    extra_context = {"page_title": "Leaving request already submitted"}
 
 
 class LeaverChecksView(LeavingRequestViewMixin, RedirectView):
