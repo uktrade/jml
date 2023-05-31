@@ -399,6 +399,16 @@ redirect_urlpatterns = [
 urlpatterns = redirect_urlpatterns + [
     path("", RedirectView.as_view(url=reverse_lazy("start")), name="leavers-root"),
     path("start/", leaver_views.LeaversStartView.as_view(), name="start"),
+    path(
+        "who-is-leaving/",
+        leaver_views.WhoIsLeavingView.as_view(),
+        name="who-is-leaving",
+    ),
+    path(
+        "someone-else-is-leaving/",
+        leaver_views.SomeoneElseIsLeavingErrorView.as_view(),
+        name="someone-else-is-leaving-error",
+    ),
     # leaving request
     path("leaving-requests/", include(leaving_requests_urlpatterns)),
     path(

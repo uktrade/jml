@@ -36,7 +36,7 @@ from leavers import types
 from leavers.forms import leaver as leaver_forms
 from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation
-from leavers.types import LeavingReason, StaffType
+from leavers.types import LeavingReason, StaffType, WhoIsLeaving
 from leavers.utils.leaving_request import update_or_create_leaving_request
 from leavers.views.base import LeavingRequestViewMixin
 from leavers.workflow.utils import get_or_create_leaving_workflow
@@ -52,7 +52,43 @@ class MultiplePersonIdErrorView(BaseTemplateView):
 
 class LeaversStartView(BaseTemplateView):
     template_name = "leaving/start.html"
-    extra_context = {"start_url": reverse_lazy("leaver-select-leaver")}
+    extra_context = {"start_url": reverse_lazy("who-is-leaving")}
+
+
+class WhoIsLeavingView(BaseTemplateView, FormView):
+    template_name = "leaving/who_is_leaving.html"
+    form_class = leaver_forms.WhoIsLeavingForm
+    success_url = reverse_lazy("leaver-select-leaver")
+
+    back_link_url = reverse_lazy("start")
+
+    def form_valid(self, form) -> HttpResponse:
+        user = cast(User, self.request.user)
+
+        self.who: WhoIsLeaving = form.cleaned_data["who"]
+
+        if self.who == WhoIsLeaving.SOMEONE_ELSE:
+            if user.has_perm("leavers.select_leaver"):
+                return redirect(reverse("leaver-select-leaver"))
+            return redirect(reverse("someone-else-is-leaving-error"))
+        return redirect(
+            reverse("leaver-select-leaver")
+            + f"?{SelectLeaverView.OFFBOARD_SELF_QUERY_PARAM}=True"
+        )
+
+    def get_page_title(self):
+        return f"Who is leaving {settings.DEPARTMENT_ACRONYM}?"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(page_title=self.get_page_title())
+        return context
+
+
+class SomeoneElseIsLeavingErrorView(BaseTemplateView):
+    template_name = "leaving/someone_else_is_leaving_error.html"
+
+    back_link_url = reverse_lazy("who-is-leaving")
 
 
 class LeaverSearchView(StaffSearchView):
@@ -63,9 +99,13 @@ class SelectLeaverView(FormView, BaseTemplateView):
     template_name = "leaving/leaver/select_leaver.html"
     form_class = leaver_forms.SelectLeaverForm
 
+    OFFBOARD_SELF_QUERY_PARAM = "offboard-self"
+
     def dispatch(self, request, *args, **kwargs):
         user = cast(User, self.request.user)
-        if not user.has_perm("leavers.select_leaver"):
+        if not user.has_perm("leavers.select_leaver") or request.GET.get(
+            self.OFFBOARD_SELF_QUERY_PARAM
+        ):
             self.init_leaving_request(user.get_sso_user())
 
             return redirect(self.get_success_url())
@@ -501,6 +541,8 @@ class UnableToOffboardView(LeavingJourneyViewMixin, BaseTemplateView):
 class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/leaver/why_are_you_leaving.html"
     form_class = leaver_forms.WhyAreYouLeavingForm
+
+    back_link_url = reverse_lazy("start")
 
     leaving_reason: Optional[LeavingReason] = None
 
