@@ -620,6 +620,7 @@ LocMemCache
 Log a Service Now
 Lost/Stolen'
 LSD_HELP_DESK_LIVE
+manage.py migrate &&
 manager_activitystream_user
 manager_id
 Manager</h2
