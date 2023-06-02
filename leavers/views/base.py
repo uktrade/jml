@@ -28,7 +28,8 @@ class SaveAndCloseViewMixin:
     save_and_close: bool = False
 
     def post(self, request, *args, **kwargs):
-        assert self.request
+        if not hasattr(super(), "post"):
+            return self.http_method_not_allowed(request, *args, **kwargs)
 
         if "save_and_close" in self.request.POST:
             self.save_and_close = True
@@ -36,6 +37,7 @@ class SaveAndCloseViewMixin:
             cleaned_post.update(submit=cleaned_post["save_and_close"])  # type: ignore
             del cleaned_post["save_and_close"]
             self.request.POST = cleaned_post  # type: ignore
+
         return super().post(request, *args, **kwargs)  # type: ignore
 
 

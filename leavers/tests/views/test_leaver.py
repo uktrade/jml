@@ -660,16 +660,30 @@ class TestDisplayScreenEquipmentView(LeavingRequestTestCase):
     def test_post_submission_form(self):
         self.client.force_login(self.leaver)
 
-        post_response = self.client.post(
+        failed_post_response = self.client.post(
             self.view_url,
             data={
                 "form_name": "submission_form",
             },
         )
 
-        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(failed_post_response.status_code, 200)
+        self.assertContains(
+            failed_post_response,
+            "You must add at least one asset or go back",
+        )
+
+        successful_post_response = self.client.post(
+            self.view_url,
+            data={
+                "form_name": "submission_form",
+                "dse_assets": "asset1",
+            },
+        )
+
+        self.assertEqual(successful_post_response.status_code, 302)
         self.assertEqual(
-            post_response["Location"],
+            successful_post_response["Location"],
             self.leaving_request_url("leaver-contact-details"),
         )
 
