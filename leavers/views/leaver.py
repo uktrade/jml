@@ -38,7 +38,7 @@ from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation
 from leavers.types import LeavingReason, StaffType, WhoIsLeaving
 from leavers.utils.leaving_request import update_or_create_leaving_request
-from leavers.views.base import LeavingRequestViewMixin, SaveAndCloseMixin
+from leavers.views.base import LeavingRequestViewMixin, SaveAndCloseViewMixin
 from leavers.workflow.utils import get_or_create_leaving_workflow
 from user.models import User
 
@@ -179,7 +179,7 @@ class LeaverShowViewConditions(Enum):
     LEAVING_REQUEST_COMPLETE = "leaving_request_complete"
 
 
-class LeavingJourneyViewMixin(SaveAndCloseMixin, LeavingRequestViewMixin):
+class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
     JOURNEY: Dict[str, Dict[str, Any]] = {
         "why-are-you-leaving": {
             "prev": reverse_lazy("start"),
@@ -908,7 +908,7 @@ class LeaverFindDetailsHelpView(LeavingJourneyViewMixin, BaseTemplateView):
 class RemoveLineManagerFromLeavingRequestView(LeavingJourneyViewMixin, RedirectView):
     pattern_name = "leaver-dates"
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         self.leaving_request.manager_activitystream_user = None
         self.leaving_request.save(update_fields=["manager_activitystream_user"])
 

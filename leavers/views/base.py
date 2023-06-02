@@ -13,7 +13,7 @@ from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import View
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, ProcessFormView
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.people_finder import get_people_finder_interface
@@ -23,15 +23,16 @@ from leavers.models import LeaverInformation, LeavingRequest
 from user.models import User
 
 
-class SaveAndCloseMixin:
+class SaveAndCloseViewMixin(ProcessFormView):
     save_and_close: bool = False
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
         if "save_and_close" in self.request.POST:
             self.save_and_close = True
-            self.request.POST = self.request.POST.copy()
-            self.request.POST["submit"] = self.request.POST["save_and_close"]
-            del self.request.POST["save_and_close"]
+            cleaned_post = self.request.POST.copy()
+            cleaned_post.update(submit=cleaned_post["save_and_close"])  # type: ignore
+            del cleaned_post["save_and_close"]
+            self.request.POST = cleaned_post  # type: ignore
         return super().post(request, *args, **kwargs)
 
 
