@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, TypedDict, cast
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -51,7 +51,11 @@ class LeavingRequestListView(UserPassesTestMixin, LeavingRequestListing):
         return context
 
 
-StepStatus = Tuple[str, str, str, bool]
+class StepStatus(TypedDict):
+    url: str
+    status: str
+    view_name: str
+    previous_step_complete: bool
 
 
 class LeavingRequestView(
@@ -98,20 +102,34 @@ class LeavingRequestView(
         if not step["show_in_summary"]:
             return None
 
-        step_status = "not started"
         step_data = step_data_mapping[step_pathname]
+        step_url = reverse(
+            step_pathname,
+            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+        )
+
+        step_status_data: StepStatus = {
+            "url": step_url,
+            "status": "not started",
+            "view_name": step["view_name"],
+            "previous_step_complete": previous_step_complete,
+        }
+
+        if lr.line_manager_complete:
+            step_status_data["status"] = "complete"
+            return step_status_data
 
         if all(step_data):
-            step_status = "complete"
+            step_status_data["status"] = "complete"
         elif any(step_data):
-            step_status = "started"
+            step_status_data["status"] = "started"
 
         if (
             "leaver-has-cirrus-equipment" in step_pathname
             and li.has_cirrus_kit is not None
             and li.has_cirrus_kit is False
         ):
-            step_status = "complete"
+            step_status_data["status"] = "complete"
         if (
             "leaver-display-screen-equipment" in step_pathname
             and li.has_dse is not None
@@ -131,18 +149,9 @@ class LeavingRequestView(
             return None
 
         if not previous_step_complete:
-            step_status = "cannot start yet"
+            step_status_data["status"] = "cannot start yet"
 
-        step_url = reverse(
-            step_pathname,
-            kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-        )
-        return (
-            step_url,
-            step_status,
-            step["view_name"],
-            previous_step_complete,
-        )
+        return step_status_data
 
     def get_step_statuses(self) -> Tuple[List[StepStatus], List[StepStatus]]:
         leaver_step_statuses = []
@@ -235,7 +244,7 @@ class LeavingRequestView(
                 continue
 
             leaver_step_statuses.append(step_status)
-            if step_status[1] != "complete":
+            if step_status["status"] != "complete":
                 previous_step_complete = False
 
         for step_pathname, step in ReviewViewMixin.JOURNEY.items():
@@ -252,7 +261,7 @@ class LeavingRequestView(
                 continue
 
             manager_step_statuses.append(step_status)
-            if step_status[1] != "complete":
+            if step_status["status"] != "complete":
                 previous_step_complete = False
 
         return leaver_step_statuses, manager_step_statuses
