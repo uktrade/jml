@@ -179,7 +179,7 @@ class LeaverShowViewConditions(Enum):
     LEAVING_REQUEST_COMPLETE = "leaving_request_complete"
 
 
-class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
+class LeavingJourneyViewMixin(LeavingRequestViewMixin, SaveAndCloseViewMixin):
     JOURNEY: Dict[str, Dict[str, Any]] = {
         "why-are-you-leaving": {
             "prev": reverse_lazy("start"),
@@ -286,6 +286,7 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
             self.initialise_journey()
 
     def initialise_journey(self) -> None:
+        print("CAM WAS HERE")
         if self.journey_dict:
             if not self.user_is_leaver:
                 self.back_link_viewname = "leaving-request-summary"
