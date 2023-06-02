@@ -24,16 +24,19 @@ from user.models import User
 
 
 class SaveAndCloseViewMixin:
+    request: HttpRequest
     save_and_close: bool = False
 
-    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+    def post(self, request, *args, **kwargs):
+        assert self.request
+
         if "save_and_close" in self.request.POST:
             self.save_and_close = True
             cleaned_post = self.request.POST.copy()
             cleaned_post.update(submit=cleaned_post["save_and_close"])  # type: ignore
             del cleaned_post["save_and_close"]
             self.request.POST = cleaned_post  # type: ignore
-        return super().post(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)  # type: ignore
 
 
 class LeavingRequestListing(

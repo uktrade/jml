@@ -186,7 +186,7 @@ class LineManagerViewMixin:
 
 class IsReviewUser(UserPassesTestMixin):
     def setup(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None:
-        super().setup(request, *args, **kwargs)
+        super().setup(request, *args, **kwargs)  # type: ignore
         # Call the test function in setup so we initialise all the variables.
         self.test_func()
 
@@ -232,6 +232,9 @@ class ReviewViewMixin(
             "show_in_summary": True,
         },
     }
+
+    back_link_url: Optional[str] = None
+    back_link_text: Optional[str] = None
 
     def setup(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None:
         super().setup(request, *args, **kwargs)
@@ -315,6 +318,7 @@ class ReviewViewMixin(
 class DataRecipientSearchView(ReviewViewMixin, StaffSearchView):
     search_name = "data recipient"
     query_param_name = DATA_RECIPIENT_SEARCH_PARAM
+
     success_viewname = "line-manager-leaver-confirmation"
 
     def setup(self, request, *args, **kwargs):

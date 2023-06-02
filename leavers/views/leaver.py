@@ -908,7 +908,7 @@ class LeaverFindDetailsHelpView(LeavingJourneyViewMixin, BaseTemplateView):
 class RemoveLineManagerFromLeavingRequestView(LeavingJourneyViewMixin, RedirectView):
     pattern_name = "leaver-dates"
 
-    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponseBase:
         self.leaving_request.manager_activitystream_user = None
         self.leaving_request.save(update_fields=["manager_activitystream_user"])
 
