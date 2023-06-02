@@ -13,7 +13,7 @@ from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import View
-from django.views.generic.edit import FormView, ProcessFormView
+from django.views.generic.edit import FormView
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.people_finder import get_people_finder_interface
@@ -23,7 +23,7 @@ from leavers.models import LeaverInformation, LeavingRequest
 from user.models import User
 
 
-class SaveAndCloseViewMixin(ProcessFormView):
+class SaveAndCloseViewMixin:
     save_and_close: bool = False
 
     def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:

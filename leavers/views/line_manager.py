@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Callable, Dict, List, Optional, cast
 from uuid import UUID, uuid4
 
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -47,7 +47,7 @@ ADD_MISSING_LINE_REPORT_ERROR = "add_missing_line_report_error"
 RETURN_TO_CONFIRMATION_QUERY_PARAM = "return_to_confirmation"
 
 
-class LineManagerViewMixin(SaveAndCloseViewMixin):
+class LineManagerViewMixin:
     user_is_line_manager: bool = False
 
     def get_page_count(
@@ -185,6 +185,11 @@ class LineManagerViewMixin(SaveAndCloseViewMixin):
 
 
 class IsReviewUser(UserPassesTestMixin):
+    def setup(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None:
+        super().setup(request, *args, **kwargs)
+        # Call the test function in setup so we initialise all the variables.
+        self.test_func()
+
     def test_func(self):
         return self.line_manager_access(
             request=self.request,
@@ -192,7 +197,9 @@ class IsReviewUser(UserPassesTestMixin):
         )
 
 
-class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixin):
+class ReviewViewMixin(
+    IsReviewUser, SaveAndCloseViewMixin, LineManagerViewMixin, LeavingRequestViewMixin
+):
     JOURNEY: Dict[str, Dict[str, Any]] = {
         "line-manager-start": {
             "prev": None,
@@ -225,6 +232,34 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
             "show_in_summary": True,
         },
     }
+
+    def setup(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None:
+        super().setup(request, *args, **kwargs)
+        current_url = resolve(request.path_info).url_name
+        self.journey_dict = {}
+        if current_url in self.JOURNEY:
+            self.journey_dict = self.JOURNEY.get(current_url, {})
+            self.initialise_journey()
+
+    def initialise_journey(self) -> None:
+        if self.journey_dict:
+            if not self.user_is_line_manager:
+                self.back_link_viewname = "leaving-request-summary"
+                self.back_link_text = "Back to summary"
+            else:
+                prev = self.journey_dict.get("prev")
+                if prev:
+                    if type(prev) == str:
+                        self.back_link_viewname = prev
+                    elif type(prev) == Callable:
+                        self.back_link_url = prev
+
+            next = self.journey_dict.get("next")
+            if next:
+                if type(next) == str:
+                    self.success_viewname = next
+                elif type(next) == Callable:
+                    self.success_url = next
 
     def pre_dispatch(self, request, *args, **kwargs) -> Optional[HttpResponse]:
         return None
@@ -275,18 +310,6 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
             )
 
         return super().get_success_url()
-
-    def get_back_link_url(self):
-        back_link_url = super().get_back_link_url()
-        if back_link_url and not self.user_is_line_manager:
-            self.back_link_viewname = "leaving-request-summary"
-        return back_link_url
-
-    def get_back_link_text(self):
-        back_link_text = super().get_back_link_text()
-        if back_link_text and not self.user_is_line_manager:
-            self.back_link_text = "Back to summary"
-        return back_link_text
 
 
 class DataRecipientSearchView(ReviewViewMixin, StaffSearchView):
@@ -361,8 +384,11 @@ class RemoveDataRecipientFromLeavingRequestView(ReviewViewMixin, RedirectView):
 class LeaverConfirmationView(ReviewViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/line_manager/leaver_confirmation.html"
     form_class = line_manager_forms.ConfirmLeavingDate
-    success_viewname = "line-manager-details"
+
     back_link_viewname = "line-manager-start"
+    back_link_text = "Back"
+
+    success_viewname = "line-manager-details"
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
@@ -536,6 +562,7 @@ class DetailsView(ReviewViewMixin, BaseTemplateView, FormView):
     form_class = line_manager_forms.LineManagerDetailsForm
     success_viewname = "line-manager-leaver-line-reports"
     back_link_viewname = "line-manager-leaver-confirmation"
+    back_link_text = "Back"
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
@@ -721,6 +748,7 @@ class LeaverLineReportsView(ReviewViewMixin, BaseTemplateView, FormView):
     form_class = line_manager_forms.LineReportConfirmationForm
     success_viewname = "line-manager-confirmation"
     back_link_viewname = "line-manager-details"
+    back_link_text = "Back"
 
     def initialize_line_reports(self) -> None:
         if not self.leaving_request.line_reports:
@@ -846,6 +874,8 @@ class LeaverLineReportsView(ReviewViewMixin, BaseTemplateView, FormView):
 class ConfirmDetailsView(ReviewViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/line_manager/confirm_details.html"
     form_class = line_manager_forms.LineManagerConfirmationForm
+
+    back_link_text = "Back"
     success_viewname = "line-manager-thank-you"
 
     def setup(self, request, *args, **kwargs):
@@ -958,8 +988,10 @@ class ConfirmDetailsView(ReviewViewMixin, BaseTemplateView, FormView):
         return super().form_valid(form)
 
     def get_back_link_url(self):
-        back_url = self.get_view_url("line-manager-leaver-confirmation")
+        if not self.user_is_line_manager:
+            return super().get_back_link_url()
 
+        back_url = self.get_view_url("line-manager-leaver-confirmation")
         if self.leaving_request.show_line_reports:
             back_url = self.get_view_url("line-manager-leaver-line-reports")
         elif self.leaving_request.show_hr_and_payroll:
