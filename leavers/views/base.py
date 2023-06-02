@@ -23,6 +23,18 @@ from leavers.models import LeaverInformation, LeavingRequest
 from user.models import User
 
 
+class SaveAndCloseMixin:
+    save_and_close: bool = False
+
+    def post(self, request: HttpRequest, *args: str, **kwargs: Any) -> HttpResponse:
+        if "save_and_close" in self.request.POST:
+            self.save_and_close = True
+            self.request.POST = self.request.POST.copy()
+            self.request.POST["submit"] = self.request.POST["save_and_close"]
+            del self.request.POST["save_and_close"]
+        return super().post(request, *args, **kwargs)
+
+
 class LeavingRequestListing(
     BaseTemplateView,
     FormView,

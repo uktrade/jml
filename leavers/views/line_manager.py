@@ -36,6 +36,7 @@ from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.forms import line_manager as line_manager_forms
 from leavers.models import LeavingRequest
 from leavers.types import LeavingReason, LeavingRequestLineReport
+from leavers.views.base import SaveAndCloseMixin
 from leavers.views.leaver import LeavingRequestViewMixin
 from user.models import User
 
@@ -46,7 +47,7 @@ ADD_MISSING_LINE_REPORT_ERROR = "add_missing_line_report_error"
 RETURN_TO_CONFIRMATION_QUERY_PARAM = "return_to_confirmation"
 
 
-class LineManagerViewMixin:
+class LineManagerViewMixin(SaveAndCloseMixin):
     user_is_line_manager: bool = False
 
     def get_page_count(
@@ -262,7 +263,7 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
         return context
 
     def get_success_url(self) -> str:
-        if "save_and_close" in self.request.POST:
+        if self.save_and_close:
             return reverse(
                 "leaving-request-summary",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},

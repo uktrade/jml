@@ -193,7 +193,6 @@ class LeavingRequestView(
                 li.contact_phone,
                 li.personal_email,
                 li.contact_address_line_1,
-                li.contact_address_line_2,
                 li.contact_address_city,
                 li.contact_address_county,
                 li.contact_address_postcode,

@@ -38,7 +38,7 @@ from leavers.forms.leaver import ReturnOptions
 from leavers.models import LeaverInformation
 from leavers.types import LeavingReason, StaffType, WhoIsLeaving
 from leavers.utils.leaving_request import update_or_create_leaving_request
-from leavers.views.base import LeavingRequestViewMixin
+from leavers.views.base import LeavingRequestViewMixin, SaveAndCloseMixin
 from leavers.workflow.utils import get_or_create_leaving_workflow
 from user.models import User
 
@@ -179,7 +179,7 @@ class LeaverShowViewConditions(Enum):
     LEAVING_REQUEST_COMPLETE = "leaving_request_complete"
 
 
-class LeavingJourneyViewMixin(LeavingRequestViewMixin):
+class LeavingJourneyViewMixin(SaveAndCloseMixin, LeavingRequestViewMixin):
     JOURNEY: Dict[str, Dict[str, Any]] = {
         "why-are-you-leaving": {
             "prev": reverse_lazy("start"),
@@ -335,7 +335,7 @@ class LeavingJourneyViewMixin(LeavingRequestViewMixin):
         return super().dispatch(request, *args, **kwargs)  # type: ignore
 
     def get_success_url(self) -> str:
-        if "save_and_close" in self.request.POST:
+        if self.save_and_close:
             return reverse(
                 "leaving-request-summary",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
@@ -579,7 +579,7 @@ class WhyAreYouLeavingView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
         return super().form_valid(form)
 
     def get_success_url(self) -> str:
-        if "save_and_close" in self.request.POST:
+        if self.save_and_close:
             return reverse(
                 "leaving-request-summary",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
@@ -987,7 +987,7 @@ class LeaverDatesView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
         )
 
         if (
-            "save_and_close" not in form.data
+            not self.save_and_close
             and not self.leaving_request.manager_activitystream_user
         ):
             form.add_error(None, "You must select a line manager")
