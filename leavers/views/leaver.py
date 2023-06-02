@@ -1407,19 +1407,11 @@ class DisplayScreenEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
     def post_submission_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         session = self.get_session()
         session_dse_assets = session.get("dse_assets", [])
+
         # Store dse assets into the leaver details
         self.store_display_screen_equipment(
             dse_assets=session_dse_assets,
         )
-
-        if not self.leaver_info.dse_assets:
-            form.add_error(
-                None,
-                (
-                    "You must add at least one asset, or go back and say you "
-                    "don't have any."
-                ),
-            )
 
         return redirect(self.get_success_url())
 
@@ -1445,8 +1437,11 @@ class DisplayScreenEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
         return {}
 
     def get_initial_submission_form(self):
+        session = self.get_session()
         return {
-            "dse_assets": self.leaver_info.dse_assets,
+            "dse_assets": ",".join(
+                [asset["name"] for asset in session.get("dse_assets", [])]
+            ),
         }
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
