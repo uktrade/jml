@@ -188,7 +188,10 @@ class LeavingRequestView(
                 li.return_personal_phone,
                 li.return_contact_email,
             ],
-            "leaver-display-screen-equipment": [li.has_dse, li.dse_assets],
+            "leaver-display-screen-equipment": [
+                li.has_dse is not None,
+                not li.has_dse or li.dse_assets,
+            ],
             "leaver-contact-details": [
                 li.contact_phone,
                 li.personal_email,

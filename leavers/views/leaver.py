@@ -286,12 +286,10 @@ class LeavingJourneyViewMixin(LeavingRequestViewMixin, SaveAndCloseViewMixin):
             self.initialise_journey()
 
     def initialise_journey(self) -> None:
-        print("CAM WAS HERE")
         if self.journey_dict:
             if not self.user_is_leaver:
                 self.back_link_viewname = "leaving-request-summary"
                 self.back_link_text = "Back to summary"
-
             else:
                 prev = self.journey_dict.get("prev")
                 if prev:
@@ -299,6 +297,7 @@ class LeavingJourneyViewMixin(LeavingRequestViewMixin, SaveAndCloseViewMixin):
                         self.back_link_viewname = prev
                     elif type(prev) == Callable:
                         self.back_link_url = prev
+
             next = self.journey_dict.get("next")
             if next:
                 if type(next) == str:
@@ -1407,11 +1406,20 @@ class DisplayScreenEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
 
     def post_submission_form(self, request: HttpRequest, form: Form, *args, **kwargs):
         session = self.get_session()
-
+        session_dse_assets = session.get("dse_assets", [])
         # Store dse assets into the leaver details
         self.store_display_screen_equipment(
-            dse_assets=session.get("dse_assets", []),
+            dse_assets=session_dse_assets,
         )
+
+        if not self.leaver_info.dse_assets:
+            form.add_error(
+                None,
+                (
+                    "You must add at least one asset, or go back and say you "
+                    "don't have any."
+                ),
+            )
 
         return redirect(self.get_success_url())
 
@@ -1421,7 +1429,8 @@ class DisplayScreenEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
             form_name = request.POST["form_name"]
             if form_name in self.forms:
                 form = self.forms[form_name](
-                    data=request.POST, **self.get_form_kwargs()
+                    data=request.POST,
+                    **self.get_form_kwargs(),
                 )
                 if form.is_valid():
                     # Call the "post_{form_name}" method to handle the form POST logic.
@@ -1431,6 +1440,14 @@ class DisplayScreenEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
                 else:
                     context[form_name] = form
         return self.render_to_response(context)
+
+    def get_initial_add_asset_form(self):
+        return {}
+
+    def get_initial_submission_form(self):
+        return {
+            "dse_assets": self.leaver_info.dse_assets,
+        }
 
     def get(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         session = self.get_session()
@@ -1450,7 +1467,10 @@ class DisplayScreenEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
 
         # Add form instances to the context.
         for form_name, form_class in self.forms.items():
-            context[form_name] = form_class(**self.get_form_kwargs())
+            form_initial = getattr(self, f"get_initial_{form_name}")()
+            context[form_name] = form_class(
+                initial=form_initial, **self.get_form_kwargs()
+            )
 
         session = self.get_session()
         if "dse_assets" in session:
@@ -1526,6 +1546,9 @@ class LeaverContactDetailsView(LeavingJourneyViewMixin, BaseTemplateView, FormVi
         return context
 
     def get_back_link_url(self):
+        if not self.user_is_leaver:
+            return super().get_back_link_url()
+
         if not self.leaver_info.has_dse:
             return reverse(
                 "leaver-has-cirrus-equipment",

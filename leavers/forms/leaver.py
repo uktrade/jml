@@ -990,6 +990,15 @@ class AddDisplayScreenEquipmentAssetForm(LeaverJourneyBaseForm):
 
 
 class DisplayScreenEquipmentSubmissionForm(LeaverJourneyBaseForm):
+    required_error_messages: Dict[str, str] = {
+        "dse_assets": (
+            "You must add at least one asset or go back and select "
+            "'No' to the question about 'IT equipment'"
+        ),
+    }
+
+    dse_assets = forms.JSONField(widget=forms.HiddenInput)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
