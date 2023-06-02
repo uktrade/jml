@@ -179,7 +179,7 @@ class LeaverShowViewConditions(Enum):
     LEAVING_REQUEST_COMPLETE = "leaving_request_complete"
 
 
-class LeavingJourneyViewMixin(LeavingRequestViewMixin, SaveAndCloseViewMixin):
+class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
     JOURNEY: Dict[str, Dict[str, Any]] = {
         "why-are-you-leaving": {
             "prev": reverse_lazy("start"),
