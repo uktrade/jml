@@ -23,6 +23,9 @@ class EmailTemplates(Enum):
     LEAVER_IN_PAY_CUT_OFF_HR_EMAIL = (
         email_template_settings.LEAVER_IN_PAY_CUT_OFF_HR_EMAIL
     )
+    LINE_MANAGER_MISSING_PERSON_ID_EMAIL = (
+        email_template_settings.LINE_MANAGER_MISSING_PERSON_ID_EMAIL
+    )
     LINE_MANAGER_CORRECTION_EMAIL = (
         email_template_settings.LINE_MANAGER_CORRECTION_EMAIL
     )

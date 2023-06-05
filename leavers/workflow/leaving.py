@@ -72,9 +72,20 @@ LeaversWorkflow = Workflow(
             step_id="check_uksbs_line_manager",
             task_name="check_uksbs_line_manager",
             targets=[
+                "send_line_manager_missing_person_id_reminder",
                 "send_line_manager_correction_reminder",
                 "notify_line_manager",
             ],
+        ),
+        Step(
+            step_id="send_line_manager_missing_person_id_reminder",
+            task_name="daily_reminder_email",
+            targets=[
+                "check_uksbs_line_manager",
+            ],
+            task_info={
+                "email_id": EmailIds.LINE_MANAGER_MISSING_PERSON_ID.value,
+            },
         ),
         Step(
             step_id="send_line_manager_correction_reminder",

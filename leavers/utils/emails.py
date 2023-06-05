@@ -70,6 +70,7 @@ def get_leaving_request_email_personalisation(
         leaver_email=leaver_email,
         possessive_leaver_name=make_possessive(leaver_name),
         manager_name=manager_as_user.full_name,
+        possessive_manager_name=make_possessive(manager_as_user.full_name),
         manager_email=manager_as_user.get_email_addresses_for_contact()[0],
         leaving_date=leaving_date.strftime(DATE_FORMAT_STR),
         last_day=last_day.strftime(DATE_FORMAT_STR),
@@ -337,6 +338,22 @@ def send_buisness_continuity_leaver_email(
     notify.email(
         email_addresses=[settings.BUSINESS_CONTINUITY_EMAIL],
         template_id=notify.EmailTemplates.BUSINESS_CONTINUITY_LEAVER_EMAIL,
+        personalisation=personalisation,
+    )
+
+
+def send_line_manager_missing_person_id_email(
+    leaving_request: LeavingRequest,
+    template_id: Optional[notify.EmailTemplates] = None,
+):
+    """
+    Send an email to get the missing UKSBS Person ID issue resolved.
+    """
+    personalisation = get_leaving_request_email_personalisation(leaving_request)
+
+    notify.email(
+        email_addresses="????",
+        template_id=notify.EmailTemplates.LINE_MANAGER_MISSING_PERSON_ID_EMAIL,
         personalisation=personalisation,
     )
 

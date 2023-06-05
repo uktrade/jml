@@ -81,7 +81,14 @@ class TestLeaversWorkflow(TestCase):
             ["check_uksbs_leaver"],
         ],
         "check_uksbs_line_manager": [
-            ["send_line_manager_correction_reminder", "notify_line_manager"],
+            [
+                "send_line_manager_missing_person_id_reminder",
+                "send_line_manager_correction_reminder",
+                "notify_line_manager",
+            ],
+        ],
+        "send_line_manager_missing_person_id_reminder": [
+            ["check_uksbs_line_manager"],
         ],
         "send_line_manager_correction_reminder": [
             ["check_uksbs_line_manager"],
