@@ -10,14 +10,14 @@
                     {% for step_status in leaver_step_statuses %}
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
-                                {% if step_status.3 and not leaving_request.leaver_complete %}
-                                    <a class="govuk-link" href="{{ step_status.0 }}">{{ step_status.2 }}</a>
+                                {% if step_status.previous_step_complete and not leaving_request.leaver_complete %}
+                                    <a class="govuk-link" href="{{ step_status.url }}">{{ step_status.view_name }}</a>
                                 {% else %}
-                                    {{ step_status.2 }}
+                                    {{ step_status.view_name }}
                                 {% endif %}
                             </dt>
                             <dd class="govuk-summary-list__actions">
-                                <strong class="govuk-tag {% if step_status.1 != 'complete' %}govuk-tag--grey{% endif %}">{{ step_status.1 }}</strong>
+                                <strong class="govuk-tag {% if step_status.status != 'complete' %}govuk-tag--grey{% endif %}">{{ step_status.status }}</strong>
                             </dd>
                         </div>
                     {% endfor %}
@@ -27,14 +27,14 @@
                     {% for step_status in manager_step_statuses %}
                         <div class="govuk-summary-list__row">
                             <dt class="govuk-summary-list__key">
-                                {% if step_status.3 and not leaving_request.line_manager_complete %}
-                                    <a class="govuk-link" href="{{ step_status.0 }}">{{ step_status.2 }}</a>
+                                {% if step_status.previous_step_complete and not leaving_request.line_manager_complete %}
+                                    <a class="govuk-link" href="{{ step_status.url }}">{{ step_status.view_name }}</a>
                                 {% else %}
-                                    {{ step_status.2 }}
+                                    {{ step_status.view_name }}
                                 {% endif %}
                             </dt>
                             <dd class="govuk-summary-list__actions">
-                                <strong class="govuk-tag {% if step_status.1 != 'complete' %}govuk-tag--grey{% endif %}">{{ step_status.1 }}</strong>
+                                <strong class="govuk-tag {% if step_status.status != 'complete' %}govuk-tag--grey{% endif %}">{{ step_status.status }}</strong>
                             </dd>
                         </div>
                     {% endfor %}

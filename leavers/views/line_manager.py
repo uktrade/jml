@@ -1,6 +1,6 @@
 from datetime import date
-from typing import Any, Dict, List, Optional, cast
-from uuid import UUID, uuid4
+from typing import Any, Callable, Dict, List, Optional, cast
+from uuid import UUID
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import (
@@ -21,21 +21,19 @@ from activity_stream.models import ActivityStreamStaffSSOUser
 from core.staff_search.views import StaffSearchView
 from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
-from core.uksbs.types import PersonData, PersonHierarchyData
 from core.utils.helpers import make_possessive
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
     StaffDocument,
-    StaffDocumentNotFound,
-    TooManyStaffDocumentsFound,
     consolidate_staff_documents,
     get_staff_document_from_staff_index,
 )
 from core.views import BaseTemplateView
-from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.forms import line_manager as line_manager_forms
 from leavers.models import LeavingRequest
 from leavers.types import LeavingReason, LeavingRequestLineReport
+from leavers.utils.leaving_request import initialise_line_reports
+from leavers.views.base import SaveAndCloseViewMixin
 from leavers.views.leaver import LeavingRequestViewMixin
 from user.models import User
 
@@ -184,6 +182,11 @@ class LineManagerViewMixin:
 
 
 class IsReviewUser(UserPassesTestMixin):
+    def setup(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None:
+        super().setup(request, *args, **kwargs)  # type: ignore
+        # Call the test function in setup so we initialise all the variables.
+        self.test_func()
+
     def test_func(self):
         return self.line_manager_access(
             request=self.request,
@@ -191,7 +194,9 @@ class IsReviewUser(UserPassesTestMixin):
         )
 
 
-class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixin):
+class ReviewViewMixin(
+    IsReviewUser, SaveAndCloseViewMixin, LineManagerViewMixin, LeavingRequestViewMixin
+):
     JOURNEY: Dict[str, Dict[str, Any]] = {
         "line-manager-start": {
             "prev": None,
@@ -224,6 +229,37 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
             "show_in_summary": True,
         },
     }
+
+    back_link_url: Optional[str] = None
+    back_link_text: Optional[str] = None
+
+    def setup(self, request: HttpRequest, *args: Any, **kwargs: Any) -> None:
+        super().setup(request, *args, **kwargs)
+        current_url = resolve(request.path_info).url_name
+        self.journey_dict = {}
+        if current_url in self.JOURNEY:
+            self.journey_dict = self.JOURNEY.get(current_url, {})
+            self.initialise_journey()
+
+    def initialise_journey(self) -> None:
+        if self.journey_dict:
+            if not self.user_is_line_manager:
+                self.back_link_viewname = "leaving-request-summary"
+                self.back_link_text = "Back to summary"
+            else:
+                prev = self.journey_dict.get("prev")
+                if prev:
+                    if type(prev) == str:
+                        self.back_link_viewname = prev
+                    elif type(prev) == Callable:
+                        self.back_link_url = prev
+
+            next = self.journey_dict.get("next")
+            if next:
+                if type(next) == str:
+                    self.success_viewname = next
+                elif type(next) == Callable:
+                    self.success_url = next
 
     def pre_dispatch(self, request, *args, **kwargs) -> Optional[HttpResponse]:
         return None
@@ -262,7 +298,7 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
         return context
 
     def get_success_url(self) -> str:
-        if "save_and_close" in self.request.POST:
+        if self.save_and_close:
             return reverse(
                 "leaving-request-summary",
                 kwargs={"leaving_request_uuid": self.leaving_request.uuid},
@@ -275,22 +311,11 @@ class ReviewViewMixin(IsReviewUser, LineManagerViewMixin, LeavingRequestViewMixi
 
         return super().get_success_url()
 
-    def get_back_link_url(self):
-        back_link_url = super().get_back_link_url()
-        if back_link_url and not self.user_is_line_manager:
-            self.back_link_viewname = "leaving-request-summary"
-        return back_link_url
-
-    def get_back_link_text(self):
-        back_link_text = super().get_back_link_text()
-        if back_link_text and not self.user_is_line_manager:
-            self.back_link_text = "Back to summary"
-        return back_link_text
-
 
 class DataRecipientSearchView(ReviewViewMixin, StaffSearchView):
     search_name = "data recipient"
     query_param_name = DATA_RECIPIENT_SEARCH_PARAM
+
     success_viewname = "line-manager-leaver-confirmation"
 
     def setup(self, request, *args, **kwargs):
@@ -360,8 +385,11 @@ class RemoveDataRecipientFromLeavingRequestView(ReviewViewMixin, RedirectView):
 class LeaverConfirmationView(ReviewViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/line_manager/leaver_confirmation.html"
     form_class = line_manager_forms.ConfirmLeavingDate
-    success_viewname = "line-manager-details"
+
     back_link_viewname = "line-manager-start"
+    back_link_text = "Back"
+
+    success_viewname = "line-manager-details"
 
     def get_form_kwargs(self) -> Dict[str, Any]:
         form_kwargs = super().get_form_kwargs()
@@ -535,6 +563,7 @@ class DetailsView(ReviewViewMixin, BaseTemplateView, FormView):
     form_class = line_manager_forms.LineManagerDetailsForm
     success_viewname = "line-manager-leaver-line-reports"
     back_link_viewname = "line-manager-leaver-confirmation"
+    back_link_text = "Back"
 
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
@@ -720,63 +749,10 @@ class LeaverLineReportsView(ReviewViewMixin, BaseTemplateView, FormView):
     form_class = line_manager_forms.LineReportConfirmationForm
     success_viewname = "line-manager-confirmation"
     back_link_viewname = "line-manager-details"
-
-    def initialize_line_reports(self) -> None:
-        if not self.leaving_request.line_reports:
-            uksbs_interface = get_uksbs_interface()
-            leaver_as_user: ActivityStreamStaffSSOUser = (
-                self.leaving_request.leaver_activitystream_user
-            )
-            leaver_person_id = leaver_as_user.get_person_id()
-            if not leaver_person_id:
-                raise LeaverDoesNotHaveUKSBSPersonId()
-
-            leaver_hierarchy_data: PersonHierarchyData = (
-                uksbs_interface.get_user_hierarchy(
-                    person_id=leaver_person_id,
-                )
-            )
-            person_data_line_reports: List[PersonData] = leaver_hierarchy_data.get(
-                "report", []
-            )
-
-            lr_line_reports: List[LeavingRequestLineReport] = []
-            for line_report in person_data_line_reports:
-                if not all(
-                    [
-                        line_report["email_address"],
-                        line_report["person_id"],
-                        line_report["employee_number"],
-                    ]
-                ):
-                    continue
-
-                consolidated_staff_document: Optional[ConsolidatedStaffDocument] = None
-                try:
-                    staff_document = get_staff_document_from_staff_index(
-                        sso_email_address=line_report["email_address"]
-                    )
-                    consolidated_staff_document = consolidate_staff_documents(
-                        staff_documents=[staff_document]
-                    )[0]
-                except (StaffDocumentNotFound, TooManyStaffDocumentsFound):
-                    pass
-                lr_line_reports.append(
-                    {
-                        "uuid": str(uuid4()),
-                        "name": line_report["full_name"],
-                        "email": line_report["email_address"],
-                        "line_manager": None,
-                        "person_data": line_report,
-                        "consolidated_staff_document": consolidated_staff_document,
-                    }
-                )
-
-            self.leaving_request.line_reports = lr_line_reports
-            self.leaving_request.save()
+    back_link_text = "Back"
 
     def pre_dispatch(self, request, *args, **kwargs):
-        self.initialize_line_reports()
+        initialise_line_reports(leaving_request=self.leaving_request)
 
         if not self.leaving_request.line_reports:
             return redirect(self.get_success_url())
@@ -845,6 +821,8 @@ class LeaverLineReportsView(ReviewViewMixin, BaseTemplateView, FormView):
 class ConfirmDetailsView(ReviewViewMixin, BaseTemplateView, FormView):
     template_name = "leaving/line_manager/confirm_details.html"
     form_class = line_manager_forms.LineManagerConfirmationForm
+
+    back_link_text = "Back"
     success_viewname = "line-manager-thank-you"
 
     def setup(self, request, *args, **kwargs):
@@ -957,8 +935,10 @@ class ConfirmDetailsView(ReviewViewMixin, BaseTemplateView, FormView):
         return super().form_valid(form)
 
     def get_back_link_url(self):
-        back_url = self.get_view_url("line-manager-leaver-confirmation")
+        if not self.user_is_line_manager:
+            return super().get_back_link_url()
 
+        back_url = self.get_view_url("line-manager-leaver-confirmation")
         if self.leaving_request.show_line_reports:
             back_url = self.get_view_url("line-manager-leaver-line-reports")
         elif self.leaving_request.show_hr_and_payroll:

@@ -54,7 +54,7 @@ class PeopleFinderIterator(Iterator):
     next_url: Optional[str] = None
 
     def __iter__(self) -> Iterator:
-        # Initialize the iterator by making the first call to the API.
+        # Initialise the iterator by making the first call to the API.
         self.current_url = f"{settings.PEOPLE_FINDER_URL}/peoplefinder/api/person-api/"
         try:
             self.call_api()

@@ -74,7 +74,7 @@ class StaffSSOActivityStreamIterator(Iterator):
     search_after: Dict[Any, Any] = {}
 
     def __iter__(self) -> Iterator:
-        # Initialize the iterator by making the first call to the API.
+        # Initialise the iterator by making the first call to the API.
         self.current_url = URL
         try:
             self.call_api()

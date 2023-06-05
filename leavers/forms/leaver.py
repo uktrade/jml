@@ -990,11 +990,22 @@ class AddDisplayScreenEquipmentAssetForm(LeaverJourneyBaseForm):
 
 
 class DisplayScreenEquipmentSubmissionForm(LeaverJourneyBaseForm):
+    required_error_messages: Dict[str, str] = {
+        "dse_assets": (
+            "You must add at least one asset or go back and select "
+            "'No' to the question about 'IT equipment'"
+        ),
+    }
+
+    dse_assets = forms.CharField(widget=forms.HiddenInput)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
-        self.helper.layout = Layout()
+        self.helper.layout = Layout(
+            "dse_assets",
+        )
 
         if self.user_is_leaver:
             self.helper.layout.append(

@@ -39,7 +39,7 @@ class ServiceNowResults(Iterator):
 
         self.url = url
         self.path = path
-        # Initialize the iterator by making the first call to the API.
+        # Initialise the iterator by making the first call to the API.
         self.url_parts = list(urlparse(self.url + self.path))
         self.query: Dict[str, Any] = {
             "sysparm_limit": 100,
