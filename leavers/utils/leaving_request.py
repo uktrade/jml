@@ -75,7 +75,7 @@ def get_leaver_details(leaving_request: LeavingRequest) -> "LeaverDetails":
     return leaver_details
 
 
-def initialize_line_reports(leaving_request: LeavingRequest) -> None:
+def initialise_line_reports(leaving_request: LeavingRequest) -> None:
     if not leaving_request.line_reports:
         uksbs_interface = get_uksbs_interface()
         leaver_as_user: ActivityStreamStaffSSOUser = (

@@ -32,7 +32,7 @@ from core.views import BaseTemplateView
 from leavers.forms import line_manager as line_manager_forms
 from leavers.models import LeavingRequest
 from leavers.types import LeavingReason, LeavingRequestLineReport
-from leavers.utils.leaving_request import initialize_line_reports
+from leavers.utils.leaving_request import initialise_line_reports
 from leavers.views.base import SaveAndCloseViewMixin
 from leavers.views.leaver import LeavingRequestViewMixin
 from user.models import User
@@ -752,7 +752,7 @@ class LeaverLineReportsView(ReviewViewMixin, BaseTemplateView, FormView):
     back_link_text = "Back"
 
     def pre_dispatch(self, request, *args, **kwargs):
-        initialize_line_reports(leaving_request=self.leaving_request)
+        initialise_line_reports(leaving_request=self.leaving_request)
 
         if not self.leaving_request.line_reports:
             return redirect(self.get_success_url())

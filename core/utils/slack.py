@@ -6,13 +6,13 @@ from slack_sdk.errors import SlackApiError
 from slack_sdk.web.slack_response import SlackResponse
 
 
-class FailedToInitializeSlackClient(Exception):
+class FailedToInitialiseSlackClient(Exception):
     pass
 
 
 def get_slack_client() -> WebClient:
     if not settings.SLACK_API_TOKEN:
-        raise FailedToInitializeSlackClient()
+        raise FailedToInitialiseSlackClient()
 
     slack_token = settings.SLACK_API_TOKEN
     return WebClient(token=slack_token)
@@ -32,8 +32,8 @@ def send_slack_message(
 
     try:
         client = get_slack_client()
-    except FailedToInitializeSlackClient:
-        raise FailedToSendSlackMessage("Failed to initialize Slack client")
+    except FailedToInitialiseSlackClient:
+        raise FailedToSendSlackMessage("Failed to initialise Slack client")
 
     # Post a message to the Channel
     try:
