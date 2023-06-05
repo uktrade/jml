@@ -163,8 +163,9 @@ class LeavingRequestView(
         assert li
 
         if lr.line_reports is None:
-            initialise_line_reports(leaving_request=lr)
-        line_reports = lr.line_reports
+            line_reports = initialise_line_reports(leaving_request=lr)
+        else:
+            line_reports = lr.line_reports
 
         step_data_mapping = {
             "why-are-you-leaving": [

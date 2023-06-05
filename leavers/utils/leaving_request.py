@@ -75,54 +75,58 @@ def get_leaver_details(leaving_request: LeavingRequest) -> "LeaverDetails":
     return leaver_details
 
 
-def initialise_line_reports(leaving_request: LeavingRequest) -> None:
-    if not leaving_request.line_reports:
-        uksbs_interface = get_uksbs_interface()
-        leaver_as_user: ActivityStreamStaffSSOUser = (
-            leaving_request.leaver_activitystream_user
-        )
-        leaver_person_id = leaver_as_user.get_person_id()
-        if not leaver_person_id:
-            raise LeaverDoesNotHaveUKSBSPersonId()
+def initialise_line_reports(
+    leaving_request: LeavingRequest,
+) -> List[LeavingRequestLineReport]:
+    if leaving_request.line_reports:
+        return leaving_request.line_reports
 
-        leaver_hierarchy_data: PersonHierarchyData = uksbs_interface.get_user_hierarchy(
-            person_id=leaver_person_id,
-        )
-        person_data_line_reports: List[PersonData] = leaver_hierarchy_data.get(
-            "report", []
-        )
+    uksbs_interface = get_uksbs_interface()
+    leaver_as_user: ActivityStreamStaffSSOUser = (
+        leaving_request.leaver_activitystream_user
+    )
+    leaver_person_id = leaver_as_user.get_person_id()
+    if not leaver_person_id:
+        raise LeaverDoesNotHaveUKSBSPersonId()
 
-        lr_line_reports: List[LeavingRequestLineReport] = []
-        for line_report in person_data_line_reports:
-            if not all(
-                [
-                    line_report["email_address"],
-                    line_report["person_id"],
-                    line_report["employee_number"],
-                ]
-            ):
-                continue
+    leaver_hierarchy_data: PersonHierarchyData = uksbs_interface.get_user_hierarchy(
+        person_id=leaver_person_id,
+    )
+    person_data_line_reports: List[PersonData] = leaver_hierarchy_data.get("report", [])
 
-            consolidated_staff_document: Optional[ConsolidatedStaffDocument] = None
-            try:
-                staff_document = get_staff_document_from_staff_index(
-                    sso_email_address=line_report["email_address"]
-                )
-                consolidated_staff_document = consolidate_staff_documents(
-                    staff_documents=[staff_document]
-                )[0]
-            except (StaffDocumentNotFound, TooManyStaffDocumentsFound):
-                pass
-            lr_line_reports.append(
-                {
-                    "uuid": str(uuid4()),
-                    "name": line_report["full_name"],
-                    "email": line_report["email_address"],
-                    "line_manager": None,
-                    "person_data": line_report,
-                    "consolidated_staff_document": consolidated_staff_document,
-                }
+    lr_line_reports: List[LeavingRequestLineReport] = []
+    for line_report in person_data_line_reports:
+        if not all(
+            [
+                line_report["email_address"],
+                line_report["person_id"],
+                line_report["employee_number"],
+            ]
+        ):
+            continue
+
+        consolidated_staff_document: Optional[ConsolidatedStaffDocument] = None
+        try:
+            staff_document = get_staff_document_from_staff_index(
+                sso_email_address=line_report["email_address"]
             )
+            consolidated_staff_document = consolidate_staff_documents(
+                staff_documents=[staff_document]
+            )[0]
+        except (StaffDocumentNotFound, TooManyStaffDocumentsFound):
+            pass
+        lr_line_reports.append(
+            {
+                "uuid": str(uuid4()),
+                "name": line_report["full_name"],
+                "email": line_report["email_address"],
+                "line_manager": None,
+                "person_data": line_report,
+                "consolidated_staff_document": consolidated_staff_document,
+            }
+        )
 
-        leaving_request.line_reports = lr_line_reports
-        leaving_request.save(update_fields=["line_reports"])
+    leaving_request.line_reports = lr_line_reports
+    leaving_request.save(update_fields=["line_reports"])
+
+    return lr_line_reports
