@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Any, Callable, Dict, List, Optional, cast
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import (
@@ -21,21 +21,18 @@ from activity_stream.models import ActivityStreamStaffSSOUser
 from core.staff_search.views import StaffSearchView
 from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
-from core.uksbs.types import PersonData, PersonHierarchyData
 from core.utils.helpers import make_possessive
 from core.utils.staff_index import (
     ConsolidatedStaffDocument,
     StaffDocument,
-    StaffDocumentNotFound,
-    TooManyStaffDocumentsFound,
     consolidate_staff_documents,
     get_staff_document_from_staff_index,
 )
 from core.views import BaseTemplateView
-from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.forms import line_manager as line_manager_forms
 from leavers.models import LeavingRequest
 from leavers.types import LeavingReason, LeavingRequestLineReport
+from leavers.utils.leaving_request import initialize_line_reports
 from leavers.views.base import SaveAndCloseViewMixin
 from leavers.views.leaver import LeavingRequestViewMixin
 from user.models import User
@@ -754,62 +751,8 @@ class LeaverLineReportsView(ReviewViewMixin, BaseTemplateView, FormView):
     back_link_viewname = "line-manager-details"
     back_link_text = "Back"
 
-    def initialize_line_reports(self) -> None:
-        if not self.leaving_request.line_reports:
-            uksbs_interface = get_uksbs_interface()
-            leaver_as_user: ActivityStreamStaffSSOUser = (
-                self.leaving_request.leaver_activitystream_user
-            )
-            leaver_person_id = leaver_as_user.get_person_id()
-            if not leaver_person_id:
-                raise LeaverDoesNotHaveUKSBSPersonId()
-
-            leaver_hierarchy_data: PersonHierarchyData = (
-                uksbs_interface.get_user_hierarchy(
-                    person_id=leaver_person_id,
-                )
-            )
-            person_data_line_reports: List[PersonData] = leaver_hierarchy_data.get(
-                "report", []
-            )
-
-            lr_line_reports: List[LeavingRequestLineReport] = []
-            for line_report in person_data_line_reports:
-                if not all(
-                    [
-                        line_report["email_address"],
-                        line_report["person_id"],
-                        line_report["employee_number"],
-                    ]
-                ):
-                    continue
-
-                consolidated_staff_document: Optional[ConsolidatedStaffDocument] = None
-                try:
-                    staff_document = get_staff_document_from_staff_index(
-                        sso_email_address=line_report["email_address"]
-                    )
-                    consolidated_staff_document = consolidate_staff_documents(
-                        staff_documents=[staff_document]
-                    )[0]
-                except (StaffDocumentNotFound, TooManyStaffDocumentsFound):
-                    pass
-                lr_line_reports.append(
-                    {
-                        "uuid": str(uuid4()),
-                        "name": line_report["full_name"],
-                        "email": line_report["email_address"],
-                        "line_manager": None,
-                        "person_data": line_report,
-                        "consolidated_staff_document": consolidated_staff_document,
-                    }
-                )
-
-            self.leaving_request.line_reports = lr_line_reports
-            self.leaving_request.save()
-
     def pre_dispatch(self, request, *args, **kwargs):
-        self.initialize_line_reports()
+        initialize_line_reports(leaving_request=self.leaving_request)
 
         if not self.leaving_request.line_reports:
             return redirect(self.get_success_url())

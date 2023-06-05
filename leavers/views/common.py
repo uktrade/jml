@@ -9,6 +9,7 @@ from core.utils.staff_index import get_staff_document_from_staff_index
 from core.views import BaseTemplateView
 from leavers.forms.data_processor import HRLeavingRequestListingSearchForm
 from leavers.models import LeaverInformation, LeavingRequest
+from leavers.utils.leaving_request import initialize_line_reports
 from leavers.views.base import LeavingRequestListing, LeavingRequestViewMixin
 from leavers.views.leaver import LeavingJourneyViewMixin
 from leavers.views.line_manager import ReviewViewMixin
@@ -161,7 +162,9 @@ class LeavingRequestView(
         li = self.leaving_request.leaver_information.first()
         assert li
 
-        line_reports = lr.line_reports or []
+        if lr.line_reports is None:
+            initialize_line_reports(leaving_request=lr)
+        line_reports = lr.line_reports
 
         step_data_mapping = {
             "why-are-you-leaving": [
