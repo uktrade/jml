@@ -449,7 +449,7 @@ class TestLeaversWorkflow(TestCase):
         # Leaver is in UK SBS and Line manager is not in UK SBS
         self.run_leaver_in_uksbs_line_manager_not_in_uksbs(
             expected_tasks=expected_tasks,
-            mock_CheckUKSBSLeaver_execute=mock_CheckUKSBSLeaver_execute,
+            mock_CheckUKSBSLineManager_execute=mock_CheckUKSBSLineManager_execute,
         )
 
         # Run a few more times without progression to make sure nothing odd happens.
