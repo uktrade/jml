@@ -262,10 +262,11 @@ class CheckUKSBSLineManager(LeavingRequestTask):
         leaver_person_id = leaver_as_user.get_person_id()
         line_manager_as_user = self.leaving_request.get_line_manager()
         manager_person_id = line_manager_as_user.get_person_id()
+
         if not leaver_person_id:
             raise LeaverDoesNotHaveUKSBSPersonId()
         if not manager_person_id:
-            return ["line_manager_missing_person_id"], True
+            return ["line_manager_missing_person_id"], False
 
         uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
             person_id=leaver_person_id,
@@ -279,10 +280,10 @@ class CheckUKSBSLineManager(LeavingRequestTask):
             for uksbs_leaver_manager in uksbs_leaver_managers
         ]
 
-        if manager_person_id in uksbs_leaver_manager_person_ids:
-            return ["notify_line_manager"], True
+        if manager_person_id not in uksbs_leaver_manager_person_ids:
+            return ["send_line_manager_correction_reminder"], False
 
-        return ["send_line_manager_correction_reminder"], False
+        return ["notify_line_manager"], True
 
 
 class LSDSendLeaverDetails(LeavingRequestTask):

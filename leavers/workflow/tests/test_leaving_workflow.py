@@ -257,19 +257,42 @@ class TestLeaversWorkflow(TestCase):
         ]
         self.check_tasks(expected_tasks=expected_tasks)
 
-    def run_leaver_in_uksbs_line_manager_not_in_uksbs(
-        self, expected_tasks, mock_CheckUKSBSLeaver_execute
+    def run_leaver_in_uksbs_line_manager_person_id_missing(
+        self,
+        expected_tasks,
+        mock_CheckUKSBSLeaver_execute,
+        mock_CheckUKSBSLineManager_execute,
     ):
         mock_CheckUKSBSLeaver_execute.return_value = (
             ["check_uksbs_line_manager"],
             True,
         )
+        mock_CheckUKSBSLineManager_execute.return_value = (
+            ["send_line_manager_missing_person_id_reminder"],
+            False,
+        )
         self.executor.run_flow(user=None)
         self.executor.run_flow(user=None)
         expected_tasks += [
             "check_uksbs_line_manager",
+            "send_line_manager_missing_person_id_reminder",
+        ]
+
+        self.check_tasks(expected_tasks=expected_tasks)
+
+    def run_leaver_in_uksbs_line_manager_not_in_uksbs(
+        self, expected_tasks, mock_CheckUKSBSLineManager_execute
+    ):
+        mock_CheckUKSBSLineManager_execute.return_value = (
+            ["send_line_manager_correction_reminder"],
+            True,
+        )
+        self.executor.run_flow(user=None)
+        self.executor.run_flow(user=None)
+        expected_tasks += [
             "send_line_manager_correction_reminder",
         ]
+
         self.check_tasks(expected_tasks=expected_tasks)
 
     def run_line_manger_in_uksbs(
@@ -323,7 +346,9 @@ class TestLeaversWorkflow(TestCase):
             "have_security_carried_out_bp_leaving_tasks",
             "have_security_carried_out_rk_leaving_tasks",
             "send_sre_reminder",
+            "send_security_bp_reminder",
         ]
+
         self.check_tasks(expected_tasks=expected_tasks)
 
     @mock.patch(
@@ -347,13 +372,20 @@ class TestLeaversWorkflow(TestCase):
             mock_CheckUKSBSLeaver_execute=mock_CheckUKSBSLeaver_execute,
         )
 
+        # Leaver is in UK SBS and Line manager has a missing Person ID
+        self.run_leaver_in_uksbs_line_manager_person_id_missing(
+            expected_tasks=expected_tasks,
+            mock_CheckUKSBSLeaver_execute=mock_CheckUKSBSLeaver_execute,
+            mock_CheckUKSBSLineManager_execute=mock_CheckUKSBSLineManager_execute,
+        )
+
         # Leaver is in UK SBS and Line manager is not in UK SBS
         self.run_leaver_in_uksbs_line_manager_not_in_uksbs(
             expected_tasks=expected_tasks,
-            mock_CheckUKSBSLeaver_execute=mock_CheckUKSBSLeaver_execute,
+            mock_CheckUKSBSLineManager_execute=mock_CheckUKSBSLineManager_execute,
         )
 
-        # Line manager is in UK SBS, notified and hasn']t completed the offboarding process
+        # Line manager is in UK SBS, notified and hasn't completed the offboarding process
         self.run_line_manger_in_uksbs(
             expected_tasks=expected_tasks,
             mock_CheckUKSBSLineManager_execute=mock_CheckUKSBSLineManager_execute,
@@ -395,6 +427,18 @@ class TestLeaversWorkflow(TestCase):
         self.run_leaver_not_in_uksbs(
             expected_tasks=expected_tasks,
             mock_CheckUKSBSLeaver_execute=mock_CheckUKSBSLeaver_execute,
+        )
+
+        # Run a few more times without progression to make sure nothing odd happens.
+        for _ in range(10):
+            self.executor.run_flow(user=None)
+            self.check_tasks(expected_tasks=expected_tasks)
+
+        # Leaver is in UK SBS and Line manager has a missing Person ID
+        self.run_leaver_in_uksbs_line_manager_person_id_missing(
+            expected_tasks=expected_tasks,
+            mock_CheckUKSBSLeaver_execute=mock_CheckUKSBSLeaver_execute,
+            mock_CheckUKSBSLineManager_execute=mock_CheckUKSBSLineManager_execute,
         )
 
         # Run a few more times without progression to make sure nothing odd happens.
