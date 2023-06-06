@@ -352,9 +352,12 @@ def send_line_manager_missing_person_id_email(
     personalisation = get_leaving_request_email_personalisation(leaving_request)
 
     notify.email(
-        email_addresses="????",
+        email_addresses=[settings.DIT_OFFBOARDING_EMAIL],
         template_id=notify.EmailTemplates.LINE_MANAGER_MISSING_PERSON_ID_EMAIL,
-        personalisation=personalisation,
+        personalisation=personalisation
+        | {
+            "recipient_name": f"{settings.DEPARTMENT_ACRONYM} Offboarding Team",
+        },
     )
 
 
