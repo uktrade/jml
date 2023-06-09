@@ -213,6 +213,7 @@ Build Staff Document
 Building Pass
 Building pass '
 Building Pass Access Revoked
+Building Pass" %}
 building_pass_access_task_log
 Builds a StaffDocument
 Business Continuity
@@ -242,6 +243,7 @@ CLU4
 CLU4 Leaver Notification Email
 CLU4_EMAIL
 CLU4_EMAIL                                               |                                             
+Cluster 4
 COLOUR_GREEN=\033[32;01
 COLOUR_NONE=\033[0m
 COLOUR_YELLOW=\033[33;01
@@ -434,6 +436,7 @@ F401
 F405
 False                                       
 Faulty"
+Feetham
 Feetham Security Pass Office
 Feetham Security Pass Office Leaver Notification Email
 Feetham Security Pass Office Settings
@@ -508,6 +511,7 @@ have</li>{%
 HAWK
 HAWK_INCOMING_ACCESS_KEY
 HAWK_INCOMING_SECRET_KEY
+Health and Safety
 Health and Safety or Floor Liaison
 Health and Safety or Floor Liaison Officer
 Health and Safety Team Settings
@@ -839,6 +843,7 @@ security_pass_disabled_task_log
 security_team_building_pass_complete
 security_team_building_pass_returned
 security_team_rosa_kit_complete
+security_team_rosa_kit_complete|date:'d
 security_team_rosa_laptop_status
 SECURITY_TEAM_VETTING_EMAIL
 SECURITY_TEAM_VETTING_EMAIL                                      

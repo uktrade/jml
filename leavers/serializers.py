@@ -1,7 +1,6 @@
 from datetime import date, datetime
-from typing import Optional, cast
+from typing import Optional
 
-from django_workflow_engine.models import Flow, TaskStatus
 from rest_framework import serializers
 
 from leavers.models import LeavingRequest
@@ -95,15 +94,7 @@ class LeavingRequestSerializer(serializers.ModelSerializer):
         return task_log.value
 
     def get_payroll_request_sent(self, obj: LeavingRequest) -> Optional[datetime]:
-        flow = cast(Flow, obj.flow)
-        if not flow:
-            return None
-        send_uksbs_task: Optional[TaskStatus] = flow.tasks.filter(
-            step_id="send_uksbs_leaver_details", done=True
-        ).first()
-        if not send_uksbs_task:
-            return None
-        return send_uksbs_task.executed_at
+        return obj.get_payroll_request_sent()
 
     def get_payroll_cut_off_after_leaving_date(
         self, obj: LeavingRequest

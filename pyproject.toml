@@ -43,7 +43,7 @@ govuk-bank-holidays = "^0.11"
 detect-secrets = "^1.4.0"
 dit-activity-stream = "^0.1.0"
 django-workflow-engine = "0.2.0"
-govuk-frontend-django = "^0.3.3"
+govuk-frontend-django = "^0.3.5"
 
 
 [tool.poetry.group.production]
@@ -85,7 +85,7 @@ pyparsing = "^3.0.9"
 pydot = "^1.4.2"
 poetry = "^1.3.1"
 bpython = "^0.23"
-djlint = "^1.29.0"
+djlint = "^1.30.2"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-material = "^9.1.5"
@@ -141,7 +141,7 @@ profile="django"
 indent="4"
 ignore="H021,H006"
 extend_exclude="htmlcov,staticfiles,static,node_modules"
-custom_blocks="gds_accordion,gds_accordion_item,gds_breadcrumbs,gds_checkboxes,gds_checkbox_conditional,gds_cookie_banner,gds_cookie_banner_message,gds_error_summary,gds_error_summary_error_list_item,gds_footer,gds_footer_nav,gds_footer_meta,gds_header,gds_header_nav_item,gds_phase_banner,gds_summary_list,gds_summary_list_card,gds_summary_list_card_title,gds_summary_list_row,gds_summary_list_row_key,gds_summary_list_row_value,gds_summary_list_row_actions,gds_summary_list_row_actions_item,gds_summary_list_card,gds_summary_list_card_actions,gds_summary_list_card_actions_item,gds_tabs,gds_tabs_tab"
+custom_blocks="gds_accordion,gds_accordion_item,gds_breadcrumbs,gds_checkboxes,gds_checkbox_conditional,gds_cookie_banner,gds_cookie_banner_message,gds_error_summary,gds_error_summary_error_list_item,gds_footer,gds_footer_nav,gds_footer_meta,gds_header,gds_header_nav_item,gds_phase_banner,gds_summary_list,gds_summary_list_row,gds_summary_list_row_key,gds_summary_list_row_value,gds_summary_list_row_actions,gds_summary_list_row_actions_item,gds_summary_list_card,gds_summary_list_card_actions,gds_summary_list_card_actions_item,gds_tabs,gds_tabs_tab"
 
 [tool.django-stubs]
 django_settings_module = "config.settings.test"

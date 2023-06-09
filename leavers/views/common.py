@@ -87,6 +87,12 @@ class LeavingRequestView(
             staff_uuid=staff_document.uuid,
             leaver_step_statuses=leaver_step_statuses,
             manager_step_statuses=manager_step_statuses,
+            service_now_status=self.leaving_request.get_service_now_complete(),
+            sre_actions_status=self.leaving_request.sre_complete,
+            security_building_pass_status=self.leaving_request.security_team_building_pass_complete,
+            security_team_rosa_kit_complete=self.leaving_request.security_team_rosa_kit_complete,
+            payroll_request_status=self.leaving_request.get_payroll_request_sent(),
+            team_notifications=self.leaving_request.get_teams_notified(),
         )
 
         return context
