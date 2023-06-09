@@ -5,40 +5,44 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-l">{{ page_title }}</h1>
-                <h2 class="govuk-heading-m">Leaver steps</h2>
-                <dl class="govuk-summary-list">
+                {% gds_summary_list %}
+                    {% gds_summary_list_card %}
+                        {% gds_summary_list_card_title text="Leaver steps" %}
+                    {% endgds_summary_list_card %}
                     {% for step_status in leaver_step_statuses %}
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
+                        {% gds_summary_list_row %}
+                            {% gds_summary_list_row_key %}
                                 {% if step_status.previous_step_complete and not leaving_request.leaver_complete %}
                                     <a class="govuk-link" href="{{ step_status.url }}">{{ step_status.view_name }}</a>
                                 {% else %}
                                     {{ step_status.view_name }}
                                 {% endif %}
-                            </dt>
-                            <dd class="govuk-summary-list__actions">
+                            {% endgds_summary_list_row_key %}
+                            {% gds_summary_list_row_value %}
                                 <strong class="govuk-tag {% if step_status.status != 'complete' %}govuk-tag--grey{% endif %}">{{ step_status.status }}</strong>
-                            </dd>
-                        </div>
+                            {% endgds_summary_list_row_value %}
+                        {% endgds_summary_list_row %}
                     {% endfor %}
-                </dl>
-                <h2 class="govuk-heading-m">Manager steps</h2>
-                <dl class="govuk-summary-list">
+                {% endgds_summary_list %}
+                {% gds_summary_list %}
+                    {% gds_summary_list_card %}
+                        {% gds_summary_list_card_title text="Manager steps" %}
+                    {% endgds_summary_list_card %}
                     {% for step_status in manager_step_statuses %}
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
+                        {% gds_summary_list_row %}
+                            {% gds_summary_list_row_key %}
                                 {% if step_status.previous_step_complete and not leaving_request.line_manager_complete %}
                                     <a class="govuk-link" href="{{ step_status.url }}">{{ step_status.view_name }}</a>
                                 {% else %}
                                     {{ step_status.view_name }}
                                 {% endif %}
-                            </dt>
-                            <dd class="govuk-summary-list__actions">
+                            {% endgds_summary_list_row_key %}
+                            {% gds_summary_list_row_value %}
                                 <strong class="govuk-tag {% if step_status.status != 'complete' %}govuk-tag--grey{% endif %}">{{ step_status.status }}</strong>
-                            </dd>
-                        </div>
+                            {% endgds_summary_list_row_value %}
+                        {% endgds_summary_list_row %}
                     {% endfor %}
-                </dl>
+                {% endgds_summary_list %}
                 {% if leaving_request.line_manager_complete %}
                     {% gds_summary_list %}
                         {% gds_summary_list_card %}
