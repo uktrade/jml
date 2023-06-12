@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, TypedDict, cast
 
 from django.contrib.auth import get_user_model
@@ -5,7 +6,6 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.urls import reverse, reverse_lazy
 
 from core.utils.helpers import make_possessive
-from core.utils.staff_index import get_staff_document_from_staff_index
 from core.views import BaseTemplateView
 from leavers.forms.data_processor import HRLeavingRequestListingSearchForm
 from leavers.models import LeaverInformation, LeavingRequest
@@ -75,23 +75,26 @@ class LeavingRequestView(
         leaver_name = self.leaving_request.get_leaver_name()
         possessive_leaver_name = make_possessive(leaver_name)
 
-        staff_document = get_staff_document_from_staff_index(
-            sso_email_user_id=self.leaving_request.leaver_activitystream_user.email_user_id,
-        )
-
         leaver_step_statuses, manager_step_statuses = self.get_step_statuses()
+
+        service_now_task_name = "Offboarded from ServiceNow"
+        if self.leaving_request.service_now_offline:
+            service_now_task_name = "Manually offboarded from ServiceNow"
+
+        offboarding_task_statuses: Dict[str, datetime] = {
+            service_now_task_name: self.leaving_request.get_service_now_complete(),
+            "SRE Actions": self.leaving_request.sre_complete,
+            "Security Building Pass": self.leaving_request.security_team_building_pass_complete,
+            "Security ROSA Kit": self.leaving_request.security_team_rosa_kit_complete,
+            "Payroll Request sent (UK SBS)": self.leaving_request.get_payroll_request_sent(),
+        }
 
         context.update(
             page_title=f"{possessive_leaver_name} leaving request",
             leaving_request=self.leaving_request,
-            staff_uuid=staff_document.uuid,
             leaver_step_statuses=leaver_step_statuses,
             manager_step_statuses=manager_step_statuses,
-            service_now_status=self.leaving_request.get_service_now_complete(),
-            sre_actions_status=self.leaving_request.sre_complete,
-            security_building_pass_status=self.leaving_request.security_team_building_pass_complete,
-            security_team_rosa_kit_complete=self.leaving_request.security_team_rosa_kit_complete,
-            payroll_request_status=self.leaving_request.get_payroll_request_sent(),
+            offboarding_task_statuses=offboarding_task_statuses,
             team_notifications=self.leaving_request.get_teams_notified(),
         )
 

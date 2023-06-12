@@ -48,60 +48,18 @@
                         {% gds_summary_list_card %}
                             {% gds_summary_list_card_title_inline text="Offboarding tasks" %}
                         {% endgds_summary_list_card %}
-                        {% gds_summary_list_row %}
-                            {% if leaving_request.service_now_offline %}
-                                {% gds_summary_list_row_key_inline text="Manually offboarded from ServiceNow" %}
-                            {% else %}
-                                {% gds_summary_list_row_key_inline text="Offboarded from ServiceNow" %}
-                            {% endif %}
-                            {% if service_now_status %}
-                                {% gds_summary_list_row_value_inline text=service_now_status|date:'d/m/Y H:i' %}
-                            {% else %}
-                                {% gds_summary_list_row_value %}
-                                    {% gds_component "tag" text="Not complete" classes="govuk-tag--grey" %}
-                                {% endgds_summary_list_row_value %}
-                            {% endif %}
-                        {% endgds_summary_list_row %}
-                        {% gds_summary_list_row %}
-                            {% gds_summary_list_row_key_inline text="SRE Actions" %}
-                            {% if sre_actions_status %}
-                                {% gds_summary_list_row_value_inline text=sre_actions_status|date:'d/m/Y H:i' %}
-                            {% else %}
-                                {% gds_summary_list_row_value %}
-                                    {% gds_component "tag" text="Not complete" classes="govuk-tag--grey" %}
-                                {% endgds_summary_list_row_value %}
-                            {% endif %}
-                        {% endgds_summary_list_row %}
-                        {% gds_summary_list_row %}
-                            {% gds_summary_list_row_key_inline text="Security Building Pass" %}
-                            {% if security_building_pass_status %}
-                                {% gds_summary_list_row_value_inline text=security_building_pass_status|date:'d/m/Y H:i' %}
-                            {% else %}
-                                {% gds_summary_list_row_value %}
-                                    {% gds_component "tag" text="Not complete" classes="govuk-tag--grey" %}
-                                {% endgds_summary_list_row_value %}
-                            {% endif %}
-                        {% endgds_summary_list_row %}
-                        {% gds_summary_list_row %}
-                            {% gds_summary_list_row_key_inline text="Security ROSA Kit" %}
-                            {% if security_team_rosa_kit_complete %}
-                                {% gds_summary_list_row_value_inline text=security_team_rosa_kit_complete|date:'d/m/Y H:i' %}
-                            {% else %}
-                                {% gds_summary_list_row_value %}
-                                    {% gds_component "tag" text="Not complete" classes="govuk-tag--grey" %}
-                                {% endgds_summary_list_row_value %}
-                            {% endif %}
-                        {% endgds_summary_list_row %}
-                        {% gds_summary_list_row %}
-                            {% gds_summary_list_row_key_inline text="Payroll Request sent (UK SBS)" %}
-                            {% if payroll_request_status %}
-                                {% gds_summary_list_row_value_inline text=payroll_request_status|date:'d/m/Y H:i' %}
-                            {% else %}
-                                {% gds_summary_list_row_value %}
-                                    {% gds_component "tag" text="Not complete" classes="govuk-tag--grey" %}
-                                {% endgds_summary_list_row_value %}
-                            {% endif %}
-                        {% endgds_summary_list_row %}
+                        {% for offboarding_task_name, offboarding_task_status in offboarding_task_statuses.items %}
+                            {% gds_summary_list_row %}
+                                {% gds_summary_list_row_key_inline text=offboarding_task_name %}
+                                {% if offboarding_task_status %}
+                                    {% gds_summary_list_row_value_inline text=offboarding_task_status|date:'d/m/Y H:i' %}
+                                {% else %}
+                                    {% gds_summary_list_row_value %}
+                                        {% gds_component "tag" text="Not complete" classes="govuk-tag--grey" %}
+                                    {% endgds_summary_list_row_value %}
+                                {% endif %}
+                            {% endgds_summary_list_row %}
+                        {% endfor %}
                     {% endgds_summary_list %}
                     {% gds_summary_list %}
                         {% gds_summary_list_card %}
@@ -114,7 +72,7 @@
                                     {% gds_summary_list_row_value_inline text=team_notification_status|date:'d/m/Y H:i' %}
                                 {% else %}
                                     {% gds_summary_list_row_value %}
-                                        {% gds_component "tag" text="Not complete" classes="govuk-tag--grey" %}
+                                        {% gds_component "tag" text="Not sent" classes="govuk-tag--grey" %}
                                     {% endgds_summary_list_row_value %}
                                 {% endif %}
                             {% endgds_summary_list_row %}

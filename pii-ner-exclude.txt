@@ -746,6 +746,7 @@ ParsedUKSBSPDF"
 Pass notes</h2
 PASSWORD
 Payroll
+Payroll Request
 Pending
 Pending" %
 People Data
@@ -834,6 +835,7 @@ SC
 SEARCH_STAFF_INDEX_NAME                                          |
 Security
 SECURITY
+Security Building Pass
 Security Check (
 Security Clearance
 Security Team
