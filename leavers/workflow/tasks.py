@@ -18,10 +18,7 @@ from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.uksbs.types import PersonData
 from core.utils.helpers import is_work_day_and_time
-from leavers.exceptions import (
-    LeaverDoesNotHaveUKSBSPersonId,
-    ManagerDoesNotHaveUKSBSPersonId,
-)
+from leavers.exceptions import LeaverDoesNotHaveUKSBSPersonId
 from leavers.models import LeaverInformation, LeavingRequest, TaskLog
 from leavers.types import LeavingReason, ReminderEmailDict
 from leavers.utils.emails import (
@@ -36,6 +33,7 @@ from leavers.utils.emails import (
     send_leaver_questionnaire_email,
     send_leaver_thank_you_email,
     send_line_manager_correction_email,
+    send_line_manager_missing_person_id_email,
     send_line_manager_notification_email,
     send_line_manager_offline_service_now_email,
     send_line_manager_reminder_email,
@@ -264,10 +262,11 @@ class CheckUKSBSLineManager(LeavingRequestTask):
         leaver_person_id = leaver_as_user.get_person_id()
         line_manager_as_user = self.leaving_request.get_line_manager()
         manager_person_id = line_manager_as_user.get_person_id()
+
         if not leaver_person_id:
             raise LeaverDoesNotHaveUKSBSPersonId()
         if not manager_person_id:
-            raise ManagerDoesNotHaveUKSBSPersonId()
+            return ["line_manager_missing_person_id"], False
 
         uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
             person_id=leaver_person_id,
@@ -281,10 +280,10 @@ class CheckUKSBSLineManager(LeavingRequestTask):
             for uksbs_leaver_manager in uksbs_leaver_managers
         ]
 
-        if manager_person_id in uksbs_leaver_manager_person_ids:
-            return ["notify_line_manager"], True
+        if manager_person_id not in uksbs_leaver_manager_person_ids:
+            return ["send_line_manager_correction_reminder"], False
 
-        return ["send_line_manager_correction_reminder"], False
+        return ["notify_line_manager"], True
 
 
 class LSDSendLeaverDetails(LeavingRequestTask):
@@ -370,6 +369,7 @@ class EmailIds(Enum):
     LEAVER_THANK_YOU_EMAIL = "leaver_thank_you_email"
     LEAVER_QUESTIONNAIRE_EMAIL = "leaver_questionnaire_email"
     LEAVER_NOT_IN_UKSBS_REMINDER = "leaver_not_in_uksbs_reminder"
+    LINE_MANAGER_MISSING_PERSON_ID = "line_manager_missing_person_id"
     LINE_MANAGER_CORRECTION = "line_manager_correction"
     LINE_MANAGER_NOTIFICATION = "line_manager_notification"
     LINE_MANAGER_REMINDER = "line_manager_reminder"
@@ -434,6 +434,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.LEAVER_THANK_YOU_EMAIL: send_leaver_thank_you_email,
     EmailIds.LEAVER_QUESTIONNAIRE_EMAIL: send_leaver_questionnaire_email,
     EmailIds.LEAVER_NOT_IN_UKSBS_REMINDER: send_leaver_not_in_uksbs_reminder,
+    EmailIds.LINE_MANAGER_MISSING_PERSON_ID: send_line_manager_missing_person_id_email,
     EmailIds.LINE_MANAGER_CORRECTION: send_line_manager_correction_email,
     EmailIds.LINE_MANAGER_NOTIFICATION: send_line_manager_notification_email,
     EmailIds.LINE_MANAGER_REMINDER: send_line_manager_reminder_email,
