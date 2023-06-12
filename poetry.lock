@@ -1790,14 +1790,14 @@ requests = "*"
 
 [[package]]
 name = "govuk-frontend-django"
-version = "0.3.5"
+version = "0.3.6"
 description = "Django functionality to help when building a GOV.UK website."
 category = "main"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "govuk_frontend_django-0.3.5-py3-none-any.whl", hash = "sha256:00d816381e7bace059dfedd79ef3824b44ce6e948f8556d9c3cbbfd63f26388e"},
-    {file = "govuk_frontend_django-0.3.5.tar.gz", hash = "sha256:804efd46c2a6c86d798dbe1d13290e5c00c7f5f4c1f9e77feeba08e065a5c18f"},
+    {file = "govuk_frontend_django-0.3.6-py3-none-any.whl", hash = "sha256:16d331b04749c27ea586f9ffa30d7c5b4e3953d4df149311319e75caa3b0fdc3"},
+    {file = "govuk_frontend_django-0.3.6.tar.gz", hash = "sha256:e698753bcf8f9dce457fbb21b3b9b03891d4cb8895e068710402a230af820c91"},
 ]
 
 [package.dependencies]
@@ -4701,4 +4701,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "0ebc255d3b744087b0343f151d836a7118a16b060cf271368285253669429f7d"
+content-hash = "4b2fbda9862e4756b383124f15a7a71cb7dd661757e4bdc18e7df0c66097f0fe"
