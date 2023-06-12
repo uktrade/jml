@@ -39,17 +39,31 @@ def ingest_people_data():
             if not people_data_hits:
                 continue
 
-            if len(people_data_hits) > 1:
-                # TODO: We need to log this somewhere. A big assumption of the data has
-                # been broken.
-                continue
-
-            people_data = people_data_hits[0]
-
-            sso_user.uksbs_person_id = people_data["uksbs_person_id"] or ""
-            sso_user.employee_numbers = people_data["employee_numbers"] or []
+            sso_user.uksbs_person_id = ""
+            sso_user.employee_numbers = []
 
             chunk_count += 1
+
+            people_data_hits_with_person_id = [
+                hit for hit in people_data_hits if hit["uksbs_person_id"]
+            ]
+
+            if not people_data_hits_with_person_id:
+                continue
+
+            if len(people_data_hits_with_person_id) > 1:
+                logger.exception(
+                    Exception(
+                        "Multiple people data records found (with person IDs) "
+                        f"for {sso_user}"
+                    )
+                )
+                continue
+
+            people_data = people_data_hits_with_person_id[0]
+
+            sso_user.uksbs_person_id = people_data["uksbs_person_id"]
+            sso_user.employee_numbers = people_data["employee_numbers"]
 
         ActivityStreamStaffSSOUser.objects.bulk_update(
             sso_users, ["uksbs_person_id", "employee_numbers"]
