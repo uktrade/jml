@@ -33,33 +33,36 @@
                target="_blank">feedback</a>
             will help us to improve it.
         {% endgds_phase_banner %}
-        {% block primary_navigation %}
-        {% endblock primary_navigation %}
+    </div>
+    {% block primary_navigation %}
+    {% endblock primary_navigation %}
+    <div class="govuk-width-container">
         {% if back_link_url %}
             {% set back_link_text %}
-                {{ back_link_text|default_if_none:'Back' }}{% endset %}
-                {% gds_component "back-link" classes="mb-0" href=back_link_url text=back_link_text %}
-            {% endif %}
-        </div>
-    {% endblock header %}
-    {% block content %}
-        {{ block.super }}
-    {% endblock content %}
-    {% block footer %}
-        {% include "includes/footer/dit.html" %}
-    {% endblock footer %}
-    {% block body_end %}
-        {{ block.super }}
-        <script src='{% static "cytoscape/dist/cytoscape.min.js" %}'></script>
-        <script src='{% static "dagre/dist/dagre.min.js" %}'></script>
-        <script src='{% static "cytoscape-dagre/cytoscape-dagre.js" %}'></script>
-        <script src='{% static "js/conditional-radios.js" %}'></script>
-        <script src='{% static "htmx.org/dist/htmx.min.js" %}'></script>
-        <script>
+                {{ back_link_text|default_if_none:'Back' }}
+            {% endset %}
+            {% gds_component "back-link" classes="mb-0" href=back_link_url text=back_link_text %}
+        {% endif %}
+    </div>
+{% endblock header %}
+{% block content %}
+    {{ block.super }}
+{% endblock content %}
+{% block footer %}
+    {% include "includes/footer/dit.html" %}
+{% endblock footer %}
+{% block body_end %}
+    {{ block.super }}
+    <script src='{% static "cytoscape/dist/cytoscape.min.js" %}'></script>
+    <script src='{% static "dagre/dist/dagre.min.js" %}'></script>
+    <script src='{% static "cytoscape-dagre/cytoscape-dagre.js" %}'></script>
+    <script src='{% static "js/conditional-radios.js" %}'></script>
+    <script src='{% static "htmx.org/dist/htmx.min.js" %}'></script>
+    <script>
             const CSRF_TOKEN = "{{ csrf_token }}";
 
             document.body.addEventListener('htmx:configRequest', function(event) {
                 event.detail.headers['X-CSRFToken'] = CSRF_TOKEN;
             });
-        </script>
-    {% endblock body_end %}
+    </script>
+{% endblock body_end %}
