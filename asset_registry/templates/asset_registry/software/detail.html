@@ -1,15 +1,12 @@
 {% extends "asset_registry_base.html" %}
-
 {% block content %}
     {% include "asset_registry/includes/asset_detail_messages.html" %}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h1 class="govuk-heading-l">{{ object }}</h1>
-            <a href="{% url 'update-software-asset' object.pk %}" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                Make changes
-            </a>
-
+            <a href="{% url 'update-software-asset' object.pk %}"
+               class="govuk-button govuk-button--secondary"
+               data-module="govuk-button">Make changes</a>
             <table class="govuk-table">
                 <tbody class="govuk-table__body">
                     <tr class="govuk-table__row">
@@ -40,11 +37,7 @@
             </table>
         </div>
     </div>
-
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% include "asset_registry/includes/asset_detail_user_table.html" %}
-        </div>
+        <div class="govuk-grid-column-full">{% include "asset_registry/includes/asset_detail_user_table.html" %}</div>
     </div>
-
 {% endblock content %}

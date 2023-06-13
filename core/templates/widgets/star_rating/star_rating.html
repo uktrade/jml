@@ -4,32 +4,33 @@
     Reference:
     https://github.com/uktrade/trade-remedies-public/blob/develop/trade_remedies_public/templates/v2/feedback/collect_feedback.html
 {% endcomment %}
-{% load i18n crispy_forms_field crispy_forms_gds %}
-
+{% load i18n crispy_forms_field crispy_forms_gds govuk_frontend_django %}
 {% if field.is_hidden %}
     {{ field }}
 {% else %}
+    {% set form_group_classes %}
+        govuk-form-group
+        {% if form_show_errors and field.errors %}govuk-form-group--error{% endif %}
+        {% if wrapper_class %}{{ wrapper_class }}{% endif %}
+        {% if field.css_classes %}{{ field.css_classes }}{% endif %}
+    {% endset %}
+    {% set star_rating %}
+        {% if tag %}
+            <{{ tag }} id="div_{{ field.auto_id }}" class="{{ form_group_classes }}">
+            {% include "widgets/star_rating/radios.html" %}
+            </{{ tag }}>
+        {% else %}
+            <div id="div_{{ field.auto_id }}" class="{{ form_group_classes }}">
+                {% include "widgets/star_rating/radios.html" %}
+            </div>
+        {% endif %}
+    {% endset %}
     {% if max_characters or max_words %}
-        <div
-            class="govuk-character-count"
-            data-module="govuk-character-count"
-            {% if max_characters %}
-                data-maxlength="{{ max_characters }}"
-            {% else %}
-                data-maxwords="{{ max_words }}"
-            {% endif %}
-            {% if threshold %}
-                data-threshold="{{ threshold }}"
-            {% endif %}>
+        <div class="govuk-character-count"
+             data-module="govuk-character-count"
+             {% if max_characters %} data-maxlength="{{ max_characters }}" {% else %} data-maxwords="{{ max_words }}" {% endif %}
+             {% if threshold %}data-threshold="{{ threshold }}"{% endif %}>{{ star_rating }}</div>
+    {% else %}
+        {{ star_rating }}
     {% endif %}
-
-    <{% if tag %}{{ tag }}{% else %}div{% endif %}
-    id="div_{{ field.auto_id }}"
-    class="govuk-form-group{% if form_show_errors %}{% if field.errors %} govuk-form-group--error{% endif %}{% endif %}{% if wrapper_class %} {{ wrapper_class }}{% endif %}{% if field.css_classes %} {{ field.css_classes }}{% endif %}"
-    >
-
-    {% include "widgets/star_rating/radios.html" %}
-
-    </{% if tag %}{{ tag }}{% else %}div{% endif %}>
-    {% if max_characters or max_words %}</div>{% endif %}
 {% endif %}

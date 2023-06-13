@@ -18,6 +18,7 @@ from django.views.generic import RedirectView
 from django.views.generic.edit import FormView
 
 from activity_stream.models import ActivityStreamStaffSSOUser
+from core.govuk_components import GovUKLink
 from core.staff_search.views import StaffSearchView
 from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
@@ -897,6 +898,10 @@ class ConfirmDetailsView(ReviewViewMixin, BaseTemplateView, FormView):
         if last_day_datetime:
             last_day = last_day_datetime.date()
 
+        line_reports_view = self.get_view_url(
+            "line-manager-leaver-line-reports",
+        )
+
         context.update(
             page_title="Check and confirm your answers",
             page_count=self.get_page_count(leaving_request=self.leaving_request),
@@ -913,16 +918,31 @@ class ConfirmDetailsView(ReviewViewMixin, BaseTemplateView, FormView):
             flexi_leave=flexi_leave,
             has_flexi_leave=has_flexi_leave,
             flexi_number=self.leaving_request.flexi_number,
-            line_reports=self.leaving_request.line_reports,
+            line_reports_table_headers=[
+                ("name", "Name"),
+                ("new_line_manager", "New line manager"),
+                ("link", ""),
+            ],
+            line_reports=[
+                {
+                    "name": lr["name"],
+                    "new_line_manager": lr["line_manager"]["name"],
+                    "link": GovUKLink(
+                        href=(
+                            line_reports_view + "?" + RETURN_TO_CONFIRMATION_QUERY_PARAM
+                        ),
+                        text="Edit",
+                    ),
+                }
+                for lr in self.leaving_request.line_reports
+            ],
             leaver_confirmation_view_url=self.get_view_url(
                 "line-manager-leaver-confirmation",
             ),
             details_view_url=self.get_view_url(
                 "line-manager-details",
             ),
-            line_reports_view=self.get_view_url(
-                "line-manager-leaver-line-reports",
-            ),
+            line_reports_view=line_reports_view,
             return_to_confirmation_query=RETURN_TO_CONFIRMATION_QUERY_PARAM,
         )
 

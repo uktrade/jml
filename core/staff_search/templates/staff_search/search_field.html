@@ -11,8 +11,7 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
 
 {% endcomment %}
 <div id="{{ search_identifier }}-staff-result"
-    {% if staff_uuid %} hx-get="{% url "staff-result" staff_uuid=staff_uuid %}" hx-trigger="load" {% endif %}>
-</div>
+     {% if staff_uuid %} hx-get="{% url "staff-result" staff_uuid=staff_uuid %}" hx-trigger="load" {% endif %}></div>
 {% if staff_uuid %}
     {% if remove_url %}
         <a href="{{ remove_url }}" class="govuk-button govuk-button--secondary">
@@ -25,16 +24,16 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
     {% endif %}
 {% else %}
     <input id="id_{{ search_identifier }}_search"
-        class="govuk-input"
-        type="search"
-        name="{{ search_identifier }}_search_terms"
-        placeholder="Start typing to search"
-        hx-post="{{ search_url }}"
-        hx-trigger="keyup changed delay:200ms, search"
-        hx-target="#search-results-{{ search_identifier }}"
-        hx-indicator="#htmx-indicator-{{ search_identifier }}"
-        hx-params="{{ search_identifier }}_search_terms"
-        aria-expanded="false"/>
+           class="govuk-input"
+           type="search"
+           name="{{ search_identifier }}_search_terms"
+           placeholder="Start typing to search"
+           hx-post="{{ search_url }}"
+           hx-trigger="keyup changed delay:200ms, search"
+           hx-target="#search-results-{{ search_identifier }}"
+           hx-indicator="#htmx-indicator-{{ search_identifier }}"
+           hx-params="{{ search_identifier }}_search_terms"
+           aria-expanded="false" />
     <span id="htmx-indicator-{{ search_identifier }}" class="htmx-indicator">
         <p class="govuk-body">Searching...</p>
     </span>
@@ -43,13 +42,13 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
         // Prevent the form from submitting when the user presses enter
         input = document.getElementById("id_{{ search_identifier }}_search");
         form = input.closest("form");
-        form.addEventListener("keydown", function (e) {
+        form.addEventListener("keydown", function(e) {
             if (e.target === input && e.key === "Enter") {
                 e.preventDefault();
             }
         });
         // Make search screen reader friendly
-        document.getElementById("search-results-{{ search_identifier }}").addEventListener("htmx:afterSwap", function (e) {
+        document.getElementById("search-results-{{ search_identifier }}").addEventListener("htmx:afterSwap", function(e) {
             result_value = e.target.innerHTML.trim()
             // If result_value is empty or contains "No results found", set aria-expanded to false
             if (result_value === "" || result_value.includes("No results found")) {

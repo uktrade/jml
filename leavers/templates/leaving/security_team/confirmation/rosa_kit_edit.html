@@ -1,6 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
 {% load crispy_forms_tags crispy_forms_gds %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
@@ -8,18 +7,15 @@
             {% error_summary add_note_form %}
         </div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             {% include "leaving/security_team/includes/leaving_request_details.html" %}
-
             <h2 class="govuk-heading-m">{{ rosa_kit_name }}</h2>
             <form novalidate method='post'>
                 <input type="hidden" name="form_name" value="update_status_form" />
                 {% crispy update_status_form %}
             </form>
-
             <h2 class="govuk-heading-m">Notes</h2>
             <form novalidate method='post'>
                 <input type="hidden" name="form_name" value="add_note_form" />

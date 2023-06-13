@@ -38,6 +38,7 @@ class TestIncompleteLeavingRequestListing(
             response,
             "Showing <b>1</b> to <b>19</b> of <b>19</b> outstanding leaving requests",
         )
+
         self.assertNotContains(
             response,
             '<nav class="govuk-pagination" role="navigation" aria-label="results">',

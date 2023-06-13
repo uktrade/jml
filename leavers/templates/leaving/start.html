@@ -1,5 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
-{% load crispy_forms_gds %}
+{% load crispy_forms_gds govuk_frontend_django %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
@@ -17,7 +17,7 @@
             </ul>
             <p class="govuk-body">You must have agreed this with your line manager.</p>
             <p class="govuk-body">This service should take less than 10 minutes to complete</p>
-            {% button_start start_url "Start" %}
+            {% gds_component "button" href=start_url text="Start" isStartButton=True %}
         </div>
     </div>
 {% endblock content %}

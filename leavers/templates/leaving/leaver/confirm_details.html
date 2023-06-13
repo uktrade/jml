@@ -1,5 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
-{% load static crispy_forms_tags crispy_forms_gds %}
+{% load static crispy_forms_tags crispy_forms_gds govuk_frontend_django %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">{% error_summary form %}</div>
@@ -12,188 +12,176 @@
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-m">Employment profile</h2>
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Name
-                    </dt>
-                    <dd class="govuk-summary-list__value">
+            {% set employment_profile_href %}
+                {% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}
+            {% endset %}
+            {% gds_summary_list %}
+                {% gds_summary_list_card %}
+                    {% gds_summary_list_card_title_inline text="Employment profile" %}
+                {% endgds_summary_list_card %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Name" %}
+                    {% gds_summary_list_row_value %}
                         {{ leaver_info.leaver_first_name }} {{ leaver_info.leaver_last_name }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=employment_profile_href %}
                             Change<span class="govuk-visually-hidden">name</span>
-                        </a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Job title
-                    </dt>
-                    <dd class="govuk-summary-list__value">
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Job title" %}
+                    {% gds_summary_list_row_value %}
                         {{ leaver_info.job_title }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=employment_profile_href %}
                             Change<span class="govuk-visually-hidden">job title</span>
-                        </a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Date of birth
-                    </dt>
-                    <dd class="govuk-summary-list__value">
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Date of birth" %}
+                    {% gds_summary_list_row_value %}
                         {{ leaver_info.leaver_date_of_birth }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
-                            Change<span class="govuk-visually-hidden">date of birth</span>
-                        </a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Staff type
-                    </dt>
-                    <dd class="govuk-summary-list__value">
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=employment_profile_href %}
+                            Change <span class="govuk-visually-hidden">date of birth</span>
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Staff type" %}
+                    {% gds_summary_list_row_value %}
                         {{ staff_type.label }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=employment_profile_href %}
                             Change<span class="govuk-visually-hidden">staff type</span>
-                        </a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Security clearance
-                    </dt>
-                    <dd class="govuk-summary-list__value">
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Security clearance" %}
+                    {% gds_summary_list_row_value %}
                         {{ security_clearance.label }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="{% url 'employment-profile' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=employment_profile_href %}
                             Change<span class="govuk-visually-hidden">security clearance</span>
-                        </a>
-                    </dd>
-                </div>
-            </dl>
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+            {% endgds_summary_list %}
         </div>
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-m">Leaving information</h2>
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Leaving date
-                    </dt>
-                    <dd class="govuk-summary-list__value">
+            {% set leaving_information_href %}
+                {% url 'leaver-dates' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}
+            {% endset %}
+            {% gds_summary_list %}
+                {% gds_summary_list_card %}
+                    {% gds_summary_list_card_title_inline text="Leaving information" %}
+                {% endgds_summary_list_card %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Leaving date" %}
+                    {% gds_summary_list_row_value %}
                         {{ leaver_info.leaving_date }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="{% url 'leaver-dates' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=leaving_information_href %}
                             Change<span class="govuk-visually-hidden">leaving date</span>
-                        </a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Last working day
-                    </dt>
-                    <dd class="govuk-summary-list__value">
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Last working day" %}
+                    {% gds_summary_list_row_value %}
                         {{ leaver_info.last_day }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="{% url 'leaver-dates' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=leaving_information_href %}
                             Change<span class="govuk-visually-hidden">last working day</span>
-                        </a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Line manager
-                    </dt>
-                    <dd class="govuk-summary-list__value">
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Line manager" %}
+                    {% gds_summary_list_row_value %}
                         {{ leaving_request.manager_activitystream_user.full_name }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="{% url 'leaver-dates' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=leaving_information_href %}
                             Change<span class="govuk-visually-hidden">line manager</span>
-                        </a>
-                    </dd>
-                </div>
-            </dl>
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+            {% endgds_summary_list %}
         </div>
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-m">Return {{ DEPARTMENT_ACRONYM }} kit</h2>
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Has Goverment Procurement Card?
-                    </dt>
-                    <dd class="govuk-summary-list__value">
+            {% set return_kit_title %}
+                Return {{ DEPARTMENT_ACRONYM }} kit
+            {% endset %}
+            {% set return_kit_href %}
+                {% url 'leaver-has-assets' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}
+            {% endset %}
+            {% gds_summary_list %}
+                {% gds_summary_list_card %}
+                    {% gds_summary_list_card_title_inline text=return_kit_title %}
+                {% endgds_summary_list_card %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Has Goverment Procurement Card?" %}
+                    {% gds_summary_list_row_value %}
                         {{ leaving_request.holds_government_procurement_card|yesno:"Yes,No" }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="{% url 'leaver-has-assets' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=return_kit_href %}
                             Change<span class="govuk-visually-hidden">has goverment procurement card</span>
-                        </a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Has ROSA?
-                    </dt>
-                    <dd class="govuk-summary-list__value">
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Has ROSA?" %}
+                    {% gds_summary_list_row_value %}
                         {{ leaving_request.is_rosa_user|yesno:"Yes,No" }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="{% url 'leaver-has-assets' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=return_kit_href %}
                             Change<span class="govuk-visually-hidden">has ROSA</span>
-                        </a>
-                    </dd>
-                </div>
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Has IT equipment?
-                    </dt>
-                    <dd class="govuk-summary-list__value">
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Has IT equipment?" %}
+                    {% gds_summary_list_row_value %}
                         {{ leaver_info.has_dse|yesno:"Yes,No" }}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="{% url 'leaver-has-assets' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=return_kit_href %}
                             Change<span class="govuk-visually-hidden">has IT equipment</span>
-                        </a>
-                    </dd>
-                </div>
-            </dl>
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+            {% endgds_summary_list %}
         </div>
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-m">Return Cirrus kit</h2>
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">
-                        Cirrus kit
-                    </dt>
-                    <dd class="govuk-summary-list__value">
+            {% set return_cirrus_kit_href %}
+                {% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}
+            {% endset %}
+            {% gds_summary_list %}
+                {% gds_summary_list_card %}
+                    {% gds_summary_list_card_title_inline text="Return Cirrus kit" %}
+                {% endgds_summary_list_card %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Cirrus kit" %}
+                    {% gds_summary_list_row_value %}
                         {% if cirrus_assets %}
                             {% for cirrus_asset in cirrus_assets %}
                                 {{ cirrus_asset.name }}
@@ -202,105 +190,91 @@
                         {% else %}
                             No Cirrus kit listed.
                         {% endif %}
-                    </dd>
-                    <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link"
-                            href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=return_cirrus_kit_href %}
                             Change<span class="govuk-visually-hidden">cirrus kit</span>
-                        </a>
-                    </dd>
-                </div>
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
                 {% if return_option %}
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Return method
-                        </dt>
-                        <dd class="govuk-summary-list__value">
+                    {% gds_summary_list_row %}
+                        {% gds_summary_list_row_key_inline text="Return method" %}
+                        {% gds_summary_list_row_value %}
                             {% if return_option == "home" %}
                                 Home collection
                             {% elif return_option == "office" %}
                                 Return to the office
                             {% endif %}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                                href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                        {% endgds_summary_list_row_value %}
+                        {% gds_summary_list_row_actions %}
+                            {% gds_summary_list_row_actions_item href=return_cirrus_kit_href %}
                                 Change<span class="govuk-visually-hidden">return method</span>
-                            </a>
-                        </dd>
-                    </div>
+                            {% endgds_summary_list_row_actions_item %}
+                        {% endgds_summary_list_row_actions %}
+                    {% endgds_summary_list_row %}
                 {% endif %}
                 {% if return_personal_phone %}
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Return contact phone
-                        </dt>
-                        <dd class="govuk-summary-list__value">
+                    {% gds_summary_list_row %}
+                        {% gds_summary_list_row_key_inline text="Return contact phone" %}
+                        {% gds_summary_list_row_value %}
                             {{ return_personal_phone }}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                                href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                        {% endgds_summary_list_row_value %}
+                        {% gds_summary_list_row_actions %}
+                            {% gds_summary_list_row_actions_item href=return_cirrus_kit_href %}
                                 Change<span class="govuk-visually-hidden">return contact phone</span>
-                            </a>
-                        </dd>
-                    </div>
+                            {% endgds_summary_list_row_actions_item %}
+                        {% endgds_summary_list_row_actions %}
+                    {% endgds_summary_list_row %}
                 {% endif %}
                 {% if return_contact_email %}
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Return contact email
-                        </dt>
-                        <dd class="govuk-summary-list__value">
+                    {% gds_summary_list_row %}
+                        {% gds_summary_list_row_key_inline text="Return contact email" %}
+                        {% gds_summary_list_row_value %}
                             {{ return_contact_email }}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                                href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
+                        {% endgds_summary_list_row_value %}
+                        {% gds_summary_list_row_actions %}
+                            {% gds_summary_list_row_actions_item href=return_cirrus_kit_href %}
                                 Change<span class="govuk-visually-hidden">return contact email</span>
-                            </a>
-                        </dd>
-                    </div>
+                            {% endgds_summary_list_row_actions_item %}
+                        {% endgds_summary_list_row_actions %}
+                    {% endgds_summary_list_row %}
                 {% endif %}
                 {% if return_option == "home" and leaver_info.return_address %}
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Delivery address
-                        </dt>
-                        <dd class="govuk-summary-list__value">
+                    {% gds_summary_list_row %}
+                        {% gds_summary_list_row_key_inline text="Delivery address" %}
+                        {% gds_summary_list_row_value %}
                             <address>
                                 <p>{{ leaver_info.return_address.line_1 }}</p>
                                 {% if leaver_info.return_address.line_2 %}<p>{{ leaver_info.return_address.line_2 }}</p>{% endif %}
                                 <p>{{ leaver_info.return_address.town_or_city }}</p>
                                 <p>{{ leaver_info.return_address.county }}</p>
-                                <p>
-                                    {{ leaver_info.return_address.postcode }}
-                                </p>
+                                <p>{{ leaver_info.return_address.postcode }}</p>
                             </address>
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                                href="{% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
-                                Change<span class="govuk-visually-hidden"> delivery address</span>
-                            </a>
-                        </dd>
-                    </div>
+                        {% endgds_summary_list_row_value %}
+                        {% gds_summary_list_row_actions %}
+                            {% gds_summary_list_row_actions_item href=return_cirrus_kit_href %}
+                                Change<span class="govuk-visually-hidden">delivery address</span>
+                            {% endgds_summary_list_row_actions_item %}
+                        {% endgds_summary_list_row_actions %}
+                    {% endgds_summary_list_row %}
                 {% endif %}
-            </dl>
+            {% endgds_summary_list %}
         </div>
     </div>
     {% if leaver_info.has_dse %}
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
-                <h2 class="govuk-heading-m">
-                    Return kit worth over £150
-                </h2>
-                <dl class="govuk-summary-list">
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            IT equipment (expensed)
-                        </dt>
-                        <dd class="govuk-summary-list__value">
+                {% set return_kit_over_150_href %}
+                    {% url 'leaver-display-screen-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}
+                {% endset %}
+                {% gds_summary_list %}
+                    {% gds_summary_list_card %}
+                        {% gds_summary_list_card_title_inline text="Return kit worth over £150" %}
+                    {% endgds_summary_list_card %}
+                    {% gds_summary_list_row %}
+                        {% gds_summary_list_row_key_inline text="IT equipment (expensed)" %}
+                        {% gds_summary_list_row_value %}
                             {% if dse_assets %}
                                 {% for dse_asset in dse_assets %}
                                     {{ dse_asset.name }}
@@ -309,101 +283,80 @@
                             {% else %}
                                 No IT equipment listed.
                             {% endif %}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                                href="{% url 'leaver-display-screen-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
-                                Change<span class="govuk-visually-hidden"> IT equipment (expensed)</span>
-                            </a>
-                        </dd>
-                    </div>
-                </dl>
+                        {% endgds_summary_list_row_value %}
+                        {% gds_summary_list_row_actions %}
+                            {% gds_summary_list_row_actions_item href=return_kit_over_150_href %}
+                                Change<span class="govuk-visually-hidden">IT equipment (expensed)</span>
+                            {% endgds_summary_list_row_actions_item %}
+                        {% endgds_summary_list_row_actions %}
+                    {% endgds_summary_list_row %}
+                {% endgds_summary_list %}
             </div>
         </div>
     {% endif %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <h2 class="govuk-heading-m">
-                Personal contact details
-            </h2>
-            <dl class="govuk-summary-list">
+            {% set personal_contact_href %}
+                {% url 'leaver-contact-details' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}
+            {% endset %}
+            {% gds_summary_list %}
+                {% gds_summary_list_card %}
+                    {% gds_summary_list_card_title_inline text="Personal contact details" %}
+                {% endgds_summary_list_card %}
                 {% if leaver_info.contact_phone %}
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Phone
-                        </dt>
-                        <dd class="govuk-summary-list__value">
+                    {% gds_summary_list_row %}
+                        {% gds_summary_list_row_key_inline text="Phone" %}
+                        {% gds_summary_list_row_value %}
                             {{ leaver_info.contact_phone }}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                                href="{% url 'leaver-contact-details' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
-                                Change<span class="govuk-visually-hidden"> phone</span>
-                            </a>
-                        </dd>
-                    </div>
+                        {% endgds_summary_list_row_value %}
+                        {% gds_summary_list_row_actions %}
+                            {% gds_summary_list_row_actions_item href=personal_contact_href %}
+                                Change<span class="govuk-visually-hidden">phone</span>
+                            {% endgds_summary_list_row_actions_item %}
+                        {% endgds_summary_list_row_actions %}
+                    {% endgds_summary_list_row %}
                 {% endif %}
                 {% if leaver_info.personal_email %}
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Email
-                        </dt>
-                        <dd class="govuk-summary-list__value">
+                    {% gds_summary_list_row %}
+                        {% gds_summary_list_row_key_inline text="Email" %}
+                        {% gds_summary_list_row_value %}
                             {{ leaver_info.personal_email }}
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                                href="{% url 'leaver-contact-details' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
-                                Change<span class="govuk-visually-hidden"> email</span>
-                            </a>
-                        </dd>
-                    </div>
+                        {% endgds_summary_list_row_value %}
+                        {% gds_summary_list_row_actions %}
+                            {% gds_summary_list_row_actions_item href=personal_contact_href %}
+                                Change<span class="govuk-visually-hidden">email</span>
+                            {% endgds_summary_list_row_actions_item %}
+                        {% endgds_summary_list_row_actions %}
+                    {% endgds_summary_list_row %}
                 {% endif %}
                 {% if leaver_info.contact_address %}
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Address
-                        </dt>
-                        <dd class="govuk-summary-list__value">
+                    {% gds_summary_list_row %}
+                        {% gds_summary_list_row_key_inline text="Address" %}
+                        {% gds_summary_list_row_value %}
                             <address>
-                                <p>
-                                    {{ leaver_info.contact_address.line_1 }}
-                                </p>
-                                <p>
-                                    {{ leaver_info.contact_address.line_2 }}
-                                </p>
-                                <p>
-                                    {{ leaver_info.contact_address.town_or_city }}
-                                </p>
-                                <p>
-                                    {{ leaver_info.contact_address.county }}
-                                </p>
-                                <p>
-                                    {{ leaver_info.contact_address.postcode }}
-                                </p>
+                                <p>{{ leaver_info.contact_address.line_1 }}</p>
+                                <p>{{ leaver_info.contact_address.line_2 }}</p>
+                                <p>{{ leaver_info.contact_address.town_or_city }}</p>
+                                <p>{{ leaver_info.contact_address.county }}</p>
+                                <p>{{ leaver_info.contact_address.postcode }}</p>
                             </address>
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link"
-                                href="{% url 'leaver-contact-details' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}">
-                                Change<span class="govuk-visually-hidden"> address</span>
-                            </a>
-                        </dd>
-                    </div>
+                        {% endgds_summary_list_row_value %}
+                        {% gds_summary_list_row_actions %}
+                            {% gds_summary_list_row_actions_item href=personal_contact_href %}
+                                Change<span class="govuk-visually-hidden">address</span>
+                            {% endgds_summary_list_row_actions_item %}
+                        {% endgds_summary_list_row_actions %}
+                    {% endgds_summary_list_row %}
                 {% endif %}
-            </dl>
+            {% endgds_summary_list %}
         </div>
     </div>
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             {% if user_is_leaver %}
-                <h2 class="govuk-heading-m">
-                    Send us your leaving information
-                </h2>
+                <h2 class="govuk-heading-m">Send us your leaving information</h2>
             {% else %}
-                <h2 class="govuk-heading-m">
-                    Send us the leaving information
-                </h2>
+                <h2 class="govuk-heading-m">Send us the leaving information</h2>
             {% endif %}
             <p class="govuk-body">
                 By sending this information, you are confirming that, to the best of your knowledge, the details you are providing are correct.

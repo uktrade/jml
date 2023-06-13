@@ -1,44 +1,84 @@
 {% extends "leaving/leaving_base.html" %}
-{% load crispy_forms_tags crispy_forms_gds %}
+{% load crispy_forms_tags crispy_forms_gds govuk_frontend_django %}
 {% block content %}
     <div class="govuk-width-container">
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-full">
                 <h1 class="govuk-heading-l">{{ page_title }}</h1>
-                <h2 class="govuk-heading-m">Leaver steps</h2>
-                <dl class="govuk-summary-list">
+                {% gds_summary_list %}
+                    {% gds_summary_list_card %}
+                        {% gds_summary_list_card_title text="Leaver steps" %}
+                    {% endgds_summary_list_card %}
                     {% for step_status in leaver_step_statuses %}
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
+                        {% gds_summary_list_row %}
+                            {% gds_summary_list_row_key %}
                                 {% if step_status.previous_step_complete and not leaving_request.leaver_complete %}
                                     <a class="govuk-link" href="{{ step_status.url }}">{{ step_status.view_name }}</a>
                                 {% else %}
                                     {{ step_status.view_name }}
                                 {% endif %}
-                            </dt>
-                            <dd class="govuk-summary-list__actions">
+                            {% endgds_summary_list_row_key %}
+                            {% gds_summary_list_row_value %}
                                 <strong class="govuk-tag {% if step_status.status != 'complete' %}govuk-tag--grey{% endif %}">{{ step_status.status }}</strong>
-                            </dd>
-                        </div>
+                            {% endgds_summary_list_row_value %}
+                        {% endgds_summary_list_row %}
                     {% endfor %}
-                </dl>
-                <h2 class="govuk-heading-m">Manager steps</h2>
-                <dl class="govuk-summary-list">
+                {% endgds_summary_list %}
+                {% gds_summary_list %}
+                    {% gds_summary_list_card %}
+                        {% gds_summary_list_card_title text="Manager steps" %}
+                    {% endgds_summary_list_card %}
                     {% for step_status in manager_step_statuses %}
-                        <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
+                        {% gds_summary_list_row %}
+                            {% gds_summary_list_row_key %}
                                 {% if step_status.previous_step_complete and not leaving_request.line_manager_complete %}
                                     <a class="govuk-link" href="{{ step_status.url }}">{{ step_status.view_name }}</a>
                                 {% else %}
                                     {{ step_status.view_name }}
                                 {% endif %}
-                            </dt>
-                            <dd class="govuk-summary-list__actions">
+                            {% endgds_summary_list_row_key %}
+                            {% gds_summary_list_row_value %}
                                 <strong class="govuk-tag {% if step_status.status != 'complete' %}govuk-tag--grey{% endif %}">{{ step_status.status }}</strong>
-                            </dd>
-                        </div>
+                            {% endgds_summary_list_row_value %}
+                        {% endgds_summary_list_row %}
                     {% endfor %}
-                </dl>
+                {% endgds_summary_list %}
+                {% if leaving_request.line_manager_complete %}
+                    {% gds_summary_list %}
+                        {% gds_summary_list_card %}
+                            {% gds_summary_list_card_title_inline text="Offboarding tasks" %}
+                        {% endgds_summary_list_card %}
+                        {% for offboarding_task_name, offboarding_task_status in offboarding_task_statuses.items %}
+                            {% gds_summary_list_row %}
+                                {% gds_summary_list_row_key_inline text=offboarding_task_name %}
+                                {% if offboarding_task_status %}
+                                    {% gds_summary_list_row_value_inline text=offboarding_task_status|date:'d/m/Y H:i' %}
+                                {% else %}
+                                    {% gds_summary_list_row_value %}
+                                        {% gds_component "tag" text="Not complete" classes="govuk-tag--grey" %}
+                                    {% endgds_summary_list_row_value %}
+                                {% endif %}
+                            {% endgds_summary_list_row %}
+                        {% endfor %}
+                    {% endgds_summary_list %}
+                    {% gds_summary_list %}
+                        {% gds_summary_list_card %}
+                            {% gds_summary_list_card_title text="Offboarding team notifications" %}
+                        {% endgds_summary_list_card %}
+                        {% for team_name, team_notification_status in team_notifications.items %}
+                            {% gds_summary_list_row %}
+                                {% gds_summary_list_row_key_inline text=team_name %}
+                                {% if team_notification_status %}
+                                    {% gds_summary_list_row_value_inline text=team_notification_status|date:'d/m/Y H:i' %}
+                                {% else %}
+                                    {% gds_summary_list_row_value %}
+                                        {% gds_component "tag" text="Not sent" classes="govuk-tag--grey" %}
+                                    {% endgds_summary_list_row_value %}
+                                {% endif %}
+                            {% endgds_summary_list_row %}
+                        {% endfor %}
+                    {% endgds_summary_list %}
+                {% endif %}
             </div>
         </div>
     </div>

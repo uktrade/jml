@@ -9,10 +9,12 @@ from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponseBase
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic import FormView
+from govuk_frontend_django.components.tag import GovUKTag
 
+from core.govuk_components import GovUKLink
 from core.utils.helpers import DATE_FORMAT_STR, make_possessive
 from core.views import BaseTemplateView
 from leavers.forms.sre import (
@@ -161,6 +163,7 @@ class TaskDetailView(SreTaskViewMixin):
             ]:
                 can_mark_as_complete = False
 
+        services = self.get_services()
         context.update(
             leaving_request_uuid=self.leaving_request.uuid,
             page_title=self.page_title,
@@ -170,7 +173,31 @@ class TaskDetailView(SreTaskViewMixin):
             leaving_date=leaving_date,
             last_day=last_day,
             complete=bool(self.leaving_request.sre_complete),
-            services=self.get_services(),
+            services_table_columns=[
+                ("field_name", "Name"),
+                ("status_text", ""),
+                ("status", "Status"),
+            ],
+            services_table_rows=[
+                {
+                    "field_name": GovUKLink(
+                        text=service["name"],
+                        href=reverse(
+                            "sre-service-and-tools",
+                            kwargs={
+                                "leaving_request_uuid": self.leaving_request.uuid,
+                                "field_name": service["field_name"],
+                            },
+                        ),
+                    ),
+                    "status_text": service["comment"],
+                    "status": GovUKTag(
+                        text=service["status_text"],
+                        classes=f'govuk-tag--{ service["status_colour"] }',
+                    ),
+                }
+                for service in services
+            ],
             can_mark_as_complete=can_mark_as_complete,
         )
 

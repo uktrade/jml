@@ -1,58 +1,45 @@
+{% load govuk_frontend_django %}
 <dl class="govuk-summary-list">
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Leaver name
-        </dt>
+        <dt class="govuk-summary-list__key">Leaver name</dt>
         <dd class="govuk-summary-list__value">
             {{ leaver_name }}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Security clearance
-        </dt>
+        <dt class="govuk-summary-list__key">Security clearance</dt>
         <dd class="govuk-summary-list__value">
             {{ leaver_security_clearance }}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Leaver email
-        </dt>
+        <dt class="govuk-summary-list__key">Leaver email</dt>
         <dd class="govuk-summary-list__value">
             {{ leaver_email }}
         </dd>
     </div>
     {% if show_leaver_dob %}
         <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-                Leaver date of birth
-            </dt>
+            <dt class="govuk-summary-list__key">Leaver date of birth</dt>
             <dd class="govuk-summary-list__value">
                 {{ leaver_date_of_birth }}
             </dd>
         </div>
     {% endif %}
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Leaver's last working day
-        </dt>
+        <dt class="govuk-summary-list__key">Leaver's last working day</dt>
         <dd class="govuk-summary-list__value">
             {{ last_working_day }}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Leaver's leaving date
-        </dt>
+        <dt class="govuk-summary-list__key">Leaver's leaving date</dt>
         <dd class="govuk-summary-list__value">
             {{ leaving_date }}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Line Manager name
-        </dt>
+        <dt class="govuk-summary-list__key">Line Manager name</dt>
         <dd class="govuk-summary-list__value">
             {{ manager_name }}
         </dd>
@@ -76,14 +63,12 @@
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Status
-        </dt>
+        <dt class="govuk-summary-list__key">Status</dt>
         <dd class="govuk-summary-list__value">
             {% if complete %}
-                <strong class="govuk-tag govuk-tag--green">Complete</strong>
+                {% gds_component "tag" classes="govuk-tag--green" text="Complete" %}
             {% else %}
-                <strong class="govuk-tag govuk-tag--grey">Incomplete</strong>
+                {% gds_component "tag" classes="govuk-tag--grey" text="Incomplete" %}
             {% endif %}
         </dd>
     </div>

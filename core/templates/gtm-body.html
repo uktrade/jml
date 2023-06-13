@@ -1,7 +1,11 @@
 {% if COOKIE_RESPONSE == "true" or not IS_PRODUCTION %}
     {% if GTM_CODE and GTM_CODE != "None" %}
         <noscript>
-            <iframe src="https://www.googletagmanager.com/ns.html?id={{ GTM_CODE }}"height="0" width="0" style="display:none;visibility:hidden"></iframe>
+            <iframe src="https://www.googletagmanager.com/ns.html?id={{ GTM_CODE }}"
+                    height="0"
+                    width="0"
+                    style="display:none;
+                           visibility:hidden"></iframe>
         </noscript>
     {% endif %}
 {% endif %}

@@ -1,6 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
 {% load static %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
@@ -9,21 +8,24 @@
             <h2 class="govuk-heading-m">Leaver's Manager</h2>
             {% if manager %}
                 {% include "staff_search/staff_result.html" with staff_details=manager %}
-                <a href="{{ manager_search }}" class="govuk-button govuk-button--secondary" data-module="govuk-button">Change the leaver's manager</a>
+                <a href="{{ manager_search }}"
+                   class="govuk-button govuk-button--secondary"
+                   data-module="govuk-button">Change the leaver's manager</a>
             {% else %}
                 <form novalidate action="{{ manager_search }}" method="post">
                     {% csrf_token %}
                     {% include "includes/govt_uk_form.html" with form=manager_search_form %}
-                    <input type="submit" value="Search" class="govuk-button" data-module="govuk-button"/>
+                    <input type="submit"
+                           value="Search"
+                           class="govuk-button"
+                           data-module="govuk-button" />
                 </form>
             {% endif %}
             <form novalidate method="post">
                 {% csrf_token %}
                 <fieldset class="govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
-                        <h2 class="govuk-fieldset__heading">
-                            Proposed leaving date (if known)
-                        </h2>
+                        <h2 class="govuk-fieldset__heading">Proposed leaving date (if known)</h2>
                     </legend>
                     {% for field in form %}
                         {% if field.name == "last_day" %}
@@ -31,7 +33,10 @@
                         {% endif %}
                     {% endfor %}
                 </fieldset>
-                <input type="submit" value="Submit" class="govuk-button" data-module="govuk-button"/>
+                <input type="submit"
+                       value="Submit"
+                       class="govuk-button"
+                       data-module="govuk-button" />
             </form>
         </div>
     </div>

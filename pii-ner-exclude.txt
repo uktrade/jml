@@ -46,7 +46,10 @@
 "Returns the next work day
 "Returns True
 { GETADDRESS_TOKEN }}'
+{ line_report.consolidated_staff_document.job_title }
 {{
+{{ back_link_text|default_if_none:'Back'
+{{ block.super }
 {{ choice.hint }
 {{ DEPARTMENT_ACRONYM
 {{ DEPARTMENT_NAME
@@ -54,19 +57,31 @@
 {{ field.html_name }
 {{ field.label|safe }
 {{ flexi_number }} Hours
+{{ flow.workflow_name|title }} - {{ flow.flow_name }
 {{ last_day }
+{{ last_working_day }
+{{ leaver_email }
 {{ leaver_info.leaving_date }
+{{ leaver_info.leaving_date.date }
 {{ leaver_info.personal_email }
 {{ leaver_information.return_contact_email }
 {{ leaving_request.get_leaver_name
+{{ line_report.person_data.email_address
 {{ object.submitted_at|date:"d
 {{ pass_destroyed.created_at
 {{ pass_disabled.created_at
 {{ pass_returned.created_at }
+{{ radio.choice_label }
 {{ return_contact_email }
 {{ return_personal_phone }
 {{ security_clearance_status_task_log.user.get_full_name }}
 {{ table_header_item.1 }
+{% gds_summary_list_card_title
+{% gds_summary_list_card_title %
+{% gds_summary_list_card_title text="Leaving
+{% gds_summary_list_card_title text="Return Cirrus kit" %
+{% gds_summary_list_card_title text="Return kit worth
+{% gds_summary_list_row %
 {leaving_reason}
 @media
 *Actions required:*\n
@@ -80,6 +95,7 @@
 # People Finder
 # Staff
 # Technical
+% gds_summary_list_row_key
 ^1.1.0
 ^1.1.0
 ^1.3.1
@@ -159,6 +175,7 @@ Apple M1
 Args
 aria-current="page
 aria-current="page"{%
+aria-describedby=
 aria-describedby="id
 aria-expanded="false"/
 aria-hidden="true
@@ -167,6 +184,7 @@ aria-label="Navigation menu
 aria-label="Page
 aria-label="Show
 aria-labelledby="govuk
+aria-labelledby="govuk-notification
 aria-sort="{%
 Assert
 AssertionError
@@ -195,6 +213,7 @@ Build Staff Document
 Building Pass
 Building pass '
 Building Pass Access Revoked
+Building Pass" %}
 building_pass_access_task_log
 Builds a StaffDocument
 Business Continuity
@@ -224,6 +243,7 @@ CLU4
 CLU4 Leaver Notification Email
 CLU4_EMAIL
 CLU4_EMAIL                                               |                                             
+Cluster 4
 COLOUR_GREEN=\033[32;01
 COLOUR_NONE=\033[0m
 COLOUR_YELLOW=\033[33;01
@@ -243,6 +263,7 @@ ConsolidatedStaffDocuments
 ConsolidatedStaffDocuments
 contact_address_line_1
 contact_address_postcode
+contact_url
 Context/Notes
 contractors</p
 Convert
@@ -268,12 +289,14 @@ Crispy
 Crispy Forms
 crispy_forms_gds
 crispy_forms_tags crispy_forms_gds %
+crispy_forms_tags crispy_forms_gds govuk_frontend_django %
 Croker
 Crown
 CRSF
 CSET
 CssFinder
 CTC
+custom_blocks="gds_footer
 cytoscape && cp -r
 cytoscape && npm
 cytoscape-dagre && npm
@@ -285,11 +308,13 @@ Dashboard</a>
 Data
 data_recipient_activitystream_user
 DatabaseScheduler
+dataLayer
 date_of_birth
 date_of_birth_0"
 date_of_birth_0": 19
 date_of_birth_1
 date_of_birth_2
+Date().getTime
 date</span
 day_after_lwd
 day</span></a
@@ -411,6 +436,7 @@ F401
 F405
 False                                       
 Faulty"
+Feetham
 Feetham Security Pass Office
 Feetham Security Pass Office Leaver Notification Email
 Feetham Security Pass Office Settings
@@ -434,6 +460,14 @@ found</p
 from:</p>
 function(event
 Functionality
+gds_error_summary_error_list_item
+gds_footer
+gds_footer_meta
+gds_footer_nav
+gds_summary_list_card_title
+gds_summary_list_card_title_inline
+gds_summary_list_row_key
+gds_tabs_tab
 Generic Staff Search View
 GET
 Get the Data Recipient StaffDocument
@@ -450,12 +484,16 @@ Google
 Google Analytics
 Google Drive
 Google Drive or Sharepoint
+Goverment Procurement Card
 GOVUK PAAS
+govuk_frontend_django
+govuk_frontend_django/base.html" %
 GOVUK_NOTIFY_API_KEY
 govuk_paas_access_removed
 govuk_paas_access_task_log
 govuk_radio_conditional_wrapper_form_group.childElementCount
 govuk-!-font-size-19
+govuk-!-font-size-24
 govuk-!-text
 GPC
 GPC Return Address
@@ -473,6 +511,7 @@ have</li>{%
 HAWK
 HAWK_INCOMING_ACCESS_KEY
 HAWK_INCOMING_SECRET_KEY
+Health and Safety
 Health and Safety or Floor Liaison
 Health and Safety or Floor Liaison Officer
 Health and Safety Team Settings
@@ -480,6 +519,7 @@ health_and_safety_email
 HEALTH_AND_SAFETY_EMAIL
 height="13
 height="17
+height="30
 height="30" width="36">
 HELP_DESK_CREDS
 HELP_DESK_CREDS=
@@ -499,6 +539,7 @@ HR_UKSBS_CORRECTION_EMAIL
 href="?page=
 href="{%
 href="https://www.nationalarchives.gov.uk
+href="https://www.nationalarchives.gov.uk/information-management
 HS
 HSTS
 HTMX
@@ -533,6 +574,7 @@ interactions</h4
 International Trade
 IS_PRODUCTION
 is_superuser
+isStartButton=True %
 Jane
 JAWS
 Jira
@@ -557,6 +599,7 @@ JSON
 keyboard</li
 Kit
 Kit requests</a
+Kit status</h2
 kit_info
 kit)</li
 kit</span>
@@ -613,6 +656,7 @@ Line Managers.</p
 Line Report</a
 LINE_MANAGER_REMINDER_EMAIL
 line_report.consolidated_staff_document.job_title
+line_reports_table_headers
 Link
 List[Union[Field
 Loan Pool'
@@ -623,6 +667,7 @@ Lost/Stolen'
 LSD_HELP_DESK_LIVE
 manage.py migrate &&
 manager_activitystream_user
+manager_emails|length
 manager_id
 Manager</h2
 manager</label
@@ -701,6 +746,7 @@ ParsedUKSBSPDF"
 Pass notes</h2
 PASSWORD
 Payroll
+Payroll Request
 Pending
 Pending" %
 People Data
@@ -758,6 +804,7 @@ request</h2
 requests</a
 Resignation
 Response
+response.json
 Return Cirrus
 return_address_line_2
 return_contact_email
@@ -788,6 +835,7 @@ SC
 SEARCH_STAFF_INDEX_NAME                                          |
 Security
 SECURITY
+Security Building Pass
 Security Check (
 Security Clearance
 Security Team
@@ -797,6 +845,7 @@ security_pass_disabled_task_log
 security_team_building_pass_complete
 security_team_building_pass_returned
 security_team_rosa_kit_complete
+security_team_rosa_kit_complete|date:'d
 security_team_rosa_laptop_status
 SECURITY_TEAM_VETTING_EMAIL
 SECURITY_TEAM_VETTING_EMAIL                                      
@@ -828,6 +877,7 @@ SERVICE_NOW_POST_LEAVER_REQUEST
 service_now_user
 ServiceNow
 ServiceNow Leaver
+services_table_columns
 Session
 session.</p
 sessionid
@@ -1032,6 +1082,8 @@ visit</li>
 VoiceOver
 VoiceOver)</li>
 vpn_access_task_log
+w.push
+w[l].push
 website:</p
 WHERE sso_user_id = %
 WhiteNoiseMiddleware

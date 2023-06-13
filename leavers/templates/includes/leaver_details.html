@@ -3,12 +3,12 @@
     <div class="govuk-grid-column-one-third">
         {% if leaver_details.photo %}
             <img class="jml--staff-image"
-                src="{{ leaver_details.photo }}"
-                alt="Picture of {{ leaver_details.first_name }} {{ leaver_details.last_name }}"/>
+                 src="{{ leaver_details.photo }}"
+                 alt="Picture of {{ leaver_details.first_name }} {{ leaver_details.last_name }}" />
         {% else %}
             <img class="jml--staff-image"
-                src="{% static 'govuk-frontend/govuk/assets/images/govuk-crest-2x.png' %}"
-                alt="Placeholder picture"/>
+                 src="{% static 'govuk-frontend/govuk/assets/images/govuk-crest-2x.png' %}"
+                 alt="Placeholder picture" />
         {% endif %}
     </div>
     <div class="govuk-grid-column-two-thirds">
@@ -20,25 +20,19 @@
 </div>
 <dl class="govuk-summary-list">
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Contact email
-        </dt>
+        <dt class="govuk-summary-list__key">Contact email</dt>
         <dd class="govuk-summary-list__value">
             {% firstof leaver_details.contact_email_address "Not provided" %}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Contact phone
-        </dt>
+        <dt class="govuk-summary-list__key">Contact phone</dt>
         <dd class="govuk-summary-list__value">
             {% firstof leaver_info.contact_phone "Not provided" %}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Contact address
-        </dt>
+        <dt class="govuk-summary-list__key">Contact address</dt>
         <dd class="govuk-summary-list__value">
             <address>
                 <p>{{ leaver_info.contact_address.line_1 }}</p>
@@ -50,49 +44,37 @@
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Security clearance
-        </dt>
+        <dt class="govuk-summary-list__key">Security clearance</dt>
         <dd class="govuk-summary-list__value">
             {% firstof leaver_info.leaving_request.get_security_clearance_display "Not provided" %}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Has Government Procurement Card
-        </dt>
+        <dt class="govuk-summary-list__key">Has Government Procurement Card</dt>
         <dd class="govuk-summary-list__value">
             {{ leaver_info.leaving_request.holds_government_procurement_card|yesno:"Yes,No" }}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Is a ROSA user
-        </dt>
+        <dt class="govuk-summary-list__key">Is a ROSA user</dt>
         <dd class="govuk-summary-list__value">
             {{ leaver_info.leaving_request.is_rosa_user|yesno:"Yes,No" }}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Has Display screen equipment
-        </dt>
+        <dt class="govuk-summary-list__key">Has Display screen equipment</dt>
         <dd class="govuk-summary-list__value">
             {{ leaver_info.has_dse|yesno:"Yes,No" }}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Leaving date
-        </dt>
+        <dt class="govuk-summary-list__key">Leaving date</dt>
         <dd class="govuk-summary-list__value">
             {{ leaver_info.leaving_date.date }}
         </dd>
     </div>
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Last working day
-        </dt>
+        <dt class="govuk-summary-list__key">Last working day</dt>
         <dd class="govuk-summary-list__value">
             {{ leaver_info.last_day.date }}
         </dd>

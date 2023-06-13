@@ -5,8 +5,8 @@
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             <h2 class="govuk-heading-m">Leaving Requests ({{ num_of_leaving_requests }})</h2>
             <a href="{% url 'admin-leaving-request-listing' %}"
-                class="govuk-button govuk-button--secondary"
-                data-module="govuk-button">View all</a>
+               class="govuk-button govuk-button--secondary"
+               data-module="govuk-button">View all</a>
             <h2 class="govuk-heading-m">Emails with multiple Person IDs ({{ emails_with_person_ids|length }})</h2>
             {% if emails_with_person_ids %}
                 <p class="govuk-body">

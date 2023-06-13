@@ -1,5 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
-{% load crispy_forms_tags crispy_forms_gds %}
+{% load crispy_forms_tags crispy_forms_gds govuk_frontend_django %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">{% error_summary form %}</div>
@@ -41,9 +41,9 @@
                         <th scope="row" class="govuk-table__header">Status</th>
                         <td class="govuk-table__cell">
                             {% if complete %}
-                                <strong class="govuk-tag govuk-tag--green">Complete</strong>
+                                {% gds_component "tag" classes="govuk-tag--green" text="Complete" %}
                             {% else %}
-                                <strong class="govuk-tag govuk-tag--grey">To do</strong>
+                                {% gds_component "tag" classes="govuk-tag--grey" text="To do" %}
                             {% endif %}
                         </td>
                     </tr>
@@ -60,11 +60,14 @@
                         <tr class="govuk-table__row">
                             <td class="govuk-table__cell">
                                 <a class="govuk-link"
-                                    href="{% url 'sre-service-and-tools-read-only' leaving_request_uuid=leaving_request.uuid field_name=service.field_name %}">{{ service.name }}</a>
+                                   href="{% url 'sre-service-and-tools-read-only' leaving_request_uuid=leaving_request.uuid field_name=service.field_name %}">{{ service.name }}</a>
                             </td>
                             <td class="govuk-table__cell">{{ service.comment }}</td>
                             <td class="govuk-table__cell govuk-!-text-align-right">
-                                <strong class="govuk-tag govuk-tag--{{ service.status_colour }}">{{ service.status_text }}</strong>
+                                {% set tag_classes %}
+                                    govuk-tag--{{ service.status_colour }}
+                                {% endset %}
+                                {% gds_component "tag" classes=tag_classes text=service.status_text %}
                             </td>
                         </tr>
                     {% endfor %}
@@ -74,10 +77,8 @@
     </div>
     <div class="govuk-button-group">
         <a href="{% url 'sre-detail' leaving_request_uuid=leaving_request.uuid %}"
-            class="govuk-button"
-            data-module="govuk-button">
-            Edit record
-        </a>
+           class="govuk-button"
+           data-module="govuk-button">Edit record</a>
         <a class="govuk-link" href="{% url 'sre-listing-complete' %}">Return to SRE access removal Dashboard</a>
     </div>
 {% endblock content %}

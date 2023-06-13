@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "notifications_python_client",
     "authbroker_client",
     "rest_framework",
+    "govuk_frontend_django",
     "asset_registry",
     "leavers",
     "user",

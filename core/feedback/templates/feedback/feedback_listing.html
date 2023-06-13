@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load core %}
+{% load core govuk_frontend_django %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
@@ -24,7 +24,14 @@
                     {% endfor %}
                 </tbody>
             </table>
-            {% gds_pagination page_obj=page_obj page_obj_name="submissions" %}
+            {% if page_obj.paginator.count != 0 %}
+                <p class="govuk-body govuk-!-font-size-19">
+                    Showing <b>{{ page_obj.start_index }}</b> to <b>{{ page_obj.end_index }}</b> of <b>{{ page_obj.paginator.count }}</b> submissions
+                </p>
+            {% endif %}
+            {% if page_obj.paginator.num_pages > 1 %}
+                {% gds_pagination page_obj %}
+            {% endif %}
         </div>
     </div>
 {% endblock content %}

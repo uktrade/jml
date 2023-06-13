@@ -1,7 +1,5 @@
 {% extends "flow/flow_base.html" %}
-
 {% block content %}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
@@ -11,50 +9,47 @@
             {% for flow in object_list %}
                 <dl class="govuk-summary-list">
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Workflow
-                        </dt>
+                        <dt class="govuk-summary-list__key">Workflow</dt>
                         <dd class="govuk-summary-list__value">
                             {{ flow.workflow_name|title }} - {{ flow.flow_name }}
                         </dd>
                     </div>
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Current state
-                        </dt>
+                        <dt class="govuk-summary-list__key">Current state</dt>
                         <dd class="govuk-summary-list__value">
                             {{ flow.nice_name }}
                         </dd>
                     </div>
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Started by
-                        </dt>
+                        <dt class="govuk-summary-list__key">Started by</dt>
                         <dd class="govuk-summary-list__value">
                             {{ flow.executed_by }}
                         </dd>
                     </div>
                     {% if flow.started %}
                         <div class="govuk-summary-list__row">
-                            <dt class="govuk-summary-list__key">
-                                Started at
-                            </dt>
+                            <dt class="govuk-summary-list__key">Started at</dt>
                             <dd class="govuk-summary-list__value">
                                 {{ flow.started|default_if_none:"" }}
                             </dd>
                         </div>
                     {% endif %}
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key">
-                            Actions
-                        </dt>
+                        <dt class="govuk-summary-list__key">Actions</dt>
                         <dd class="govuk-summary-list__value">
                             {% if flow.leaving_request %}
-                                <p><a class="govuk-link" href="{% url 'admin-leaving-request-detail' flow.leaving_request.uuid %}">View leaving request</a></p>
+                                <p>
+                                    <a class="govuk-link"
+                                       href="{% url 'admin-leaving-request-detail' flow.leaving_request.uuid %}">View leaving request</a>
+                                </p>
                             {% endif %}
-                            <p><a class="govuk-link" href="{% url 'flow' flow.pk %}">View flow</a></p>
+                            <p>
+                                <a class="govuk-link" href="{% url 'flow' flow.pk %}">View flow</a>
+                            </p>
                             {% if flow.on_manual_step or not flow.is_complete %}
-                                <p><a class="govuk-link" href="{% url "flow-continue" flow.pk %}">Progress leaving</a></p>
+                                <p>
+                                    <a class="govuk-link" href="{% url "flow-continue" flow.pk %}">Progress leaving</a>
+                                </p>
                             {% endif %}
                         </dd>
                     </div>
@@ -64,5 +59,4 @@
             {% endfor %}
         </div>
     </div>
-
 {% endblock content %}

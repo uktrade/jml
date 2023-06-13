@@ -1,15 +1,10 @@
 {% extends "leaving/leaving_base.html" %}
 {% load static crispy_forms_tags crispy_forms_gds %}
-
 {% block content %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% error_summary form %}
-        </div>
+        <div class="govuk-grid-column-full">{% error_summary form %}</div>
     </div>
-
     {% include "leaving/leaver/cirrus/includes/header.html" %}
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <form novalidate method='post'>
@@ -17,5 +12,4 @@
             </form>
         </div>
     </div>
-
 {% endblock content %}

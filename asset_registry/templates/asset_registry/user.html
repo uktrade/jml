@@ -1,12 +1,10 @@
 {% extends "asset_registry_base.html" %}
-
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h1 class="govuk-heading-l">{{ object }}</h1>
         </div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <table class="govuk-table">
@@ -15,7 +13,9 @@
                     <tbody class="govuk-table__body">
                         {% for asset in assets %}
                             <tr class="govuk-table__row">
-                                <th scope="row" class="govuk-table__header"><a href="{% url 'view-asset' asset.pk %}" class="govuk-link">{{ asset }}</a></th>
+                                <th scope="row" class="govuk-table__header">
+                                    <a href="{% url 'view-asset' asset.pk %}" class="govuk-link">{{ asset }}</a>
+                                </th>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -23,5 +23,4 @@
             </table>
         </div>
     </div>
-
 {% endblock content %}

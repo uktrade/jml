@@ -31,7 +31,7 @@
                             </dd>
                             <dd class="govuk-summary-list__actions">
                                 <a class="govuk-link"
-                                    href="{% url 'leaver-cirrus-equipment-delete' leaving_request.uuid asset.uuid %}">Remove</a>
+                                   href="{% url 'leaver-cirrus-equipment-delete' leaving_request.uuid asset.uuid %}">Remove</a>
                             </dd>
                         </div>
                     {% endfor %}
@@ -54,14 +54,13 @@
                     <script>
                         getAddress.autocomplete(
                             'home_address_line_1',
-                            '{{ GETADDRESS_TOKEN }}',
-                            {
-                                output_fields:{
-                                    line_1:'home_address_line_1',
-                                    line_2:'home_address_line_2',
-                                    town_or_city:'home_address_city',
-                                    county:'home_address_county',
-                                    postcode:'home_address_postcode',
+                            '{{ GETADDRESS_TOKEN }}', {
+                                output_fields: {
+                                    line_1: 'home_address_line_1',
+                                    line_2: 'home_address_line_2',
+                                    town_or_city: 'home_address_city',
+                                    county: 'home_address_county',
+                                    postcode: 'home_address_postcode',
                                 },
                             }
                         );

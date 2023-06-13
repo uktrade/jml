@@ -318,7 +318,7 @@ class LeavingRequestListing(
         paginator = Paginator(lr_results_data, 30)
         page_number: int = int(self.request.GET.get("page", 1))
         page = paginator.page(page_number)
-        context.update(page=page, paginator=paginator)
+        context.update(page_obj=page, paginator=paginator)
 
         return context
 

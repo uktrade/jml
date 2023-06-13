@@ -1,10 +1,11 @@
 import uuid
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models.query import QuerySet
+from django_workflow_engine.models import Flow, TaskStatus
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.types import Address
@@ -579,6 +580,66 @@ class LeavingRequest(models.Model):
             )
 
         return security_rosa_kit_notes
+
+    def get_payroll_request_sent(self) -> Optional[datetime]:
+        flow: Optional[Flow] = self.flow
+        if not flow:
+            return None
+        send_uksbs_task: Optional[TaskStatus] = flow.tasks.filter(
+            step_id="send_uksbs_leaver_details", done=True
+        ).first()
+        if not send_uksbs_task:
+            return None
+        return send_uksbs_task.executed_at
+
+    def get_service_now_complete(self) -> Optional[datetime]:
+        if self.service_now_offline:
+            return self.line_manager_service_now_complete
+
+        flow: Optional[Flow] = self.flow
+        if not flow:
+            return None
+
+        send_service_now_task: Optional[TaskStatus] = flow.tasks.filter(
+            step_id="send_service_now_leaver_details", done=True
+        ).first()
+
+        if not send_service_now_task:
+            return None
+
+        return send_service_now_task.executed_at
+
+    def get_teams_notified(self) -> Dict[str, Optional[datetime]]:
+        TEAM_NAME_TASK_MAPPING = {
+            "Feetham office": "send_feetham_leaver_details",
+            "IT Ops": "send_it_ops_leaver_details",
+            "LSD Team": "send_lsd_team_leaver_details",
+            "Cluster 4": "notify_clu4_of_leaving",
+            "OCS": "notify_ocs_of_leaving",
+            "OCS OAB Locker": "notify_ocs_of_oab_locker",
+            # TODO: SkipCondition.IS_NOT_HSFL_LEAVER.value on H&S
+            "Health and Safety": "notify_health_and_safety",
+            "COMAEA Team": "notify_comaea_team",
+            "Business Continuity Team": "notify_business_continuity_team",
+        }
+
+        team_notifications: Dict[str, Optional[datetime]] = {
+            team_name: None for team_name in TEAM_NAME_TASK_MAPPING.keys()
+        }
+
+        flow: Optional[Flow] = self.flow
+        if not flow:
+            return team_notifications
+
+        for team_name, task_name in TEAM_NAME_TASK_MAPPING.items():
+            send_team_notification_task: Optional[TaskStatus] = flow.tasks.filter(
+                step_id=task_name, done=True
+            ).first()
+            if not send_team_notification_task:
+                continue
+            team_notifications[team_name] = send_team_notification_task.executed_at
+
+        return team_notifications
 
 
 class SlackMessage(models.Model):

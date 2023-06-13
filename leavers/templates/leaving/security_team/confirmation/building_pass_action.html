@@ -1,25 +1,18 @@
 {% extends "leaving/leaving_base.html" %}
 {% load crispy_forms_tags crispy_forms_gds core %}
-
 {% block content %}
     <div class="govuk-grid-row">
-        <div class="govuk-grid-column-full">
-            {% error_summary form %}
-        </div>
+        <div class="govuk-grid-column-full">{% error_summary form %}</div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
             <p class="govuk-body">
                 You are about to mark {{ leaving_request.get_leaver_name|possessive }} Building pass record as complete.
             </p>
-            <p class="govuk-body">
-                This action cannot be undone.
-            </p>
+            <p class="govuk-body">This action cannot be undone.</p>
         </div>
     </div>
-
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <form novalidate method='post'>

@@ -1,5 +1,5 @@
 {% extends "leaving/leaving_base.html" %}
-{% load crispy_forms_tags crispy_forms_gds %}
+{% load crispy_forms_tags crispy_forms_gds govuk_frontend_django %}
 {% block content %}
     {% if not read_only %}
         <div class="govuk-grid-row">
@@ -46,9 +46,9 @@
                         <th scope="row" class="govuk-table__header">Status</th>
                         <td class="govuk-table__cell">
                             {% if complete %}
-                                <strong class="govuk-tag govuk-tag--green">Complete</strong>
+                                {% gds_component "tag" classes="govuk-tag--green" text="Complete" %}
                             {% else %}
-                                <strong class="govuk-tag govuk-tag--grey">To do</strong>
+                                {% gds_component "tag" classes="govuk-tag--grey" text="To do" %}
                             {% endif %}
                         </td>
                     </tr>

@@ -13,8 +13,9 @@
                 The information provided on this page will ensure that {{ leaver_name }} is paid correctly
                 and on time. Please visit the
                 <a class="govuk-link"
-                    href="https://workspace.trade.gov.uk/working-at-dit/policies-and-guidance/policies/payment-of-salary/">payment
-                    of salary policy</a> for more information.
+                   href="https://workspace.trade.gov.uk/working-at-dit/policies-and-guidance/policies/payment-of-salary/">
+                payment of salary policy</a>
+                for more information.
             </p>
             <form id="hr_payroll_form" method="post">
                 {% crispy form %}
@@ -44,7 +45,7 @@
                 annualNumberFieldset.style.display = "none";
                 hrPayrollForm.elements["annual_number"].value = "";
                 annualLeaveMeasurementFieldset.style.display = "none";
-                Array.from(hrPayrollForm.elements["annual_leave_measurement"]).forEach(function (element) {
+                Array.from(hrPayrollForm.elements["annual_leave_measurement"]).forEach(function(element) {
                     element.checked = false;
                 });
             }

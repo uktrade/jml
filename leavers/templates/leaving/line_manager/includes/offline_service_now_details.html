@@ -4,50 +4,38 @@
 </p>
 <dl class="govuk-summary-list">
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Leaver name
-        </dt>
+        <dt class="govuk-summary-list__key">Leaver name</dt>
         <dd class="govuk-summary-list__value">
             {{ leaving_request.get_leaver_name }}
         </dd>
     </div>
     {% comment %} We currently don't have the Staff ID {% endcomment %}
     {% comment %} <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Staff ID
-        </dt>
+        <dt class="govuk-summary-list__key">Staff ID</dt>
         <dd class="govuk-summary-list__value">
         </dd>
     </div> {% endcomment %}
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Leaving date
-        </dt>
+        <dt class="govuk-summary-list__key">Leaving date</dt>
         <dd class="govuk-summary-list__value">
             {{ leaving_request.get_leaving_date.date }}
         </dd>
     </div>
     {% comment %} We currently don't have the Location {% endcomment %}
     {% comment %} <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Location
-        </dt>
+        <dt class="govuk-summary-list__key">Location</dt>
         <dd class="govuk-summary-list__value">
         </dd>
     </div> {% endcomment %}
     <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Department
-        </dt>
+        <dt class="govuk-summary-list__key">Department</dt>
         <dd class="govuk-summary-list__value">
             {{ DEPARTMENT_NAME }}
         </dd>
     </div>
     {% comment %} We currently don't have the Directorate {% endcomment %}
     {% comment %} <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">
-            Directorate
-        </dt>
+        <dt class="govuk-summary-list__key">Directorate</dt>
         <dd class="govuk-summary-list__value">
         </dd>
     </div> {% endcomment %}
@@ -57,9 +45,7 @@
     <dl class="govuk-summary-list">
         {% if leaver_information.return_address and leaver_information.return_address.postcode %}
             <div class="govuk-summary-list__row">
-                <dt class="govuk-summary-list__key">
-                    Address
-                </dt>
+                <dt class="govuk-summary-list__key">Address</dt>
                 <dd class="govuk-summary-list__value">
                     <address>
                         <p>{{ leaver_information.return_address.line_1 }}</p>
@@ -72,17 +58,13 @@
             </div>
         {% endif %}
         <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-                Telephone
-            </dt>
+            <dt class="govuk-summary-list__key">Telephone</dt>
             <dd class="govuk-summary-list__value">
                 {{ leaver_information.return_personal_phone }}
             </dd>
         </div>
         <div class="govuk-summary-list__row">
-            <dt class="govuk-summary-list__key">
-                Email
-            </dt>
+            <dt class="govuk-summary-list__key">Email</dt>
             <dd class="govuk-summary-list__value">
                 {{ leaver_information.return_contact_email }}
             </dd>
