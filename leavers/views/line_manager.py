@@ -902,6 +902,22 @@ class ConfirmDetailsView(ReviewViewMixin, BaseTemplateView, FormView):
             "line-manager-leaver-line-reports",
         )
 
+        line_reports = []
+        if self.leaving_request.show_line_reports:
+            line_reports = [
+                {
+                    "name": lr["name"],
+                    "new_line_manager": lr["line_manager"]["name"],
+                    "link": GovUKLink(
+                        href=(
+                            line_reports_view + "?" + RETURN_TO_CONFIRMATION_QUERY_PARAM
+                        ),
+                        text="Edit",
+                    ),
+                }
+                for lr in self.leaving_request.line_reports
+            ]
+
         context.update(
             page_title="Check and confirm your answers",
             page_count=self.get_page_count(leaving_request=self.leaving_request),
@@ -923,19 +939,7 @@ class ConfirmDetailsView(ReviewViewMixin, BaseTemplateView, FormView):
                 ("new_line_manager", "New line manager"),
                 ("link", ""),
             ],
-            line_reports=[
-                {
-                    "name": lr["name"],
-                    "new_line_manager": lr["line_manager"]["name"],
-                    "link": GovUKLink(
-                        href=(
-                            line_reports_view + "?" + RETURN_TO_CONFIRMATION_QUERY_PARAM
-                        ),
-                        text="Edit",
-                    ),
-                }
-                for lr in self.leaving_request.line_reports
-            ],
+            line_reports=line_reports,
             leaver_confirmation_view_url=self.get_view_url(
                 "line-manager-leaver-confirmation",
             ),
