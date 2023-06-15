@@ -123,6 +123,7 @@
 | UKSBS_INTERFACE                                                  
 0.0.0.0:8000
 0.1.0
+0.3.7
 0003_add_user_user_id
 0003_add_user_user_id
 0007_activitystreamstaffssouser_is_active
