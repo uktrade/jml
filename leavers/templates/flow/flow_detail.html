@@ -37,7 +37,8 @@
     {% endif %}
     <div id="cy" class="jml-workflow-diagram"></div>
 {% endblock content %}
-{% block scripts %}
+{% block body_end %}
+    {{ block.super }}
     <script>
         fetch("{% url 'flow-diagram' object.pk %}")
             .then((response) => response.json())
@@ -113,4 +114,4 @@
                 });
             });
     </script>
-{% endblock scripts %}
+{% endblock body_end %}

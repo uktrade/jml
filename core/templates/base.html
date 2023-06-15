@@ -9,7 +9,6 @@
     <meta name="keywords" content="" />
     <meta name="description" content="" />
     <meta name="robots" content="noindex" />
-    {{ block.super }}
     <link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css" />
     <!--[if lt IE 9]>
         <script src="/html5-shiv/html5shiv.js"></script>
@@ -19,7 +18,7 @@
 {% endblock head %}
 {% block body_start %}
     {% include "gtm-body.html" %}
-    <script src='{% static "getaddress-autocomplete/dist/getaddress-autocomplete-1.1.7.min.js" %}'></script>
+    <script src='{% static "getaddress-autocomplete/dist/getaddress-autocomplete-1.1.4.min.js" %}'></script>
 {% endblock body_start %}
 {% block header %}
     {% include "cookies/banner.html" %}
