@@ -35,7 +35,7 @@
             <a class="govuk-link" href="{% url 'flow-continue' object.pk %}">Continue</a>
         </p>
     {% endif %}
-    <div id="cy" class="jml-workflow-diagram"></div>
+    <div id="cy" style="height: 500px;"></div>
 {% endblock content %}
 {% block body_end %}
     {{ block.super }}
@@ -46,7 +46,9 @@
                 const cy = cytoscape({
                     container: document.getElementById("cy"),
                     elements: json.elements,
-                    userZoomingEnabled: false,
+                    userZoomingEnabled: true,
+                    autoungrabify: true,
+                    autounselectify: true,
                     style: [{
                         selector: "node",
                         style: {
@@ -105,9 +107,8 @@
                     layout: {
                         name: 'dagre',
                         directed: true,
-                        roots: ["create_requirement"],
                         fit: true,
-                        spacingFactor: 1.4,
+                        spacingFactor: 1.6,
                         padding: 0,
                         nodeDimensionsIncludeLabels: true,
                     },
