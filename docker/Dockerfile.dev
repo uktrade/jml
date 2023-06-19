@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM gcr.io/sre-docker-registry/pynode:3.10
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
