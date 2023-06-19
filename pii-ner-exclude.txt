@@ -1,5 +1,6 @@
 -O codecov.sh https://codecov.io/bash
 -Xmx512m
+./.github
 .00
 .env.ci
 .env.example
@@ -229,6 +230,7 @@ Charlie
 Charlie"
 Charlotte Blackwood
 checkbox
+CI
 Cirrus
 Cirrus Equipment
 Cirrus kit
@@ -409,6 +411,7 @@ endif]--
 ends.</td
 Enhanced Developed Vetting
 Enhanced Security Check
+ENV
 equiv="X-UA-Compatible
 event.detail.headers['X-CSRFToken'
 event.target.checked && gov_radio_conditional_wrapper.id
@@ -446,6 +449,7 @@ FIELD
 Filter
 Finder Raises
 FL
+flake8
 Flexi Impacting Pay
 Flexi Leave
 Flexi leave.</li>
@@ -831,6 +835,7 @@ rosa-kit/status/<str
 ROSA</span>
 Run Django
 Run Django BDD
+Run flake8
 Running MkDocs
 SC
 SEARCH_STAFF_INDEX_NAME                                          |
