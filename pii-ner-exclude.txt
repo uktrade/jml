@@ -229,6 +229,7 @@ Charlie
 Charlie"
 Charlotte Blackwood
 checkbox
+CI
 Cirrus
 Cirrus Equipment
 Cirrus kit
@@ -447,6 +448,7 @@ FIELD
 Filter
 Finder Raises
 FL
+flake8
 Flexi Impacting Pay
 Flexi Leave
 Flexi leave.</li>
@@ -832,6 +834,7 @@ rosa-kit/status/<str
 ROSA</span>
 Run Django
 Run Django BDD
+Run flake8
 Running MkDocs
 SC
 SEARCH_STAFF_INDEX_NAME                                          |
