@@ -31,7 +31,7 @@ help:
 	@echo -e "$(COLOUR_YELLOW)make detect-secrets-audit$(COLOUR_NONE) : detect-secrets audit for the project"
 
 build:
-	docker-compose build
+	docker-compose build --no-cache
 	npm install
 	npm run build
 
