@@ -68,7 +68,7 @@ first-use:
 	docker-compose up
 
 check-fixme:
-	! git --no-pager grep -rni fixme -- ':!./makefile' ':!./.circleci/config.yml'
+	! git --no-pager grep -rni fixme -- ':!./makefile' ':!./.circleci/config.yml' ':!./.github/workflows/ci.yml'
 
 migrations:
 	$(run) leavers python manage.py makemigrations

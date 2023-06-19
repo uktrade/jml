@@ -1,5 +1,6 @@
 -O codecov.sh https://codecov.io/bash
 -Xmx512m
+./.github
 .00
 .env.ci
 .env.example
