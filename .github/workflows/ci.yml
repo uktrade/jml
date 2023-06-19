@@ -22,7 +22,7 @@ jobs:
         run: make check-fixme
 
       - name: Copy env file
-        run: make cp .env.ci .env
+        run: cp .env.ci .env
 
       - name: Build containers
         run: make build
