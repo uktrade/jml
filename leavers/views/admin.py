@@ -113,6 +113,13 @@ class LeavingRequestListingView(UserPassesTestMixin, base.LeavingRequestListing)
     def test_func(self):
         return self.request.user.is_staff
 
+    def get_page_title(self, object_type_name: str) -> str:
+        page_title = super().get_page_title(object_type_name)
+
+        if self.request.GET.get("custom_filter"):
+            return f"{page_title} - FILTERED"
+        return page_title
+
     def get_leaving_requests(
         self,
         order_by: Optional[str] = None,
