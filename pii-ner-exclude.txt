@@ -80,6 +80,7 @@
 {% gds_summary_list_card_title
 {% gds_summary_list_card_title %
 {% gds_summary_list_card_title text="Leaving
+{% gds_summary_list_card_title text="Leaving Requests" %
 {% gds_summary_list_card_title text="Return Cirrus kit" %
 {% gds_summary_list_card_title text="Return kit worth
 {% gds_summary_list_row %
@@ -164,6 +165,7 @@ ActivityStream
 add_missing_line_report_error
 address p {
 address=
+Admin
 Admin Views
 admin@opensearch:9200
 ALWAYS
@@ -883,6 +885,7 @@ SERVICE_NOW_POST_LEAVER_REQUEST
 service_now_user
 ServiceNow
 ServiceNow Leaver
+ServiceNow Offline
 services_table_columns
 Session
 session.</p

@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast
 from uuid import UUID
 
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -13,6 +13,7 @@ from django.db.models.fields.related import (
     OneToOneField,
 )
 from django.db.models.fields.reverse_related import ForeignObjectRel
+from django.db.models.query import Q
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
@@ -25,8 +26,27 @@ from core.utils.staff_index import get_csd_for_activitystream_user
 from core.views import BaseTemplateView
 from leavers.forms.admin import ManuallyOffboardedFromUKSBSForm
 from leavers.models import LeavingRequest, TaskLog
-from leavers.types import LeavingRequestLineReport
+from leavers.types import LeavingReason, LeavingRequestLineReport
 from leavers.views import base
+
+LEAVING_REQUEST_QUERIES = {
+    "leaver_not_submitted": Q(leaver_complete__isnull=True),
+    "leaver_submitted": Q(leaver_complete__isnull=False),
+    "line_manager_not_submitted": Q(
+        leaver_complete__isnull=False,
+        line_manager_complete__isnull=True,
+    ),
+    "submitted_retirement": Q(
+        leaver_complete__isnull=False,
+        line_manager_complete__isnull=False,
+        reason_for_leaving=LeavingReason.RETIREMENT.value,
+    ),
+    "submitted_ill_heallth_retirement": Q(
+        leaver_complete__isnull=False,
+        line_manager_complete__isnull=False,
+        reason_for_leaving=LeavingReason.ILL_HEALTH_RETIREMENT.value,
+    ),
+}
 
 
 class LeaversAdminView(BaseTemplateView):
@@ -38,12 +58,38 @@ class LeaversAdminView(BaseTemplateView):
     def get_context_data(self, **kwargs):
         people_data_interface = get_people_data_interface()
         context = super().get_context_data(**kwargs)
+        admin_lr_view = reverse("admin-leaving-request-listing")
         context.update(
             page_title="Leavers admin",
-            num_of_leaving_requests=LeavingRequest.objects.filter(
-                leaver_complete__isnull=False
-            ).count(),
+            leaving_requests_all_url=admin_lr_view,
+            leaver_not_submitted=LeavingRequest.objects.filter(
+                LEAVING_REQUEST_QUERIES["leaver_not_submitted"],
+            ),
+            leaver_not_submitted_url=admin_lr_view
+            + "?custom_filter=leaver_not_submitted",
+            leaver_submitted=LeavingRequest.objects.filter(
+                LEAVING_REQUEST_QUERIES["leaver_submitted"],
+            ),
+            leaver_submitted_url=admin_lr_view + "?custom_filter=leaver_submitted",
+            line_manager_not_submitted=LeavingRequest.objects.filter(
+                LEAVING_REQUEST_QUERIES["line_manager_not_submitted"],
+            ),
+            line_manager_not_submitted_url=admin_lr_view
+            + "?custom_filter=line_manager_not_submitted",
+            submitted_retirement=LeavingRequest.objects.filter(
+                LEAVING_REQUEST_QUERIES["submitted_retirement"],
+            ),
+            submitted_retirement_url=admin_lr_view
+            + "?custom_filter=submitted_retirement",
+            submitted_ill_heallth_retirement=LeavingRequest.objects.filter(
+                LEAVING_REQUEST_QUERIES["submitted_ill_heallth_retirement"],
+            ),
+            submitted_ill_heallth_retirement_url=admin_lr_view
+            + "?custom_filter=submitted_ill_heallth_retirement",
             emails_with_person_ids=people_data_interface.get_emails_with_multiple_person_ids(),
+            oddly_finished_workflows=Flow.objects.filter(
+                finished__isnull=False, tasks__done=False
+            ),
         )
         return context
 
@@ -66,6 +112,20 @@ class LeavingRequestListingView(UserPassesTestMixin, base.LeavingRequestListing)
 
     def test_func(self):
         return self.request.user.is_staff
+
+    def get_leaving_requests(
+        self,
+        order_by: Optional[str] = None,
+        order_direction: Literal["asc", "desc"] = "asc",
+    ):
+        leaving_requests = super().get_leaving_requests()
+
+        custom_filter: Optional[str] = self.request.GET.get("custom_filter")
+        if custom_filter in LEAVING_REQUEST_QUERIES:
+            leaving_requests = leaving_requests.filter(
+                LEAVING_REQUEST_QUERIES[custom_filter]
+            )
+        return leaving_requests
 
 
 class LeavingRequestDetailView(UserPassesTestMixin, BaseTemplateView):

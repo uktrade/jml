@@ -1,12 +1,52 @@
 {% extends "base.html" %}
+{% load govuk_frontend_django %}
 {% block content %}
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             <h1 class="govuk-heading-l">{{ page_title }}</h1>
-            <h2 class="govuk-heading-m">Leaving Requests ({{ num_of_leaving_requests }})</h2>
-            <a href="{% url 'admin-leaving-request-listing' %}"
-               class="govuk-button govuk-button--secondary"
-               data-module="govuk-button">View all</a>
+            {% gds_summary_list %}
+                {% gds_summary_list_card %}
+                    {% gds_summary_list_card_title text="Leaving Requests" %}
+                    {% gds_summary_list_card_actions %}
+                        {% gds_summary_list_card_actions_item_inline text="View all" href=leaving_requests_all_url %}
+                    {% endgds_summary_list_card_actions %}
+                {% endgds_summary_list_card %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Unsubmitted by leaver" %}
+                    {% gds_summary_list_row_value_inline text=leaver_not_submitted.count %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item_inline text="View" href=leaver_not_submitted_url %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Submitted by leaver" %}
+                    {% gds_summary_list_row_value_inline text=leaver_submitted.count %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item_inline text="View" href=leaver_submitted_url %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Waiting for line manager" %}
+                    {% gds_summary_list_row_value_inline text=line_manager_not_submitted.count %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item_inline text="View" href=line_manager_not_submitted_url %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Submitted retirement" %}
+                    {% gds_summary_list_row_value_inline text=submitted_retirement.count %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item_inline text="View" href=submitted_retirement_url %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Submitted ill health retirement" %}
+                    {% gds_summary_list_row_value_inline text=submitted_ill_heallth_retirement.count %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item_inline text="View" href=submitted_ill_heallth_retirement_url %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+            {% endgds_summary_list %}
             <h2 class="govuk-heading-m">Emails with multiple Person IDs ({{ emails_with_person_ids|length }})</h2>
             {% if emails_with_person_ids %}
                 <p class="govuk-body">
@@ -17,6 +57,19 @@
                 </ul>
             {% else %}
                 <p class="govuk-body">No emails with multiple Person IDs!</p>
+            {% endif %}
+            <h2 class="govuk-heading-m">Workflows finished before actual completion ({{ oddly_finished_workflows.count }})</h2>
+            {% if oddly_finished_workflows %}
+                <p class="govuk-body">These workflows are flagged as finished, but have tasks that haven't been completed.</p>
+                <ul class="govuk-list govuk-list--bullet">
+                    {% for workflow in oddly_finished_workflows %}
+                        <li>
+                            <a class="govuk-link" href="{% url 'flow' workflow.pk %}">{{ workflow }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="govuk-body">No workflows meet the criteria.</p>
             {% endif %}
         </div>
     </div>

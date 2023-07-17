@@ -48,8 +48,8 @@ def global_context(request):
         if request.user.is_staff:
             global_context["MAIN_NAV"].append(
                 (
-                    "Leaving Requests (admin)",
-                    reverse("admin-leaving-request-listing"),
+                    "Admin",
+                    reverse("leavers-admin"),
                 )
             )
             global_context["MAIN_NAV"].append(
