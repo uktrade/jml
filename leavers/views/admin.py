@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Literal, Optional, Tuple, Union, cast
 from uuid import UUID
 
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.db.models import JSONField
+from django.db.models import JSONField, Q
 from django.db.models.fields import Field
 from django.db.models.fields.related import (
     ForeignKey,
@@ -13,7 +13,6 @@ from django.db.models.fields.related import (
     OneToOneField,
 )
 from django.db.models.fields.reverse_related import ForeignObjectRel
-from django.db.models.query import Q
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse

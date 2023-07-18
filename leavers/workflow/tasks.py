@@ -266,7 +266,7 @@ class CheckUKSBSLineManager(LeavingRequestTask):
         if not leaver_person_id:
             raise LeaverDoesNotHaveUKSBSPersonId()
         if not manager_person_id:
-            return ["line_manager_missing_person_id"], False
+            return ["send_line_manager_missing_person_id_reminder"], False
 
         uksbs_leaver_hierarchy = uksbs_interface.get_user_hierarchy(
             person_id=leaver_person_id,
