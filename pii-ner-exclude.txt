@@ -838,6 +838,7 @@ ROSA</span>
 Run Django
 Run Django BDD
 Run flake8
+run mypy
 Running MkDocs
 SC
 SEARCH_STAFF_INDEX_NAME                                          |
