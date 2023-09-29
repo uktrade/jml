@@ -1003,6 +1003,11 @@ TEMPLATE_ID_SRE_REMINDER_ON_LD                                   | None         
 TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_LM                    
 TEMPLATE_ID_WORKFORCE_PLANNING_LAST_WEEK_LEAVERS_EMAIL           
 Templates
+Test Asset Tag
+Test Category
+Test Model
+Test Serial Number
+Test Status
 test_existing_updates
 TestDetailsView(ViewAccessTest
 Tests for `get_leaver_information`

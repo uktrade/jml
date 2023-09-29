@@ -63,3 +63,27 @@ def ingest_service_now() -> None:
                 }
             )
         )
+
+
+class TooManyServiceNowUsersFoundError(Exception):
+    pass
+
+
+def find_service_now_user(staff_sso_user: ActivityStreamStaffSSOUser):
+    emails = staff_sso_user.sso_emails.all().values_list("email_address", flat=True)
+    sn_users = ServiceNowUser.objects.filter(email__in=emails)
+
+    if not sn_users.exists():
+        return None
+
+    if len(sn_users) == 1:
+        return sn_users.first()
+
+    primary_email = staff_sso_user.get_primary_email()
+    if primary_email:
+        try:
+            return [sn_users.get(email=primary_email)]
+        except ServiceNowUser.DoesNotExist:
+            pass
+
+    raise TooManyServiceNowUsersFoundError()

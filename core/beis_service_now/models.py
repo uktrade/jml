@@ -1,7 +1,10 @@
-from typing import Iterable, Optional
+from typing import TYPE_CHECKING, Optional
 
 from django.db import models
 from django.utils.functional import cached_property
+
+if TYPE_CHECKING:
+    from django.db.models import BaseManager
 
 
 class ServiceNowObject(models.Model):
@@ -28,7 +31,7 @@ class ServiceNowUser(ServiceNowObject):
     manager_sys_id = models.CharField(max_length=255)
 
     @cached_property
-    def assets(self) -> Iterable[ServiceNowAsset]:
+    def assets(self) -> "BaseManager[ServiceNowAsset]":
         return ServiceNowAsset.objects.filter(assigned_to_sys_id=self.sys_id)
 
     @cached_property

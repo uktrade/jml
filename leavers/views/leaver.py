@@ -17,6 +17,7 @@ from activity_stream.models import (
     ActivityStreamStaffSSOUser,
     ActivityStreamStaffSSOUserEmail,
 )
+from core.beis_service_now.utils import find_service_now_user
 from core.people_data import get_people_data_interface
 from core.staff_search.views import StaffSearchView
 from core.types import Address
@@ -381,6 +382,12 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
             email_user_id=user.sso_email_user_id,
         )
 
+        if not staff_sso_user.service_now_user:
+            sn_user = find_service_now_user(staff_sso_user)
+            if sn_user:
+                staff_sso_user.service_now_user = sn_user
+                staff_sso_user.save(update_fields=["service_now_user"])
+
         service_now_user = staff_sso_user.service_now_user
 
         if service_now_user and not self.leaving_request.service_now_offline:
@@ -388,11 +395,11 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
                 session["cirrus_assets"] = [
                     {
                         "uuid": str(uuid.uuid4()),
-                        "sys_id": asset["sys_id"],
-                        "tag": asset["tag"],
-                        "name": asset["name"],
+                        "sys_id": asset.sys_id,
+                        "tag": asset.asset_tag,
+                        "name": asset.display_name,
                     }
-                    for asset in service_now_user.get_assets()
+                    for asset in service_now_user.assets
                 ]
                 self.store_session(session)
 
@@ -529,12 +536,15 @@ class LeaverChecksView(LeavingRequestViewMixin, RedirectView):
         )
 
         if not person_id:
+            print("NO PERSON ID")
             return failure_url
 
         uksbs_interface = get_uksbs_interface()
         try:
             uksbs_interface.get_user_hierarchy(person_id=person_id)
         except (UKSBSUnexpectedResponse, UKSBSPersonNotFound):
+            print("UNEXPECTED RESPONSE")
+            print(uksbs_interface)
             return failure_url
 
         return reverse(
