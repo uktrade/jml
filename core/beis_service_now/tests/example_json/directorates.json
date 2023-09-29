@@ -1,0 +1,21 @@
+[
+    {
+        "directorate_sys_id": "directorate-1",
+        "name": "Directorate one"
+    },
+    {
+        "directorate_sys_id": "directorate-2",
+        "name": "Directorate two"
+    },
+    {
+        "directorate_sys_id": "directorate-3",
+        "name": "Directorate three"
+    },
+    {
+        "directorate_sys_id": "directorate-4",
+        "name": "Directorate four"
+    }, {
+        "directorate_sys_id": "directorate-5",
+        "name": "Directorate five"
+    }
+]
