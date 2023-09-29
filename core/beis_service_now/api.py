@@ -22,10 +22,10 @@ from core.beis_service_now.models import (
 )
 from core.beis_service_now.serializers import BEISLeavingRequestSerializer
 from core.beis_service_now.types import (
-    ServiceNowAssetPostBody,
-    ServiceNowDirectoratePostBody,
-    ServiceNowPostObject,
-    ServiceNowUserPostBody,
+    ServiceNowObjectPostBody,
+    ServiceNowPostAsset,
+    ServiceNowPostDirectorate,
+    ServiceNowPostUser,
 )
 from leavers.models import LeavingRequest
 from leavers.views.api import LeavingRequestViewSetBase
@@ -49,47 +49,10 @@ class SubmittedLeavingRequestViewSet(LeavingRequestViewSetBase):
     )
 
 
-class DebugApiException(Exception):
-    def __init__(self, *args, debug_info: Dict, **kwargs) -> None:
-        args = (f"{args[0]} with the debug info: {debug_info}", *args[1:])
-        super().__init__(*args, **kwargs)
-
-
-@method_decorator(csrf_exempt, name="dispatch")
-class DebugApiPostView(View):
-    def dispatch(
-        self, request: HttpRequest, *args: Any, **kwargs: Any
-    ) -> HttpResponseBase:
-        if not auth_service_now_request(request.headers):
-            return HttpResponse(status=403)
-        return super().dispatch(request, *args, **kwargs)
-
-    def post(self, request: HttpRequest, **kwargs):
-        try:
-            api_debug_info = {
-                "path": request.get_full_path(),
-                "method": request.method,
-                "headers": request.headers,
-                "GET": request.GET,
-                "POST": request.POST,
-                "body": request.body,
-            }
-            raise DebugApiException(
-                "POST API endpoint hit",
-                debug_info=api_debug_info,
-            )
-        except Exception as e:
-            logger.exception(e)
-
-        return HttpResponse(
-            status=200,
-            content="Post request logged as an exception in sentry 🙂",
-        )
-
-
 @method_decorator(csrf_exempt, name="dispatch")
 class ServiceNowObjectPostView(View):
     model: Optional[Type[ServiceNowObject]] = None
+    sys_id_key: str
 
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
@@ -98,10 +61,33 @@ class ServiceNowObjectPostView(View):
             return HttpResponse(status=403)
         return super().dispatch(request, *args, **kwargs)
 
-    def ingest_data(self, body: Any) -> None:
-        raise NotImplementedError
+    def ingest_data(self, body: ServiceNowObjectPostBody) -> None:
+        # TODO: Validate the body before ingesting it (using pydantic?)
+        objects_to_save = []
+        for data in body:
+            sys_id = data[self.sys_id_key]
+            obj, _ = self.model.objects.get_or_create(sys_id=sys_id)
+            objects_to_save.append(self.data_to_object(obj, data))
 
-    def data_to_object(self, obj: ServiceNowObject, data: ServiceNowPostObject) -> None:
+        model_update_fields = [
+            field.name
+            for field in self.model._meta.get_fields()
+            if field.name
+            not in [
+                "sys_id",
+                "servicenowobject_ptr",
+                "activity_stream_user",
+            ]
+        ]
+
+        self.model.objects.bulk_update(
+            objects_to_save,
+            fields=model_update_fields,
+        )
+
+    def data_to_object(
+        self, obj: ServiceNowObject, data: Dict[str, Any]
+    ) -> ServiceNowObject:
         raise NotImplementedError
 
     def post(self, request: HttpRequest, **kwargs):
@@ -112,66 +98,54 @@ class ServiceNowObjectPostView(View):
             logger.exception(e)
             return HttpResponse(
                 status=500,
-                content="An error occurred while ingesting the data",
+                content=f"An error occurred while ingesting the {self.model} data ❌",
             )
         return HttpResponse(
             status=200,
-            content="Post request logged as an exception in sentry 🙂",
+            content=f"{self.model} data has been ingested successfully 🎉",
         )
 
 
 class ServiceNowAssetPostView(ServiceNowObjectPostView):
     model = ServiceNowAsset
+    sys_id_key = "asset_sys_id"
 
-    def ingest_data(self, body: ServiceNowAssetPostBody) -> None:
-        """
-        [
-            {
-                "model_category":"Computer",
-                "model":"Dell Inc. XPS 13 9380",
-                "display_name":"EUDT01234 - Dell Inc. XPS 13 9380",
-                "install_status":"In use",
-                "substatus":"built",
-                "assigned_to":"John Smith",
-                "asset_tag":"EUDT01234",
-                "serial_number":"1AB2C34"
-            },
-            ...
-        ]
-        """
-        for data in body:
-            sys_id = data["sys_id"]
-            obj, _ = self.model.objects.get_or_create(sys_id=sys_id)
-            self.data_to_object(obj, data)
-
-    def data_to_object(self, obj: ServiceNowObject, data: ServiceNowPostObject) -> None:
-        # TODO: Update the obj fields from `data`.
-        obj.save()
+    def data_to_object(
+        self, obj: ServiceNowAsset, data: ServiceNowPostAsset
+    ) -> ServiceNowAsset:
+        obj.model_category = data["model_category"]
+        obj.model = data["model"]
+        obj.display_name = data["display_name"]
+        obj.install_status = data["install_status"]
+        obj.substatus = data["substatus"]
+        obj.assigned_to_sys_id = data["assigned_to_sys_id"]
+        obj.assigned_to_display_name = data["assigned_to_display_name"]
+        obj.asset_tag = data["asset_tag"]
+        obj.serial_number = data["serial_number"]
+        return obj
 
 
 class ServiceNowUserPostView(ServiceNowObjectPostView):
     model = ServiceNowUser
+    sys_id_key = "user_sys_id"
 
-    def ingest_data(self, body: ServiceNowUserPostBody) -> None:
-        for data in body:
-            sys_id = data["sys_id"]
-            obj, _ = self.model.objects.get_or_create(sys_id=sys_id)
-            self.data_to_object(obj, data)
-
-    def data_to_object(self, obj: ServiceNowObject, data: ServiceNowPostObject) -> None:
-        # TODO: Update the obj fields from `data`.
-        obj.save()
+    def data_to_object(
+        self, obj: ServiceNowUser, data: ServiceNowPostUser
+    ) -> ServiceNowUser:
+        obj.user_name = data["user_name"]
+        obj.name = data["name"]
+        obj.email = data["email"]
+        obj.manager_user_name = data["manager_user_name"]
+        obj.manager_sys_id = data["manager_sys_id"]
+        return obj
 
 
 class ServiceNowDirectoratePostView(ServiceNowObjectPostView):
     model = ServiceNowDirectorate
+    sys_id_key = "directorate_sys_id"
 
-    def ingest_data(self, body: ServiceNowDirectoratePostBody) -> None:
-        for data in body:
-            sys_id = data["sys_id"]
-            obj, _ = self.model.objects.get_or_create(sys_id=sys_id)
-            self.data_to_object(obj, data)
-
-    def data_to_object(self, obj: ServiceNowObject, data: ServiceNowPostObject) -> None:
-        # TODO: Update the obj fields from `data`.
-        obj.save()
+    def data_to_object(
+        self, obj: ServiceNowDirectorate, data: ServiceNowPostDirectorate
+    ) -> ServiceNowDirectorate:
+        obj.name = data["name"]
+        return obj

@@ -1,0 +1,36 @@
+[
+    {
+        "asset_sys_id": "asset-1",
+        "model_category": "Computer",
+        "model": "Apple Mac14,2",
+        "display_name": "EUDS00123 - Apple Mac14,2",
+        "install_status": "In use",
+        "substatus": "",
+        "assigned_to_sys_id": "user-1",
+        "assigned_to_display_name": "User One",
+        "asset_tag": "EUDS00123",
+        "serial_number": "SER123"
+    }, {
+        "asset_sys_id": "asset-2",
+        "model_category": "Computer",
+        "model": "Apple Mac14,2",
+        "display_name": "EUDS00456 - Apple Mac14,2",
+        "install_status": "In use",
+        "substatus": "",
+        "assigned_to_sys_id": "user-2",
+        "assigned_to_display_name": "User Two",
+        "asset_tag": "EUDS00456",
+        "serial_number": "SER456"
+    }, {
+        "asset_sys_id": "asset-3",
+        "model_category": "Computer",
+        "model": "Apple Mac14,2",
+        "display_name": "EUDS00789 - Apple Mac14,2",
+        "install_status": "In use",
+        "substatus": "",
+        "assigned_to_sys_id": "user-3",
+        "assigned_to_display_name": "User Three",
+        "asset_tag": "EUDS00789",
+        "serial_number": "SER789"
+    }
+]
