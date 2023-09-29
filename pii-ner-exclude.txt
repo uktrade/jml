@@ -123,6 +123,7 @@
 | TEMPLATE_ID_SRE_REMINDER_ON_LD
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LWD                      
 | UKSBS_INTERFACE                                                  
+🎉
 0.0.0.0:8000
 0.1.0
 0.3.7
@@ -362,6 +363,7 @@ Digital Workspace</a
 Digital Worskspace
 Directorate
 directorate_id
+directorate_sys_id
 DIRS
 Discuss
 Dismissal
@@ -435,6 +437,7 @@ f"Asset
 f"Error
 f"Gsuite
 f"If
+f"Invalid
 f"Physical Asset
 f"RUNNING
 f"RUNNING weekly_leavers_email
@@ -686,6 +689,8 @@ manage.py migrate &&
 manager_activitystream_user
 manager_emails|length
 manager_id
+manager_sys_id
+manager_sys_id
 Manager</h2
 manager</label
 Mark
