@@ -698,6 +698,9 @@ class LeaverInformation(models.Model):
     # Return Cirrus Kit
     has_cirrus_kit = models.BooleanField(null=True, blank=True)
     cirrus_assets = models.JSONField(null=True, blank=True)
+    cirrus_additional_information = models.CharField(
+        max_length=1000, null=True, blank=True
+    )
     return_option = models.CharField(
         max_length=10, choices=ReturnOptions.choices, null=True, blank=True
     )

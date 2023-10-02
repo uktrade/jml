@@ -813,6 +813,17 @@ class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
         "home_address_county": "Please tell us the leaver's county.",
         "home_address_postcode": "Please tell us the leaver's postcode.",
     }
+    additional_information = forms.CharField(
+        label="Additional Information",
+        required=False,
+        max_length=1000,
+        widget=forms.Textarea,
+        help_text=(
+            "Please provide asset number and explination about any assets you"
+            " believe are incorrectly assigned to you"
+        ),
+    )
+
     return_option = forms.ChoiceField(
         label="How would you like to return your Cirrus kit?",
         choices=RETURN_OPTIONS,
@@ -857,6 +868,12 @@ class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
             )
 
         self.helper.layout = Layout(
+            Field.textarea(
+                "additional_information",
+                rows=5,
+                label_size=Size.SMALL,
+                css_class="govuk-!-width-two-thirds",
+            ),
             radios_with_conditionals("return_option", legend_size=Size.MEDIUM),
             Div(
                 Field.text(

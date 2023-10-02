@@ -431,15 +431,19 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
     def store_cirrus_kit_information(
         self,
         cirrus_assets: List[types.CirrusAsset],
+        cirrus_additional_information: Optional[str],
     ) -> None:
         """
         Store the Correction information
         """
 
         self.leaver_info.cirrus_assets = cirrus_assets
+        self.leaver_info.cirrus_additional_information = cirrus_additional_information
+
         self.leaver_info.save(
             update_fields=[
                 "cirrus_assets",
+                "cirrus_additional_information",
             ]
         )
 
@@ -462,7 +466,11 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
         """
 
         self.leaver_info.return_option = return_option
-        self.leaver_info.save(update_fields=["return_option"])
+        self.leaver_info.save(
+            update_fields=[
+                "return_option",
+            ]
+        )
 
     def store_return_information(
         self,
@@ -1258,14 +1266,16 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
         self, request: HttpRequest, form: Form, *args, **kwargs
     ):
         session = self.get_session()
+        form_data = form.cleaned_data
+        additional_information = form_data["additional_information"]
 
         # Store correction info and assets into the leaver details
         self.store_cirrus_kit_information(
             cirrus_assets=session.get("cirrus_assets", []),
+            cirrus_additional_information=additional_information,
         )
 
-        form_data = form.cleaned_data
-        return_option = form.cleaned_data["return_option"]
+        return_option = form_data["return_option"]
 
         # Store return information
         self.store_return_option(
@@ -1273,8 +1283,8 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
         )
         if return_option == ReturnOptions.OFFICE.value:
             self.store_return_information(
-                personal_phone=form.cleaned_data["office_personal_phone"],
-                contact_email=form.cleaned_data["office_contact_email"],
+                personal_phone=form_data["office_personal_phone"],
+                contact_email=form_data["office_contact_email"],
                 address=None,
             )
         elif return_option == ReturnOptions.HOME.value:
@@ -1286,8 +1296,8 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
                 "postcode": form_data["home_address_postcode"],
             }
             self.store_return_information(
-                personal_phone=form.cleaned_data["home_personal_phone"],
-                contact_email=form.cleaned_data["home_contact_email"],
+                personal_phone=form_data["home_personal_phone"],
+                contact_email=form_data["home_contact_email"],
                 address=return_address,
             )
 
