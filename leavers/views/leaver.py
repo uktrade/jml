@@ -17,7 +17,6 @@ from activity_stream.models import (
     ActivityStreamStaffSSOUser,
     ActivityStreamStaffSSOUserEmail,
 )
-from core.beis_service_now.utils import find_service_now_user
 from core.people_data import get_people_data_interface
 from core.staff_search.views import StaffSearchView
 from core.types import Address
@@ -383,10 +382,7 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
         )
 
         if not staff_sso_user.service_now_user:
-            sn_user = find_service_now_user(staff_sso_user)
-            if sn_user:
-                staff_sso_user.service_now_user = sn_user
-                staff_sso_user.save(update_fields=["service_now_user"])
+            raise Exception("Unable to find ServiceNow user for the leaver.")
 
         service_now_user = staff_sso_user.service_now_user
 
@@ -1151,7 +1147,7 @@ class LeaverHasAssetsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        page_title = "Other goverment assets"
+        page_title = "Other government assets"
         context.update(page_title=page_title)
         return context
 
@@ -1161,6 +1157,13 @@ class HasCirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView, FormView
     form_class = leaver_forms.HasCirrusKitForm
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
+        if not self.leaving_request.leaver_activitystream_user.service_now_user:
+            # TODO: return a custom error page to the user
+            raise Exception("Unable to find ServiceNow user for leaver.")
+        if not self.leaving_request.manager_activitystream_user.service_now_user:
+            # TODO: return a custom error page to the user
+            raise Exception("Unable to find ServiceNow user for manager.")
+
         user_assets = self.get_cirrus_assets()
 
         if user_assets:
