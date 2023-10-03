@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("leavers", "0094_leavingrequest_passman_access_removed"),
+        ("leavers", "0095_leavingrequest_cancelled"),
     ]
 
     operations = [
