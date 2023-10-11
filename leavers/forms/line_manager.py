@@ -2,7 +2,16 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from crispy_forms_gds.fields import DateInputField
 from crispy_forms_gds.helper import FormHelper
-from crispy_forms_gds.layout import HTML, Div, Field, Fieldset, Layout, Size, Submit
+from crispy_forms_gds.layout import (
+    HTML,
+    Button,
+    Div,
+    Field,
+    Fieldset,
+    Layout,
+    Size,
+    Submit,
+)
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -141,22 +150,31 @@ class LineManagerDetailsForm(BaseForm):
             ),
         )
 
+        buttons: List[Button] = []
         if user_is_line_manager:
-            self.helper.layout.append(
-                Submit("submit", "Next"),
-            )
+            buttons.append(Submit("submit", "Next"))
         else:
-            self.helper.layout.append(
-                Div(
-                    Submit("submit", "Save and continue"),
-                    Submit(
-                        "save_and_close",
-                        "Save and close",
-                        css_class="govuk-button--secondary",
-                    ),
-                    css_class="govuk-button-group",
-                ),
+            buttons.append(Submit("submit", "Save and continue"))
+            buttons.append(
+                Submit(
+                    "save_and_close",
+                    "Save and close",
+                    css_class="govuk-button--secondary",
+                )
             )
+        buttons.append(
+            Button.warning(
+                "cancel_leaving_request",
+                "Cancel leaving request",
+            )
+        )
+
+        self.helper.layout.append(
+            Div(
+                *buttons,
+                css_class="govuk-button-group",
+            ),
+        )
 
     def annual_leave_selected(self) -> bool:
         if "annual_leave" not in self.cleaned_data:
@@ -264,22 +282,31 @@ class LineReportConfirmationForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout()
 
+        buttons: List[Button] = []
         if user_is_line_manager:
-            self.helper.layout.append(
-                Submit("submit", "Next"),
-            )
+            buttons.append(Submit("submit", "Next"))
         else:
-            self.helper.layout.append(
-                Div(
-                    Submit("submit", "Save and continue"),
-                    Submit(
-                        "save_and_close",
-                        "Save and close",
-                        css_class="govuk-button--secondary",
-                    ),
-                    css_class="govuk-button-group",
-                ),
+            buttons.append(Submit("submit", "Save and continue"))
+            buttons.append(
+                Submit(
+                    "save_and_close",
+                    "Save and close",
+                    css_class="govuk-button--secondary",
+                )
             )
+        buttons.append(
+            Button.warning(
+                "cancel_leaving_request",
+                "Cancel leaving request",
+            )
+        )
+
+        self.helper.layout.append(
+            Div(
+                *buttons,
+                css_class="govuk-button-group",
+            ),
+        )
 
     def clean(self) -> Optional[Dict[str, Any]]:
         # Check that all line reports have a Line Manager selected.
@@ -401,22 +428,31 @@ class ConfirmLeavingDate(BaseForm):
             self.fields["data_recipient"].required = False
             self.helper.layout.append(Field("data_recipient"))
 
+        buttons: List[Button] = []
         if user_is_line_manager:
-            self.helper.layout.append(
-                Submit("submit", "Next"),
-            )
+            buttons.append(Submit("submit", "Next"))
         else:
-            self.helper.layout.append(
-                Div(
-                    Submit("submit", "Save and continue"),
-                    Submit(
-                        "save_and_close",
-                        "Save and close",
-                        css_class="govuk-button--secondary",
-                    ),
-                    css_class="govuk-button-group",
-                ),
+            buttons.append(Submit("submit", "Save and continue"))
+            buttons.append(
+                Submit(
+                    "save_and_close",
+                    "Save and close",
+                    css_class="govuk-button--secondary",
+                )
             )
+        buttons.append(
+            Button.warning(
+                "cancel_leaving_request",
+                "Cancel leaving request",
+            )
+        )
+
+        self.helper.layout.append(
+            Div(
+                *buttons,
+                css_class="govuk-button-group",
+            ),
+        )
 
 
 class OfflineServiceNowForm(forms.Form):

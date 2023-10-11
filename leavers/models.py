@@ -61,6 +61,7 @@ class LeavingRequest(models.Model):
         null=True,
         blank=True,
     )
+    cancelled = models.DateTimeField(null=True, blank=True)
 
     last_modified = models.DateTimeField(auto_now=True)
     requested_at = models.DateTimeField(auto_now_add=True)
@@ -377,6 +378,20 @@ class LeavingRequest(models.Model):
     """
     Methods
     """
+
+    def __str__(self) -> str:
+        """
+        Returns a string representation of the LeavingRequest
+        Example: "LeavingRequest object (1) - LEAVER NAME (CANCELLED)"
+        """
+
+        str_rep = super().__str__()
+        leaver_name = self.get_leaver_name()
+        if leaver_name:
+            str_rep = f"{str_rep} - {leaver_name}"
+        if self.cancelled:
+            str_rep = f"{str_rep} (CANCELLED)"
+        return str_rep
 
     def get_leaving_date(self) -> Optional[datetime]:
         leaving_date: Optional[datetime] = None

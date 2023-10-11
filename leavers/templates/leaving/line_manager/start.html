@@ -22,7 +22,10 @@
             {% else %}
                 <p class="govuk-body">The form will take 5 minutes to complete.</p>
             {% endif %}
-            {% gds_component "button" href=start_url text="Start" isStartButton=True %}
+            <div class="govuk-button-group">
+                {% gds_component "button" href=start_url text="Start" isStartButton=True %}
+                {% gds_component "button" href=cancel_url text="Cancel leaving request" classes="govuk-button--warning" %}
+            </div>
         </div>
     </div>
 {% endblock content %}

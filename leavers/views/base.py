@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from django.db.models import Case, Value, When
 from django.db.models.functions import Concat
 from django.db.models.query import QuerySet
+from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import redirect
@@ -39,6 +40,21 @@ class SaveAndCloseViewMixin:
             self.request.POST = cleaned_post  # type: ignore
 
         return super().post(request, *args, **kwargs)  # type: ignore
+
+
+class CancelLeavingRequestViewMixin:
+    request: HttpRequest
+    cancel_leaving_request: bool = False
+
+    def post(self, request, *args, **kwargs):
+        if not hasattr(super(), "post"):
+            return self.http_method_not_allowed(request, *args, **kwargs)
+
+        if "cancel_leaving_request" in self.request.POST:
+            self.cancel_leaving_request = True
+            return redirect(self.get_success_url())
+
+        return super().post(request, *args, **kwargs)
 
 
 class LeavingRequestListing(
@@ -83,7 +99,9 @@ class LeavingRequestListing(
         order_by: Optional[str] = None,
         order_direction: Literal["asc", "desc"] = "asc",
     ) -> QuerySet[LeavingRequest]:
-        leaving_requests: QuerySet[LeavingRequest] = LeavingRequest.objects.all()
+        leaving_requests: QuerySet[LeavingRequest] = LeavingRequest.objects.filter(
+            cancelled__isnull=True
+        )
         complete_field = self.get_complete_field()
         if complete_field:
             if not self.show_complete:
@@ -368,14 +386,18 @@ class LeavingRequestViewMixin(View):
         user = cast(User, request.user)
 
         # 1 + len(prefetch_related) database queries
-        self.leaving_request = (
-            LeavingRequest.objects.select_related(
-                "leaver_activitystream_user",
-                "manager_activitystream_user",
+        try:
+            self.leaving_request = (
+                LeavingRequest.objects.filter(cancelled__isnull=True)
+                .select_related(
+                    "leaver_activitystream_user",
+                    "manager_activitystream_user",
+                )
+                .prefetch_related("leaver_information")
+                .get(uuid=self.kwargs["leaving_request_uuid"])
             )
-            .prefetch_related("leaver_information")
-            .get(uuid=self.kwargs["leaving_request_uuid"])
-        )
+        except LeavingRequest.DoesNotExist:
+            raise Http404()
         self.leaver_activitystream_user = (
             self.leaving_request.leaver_activitystream_user
         )

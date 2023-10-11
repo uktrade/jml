@@ -29,6 +29,16 @@ leaving_request_review_urlpatterns = [
         name="line-manager-start",
     ),
     path(
+        "leaver-cancellation-confirmation/",
+        line_manager_views.LeaverCancellationConfirmationView.as_view(),
+        name="line-manager-leaver-cancellation-confirmation",
+    ),
+    path(
+        "leaver-cancellation/",
+        line_manager_views.LeaverCancellationView.as_view(),
+        name="line-manager-leaver-cancellation",
+    ),
+    path(
         "leaver-confirmation/",
         line_manager_views.LeaverConfirmationView.as_view(),
         name="line-manager-leaver-confirmation",
