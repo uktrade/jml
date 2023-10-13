@@ -388,6 +388,30 @@ class StartView(ReviewViewMixin, BaseTemplateView):
         return context
 
 
+class LeaverCancellationConfirmationView(ReviewViewMixin, BaseTemplateView):
+    template_name = "leaving/line_manager/cancel.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name = make_possessive(leaver_name)
+
+        back_url = self.get_view_url("line-manager-start")
+        if back_path := self.request.GET.get("back_url"):
+            back_url = back_path
+
+        context.update(
+            page_title=f"Cancel {possessive_leaver_name} leaving request",
+            back_url=back_url,
+            cancel_url=self.get_view_url("line-manager-leaver-cancellation"),
+            leaver_name=leaver_name,
+            possessive_leaver_name=make_possessive(leaver_name),
+        )
+
+        return context
+
+
 class LeaverCancellationView(ReviewViewMixin, BaseTemplateView):
     template_name = "leaving/line_manager/cancelled.html"
 
@@ -410,30 +434,6 @@ class LeaverCancellationView(ReviewViewMixin, BaseTemplateView):
             page_title=f"{possessive_leaver_name} leaving request has been cancelled",
             leaver_name=leaver_name,
             possessive_leaver_name=possessive_leaver_name,
-        )
-
-        return context
-
-
-class LeaverCancellationConfirmationView(ReviewViewMixin, BaseTemplateView):
-    template_name = "leaving/line_manager/cancel.html"
-
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-
-        leaver_name = self.leaving_request.get_leaver_name()
-        possessive_leaver_name = make_possessive(leaver_name)
-
-        back_url = self.get_view_url("line-manager-start")
-        if back_path := self.request.GET.get("back_url"):
-            back_url = back_path
-
-        context.update(
-            page_title=f"Cancel {possessive_leaver_name} leaving request",
-            back_url=back_url,
-            cancel_url=self.get_view_url("line-manager-leaver-cancellation"),
-            leaver_name=leaver_name,
-            possessive_leaver_name=make_possessive(leaver_name),
         )
 
         return context
