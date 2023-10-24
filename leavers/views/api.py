@@ -18,7 +18,9 @@ hawk_response = decorator_from_middleware(HawkResponseMiddleware)
 @method_decorator(hawk_response, name="list")
 @method_decorator(hawk_response, name="retrieve")
 class LeavingRequestViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = LeavingRequest.objects.filter(leaver_complete__isnull=False)
+    queryset = LeavingRequest.objects.filter(
+        cancelled__isnull=True, leaver_complete__isnull=False
+    )
     serializer_class = LeavingRequestSerializer
     authentication_classes = [HawkAuthentication]
     permission_classes: list[permissions.BasePermission] = []

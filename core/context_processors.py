@@ -103,6 +103,7 @@ def global_context(request):
 
         latest_leaving_request: Optional[LeavingRequest] = (
             LeavingRequest.objects.filter(
+                cancelled__isnull=True,
                 leaver_complete__isnull=False,
                 line_manager_complete__isnull=True,
             )

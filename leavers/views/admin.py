@@ -29,18 +29,27 @@ from leavers.types import LeavingReason, LeavingRequestLineReport
 from leavers.views import base
 
 LEAVING_REQUEST_QUERIES = {
-    "leaver_not_submitted": Q(leaver_complete__isnull=True),
-    "leaver_submitted": Q(leaver_complete__isnull=False),
+    "leaver_not_submitted": Q(
+        cancelled__isnull=True,
+        leaver_complete__isnull=True,
+    ),
+    "leaver_submitted": Q(
+        cancelled__isnull=True,
+        leaver_complete__isnull=False,
+    ),
     "line_manager_not_submitted": Q(
+        cancelled__isnull=True,
         leaver_complete__isnull=False,
         line_manager_complete__isnull=True,
     ),
     "submitted_retirement": Q(
+        cancelled__isnull=True,
         leaver_complete__isnull=False,
         line_manager_complete__isnull=False,
         reason_for_leaving=LeavingReason.RETIREMENT.value,
     ),
     "submitted_ill_heallth_retirement": Q(
+        cancelled__isnull=True,
         leaver_complete__isnull=False,
         line_manager_complete__isnull=False,
         reason_for_leaving=LeavingReason.ILL_HEALTH_RETIREMENT.value,
@@ -329,6 +338,7 @@ class OfflineServiceNowAdmin(BaseTemplateView):
         context = super().get_context_data(**kwargs)
 
         leaving_requests = LeavingRequest.objects.filter(
+            cancelled__isnull=True,
             line_manager_complete__isnull=False,
             service_now_offline=True,
             line_manager_service_now_complete__isnull=True,

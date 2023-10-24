@@ -34,7 +34,7 @@ from leavers.forms import line_manager as line_manager_forms
 from leavers.models import LeavingRequest
 from leavers.types import LeavingReason, LeavingRequestLineReport
 from leavers.utils.leaving_request import initialise_line_reports
-from leavers.views.base import SaveAndCloseViewMixin
+from leavers.views.base import CancelLeavingRequestViewMixin, SaveAndCloseViewMixin
 from leavers.views.leaver import LeavingRequestViewMixin
 from user.models import User
 
@@ -196,7 +196,11 @@ class IsReviewUser(UserPassesTestMixin):
 
 
 class ReviewViewMixin(
-    IsReviewUser, SaveAndCloseViewMixin, LineManagerViewMixin, LeavingRequestViewMixin
+    IsReviewUser,
+    CancelLeavingRequestViewMixin,
+    SaveAndCloseViewMixin,
+    LineManagerViewMixin,
+    LeavingRequestViewMixin,
 ):
     JOURNEY: Dict[str, Dict[str, Any]] = {
         "line-manager-start": {
@@ -299,6 +303,15 @@ class ReviewViewMixin(
         return context
 
     def get_success_url(self) -> str:
+        if self.cancel_leaving_request:
+            return (
+                reverse(
+                    "line-manager-leaver-cancellation-confirmation",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                )
+                + "?back_url="
+                + self.request.get_full_path()
+            )
         if self.save_and_close:
             return reverse(
                 "leaving-request-summary",
@@ -364,9 +377,63 @@ class StartView(ReviewViewMixin, BaseTemplateView):
         context.update(
             page_title=page_title,
             start_url=self.get_view_url("line-manager-leaver-confirmation"),
+            cancel_url=self.get_view_url(
+                "line-manager-leaver-cancellation-confirmation"
+            ),
             leaver_name=leaver_name,
             possessive_leaver_name=make_possessive(leaver_name),
             reason_for_leaving=self.leaving_request.reason_for_leaving,
+        )
+
+        return context
+
+
+class LeaverCancellationConfirmationView(ReviewViewMixin, BaseTemplateView):
+    template_name = "leaving/line_manager/cancel.html"
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name = make_possessive(leaver_name)
+
+        back_url = self.get_view_url("line-manager-start")
+        if back_path := self.request.GET.get("back_url"):
+            back_url = back_path
+
+        context.update(
+            page_title=f"Cancel {possessive_leaver_name} leaving request",
+            back_url=back_url,
+            cancel_url=self.get_view_url("line-manager-leaver-cancellation"),
+            leaver_name=leaver_name,
+            possessive_leaver_name=make_possessive(leaver_name),
+        )
+
+        return context
+
+
+class LeaverCancellationView(ReviewViewMixin, BaseTemplateView):
+    template_name = "leaving/line_manager/cancelled.html"
+
+    def get_redirect_url(self, *args: Any, **kwargs: Any) -> Optional[str]:
+        return self.get_view_url("line-manager-leaver-confirmation")
+
+    def get(self, request, *args, **kwargs):
+        if not self.leaving_request.cancelled:
+            self.leaving_request.cancelled = timezone.now()
+            self.leaving_request.save(update_fields=["cancelled"])
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        leaver_name = self.leaving_request.get_leaver_name()
+        possessive_leaver_name = make_possessive(leaver_name)
+        context.update(
+            page_title=f"{possessive_leaver_name} leaving request has been cancelled",
+            leaver_name=leaver_name,
+            possessive_leaver_name=possessive_leaver_name,
         )
 
         return context

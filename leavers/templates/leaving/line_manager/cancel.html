@@ -1,0 +1,15 @@
+{% extends "leaving/leaving_base.html" %}
+{% load static crispy_forms_gds govuk_frontend_django %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <h1 class="govuk-heading-l">{{ page_title }}</h1>
+            <p class="govuk-body">If the person leaving sent this request by mistake, you can cancel it.</p>
+            <p class="govuk-body">If the person leaving wants to send a new request, they will need to start again.</p>
+            <div class="govuk-button-group">
+                {% gds_component "button" href=cancel_url text="Cancel leaving request" classes="govuk-button--warning" %}
+                {% gds_component "button" href=back_url text="Go back" classes="govuk-button--secondary" %}
+            </div>
+        </div>
+    </div>
+{% endblock content %}

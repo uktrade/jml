@@ -266,6 +266,66 @@ class TestStartView(ViewAccessTest, TestCase):
         self.assertIsNone(self.leaving_request.processing_manager_activitystream_user)
 
 
+class TestLeaverCancellationConfirmationView(ViewAccessTest, TestCase):
+    view_name = "line-manager-leaver-cancellation-confirmation"
+    allowed_methods = ["get"]
+
+    def setUp(self):
+        super().setUp()
+        email = self.authenticated_user.sso_email_user_id
+        self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
+            manager_activitystream_user__email_user_id=email,
+        )
+        self.view_kwargs = {"args": [self.leaving_request.uuid]}
+
+    def test_get_context(self):
+        self.client.force_login(self.authenticated_user)
+        response = self.client.get(self.get_url())
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.context["back_url"],
+            reverse(
+                "line-manager-start",
+                kwargs={"leaving_request_uuid": str(self.leaving_request.uuid)},
+            ),
+        )
+        self.assertEqual(
+            response.context["cancel_url"],
+            reverse(
+                "line-manager-leaver-cancellation",
+                kwargs={"leaving_request_uuid": str(self.leaving_request.uuid)},
+            ),
+        )
+        self.leaving_request.refresh_from_db()
+        self.assertIsNone(self.leaving_request.cancelled)
+
+
+class TestLeaverCancellationView(ViewAccessTest, TestCase):
+    view_name = "line-manager-leaver-cancellation"
+    allowed_methods = ["get"]
+
+    def setUp(self):
+        super().setUp()
+        email = self.authenticated_user.sso_email_user_id
+        self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
+            manager_activitystream_user__email_user_id=email,
+        )
+        self.view_kwargs = {"args": [self.leaving_request.uuid]}
+
+    def test_get_context(self):
+        self.client.force_login(self.authenticated_user)
+        self.assertIsNone(self.leaving_request.cancelled)
+
+        response = self.client.get(self.get_url())
+
+        self.assertEqual(response.status_code, 200)
+        self.leaving_request.refresh_from_db()
+        self.assertIsNotNone(self.leaving_request.cancelled)
+
+
 @mock.patch(
     "leavers.views.line_manager.get_staff_document_from_staff_index",
     return_value=EMPTY_STAFF_DOCUMENT,

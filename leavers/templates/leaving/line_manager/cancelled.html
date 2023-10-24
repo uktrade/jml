@@ -1,0 +1,12 @@
+{% extends "leaving/leaving_base.html" %}
+{% load static crispy_forms_gds govuk_frontend_django %}
+{% block content %}
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            {% gds_component "panel" titleText=page_title text="You do not need to do anything else. You will no longer get any emails." %}
+            <p class="govuk-body">
+                If you have made a mistake, email the HR offboarding team on <a class="govuk-link" href="mailto:{{ DIT_OFFBOARDING_EMAIL }}">{{ DIT_OFFBOARDING_EMAIL }}</a>
+            </p>
+        </div>
+    </div>
+{% endblock content %}
