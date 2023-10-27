@@ -22,44 +22,24 @@ def ingest_service_now() -> None:
 
     for sso_user in sso_users:
         emails_to_try = [*sso_user.emails]
-        if sso_user.service_now_user:
-            previous_service_now_email = sso_user.service_now_user.email
-            emails_to_try = [sso_user.service_now_user.email] + emails_to_try
-
         if not emails_to_try:
             continue
 
-        emails_tried: set[str] = set()
-        valid_email = None
+        sn_users = ServiceNowUser.objects.filter(email__in=emails_to_try)
 
-        for email in emails_to_try:
-            if not email or email in emails_tried:
-                continue
-
-            try:
-                service_now_user = ServiceNowUser.objects.get(email=email)
-            except ServiceNowUser.DoesNotExist:
-                pass
-            else:
-                sso_user.service_now_user = service_now_user
-                sso_user.save()
-
-                valid_email = email
-
-                break
-            finally:
-                emails_tried.add(email)
+        if sn_users:
+            for sn_user in sn_users:
+                sso_user.service_now_users.add(sn_user)
+            sso_user.save()
 
         logger.info(
             json.dumps(
                 {
                     "sso_user": str(sso_user),
-                    "previous_service_now_email": previous_service_now_email,
                     "emails": sso_user.emails,
-                    "valid_email": valid_email,
-                    "service_now_user_sys_id": sso_user.service_now_user.sys_id
-                    if sso_user.service_now_user
-                    else None,
+                    "sn_emails": sso_user.service_now_users.all().values_list(
+                        "email", flat=True
+                    ),
                 }
             )
         )

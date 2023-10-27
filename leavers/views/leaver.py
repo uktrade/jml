@@ -374,19 +374,17 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
         request.session.save()
 
     def get_cirrus_assets(self) -> List[types.CirrusAsset]:
-        user = cast(User, self.request.user)
         session = self.get_session()
 
-        staff_sso_user = ActivityStreamStaffSSOUser.objects.active().get(
-            email_user_id=user.sso_email_user_id,
+        service_now_users = (
+            self.leaving_request.leaver_activitystream_user.service_now_users.all()
         )
 
-        if not staff_sso_user.service_now_user:
-            raise Exception("Unable to find ServiceNow user for the leaver.")
+        if not service_now_users.exists():
+            self.leaving_request.service_now_offline = True
+            self.leaving_request.save(update_fields=["service_now_offline"])
 
-        service_now_user = staff_sso_user.service_now_user
-
-        if service_now_user and not self.leaving_request.service_now_offline:
+        if service_now_users:
             if "cirrus_assets" not in session:
                 session["cirrus_assets"] = [
                     {
@@ -395,6 +393,7 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
                         "tag": asset.asset_tag,
                         "name": asset.display_name,
                     }
+                    for service_now_user in service_now_users
                     for asset in service_now_user.assets
                 ]
                 self.store_session(session)
@@ -427,7 +426,7 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
     def store_cirrus_kit_information(
         self,
         cirrus_assets: List[types.CirrusAsset],
-        cirrus_additional_information: Optional[str],
+        cirrus_additional_information: Optional[str] = None,
     ) -> None:
         """
         Store the Correction information
@@ -1157,12 +1156,15 @@ class HasCirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView, FormView
     form_class = leaver_forms.HasCirrusKitForm
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
-        if not self.leaving_request.leaver_activitystream_user.service_now_user:
-            # TODO: return a custom error page to the user
-            raise Exception("Unable to find ServiceNow user for leaver.")
-        if not self.leaving_request.manager_activitystream_user.service_now_user:
-            # TODO: return a custom error page to the user
-            raise Exception("Unable to find ServiceNow user for manager.")
+        if (
+            not self.leaving_request.leaver_activitystream_user.service_now_users.all().exists()
+            or not self.leaving_request.manager_activitystream_user.service_now_users.all().exists()
+        ):
+            # If the leaver or manager does not have a ServiceNow user, then
+            # mark this as a SN offline request that the manager will have to
+            # manually process.
+            self.leaving_request.service_now_offline = True
+            self.leaving_request.save(update_fields=["service_now_offline"])
 
         user_assets = self.get_cirrus_assets()
 

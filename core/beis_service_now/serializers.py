@@ -7,10 +7,10 @@ from leavers.serializers import LeavingRequestSerializer
 
 
 class BEISLeavingRequestSerializer(LeavingRequestSerializer):
-    service_now_leaver_email = serializers.SerializerMethodField()
-    service_now_leaver_user_sys_id = serializers.SerializerMethodField()
-    service_now_line_manager_email = serializers.SerializerMethodField()
-    service_now_line_manager_user_sys_id = serializers.SerializerMethodField()
+    service_now_leaver_emails = serializers.SerializerMethodField()
+    service_now_leaver_user_sys_ids = serializers.SerializerMethodField()
+    service_now_line_manager_emails = serializers.SerializerMethodField()
+    service_now_line_manager_user_sys_ids = serializers.SerializerMethodField()
     service_now_users_assets = serializers.SerializerMethodField()
     service_now_additional_asset_information = serializers.SerializerMethodField()
     service_now_collection_details = serializers.SerializerMethodField()
@@ -22,40 +22,68 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
             "leaving_date",
             "reason_for_leaving",
             "security_clearance",
-            "service_now_leaver_email",
-            "service_now_leaver_user_sys_id",
-            "service_now_line_manager_email",
-            "service_now_line_manager_user_sys_id",
+            "service_now_leaver_emails",
+            "service_now_leaver_user_sys_ids",
+            "service_now_line_manager_emails",
+            "service_now_line_manager_user_sys_ids",
             "service_now_users_assets",
             "service_now_additional_asset_information",
             "service_now_collection_details",
         ]
 
-    def get_service_now_leaver_email(
+    def get_service_now_leaver_emails(
         self,
         obj: LeavingRequest,
     ) -> Optional[str]:
-        return obj.leaver_activitystream_user.service_now_user.email
+        emails = obj.leaver_activitystream_user.service_now_users.all().values_list(
+            "email", flat=True
+        )
+        if not emails:
+            raise ValueError(
+                f"Leaver {obj.leaver_activitystream_user} has no ServiceNow users"
+            )
+        return ",".join(emails)
 
-    def get_service_now_leaver_user_sys_id(
+    def get_service_now_leaver_user_sys_ids(
         self,
         obj: LeavingRequest,
     ) -> Optional[str]:
-        return obj.leaver_activitystream_user.service_now_user.sys_id
+        sys_ids = obj.leaver_activitystream_user.service_now_users.all().values_list(
+            "sys_id", flat=True
+        )
+        if not sys_ids:
+            raise ValueError(
+                f"Leaver {obj.leaver_activitystream_user} has no ServiceNow users"
+            )
+        return sys_ids
 
-    def get_service_now_line_manager_email(
+    def get_service_now_line_manager_emails(
         self,
         obj: LeavingRequest,
     ) -> Optional[str]:
-        # TODO: obj.manager_activitystream_user.service_now_user??
-        return obj.manager_activitystream_user.service_now_user.email
+        lm_emails = obj.manager_activitystream_user.service_now_users.all().values_list(
+            "email", flat=True
+        )
+        if not lm_emails:
+            raise ValueError(
+                f"Leaver {obj.manager_activitystream_user} has no ServiceNow users"
+            )
+        return lm_emails
 
-    def get_service_now_line_manager_user_sys_id(
+    def get_service_now_line_manager_user_sys_ids(
         self,
         obj: LeavingRequest,
     ) -> Optional[str]:
-        # TODO: obj.manager_activitystream_user.service_now_user??
-        return obj.manager_activitystream_user.service_now_user.sys_id
+        lm_sys_ids = (
+            obj.manager_activitystream_user.service_now_users.all().values_list(
+                "sys_id", flat=True
+            )
+        )
+        if not lm_sys_ids:
+            raise ValueError(
+                f"Leaver {obj.manager_activitystream_user} has no ServiceNow users"
+            )
+        return lm_sys_ids
 
     def get_service_now_users_assets(
         self,
