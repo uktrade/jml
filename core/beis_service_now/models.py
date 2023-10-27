@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.functional import cached_property
 
 if TYPE_CHECKING:
-    from django.db.models import BaseManager
+    from django.db.models.query import QuerySet
 
 
 class ServiceNowObject(models.Model):
@@ -34,7 +34,7 @@ class ServiceNowUser(ServiceNowObject):
     manager_sys_id = models.CharField(max_length=255)
 
     @cached_property
-    def assets(self) -> "BaseManager[ServiceNowAsset]":
+    def assets(self) -> "QuerySet[ServiceNowAsset]":
         return ServiceNowAsset.objects.filter(assigned_to_sys_id=self.sys_id)
 
     @cached_property
