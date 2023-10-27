@@ -10,6 +10,9 @@ if TYPE_CHECKING:
 class ServiceNowObject(models.Model):
     sys_id = models.CharField(max_length=255, primary_key=True)
 
+    def __str__(self) -> str:
+        return f"{self.sys_id}"
+
 
 class ServiceNowAsset(ServiceNowObject):
     display_name = models.CharField(max_length=255)
