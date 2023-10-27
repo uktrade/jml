@@ -76,7 +76,7 @@ class ServiceNowObjectPostView(View):
             not in [
                 "sys_id",
                 "servicenowobject_ptr",
-                "activity_stream_user",
+                "activity_stream_users",
             ]
         ]
 
