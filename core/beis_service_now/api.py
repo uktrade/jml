@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Dict, Optional, Type
+from typing import Any, Type
 
 from django.http import HttpRequest, HttpResponse
 from django.http.response import HttpResponseBase
@@ -52,7 +52,7 @@ class SubmittedLeavingRequestViewSet(LeavingRequestViewSetBase):
 
 @method_decorator(csrf_exempt, name="dispatch")
 class ServiceNowObjectPostView(View):
-    model: Optional[Type[ServiceNowObject]] = None
+    model: Type[ServiceNowObject] = ServiceNowObject
     sys_id_key: str
 
     def dispatch(
@@ -66,9 +66,14 @@ class ServiceNowObjectPostView(View):
         # TODO: Validate the body before ingesting it (using pydantic?)
         objects_to_save = []
         for data in body:
-            sys_id = data[self.sys_id_key]
+            sys_id = data[self.sys_id_key]  # type: ignore
             obj, _ = self.model.objects.get_or_create(sys_id=sys_id)
-            objects_to_save.append(self.data_to_object(obj, data))
+            if not isinstance(obj, ServiceNowObject):
+                raise ValueError(
+                    f"Expected {self.model} but got {obj} for sys_id {sys_id}"
+                )
+            updated_obj = self.data_to_object(obj, data)
+            objects_to_save.append(updated_obj)
 
         model_update_fields = [
             field.name
@@ -86,9 +91,7 @@ class ServiceNowObjectPostView(View):
             fields=model_update_fields,
         )
 
-    def data_to_object(
-        self, obj: ServiceNowObject, data: Dict[str, Any]
-    ) -> ServiceNowObject:
+    def data_to_object(self, obj: Any, data: Any) -> Any:
         raise NotImplementedError
 
     def post(self, request: HttpRequest, **kwargs):

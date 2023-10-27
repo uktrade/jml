@@ -1156,6 +1156,7 @@ class HasCirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView, FormView
     form_class = leaver_forms.HasCirrusKitForm
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
+        assert self.leaving_request.manager_activitystream_user
         if (
             not self.leaving_request.leaver_activitystream_user.service_now_users.all().exists()
             or not self.leaving_request.manager_activitystream_user.service_now_users.all().exists()
