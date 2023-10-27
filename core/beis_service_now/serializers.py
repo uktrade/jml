@@ -34,22 +34,26 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
     def get_service_now_leaver_emails(
         self,
         obj: LeavingRequest,
-    ) -> Optional[str]:
-        emails = obj.leaver_activitystream_user.service_now_users.all().values_list(
-            "email", flat=True
+    ) -> List[str]:
+        emails = list(
+            obj.leaver_activitystream_user.service_now_users.all().values_list(
+                "email", flat=True
+            )
         )
         if not emails:
             raise ValueError(
                 f"Leaver {obj.leaver_activitystream_user} has no ServiceNow users"
             )
-        return ",".join(emails)
+        return emails
 
     def get_service_now_leaver_user_sys_ids(
         self,
         obj: LeavingRequest,
-    ) -> Optional[str]:
-        sys_ids = obj.leaver_activitystream_user.service_now_users.all().values_list(
-            "sys_id", flat=True
+    ) -> List[str]:
+        sys_ids = list(
+            obj.leaver_activitystream_user.service_now_users.all().values_list(
+                "sys_id", flat=True
+            )
         )
         if not sys_ids:
             raise ValueError(
@@ -60,9 +64,12 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
     def get_service_now_line_manager_emails(
         self,
         obj: LeavingRequest,
-    ) -> Optional[str]:
-        lm_emails = obj.manager_activitystream_user.service_now_users.all().values_list(
-            "email", flat=True
+    ) -> List[str]:
+        assert obj.manager_activitystream_user
+        lm_emails = list(
+            obj.manager_activitystream_user.service_now_users.all().values_list(
+                "email", flat=True
+            )
         )
         if not lm_emails:
             raise ValueError(
@@ -73,8 +80,9 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
     def get_service_now_line_manager_user_sys_ids(
         self,
         obj: LeavingRequest,
-    ) -> Optional[str]:
-        lm_sys_ids = (
+    ) -> List[str]:
+        assert obj.manager_activitystream_user
+        lm_sys_ids = list(
             obj.manager_activitystream_user.service_now_users.all().values_list(
                 "sys_id", flat=True
             )
@@ -88,8 +96,9 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
     def get_service_now_users_assets(
         self,
         obj: LeavingRequest,
-    ) -> Optional[List[Dict[str, str]]]:
+    ) -> List[Dict[str, str]]:
         leaver_info = obj.leaver_information.first()
+        assert leaver_info
         if leaver_info.cirrus_assets:
             return [
                 {
@@ -106,6 +115,7 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
         obj: LeavingRequest,
     ) -> Optional[str]:
         leaver_info = obj.leaver_information.first()
+        assert leaver_info
         return leaver_info.cirrus_additional_information
 
     def get_service_now_collection_details(
@@ -113,7 +123,7 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
         obj: LeavingRequest,
     ) -> Optional[Dict[str, str]]:
         leaver_info = obj.leaver_information.first()
-
+        assert leaver_info
         address_lines = []
         if leaver_info.contact_address_line_1:
             address_lines.append(leaver_info.contact_address_line_1)
@@ -125,8 +135,9 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
             address_lines.append(leaver_info.contact_address_county)
 
         return {
-            "contact_telephone_for_collection": leaver_info.contact_phone,
-            "contact_email_for_delivery_collection": leaver_info.personal_email,
+            "contact_telephone_for_collection": leaver_info.contact_phone or "",
+            "contact_email_for_delivery_collection": leaver_info.personal_email or "",
             "collection_address_for_remote_leaver": ", ".join(address_lines),
-            "collection_postcode_for_remote_leaver": leaver_info.contact_address_postcode,
+            "collection_postcode_for_remote_leaver": leaver_info.contact_address_postcode
+            or "",
         }
