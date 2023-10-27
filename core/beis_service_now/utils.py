@@ -25,20 +25,30 @@ def ingest_service_now() -> None:
         if not emails_to_try:
             continue
 
+        current_sn_users = sso_user.service_now_users.all()
         sn_users = ServiceNowUser.objects.filter(email__in=emails_to_try)
+        new_sn_users = sn_users.exclude(
+            sys_id__in=current_sn_users.values_list("sys_id")
+        )
+        old_sn_users = current_sn_users.exclude(
+            sys_id__in=sn_users.values_list("sys_id")
+        )
 
-        if sn_users:
-            for sn_user in sn_users:
-                sso_user.service_now_users.add(sn_user)
-            sso_user.save()
+        for new_sn_user in new_sn_users:
+            sso_user.service_now_users.add(new_sn_user)
+        for old_sn_user in old_sn_users:
+            sso_user.service_now_users.remove(old_sn_user)
+        sso_user.save()
 
         logger.info(
             json.dumps(
                 {
                     "sso_user": str(sso_user),
                     "emails": sso_user.emails,
-                    "sn_emails": sso_user.service_now_users.all().values_list(
-                        "email", flat=True
+                    "new_sn_emails": list(new_sn_users.values_list("email", flat=True)),
+                    "old_sn_emails": list(old_sn_users.values_list("email", flat=True)),
+                    "sn_emails": list(
+                        sso_user.service_now_users.all().values_list("email", flat=True)
                     ),
                 }
             )
