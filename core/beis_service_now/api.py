@@ -44,6 +44,7 @@ class SubmittedLeavingRequestViewSet(LeavingRequestViewSetBase):
     permission_classes = [IsAuthenticated]
     serializer_class = BEISLeavingRequestSerializer
     queryset = LeavingRequest.objects.filter(
+        service_now_offline=False,
         leaver_complete__isnull=False,
         line_manager_complete__isnull=False,
     )
