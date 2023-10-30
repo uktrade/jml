@@ -49,6 +49,21 @@ class SubmittedLeavingRequestViewSet(LeavingRequestViewSetBase):
         line_manager_complete__isnull=False,
     )
 
+    def get_queryset(self):
+        """
+        Optionally restricts the returned leaving requests, by filtering
+        against a `submitted_from` and `submitted_to` query parameter in the
+        URL.
+        """
+        queryset = super().get_queryset()
+        submitted_from = self.request.query_params.get("submitted_from")
+        submitted_to = self.request.query_params.get("submitted_to")
+        if submitted_from is not None:
+            queryset = queryset.filter(line_manager_complete__gte=submitted_from)
+        if submitted_to is not None:
+            queryset = queryset.filter(line_manager_complete__lte=submitted_to)
+        return queryset
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class ServiceNowObjectPostView(View):
