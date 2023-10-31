@@ -1,11 +1,8 @@
-from typing import List, TypedDict
+from pydantic import BaseModel
 
 
-class ServiceNowPostObject(TypedDict):
+class ServiceNowPostObject(BaseModel):
     ...
-
-
-ServiceNowObjectPostBody = List[ServiceNowPostObject]
 
 
 class ServiceNowPostAsset(ServiceNowPostObject):

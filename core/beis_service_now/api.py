@@ -1,7 +1,8 @@
 import json
 import logging
-from typing import Any, Type
+from typing import Any, Dict, List, Type
 
+import pydantic_core
 from django.http import HttpRequest, HttpResponse
 from django.http.response import HttpResponseBase
 from django.utils.decorators import method_decorator
@@ -22,9 +23,9 @@ from core.beis_service_now.models import (
 )
 from core.beis_service_now.serializers import BEISLeavingRequestSerializer
 from core.beis_service_now.types import (
-    ServiceNowObjectPostBody,
     ServiceNowPostAsset,
     ServiceNowPostDirectorate,
+    ServiceNowPostObject,
     ServiceNowPostUser,
 )
 from leavers.models import LeavingRequest
@@ -68,6 +69,7 @@ class SubmittedLeavingRequestViewSet(LeavingRequestViewSetBase):
 @method_decorator(csrf_exempt, name="dispatch")
 class ServiceNowObjectPostView(View):
     model: Type[ServiceNowObject] = ServiceNowObject
+    post_data_class: Type[ServiceNowPostObject] = ServiceNowPostObject
     sys_id_key: str
 
     def dispatch(
@@ -77,17 +79,25 @@ class ServiceNowObjectPostView(View):
             return HttpResponse(status=403)
         return super().dispatch(request, *args, **kwargs)
 
-    def ingest_data(self, body: ServiceNowObjectPostBody) -> None:
-        # TODO: Validate the body before ingesting it (using pydantic?)
+    def ingest_data(self, body: List[Dict]) -> None:
         objects_to_save = []
         for data in body:
-            sys_id = data[self.sys_id_key]  # type: ignore
+            sn_post_data = self.post_data_class(**data)
+
+            sys_id = getattr(sn_post_data, self.sys_id_key)
+            if not sys_id:
+                raise ValueError(
+                    f"Expected {self.sys_id_key} in {self.post_data_class} but got {sys_id}"
+                )
+
             obj, _ = self.model.objects.get_or_create(sys_id=sys_id)
             if not isinstance(obj, ServiceNowObject):
                 raise ValueError(
                     f"Expected {self.model} but got {obj} for sys_id {sys_id}"
                 )
-            updated_obj = self.data_to_object(obj, data)
+
+            updated_obj = self.data_to_object(obj, sn_post_data)
+
             objects_to_save.append(updated_obj)
 
         model_update_fields = [
@@ -113,6 +123,9 @@ class ServiceNowObjectPostView(View):
         try:
             post_body = json.loads(request.body)
             self.ingest_data(post_body)
+        except pydantic_core.ValidationError as e:
+            logger.exception(e)
+            raise e
         except Exception as e:
             logger.exception(e)
             return HttpResponse(
@@ -127,44 +140,47 @@ class ServiceNowObjectPostView(View):
 
 class ServiceNowAssetPostView(ServiceNowObjectPostView):
     model = ServiceNowAsset
+    post_data_class: Type[ServiceNowPostObject] = ServiceNowPostAsset
     sys_id_key = "asset_sys_id"
 
     def data_to_object(
         self, obj: ServiceNowAsset, data: ServiceNowPostAsset
     ) -> ServiceNowAsset:
-        obj.model_category = data["model_category"]
-        obj.model = data["model"]
-        obj.display_name = data["display_name"]
-        obj.install_status = data["install_status"]
-        obj.substatus = data["substatus"]
-        obj.assigned_to_sys_id = data["assigned_to_sys_id"]
-        obj.assigned_to_display_name = data["assigned_to_display_name"]
-        obj.asset_tag = data["asset_tag"]
-        obj.serial_number = data["serial_number"]
+        obj.model_category = data.model_category
+        obj.model = data.model
+        obj.display_name = data.display_name
+        obj.install_status = data.install_status
+        obj.substatus = data.substatus
+        obj.assigned_to_sys_id = data.assigned_to_sys_id
+        obj.assigned_to_display_name = data.assigned_to_display_name
+        obj.asset_tag = data.asset_tag
+        obj.serial_number = data.serial_number
         return obj
 
 
 class ServiceNowUserPostView(ServiceNowObjectPostView):
     model = ServiceNowUser
+    post_data_class: Type[ServiceNowPostObject] = ServiceNowPostUser
     sys_id_key = "user_sys_id"
 
     def data_to_object(
         self, obj: ServiceNowUser, data: ServiceNowPostUser
     ) -> ServiceNowUser:
-        obj.user_name = data["user_name"]
-        obj.name = data["name"]
-        obj.email = data["email"]
-        obj.manager_user_name = data["manager_user_name"]
-        obj.manager_sys_id = data["manager_sys_id"]
+        obj.user_name = data.user_name
+        obj.name = data.name
+        obj.email = data.email
+        obj.manager_user_name = data.manager_user_name
+        obj.manager_sys_id = data.manager_sys_id
         return obj
 
 
 class ServiceNowDirectoratePostView(ServiceNowObjectPostView):
     model = ServiceNowDirectorate
+    post_data_class: Type[ServiceNowPostObject] = ServiceNowPostDirectorate
     sys_id_key = "directorate_sys_id"
 
     def data_to_object(
         self, obj: ServiceNowDirectorate, data: ServiceNowPostDirectorate
     ) -> ServiceNowDirectorate:
-        obj.name = data["name"]
+        obj.name = data.name
         return obj
