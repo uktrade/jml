@@ -1,6 +1,7 @@
 import json
 from typing import Dict, List, Optional, Type
 
+import pydantic_core
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -65,13 +66,13 @@ class ServiceNowApiTestCase(TestCase):
         self.assertFalse(self.model.objects.all().count())
 
         headers = {"HTTP_X-Api-Key": "some-shared-token"}
-        response = self.client.post(
-            url,
-            data=self.FAILING_POST_DATA,
-            content_type="application/json",
-            **headers,
-        )
-        self.assertEqual(response.status_code, 500)
+        with self.assertRaises(pydantic_core.ValidationError):
+            self.client.post(
+                url,
+                data=self.FAILING_POST_DATA,
+                content_type="application/json",
+                **headers,
+            )
         self.assertEqual(self.model.objects.all().count(), 0)
 
     SUCCESSFUL_POST_DATA: List[Dict[str, str]] = [{}]
