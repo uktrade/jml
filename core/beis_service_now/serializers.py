@@ -129,15 +129,14 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
             address_lines.append(leaver_info.contact_address_line_1)
         if leaver_info.contact_address_line_2:
             address_lines.append(leaver_info.contact_address_line_2)
-        if leaver_info.contact_address_city:
-            address_lines.append(leaver_info.contact_address_city)
-        if leaver_info.contact_address_county:
-            address_lines.append(leaver_info.contact_address_county)
 
         return {
             "contact_telephone_for_collection": leaver_info.contact_phone or "",
             "contact_email_for_delivery_collection": leaver_info.personal_email or "",
             "collection_address_for_remote_leaver": ", ".join(address_lines),
+            "collection_city_for_remote_leaver": leaver_info.contact_address_city or "",
+            "collection_county_for_remote_leaver": leaver_info.contact_address_county
+            or "",
             "collection_postcode_for_remote_leaver": leaver_info.contact_address_postcode
             or "",
         }
