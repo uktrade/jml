@@ -67,17 +67,21 @@ class SubmittedLeavingRequestViewSet(LeavingRequestViewSetBase):
 
 
 @method_decorator(csrf_exempt, name="dispatch")
-class ServiceNowObjectPostView(View):
-    model: Type[ServiceNowObject] = ServiceNowObject
-    post_data_class: Type[ServiceNowPostObject] = ServiceNowPostObject
-    sys_id_key: str
-
+class ServiceNowAPIView(View):
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
         if not auth_service_now_request(request.headers):
+            logger.warning("ServiceNow request failed authentication")
             return HttpResponse(status=403)
+        logger.warning("ServiceNow request succeeded authentication")
         return super().dispatch(request, *args, **kwargs)
+
+
+class ServiceNowObjectPostView(ServiceNowAPIView):
+    model: Type[ServiceNowObject] = ServiceNowObject
+    post_data_class: Type[ServiceNowPostObject] = ServiceNowPostObject
+    sys_id_key: str
 
     def ingest_data(self, body: List[Dict]) -> None:
         objects_to_save = []
@@ -111,6 +115,8 @@ class ServiceNowObjectPostView(View):
             ]
         ]
 
+        logger.info(f"Saving {len(objects_to_save)} {self.model} objects")
+
         self.model.objects.bulk_update(
             objects_to_save,
             fields=model_update_fields,
@@ -122,6 +128,17 @@ class ServiceNowObjectPostView(View):
     def post(self, request: HttpRequest, **kwargs):
         try:
             post_body = json.loads(request.body)
+        except Exception as e:
+            logger.exception(e)
+            return HttpResponse(
+                status=400,
+                content=(
+                    "There is an issue with the posted data, please check that"
+                    " it is valid JSON"
+                ),
+            )
+
+        try:
             self.ingest_data(post_body)
         except pydantic_core.ValidationError as e:
             logger.exception(e)
@@ -132,6 +149,7 @@ class ServiceNowObjectPostView(View):
                 status=500,
                 content=f"An error occurred while ingesting the {self.model} data ❌",
             )
+        logger.info(f"Successfully ingested {self.model} data ✅")
         return HttpResponse(
             status=200,
             content=f"{self.model} data has been ingested successfully 🎉",
@@ -184,3 +202,20 @@ class ServiceNowDirectoratePostView(ServiceNowObjectPostView):
     ) -> ServiceNowDirectorate:
         obj.name = data.name
         return obj
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class ServiceNowRITMView(ServiceNowAPIView):
+    def post(self, request: HttpRequest, **kwargs):
+        post_body = json.loads(request.body)
+
+        # Raise and log an exception for debugging
+        try:
+            raise Exception(f"RITM response received: {post_body}")
+        except Exception as e:
+            logger.exception(e)
+
+        return HttpResponse(
+            status=200,
+            content="RITM response stored!",
+        )
