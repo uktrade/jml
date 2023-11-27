@@ -126,8 +126,24 @@ class ServiceNowObjectPostView(ServiceNowAPIView):
         raise NotImplementedError
 
     def post(self, request: HttpRequest, **kwargs):
+        body = request.body.decode()
+
+        # NOTE: This is a hack to remove the quotes from the body since the
+        # ServiceNow request sends the body as a string.
+        if body.startswith('"') and body.endswith('"'):
+            body = body[1:-1]
+
         try:
-            post_body = json.loads(request.body)
+            post_body = json.loads(body)
+        except json.decoder.JSONDecodeError as e:
+            logger.exception(e)
+            return HttpResponse(
+                status=400,
+                content=(
+                    "There is an issue with the posted data, please check that"
+                    f" it is valid JSON: {e}"
+                ),
+            )
         except Exception as e:
             logger.exception(e)
             return HttpResponse(
@@ -135,6 +151,31 @@ class ServiceNowObjectPostView(ServiceNowAPIView):
                 content=(
                     "There is an issue with the posted data, please check that"
                     " it is valid JSON"
+                ),
+            )
+
+        # TODO: Remove this debug exception
+        debug_exception = Exception(
+            f"""
+            POST request received!
+
+            Content type: {request.content_type}
+            Body: {request.body}
+            Body type: {type(request.body)}
+
+            post_body: {post_body}
+            post_body type: {type(post_body)}
+            """
+        )
+        logger.exception(debug_exception)
+
+        if not isinstance(post_body, list):
+            logger.error(f"Expected a list of objects, got {type(post_body)}")
+            return HttpResponse(
+                status=400,
+                content=(
+                    "There is an issue with the posted data, please check that"
+                    " it is a list of objects"
                 ),
             )
 
