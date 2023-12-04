@@ -906,6 +906,7 @@ Slack API
 slack_access_task_log
 SLACK_SRE_CHANNEL_ID
 SlackMessage.objects.create
+SN
 Software
 Software Asset
 Sound Bar'

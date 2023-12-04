@@ -433,4 +433,5 @@ class ServiceNowInterface(ServiceNowBase):
             self.POST_LEAVER_REQUEST, json=service_now_request_data
         )
 
+        # TODO: Check response
         return response

@@ -305,6 +305,10 @@ class ServiceNowSendLeaverDetails(LeavingRequestTask):
     auto = True
 
     def execute(self, task_info):
+        if self.leaving_request.service_now_offline:
+            # If the request has SN offline set, we don't need to send the details
+            return None, True
+
         leaver_details = get_leaver_details(leaving_request=self.leaving_request)
         leaver_information: Optional[
             LeaverInformation
@@ -1033,7 +1037,7 @@ class SendSRESlackMessage(LeavingRequestTask):
         return None, True
 
 
-class HasLineManagerUpdaatedServiceNow(LeavingRequestTask):
+class HasLineManagerUpdatedServiceNow(LeavingRequestTask):
     abstract = False
     task_name = "has_line_manager_updated_service_now"
     auto = True
