@@ -13,7 +13,7 @@ crispy-forms-gds = "^0.2.3"
 dataclasses-json = "==0.5.7"
 django = "^4.1.10"
 djangorestframework = "^3.12.4"
-django-hawk-drf = "^1.0.0"
+django-hawk-drf = "1.1.0"
 django-celery-beat = "^2.2.1"
 django-celery-results = "==2.4.0"
 django-crispy-forms = "^1.14.0"
@@ -137,22 +137,17 @@ module = [
 ignore_missing_imports = true
 
 [tool.djlint]
-profile="django"
-indent="4"
-ignore="H021,H006"
-extend_exclude="htmlcov,staticfiles,static,node_modules"
-custom_blocks="gds_accordion,gds_accordion_item,gds_breadcrumbs,gds_checkboxes,gds_checkbox_conditional,gds_cookie_banner,gds_cookie_banner_message,gds_error_summary,gds_error_summary_error_list_item,gds_footer,gds_footer_nav,gds_footer_meta,gds_header,gds_header_nav_item,gds_phase_banner,gds_summary_list,gds_summary_list_row,gds_summary_list_row_key,gds_summary_list_row_value,gds_summary_list_row_actions,gds_summary_list_row_actions_item,gds_summary_list_card,gds_summary_list_card_actions,gds_summary_list_card_actions_item,gds_tabs,gds_tabs_tab"
+profile = "django"
+indent = "4"
+ignore = "H021,H006"
+extend_exclude = "htmlcov,staticfiles,static,node_modules"
+custom_blocks = "gds_accordion,gds_accordion_item,gds_breadcrumbs,gds_checkboxes,gds_checkbox_conditional,gds_cookie_banner,gds_cookie_banner_message,gds_error_summary,gds_error_summary_error_list_item,gds_footer,gds_footer_nav,gds_footer_meta,gds_header,gds_header_nav_item,gds_phase_banner,gds_summary_list,gds_summary_list_row,gds_summary_list_row_key,gds_summary_list_row_value,gds_summary_list_row_actions,gds_summary_list_row_actions_item,gds_summary_list_card,gds_summary_list_card_actions,gds_summary_list_card_actions_item,gds_tabs,gds_tabs_tab"
 
 [tool.django-stubs]
 django_settings_module = "config.settings.test"
 
 [tool.coverage.run]
-omit = [
-    "*/migrations/*",
-    "*/tests/*",
-    "config/*",
-    "dev_tools/*",
-]
+omit = ["*/migrations/*", "*/tests/*", "config/*", "dev_tools/*"]
 
 [tool.coverage.report]
 exclude_lines = [
