@@ -825,10 +825,7 @@ class TestSREProcessorReminderEmail(TestCase):
             last_day=make_aware(datetime(2022, 12, 12)),  # Monday
             leaving_date=make_aware(datetime(2022, 12, 16)),  # Friday
         )
-        self.leaving_request.slack_messages.create(
-            slack_timestamp="",
-            channel_id="",
-        )
+        LeaverInformationFactory(leaving_request=self.leaving_request)
         self.flow.leaving_request = self.leaving_request
         self.flow.save()
 
@@ -839,10 +836,7 @@ class TestSREProcessorReminderEmail(TestCase):
             last_day=make_aware(datetime(2022, 12, 16)),  # Friday
             leaving_date=make_aware(datetime(2022, 12, 16)),  # Friday
         )
-        self.leaving_request2.slack_messages.create(
-            slack_timestamp="",
-            channel_id="",
-        )
+        LeaverInformationFactory(leaving_request=self.leaving_request2)
         self.flow2.leaving_request = self.leaving_request2
         self.flow2.save()
 
