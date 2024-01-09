@@ -16,7 +16,6 @@ from leavers.models import LeaverInformation, LeavingRequest
 from leavers.types import LeavingReason, ReminderEmailDict
 from leavers.workflow.tasks import (
     SECURITY_TEAM_BP_REMINDER_EMAILS,
-    SRE_REMINDER_EMAILS,
     DailyReminderEmail,
     EmailIds,
     ProcessorReminderEmail,
