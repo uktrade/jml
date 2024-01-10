@@ -83,7 +83,8 @@ types-requests = "*"
 types-oauthlib = "*"
 django-extensions = "*"
 pydot = "^1.4.2"
-bpython = "^0.23"
+bpython = "^0.24"
+debugpy = "*"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-material = "^9.1.5"

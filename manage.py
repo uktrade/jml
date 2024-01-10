@@ -2,8 +2,31 @@
 import os
 import sys
 
-if __name__ == "__main__":
+
+def initialize_debugpy():
+    try:
+        import debugpy
+    except ImportError:
+        sys.stdout.write(
+            "debugpy is not installed, please install it with: pip install debugpy\n"
+        )
+        return
+
+    # RUN_MAIN is set to a truthy value in the subprocesses started by the
+    # reloader. This check ensures that debugpy is only started in the main process.
+    if not os.getenv("RUN_MAIN"):
+        debugpy.listen(("0.0.0.0", 5678))
+        sys.stdout.write("Start the VS Code debugger now, waiting...\n")
+
+
+def main():
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.prod")
+    from django.conf import settings
+
+    if settings.DEBUG and settings.ENABLE_DEBUGPY:
+        initialize_debugpy()
+
+    """Run administrative tasks."""
     try:
         from django.core.management import execute_from_command_line
     except ImportError:
@@ -18,5 +41,8 @@ if __name__ == "__main__":
                 "available on your PYTHONPATH environment variable? Did you "
                 "forget to activate a virtual environment?"
             )
-        raise
     execute_from_command_line(sys.argv)
+
+
+if __name__ == "__main__":
+    main()
