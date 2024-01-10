@@ -492,7 +492,7 @@ class LeavingRequest(models.Model):
         Returns the most up to date security clearance.
         """
 
-        if self.security_clearance_level:
+        if self.security_clearance_level and self.security_clearance_level.value:
             return SecurityClearance(self.security_clearance_level.value)
         if self.security_clearance:
             return SecurityClearance(self.security_clearance)
@@ -521,7 +521,7 @@ class LeavingRequest(models.Model):
         for service_field, service_label in sre_service_label_mapping:
             status: ServiceAndToolActions = ServiceAndToolActions.NOT_STARTED
             service_task_log: Optional[TaskLog] = getattr(self, service_field)
-            if service_task_log:
+            if service_task_log and service_task_log.value:
                 status = ServiceAndToolActions(service_task_log.value)
             sre_services.append(
                 (

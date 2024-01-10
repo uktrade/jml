@@ -461,11 +461,16 @@ class SecurityClearanceConfirmationEditView(SecurityViewMixin, FormView):
     def get_initial(self) -> Dict[str, Any]:
         initial = super().get_initial()
 
+        assert self.leaving_request.security_clearance
+
         clearance_level: SecurityClearance = SecurityClearance(
             self.leaving_request.security_clearance
         )
 
-        if self.leaving_request.security_clearance_level:
+        if (
+            self.leaving_request.security_clearance_level
+            and self.leaving_request.security_clearance_level.value
+        ):
             clearance_level = SecurityClearance(
                 self.leaving_request.security_clearance_level.value
             )
@@ -473,7 +478,10 @@ class SecurityClearanceConfirmationEditView(SecurityViewMixin, FormView):
         security_clearance_status: ClearanceStatus = ClearanceStatus.ACTIVE
         security_clearance_other_value: Optional[str] = None
 
-        if self.leaving_request.security_clearance_status:
+        if (
+            self.leaving_request.security_clearance_status
+            and self.leaving_request.security_clearance_status.value
+        ):
             security_clearance_status = ClearanceStatus(
                 self.leaving_request.security_clearance_status.value
             )
