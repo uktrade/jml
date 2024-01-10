@@ -30,7 +30,7 @@ run = docker-compose run --rm
 manage = python manage.py
 
 # Run poetry if it is installed, otherwise run it in the leavers container
-POETRY := $(shell command -v poetry 2> /dev/null)=
+POETRY := $(shell command -v poetryy 2> /dev/null)
 ifdef POETRY
     poetry = poetry --quiet
 else
