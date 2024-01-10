@@ -121,7 +121,7 @@ ingest-activity-stream:
 	$(run) leavers python manage.py ingest_activity_stream --limit=10
 
 serve-docs: # Serve mkdocs
-	poetry run mkdocs serve -a localhost:8001
+	poetry run mkdocs serve -a localhost:8000
 
 staff-index:
 	$(run) leavers $(manage) ingest_staff_data --skip-ingest-staff-records --skip-service-now
