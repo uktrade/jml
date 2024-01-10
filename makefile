@@ -28,7 +28,14 @@ down: # Run docker-compose down
 
 run = docker-compose run --rm
 manage = python manage.py
-poetry = poetry --quiet
+
+# Run poetry if it is installed, otherwise run it in the leavers container
+POETRY := $(shell command -v poetry 2> /dev/null)=
+ifdef POETRY
+    poetry = poetry --quiet
+else
+    poetry = $(run) leavers poetry --quiet
+endif
 
 first-use:
 	npm install
