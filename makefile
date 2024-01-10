@@ -17,9 +17,6 @@ build: # Run docker-compose build
 	npm install
 	npm run build
 
-utils-build:
-	docker-compose -f docker-compose.yml -f docker-compose.utils.yml build utils
-
 up: # Run docker-compose up
 	docker-compose up
 
@@ -69,9 +66,6 @@ compilescss: # Compile SCSS into CSS
 
 shell: # Run a Django shell
 	$(run) leavers python manage.py shell
-
-utils-shell:
-	docker-compose -f docker-compose.yml -f docker-compose.utils.yml run --rm utils /bin/bash
 
 flake8: # Run flake8
 	$(run) leavers flake8 $(file)
