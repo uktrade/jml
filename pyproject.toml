@@ -119,6 +119,7 @@ module = [
     "authbroker_client.*",
     "celery.*",
     "crispy_forms_gds.*",
+    "debugpy.*",
     "django_log_formatter_ecs.*",
     "django_workflow_engine.*",
     "elasticsearch_dsl.*",
