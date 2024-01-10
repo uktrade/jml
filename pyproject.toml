@@ -70,7 +70,7 @@ responses = "^0.22.0"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.3.1"
+pre-commit = "*"
 djlint = "*"
 black = "*"
 django-stubs = "*"
