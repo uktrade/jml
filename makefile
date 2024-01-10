@@ -28,7 +28,7 @@ down: # Run docker-compose down
 
 run = docker-compose run --rm
 manage = python manage.py
-poetry = $(run) leavers poetry --quiet
+poetry = poetry --quiet
 
 first-use:
 	npm install
@@ -68,16 +68,16 @@ shell: # Run a Django shell
 	$(run) leavers python manage.py shell
 
 flake8: # Run flake8
-	$(run) leavers flake8 $(file)
+	$(poetry) run flake8 $(file)
 
 black: # Run black
-	$(run) leavers black .
+	$(poetry) run black .
 
 isort: # Run isort
-	$(run) leavers isort .
+	$(poetry) run isort .
 
 djlint: # Run djlint
-	$(run) leavers djlint . --reformat --format-css --format-js
+	$(poetry) run djlint . --reformat --format-css --format-js
 
 format: flake8 black isort djlint
 
@@ -121,7 +121,7 @@ ingest-activity-stream:
 	$(run) leavers python manage.py ingest_activity_stream --limit=10
 
 serve-docs: # Serve mkdocs
-	poetry run mkdocs serve -a localhost:8000
+	$(poetry) run mkdocs serve -a localhost:8000
 
 staff-index:
 	$(run) leavers $(manage) ingest_staff_data --skip-ingest-staff-records --skip-service-now
