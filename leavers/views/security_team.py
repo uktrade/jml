@@ -383,7 +383,7 @@ class BuildingPassConfirmationEditView(SecurityViewMixin, FormView):
         return super().form_valid(form)
 
 
-class BuidlingPassConfirmationCloseView(SecurityViewMixin, FormView):
+class BuildingPassConfirmationCloseView(SecurityViewMixin, FormView):
     template_name = "leaving/security_team/confirmation/building_pass_action.html"
     form_class = BuildingPassCloseRecordForm
     success_viewname = "security-team-summary"
