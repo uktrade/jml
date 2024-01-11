@@ -717,8 +717,16 @@ class ProcessorReminderEmail(EmailTask):
             from core import notify
 
             assert template_id
+
+            # Clean the processor emails:
+            email_addresses = [
+                email_address
+                for email_address in self.processor_emails
+                if email_address
+            ]
+
             notify.email(
-                email_addresses=self.processor_emails,
+                email_addresses=email_addresses,
                 template_id=template_id,
                 personalisation=get_leaving_request_email_personalisation(
                     leaving_request
