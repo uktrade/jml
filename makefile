@@ -20,7 +20,7 @@ build: # Run docker-compose build
 up: # Run docker-compose up
 	docker-compose up
 
-up-detached: # # Run docker-compose up in a detached state
+up-detached: # Run docker-compose up in a detached state
 	docker-compose up -d
 
 down: # Run docker-compose down
@@ -30,7 +30,7 @@ run = docker-compose run --rm
 manage = python manage.py
 
 # Run poetry if it is installed, otherwise run it in the leavers container
-POETRY := $(shell command -v poetryy 2> /dev/null)
+POETRY := $(shell command -v poetry 2> /dev/null)
 ifdef POETRY
     poetry = poetry --quiet
 else
