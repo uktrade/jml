@@ -132,6 +132,8 @@ module = [
     "help_desk_client.*",
     "mohawk.*",
     "opensearch_dsl.*",
+    "pydantic.*",
+    "pydantic_core.*",
     "requests_hawk.*",
     "requests_oauthlib.*",
     "rest_framework.*",
