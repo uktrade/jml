@@ -16,7 +16,7 @@ def initialize_debugpy():
     # reloader. This check ensures that debugpy is only started in the main process.
     if not os.getenv("RUN_MAIN"):
         debugpy.listen(("0.0.0.0", 5678))
-        sys.stdout.write("Start the VS Code debugger now, waiting...\n")
+        sys.stdout.write("debugpy listening on port 5678...\n")
 
 
 def main():
