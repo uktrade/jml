@@ -7,49 +7,35 @@ COLOUR_GREEN=\033[32;01m
 COLOUR_YELLOW=\033[33;01m
 COLOUR_RED='\033[0;31m'
 
-.PHONY: help test
-help:
-	@echo -e "$(COLOUR_GREEN)|--- $(APPLICATION_NAME) ---|$(COLOUR_NONE)"
-	@echo -e "$(COLOUR_YELLOW)make build$(COLOUR_NONE) : Run docker-compose build"
-	@echo -e "$(COLOUR_YELLOW)make up$(COLOUR_NONE) : Run docker-compose up"
-	@echo -e "$(COLOUR_YELLOW)make down$(COLOUR_NONE) : Run docker-compose down"
-	@echo -e "$(COLOUR_YELLOW)make migrations$(COLOUR_NONE) : Run Django makemigrations"
-	@echo -e "$(COLOUR_YELLOW)make migrate$(COLOUR_NONE) : Run Django migrate"
-	@echo -e "$(COLOUR_YELLOW)make compilescss$(COLOUR_NONE) : Compile SCSS into CSS"
-	@echo -e "$(COLOUR_YELLOW)make shell$(COLOUR_NONE) : Run a Django shell"
-	@echo -e "$(COLOUR_YELLOW)make flake8$(COLOUR_NONE) : Run flake8 checks"
-	@echo -e "$(COLOUR_YELLOW)make black$(COLOUR_NONE) : Run black"
-	@echo -e "$(COLOUR_YELLOW)make isort$(COLOUR_NONE) : Run isort"
-	@echo -e "$(COLOUR_YELLOW)make collectstatic$(COLOUR_NONE) : Run Django BDD tests"
-	@echo -e "$(COLOUR_YELLOW)make bash$(COLOUR_NONE) : Start a bash session on the application container"
-	@echo -e "$(COLOUR_YELLOW)make all-requirements$(COLOUR_NONE) : Generate pip requirements files"
-	@echo -e "$(COLOUR_YELLOW)make pytest$(COLOUR_NONE) : Run pytest"
-	@echo -e "$(COLOUR_YELLOW)make black$(COLOUR_NONE) : Run black formatter"
-	@echo -e "$(COLOUR_YELLOW)make serve-docs$(COLOUR_NONE) : Serve mkdocs on port 8002"
-	@echo -e "$(COLOUR_YELLOW)make detect-secrets-init$(COLOUR_NONE) : Initialise the detect-secrets for the project"
-	@echo -e "$(COLOUR_YELLOW)make detect-secrets-scan$(COLOUR_NONE) : detect-secrets scan for the project"
-	@echo -e "$(COLOUR_YELLOW)make detect-secrets-audit$(COLOUR_NONE) : detect-secrets audit for the project"
+.PHONY: help
 
-build:
+help: # Help command
+	@grep -E '^[a-zA-Z_-]+:.*?# .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?# "; printf "\033[1;33m%-30s %-30s\033[0m\n", "Command", "Description"}; {split($$1,a,":"); printf "\033[36m%-30s\033[0m \033[32m%s\033[0m\n", a[1], $$2}'
+
+build: # Run docker-compose build
 	docker-compose build
 	npm install
 	npm run build
 
-utils-build:
-	docker-compose -f docker-compose.yml -f docker-compose.utils.yml build utils
-
-up:
+up: # Run docker-compose up
 	docker-compose up
 
-up-detached:
+up-detached: # Run docker-compose up in a detached state
 	docker-compose up -d
 
-down:
+down: # Run docker-compose down
 	docker-compose down
 
 run = docker-compose run --rm
 manage = python manage.py
-poetry = $(run) leavers poetry --quiet
+
+# Run poetry if it is installed, otherwise run it in the leavers container
+POETRY := $(shell command -v poetry 2> /dev/null)
+ifdef POETRY
+    poetry = poetry --quiet
+else
+    poetry = $(run) leavers poetry --quiet
+endif
 
 first-use:
 	npm install
@@ -70,66 +56,63 @@ first-use:
 check-fixme:
 	! git --no-pager grep -rni fixme -- ':!./makefile' ':!./.circleci/config.yml' ':!./.github/workflows/ci.yml'
 
-migrations:
-	$(run) leavers python manage.py makemigrations
-
-empty-migration:
-	$(run) leavers python manage.py makemigrations $(app) --empty --name=$(name)
-
-migrate:
+migrate: # Run Django migrate
 	$(run) leavers python manage.py migrate
 
-checkmigrations:
+migrations: # Run Django makemigrations
+	$(run) leavers python manage.py makemigrations
+
+empty-migration: # Create an empty migration `make empty-migration app=app_name name=migration_name`
+	$(run) leavers python manage.py makemigrations $(app) --empty --name=$(name)
+
+checkmigrations: # Check for missing migrations
 	$(run) --no-deps leavers python manage.py makemigrations --check
 
-compilescss:
+compilescss: # Compile SCSS into CSS
 	npm run css:build
 
-shell:
+shell: # Run a Django shell
 	$(run) leavers python manage.py shell
 
-utils-shell:
-	docker-compose -f docker-compose.yml -f docker-compose.utils.yml run --rm utils /bin/bash
+flake8: # Run flake8
+	$(poetry) run flake8 $(file)
 
-flake8:
-	$(run) leavers flake8 $(file)
+black: # Run black
+	$(poetry) run black .
 
-black:
-	$(run) leavers black .
+isort: # Run isort
+	$(poetry) run isort .
 
-isort:
-	$(run) leavers isort .
-
-djlint:
-	$(run) leavers djlint . --reformat --format-css --format-js
+djlint: # Run djlint
+	$(poetry) run djlint . --reformat --format-css --format-js
 
 format: flake8 black isort djlint
 
-mypy:
+mypy: # Run mypy
 	$(run) leavers mypy .
 
-collectstatic:
+collectstatic: # Run Django collectstatic
 	$(run) leavers python manage.py collectstatic
 
-bash:
+bash: # Start a bash session on the application container
 	$(run) leavers bash
 
-all-requirements:
+all-requirements: # Generate pip requirements files
 	$(poetry) export -f requirements.txt --output requirements.txt --without-hashes --with production --without dev,testing
 
 pytest:
 	$(run) leavers pytest --cov --cov-report html -raP --capture=sys -n 4
 
-test:
+test: # Run tests
 	$(run) leavers pytest --disable-warnings --reuse-db $(test)
 
-test-fresh:
+test-fresh: # Run tests with a fresh database
 	$(run) leavers pytest --disable-warnings --create-db --reuse-db $(test)
 
 view-coverage:
 	python -m webbrowser -t htmlcov/index.html
 
-superuser:
+superuser: # Create a superuser
 	$(run) leavers python manage.py createsuperuser
 
 test-users:
@@ -138,25 +121,25 @@ test-users:
 seed-employee-ids:
 	$(run) leavers python manage.py seed_employee_ids
 
-model-graphs:
+model-graphs: # Generate model graphs at jml_data_model.png
 	$(run) leavers python manage.py graph_models -a -g -o jml_data_model.png
 
 ingest-activity-stream:
 	$(run) leavers python manage.py ingest_activity_stream --limit=10
 
-serve-docs:
-	poetry run mkdocs serve -a localhost:8001
+serve-docs: # Serve mkdocs
+	$(poetry) run mkdocs serve -a localhost:8000
 
 staff-index:
 	$(run) leavers $(manage) ingest_staff_data --skip-ingest-staff-records --skip-service-now
 
-detect-secrets-init:
+detect-secrets-init: # Initialise the detect-secrets for the project
 	$(poetry) run detect-secrets scan > .secrets.baseline
 
-detect-secrets-scan:
+detect-secrets-scan: # detect-secrets scan for the project
 	$(poetry) run detect-secrets scan --baseline .secrets.baseline
 
-detect-secrets-audit:
+detect-secrets-audit: # detect-secrets audit for the project
 	$(poetry) run detect-secrets audit --baseline .secrets.baseline
 
 poetry-update:

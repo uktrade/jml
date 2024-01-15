@@ -5,7 +5,7 @@ from config.settings.base import *  # type: ignore # noqa
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
-if not DEV_TOOLS_ENABLED:
+if not DEV_TOOLS_ENABLED:  # type: ignore
     DEV_TOOLS_ENABLED = True
 
     INSTALLED_APPS += [  # type: ignore

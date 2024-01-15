@@ -58,10 +58,10 @@
     <script src='{% static "js/conditional-radios.js" %}'></script>
     <script src='{% static "htmx.org/dist/htmx.min.js" %}'></script>
     <script>
-            const CSRF_TOKEN = "{{ csrf_token }}";
+        const CSRF_TOKEN = "{{ csrf_token }}";
 
-            document.body.addEventListener('htmx:configRequest', function(event) {
-                event.detail.headers['X-CSRFToken'] = CSRF_TOKEN;
-            });
+        document.body.addEventListener('htmx:configRequest', function(event) {
+            event.detail.headers['X-CSRFToken'] = CSRF_TOKEN;
+        });
     </script>
 {% endblock body_end %}

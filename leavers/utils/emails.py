@@ -693,7 +693,9 @@ def send_workforce_planning_leavers_email(
     for leaving_request in leaving_requests:
         leaver_name = leaving_request.get_leaver_name()
         leaver_email = leaving_request.get_leaver_email()
-        leaving_reason = LeavingReason(leaving_request.reason_for_leaving).label
+        leaving_reason = "???"
+        if leaving_request.reason_for_leaving:
+            leaving_reason = LeavingReason(leaving_request.reason_for_leaving).label
         leaving_date = str(leaving_request.get_leaving_date())
         leaver_list.append(
             f"* {leaver_name} | {leaver_email} | {leaving_reason} | {leaving_date}\n"

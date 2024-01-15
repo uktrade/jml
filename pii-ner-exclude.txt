@@ -342,7 +342,7 @@ Desktop'
 Dev
 Dev Tools
 Dev tools & Authbroker
-Dev tools](http://localhost:8001/dev-tools/
+Dev tools](http://localhost:8000/dev-tools/
 DEV_TOOLS_ENABLED                                                
 dev_tools/
 dev_tools/` - Djang

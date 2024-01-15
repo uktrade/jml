@@ -146,8 +146,8 @@ leaving_request_security_urlpatterns = [
     ),
     path(
         "building-pass/confirm/",
-        security_team_views.BuidlingPassConfirmationCloseView.as_view(),
-        name="security-team-buidling-pass-confirmation-close",
+        security_team_views.BuildingPassConfirmationCloseView.as_view(),
+        name="security-team-building-pass-confirmation-close",
     ),
     path(
         "rosa-kit/",

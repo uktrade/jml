@@ -38,16 +38,16 @@ npm install
 make first-use
 ```
 
-This will result in the webserver being served on port `8001`.
+This will result in the webserver being served on port `8000`.
 
 It should be accessible at:
 
-- [http://localhost:8001/](http://localhost:8001/)
-- [http://0.0.0.0:8001/](http://0.0.0.0:8001/)
+- [http://localhost:8000/](http://localhost:8000/)
+- [http://0.0.0.0:8000/](http://0.0.0.0:8000/)
 
 ### Dev tools
 
-The first page you see when you set up the project for the first time should be the [Dev tools](http://localhost:8001/dev-tools/) page. This page contains a drop down form so you can select from a list of premade users. It also contains a form for you to create your own users.
+The first page you see when you set up the project for the first time should be the [Dev tools](http://localhost:8000/dev-tools/) page. This page contains a drop down form so you can select from a list of pre-made users. It also contains a form for you to create your own users.
 
 ![Dev tools page](./images/dev-tools-page.png)
 

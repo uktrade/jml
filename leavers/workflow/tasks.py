@@ -714,7 +714,7 @@ class ProcessorReminderEmail(EmailTask):
             leaving_request: LeavingRequest, template_id: Optional[EmailTemplates]
         ):
             if email_id in SRE_REMINDER_EMAIL_IDS:
-                # We only send slack messages to SRE (but we prentend to send
+                # We only send slack messages to SRE (but we pretend to send
                 # an email)
                 from core.utils.sre_messages import send_sre_reminder_message
 

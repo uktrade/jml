@@ -46,3 +46,6 @@ GRAPH_MODELS = {
     "all_applications": True,
     "group_models": True,
 }
+
+# DebugPy
+ENABLE_DEBUGPY = True
