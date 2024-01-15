@@ -159,12 +159,7 @@ class ServiceNowObjectPostView(ServiceNowAPIView):
             f"""
             POST request received!
 
-            Content type: {request.content_type}
-            Body: {request.body}
-            Body type: {type(request.body)}
-
             post_body: {post_body}
-            post_body type: {type(post_body)}
             """
         )
         logger.exception(debug_exception)
