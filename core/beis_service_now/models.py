@@ -25,6 +25,9 @@ class ServiceNowAsset(ServiceNowObject):
     assigned_to_sys_id = models.CharField(max_length=255)
     assigned_to_display_name = models.CharField(max_length=255)
 
+    def __str__(self) -> str:
+        return f"{self.display_name} ({self.sys_id})"
+
 
 class ServiceNowUser(ServiceNowObject):
     user_name = models.CharField(max_length=255)
@@ -32,6 +35,9 @@ class ServiceNowUser(ServiceNowObject):
     email = models.CharField(max_length=255)
     manager_user_name = models.CharField(max_length=255)
     manager_sys_id = models.CharField(max_length=255)
+
+    def __str__(self) -> str:
+        return f"{self.email} ({self.sys_id})"
 
     @cached_property
     def assets(self) -> "QuerySet[ServiceNowAsset]":
@@ -46,3 +52,6 @@ class ServiceNowUser(ServiceNowObject):
 
 class ServiceNowDirectorate(ServiceNowObject):
     name = models.CharField(max_length=255)
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.sys_id})"
