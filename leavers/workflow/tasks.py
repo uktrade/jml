@@ -534,11 +534,6 @@ SRE_REMINDER_EMAILS: ReminderEmailDict = {
     "five_days_after_ld_lm": None,
     "five_days_after_ld_proc": EmailIds.SRE_REMINDER_FIVE_DAYS_AFTER_LD_PROC.value,
 }
-SRE_REMINDER_EMAIL_IDS: List[EmailIds] = [
-    EmailIds(sre_reminder_email_id)  # type: ignore
-    for _, sre_reminder_email_id in SRE_REMINDER_EMAILS.items()
-    if sre_reminder_email_id
-]
 
 
 class EmailTask(LeavingRequestTask):
