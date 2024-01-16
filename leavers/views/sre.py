@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type, TypedDict, cast
 
-from django.conf import settings
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.db.models.query import QuerySet
 from django.forms import Form
@@ -406,17 +405,10 @@ class TaskCompleteConfirmationView(SreTaskViewMixin, FormView):
         return f"{possessive_leaver_name} SRE offboarding: confirm record is complete"
 
     def form_valid(self, form):
-        from core.utils.sre_messages import send_sre_complete_message
-
         response = super().form_valid(form)
 
         self.leaving_request.sre_complete = timezone.now()
         self.leaving_request.save(update_fields=["sre_complete"])
-
-        if settings.APP_ENV == "production":
-            send_sre_complete_message(
-                leaving_request=self.leaving_request,
-            )
 
         return response
 

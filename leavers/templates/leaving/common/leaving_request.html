@@ -7,7 +7,7 @@
                 <h1 class="govuk-heading-l">{{ page_title }}</h1>
                 {% gds_summary_list %}
                     {% gds_summary_list_card %}
-                        {% gds_summary_list_card_title text="Leaver steps" %}
+                        {% gds_summary_list_card_title_inline text="Leaver steps" %}
                     {% endgds_summary_list_card %}
                     {% for step_status in leaver_step_statuses %}
                         {% gds_summary_list_row %}
@@ -26,7 +26,7 @@
                 {% endgds_summary_list %}
                 {% gds_summary_list %}
                     {% gds_summary_list_card %}
-                        {% gds_summary_list_card_title text="Manager steps" %}
+                        {% gds_summary_list_card_title_inline text="Manager steps" %}
                     {% endgds_summary_list_card %}
                     {% for step_status in manager_step_statuses %}
                         {% gds_summary_list_row %}
@@ -63,7 +63,7 @@
                     {% endgds_summary_list %}
                     {% gds_summary_list %}
                         {% gds_summary_list_card %}
-                            {% gds_summary_list_card_title text="Offboarding team notifications" %}
+                            {% gds_summary_list_card_title_inline text="Offboarding team notifications" %}
                         {% endgds_summary_list_card %}
                         {% for team_name, team_notification_status in team_notifications.items %}
                             {% gds_summary_list_row %}

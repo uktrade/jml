@@ -59,8 +59,8 @@ Emails are sent at the following points:
 | 2 days after the last working day | IF NOT PROCESSED | Notification email to inform the Line Manager of the tasks | Line Manager |
 | On the leaving date | IF NOT PROCESSED | URGENT: Inform the Line Manager that the tasks need to be performed | Line Manager |
 | 1 day after the leaving date | IF NOT PROCESSED | Inform the Processor that the tasks need to be performed | Processor |
-| 2 days after the leaving date | IF NOT PROCESSED | Inform the Line Manager that the tasks need to be performed by end of the day otherwise escalation | Line Manager |
-| 2 days after the leaving date | IF NOT PROCESSED | Inform the Processor that the tasks need to be performed by end of the day otherwise escalation | Processor |
+| 5 days after the leaving date | IF NOT PROCESSED | Inform the Line Manager that the tasks need to be performed by end of the day otherwise escalation | Line Manager |
+| 5 days after the leaving date | IF NOT PROCESSED | Inform the Processor that the tasks need to be performed by end of the day otherwise escalation | Processor |
 
 #### Security building pass team
 Only send these reminders if the Building pass hasn't been marked as destroyed.

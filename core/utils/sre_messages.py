@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Dict, Optional
+from warnings import warn
 
 from django.conf import settings
 from django.urls import reverse
@@ -50,7 +51,14 @@ class FailedToSendSREAlertMessage(Exception):
     pass
 
 
+# TODO: Remove this method in the future
 def send_sre_alert_message(*, leaving_request: "LeavingRequest") -> SlackResponse:
+    warn(
+        "send_sre_alert_message is deprecated and will be removed in the future.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     leaving_date = leaving_request.get_leaving_date()
 
     assert leaving_date
@@ -94,12 +102,19 @@ class FailedToSendSREReminderMessage(Exception):
     pass
 
 
+# TODO: Remove this method in the future
 def send_sre_reminder_message(
     *, email_id: "EmailIds", leaving_request: "LeavingRequest"
 ) -> Optional[SlackResponse]:
     """
     Send the SRE team a slack message to match the reminder email.
     """
+
+    warn(
+        "send_sre_reminder_message is deprecated and will be removed in the future.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
 
     # Slack message content mapping
     email_id_mapping: Dict[EmailIds, str] = {
@@ -182,7 +197,14 @@ class FailedToSendSRECompleteMessage(Exception):
     pass
 
 
+# TODO: Remove this method in the future
 def send_sre_complete_message(*, leaving_request: "LeavingRequest") -> SlackResponse:
+    warn(
+        "send_sre_complete_message is deprecated and will be removed in the future.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     if not settings.SLACK_SRE_CHANNEL_ID:
         raise FailedToSendSRECompleteMessage("SLACK_SRE_CHANNEL_ID is not set")
 

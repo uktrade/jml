@@ -534,11 +534,6 @@ SRE_REMINDER_EMAILS: ReminderEmailDict = {
     "five_days_after_ld_lm": None,
     "five_days_after_ld_proc": EmailIds.SRE_REMINDER_FIVE_DAYS_AFTER_LD_PROC.value,
 }
-SRE_REMINDER_EMAIL_IDS: List[EmailIds] = [
-    EmailIds(sre_reminder_email_id)  # type: ignore
-    for _, sre_reminder_email_id in SRE_REMINDER_EMAILS.items()
-    if sre_reminder_email_id
-]
 
 
 class EmailTask(LeavingRequestTask):
@@ -713,26 +708,23 @@ class ProcessorReminderEmail(EmailTask):
         def send_processor_message(
             leaving_request: LeavingRequest, template_id: Optional[EmailTemplates]
         ):
-            if email_id in SRE_REMINDER_EMAIL_IDS:
-                # We only send slack messages to SRE (but we pretend to send
-                # an email)
-                from core.utils.sre_messages import send_sre_reminder_message
+            assert template_id
+            from core import notify
 
-                send_sre_reminder_message(
-                    email_id=email_id, leaving_request=leaving_request
-                )
-            else:
-                # For everyone else we always send emails
-                from core import notify
+            # Clean the processor emails:
+            email_addresses = [
+                email_address
+                for email_address in self.processor_emails
+                if email_address
+            ]
 
-                assert template_id
-                notify.email(
-                    email_addresses=self.processor_emails,
-                    template_id=template_id,
-                    personalisation=get_leaving_request_email_personalisation(
-                        leaving_request
-                    ),
-                )
+            notify.email(
+                email_addresses=email_addresses,
+                template_id=template_id,
+                personalisation=get_leaving_request_email_personalisation(
+                    leaving_request
+                ),
+            )
 
         def send_line_manager_email(
             leaving_request: LeavingRequest, template_id: Optional[EmailTemplates]
