@@ -708,9 +708,8 @@ class ProcessorReminderEmail(EmailTask):
         def send_processor_message(
             leaving_request: LeavingRequest, template_id: Optional[EmailTemplates]
         ):
-            from core import notify
-
             assert template_id
+            from core import notify
 
             # Clean the processor emails:
             email_addresses = [
