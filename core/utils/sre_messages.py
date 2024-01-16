@@ -123,7 +123,7 @@ def send_sre_reminder_message(
             "last working day in {DEPARTMENT_ACRONYM}.\n"
             "\n"
             "Please ensure that their record on the Leaving Service is updated "
-            "{DEPARTMENT_ACRONYM} "
+            "to show that their access to {DEPARTMENT_ACRONYM} "
             "services and tools has been removed.\n"
             "{sre_team_link}"
             "\n"
