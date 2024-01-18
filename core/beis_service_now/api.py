@@ -18,6 +18,7 @@ from core.beis_service_now.authentication import (
 from core.beis_service_now.models import (
     ServiceNowAsset,
     ServiceNowDirectorate,
+    ServiceNowLocation,
     ServiceNowObject,
     ServiceNowUser,
 )
@@ -25,6 +26,7 @@ from core.beis_service_now.serializers import BEISLeavingRequestSerializer
 from core.beis_service_now.types import (
     ServiceNowPostAsset,
     ServiceNowPostDirectorate,
+    ServiceNowPostLocation,
     ServiceNowPostObject,
     ServiceNowPostUser,
 )
@@ -236,6 +238,18 @@ class ServiceNowDirectoratePostView(ServiceNowObjectPostView):
     def data_to_object(
         self, obj: ServiceNowDirectorate, data: ServiceNowPostDirectorate
     ) -> ServiceNowDirectorate:
+        obj.name = data.name
+        return obj
+
+
+class ServiceNowLocationPostView(ServiceNowObjectPostView):
+    model = ServiceNowLocation
+    post_data_class: Type[ServiceNowPostObject] = ServiceNowPostDirectorate
+    sys_id_key = "location_sys_id"
+
+    def data_to_object(
+        self, obj: ServiceNowLocation, data: ServiceNowPostLocation
+    ) -> ServiceNowLocation:
         obj.name = data.name
         return obj
 

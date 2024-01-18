@@ -9,6 +9,7 @@ from rest_framework import routers
 from core.beis_service_now.api import (
     ServiceNowAssetPostView,
     ServiceNowDirectoratePostView,
+    ServiceNowLocationPostView,
     ServiceNowRITMView,
     ServiceNowUserPostView,
     SubmittedLeavingRequestViewSet,
@@ -62,6 +63,11 @@ public_url_patterns: List[Union[URLPattern, URLResolver]] = [
         "api/service-now/directorates/",
         ServiceNowDirectoratePostView.as_view(),
         name="service-now-api-directorates",
+    ),
+    path(
+        "api/service-now/locations/",
+        ServiceNowLocationPostView.as_view(),
+        name="service-now-api-locations",
     ),
     path(
         "api/service-now/ritm/",

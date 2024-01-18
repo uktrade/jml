@@ -55,3 +55,10 @@ class ServiceNowDirectorate(ServiceNowObject):
 
     def __str__(self) -> str:
         return f"{self.name} ({self.sys_id})"
+
+
+class ServiceNowLocation(ServiceNowObject):
+    name = models.CharField(max_length=255)
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.sys_id})"

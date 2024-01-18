@@ -72,3 +72,18 @@ class ServiceNowPostDirectorate(ServiceNowPostObject):
 
     directorate_sys_id: str
     name: str
+
+
+class ServiceNowPostLocation(ServiceNowPostObject):
+    """
+    Example data:
+    ```JSON
+    {
+        "location_sys_id": "00a000b00cd0e0000000fg00000hij00", # /PS-IGNORE
+        "name": "Location name"
+    }
+    ```
+    """
+
+    location_sys_id: str
+    name: str
