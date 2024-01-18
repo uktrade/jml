@@ -244,7 +244,7 @@ class ServiceNowDirectoratePostView(ServiceNowObjectPostView):
 
 class ServiceNowLocationPostView(ServiceNowObjectPostView):
     model = ServiceNowLocation
-    post_data_class: Type[ServiceNowPostObject] = ServiceNowPostDirectorate
+    post_data_class: Type[ServiceNowPostObject] = ServiceNowPostLocation
     sys_id_key = "location_sys_id"
 
     def data_to_object(
