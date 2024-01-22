@@ -24,22 +24,23 @@ def update_workflows(apps, schema_editor):
             step_id="send_sre_reminder",
         )
         if not send_sre_reminder_tasks:
+            # No tasks to update
             continue
 
         for send_sre_reminder_task in send_sre_reminder_tasks:
-            processor_emails = send_sre_reminder_task.task_info.get(
-                "processor_emails",
-                [],
-            )
-            if settings.SRE_EMAIL in processor_emails:
+            task_info = send_sre_reminder_task.task_info
+            if not task_info or "processor_emails" not in task_info:
+                # Nothing to update
+                continue
+            if settings.SRE_EMAIL in task_info["processor_emails"]:
                 # Already updated
                 continue
-            task_pks_to_update.append(send_sre_reminder_task.pk)
 
-    task_pks_to_update = list(set(task_pks_to_update))
-    Flow.objects.filter(tasks__pk__in=task_pks_to_update).update(
-        task_info__processor_emails=[settings.SRE_EMAIL],
-    )
+            task_info["processor_emails"] = [
+                settings.SRE_EMAIL,
+            ]
+            send_sre_reminder_task.task_info = task_info
+            send_sre_reminder_task.save(update_fields=["task_info"])
 
 
 class Migration(migrations.Migration):
