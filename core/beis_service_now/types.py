@@ -87,3 +87,20 @@ class ServiceNowPostLocation(ServiceNowPostObject):
 
     location_sys_id: str
     name: str
+
+
+class ServiceNowPostRITM(ServiceNowPostObject):
+    """
+    Example data:
+    ```JSON
+    {
+        "success": "true",
+        "user_sys_id": "0000a0000bcde000f00g0000h0ijk0l",
+        "request_id": "REQ0123456"
+    }
+    ```
+    """
+
+    success: bool
+    user_sys_id: str
+    request_id: str

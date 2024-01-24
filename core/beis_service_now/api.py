@@ -28,6 +28,7 @@ from core.beis_service_now.types import (
     ServiceNowPostDirectorate,
     ServiceNowPostLocation,
     ServiceNowPostObject,
+    ServiceNowPostRITM,
     ServiceNowPostUser,
 )
 from leavers.models import LeavingRequest
@@ -265,7 +266,15 @@ class ServiceNowRITMView(ServiceNowAPIView):
         except Exception as e:
             logger.exception(e)
 
+        ritm_response = ServiceNowPostRITM(**post_body)
+
+        if not ritm_response.success:
+            return HttpResponse(
+                status=200,
+                content="Failure stored!",
+            )
+
         return HttpResponse(
             status=200,
-            content="RITM response stored!",
+            content="Success stored!",
         )
