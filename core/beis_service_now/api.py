@@ -31,6 +31,7 @@ from core.beis_service_now.types import (
     ServiceNowPostRITM,
     ServiceNowPostUser,
 )
+from core.beis_service_now.utils import json_load_list
 from leavers.models import LeavingRequest
 from leavers.views.api import LeavingRequestViewSetBase
 
@@ -129,53 +130,20 @@ class ServiceNowObjectPostView(ServiceNowAPIView):
         raise NotImplementedError
 
     def post(self, request: HttpRequest, **kwargs):
-        body = request.body.decode()
-
-        # NOTE: This is a hack to remove the quotes from the body since the
-        # ServiceNow request sends the body as a string.
-        if body.startswith('"') and body.endswith('"'):
-            body = body[1:-1]
-
         try:
-            post_body = json.loads(body)
-        except json.decoder.JSONDecodeError as e:
-            logger.exception(e)
-            return HttpResponse(
-                status=400,
-                content=(
-                    "There is an issue with the posted data, please check that"
-                    f" it is valid JSON: {e}"
-                ),
-            )
+            post_body = json_load_list(request.body)
         except Exception as e:
             logger.exception(e)
-            return HttpResponse(
-                status=400,
-                content=(
-                    "There is an issue with the posted data, please check that"
-                    " it is valid JSON"
-                ),
+
+            content = (
+                "There is an issue with the posted data, please check that it "
+                "is valid JSON list"
             )
 
-        # TODO: Remove this debug exception
-        debug_exception = Exception(
-            f"""
-            POST request received!
+            if isinstance(e, json.decoder.JSONDecodeError):
+                content = f"{content}: {e}"
 
-            post_body: {post_body}
-            """
-        )
-        logger.exception(debug_exception)
-
-        if not isinstance(post_body, list):
-            logger.error(f"Expected a list of objects, got {type(post_body)}")
-            return HttpResponse(
-                status=400,
-                content=(
-                    "There is an issue with the posted data, please check that"
-                    " it is a list of objects"
-                ),
-            )
+            return HttpResponse(status=400, content=content)
 
         try:
             self.ingest_data(post_body)
@@ -188,6 +156,7 @@ class ServiceNowObjectPostView(ServiceNowAPIView):
                 status=500,
                 content=f"An error occurred while ingesting the {self.model} data ❌",
             )
+
         logger.info(f"Successfully ingested {self.model} data ✅")
         return HttpResponse(
             status=200,
@@ -258,23 +227,28 @@ class ServiceNowLocationPostView(ServiceNowObjectPostView):
 @method_decorator(csrf_exempt, name="dispatch")
 class ServiceNowRITMView(ServiceNowAPIView):
     def post(self, request: HttpRequest, **kwargs):
-        post_body = json.loads(request.body)
-
-        # Raise and log an exception for debugging
         try:
-            raise Exception(f"RITM response received: {post_body}")
+            post_body = json_load_list(request.body)
         except Exception as e:
             logger.exception(e)
 
-        ritm_response = ServiceNowPostRITM(**post_body)
+            content = (
+                "There is an issue with the posted data, please check that it "
+                "is valid JSON list"
+            )
 
-        if not ritm_response.success:
-            return HttpResponse(
-                status=200,
-                content="Failure stored!",
+            if isinstance(e, json.decoder.JSONDecodeError):
+                content = f"{content}: {e}"
+
+            return HttpResponse(status=400, content=content)
+
+        for ritm in post_body:
+            ritm_response = ServiceNowPostRITM(**ritm)
+            logger.exception(
+                Exception(f"RITM response received: {ritm_response.request_id}")
             )
 
         return HttpResponse(
             status=200,
-            content="Success stored!",
+            content="RITM data has been ingested successfully 🎉",
         )
