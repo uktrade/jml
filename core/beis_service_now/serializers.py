@@ -7,6 +7,8 @@ from leavers.serializers import LeavingRequestSerializer
 
 
 class BEISLeavingRequestSerializer(LeavingRequestSerializer):
+    service_now_directorate_sys_id = serializers.SerializerMethodField()
+    service_now_location_sys_id = serializers.SerializerMethodField()
     service_now_leaver_emails = serializers.SerializerMethodField()
     service_now_leaver_user_sys_ids = serializers.SerializerMethodField()
     service_now_line_manager_emails = serializers.SerializerMethodField()
@@ -22,6 +24,8 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
             "leaving_date",
             "reason_for_leaving",
             "security_clearance",
+            "service_now_directorate_sys_id",
+            "service_now_location_sys_id",
             "service_now_leaver_emails",
             "service_now_leaver_user_sys_ids",
             "service_now_line_manager_emails",
@@ -30,6 +34,26 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
             "service_now_additional_asset_information",
             "service_now_collection_details",
         ]
+
+    def get_service_now_directorate_sys_id(
+        self,
+        obj: LeavingRequest,
+    ) -> str:
+        leaver_info = obj.leaver_information.first()
+        assert leaver_info
+        assert leaver_info.service_now_directorate
+
+        return leaver_info.service_now_directorate.sys_id
+
+    def get_service_now_location_sys_id(
+        self,
+        obj: LeavingRequest,
+    ) -> str:
+        leaver_info = obj.leaver_information.first()
+        assert leaver_info
+        assert leaver_info.service_now_location
+
+        return leaver_info.service_now_location.sys_id
 
     def get_service_now_leaver_emails(
         self,
