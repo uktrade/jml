@@ -1331,6 +1331,7 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
 
     def get_initial_cirrus_return_form(self):
         return {
+            "additional_information": self.leaver_info.cirrus_additional_information,
             "return_option": self.leaver_info.return_option,
             "office_personal_phone": self.leaver_info.return_personal_phone,
             "home_personal_phone": self.leaver_info.return_personal_phone,
