@@ -8,6 +8,7 @@ from django.db.models.query import QuerySet
 from django_workflow_engine.models import Flow, TaskStatus
 
 from activity_stream.models import ActivityStreamStaffSSOUser
+from core.beis_service_now.models import ServiceNowDirectorate, ServiceNowLocation
 from core.types import Address
 from core.utils.helpers import DATETIME_FORMAT_STR, get_next_workday
 from leavers.forms.line_manager import (
@@ -697,6 +698,19 @@ class LeaverInformation(models.Model):
 
     # Return Cirrus Kit
     has_cirrus_kit = models.BooleanField(null=True, blank=True)
+    service_now_directorate = models.ForeignKey(
+        ServiceNowDirectorate,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
+
+    service_now_location = models.ForeignKey(
+        ServiceNowLocation,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
     cirrus_assets = models.JSONField(null=True, blank=True)
     cirrus_additional_information = models.CharField(
         max_length=1000, null=True, blank=True
