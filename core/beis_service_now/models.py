@@ -54,11 +54,11 @@ class ServiceNowDirectorate(ServiceNowObject):
     name = models.CharField(max_length=255)
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.sys_id})"
+        return f"{self.name}"
 
 
 class ServiceNowLocation(ServiceNowObject):
     name = models.CharField(max_length=255)
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.sys_id})"
+        return f"{self.name}"

@@ -17,6 +17,7 @@ from activity_stream.models import (
     ActivityStreamStaffSSOUser,
     ActivityStreamStaffSSOUserEmail,
 )
+from core.beis_service_now.models import ServiceNowDirectorate, ServiceNowLocation
 from core.people_data import get_people_data_interface
 from core.staff_search.views import StaffSearchView
 from core.types import Address
@@ -425,6 +426,8 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
 
     def store_cirrus_kit_information(
         self,
+        service_now_directorate: ServiceNowDirectorate,
+        service_now_location: ServiceNowLocation,
         cirrus_assets: List[types.CirrusAsset],
         cirrus_additional_information: Optional[str] = None,
     ) -> None:
@@ -432,11 +435,15 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
         Store the Correction information
         """
 
+        self.leaver_info.service_now_directorate = service_now_directorate
+        self.leaver_info.service_now_location = service_now_location
         self.leaver_info.cirrus_assets = cirrus_assets
         self.leaver_info.cirrus_additional_information = cirrus_additional_information
 
         self.leaver_info.save(
             update_fields=[
+                "service_now_directorate",
+                "service_now_location",
                 "cirrus_assets",
                 "cirrus_additional_information",
             ]
@@ -1273,10 +1280,14 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
     ):
         session = self.get_session()
         form_data = form.cleaned_data
+        directorate = form_data["directorate"]
+        location = form_data["location"]
         additional_information = form_data["additional_information"]
 
         # Store correction info and assets into the leaver details
         self.store_cirrus_kit_information(
+            service_now_directorate=directorate,
+            service_now_location=location,
             cirrus_assets=session.get("cirrus_assets", []),
             cirrus_additional_information=additional_information,
         )
@@ -1331,6 +1342,8 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
 
     def get_initial_cirrus_return_form(self):
         return {
+            "directorate": self.leaver_info.service_now_directorate,
+            "location": self.leaver_info.service_now_location,
             "additional_information": self.leaver_info.cirrus_additional_information,
             "return_option": self.leaver_info.return_option,
             "office_personal_phone": self.leaver_info.return_personal_phone,
