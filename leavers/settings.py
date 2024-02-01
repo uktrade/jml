@@ -20,7 +20,7 @@ class EmailTemplatesSettings:
     LINE_MANAGER_REMINDER_EMAIL: str
     LINE_MANAGER_THANKYOU_EMAIL: str
     LINE_MANAGER_OFFLINE_SERVICE_NOW_EMAIL: str
-    # Procesor emails
+    # Processor emails
     CLU4_EMAIL: str
     FEETHAM_SECURITY_PASS_OFFICE_EMAIL: str
     IT_OPS_ASSET_EMAIL: str
@@ -29,7 +29,7 @@ class EmailTemplatesSettings:
     HEALTH_AND_SAFETY_EMAIL: str
     COMAEA_EMAIL: str
     BUSINESS_CONTINUITY_LEAVER_EMAIL: str
-    # Procesor emails: Security Offboarding (Building Pass)
+    # Processor emails: Security Offboarding (Building Pass)
     SECURITY_TEAM_OFFBOARD_BP_LEAVER_EMAIL: str
     SECURITY_OFFBOARD_BP_REMINDER_DAY_AFTER_LWD: str
     SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LWD: str
@@ -37,7 +37,7 @@ class EmailTemplatesSettings:
     SECURITY_OFFBOARD_BP_REMINDER_ONE_DAY_AFTER_LD: str
     SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_LM: str
     SECURITY_OFFBOARD_BP_REMINDER_TWO_DAYS_AFTER_LD_PROC: str
-    # Procesor emails: Security Offboarding (Rosa Kit)
+    # Processor emails: Security Offboarding (Rosa Kit)
     SECURITY_TEAM_OFFBOARD_RK_LEAVER_EMAIL: str
     SECURITY_OFFBOARD_RK_REMINDER_DAY_AFTER_LWD: str
     SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LWD: str
@@ -45,7 +45,7 @@ class EmailTemplatesSettings:
     SECURITY_OFFBOARD_RK_REMINDER_ONE_DAY_AFTER_LD: str
     SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_LM: str
     SECURITY_OFFBOARD_RK_REMINDER_TWO_DAYS_AFTER_LD_PROC: str
-    # Procesor emails: SRE
+    # Processor emails: SRE
     SRE_NOTIFICATION: str
     SRE_REMINDER_DAY_AFTER_LWD: str
     SRE_REMINDER_ONE_DAY_AFTER_LD: str
