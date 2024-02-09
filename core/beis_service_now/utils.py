@@ -78,3 +78,5 @@ def json_load_list(post_body: bytes) -> list:
 
     if not isinstance(post_body, list):
         raise ValueError(f"Expected a list of objects, got {type(post_body)}")
+
+    return post_body
