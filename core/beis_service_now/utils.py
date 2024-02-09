@@ -60,10 +60,10 @@ def json_load_list(post_body: bytes) -> list:
 
     # NOTE: This is a hack to remove the quotes from the body since the
     # ServiceNow request sends the body as a string.
-    if body.startswith('"') and body.endswith('"'):
-        body = body[1:-1]
+    if post_body.startswith('"') and post_body.endswith('"'):
+        post_body = post_body[1:-1]
 
-    post_body = json.loads(body)
+    post_body = json.loads(post_body)
 
     # TODO: Remove this debug exception
     logger.exception(
