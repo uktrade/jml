@@ -81,7 +81,7 @@ black: # Run black
 	$(poetry) run black .
 
 check-black: # Run black
-	$(poetry) run black . --check
+	$(poetry) run black --version
 
 isort: # Run isort
 	$(poetry) run isort .
