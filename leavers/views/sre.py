@@ -146,9 +146,9 @@ class TaskDetailView(SreTaskViewMixin):
         if last_day_datetime:
             last_day = last_day_datetime.date()
 
-        leaver_information: Optional[
-            LeaverInformation
-        ] = self.leaving_request.leaver_information.first()
+        leaver_information: Optional[LeaverInformation] = (
+            self.leaving_request.leaver_information.first()
+        )
 
         leaver_job_title: Optional[str] = None
         if leaver_information:
@@ -331,9 +331,9 @@ class TaskServiceAndToolsView(SreTaskViewMixin):
         if last_day_datetime:
             last_day = last_day_datetime.date()
 
-        leaver_information: Optional[
-            LeaverInformation
-        ] = self.leaving_request.leaver_information.first()
+        leaver_information: Optional[LeaverInformation] = (
+            self.leaving_request.leaver_information.first()
+        )
 
         leaver_job_title: Optional[str] = None
         if leaver_information:
@@ -457,9 +457,9 @@ class TaskSummaryView(SreTaskViewMixin):
         if last_day_datetime:
             last_day = last_day_datetime.date()
 
-        leaver_information: Optional[
-            LeaverInformation
-        ] = self.leaving_request.leaver_information.first()
+        leaver_information: Optional[LeaverInformation] = (
+            self.leaving_request.leaver_information.first()
+        )
 
         leaver_job_title: Optional[str] = None
         if leaver_information:

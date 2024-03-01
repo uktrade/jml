@@ -922,9 +922,9 @@ class LeaverDatesView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
     def dispatch(
         self, request: HttpRequest, *args: Any, **kwargs: Any
     ) -> HttpResponseBase:
-        self.line_manager: Optional[
-            ActivityStreamStaffSSOUser
-        ] = self.leaving_request.manager_activitystream_user
+        self.line_manager: Optional[ActivityStreamStaffSSOUser] = (
+            self.leaving_request.manager_activitystream_user
+        )
         self.line_manager_search_document: Optional[ConsolidatedStaffDocument] = None
         if self.line_manager:
             self.line_manager_search_document = get_csd_for_activitystream_user(

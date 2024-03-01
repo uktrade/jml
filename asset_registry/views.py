@@ -230,9 +230,9 @@ def remove_user_from_asset(
 
     asset.users.remove(asset_user_activitystream_user)
 
-    request.session[
-        REMOVE_USER_SUCCESS_SESSION_KEY
-    ] = f"{asset_user_activitystream_user.first_name} is no longer associated with this asset."
+    request.session[REMOVE_USER_SUCCESS_SESSION_KEY] = (
+        f"{asset_user_activitystream_user.first_name} is no longer associated with this asset."
+    )
     return redirect(reverse("view-asset", args=[pk]))
 
 
@@ -261,9 +261,9 @@ def add_user_to_asset(request: HttpRequest, pk: int) -> HttpResponse:
 
     if asset.users.filter(pk=asset_user_activitystream_user.pk).exists():
         # If the asset already has the user, do nothing.
-        request.session[
-            ADD_USER_SUCCESS_SESSION_KEY
-        ] = f"{asset_user_activitystream_user.first_name} is already associated with this asset."
+        request.session[ADD_USER_SUCCESS_SESSION_KEY] = (
+            f"{asset_user_activitystream_user.first_name} is already associated with this asset."
+        )
 
         return return_redirect
 
@@ -277,9 +277,9 @@ def add_user_to_asset(request: HttpRequest, pk: int) -> HttpResponse:
         return return_redirect
 
     asset.users.add(asset_user_activitystream_user)
-    request.session[
-        ADD_USER_SUCCESS_SESSION_KEY
-    ] = f"{asset_user_activitystream_user.first_name} is now associated with this asset."
+    request.session[ADD_USER_SUCCESS_SESSION_KEY] = (
+        f"{asset_user_activitystream_user.first_name} is now associated with this asset."
+    )
 
     return return_redirect
 

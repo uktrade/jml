@@ -110,9 +110,9 @@ def get_leaving_request_email_personalisation(
         ),
     )
 
-    leaver_information: Optional[
-        LeaverInformation
-    ] = leaving_request.leaver_information.first()
+    leaver_information: Optional[LeaverInformation] = (
+        leaving_request.leaver_information.first()
+    )
 
     if not leaver_information:
         raise ValueError("leaver_information is not set")
@@ -592,17 +592,17 @@ def send_it_ops_asset_email(
     if not leaving_date:
         raise ValueError("leaving_date is not set")
 
-    leaver_information: Optional[
-        LeaverInformation
-    ] = leaving_request.leaver_information.first()
+    leaver_information: Optional[LeaverInformation] = (
+        leaving_request.leaver_information.first()
+    )
 
     if not leaver_information:
         raise ValueError("leaver_information is not set")
 
     dse_assets_string = ""
-    dse_assets: Optional[
-        List[DisplayScreenEquipmentAsset]
-    ] = leaver_information.dse_assets
+    dse_assets: Optional[List[DisplayScreenEquipmentAsset]] = (
+        leaver_information.dse_assets
+    )
     if dse_assets:
         for dse_asset in dse_assets:
             dse_asset_name = dse_asset["name"]
@@ -633,9 +633,9 @@ def send_feetham_security_pass_office_email(
     if not leaving_date:
         raise ValueError("leaving_date is not set")
 
-    leaver_information: Optional[
-        LeaverInformation
-    ] = leaving_request.leaver_information.first()
+    leaver_information: Optional[LeaverInformation] = (
+        leaving_request.leaver_information.first()
+    )
 
     if not leaver_information:
         raise ValueError("leaver_information is not set")

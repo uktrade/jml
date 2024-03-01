@@ -310,9 +310,9 @@ class LineReportConfirmationForm(forms.Form):
 
     def clean(self) -> Optional[Dict[str, Any]]:
         # Check that all line reports have a Line Manager selected.
-        lr_line_reports: List[
-            LeavingRequestLineReport
-        ] = self.leaving_request.line_reports
+        lr_line_reports: List[LeavingRequestLineReport] = (
+            self.leaving_request.line_reports
+        )
         for line_report in lr_line_reports:
             if not line_report["line_manager"]:
                 self.add_error(

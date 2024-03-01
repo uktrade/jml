@@ -66,9 +66,9 @@ class LineManagerViewMixin:
     ) -> bool:
         user = cast(User, request.user)
 
-        manager_activitystream_user: Optional[
-            ActivityStreamStaffSSOUser
-        ] = leaving_request.manager_activitystream_user
+        manager_activitystream_user: Optional[ActivityStreamStaffSSOUser] = (
+            leaving_request.manager_activitystream_user
+        )
 
         # If we don't know the manager, no one can access this view.
         if not manager_activitystream_user:
@@ -88,10 +88,10 @@ class LineManagerViewMixin:
         # If the user is the manager that the leaver is currently assigned to in UK SBS,
         # they can access the view.
         try:
-            user_activitystream_user: ActivityStreamStaffSSOUser = (
-                ActivityStreamStaffSSOUser.objects.active().get(
-                    email_user_id=user.sso_email_user_id,
-                )
+            user_activitystream_user: (
+                ActivityStreamStaffSSOUser
+            ) = ActivityStreamStaffSSOUser.objects.active().get(
+                email_user_id=user.sso_email_user_id,
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:
             return False
@@ -150,9 +150,9 @@ class LineManagerViewMixin:
         """
 
         user = cast(User, request.user)
-        leaver_activitystream_user: Optional[
-            ActivityStreamStaffSSOUser
-        ] = leaving_request.leaver_activitystream_user
+        leaver_activitystream_user: Optional[ActivityStreamStaffSSOUser] = (
+            leaving_request.leaver_activitystream_user
+        )
 
         # If we don't know the Leaver, no one can access this view.
         if not leaver_activitystream_user:
@@ -518,10 +518,12 @@ class LeaverConfirmationView(ReviewViewMixin, BaseTemplateView, FormView):
             self.data_recipient_activitystream_user = (
                 self.leaving_request.data_recipient_activitystream_user
             )
-            data_recipient_staff_document: StaffDocument = get_staff_document_from_staff_index(
-                sso_email_user_id=(
-                    self.leaving_request.data_recipient_activitystream_user.email_user_id
-                ),
+            data_recipient_staff_document: StaffDocument = (
+                get_staff_document_from_staff_index(
+                    sso_email_user_id=(
+                        self.leaving_request.data_recipient_activitystream_user.email_user_id
+                    ),
+                )
             )
 
         # Load the data recipient from the Staff index.
@@ -749,17 +751,15 @@ def line_report_set_new_manager(
             + consolidated_staff_document["last_name"]
         )
         try:
-            line_manager_as_user: ActivityStreamStaffSSOUser = (
-                ActivityStreamStaffSSOUser.objects.active().get(
-                    email_user_id=consolidated_staff_document[
-                        "staff_sso_email_user_id"
-                    ],
-                )
+            line_manager_as_user: (
+                ActivityStreamStaffSSOUser
+            ) = ActivityStreamStaffSSOUser.objects.active().get(
+                email_user_id=consolidated_staff_document["staff_sso_email_user_id"],
             )
         except ActivityStreamStaffSSOUser.DoesNotExist:
-            request.session[
-                LINE_REPORT_SET_NEW_MANAGER_ERROR
-            ] = f"Unable to add {line_manager_name} as a Line Manager, please try again later."
+            request.session[LINE_REPORT_SET_NEW_MANAGER_ERROR] = (
+                f"Unable to add {line_manager_name} as a Line Manager, please try again later."
+            )
             return redirect_response
 
         try:
@@ -767,9 +767,9 @@ def line_report_set_new_manager(
                 0
             ]
         except Exception:
-            request.session[
-                LINE_REPORT_SET_NEW_MANAGER_ERROR
-            ] = f"Unable to add {line_manager_name} as a Line Manager, please try again later."
+            request.session[LINE_REPORT_SET_NEW_MANAGER_ERROR] = (
+                f"Unable to add {line_manager_name} as a Line Manager, please try again later."
+            )
             return redirect_response
 
         for line_report in lr_line_reports:
@@ -798,9 +798,9 @@ class RemoveLineManagerFromLineReportView(ReviewViewMixin, RedirectView):
             return HttpResponseBadRequest()
 
     def get(self, request, *args, **kwargs):
-        lr_line_reports: List[
-            LeavingRequestLineReport
-        ] = self.leaving_request.line_reports
+        lr_line_reports: List[LeavingRequestLineReport] = (
+            self.leaving_request.line_reports
+        )
         for line_report in lr_line_reports:
             if line_report["uuid"] == str(self.line_report_uuid):
                 line_report["line_manager"] = None
@@ -918,8 +918,10 @@ class ConfirmDetailsView(ReviewViewMixin, BaseTemplateView, FormView):
             return None
 
         # Load the Data Recipient from the Staff index.
-        data_recipient_staff_document: StaffDocument = get_staff_document_from_staff_index(
-            sso_email_user_id=self.leaving_request.data_recipient_activitystream_user.email_user_id,
+        data_recipient_staff_document: StaffDocument = (
+            get_staff_document_from_staff_index(
+                sso_email_user_id=self.leaving_request.data_recipient_activitystream_user.email_user_id,
+            )
         )
         return consolidate_staff_documents(
             staff_documents=[data_recipient_staff_document],

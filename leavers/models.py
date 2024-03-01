@@ -399,9 +399,9 @@ class LeavingRequest(models.Model):
         if self.leaving_date:
             leaving_date = self.leaving_date
         else:
-            leaver_information: Optional[
-                "LeaverInformation"
-            ] = self.leaver_information.first()
+            leaver_information: Optional["LeaverInformation"] = (
+                self.leaver_information.first()
+            )
             if leaver_information and leaver_information.leaving_date:
                 leaving_date = leaver_information.leaving_date
 
@@ -420,9 +420,9 @@ class LeavingRequest(models.Model):
         if self.last_day:
             last_day = self.last_day
         else:
-            leaver_information: Optional[
-                "LeaverInformation"
-            ] = self.leaver_information.first()
+            leaver_information: Optional["LeaverInformation"] = (
+                self.leaver_information.first()
+            )
             if leaver_information and leaver_information.last_day:
                 last_day = leaver_information.last_day
 
@@ -443,9 +443,9 @@ class LeavingRequest(models.Model):
         - From the LeaverInformation (This should be up to date info provided by the Leaver)
         - From the Leaver Activity Stream
         """
-        leaver_information: Optional[
-            "LeaverInformation"
-        ] = self.leaver_information.first()
+        leaver_information: Optional["LeaverInformation"] = (
+            self.leaver_information.first()
+        )
         if leaver_information:
             leaver_info_first_name = leaver_information.leaver_first_name
             leaver_info_last_name = leaver_information.leaver_last_name
