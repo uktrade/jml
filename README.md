@@ -6,7 +6,7 @@ Our project documentation is in the `docs` folder. It is written in Markdown and
 
 https://uktrade.github.io/jml
 
-### Running MkDocs locally
+### How to run MkDocs locally
 
 MkDocs can be run locally using the `make serve-docs` command which runs the `docs`
 docker container. Alternatively, you can run the `docs` docker container by enabling the
