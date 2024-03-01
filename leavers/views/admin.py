@@ -158,7 +158,7 @@ class LeavingRequestDetailView(UserPassesTestMixin, BaseTemplateView):
     def format_list(self, value: List) -> str:
         formatted_value = "<ul class='govuk-list govuk-list--bullet'>"
         for item in value:
-            if type(item) != str:
+            if not isinstance(item, str):
                 item = self.format_value(field=None, value=item)
             formatted_value += f"<li>{item}</li>"
         formatted_value += "</ul>"

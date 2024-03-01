@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Any, Callable, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, cast
 from uuid import UUID
 
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -254,16 +254,16 @@ class ReviewViewMixin(
             else:
                 prev = self.journey_dict.get("prev")
                 if prev:
-                    if type(prev) == str:
+                    if isinstance(prev, str):
                         self.back_link_viewname = prev
-                    elif type(prev) == Callable:
+                    elif callable(prev):
                         self.back_link_url = prev
 
             next = self.journey_dict.get("next")
             if next:
-                if type(next) == str:
+                if isinstance(next, str):
                     self.success_viewname = next
-                elif type(next) == Callable:
+                elif callable(next):
                     self.success_url = next
 
     def pre_dispatch(self, request, *args, **kwargs) -> Optional[HttpResponse]:

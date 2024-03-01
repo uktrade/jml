@@ -69,7 +69,7 @@ class LeavingRequestTestCase(TestCase):
         return self.leaving_request_url(self.view_name)
 
     def test_unauthenticated_user(self) -> None:
-        if type(self) == LeavingRequestTestCase:
+        if isinstance(self, LeavingRequestTestCase):
             self.skipTest("Don't run the test on the base class")
 
         get_response = self.client.get(self.view_url)

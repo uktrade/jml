@@ -192,7 +192,7 @@ class TaskDetailView(SreTaskViewMixin):
                     "status_text": service["comment"],
                     "status": GovUKTag(
                         text=service["status_text"],
-                        classes=f'govuk-tag--{ service["status_colour"] }',
+                        classes=f'govuk-tag--{service["status_colour"]}',
                     ),
                 }
                 for service in services

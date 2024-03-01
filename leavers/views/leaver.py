@@ -1,6 +1,6 @@
 import uuid
 from enum import Enum
-from typing import Any, Callable, Dict, List, Literal, Optional, Type, cast
+from typing import Any, Dict, List, Literal, Optional, Type, cast
 
 from django.conf import settings
 from django.forms import Form
@@ -293,16 +293,16 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
             else:
                 prev = self.journey_dict.get("prev")
                 if prev:
-                    if type(prev) == str:
+                    if isinstance(prev, str):
                         self.back_link_viewname = prev
-                    elif type(prev) == Callable:
+                    elif callable(prev):
                         self.back_link_url = prev
 
             next = self.journey_dict.get("next")
             if next:
-                if type(next) == str:
+                if isinstance(next, str):
                     self.success_viewname = next
-                elif type(next) == Callable:
+                elif callable(prev):
                     self.success_url = next
 
     def dispatch(
