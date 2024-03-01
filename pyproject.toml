@@ -44,8 +44,6 @@ detect-secrets = "^1.4.0"
 dit-activity-stream = "^0.1.0"
 django-workflow-engine = "0.2.0"
 govuk-frontend-django = "0.3.7"
-flake8 = "^7.0.0"
-
 
 [tool.poetry.group.production]
 optional = true
@@ -73,6 +71,7 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 djlint = "*"
 black = "*"
+flake8 = "*"
 django-stubs = "*"
 isort = "*"
 mypy = "*"

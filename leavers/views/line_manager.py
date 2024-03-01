@@ -920,7 +920,7 @@ class ConfirmDetailsView(ReviewViewMixin, BaseTemplateView, FormView):
         # Load the Data Recipient from the Staff index.
         data_recipient_staff_document: StaffDocument = (
             get_staff_document_from_staff_index(
-                sso_email_user_id=self.leaving_request.data_recipient_activitystream_user.email_user_id,
+                sso_email_user_id=self.leaving_request.data_recipient_activitystream_user.email_user_id,  # noqa: E501
             )
         )
         return consolidate_staff_documents(
