@@ -64,10 +64,7 @@ class IndexCurrentUser:
                     )
 
                 # Create ActivityStream object
-                (
-                    as_user,
-                    _,
-                ) = ActivityStreamStaffSSOUser.objects.update_or_create(
+                as_user, _ = ActivityStreamStaffSSOUser.objects.update_or_create(
                     identifier=uuid.uuid4(),
                     defaults={
                         "available": True,
