@@ -146,9 +146,9 @@ class TaskDetailView(SreTaskViewMixin):
         if last_day_datetime:
             last_day = last_day_datetime.date()
 
-        leaver_information: Optional[
-            LeaverInformation
-        ] = self.leaving_request.leaver_information.first()
+        leaver_information: Optional[LeaverInformation] = (
+            self.leaving_request.leaver_information.first()
+        )
 
         leaver_job_title: Optional[str] = None
         if leaver_information:
@@ -192,7 +192,7 @@ class TaskDetailView(SreTaskViewMixin):
                     "status_text": service["comment"],
                     "status": GovUKTag(
                         text=service["status_text"],
-                        classes=f'govuk-tag--{ service["status_colour"] }',
+                        classes=f'govuk-tag--{service["status_colour"]}',
                     ),
                 }
                 for service in services
@@ -331,9 +331,9 @@ class TaskServiceAndToolsView(SreTaskViewMixin):
         if last_day_datetime:
             last_day = last_day_datetime.date()
 
-        leaver_information: Optional[
-            LeaverInformation
-        ] = self.leaving_request.leaver_information.first()
+        leaver_information: Optional[LeaverInformation] = (
+            self.leaving_request.leaver_information.first()
+        )
 
         leaver_job_title: Optional[str] = None
         if leaver_information:
@@ -457,9 +457,9 @@ class TaskSummaryView(SreTaskViewMixin):
         if last_day_datetime:
             last_day = last_day_datetime.date()
 
-        leaver_information: Optional[
-            LeaverInformation
-        ] = self.leaving_request.leaver_information.first()
+        leaver_information: Optional[LeaverInformation] = (
+            self.leaving_request.leaver_information.first()
+        )
 
         leaver_job_title: Optional[str] = None
         if leaver_information:

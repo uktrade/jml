@@ -329,15 +329,15 @@ class ServiceNowInterface(ServiceNowBase):
             query = f"name={name}"
 
         # Get all data from Service Now /PS-IGNORE
-        service_now_directorates: Iterable[
-            types.ServiceNowDirectorate
-        ] = self.client.get_results(
-            path=self.GET_DIRECTORATE_PATH,
-            sysparm_query=query,
-            sysparm_fields=[
-                "sys_id",
-                "name",
-            ],
+        service_now_directorates: Iterable[types.ServiceNowDirectorate] = (
+            self.client.get_results(
+                path=self.GET_DIRECTORATE_PATH,
+                sysparm_query=query,
+                sysparm_fields=[
+                    "sys_id",
+                    "name",
+                ],
+            )
         )
         # Convert to a list of DirectorateDetails /PS-IGNORE
         directorate_details: List[types.DirectorateDetails] = [
@@ -380,18 +380,18 @@ class ServiceNowInterface(ServiceNowBase):
         if collection_address["county"]:
             collection_address_str += collection_address["county"]
 
-        leaver: Optional[
-            ActivityStreamStaffSSOUser
-        ] = leaving_request.leaver_activitystream_user
+        leaver: Optional[ActivityStreamStaffSSOUser] = (
+            leaving_request.leaver_activitystream_user
+        )
 
         if not leaver:
             raise Exception("Unable to get leaver information")
 
         leaver_service_now_id = leaver.service_now_user_id
 
-        manager: Optional[
-            ActivityStreamStaffSSOUser
-        ] = leaving_request.manager_activitystream_user
+        manager: Optional[ActivityStreamStaffSSOUser] = (
+            leaving_request.manager_activitystream_user
+        )
 
         if not manager:
             raise Exception("Unable to get Line Manager information")

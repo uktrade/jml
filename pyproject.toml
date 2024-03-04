@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
 Celery = "==5.2.7"
 crispy-forms-gds = "^0.2.3"
 dataclasses-json = "==0.5.7"
@@ -45,7 +45,6 @@ dit-activity-stream = "^0.1.0"
 django-workflow-engine = "0.2.0"
 govuk-frontend-django = "0.3.7"
 
-
 [tool.poetry.group.production]
 optional = true
 
@@ -72,8 +71,8 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 djlint = "*"
 black = "*"
-django-stubs = "*"
 flake8 = "*"
+django-stubs = "*"
 isort = "*"
 mypy = "*"
 types-certifi = "*"

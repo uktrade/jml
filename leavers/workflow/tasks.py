@@ -66,9 +66,9 @@ class LeavingRequestTask(Task):
                 "The Flow is missing the LeavingRequest that it relates to."
             )
         self.leaving_request: LeavingRequest = leaving_request
-        self.leaving_information: Optional[
-            LeaverInformation
-        ] = leaving_request.leaver_information.first()
+        self.leaving_information: Optional[LeaverInformation] = (
+            leaving_request.leaver_information.first()
+        )
 
     def should_skip(self, task_info) -> bool:
         skip_conditions: List[str] = task_info.get("skip_conditions", [])
@@ -136,12 +136,12 @@ class ConfirmLeaverData(LeavingRequestTask):
         assert self.leaving_request.leaver_activitystream_user
         assert self.leaving_request.manager_activitystream_user
 
-        leaver_as_user: Optional[
-            ActivityStreamStaffSSOUser
-        ] = self.leaving_request.leaver_activitystream_user
-        manager_as_user: Optional[
-            ActivityStreamStaffSSOUser
-        ] = self.leaving_request.manager_activitystream_user
+        leaver_as_user: Optional[ActivityStreamStaffSSOUser] = (
+            self.leaving_request.leaver_activitystream_user
+        )
+        manager_as_user: Optional[ActivityStreamStaffSSOUser] = (
+            self.leaving_request.manager_activitystream_user
+        )
 
         # A PII Safe list of errors with the leaving request.
         errors: List[str] = []
@@ -167,9 +167,9 @@ class ConfirmLeaverData(LeavingRequestTask):
                         "Couldn't get leaver hierarchy from UK SBS - Person not found"
                     )
                 else:
-                    uksbs_leaver_managers: List[
-                        PersonData
-                    ] = uksbs_leaver_hierarchy.get("manager", [])
+                    uksbs_leaver_managers: List[PersonData] = (
+                        uksbs_leaver_hierarchy.get("manager", [])
+                    )
                     if not uksbs_leaver_managers:
                         errors.append("Leaver doesn't have a manager in UK SBS")
                     else:
@@ -310,9 +310,9 @@ class ServiceNowSendLeaverDetails(LeavingRequestTask):
             return None, True
 
         leaver_details = get_leaver_details(leaving_request=self.leaving_request)
-        leaver_information: Optional[
-            LeaverInformation
-        ] = self.leaving_request.leaver_information.first()
+        leaver_information: Optional[LeaverInformation] = (
+            self.leaving_request.leaver_information.first()
+        )
 
         if not leaver_information:
             raise ValueError("leaver_information is not set")

@@ -36,7 +36,7 @@ def send_slack_message_for_leaving_request(
 
     # Log the message against the LeavingRequest
     slack_timestamp = ""
-    if type(slack_response.data) == dict:
+    if isinstance(slack_response.data, dict):
         slack_timestamp = slack_response.data["ts"]
 
     SlackMessage.objects.create(

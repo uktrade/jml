@@ -423,9 +423,9 @@ def get_people_finder_data(
         people_finder_data["people_finder_first_name"] = people_finder_result.first_name
         people_finder_data["people_finder_last_name"] = people_finder_result.last_name
         people_finder_data["people_finder_job_title"] = people_finder_result.job_title
-        people_finder_data[
-            "people_finder_directorate"
-        ] = people_finder_result.directorate
+        people_finder_data["people_finder_directorate"] = (
+            people_finder_result.directorate
+        )
         if people_finder_result.phone:
             people_finder_data["people_finder_phone"] = people_finder_result.phone
         if people_finder_result.grade:
@@ -433,9 +433,9 @@ def get_people_finder_data(
         if people_finder_result.photo:
             people_finder_data["people_finder_photo"] = people_finder_result.photo
         if people_finder_result.photo_small:
-            people_finder_data[
-                "people_finder_photo_small"
-            ] = people_finder_result.photo_small
+            people_finder_data["people_finder_photo_small"] = (
+                people_finder_result.photo_small
+            )
 
     return people_finder_data
 

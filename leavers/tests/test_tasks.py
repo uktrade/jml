@@ -66,8 +66,8 @@ class TestWeeklyLeaversEmail(TestCase):
         weekly_leavers_email()
         # Make sure the function is called with the right kwargs
         call = mock_send_workforce_planning_leavers_email.call_args_list[0]
-        self.assertEquals(call[1]["week_ending"], "12/02/2023")
-        self.assertEquals(call[1]["leaving_requests"].count(), 0)
+        self.assertEqual(call[1]["week_ending"], "12/02/2023")
+        self.assertEqual(call[1]["leaving_requests"].count(), 0)
 
     # Monday - with leavers
     @freeze_time("2023-02-13 12:00:00")
@@ -81,5 +81,5 @@ class TestWeeklyLeaversEmail(TestCase):
         weekly_leavers_email()
         # Make sure the function is called with the right kwargs
         call = mock_send_workforce_planning_leavers_email.call_args_list[0]
-        self.assertEquals(call[1]["week_ending"], "12/02/2023")
-        self.assertEquals(call[1]["leaving_requests"].count(), 3)
+        self.assertEqual(call[1]["week_ending"], "12/02/2023")
+        self.assertEqual(call[1]["leaving_requests"].count(), 3)

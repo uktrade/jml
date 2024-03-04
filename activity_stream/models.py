@@ -48,9 +48,9 @@ class ActivityStreamStaffSSOUserQuerySet(models.QuerySet):
         )
 
 
-ActivityStreamStaffSSOUserManager: Type[
-    Manager["ActivityStreamStaffSSOUser"]
-] = models.Manager.from_queryset(ActivityStreamStaffSSOUserQuerySet)
+ActivityStreamStaffSSOUserManager: Type[Manager["ActivityStreamStaffSSOUser"]] = (
+    models.Manager.from_queryset(ActivityStreamStaffSSOUserQuerySet)
+)
 
 
 class ActivityStreamStaffSSOUser(models.Model):
@@ -92,9 +92,9 @@ class ActivityStreamStaffSSOUser(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def get_primary_email(self) -> Optional[str]:
-        primary_emails: QuerySet[
-            ActivityStreamStaffSSOUserEmail
-        ] = self.sso_emails.filter(is_primary=True)
+        primary_emails: QuerySet[ActivityStreamStaffSSOUserEmail] = (
+            self.sso_emails.filter(is_primary=True)
+        )
         primary_email = primary_emails.first()
         if primary_email:
             return primary_email.email_address

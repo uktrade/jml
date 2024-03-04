@@ -339,9 +339,9 @@ class FindPersonIDForm(LeaverJourneyBaseForm):
 
         if not self.user_is_leaver:
             self.fields["personal_email"].label = "Leaver's personal email"
-            self.fields[
-                "personal_email"
-            ].help_text = "We'll only use this to find the leaver's details."
+            self.fields["personal_email"].help_text = (
+                "We'll only use this to find the leaver's details."
+            )
 
         cancel_url = reverse(
             "leaver-find-details-help",
@@ -539,12 +539,12 @@ class HSFLOfficerForm(LeaverJourneyBaseForm):
         super().__init__(*args, **kwargs)
 
         if not self.user_is_leaver:
-            self.fields[
-                "health_and_safety_officer"
-            ].label = "Is the leaver a health and safety officer?"
-            self.fields[
-                "floor_liaison_officer"
-            ].label = "Is the leaver a floor liaison officer?"
+            self.fields["health_and_safety_officer"].label = (
+                "Is the leaver a health and safety officer?"
+            )
+            self.fields["floor_liaison_officer"].label = (
+                "Is the leaver a floor liaison officer?"
+            )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -611,12 +611,12 @@ class LeaverHasAssetsForm(LeaverJourneyBaseForm):
                 )
             )
 
-            self.fields[
-                "has_gov_procurement_card"
-            ].label = f"Does {leaver_name} have a government procurement card (GPC)?"
-            self.fields[
-                "has_rosa_kit"
-            ].label = f"Does {leaver_name} have ROSA equipment?"
+            self.fields["has_gov_procurement_card"].label = (
+                f"Does {leaver_name} have a government procurement card (GPC)?"
+            )
+            self.fields["has_rosa_kit"].label = (
+                f"Does {leaver_name} have ROSA equipment?"
+            )
             self.fields["has_dse"].label = f"Does {leaver_name} have any IT equipment?"
         else:
             building_pass_content.append(
@@ -684,9 +684,9 @@ class HasCirrusKitForm(LeaverJourneyBaseForm):
         if not self.user_is_leaver:
             leaver_name = self.leaving_request.get_leaver_name()
 
-            self.fields[
-                "has_cirrus_kit"
-            ].label = f"Does {leaver_name} have any Cirrus equipment?"
+            self.fields["has_cirrus_kit"].label = (
+                f"Does {leaver_name} have any Cirrus equipment?"
+            )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -852,9 +852,9 @@ class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
 
         if not self.user_is_leaver:
             leaver_name = self.leaving_request.get_leaver_name()
-            self.fields[
-                "return_option"
-            ].label = f"How would {leaver_name} like to return their Cirrus kit?"
+            self.fields["return_option"].label = (
+                f"How would {leaver_name} like to return their Cirrus kit?"
+            )
 
         self.helper.layout = Layout(
             radios_with_conditionals("return_option", legend_size=Size.MEDIUM),

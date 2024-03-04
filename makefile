@@ -80,6 +80,9 @@ flake8: # Run flake8
 black: # Run black
 	$(poetry) run black .
 
+check-black: # Run black
+	$(poetry) run black . --check
+
 isort: # Run isort
 	$(poetry) run isort .
 
