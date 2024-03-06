@@ -1,8 +1,13 @@
 name: Build and publish docs
+
 on:
+  pull_request:
+    branches:
+      - main
   push:
     branches:
       - main
+
 jobs:
   check-ex:
     runs-on: ubuntu-latest
