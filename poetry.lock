@@ -3623,4 +3623,4 @@ six = ">=1.14.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "b3101596581f4242dc43d10c27391058ace6c457c2f2c9bb0a997553ce2d7447"
+content-hash = "5981103ee11119a685fc76d95bd218ee2fd257e6a1a3608834f7d9f29dedc271"
