@@ -44,10 +44,6 @@ detect-secrets = "^1.4.0"
 dit-activity-stream = "^0.1.0"
 django-workflow-engine = "^0.2.1"
 govuk-frontend-django = "0.3.7"
-pymdown-extensions = "^10.7.1"
-python-dateutil = "^2.9.0.post0"
-mkdocs-material = "^9.5.13"
-griffe = "^0.41.3"
 
 [tool.poetry.group.production]
 optional = true
