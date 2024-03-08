@@ -34,8 +34,8 @@ slackclient = "^2.9.3"
 waitress = "^3.0.0"
 whitenoise = "^6.6.0"
 # OpenSearch
-opensearch-py = "^2.4.2"
-opensearch-dsl = "^1.0.0"
+opensearch-py = "==1.0.0"
+opensearch-dsl = "==1.0.0"
 # GovUK Notify
 notifications-python-client = "^9.0.0"
 help-desk-client = "==0.2.0"
