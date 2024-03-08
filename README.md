@@ -13,3 +13,10 @@ docker container. Alternatively, you can run the `docs` docker container by enab
 `docs` compose profile.
 
 The documentation will be served at `http://0.0.0.0:8002`.
+
+Note: you may need the following available if you wish to run this on your local machine:
+https://squidfunk.github.io/mkdocs-material/plugins/requirements/image-processing/
+For macOS, you can install the required dependencies using Homebrew:
+```
+brew install cairo freetype libffi libjpeg libpng zlib
+```
