@@ -918,33 +918,33 @@ word-list = ["pyahocorasick"]
 
 [[package]]
 name = "dit-activity-stream"
-version = "0.1.0"
+version = "0.2.3"
 description = "DIT Activity Stream"
 optional = false
-python-versions = ">=3.6.3,<4.0.0"
+python-versions = ">=3.7,<4.0"
 files = [
-    {file = "dit_activity_stream-0.1.0-py3-none-any.whl", hash = "sha256:8f8028d754acd077167bfb35543875407aab5f150dc0f2df226fffe96227a53a"},
-    {file = "dit_activity_stream-0.1.0.tar.gz", hash = "sha256:0884b3ae5ebbc8159b7b1c700ce18d4dbd59b4dd4377cc7a94a31d158c7516b2"},
+    {file = "dit_activity_stream-0.2.3-py3-none-any.whl", hash = "sha256:7509e32f095ac200b502ea6238081594ae357697d5ce7220530d79dc1b721977"},
+    {file = "dit_activity_stream-0.2.3.tar.gz", hash = "sha256:ef8b9cbe2e3054354017221dbaa80f952acf5518865a63c02642efd226c30d08"},
 ]
 
 [package.dependencies]
-Django = ">=2.2,<4.2"
-django-hawk = ">=1.1.1,<2.0.0"
+Django = ">=3.2,<5.1"
+django-hawk = ">=1.2.0,<2.0.0"
 
 [[package]]
 name = "django"
-version = "4.1.13"
+version = "4.2.11"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "Django-4.1.13-py3-none-any.whl", hash = "sha256:04ab3f6f46d084a0bba5a2c9a93a3a2eb3fe81589512367a75f79ee8acf790ce"},
-    {file = "Django-4.1.13.tar.gz", hash = "sha256:94a3f471e833c8f124ee7a2de11e92f633991d975e3fa5bdd91e8abd66426318"},
+    {file = "Django-4.2.11-py3-none-any.whl", hash = "sha256:ddc24a0a8280a0430baa37aff11f28574720af05888c62b7cfe71d219f4599d3"},
+    {file = "Django-4.2.11.tar.gz", hash = "sha256:6e6ff3db2d8dd0c986b4eec8554c8e4f919b5c1ff62a5b4390c17aff2ed6e5c4"},
 ]
 
 [package.dependencies]
-asgiref = ">=3.5.2,<4"
-sqlparse = ">=0.2.2"
+asgiref = ">=3.6.0,<4"
+sqlparse = ">=0.3.1"
 tzdata = {version = "*", markers = "sys_platform == \"win32\""}
 
 [package.extras]
@@ -1074,17 +1074,17 @@ mohawk = ">=1.0.0,<2.0"
 
 [[package]]
 name = "django-hawk-drf"
-version = "1.1.0"
+version = "1.1.2"
 description = "Authenticate Django Rest Framework Views with django-hawk"
 optional = false
-python-versions = ">=3.6.2,<4.0"
+python-versions = ">=3.7,<4.0"
 files = [
-    {file = "django_hawk_drf-1.1.0-py3-none-any.whl", hash = "sha256:dc9b3d470dfdedcd054e168bf260e2c8d9240d84c9093de16bdbd1adb06f293a"},
-    {file = "django_hawk_drf-1.1.0.tar.gz", hash = "sha256:34a320cafeabd6ac590e232820dc726e7d7821177fb2016df3442746c46882cd"},
+    {file = "django_hawk_drf-1.1.2-py3-none-any.whl", hash = "sha256:c3c75e434d3c1f31c87caca333cd020ceb10716a776add0801e5debce1102fe6"},
+    {file = "django_hawk_drf-1.1.2.tar.gz", hash = "sha256:3ad594e0618700d45df1d228d5f837cf1d1f01368050b331dc66c7c249f56187"},
 ]
 
 [package.dependencies]
-Django = ">=2.2,<4.2"
+Django = ">=3.2,<5.1"
 django-hawk = ">=1.1.0,<2.0.0"
 djangorestframework = ">=3.10.3,<4.0"
 
@@ -1134,17 +1134,17 @@ kubi-ecs-logger = ">=0.1.0,<0.2.0"
 
 [[package]]
 name = "django-staff-sso-client"
-version = "4.2.1"
+version = "4.2.2"
 description = "Reusable Django app to facilitate gov.uk Staff Single Sign On"
 optional = false
 python-versions = "*"
 files = [
-    {file = "django_staff_sso_client-4.2.1-py3-none-any.whl", hash = "sha256:99c0e7007a7e17c998a69612c43340a4bc14a88b204da6836a9928a3aa93313b"},
-    {file = "django_staff_sso_client-4.2.1.tar.gz", hash = "sha256:3f5d0ef48b49563a1f78b2d5d8902408c792009997afec41f61ddf68fd894b77"},
+    {file = "django_staff_sso_client-4.2.2-py3-none-any.whl", hash = "sha256:de94952af49fd14b8b4c32a26bcf47ab6369377fb4798683ca0654cca878f817"},
+    {file = "django_staff_sso_client-4.2.2.tar.gz", hash = "sha256:1a36b3d740d4360b44221004156443092163277cb467b5775ba2a522345b8786"},
 ]
 
 [package.dependencies]
-Django = ">=3.0,<5.0"
+Django = ">=4.2.10,<5.0"
 requests-oauthlib = "*"
 
 [package.extras]
@@ -1771,13 +1771,13 @@ files = [
 
 [[package]]
 name = "json5"
-version = "0.9.17"
+version = "0.9.20"
 description = "A Python implementation of the JSON5 data format."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "json5-0.9.17-py2.py3-none-any.whl", hash = "sha256:f8ec1ecf985951d70f780f6f877c4baca6a47b6e61e02c4cd190138d10a7805a"},
-    {file = "json5-0.9.17.tar.gz", hash = "sha256:717d99d657fa71b7094877b1d921b1cce40ab444389f6d770302563bb7dfd9ae"},
+    {file = "json5-0.9.20-py3-none-any.whl", hash = "sha256:f623485b37fad95783233bad9352d21526709cbd9a2ec41ddc3e950fca85b701"},
+    {file = "json5-0.9.20.tar.gz", hash = "sha256:20a255981244081d5aaa4adc90d31cdbf05bed1863993cbf300b8e2cd2b6de88"},
 ]
 
 [package.extras]
@@ -2697,13 +2697,13 @@ extra = ["pygments (>=2.12)"]
 
 [[package]]
 name = "pyparsing"
-version = "3.1.1"
+version = "3.1.2"
 description = "pyparsing module - Classes and methods to define and execute parsing grammars"
 optional = false
 python-versions = ">=3.6.8"
 files = [
-    {file = "pyparsing-3.1.1-py3-none-any.whl", hash = "sha256:32c7c0b711493c72ff18a981d24f28aaf9c1fb7ed5e9667c9e84e3db623bdbfb"},
-    {file = "pyparsing-3.1.1.tar.gz", hash = "sha256:ede28a1a32462f5a9705e07aea48001a08f7cf81a021585011deba701581a0db"},
+    {file = "pyparsing-3.1.2-py3-none-any.whl", hash = "sha256:f9db75911801ed778fe61bb643079ff86601aca99fcae6345aa67292038fb742"},
+    {file = "pyparsing-3.1.2.tar.gz", hash = "sha256:a1bac0ce561155ecc3ed78ca94d3c9378656ad4c94c1270de543f621420f94ad"},
 ]
 
 [package.extras]
@@ -3625,4 +3625,4 @@ six = ">=1.14.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "58ec67de90b1c9ea8c7c6fa3dbf67e2feb1aee5644bef7bf0d9e13f226c0fff6"
+content-hash = "2b246d7e7d16c05cf056a154c75a9cc252923b2265e26a2bf0239c72c5302e6f"
