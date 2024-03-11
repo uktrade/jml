@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 
 
-class ServiceNowPostObject(BaseModel): ...
+class ServiceNowPostObject(BaseModel):
+    pass
 
 
 class ServiceNowPostAsset(ServiceNowPostObject):
