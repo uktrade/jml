@@ -56,14 +56,14 @@ def ingest_service_now() -> None:
 
 
 def json_load_list(post_body: bytes) -> list:
-    post_body = post_body.decode()
+    post_body_str = post_body.decode()
 
     # NOTE: This is a hack to remove the quotes from the body since the
     # ServiceNow request sends the body as a string.
-    if post_body.startswith('"') and post_body.endswith('"'):
-        post_body = post_body[1:-1]
+    if post_body_str.startswith('"') and post_body_str.endswith('"'):
+        post_body_str = post_body_str[1:-1]
 
-    post_body = json.loads(post_body)
+    post_body_str = json.loads(post_body_str)
 
     # TODO: Remove this debug exception
     logger.exception(
@@ -71,12 +71,12 @@ def json_load_list(post_body: bytes) -> list:
             f"""
             POST request received!
 
-            post_body: {post_body}
+            post_body: {post_body_str}
             """
         )
     )
 
-    if not isinstance(post_body, list):
-        raise ValueError(f"Expected a list of objects, got {type(post_body)}")
+    if not isinstance(post_body_str, list):
+        raise ValueError(f"Expected a list of objects, got {type(post_body_str)}")
 
-    return post_body
+    return post_body_str
