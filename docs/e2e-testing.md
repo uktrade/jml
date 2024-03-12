@@ -1,12 +1,14 @@
+---
+hide:
+  - navigation
+---
+
 # End-to-end tests
 
-## Introduction
-
 These E2E tests are intended to cover the most important parts of the application.
-
 The scenarios are written with the assumption that you are testing locally or on dev/staging.
 
-## Test cases
+# Test cases
 
 Setup some test data:
 
@@ -24,7 +26,7 @@ Setup some test data:
     - Go to "Dev tools" and fill out the "Create user" form
     - Make sure to set the "Group" to "Security Team"
 
-### Leaver Journey
+## Leaver Journey
 
 Using dev tools, in the "Change user" form, select the leaver user you created and click "Select user".
 
@@ -36,7 +38,7 @@ Using dev tools, in the "Change user" form, select the leaver user you created a
     - Select the manager user you created
 - At the end, you should see a confirmation page, submit this request and the leaver's part of the process is complete
 
-### Manager Journey
+## Manager Journey
 
 Using dev tools, in the "Change user" form, select the manager user you created and click "Select user".
 
@@ -46,7 +48,7 @@ Using dev tools, in the "Change user" form, select the manager user you created 
 - Confirm all of the details are correct and fill out the new fields as required
 - At the end, you should see a confirmation page, submit this request and the manager's part of the process is complete
 
-### HR Admin Journey
+## HR Admin Journey
 
 Using dev tools, in the "Change user" form, select the HR admin user you created and click "Select user".
 
@@ -55,7 +57,7 @@ Using dev tools, in the "Change user" form, select the HR admin user you created
 - In the list of "Incomplete" requests, click on the leaver you created
 - You should now see a summary of the leaver's request and it's actions
 
-### SRE Journey
+## SRE Journey
 
 Using dev tools, in the "Change user" form, select the SRE admin user you created and click "Select user".
  team
@@ -74,7 +76,7 @@ Using dev tools, in the "Change user" form, select the SRE admin user you create
         - Mark the record as complete
             - This is only possible if all of the tools have been marked as "Removed" or "Not applicable"
 
-### Security Journey
+## Security Journey
 
 Using dev tools, in the "Change user" form, select the Security admin user you created and click "Select user".
 
