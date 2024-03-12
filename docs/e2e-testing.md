@@ -8,9 +8,7 @@ hide:
 These E2E tests are intended to cover the most important parts of the application.
 The scenarios are written with the assumption that you are testing locally or on dev/staging.
 
-# Test cases
-
-Setup some test data:
+**Setup some test data:**
 
 - Create a new user to be a leaver
     - Go to "Dev tools" and fill out the "Create user" form
