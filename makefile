@@ -183,7 +183,6 @@ poetry-update:
 	$(poetry) update
 
 # DB
-
 db-shell: # Open the database container postgres shell
 	$(db) psql -U postgres
 
@@ -195,7 +194,7 @@ db-reset: # Reset the database
 DUMP_NAME = local
 
 db-dump: # Dump the current database, use `DUMP_NAME` to change the name of the dump
-	@PGPASSWORD='postgres' pg_dump postgres -U postgres -h localhost -p 5432 -O -x -c -f ./.dumps/$(DUMP_NAME).dump
+	@PGPASSWORD='postgres' pg_dump postgres -U postgres -h localhost -p 5433 -O -x -c -f ./.dumps/$(DUMP_NAME).dump
 
 db-from-dump: # Load a dumped database, use `DUMP_NAME` to change the name of the dump
-	@PGPASSWORD='postgres' psql -h localhost -U postgres postgres -f ./.dumps/$(DUMP_NAME).dump
+	@PGPASSWORD='postgres' psql -h localhost -U postgres postgres -p 5433 -f ./.dumps/$(DUMP_NAME).dump
