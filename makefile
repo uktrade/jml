@@ -7,7 +7,7 @@ COLOUR_GREEN=\033[32;01m
 COLOUR_YELLOW=\033[33;01m
 COLOUR_RED='\033[0;31m'
 
-.PHONY: help
+.PHONY: help setup
 
 help: # List commands and their descriptions
 	@grep -E '^[a-zA-Z0-9_-]+: # .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ": # "; printf "\n\033[93;01m%-30s %-30s\033[0m\n\n", "Command", "Description"}; {split($$1,a,":"); printf "\033[96m%-30s\033[0m \033[92m%s\033[0m\n", a[1], $$2}'
@@ -50,8 +50,6 @@ ifdef POETRY
 else
     poetry = $(leavers) poetry --quiet
 endif
-
-.PHONY: setup
 
 setup: # Set up the project from scratch
 	cp .env.example .env
