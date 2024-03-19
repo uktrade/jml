@@ -19,9 +19,23 @@ To get the project running locally, you will need to have [Docker](https://www.d
 
 ### Running the project
 
-You can run the `setup` command to set up the site.
+First you will need to make a copy of the `.env.example` file and rename it to `.env`. This file contains all the environment variables that the project needs to run.
 
 ```bash
+cp .env.example .env
+```
+
+There might be some values that you need to configure, talk to SRE for these values.
+
+Next, you will need to copy the example local settings file and rename it to `local.py`. This file contains all the settings that the project needs to run.
+
+```bash
+cp config/settings/local.example.py config/settings/local.py
+```
+
+Now you can run the `make setup` command to set up the site.
+
+```bash 
 make setup
 ```
 
@@ -29,7 +43,9 @@ This will result in the webserver being served on port `8000`.
 
 It should be accessible at:
 
-- [http://localhost:8000/](http://localhost:8000/)
+- http://localhost:8000/
+- http://0.0.0.0:8000/
+
 
 ### Dev tools
 

@@ -1,12 +1,6 @@
 SHELL := /bin/bash
 APPLICATION_NAME="Leaving service"
 
-# Colour coding for output
-COLOUR_NONE=\033[0m
-COLOUR_GREEN=\033[32;01m
-COLOUR_YELLOW=\033[33;01m
-COLOUR_RED='\033[0;31m'
-
 .PHONY: help setup
 
 help: # List commands and their descriptions
@@ -52,12 +46,9 @@ else
 endif
 
 setup: # Set up the project from scratch
-	cp .env.example .env
-	cp config/settings/local.example.py config/settings/local.py
-	npm install
-	npm run build
-	docker compose down
-	docker compose up -d db opensearch
+	make npm-build
+	make down
+	make up-detached db opensearch
 	$(leavers) $(manage) createcachetable
 	$(leavers) $(manage) migrate
 	$(leavers) $(manage) collectstatic --no-input
@@ -67,9 +58,9 @@ setup: # Set up the project from scratch
 	$(leavers) $(manage) update_staff_index
 	$(leavers) $(manage) set_permissions
 	$(leavers) $(manage) create_test_users
-	docker compose up
+	make up
 
-check-fixme:
+check-fixme: # Run check-fixme
 	! git --no-pager grep -rni fixme -- ':!./makefile' ':!./.circleci/config.yml' ':!./.github/workflows/ci.yml'
 
 migrate: # Run migrations
@@ -135,7 +126,7 @@ bash: # Start a bash session on the application container
 all-requirements: # Generate pip requirements files
 	$(poetry) export -f requirements.txt --output requirements.txt --without-hashes --with production --without dev,testing
 
-pytest:
+pytest: # Run pytest
 	$(leavers) pytest --cov --cov-report html -raP --capture=sys -n 4
 
 test: # Run tests
@@ -144,28 +135,28 @@ test: # Run tests
 test-fresh: # Run tests with a fresh database
 	$(leavers) pytest --disable-warnings --create-db --reuse-db $(test)
 
-view-coverage:
+view-coverage: # View coverage in new tab -> htmlcov/index.html
 	python -m webbrowser -t htmlcov/index.html
 
 superuser: # Create a superuser
 	$(leavers) $(manage) createsuperuser
 
-test-users:
+test-users: # Create test users
 	$(leavers) $(manage) create_test_users
 
-seed-employee-ids:
+seed-employee-ids: # Seed employee IDs
 	$(leavers) $(manage) seed_employee_ids
 
 model-graphs: # Generate model graphs at jml_data_model.png
 	$(leavers) $(manage) graph_models -a -g -o jml_data_model.png
 
-ingest-activity-stream:
+ingest-activity-stream: # Ingest activity stream
 	$(leavers) $(manage) ingest_activity_stream --limit=10
 
 serve-docs: # Serve mkdocs
 	$(poetry) run mkdocs serve -a localhost:8000
 
-staff-index:
+staff-index: # Ingest staff data
 	$(leavers) $(manage) ingest_staff_data --skip-ingest-staff-records --skip-service-now
 
 detect-secrets-init: # Initialise the detect-secrets for the project
@@ -177,7 +168,7 @@ detect-secrets-scan: # detect-secrets scan for the project
 detect-secrets-audit: # detect-secrets audit for the project
 	$(poetry) run detect-secrets audit --baseline .secrets.baseline
 
-poetry-update:
+poetry-update: # Run poetry update
 	$(poetry) update
 
 # DB
