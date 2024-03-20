@@ -12,22 +12,30 @@ COLOUR_RED='\033[0;31m'
 help: # Help command
 	@grep -E '^[a-zA-Z_-]+:.*?# .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?# "; printf "\033[1;33m%-30s %-30s\033[0m\n", "Command", "Description"}; {split($$1,a,":"); printf "\033[36m%-30s\033[0m \033[32m%s\033[0m\n", a[1], $$2}'
 
-build: # Run docker-compose build
-	docker-compose build
+build: # Run docker compose build
+	DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 BUILDKIT_INLINE_CACHE=1 docker compose build
 	npm install
 	npm run build
 
-up: # Run docker-compose up
-	docker-compose up
+build-all: # Run dkcer compose build for all containers
+	DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 BUILDKIT_INLINE_CACHE=1 docker compose --profile playwright build
 
-up-detached: # Run docker-compose up in a detached state
-	docker-compose up -d
+up: # Run docker compose up
+	docker compose up
 
-down: # Run docker-compose down
-	docker-compose down
+up-detached: # Run docker compose up in a detached state
+	docker compose up -d
 
-run = docker-compose run --rm
+up-all: # Run docker compose up for all containers
+	docker compose --profile playwright up -d
+
+down: # Run docker compose down
+	docker compose down
+
+run = docker compose run --rm
 manage = python manage.py
+# Run tests in a new container named 'testrunner'
+testrunner = $(run) --name testrunner leavers
 
 # Run poetry if it is installed, otherwise run it in the leavers container
 POETRY := $(shell command -v poetry 2> /dev/null)
@@ -40,8 +48,8 @@ endif
 first-use:
 	npm install
 	npm run build
-	docker-compose down
-	docker-compose up -d db opensearch
+	docker compose down
+	docker compose up -d db opensearch
 	$(run) leavers python manage.py createcachetable
 	$(run) leavers python manage.py migrate
 	$(run) leavers python manage.py collectstatic --no-input
@@ -51,7 +59,7 @@ first-use:
 	$(run) leavers python manage.py update_staff_index
 	$(run) leavers python manage.py set_permissions
 	$(run) leavers python manage.py create_test_users
-	docker-compose up
+	docker compose up
 
 check-fixme:
 	! git --no-pager grep -rni fixme -- ':!./makefile' ':!./.circleci/config.yml' ':!./.github/workflows/ci.yml'
@@ -107,10 +115,30 @@ pytest:
 	$(run) leavers pytest --cov --cov-report html -raP --capture=sys -n 4
 
 test: # Run tests
-	$(run) leavers pytest --disable-warnings --reuse-db $(test)
+	$(run) leavers pytest -m "not e2e" --disable-warnings --reuse-db $(test)
 
 test-fresh: # Run tests with a fresh database
-	$(run) leavers pytest --disable-warnings --create-db --reuse-db $(test)
+	$(run) leavers pytest -m "not e2e" --disable-warnings --create-db --reuse-db $(test)
+
+
+test-e2e: # Run (only) end to end tests with playwright and pytest
+	make up-all
+	$(run) playwright poetry run pytest -m "e2e" $(tests)
+	docker compose stop playwright
+
+test-all: # Run all tests with pytest
+	$(testrunner) pytest
+
+e2e-codegen: # Set up local environment and run Playwright's interactive test recorder
+	if [ ! -f .env.orig ]; then cp .env .env.orig; echo "backed up .env to .env.orig"; else echo "!! found existing .env.orig backup"; fi
+	cp .env.ci .env
+	docker compose stop leavers
+	$(run) -d -p 8000:8000 --env DJANGO_SETTINGS_MODULE=config.settings.test --name leavers-test-server leavers
+	poetry run playwright install chromium
+	sleep 5
+	poetry run playwright codegen http://localhost:8000
+	mv .env.orig .env
+	docker stop leavers-test-server
 
 view-coverage:
 	python -m webbrowser -t htmlcov/index.html
