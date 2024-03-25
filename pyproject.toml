@@ -44,6 +44,7 @@ detect-secrets = "^1.4.0"
 django-workflow-engine = "^0.2.1"
 govuk-frontend-django = "^0.4.0"
 dit-activity-stream = "^0.2.3"
+pydantic = "^2.4.2"
 
 [tool.poetry.group.production]
 optional = true
@@ -104,7 +105,7 @@ src_paths = ["config", "core", "leavers", "user", "activity_stream"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
-addopts = "--ds=config.settings.test --ignore=node_modules"
+addopts = "--ds=config.settings.test --ignore=node_modules --ignore=staticfiles"
 
 [tool.mypy]
 python_version = "3.10"
@@ -128,6 +129,8 @@ module = [
     "help_desk_client.*",
     "mohawk.*",
     "opensearch_dsl.*",
+    "pydantic.*",
+    "pydantic_core.*",
     "requests_hawk.*",
     "requests_oauthlib.*",
     "rest_framework.*",
