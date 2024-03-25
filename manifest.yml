@@ -1,6 +1,7 @@
 applications:
-- name: jml
-  memory: 512M
-  buildpacks:
-  - python_buildpack
-  - nodejs_buildpack
+  - name: jml
+    stack: cflinuxfs4
+    memory: 512M
+    buildpacks:
+      - python_buildpack
+      - nodejs_buildpack
