@@ -8,7 +8,7 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 192.168.3.0/24
+        - subnet: 192.168.4.0/24
 services:
   db:
     image: postgres:13
@@ -54,6 +54,9 @@ services:
     build:
       context: .
       dockerfile: "docker/Dockerfile.dev"
+      cache_from:
+        - jml/leavers:latest
+    image: jml/leavers:latest
     networks:
       - default
       - inside
@@ -73,9 +76,7 @@ services:
     tty: true
 
   celery:
-    build:
-      context: .
-      dockerfile: "docker/Dockerfile.dev"
+    image: jml/leavers:latest
     networks:
       - default
       - inside
@@ -88,9 +89,7 @@ services:
       - redis
 
   celery-beat:
-    build:
-      context: .
-      dockerfile: "docker/Dockerfile.dev"
+    image: jml/leavers:latest
     networks:
       - inside
     env_file: .env
@@ -100,3 +99,26 @@ services:
     depends_on:
       - db
       - redis
+
+  playwright:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.test
+      cache_from:
+        - jml/playwright:latest
+    image: jml/playwright:latest
+    networks:
+      - default
+      - inside
+    command: tail -F anything # keep running until "down" command
+    volumes:
+      - ./:/app/
+    profiles:
+      - playwright
+    ipc: host
+    depends_on:
+      - leavers
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.test
+    links:
+      - "leavers:main"

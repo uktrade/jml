@@ -49,6 +49,7 @@ var/
 .installed.cfg
 *.egg
 .env
+.env.orig
 .envrc
 .environ
 .environ_backup
