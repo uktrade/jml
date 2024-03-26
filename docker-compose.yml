@@ -11,7 +11,7 @@ networks:
         - subnet: 192.168.3.0/24
 services:
   db:
-    image: postgres:13
+    image: postgres:16
     networks:
       - default
       - inside
@@ -30,7 +30,7 @@ services:
       retries: 5
 
   opensearch:
-    image: opensearchproject/opensearch:1.2.3
+    image: opensearchproject/opensearch:2.1.0
     networks:
       - inside
     ports:
@@ -44,7 +44,7 @@ services:
       - "DISABLE_SECURITY_PLUGIN=true"
 
   redis:
-    image: redis:buster
+    image: redis:7.0-bookworm
     networks:
       - inside
     ports:
