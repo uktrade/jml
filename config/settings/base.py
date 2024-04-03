@@ -4,7 +4,9 @@ from typing import List
 
 import environ
 from django.urls import reverse_lazy
+from django_log_formatter_ecs import ECSFormatter
 from django_log_formatter_asim import ASIMFormatter
+from dbt_copilot_python.utility import is_copilot
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -97,38 +99,67 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
+        "ecs_formatter": {
+            "()": ECSFormatter,
+        },
+        "simple": {
+            "format": "{asctime} {levelname} {name} {message}",
+            "style": "{",
+        },
         "asim_formatter": {
             "()": ASIMFormatter,
         },
+        
     },
     "handlers": {
-        "asim": {
-            "formatter": "asim_formatter",
+        "ecs": {
+            "class": "logging.StreamHandler",
+            "formatter": "ecs_formatter",
+        },
+        "simple": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
         },
     },
     "root": {
-        "handlers": ["asim"],
+        "handlers": [
+            "ecs",
+            "simple",
+        ],
         "level": os.getenv("ROOT_LOG_LEVEL", "INFO"),  # noqa F405
     },
     "loggers": {
         "django": {
-            "handlers": ["asim"],
+            "handlers": [
+                "ecs",
+                "simple",
+            ],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),  # noqa F405
             "propagate": True,
         },
         "django.server": {
-            "handlers": ["asim"],
+            "handlers": [
+                "ecs",
+                "simple",
+            ],
             "level": os.getenv("DJANGO_SERVER_LOG_LEVEL", "ERROR"),  # noqa F405
             "propagate": False,
         },
         "django.db.backends": {
-            "handlers": ["asim"],
+            "handlers": [
+                "ecs",
+                "simple",
+            ],
             "level": os.getenv("DJANGO_DB_LOG_LEVEL", "ERROR"),  # noqa F405
             "propagate": False,
         },
     },
 }
 
+if is_copilot():
+    LOGGING["handlers"]["ecs"]["formatter"] = "asim_formatter"
+
+DLFA_INCLUDE_RAW_LOG = True
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
