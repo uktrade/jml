@@ -890,16 +890,17 @@ typing-inspect = ">=0.4.0,<1"
 
 [[package]]
 name = "dbt-copilot-python"
-version = "0.1.4"
+version = "0.2.0"
 description = "Helper functions to run Django and Flask applications in AWS Copilot/ECS."
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "dbt_copilot_python-0.1.4-py3-none-any.whl", hash = "sha256:db5b205d0fb8aeff7d779c7cab955d05f225fbf5929e9efe97d9b5a588815879"},
-    {file = "dbt_copilot_python-0.1.4.tar.gz", hash = "sha256:8039f10d90c0a47c9832417f48859dcb120b008984442d7e25220eabceeb4cff"},
+    {file = "dbt_copilot_python-0.2.0-py3-none-any.whl", hash = "sha256:1c2191c7b867effb32b249c08e5024eb73ca6a5007a4ef8b7617807f28c8ef59"},
+    {file = "dbt_copilot_python-0.2.0.tar.gz", hash = "sha256:20a23aba6b40c9484f0f8b758bfc7ca18321281c26c709a9346dca8b7f2279e7"},
 ]
 
 [package.dependencies]
+celery = ">=5.3.6,<6.0.0"
 opentelemetry-distro = "0.43b0"
 opentelemetry-exporter-otlp = "1.22.0"
 opentelemetry-instrumentation-wsgi = "0.43b0"
@@ -4249,4 +4250,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "5b67a5f2d056d4a0b66372a1602df4707e716b323613726782ae499796c91788"
+content-hash = "226105242853da418c5f8024ebbd4f9cbb126a10ab1b5b287f749153131699ee"

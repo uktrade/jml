@@ -156,7 +156,7 @@ LOGGING = {
 }
 
 if is_copilot():
-    LOGGING["handlers"]["ecs"]["formatter"] = "asim_formatter"
+    LOGGING["handlers"]["ecs"]["formatter"] = "asim_formatter"  # type: ignore[index]
 
 DLFA_INCLUDE_RAW_LOG = True
 
