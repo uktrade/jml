@@ -20,8 +20,10 @@ django-crispy-forms = "^2.1.0"
 django-environ = "^0.11.2"
 django-health-check = "^3.18.1"
 django-log-formatter-ecs = "^0.0.5"
+django-log-formatter-asim = "0.0.4"
 django-staff-sso-client = "^4.0.1"
 django-elasticsearch-dsl = "^7.0"
+dbt-copilot-python = "^0.2.0"
 mohawk = "^1.1.0"
 psycopg2 = "^2.8.5"
 pyjwt = "^2.8.0"
@@ -132,6 +134,8 @@ module = [
     "requests_oauthlib.*",
     "rest_framework.*",
     "zenpy.*",
+    "dbt_copilot_python.*",
+    "django_log_formatter_asim.*",
 ]
 ignore_missing_imports = true
 
