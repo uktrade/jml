@@ -17,7 +17,7 @@ up: # Start the project
 	docker compose up
 
 up-detached: # Start the project in a detached state
-	docker compose up -d
+	docker compose up -d --wait
 
 down: # Stop the project
 	docker compose down
@@ -48,7 +48,7 @@ endif
 setup: # Set up the project from scratch
 	make npm-build
 	make down
-	make up-detached db opensearch
+	make up-detached
 	$(leavers) $(manage) createcachetable
 	$(leavers) $(manage) migrate
 	$(leavers) $(manage) collectstatic --no-input
