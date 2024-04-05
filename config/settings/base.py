@@ -253,9 +253,7 @@ MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 # Redis
 if is_copilot():
-    REDIS_URL = (
-        env("CELERY_BROKER_URL", default=None) + "?ss;_cert_reqs=required"
-    )
+    REDIS_URL = env("CELERY_BROKER_URL", default=None) + "?ss;_cert_reqs=required"
 elif "redis" in VCAP_SERVICES:
     credentials = VCAP_SERVICES["redis"][0]["credentials"]
     REDIS_URL = "rediss://:{}@{}:{}/0?ssl_cert_reqs=required".format(
