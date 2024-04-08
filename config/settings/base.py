@@ -22,7 +22,7 @@ DEBUG = env.bool("DEBUG", default=False)
 
 SECRET_KEY = env("SECRET_KEY")
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+ALLOWED_HOSTS = setup_allowed_hosts(env.list("ALLOWED_HOSTS"))
 
 VCAP_SERVICES = env.json("VCAP_SERVICES", {})
 
@@ -97,7 +97,7 @@ else:
     if "postgres" in VCAP_SERVICES:
         DATABASE_URL = VCAP_SERVICES["postgres"][0]["credentials"]["uri"]
     else:
-        DATABASE_URL = os.getenv("DATABASE_URL")
+        DATABASE_URL = env("DATABASE_URL")
 
     DATABASES = {"default": env.db()}
 
@@ -253,7 +253,7 @@ MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 # Redis
 if is_copilot():
-    REDIS_URL = env("CELERY_BROKER_URL", default=None) + "?ss;_cert_reqs=required"
+    REDIS_URL = env("REDIS_URL", default=None) + "?ssl_cert_reqs=required"
 elif "redis" in VCAP_SERVICES:
     credentials = VCAP_SERVICES["redis"][0]["credentials"]
     REDIS_URL = "rediss://:{}@{}:{}/0?ssl_cert_reqs=required".format(
@@ -262,7 +262,7 @@ elif "redis" in VCAP_SERVICES:
         credentials["port"],
     )
 else:
-    REDIS_URL = os.environ.get("REDIS_URL", "")
+    REDIS_URL = env("REDIS_URL", default=None)
 
 
 # Cache
@@ -438,14 +438,12 @@ GOVUK_NOTIFY_API_KEY = env("GOVUK_NOTIFY_API_KEY", default=None)
 
 # Search Staff Index
 SEARCH_HOST_URLS: List[str] = []
-if is_copilot():
-    SEARCH_HOST_URLS = env("OPENSEARCH_ENDPOINT")
-elif "opensearch" in VCAP_SERVICES:
+if "opensearch" in VCAP_SERVICES:
     SEARCH_HOST_URLS = [VCAP_SERVICES["opensearch"][0]["credentials"]["uri"]]
 else:
     SEARCH_HOST_URLS = env(
         "SEARCH_HOST_URLS",
-        default="",
+        default=None,
     ).split(",")
 
 SEARCH_STAFF_INDEX_NAME = env("SEARCH_STAFF_INDEX_NAME", default="staff")
