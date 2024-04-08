@@ -443,7 +443,7 @@ if "opensearch" in VCAP_SERVICES:
 else:
     SEARCH_HOST_URLS = env(
         "SEARCH_HOST_URLS",
-        default=None,
+        default="",
     ).split(",")
 
 SEARCH_STAFF_INDEX_NAME = env("SEARCH_STAFF_INDEX_NAME", default="staff")
