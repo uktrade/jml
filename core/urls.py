@@ -18,7 +18,7 @@ private_urlpatterns: List[Union[URLPattern, URLResolver]] = [
 private_urlpatterns = decorate_urlpatterns(private_urlpatterns, login_required)
 
 public_url_patterns: List[Union[URLPattern, URLResolver]] = [
-    path("healthcheck/", include("core.health_check.urls")),
+    path("", include("core.health_check.urls")),
     path("dit-activity-stream/", include("dit_activity_stream.urls")),
 ]
 
