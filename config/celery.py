@@ -7,7 +7,9 @@ from celery.schedules import crontab
 celery_app = Celery("DjangoCelery")
 celery_app.config_from_object("django.conf:settings", namespace="CELERY")
 celery_app.autodiscover_tasks()
-celery_app = healthcheck.setup(celery_app)
+
+if is_copilot():
+    celery_app = healthcheck.setup(celery_app)
 
 celery_app.conf.beat_schedule = {
     # Queue up the workflows every 5 minutes.
