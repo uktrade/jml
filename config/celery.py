@@ -1,15 +1,12 @@
 from dbt_copilot_python.celery_health_check import healthcheck
-from dbt_copilot_python.utility import is_copilot
 
 from celery import Celery
 from celery.schedules import crontab
 
 celery_app = Celery("DjangoCelery")
+celery_app = healthcheck.setup(celery_app)
 celery_app.config_from_object("django.conf:settings", namespace="CELERY")
 celery_app.autodiscover_tasks()
-
-if is_copilot():
-    celery_app = healthcheck.setup(celery_app)
 
 celery_app.conf.beat_schedule = {
     # Queue up the workflows every 5 minutes.
