@@ -18,8 +18,6 @@ services:
 
   opensearch:
     image: opensearchproject/opensearch:2.1.0
-    networks:
-      - inside
     ports:
       - "9200:9200"
       - "9600:9600"
