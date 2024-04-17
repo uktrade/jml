@@ -3,7 +3,9 @@ from pathlib import Path
 from typing import List
 
 import environ
+from dbt_copilot_python.utility import is_copilot
 from django.urls import reverse_lazy
+from django_log_formatter_asim import ASIMFormatter
 from django_log_formatter_ecs import ECSFormatter
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -53,8 +55,8 @@ INSTALLED_APPS = [
     "health_check.cache",
     "health_check.storage",
     "health_check.contrib.migrations",
-    "health_check.contrib.celery",
-    "health_check.contrib.celery_ping",
+    # "health_check.contrib.celery",
+    # "health_check.contrib.celery_ping",
     "health_check.contrib.redis",
 ]
 
@@ -104,6 +106,9 @@ LOGGING = {
             "format": "{asctime} {levelname} {name} {message}",
             "style": "{",
         },
+        "asim_formatter": {
+            "()": ASIMFormatter,
+        },
     },
     "handlers": {
         "ecs": {
@@ -129,7 +134,7 @@ LOGGING = {
                 "simple",
             ],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),  # noqa F405
-            "propagate": False,
+            "propagate": True,
         },
         "django.server": {
             "handlers": [
@@ -150,6 +155,10 @@ LOGGING = {
     },
 }
 
+if is_copilot():
+    LOGGING["handlers"]["ecs"]["formatter"] = "asim_formatter"  # type: ignore[index]
+
+DLFA_INCLUDE_RAW_LOG = True
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
