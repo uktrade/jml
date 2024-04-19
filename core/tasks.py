@@ -42,7 +42,11 @@ def progress_workflow(self, flow_pk: str):
     logger.info(f"RUNNING progress_workflow {flow_pk=}")
     # Get workflow from task
     flow: Flow = Flow.objects.get(pk=flow_pk)
-    if not flow.is_complete:
+    request_cancelled = False
+    if request := getattr(flow, "leaving_request", None):
+        request_cancelled = request.cancelled
+
+    if not request_cancelled and not flow.is_complete:
         executor = WorkflowExecutor(flow)
         try:
             executor.run_flow(user=None)
