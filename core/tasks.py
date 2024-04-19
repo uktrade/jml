@@ -43,7 +43,7 @@ def progress_workflow(self, flow_pk: str):
     # Get workflow from task
     flow: Flow = Flow.objects.get(pk=flow_pk)
     request_cancelled = False
-    if request := getattr(flow, "leaving_request", None):
+    if request := getattr(flow, "leaving_request"):
         request_cancelled = request.cancelled
 
     if not request_cancelled and not flow.is_complete:
