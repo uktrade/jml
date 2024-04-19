@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db.models.query import QuerySet
+from django.utils import timezone
 from django_workflow_engine.exceptions import WorkflowNotAuthError
 from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
@@ -42,6 +43,11 @@ def progress_workflow(self, flow_pk: str):
     logger.info(f"RUNNING progress_workflow {flow_pk=}")
     # Get workflow from task
     flow: Flow = Flow.objects.get(pk=flow_pk)
+    if request := getattr(flow, "leaving_request"):
+        if request.cancelled:
+            flow.finished = timezone.now()
+            flow.save(update_fields=["finished"])
+
     if not flow.is_complete:
         executor = WorkflowExecutor(flow)
         try:
