@@ -5,7 +5,7 @@ from health_check.exceptions import HealthCheckException
 
 
 class ServiceNowHealthCheck(BaseHealthCheckBackend):
-    critical_service = True
+    critical_service = False
 
     def check_status(self):
         if not settings.SERVICE_NOW_ENABLE_ONLINE_PROCESS:
