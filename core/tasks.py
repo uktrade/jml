@@ -43,7 +43,7 @@ def progress_workflow(self, flow_pk: str):
     logger.info(f"RUNNING progress_workflow {flow_pk=}")
     # Get workflow from task
     flow: Flow = Flow.objects.get(pk=flow_pk)
-    if request := getattr(flow, "leaving_request"):
+    if request := getattr(flow, "leaving_request", None):
         if request.cancelled:
             flow.finished = timezone.now()
             flow.save(update_fields=["finished"])
