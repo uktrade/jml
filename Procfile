@@ -1,3 +1,3 @@
-web: npm run build && python manage.py collectstatic && python manage.py migrate && waitress-serve --port=$PORT config.wsgi:application
+web: scripts/entry.sh
 beat: celery -A config.celery beat -l INFO
 worker: celery -A config.celery worker -l INFO
