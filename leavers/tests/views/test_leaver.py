@@ -8,6 +8,10 @@ from django.urls import reverse
 from django.utils import timezone
 
 from activity_stream.factories import ActivityStreamStaffSSOUserFactory
+from core.beis_service_now.factories import (
+    ServiceNowDirectorateFactory,
+    ServiceNowLocationFactory,
+)
 from core.utils.staff_index import StaffDocument
 from leavers.factories import LeaverInformationFactory, LeavingRequestFactory
 from leavers.models import LeavingRequest
@@ -510,10 +514,15 @@ class TestCirrusEquipmentView(LeavingRequestTestCase):
     def test_post_cirrus_return_office_form(self):
         self.client.force_login(self.leaver)
 
+        directorate = ServiceNowDirectorateFactory()
+        location = ServiceNowLocationFactory()
+
         post_response = self.client.post(
             self.view_url,
             data={
                 "form_name": "cirrus_return_form",
+                "directorate": directorate.sys_id,
+                "location": location.sys_id,
                 "return_option": ReturnOptions.OFFICE.value,
                 "office_personal_phone": "0123123123",
                 "office_contact_email": "someone@example.com",  # /PS-IGNORE
@@ -548,10 +557,15 @@ class TestCirrusEquipmentView(LeavingRequestTestCase):
     def test_post_cirrus_return_home_form(self):
         self.client.force_login(self.leaver)
 
+        directorate = ServiceNowDirectorateFactory()
+        location = ServiceNowLocationFactory()
+
         post_response = self.client.post(
             self.view_url,
             data={
                 "form_name": "cirrus_return_form",
+                "directorate": directorate.sys_id,
+                "location": location.sys_id,
                 "return_option": ReturnOptions.HOME.value,
                 "office_personal_phone": "",
                 "office_contact_email": "",
@@ -586,10 +600,15 @@ class TestCirrusEquipmentView(LeavingRequestTestCase):
     def test_post_cirrus_return_form_no_assets(self):
         self.client.force_login(self.leaver)
 
+        directorate = ServiceNowDirectorateFactory()
+        location = ServiceNowLocationFactory()
+
         post_response = self.client.post(
             self.view_url,
             data={
                 "form_name": "cirrus_return_form_no_assets",
+                "directorate": directorate.sys_id,
+                "location": location.sys_id,
             },
         )
 
