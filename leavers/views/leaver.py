@@ -1269,8 +1269,14 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
     def post_cirrus_return_form_no_assets(
         self, request: HttpRequest, form: Form, *args, **kwargs
     ):
+        form_data = form.cleaned_data
+        directorate = form_data["directorate"]
+        location = form_data["location"]
+
         # Store correction info and assets into the leaver details
         self.store_cirrus_kit_information(
+            service_now_directorate=directorate,
+            service_now_location=location,
             cirrus_assets=[],
         )
         return redirect(self.get_success_url())
