@@ -2,7 +2,10 @@ import os
 from pathlib import Path
 from typing import List
 
+import dj_database_url
 import environ
+from dbt_copilot_python.database import database_url_from_env
+from dbt_copilot_python.network import setup_allowed_hosts
 from dbt_copilot_python.utility import is_copilot
 from django.urls import reverse_lazy
 from django_log_formatter_asim import ASIMFormatter
@@ -19,7 +22,7 @@ DEBUG = env.bool("DEBUG", default=False)
 
 SECRET_KEY = env("SECRET_KEY")
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+ALLOWED_HOSTS = setup_allowed_hosts(env.list("ALLOWED_HOSTS"))
 
 VCAP_SERVICES = env.json("VCAP_SERVICES", {})
 
@@ -84,12 +87,19 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 VCAP_SERVICES = env.json("VCAP_SERVICES", default={})
 
-if "postgres" in VCAP_SERVICES:
-    DATABASE_URL = VCAP_SERVICES["postgres"][0]["credentials"]["uri"]
+if is_copilot():
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=database_url_from_env("DATABASE_CREDENTIALS")
+        )
+    }
 else:
-    DATABASE_URL = os.getenv("DATABASE_URL")
+    if "postgres" in VCAP_SERVICES:
+        DATABASE_URL = VCAP_SERVICES["postgres"][0]["credentials"]["uri"]
+    else:
+        DATABASE_URL = env("DATABASE_URL")
 
-DATABASES = {"default": env.db()}
+    DATABASES = {"default": env.db()}
 
 DATABASE_ROUTERS = ["core.people_data.routers.PeopleDataRouter"]
 
@@ -242,7 +252,9 @@ MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 
 # Redis
-if "redis" in VCAP_SERVICES:
+if is_copilot():
+    REDIS_URL = env("REDIS_URL", default=None) + "?ssl_cert_reqs=required"
+elif "redis" in VCAP_SERVICES:
     credentials = VCAP_SERVICES["redis"][0]["credentials"]
     REDIS_URL = "rediss://:{}@{}:{}/0?ssl_cert_reqs=required".format(
         credentials["password"],
@@ -250,7 +262,7 @@ if "redis" in VCAP_SERVICES:
         credentials["port"],
     )
 else:
-    REDIS_URL = os.environ.get("REDIS_URL", "")
+    REDIS_URL = env("REDIS_URL", default=None)
 
 
 # Cache
