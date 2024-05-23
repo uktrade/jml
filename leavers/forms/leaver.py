@@ -746,11 +746,48 @@ def radios_with_conditionals(*args, **kwargs) -> Field:
 
 
 class CirrusReturnFormNoAssets(LeaverJourneyBaseForm):
+    required_error_messages: Dict[str, str] = {
+        "directorate": "Please select your directorate.",
+        "location": "Please select your location.",
+    }
+    required_error_messages_not_leaver: Dict[str, str] = {
+        "directorate": "Please select the leaver's directorate.",
+        "location": "Please select the leaver's location.",
+    }
+
+    directorate = forms.ModelChoiceField(
+        label="Your directorate",
+        queryset=ServiceNowDirectorate.objects.all().order_by("name"),
+        empty_label="Select your directorate",
+        help_text="HELP TEXT!",
+    )
+    location = forms.ModelChoiceField(
+        label="Your location",
+        queryset=ServiceNowLocation.objects.all().order_by("name"),
+        empty_label="Select your location",
+        help_text="HELP TEXT!",
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
-        self.helper.layout = Layout()
+        self.helper.layout = Layout(
+            Fieldset(
+                Field.select(
+                    "directorate",
+                    css_class="govuk-!-width-two-thirds",
+                ),
+                Field.select(
+                    "location",
+                    legend_size=Size.SMALL,
+                    legend="Location",
+                    css_class="govuk-!-width-two-thirds",
+                ),
+                legend_size=Size.SMALL,
+                legend="Your work:",
+            ),
+        )
 
         if self.user_is_leaver:
             self.helper.layout.append(
