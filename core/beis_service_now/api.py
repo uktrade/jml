@@ -117,6 +117,7 @@ class ServiceNowObjectPostView(ServiceNowAPIView):
                 "servicenowobject_ptr",
                 "activity_stream_users",
             ]
+            and field.concrete
         ]
 
         logger.info(f"Saving {len(objects_to_save)} {self.model} objects")
