@@ -20,7 +20,7 @@ from activity_stream.models import ActivityStreamStaffSSOUser
 from core.people_finder import get_people_finder_interface
 from core.views import BaseTemplateView
 from leavers.forms import data_processor as data_processor_forms
-from leavers.models import LeaverInformation, LeavingRequest
+from leavers.models import LeaverInformation, LeavingRequest, LeavingRequestQuerySet
 from user.models import User
 
 
@@ -98,8 +98,8 @@ class LeavingRequestListing(
         self,
         order_by: Optional[str] = None,
         order_direction: Literal["asc", "desc"] = "asc",
-    ) -> QuerySet[LeavingRequest]:
-        leaving_requests: QuerySet[LeavingRequest] = LeavingRequest.objects.filter(
+    ) -> LeavingRequestQuerySet:
+        leaving_requests: LeavingRequestQuerySet = LeavingRequest.objects.filter(
             cancelled__isnull=True
         )
         complete_field = self.get_complete_field()
