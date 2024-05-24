@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Tuple, Type
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Manager
+from django.db.models import Manager, QuerySet
 from django_workflow_engine.models import Flow, TaskStatus
 
 from activity_stream.models import ActivityStreamStaffSSOUser
@@ -52,7 +52,7 @@ class TaskLog(models.Model):
     notes = models.CharField(max_length=1000, blank=True, null=True)
 
 
-class LeavingRequestQuerySet(models.QuerySet):
+class LeavingRequestQuerySet(QuerySet):
     def not_cancelled(self) -> "LeavingRequestQuerySet":
         return self.filter(cancelled__isnull=True)
 
