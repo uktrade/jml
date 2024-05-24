@@ -251,7 +251,7 @@ class ServiceNowRITMView(ServiceNowAPIView):
                 request_id=ritm_response.request_id,
             )
             # Find a LeavingRequest for the user_sys_id and add the RITM
-            leaving_requests = LeavingRequest.objects.submitted_with_service_now_online_process().filter(
+            leaving_requests = LeavingRequest.objects.submitted_with_service_now_online_process().filter(  # noqa: E501
                 leaver_activitystream_user__service_now_users__sys_id=ritm_response.user_sys_id,
             )
             if not leaving_requests.exists():
