@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type, TypedDict, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.db.models.query import QuerySet
 from django.forms import Form
 from django.http import Http404
 from django.http.request import HttpRequest
@@ -22,12 +21,7 @@ from leavers.forms.sre import (
     SREConfirmCompleteForm,
     SREServiceAndToolsForm,
 )
-from leavers.models import (
-    LeaverInformation,
-    LeavingRequest,
-    LeavingRequestQuerySet,
-    TaskLog,
-)
+from leavers.models import LeaverInformation, LeavingRequestQuerySet, TaskLog
 from leavers.views import base
 from leavers.views.leaver import LeavingRequestViewMixin
 from user.models import User

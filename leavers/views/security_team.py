@@ -2,7 +2,6 @@ from datetime import date
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.db.models.query import QuerySet
 from django.forms import Form
 from django.http import Http404
 from django.http.request import HttpRequest

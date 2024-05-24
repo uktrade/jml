@@ -1,10 +1,10 @@
 import uuid
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Type
+from typing import Dict, List, Optional, Tuple
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models import Manager, QuerySet
+from django.db.models import QuerySet
 from django_workflow_engine.models import Flow, TaskStatus
 
 from activity_stream.models import ActivityStreamStaffSSOUser

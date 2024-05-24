@@ -6,7 +6,6 @@ from django.contrib.postgres.search import SearchVector
 from django.core.paginator import Paginator
 from django.db.models import Case, Value, When
 from django.db.models.functions import Concat
-from django.db.models.query import QuerySet
 from django.http import Http404
 from django.http.request import HttpRequest
 from django.http.response import HttpResponse, HttpResponseBase
