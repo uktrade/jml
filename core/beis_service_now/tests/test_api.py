@@ -145,3 +145,22 @@ class TestServiceNowDirectoratesApi(ServiceNowApiTestCase):
         self.assertEqual(objects[2].sys_id, "directorate-3")
         self.assertEqual(objects[3].sys_id, "directorate-4")
         self.assertEqual(objects[4].sys_id, "directorate-5")
+
+
+class TestServiceNowLocationsApi(ServiceNowApiTestCase):
+    url_name = "service-now-api-locations"
+    model = ServiceNowDirectorate
+
+    SUCCESSFUL_POST_DATA = get_object_json("locations")
+
+    def test_successful_post(self):
+        super().test_successful_post()
+
+        objects = self.model.objects.all()
+        self.assertEqual(objects.count(), 5)
+
+        self.assertEqual(objects[0].sys_id, "location-1")
+        self.assertEqual(objects[1].sys_id, "location-2")
+        self.assertEqual(objects[2].sys_id, "location-3")
+        self.assertEqual(objects[3].sys_id, "location-4")
+        self.assertEqual(objects[4].sys_id, "location-5")
