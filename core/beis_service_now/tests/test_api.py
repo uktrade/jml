@@ -4,19 +4,26 @@ from typing import Dict, List, Optional, Type
 import pydantic_core
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
+from core.beis_service_now.factories import ServiceNowUserFactory
 from core.beis_service_now.models import (
     ServiceNowAsset,
     ServiceNowDirectorate,
+    ServiceNowLocation,
     ServiceNowObject,
+    ServiceNowRITM,
     ServiceNowUser,
 )
+from leavers.factories import LeavingRequestFactory
 
 
 def get_object_json(obj_type) -> List[Dict[str, str]]:
     if obj_type not in [
         "assets",
         "directorates",
+        "locations",
+        "ritm",
         "users",
     ]:
         raise ValueError(f"Invalid object type: {obj_type}")
@@ -149,7 +156,7 @@ class TestServiceNowDirectoratesApi(ServiceNowApiTestCase):
 
 class TestServiceNowLocationsApi(ServiceNowApiTestCase):
     url_name = "service-now-api-locations"
-    model = ServiceNowDirectorate
+    model = ServiceNowLocation
 
     SUCCESSFUL_POST_DATA = get_object_json("locations")
 
@@ -164,3 +171,44 @@ class TestServiceNowLocationsApi(ServiceNowApiTestCase):
         self.assertEqual(objects[2].sys_id, "location-3")
         self.assertEqual(objects[3].sys_id, "location-4")
         self.assertEqual(objects[4].sys_id, "location-5")
+
+
+class TestServiceNowRITMsApi(ServiceNowApiTestCase):
+    url_name = "service-now-api-ritm"
+    model = ServiceNowRITM
+
+    SUCCESSFUL_POST_DATA = get_object_json("ritm")
+
+    def test_successful_post(self):
+        leaving_request_1 = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
+            line_manager_complete=timezone.now(),
+            service_now_offline=False,
+        )
+        leaving_request_1.leaver_activitystream_user.service_now_users.add(
+            ServiceNowUserFactory(sys_id="0000a0000bcde000f00g0000h0ijk0l")
+        )
+        leaving_request_2 = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
+            line_manager_complete=timezone.now(),
+            service_now_offline=False,
+        )
+        leaving_request_2.leaver_activitystream_user.service_now_users.add(
+            ServiceNowUserFactory(sys_id="1111a1111bcde111f11g1111h1ijk1l")
+        )
+        super().test_successful_post()
+
+        objects = self.model.objects.all()
+        self.assertEqual(objects.count(), 2)
+
+        self.assertEqual(objects[0].success, True)
+        self.assertEqual(objects[1].success, False)
+
+        self.assertEqual(leaving_request_1.service_now_ritms.count(), 1)
+        self.assertEqual(
+            leaving_request_1.service_now_ritms.filter(success=True).count(), 1
+        )
+        self.assertEqual(leaving_request_2.service_now_ritms.count(), 1)
+        self.assertEqual(
+            leaving_request_2.service_now_ritms.filter(success=False).count(), 1
+        )
