@@ -1,0 +1,12 @@
+[
+    {
+        "success": "true",
+        "user_sys_id": "0000a0000bcde000f00g0000h0ijk0l",
+        "request_id": "REQ0123456"
+    },
+    {
+        "success": "false",
+        "user_sys_id": "1111a1111bcde111f11g1111h1ijk1l",
+        "request_id": "REQ6543210"
+    }
+]
