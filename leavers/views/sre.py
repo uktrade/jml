@@ -124,7 +124,7 @@ class LeavingRequestListing(IsSreUser, base.LeavingRequestListing):
             order_direction=order_direction,
         )
         # Filter out any that haven't been completed by the Line Manager.
-        return leaving_requests.exclude(line_manager_complete__isnull=True)
+        return leaving_requests.submitted_by_line_manager()
 
 
 class TaskDetailView(SreTaskViewMixin):

@@ -1,10 +1,10 @@
 import uuid
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Type
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models.query import QuerySet
+from django.db.models import Manager
 from django_workflow_engine.models import Flow, TaskStatus
 
 from activity_stream.models import ActivityStreamStaffSSOUser
@@ -52,7 +52,44 @@ class TaskLog(models.Model):
     notes = models.CharField(max_length=1000, blank=True, null=True)
 
 
+class LeavingRequestQuerySet(models.QuerySet):
+    def not_cancelled(self) -> "LeavingRequestQuerySet":
+        return self.filter(cancelled__isnull=True)
+
+    def submitted_by_leaver(self) -> "LeavingRequestQuerySet":
+        return self.not_cancelled().filter(
+            leaver_complete__isnull=False,
+        )
+
+    def submitted_by_line_manager(self) -> "LeavingRequestQuerySet":
+        return self.submitted_by_leaver().filter(
+            line_manager_complete__isnull=False,
+        )
+
+    def submitted_with_service_now_online_process(self) -> "LeavingRequestQuerySet":
+        return self.submitted_by_line_manager().filter(
+            service_now_offline=False,
+        )
+
+    def submitted_with_service_now_offline_process(self) -> "LeavingRequestQuerySet":
+        return self.submitted_by_line_manager().filter(
+            service_now_offline=True,
+        )
+
+    def without_service_now_ritm(self) -> "LeavingRequestQuerySet":
+        return self.submitted_with_service_now_online_process().filter(
+            service_now_ritms__isnull=True,
+        )
+
+
+LeavingRequestManager: Type[Manager["LeavingRequestQuerySet"]] = (
+    models.Manager.from_queryset(LeavingRequestQuerySet)
+)
+
+
 class LeavingRequest(models.Model):
+    objects = LeavingRequestManager()
+
     class Meta:
         permissions = [
             ("select_leaver", "Can select the user that is leaving"),
@@ -388,10 +425,6 @@ class LeavingRequest(models.Model):
         ServiceNowRITM,
         related_name="leaving_requests",
     )
-
-    @property
-    def service_now_processed(self) -> bool:
-        return self.service_now_ritms.filter(success=True).exists()
 
     """
     Methods
