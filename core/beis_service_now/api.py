@@ -265,7 +265,6 @@ class ServiceNowRITMView(ServiceNowAPIView):
                 continue
             for leaving_request in leaving_requests:
                 leaving_request.service_now_ritms.add(sn_ritm)
-                leaving_request.save(update_fields=["service_now_ritms"])
 
         return HttpResponse(
             status=200,
