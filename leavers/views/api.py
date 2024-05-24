@@ -30,7 +30,4 @@ class LeavingRequestViewSetBase(viewsets.ReadOnlyModelViewSet):
 class LeavingRequestViewSet(LeavingRequestViewSetBase):
     authentication_classes = [HawkAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-    queryset = LeavingRequest.objects.filter(
-        cancelled__isnull=True,
-        leaver_complete__isnull=False,
-    )
+    queryset = LeavingRequest.objects.submitted_by_leaver()

@@ -121,7 +121,7 @@ class LeavingRequestListing(IsSecurityTeamUser, base.LeavingRequestListing):
             order_direction=order_direction,
         )
         # Filter out any that haven't been completed by the Line Manager.
-        leaving_requests = leaving_requests.exclude(line_manager_complete__isnull=True)
+        leaving_requests = leaving_requests.submitted_by_line_manager()
 
         if self.role == SecuritySubRole.ROSA_KIT:
             leaving_requests = leaving_requests.filter(is_rosa_user=True)

@@ -49,11 +49,9 @@ class SubmittedLeavingRequestViewSet(LeavingRequestViewSetBase):
     authentication_classes = [BEISServiceNowAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = BEISLeavingRequestSerializer
-    queryset = LeavingRequest.objects.filter(
-        service_now_offline=False,
-        leaver_complete__isnull=False,
-        line_manager_complete__isnull=False,
-    )
+    # TODO: Should we exclude any request with a ServiceNow RITM? or only
+    # successful RITMs?
+    queryset = LeavingRequest.objects.without_service_now_ritm()
 
     def get_queryset(self):
         """
@@ -253,10 +251,7 @@ class ServiceNowRITMView(ServiceNowAPIView):
                 request_id=ritm_response.request_id,
             )
             # Find a LeavingRequest for the user_sys_id and add the RITM
-            leaving_requests = LeavingRequest.objects.filter(
-                service_now_offline=False,
-                leaver_complete__isnull=False,
-                line_manager_complete__isnull=False,
+            leaving_requests = LeavingRequest.objects.submitted_with_service_now_online_process().filter(
                 leaver_activitystream_user__service_now_users__sys_id=ritm_response.user_sys_id,
             )
             if not leaving_requests.exists():

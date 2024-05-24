@@ -28,8 +28,7 @@ def notify_hr(self, date_to_check: Optional[date] = None) -> None:
         # Check if there are incomplete leavers with leaving date
         # before or on the cut off date
         # All leavers are included, ie contractors and civil servants
-        leavers_incomplete_qs = LeavingRequest.objects.filter(
-            cancelled__isnull=True,
+        leavers_incomplete_qs = LeavingRequest.objects.not_cancelled().filter(
             line_manager_complete__isnull=True,
             leaving_date__date__lte=cut_off_date,
         )
@@ -51,9 +50,7 @@ def weekly_leavers_email(self) -> None:
 
     past_monday = date.today() - timedelta(days=7)
     past_sunday = date.today() - timedelta(days=1)
-    leavers_last_week = LeavingRequest.objects.all().filter(
-        cancelled__isnull=True,
-        line_manager_complete__isnull=False,
+    leavers_last_week = LeavingRequest.objects.submitted_by_line_manager().filter(
         leaving_date__date__gte=past_monday,
         leaving_date__date__lte=past_sunday,
     )
