@@ -62,3 +62,9 @@ class ServiceNowLocation(ServiceNowObject):
 
     def __str__(self) -> str:
         return f"{self.name}"
+
+
+class ServiceNowRITM(models.Model):
+    success = models.BooleanField()
+    user_sys_id = models.CharField(max_length=255)
+    request_id = models.CharField(max_length=255)

@@ -20,6 +20,7 @@ from core.beis_service_now.models import (
     ServiceNowDirectorate,
     ServiceNowLocation,
     ServiceNowObject,
+    ServiceNowRITM,
     ServiceNowUser,
 )
 from core.beis_service_now.serializers import BEISLeavingRequestSerializer
@@ -245,9 +246,31 @@ class ServiceNowRITMView(ServiceNowAPIView):
 
         for ritm in post_body:
             ritm_response = ServiceNowPostRITM(**ritm)
-            logger.exception(
-                Exception(f"RITM response received: {ritm_response.request_id}")
+            logger.info(f"RITM response received: {ritm_response.request_id}")
+            sn_ritm = ServiceNowRITM.objects.create(
+                success=ritm_response.success,
+                user_sys_id=ritm_response.user_sys_id,
+                request_id=ritm_response.request_id,
             )
+            # Find a LeavingRequest for the user_sys_id and add the RITM
+            leaving_requests = LeavingRequest.objects.filter(
+                service_now_offline=False,
+                leaver_complete__isnull=False,
+                line_manager_complete__isnull=False,
+                leaver_activitystream_user__service_now_users__sys_id=ritm_response.user_sys_id,
+            )
+            if not leaving_requests.exists():
+                logger.exception(
+                    Exception(
+                        "Can't find a LeavingRequest for the RITM Request: "
+                        f"{ritm_response.request_id} and User: "
+                        f"{ritm_response.user_sys_id}"
+                    )
+                )
+                continue
+            for leaving_request in leaving_requests:
+                leaving_request.service_now_ritms.add(sn_ritm)
+                leaving_request.save(update_fields=["service_now_ritms"])
 
         return HttpResponse(
             status=200,
