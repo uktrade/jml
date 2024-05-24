@@ -37,7 +37,7 @@ def get_object_json(obj_type) -> List[Dict[str, str]]:
 )
 class ServiceNowApiTestCase(TestCase):
     url_name: Optional[str] = None
-    model: Optional[Type[ServiceNowObject]] = None
+    model: Optional[Type[ServiceNowObject | ServiceNowRITM]] = None
 
     def setUp(self):
         if self.url_name is None:
