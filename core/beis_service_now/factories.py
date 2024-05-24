@@ -5,6 +5,7 @@ from core.beis_service_now.models import (
     ServiceNowDirectorate,
     ServiceNowLocation,
     ServiceNowObject,
+    ServiceNowUser,
 )
 
 
@@ -13,6 +14,17 @@ class ServiceNowObjectFactory(DjangoModelFactory):
         model = ServiceNowObject
 
     sys_id = factory.Sequence(lambda n: f"sys_id_{n}")
+
+
+class ServiceNowUserFactory(ServiceNowObjectFactory):
+    class Meta:
+        model = ServiceNowUser
+
+    user_name = factory.Sequence(lambda n: f"User {n}")
+    name = factory.Sequence(lambda n: f"User {n}")
+    email = factory.Sequence(lambda n: f"user{n}@example.com")
+    manager_user_name = factory.Sequence(lambda n: f"User {n}")
+    manager_sys_id = factory.Sequence(lambda n: f"manager_sys_id_{n}")
 
 
 class ServiceNowDirectorateFactory(ServiceNowObjectFactory):
