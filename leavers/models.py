@@ -82,13 +82,8 @@ class LeavingRequestQuerySet(QuerySet):
         )
 
 
-LeavingRequestManager: Type[Manager["LeavingRequest"]] = models.Manager.from_queryset(
-    LeavingRequestQuerySet
-)
-
-
 class LeavingRequest(models.Model):
-    objects = LeavingRequestManager()
+    objects = LeavingRequestQuerySet.as_manager()
 
     class Meta:
         permissions = [

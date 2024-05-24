@@ -26,7 +26,7 @@ from leavers.forms.security_team import (
     RosaKitFieldForm,
     SecurityClearanceForm,
 )
-from leavers.models import LeavingRequest, TaskLog
+from leavers.models import LeavingRequest, LeavingRequestQuerySet, TaskLog
 from leavers.types import SecurityClearance
 from leavers.utils.security_team import (
     SecuritySubRole,
@@ -115,7 +115,7 @@ class LeavingRequestListing(IsSecurityTeamUser, base.LeavingRequestListing):
         self,
         order_by: Optional[str] = None,
         order_direction: Literal["asc", "desc"] = "asc",
-    ) -> QuerySet[LeavingRequest]:
+    ) -> LeavingRequestQuerySet:
         leaving_requests = super().get_leaving_requests(
             order_by=order_by,
             order_direction=order_direction,
