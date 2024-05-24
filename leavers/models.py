@@ -82,8 +82,8 @@ class LeavingRequestQuerySet(QuerySet):
         )
 
 
-LeavingRequestManager: Type[Manager["LeavingRequestQuerySet"]] = (
-    models.Manager.from_queryset(LeavingRequestQuerySet)
+LeavingRequestManager: Type[Manager["LeavingRequest"]] = models.Manager.from_queryset(
+    LeavingRequestQuerySet
 )
 
 
