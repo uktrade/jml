@@ -22,7 +22,12 @@ from leavers.forms.sre import (
     SREConfirmCompleteForm,
     SREServiceAndToolsForm,
 )
-from leavers.models import LeaverInformation, LeavingRequest, TaskLog
+from leavers.models import (
+    LeaverInformation,
+    LeavingRequest,
+    LeavingRequestQuerySet,
+    TaskLog,
+)
 from leavers.views import base
 from leavers.views.leaver import LeavingRequestViewMixin
 from user.models import User
@@ -118,7 +123,7 @@ class LeavingRequestListing(IsSreUser, base.LeavingRequestListing):
         self,
         order_by: Optional[str] = None,
         order_direction: Literal["asc", "desc"] = "asc",
-    ) -> QuerySet[LeavingRequest]:
+    ) -> LeavingRequestQuerySet:
         leaving_requests = super().get_leaving_requests(
             order_by=order_by,
             order_direction=order_direction,
