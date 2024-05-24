@@ -8,7 +8,11 @@ from django.db.models.query import QuerySet
 from django_workflow_engine.models import Flow, TaskStatus
 
 from activity_stream.models import ActivityStreamStaffSSOUser
-from core.beis_service_now.models import ServiceNowDirectorate, ServiceNowLocation
+from core.beis_service_now.models import (
+    ServiceNowDirectorate,
+    ServiceNowLocation,
+    ServiceNowRITM,
+)
 from core.types import Address
 from core.utils.helpers import DATETIME_FORMAT_STR, get_next_workday
 from leavers.forms.line_manager import (
@@ -375,6 +379,19 @@ class LeavingRequest(models.Model):
         ):
             return True
         return False
+
+    """
+    ServiceNow integration
+    """
+
+    service_now_ritms = models.ManyToManyField(
+        ServiceNowRITM,
+        related_name="leaving_requests",
+    )
+
+    @property
+    def service_now_processed(self) -> bool:
+        return self.service_now_ritms.filter(success=True).exists()
 
     """
     Methods
