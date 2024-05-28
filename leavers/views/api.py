@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 
 class PrimaryKeyCursorPagination(pagination.CursorPagination):
     ordering = "pk"
-    page_size = 10
+    # TODO: Set this back to 10
+    page_size = 1
 
 
 hawk_response = decorator_from_middleware(HawkResponseMiddleware)
