@@ -42,7 +42,8 @@ router = routers.DefaultRouter()
 
 class PrimaryKeyCursorPagination(pagination.CursorPagination):
     ordering = "pk"
-    page_size = 10
+    # TODO: Set this back to 10
+    page_size = 1
 
 
 class SubmittedLeavingRequestViewSet(LeavingRequestViewSetBase):
