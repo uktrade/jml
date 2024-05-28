@@ -50,6 +50,11 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
         obj: LeavingRequest,
     ) -> str:
         leaver_info = obj.leaver_information.first()
+
+        # TODO: Remove the condition
+        if not leaver_info or not leaver_info.service_now_location:
+            return ""
+
         assert leaver_info
         assert leaver_info.service_now_location
 
