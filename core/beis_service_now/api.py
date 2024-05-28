@@ -40,12 +40,6 @@ logger = logging.getLogger(__name__)
 router = routers.DefaultRouter()
 
 
-class PrimaryKeyCursorPagination(pagination.CursorPagination):
-    ordering = "pk"
-    # TODO: Set this back to 10
-    page_size = 1
-
-
 class SubmittedLeavingRequestViewSet(LeavingRequestViewSetBase):
     authentication_classes = [BEISServiceNowAuthentication]
     permission_classes = [IsAuthenticated]
