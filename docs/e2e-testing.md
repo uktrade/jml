@@ -46,7 +46,7 @@ Using dev tools, in the "Change user" form, select the manager user you created 
 - Confirm all of the details are correct and fill out the new fields as required
 - At the end, you should see a confirmation page, submit this request and the manager's part of the process is complete
 
-## HR Admin Journey
+## HR Admin Journey (Incomplete Requests)
 
 Using dev tools, in the "Change user" form, select the HR admin user you created and click "Select user".
 
@@ -54,6 +54,20 @@ Using dev tools, in the "Change user" form, select the HR admin user you created
     - Clicking this should take you to a list of all leaving requests
 - In the list of "Incomplete" requests, click on the leaver you created
 - You should now see a summary of the leaver's request and it's actions
+
+## HR Admin Journey (Create a new leaver)
+
+Using dev tools, in the "Change user" form, select the HR admin user you created and click "Select user".
+
+- You should now see a new item in the navigation menu: "Leaving Requests" `/leavers/leaving-requests/`
+    - Clicking this should take you to the page where you can "Create a new leaver".
+- Click on the "Start" button to manually off-board someone.
+    - Select the person you want to off-board by typing their name in the search bar.
+        - Click on the "Select" button displayed next to the leaver's name.
+    - Click on the "Continue" button to fill in the forms on behalf of the leaver.
+    - At the end, you should see a confirmation page, submit this request and the leaver's details part of the process is complete.
+- To complete the offboarding click on "Start" button to confirm all the details and to add further information as needed.
+- After confirming all the information you can complete the process via "Accept and send" button.
 
 ## SRE Journey
 
