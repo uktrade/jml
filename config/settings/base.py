@@ -2,8 +2,13 @@ import os
 from pathlib import Path
 from typing import List
 
+import dj_database_url
 import environ
+from dbt_copilot_python.database import database_url_from_env
+from dbt_copilot_python.network import setup_allowed_hosts
+from dbt_copilot_python.utility import is_copilot
 from django.urls import reverse_lazy
+from django_log_formatter_asim import ASIMFormatter
 from django_log_formatter_ecs import ECSFormatter
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -17,7 +22,7 @@ DEBUG = env.bool("DEBUG", default=False)
 
 SECRET_KEY = env("SECRET_KEY")
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOSTS")
+ALLOWED_HOSTS = setup_allowed_hosts(env.list("ALLOWED_HOSTS"))
 
 VCAP_SERVICES = env.json("VCAP_SERVICES", {})
 
@@ -53,8 +58,8 @@ INSTALLED_APPS = [
     "health_check.cache",
     "health_check.storage",
     "health_check.contrib.migrations",
-    "health_check.contrib.celery",
-    "health_check.contrib.celery_ping",
+    # "health_check.contrib.celery",
+    # "health_check.contrib.celery_ping",
     "health_check.contrib.redis",
 ]
 
@@ -82,12 +87,19 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 VCAP_SERVICES = env.json("VCAP_SERVICES", default={})
 
-if "postgres" in VCAP_SERVICES:
-    DATABASE_URL = VCAP_SERVICES["postgres"][0]["credentials"]["uri"]
+if is_copilot():
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=database_url_from_env("DATABASE_CREDENTIALS")
+        )
+    }
 else:
-    DATABASE_URL = os.getenv("DATABASE_URL")
+    if "postgres" in VCAP_SERVICES:
+        DATABASE_URL = VCAP_SERVICES["postgres"][0]["credentials"]["uri"]
+    else:
+        DATABASE_URL = env("DATABASE_URL")
 
-DATABASES = {"default": env.db()}
+    DATABASES = {"default": env.db()}
 
 DATABASE_ROUTERS = ["core.people_data.routers.PeopleDataRouter"]
 
@@ -103,6 +115,9 @@ LOGGING = {
         "simple": {
             "format": "{asctime} {levelname} {name} {message}",
             "style": "{",
+        },
+        "asim_formatter": {
+            "()": ASIMFormatter,
         },
     },
     "handlers": {
@@ -129,7 +144,7 @@ LOGGING = {
                 "simple",
             ],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),  # noqa F405
-            "propagate": False,
+            "propagate": True,
         },
         "django.server": {
             "handlers": [
@@ -150,6 +165,10 @@ LOGGING = {
     },
 }
 
+if is_copilot():
+    LOGGING["handlers"]["ecs"]["formatter"] = "asim_formatter"  # type: ignore[index]
+
+DLFA_INCLUDE_RAW_LOG = True
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -233,7 +252,9 @@ MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 
 # Redis
-if "redis" in VCAP_SERVICES:
+if is_copilot():
+    REDIS_URL = env("REDIS_URL", default=None) + "?ssl_cert_reqs=required"
+elif "redis" in VCAP_SERVICES:
     credentials = VCAP_SERVICES["redis"][0]["credentials"]
     REDIS_URL = "rediss://:{}@{}:{}/0?ssl_cert_reqs=required".format(
         credentials["password"],
@@ -241,7 +262,7 @@ if "redis" in VCAP_SERVICES:
         credentials["port"],
     )
 else:
-    REDIS_URL = os.environ.get("REDIS_URL", "")
+    REDIS_URL = env("REDIS_URL", default=None)
 
 
 # Cache

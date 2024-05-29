@@ -1,7 +1,9 @@
 from typing import Any, Dict
 
 from django.http import HttpResponse, JsonResponse
+from django.template.response import TemplateResponse
 
+from health_check.mixins import CheckMixin
 from health_check.views import MainView
 
 
@@ -37,3 +39,22 @@ class WarningHealthCheckView(CustomHealthCheckView):
     @property
     def plugins(self):
         return [p for p in super().plugins if p.critical_service and not p.status]
+
+
+def pingdom_healthcheck(request):
+    status_code = 503
+    context = {"status": "FALSE"}
+    check_mixin = CheckMixin()
+
+    errors = check_mixin.check()
+    if not errors:
+        status_code = 200
+        context["status"] = "OK"
+
+    return TemplateResponse(
+        request,
+        template="core_health_check/pingdom.html",
+        context=context,
+        content_type="text/xml",
+        status=status_code,
+    )

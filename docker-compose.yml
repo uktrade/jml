@@ -1,20 +1,7 @@
 version: "3"
-# Network section required to avoid staff SSO IP collision
-networks:
-  inside:
-    external: false
-    internal: true
-  default:
-    ipam:
-      driver: default
-      config:
-        - subnet: 192.168.3.0/24
 services:
   db:
-    image: postgres:13
-    networks:
-      - default
-      - inside
+    image: postgres:16
     environment:
       - POSTGRES_DB=leavers
       - POSTGRES_PASSWORD=postgres
@@ -31,8 +18,6 @@ services:
 
   opensearch:
     image: opensearchproject/opensearch:1.2.3
-    networks:
-      - inside
     ports:
       - "9200:9200"
       - "9600:9600"
@@ -44,9 +29,7 @@ services:
       - "DISABLE_SECURITY_PLUGIN=true"
 
   redis:
-    image: redis:buster
-    networks:
-      - inside
+    image: redis:7-bookworm
     ports:
       - "6379:6379"
 
@@ -54,9 +37,6 @@ services:
     build:
       context: .
       dockerfile: "docker/Dockerfile.dev"
-    networks:
-      - default
-      - inside
     env_file: .env
     command: "python manage.py runserver 0.0.0.0:8000"
     volumes:
@@ -76,9 +56,6 @@ services:
     build:
       context: .
       dockerfile: "docker/Dockerfile.dev"
-    networks:
-      - default
-      - inside
     env_file: .env
     command: celery -A config.celery worker -l INFO
     volumes:
@@ -86,13 +63,17 @@ services:
     depends_on:
       - db
       - redis
+    healthcheck:
+      test: ["CMD-SHELL", "python -m dbt_copilot_python.celery_health_check.healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 2
+      start_period: 5s
 
   celery-beat:
     build:
       context: .
       dockerfile: "docker/Dockerfile.dev"
-    networks:
-      - inside
     env_file: .env
     volumes:
       - ./:/app/

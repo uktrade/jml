@@ -1,9 +1,9 @@
 from unittest import mock
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
-# from core.health_check.backends import PeopleFinderH
-# ealthCheck, ServiceNowHealthCheck TODO - restore
+# from core.health_check.backends import PeopleFinderHealthCheck,
+# ServiceNowHealthCheck TODO - restore
 from core.health_check.backends import ServiceNowHealthCheck
 from health_check.exceptions import HealthCheckException
 
@@ -15,11 +15,21 @@ class TestServiceNowHealthCheck(TestCase):
             service_now_health_check.identifier(), "Service Now Health Check"
         )
 
+    @override_settings(SERVICE_NOW_ENABLE_ONLINE_PROCESS=False)
     @mock.patch(
         "core.service_now.interfaces.ServiceNowStubbed.get_directorates",
         side_effect=Exception("Error"),
     )
-    def test_check_status_down(self, mock_get_service_now_interface):
+    def test_check_status_down_when_disabled(self, mock_get_service_now_interface):
+        service_now_health_check = ServiceNowHealthCheck()
+        service_now_health_check.check_status()
+
+    @override_settings(SERVICE_NOW_ENABLE_ONLINE_PROCESS=True)
+    @mock.patch(
+        "core.service_now.interfaces.ServiceNowStubbed.get_directorates",
+        side_effect=Exception("Error"),
+    )
+    def test_check_status_down_when_enabled(self, mock_get_service_now_interface):
         service_now_health_check = ServiceNowHealthCheck()
         with self.assertRaises(HealthCheckException):
             service_now_health_check.check_status()
