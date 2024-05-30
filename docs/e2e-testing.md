@@ -46,7 +46,7 @@ Using dev tools, in the "Change user" form, select the manager user you created 
 - Confirm all of the details are correct and fill out the new fields as required
 - At the end, you should see a confirmation page, submit this request and the manager's part of the process is complete
 
-## HR Admin Journey (Incomplete Requests)
+## HR Admin Journey (Viewing Submitted Requests)
 
 Using dev tools, in the "Change user" form, select the HR admin user you created and click "Select user".
 
