@@ -656,10 +656,7 @@ class LeavingRequest(models.Model):
     def get_service_now_complete(self) -> Optional[datetime]:
         if self.service_now_offline:
             return self.line_manager_service_now_complete
-
-        raise NotImplementedError(
-            "Need to store a value when the SN record has been ingested."
-        )
+        return self.service_now_ritms.filter(success=True).exists()
 
     def get_teams_notified(self) -> Dict[str, Optional[datetime]]:
         TEAM_NAME_TASK_MAPPING = {
