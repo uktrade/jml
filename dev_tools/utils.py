@@ -10,6 +10,7 @@ from activity_stream.models import (
     ActivityStreamStaffSSOUser,
     ActivityStreamStaffSSOUserEmail,
 )
+from core.beis_service_now.models import ServiceNowAsset, ServiceNowUser
 from core.utils.staff_index import build_staff_document, update_staff_document
 
 if TYPE_CHECKING:
@@ -74,6 +75,31 @@ def create_user(
         staff_document=staff_document.to_dict(),
         upsert=True,
     )
+
+    # Add ServiceNow Objects
+    sn_user, _ = ServiceNowUser.objects.get_or_create(
+        sys_id=f"user-{staff_sso_user.identifier}",
+        defaults={
+            "user_name": user.username,
+            "name": f"{user.first_name} {user.last_name}",
+            "email": user.email,
+            "manager_user_name": "",
+            "manager_sys_id": "",
+        },
+    )
+    if not sn_user.assets.exists():
+        ServiceNowAsset.objects.create(
+            sys_id=f"asset-{staff_sso_user.identifier}-1",
+            display_name="Test Asset",
+            model_category="Test Category",
+            model="Test Model",
+            install_status="Test Status",
+            substatus="Test Substatus",
+            asset_tag="Test Asset Tag",
+            serial_number="Test Serial Number",
+            assigned_to_sys_id=sn_user.sys_id,
+            assigned_to_display_name=sn_user.name,
+        )
 
     return user, created, staff_sso_user
 
