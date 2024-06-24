@@ -102,9 +102,7 @@ def global_context(request):
         )
 
         latest_leaving_request: Optional[LeavingRequest] = (
-            LeavingRequest.objects.submitted_by_line_manager()
-            .filter(user_is_manager)
-            .last()
+            LeavingRequest.objects.submitted_by_leaver().filter(user_is_manager).last()
         )
         if latest_leaving_request:
             global_context["DEV_LINKS"].append(
