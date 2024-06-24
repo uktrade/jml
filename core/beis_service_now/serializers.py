@@ -102,7 +102,7 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
         )
         if not lm_emails:
             raise ValueError(
-                f"Leaver {obj.manager_activitystream_user} has no ServiceNow users"
+                f"Manager {obj.manager_activitystream_user} has no ServiceNow users"
             )
         return lm_emails
 
@@ -118,7 +118,7 @@ class BEISLeavingRequestSerializer(LeavingRequestSerializer):
         )
         if not lm_sys_ids:
             raise ValueError(
-                f"Leaver {obj.manager_activitystream_user} has no ServiceNow users"
+                f"Manager {obj.manager_activitystream_user} has no ServiceNow users"
             )
         return lm_sys_ids
 
