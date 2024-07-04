@@ -19,6 +19,8 @@ sentry_sdk.init(
     os.environ.get("SENTRY_DSN"),
     environment=os.environ.get("SENTRY_ENVIRONMENT"),
     integrations=[DjangoIntegration()],
+    enable_tracing=os.environ.get("SENTRY_ENABLE_TRACING", "false").lower() == "true",
+    traces_sample_rate=float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.0")),
 )
 
 # Django staff SSO user migration process requries the following
