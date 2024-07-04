@@ -2,6 +2,7 @@ import os
 import sys
 
 import sentry_sdk
+from dbt_copilot_python.utility import is_copilot
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from .base import *  # type: ignore # noqa
@@ -14,6 +15,10 @@ X_ROBOTS_TAG = [
     "noindex",
     "nofollow",
 ]
+
+sentry_environment = os.environ.get("SENTRY_ENVIRONMENT")
+if is_copilot():
+    sentry_environment = f"aws-{sentry_environment}"
 
 sentry_sdk.init(
     os.environ.get("SENTRY_DSN"),
