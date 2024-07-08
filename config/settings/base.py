@@ -338,7 +338,7 @@ PEOPLE_FINDER_INTERFACE = env("PEOPLE_FINDER_INTERFACE")
 
 # People Data report
 PEOPLE_DATA_INTERFACE = env("PEOPLE_DATA_INTERFACE")
-if env("PEOPLE_DATA_ON", default="false") == "true":
+if env("PEOPLE_DATA_ON", default="false").lower() == "true":
     DATABASES["people_data"] = {
         "HOST": env("PEOPLE_DATA_POSTGRES_HOST"),
         "NAME": env("PEOPLE_DATA_POSTGRES_DATABASE"),
