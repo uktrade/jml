@@ -32,3 +32,7 @@ class BaseTemplateView(TemplateView):
         )
 
         return super().get_context_data(**kwargs)
+
+
+def trigger_error(request):
+    division_by_zero = 1 / 0  # noqa: F841
