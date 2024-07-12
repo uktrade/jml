@@ -123,7 +123,7 @@ collectstatic: # Run Django collectstatic
 bash: # Start a bash session on the application container
 	$(leavers) bash
 
-all-requirements: # Generate pip requirements files
+requirements: # Generate pip requirements files
 	$(poetry) export -f requirements.txt --output requirements.txt --without-hashes --with production --without dev,testing
 
 pytest: # Run pytest

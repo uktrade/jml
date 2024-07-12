@@ -75,6 +75,7 @@ class TestWeeklyLeaversEmail(TestCase):
     def test_with_leavers(self, mock_send_workforce_planning_leavers_email):
         LeavingRequestFactory.create_batch(
             3,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             leaving_date=timezone.now() - timedelta(days=5),
         )
