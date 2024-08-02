@@ -50,6 +50,11 @@
                    class="govuk-button govuk-button--warning"
                    data-module="govuk-button">Manually offboarded from UK SBS</a>
             {% endif %}
+            {% if leaving_request.service_now_offline and not leaving_request.line_manager_service_now_complete %}
+                <a href="{% url 'line-manager-offline-service-now-details' leaving_request.uuid %}"
+                   class="govuk-button govuk-button--warning"
+                   data-module="govuk-button">Mark the ServiceNow Offline process as complete</a>
+            {% endif %}
         </div>
     </div>
 {% endblock content %}
