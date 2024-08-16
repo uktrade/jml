@@ -1,5 +1,6 @@
 import os
 import sys
+from urllib.parse import urlparse
 
 import sentry_sdk
 from dbt_copilot_python.utility import is_copilot
@@ -16,9 +17,21 @@ X_ROBOTS_TAG = [
     "nofollow",
 ]
 
+# Sentry
 sentry_environment = os.environ.get("SENTRY_ENVIRONMENT")
 if is_copilot():
     sentry_environment = f"aws-{sentry_environment}"
+
+
+def filter_transactions(event, hint):
+    url_string = event["request"]["url"]
+    parsed_url = urlparse(url_string)
+
+    if parsed_url.path == "/healthcheck":
+        return None
+
+    return event
+
 
 sentry_sdk.init(
     os.environ.get("SENTRY_DSN"),
@@ -26,6 +39,7 @@ sentry_sdk.init(
     integrations=[DjangoIntegration()],
     enable_tracing=os.environ.get("SENTRY_ENABLE_TRACING", "false").lower() == "true",
     traces_sample_rate=float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.0")),
+    before_send_transaction=filter_transactions,
 )
 
 # Django staff SSO user migration process requries the following
