@@ -27,6 +27,10 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(minute=0, hour=8, day_of_week="mon"),
     },
     # Nightly tasks to update the Staff search index.
+    "ingest-staff-sso-s3-task": {
+        "task": "core.tasks.ingest_staff_sso_s3_task",
+        "schedule": crontab(minute="*/5"), # TODO use same frequency as activity stream task
+    },
     "ingest-activity-stream-task": {
         "task": "core.tasks.ingest_activity_stream_task",
         "schedule": crontab(minute="0", hour="3"),

@@ -5,7 +5,7 @@ from django_workflow_engine.exceptions import WorkflowNotAuthError
 from django_workflow_engine.executor import WorkflowExecutor
 from django_workflow_engine.models import Flow
 
-from activity_stream.utils import ingest_activity_stream
+from activity_stream.utils import ingest_activity_stream, ingest_staff_sso_s3
 from config.celery import celery_app
 from core.people_data.utils import ingest_people_data
 from core.people_finder.utils import ingest_people_finder
@@ -54,6 +54,12 @@ def progress_workflow(self, flow_pk: str):
             executor.run_flow(user=None)
         except WorkflowNotAuthError as e:
             logger.warning(f"{e}")
+
+
+@celery_app.task(bind=True)
+def ingest_staff_sso_s3_task(self):
+    logger.info("RUNNING ingest_staff_sso_s3_task")
+    ingest_staff_sso_s3()
 
 
 @celery_app.task(bind=True)
