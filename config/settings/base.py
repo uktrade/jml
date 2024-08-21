@@ -493,3 +493,7 @@ CHANGE_EMPLOYEES_LM_LINK = env("CHANGE_EMPLOYEES_LM_LINK", default=None)
 
 # Custom DebugPy setting
 ENABLE_DEBUGPY = env.bool("ENABLE_DEBUGPY", False)
+
+# Boto
+S3_LOCAL_ENDPOINT_URL = env("S3_LOCAL_ENDPOINT_URL", default="")
+DATA_FLOW_UPLOADS_BUCKET = env("DATA_FLOW_UPLOADS_BUCKET", default="")
