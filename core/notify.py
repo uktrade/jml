@@ -44,7 +44,7 @@ class EmailTemplates(Enum):
         email_template_settings.LINE_MANAGER_OFFLINE_SERVICE_NOW_EMAIL
     )
 
-    CLU4_LEAVER_EMAIL = email_template_settings.CLU4_EMAIL
+    SECURITY_CLEARANCE_LEAVER_EMAIL = email_template_settings.CLU4_EMAIL
     FEETHAM_SECURITY_PASS_OFFICE_EMAIL = (
         email_template_settings.FEETHAM_SECURITY_PASS_OFFICE_EMAIL
     )

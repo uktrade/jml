@@ -218,7 +218,7 @@ LeaversWorkflow = Workflow(
                 "are_all_tasks_complete",
             ],
             task_info={
-                "email_id": EmailIds.CLU4_EMAIL.value,
+                "email_id": EmailIds.SECURITY_CLEARANCE_EMAIL.value,
             },
         ),
         # OCS

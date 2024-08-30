@@ -24,7 +24,6 @@ from leavers.types import LeavingReason, ReminderEmailDict
 from leavers.utils.emails import (
     get_leaving_request_email_personalisation,
     send_buisness_continuity_leaver_email,
-    send_clu4_leaver_email,
     send_comaea_email,
     send_feetham_security_pass_office_email,
     send_health_and_safety_email,
@@ -40,6 +39,7 @@ from leavers.utils.emails import (
     send_line_manager_thankyou_email,
     send_ocs_leaver_email,
     send_ocs_oab_locker_email,
+    send_security_clearance_leaver_email,
     send_security_team_offboard_bp_leaver_email,
     send_security_team_offboard_rk_leaver_email,
 )
@@ -426,7 +426,7 @@ class EmailIds(Enum):
 
     FEETHAM_SECURITY_PASS_OFFICE_EMAIL = "feetham_security_pass_office_email"
     IT_OPS_ASSET_EMAIL = "it_ops_asset_email"
-    CLU4_EMAIL = "clu4_email"
+    SECURITY_CLEARANCE_EMAIL = "clu4_email"
     OCS_EMAIL = "ocs_email"
     OCS_OAB_LOCKER_EMAIL = "ocs_oab_locker_email"
     HEALTH_AND_SAFETY_EMAIL = "health_and_safety_email"
@@ -448,7 +448,7 @@ EMAIL_MAPPING: Dict[EmailIds, Callable] = {
     EmailIds.SECURITY_OFFBOARD_RK_LEAVER_NOTIFICATION: send_security_team_offboard_rk_leaver_email,
     EmailIds.FEETHAM_SECURITY_PASS_OFFICE_EMAIL: send_feetham_security_pass_office_email,
     EmailIds.IT_OPS_ASSET_EMAIL: send_it_ops_asset_email,
-    EmailIds.CLU4_EMAIL: send_clu4_leaver_email,
+    EmailIds.SECURITY_CLEARANCE_EMAIL: send_security_clearance_leaver_email,
     EmailIds.OCS_EMAIL: send_ocs_leaver_email,
     EmailIds.OCS_OAB_LOCKER_EMAIL: send_ocs_oab_locker_email,
     EmailIds.HEALTH_AND_SAFETY_EMAIL: send_health_and_safety_email,
