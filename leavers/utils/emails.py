@@ -219,16 +219,13 @@ def send_leaver_not_in_uksbs_reminder(
     )
 
 
-def send_clu4_leaver_email(
+def send_security_clearance_leaver_email(
     leaving_request: LeavingRequest,
     template_id: Optional[notify.EmailTemplates] = None,
 ):
     """
-    Send Cluster 4 Email to notify of a new leaver.
+    Send email to get security clearances updated.
     """
-
-    if not settings.CLU4_EMAIL:
-        raise ValueError("CLU4_EMAIL is not set")
 
     if not settings.SECURITY_TEAM_VETTING_EMAIL:
         raise ValueError("SECURITY_TEAM_VETTING_EMAIL is not set")
@@ -236,8 +233,8 @@ def send_clu4_leaver_email(
     personalisation = get_leaving_request_email_personalisation(leaving_request)
 
     notify.email(
-        email_addresses=[settings.CLU4_EMAIL, settings.SECURITY_TEAM_VETTING_EMAIL],
-        template_id=notify.EmailTemplates.CLU4_LEAVER_EMAIL,
+        email_addresses=[settings.SECURITY_TEAM_VETTING_EMAIL],
+        template_id=notify.EmailTemplates.SECURITY_CLEARANCE_LEAVER_EMAIL,
         personalisation=personalisation,
     )
 
