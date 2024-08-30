@@ -35,7 +35,7 @@ These are notification emails sent to the processor:
 
 | Email name | Template ID Environment Variable | Context/Notes |
 | ----- | ----- | ----- |
-| CLU4 Leaver Notification Email | TEMPLATE_ID_CLU4_EMAIL | This email is sent to CLU4 to inform them of the leaver. |
+| Security Clearance Leaver Email | TEMPLATE_ID_CLU4_EMAIL | This email is sent vetting to inform them of the leaver. |
 | Feetham Security Pass Office Leaver Notification Email | TEMPLATE_ID_FEETHAM_SECURITY_PASS_OFFICE_EMAIL | This email is sent to the Feetham Security Pass Office to inform them of the leaver and their reported assets. |
 | IT Ops Leaver Notification Email | TEMPLATE_ID_IT_OPS_ASSET_EMAIL | This email is sent to the IT Ops team to inform them of the leaver and their reported assets. |
 | OCS Leaver Notification Email | TEMPLATE_ID_OCS_LEAVER_EMAIL | This email is sent to OCS to inform them of the leaver. |
