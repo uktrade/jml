@@ -426,7 +426,7 @@ class EmailIds(Enum):
 
     FEETHAM_SECURITY_PASS_OFFICE_EMAIL = "feetham_security_pass_office_email"
     IT_OPS_ASSET_EMAIL = "it_ops_asset_email"
-    CLU4_EMAIL = "clu4_email"
+    SECURITY_CLEARANCE_EMAIL = "clu4_email"
     OCS_EMAIL = "ocs_email"
     OCS_OAB_LOCKER_EMAIL = "ocs_oab_locker_email"
     HEALTH_AND_SAFETY_EMAIL = "health_and_safety_email"
