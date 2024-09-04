@@ -154,10 +154,10 @@ def build_leaving_data_from_leaving_request(
         "contactPrimaryFlag": "Y",
     }
 
-    submission_datetime = timezone.now().strftime(UKSBS_DATE_FORMAT_STR)
+    leaver_last_day = leaving_request.leaving_date.strftime(UKSBS_DATE_FORMAT_STR)
 
     service_request_data: ServiceRequestData = {
-        "problemSummary": f"Leaver Notification Form - {leaver_full_name} - {submission_datetime}",
+        "problemSummary": f"Leaver Notification Form - {leaver_full_name} - {leaver_last_day}",
         "contacts": [leaver_contact, line_manager_contact],
     }
 
@@ -223,7 +223,7 @@ def build_leaving_data_from_leaving_request(
         "leaverOracleID": str(uksbs_leaver["person_id"]),
         "leaverEmployeeNumber": uksbs_leaver["employee_number"],
         "leaverReasonForLeaving": leaver_reason_for_leaving,
-        "leaverLastDay": leaving_request.leaving_date.strftime(UKSBS_DATE_FORMAT_STR),
+        "leaverLastDay": leaver_last_day,
         # Leaver Correspondance Details
         "newCorrEmail": "",
         "newCorrAddressLine1": "",
