@@ -9,3 +9,6 @@ The contents of this file will be the same json structure produced by the activi
 ```
 {"published": "2024-09-04T14:58:05.864Z", "object": {"id": "dit:StaffSSO:User:d1966051-cabc-40f2-8b56-16d42e30971f", "type": "dit:StaffSSO:User", "name": "Mr. Ernest Ramos DDS", "dit:StaffSSO:User:userId": "d1966051-cabc-40f2-8b56-16d42e30971f", "dit:StaffSSO:User:emailUserId": "ograham@example.net", "dit:StaffSSO:User:contactEmailAddress": "kaylamiller@example.com", "dit:StaffSSO:User:joined": "2024-09-04T14:58:05.867Z", "dit:StaffSSO:User:lastAccessed": "2024-09-04T14:58:05.867Z", "dit:StaffSSO:User:permittedApplications": [], "dit:StaffSSO:User:status": "inactive", "dit:StaffSSO:User:becameInactiveOn": "2024-09-04T14:58:05.867Z", "dit:firstName": "Roberta", "dit:lastName": "Brown", "dit:emailAddress": ["jlee@example.net"]}}
 ```
+
+### Data verification
+The data flow pipeline has a data integrity check that runs before any S3 files are delivered to a downstream bucket. For the staff SSO file, if the new file contains less than 95% of the previous file then the file is not copied and an error thrown in the data flow system for more investigation.
