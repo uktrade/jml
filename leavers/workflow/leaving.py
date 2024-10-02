@@ -142,7 +142,6 @@ LeaversWorkflow = Workflow(
             task_name="basic_task",
             targets=[
                 "send_uksbs_leaver_details",
-                "send_service_now_leaver_details",
                 "send_feetham_leaver_details",
                 "send_it_ops_leaver_details",
                 "send_lsd_team_leaver_details",
@@ -171,14 +170,6 @@ LeaversWorkflow = Workflow(
                     SkipCondition.MANUALLY_OFFBOARDED_FROM_UKSBS.value,
                 ],
             },
-        ),
-        # Service Now
-        Step(
-            step_id="send_service_now_leaver_details",
-            task_name="send_service_now_leaver_details",
-            targets=[
-                "are_all_tasks_complete",
-            ],
         ),
         # Feetham Security Pass Office
         Step(
