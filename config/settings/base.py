@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     # "health_check.contrib.celery",
     # "health_check.contrib.celery_ping",
     "health_check.contrib.redis",
+    "csp"
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -243,6 +244,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "core.middleware.PrimaryEmailMiddleware",
+    "csp.middleware.CSPMiddleware",
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -493,3 +495,17 @@ CHANGE_EMPLOYEES_LM_LINK = env("CHANGE_EMPLOYEES_LM_LINK", default=None)
 
 # Custom DebugPy setting
 ENABLE_DEBUGPY = env.bool("ENABLE_DEBUGPY", False)
+
+# Content Security Policy header settings
+CSP_DEFAULT_SRC = ("'none'",)
+CSP_SCRIPT_SRC = ("'none'",)
+CSP_SCRIPT_SRC_ATTR = ("'none'",)
+CSP_SCRIPT_SRC_ELEM = ("'none'",)
+CSP_IMG_SRC = ("'none'",)
+CSP_MEDIA_SRC = ("'none'",)
+CSP_FRAME_SRC = ("'none'",)
+CSP_FONT_SRC = ("'none'",)
+CSP_CONNECT_SRC = ("'none'",)
+
+CSP_REPORT_ONLY = True
+CSP_REPORT_URI = env("CSP_REPORT_URI", default=None)
