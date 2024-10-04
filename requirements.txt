@@ -30,6 +30,7 @@ django-audit-log-middleware==0.0.4 ; python_version >= "3.12" and python_version
 django-celery-beat==2.6.0 ; python_version >= "3.12" and python_version < "4.0"
 django-celery-results==2.5.1 ; python_version >= "3.12" and python_version < "4.0"
 django-crispy-forms==2.1 ; python_version >= "3.12" and python_version < "4.0"
+django-csp==3.8 ; python_version >= "3.12" and python_version < "4.0"
 django-elasticsearch-dsl==7.4 ; python_version >= "3.12" and python_version < "4.0"
 django-environ==0.11.2 ; python_version >= "3.12" and python_version < "4"
 django-hawk-drf==1.1.2 ; python_version >= "3.12" and python_version < "4.0"
