@@ -41,7 +41,7 @@ django-log-formatter-ecs==0.0.5 ; python_version >= "3.12" and python_version < 
 django-staff-sso-client==4.2.2 ; python_version >= "3.12" and python_version < "4.0"
 django-timezone-field==6.1.0 ; python_version >= "3.12" and python_version < "4.0"
 django-workflow-engine==0.2.1 ; python_version >= "3.12" and python_version < "4.0"
-django==4.2.15 ; python_version >= "3.12" and python_version < "4.0"
+django==4.2.16 ; python_version >= "3.12" and python_version < "4.0"
 djangorestframework==3.15.2 ; python_version >= "3.12" and python_version < "4.0"
 docopt==0.6.2 ; python_version >= "3.12" and python_version < "4.0"
 elasticsearch-dsl==7.4.1 ; python_version >= "3.12" and python_version < "4.0"
