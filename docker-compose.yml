@@ -84,8 +84,8 @@ services:
 
   localstack:
     build:
-      context: .localstack
-      dockerfile: Dockerfile
+      context: ./docker
+      dockerfile: Dockerfile.localstack
     ports:
       - '4563-4599:4563-4599'
     environment:

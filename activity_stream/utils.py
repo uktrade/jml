@@ -1,5 +1,5 @@
 import json
-import boto3
+
 import logging
 from typing import List
 
@@ -8,16 +8,9 @@ from django.conf import settings
 import smart_open
 
 from activity_stream import models, staff_sso
+from core.boto_utils import get_s3_resource
 
 logger = logging.getLogger(__name__)
-
-
-def get_s3_resource():
-    if settings.S3_LOCAL_ENDPOINT_URL:
-        logger.debug("using local S3 endpoint %s", settings.S3_LOCAL_ENDPOINT_URL)
-        return boto3.resource("s3", endpoint_url=settings.S3_LOCAL_ENDPOINT_URL)
-
-    return boto3.resource("s3")
 
 
 def _do_get_staff_sso_s3_object_summaries(s3_bucket):
@@ -25,7 +18,8 @@ def _do_get_staff_sso_s3_object_summaries(s3_bucket):
     files = (
         s3_bucket.objects.filter()
     )  # TODO do we need to use a prefix filter? If not change the .filter() to .all()
-    # Get the list of files, oldest first. Process in that order, so any changes in newer files take precedence
+    # Get the list of files, oldest first. Process in that order, so any changes in newer files
+    # take precedence
     sorted_files = sorted(files, key=lambda x: x.last_modified, reverse=False)
     for file in sorted_files:
         file.source_key = f"s3://{file.bucket_name}/{file.key}"
