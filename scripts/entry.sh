@@ -7,4 +7,4 @@ else
   python manage.py collectstatic --no-input
 fi
 python manage.py migrate --noinput
-granian --interface wsgi config.wsgi:application --workers 2 --host 0.0.0.0 --port $PORT
+granian --interface wsgi config.wsgi:application --workers 1 --host 0.0.0.0 --port $PORT
