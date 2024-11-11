@@ -7,7 +7,7 @@ from django_workflow_engine.models import Flow
 
 from activity_stream.utils import ingest_activity_stream, ingest_staff_sso_s3
 from config.celery import celery_app
-from core.people_data.utils import ingest_people_data
+from core.people_data.utils import ingest_people_data, ingest_people_s3
 from core.people_finder.utils import ingest_people_finder
 from core.service_now.utils import ingest_service_now
 from core.utils.staff_index import index_sso_users
@@ -93,3 +93,9 @@ def ingest_service_now_task(self):
 
     if service_now_online:
         ingest_service_now()
+
+
+@celery_app.task(bind=True)
+def ingest_people_s3_task(self):
+    logger.info("RUNNING ingest_people_s3_task")
+    ingest_people_s3()

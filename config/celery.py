@@ -53,4 +53,8 @@ celery_app.conf.beat_schedule = {
         "task": "core.tasks.ingest_service_now_task",
         "schedule": crontab(minute="0", hour="5"),
     },
+    "ingest-people-s3-task": {
+        "task": "core.tasks.ingest_people_s3_task",
+        "schedule": crontab(minute="*/10"),
+    },
 }
