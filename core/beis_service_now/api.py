@@ -8,7 +8,7 @@ from django.http.response import HttpResponseBase
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework import pagination, routers
+from rest_framework import routers
 from rest_framework.permissions import IsAuthenticated
 
 from core.beis_service_now.authentication import (
