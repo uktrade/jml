@@ -117,7 +117,7 @@ class PauseTask(LeavingRequestTask):
     def should_pause(self, task_info) -> bool:
         pass_condition: str = task_info.get("pass_condition", "")
         if pass_condition == "after_leaving_date" and self.leaving_request.leaving_date:
-            return timezone.now() > self.leaving_request.leaving_date
+            return timezone.now() < self.leaving_request.leaving_date
         return True
 
     def execute(self, task_info):
