@@ -411,6 +411,7 @@ redirect_urlpatterns = [
     for p, new_name in redirect_mapping.items()
 ]
 
+
 urlpatterns = redirect_urlpatterns + [
     path("", RedirectView.as_view(url=reverse_lazy("start")), name="leavers-root"),
     path("start/", leaver_views.LeaversStartView.as_view(), name="start"),

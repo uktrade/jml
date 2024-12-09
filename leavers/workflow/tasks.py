@@ -12,8 +12,6 @@ from django_workflow_engine.models import Flow, TaskStatus
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.lsd_help_desk import get_lsd_help_desk_interface
 from core.notify import EmailTemplates
-from core.service_now import get_service_now_interface
-from core.service_now.types import AssetDetails
 from core.uksbs import get_uksbs_interface
 from core.uksbs.client import UKSBSPersonNotFound, UKSBSUnexpectedResponse
 from core.uksbs.types import PersonData
@@ -43,7 +41,6 @@ from leavers.utils.emails import (
     send_security_team_offboard_bp_leaver_email,
     send_security_team_offboard_rk_leaver_email,
 )
-from leavers.utils.leaving_request import get_leaver_details
 
 
 class SkipCondition(Enum):
@@ -299,49 +296,51 @@ class LSDSendLeaverDetails(LeavingRequestTask):
         return None, True
 
 
-class ServiceNowSendLeaverDetails(LeavingRequestTask):
-    abstract = False
-    task_name = "send_service_now_leaver_details"
-    auto = True
+# TODO: Cleanup!
+# class ServiceNowSendLeaverDetails(LeavingRequestTask):
+#     abstract = False
+#     task_name = "send_service_now_leaver_details"
+#     auto = True
 
-    def execute(self, task_info):
-        if self.leaving_request.service_now_offline:
-            # If the request has SN offline set, we don't need to send the details
-            return None, True
+#    def execute(self, task_info):
+#        if self.leaving_request.service_now_offline:
+#            # If the request has SN offline set, we don't need to send the details
+#            return None, True
 
-        leaver_details = get_leaver_details(leaving_request=self.leaving_request)
-        leaver_information: Optional[LeaverInformation] = (
-            self.leaving_request.leaver_information.first()
-        )
 
-        if not leaver_information:
-            raise ValueError("leaver_information is not set")
+#         leaver_details = get_leaver_details(leaving_request=self.leaving_request)
+#         leaver_information: Optional[LeaverInformation] = (
+#             self.leaving_request.leaver_information.first()
+#         )
 
-        leaver_details.update(**leaver_information.updates)
+#         if not leaver_information:
+#             raise ValueError("leaver_information is not set")
 
-        service_now_assets: List[AssetDetails] = []
+#         leaver_details.update(**leaver_information.updates)
 
-        if leaver_information.cirrus_assets:
-            for cirrus_asset in leaver_information.cirrus_assets:
-                asset_details: AssetDetails = {
-                    "sys_id": cirrus_asset["sys_id"],
-                    "tag": cirrus_asset["tag"],
-                    "name": cirrus_asset["name"],
-                }
-                service_now_assets.append(asset_details)
+#         service_now_assets: List[AssetDetails] = []
 
-        service_now_interface = get_service_now_interface()
-        service_now_interface.submit_leaver_request(
-            leaver_info=leaver_information,
-            leaver_details=leaver_details,
-            assets=service_now_assets,
-        )
+#         if leaver_information.cirrus_assets:
+#             for cirrus_asset in leaver_information.cirrus_assets:
+#                 asset_details: AssetDetails = {
+#                     "sys_id": cirrus_asset["sys_id"],
+#                     "tag": cirrus_asset["tag"],
+#                     "name": cirrus_asset["name"],
+#                 }
+#                 service_now_assets.append(asset_details)
 
-        self.leaving_request.task_logs.create(
-            task_name="Service Now informed of Leaver",
-        )
+#         service_now_interface = get_service_now_interface()
+#         service_now_interface.submit_leaver_request(
+#             leaver_info=leaver_information,
+#             leaver_details=leaver_details,
+#             assets=service_now_assets,
+#         )
 
-        return None, True
+#         self.leaving_request.task_logs.create(
+#             task_name="Service Now informed of Leaver",
+#         )
+
+#         return None, True
 
 
 class UKSBSSendLeaverDetails(LeavingRequestTask):
