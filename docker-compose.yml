@@ -48,6 +48,7 @@ services:
       - db
       - redis
       - opensearch
+      - localstack
     restart: unless-stopped
     stdin_open: true
     tty: true
