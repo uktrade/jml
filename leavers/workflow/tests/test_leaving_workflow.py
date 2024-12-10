@@ -342,7 +342,6 @@ class TestLeaversWorkflow(TestCase):
             "have_sre_carried_out_leaving_tasks",
             "has_line_manager_updated_service_now",
             "are_all_tasks_complete",
-            "notify_comaea_team",
             "have_security_carried_out_bp_leaving_tasks",
             "have_security_carried_out_rk_leaving_tasks",
             "send_sre_reminder",
