@@ -1,8 +1,12 @@
 import logging
 from itertools import islice
 
+import sqlalchemy as sa
+from django.conf import settings
+from pg_bulk_ingest import Delete, HighWatermark, ingest
+
 from activity_stream.models import ActivityStreamStaffSSOUser
-from core.boto_utils import PeopleDataS3Ingest, get_s3_client
+from core.boto_utils import PeopleDataS3Ingest
 from core.people_data import get_people_data_interface
 
 logger = logging.getLogger(__name__)
@@ -77,55 +81,39 @@ def ingest_people_data():
     logger.info(f"Total number of updated records {total_count}")
 
 
-import os
-import sqlalchemy as sa
-from django.conf import settings
-from smart_open import open as smart_open
-from pg_bulk_ingest import ingest, Delete, HighWatermark
-
-
-def get_data(file):
-    logger.info("Loading file from %s", file)
-    with smart_open(
-        file,
-        "r",
-        transport_params={
-            "client": get_s3_client(),
-        },
-        encoding="utf-8",
-    ) as file_input_stream:  # type: ignore
-        for line in file_input_stream:
-            yield line
-
-
 def ingest_people_s3():
-    # TODO: Update this logic to use `PeopleDataS3Ingest`
-
     table = sa.Table(
         "people_data__jml",
         sa.MetaData(),
         sa.Column("id", sa.VARCHAR, primary_key=True),
         schema="import",  # todo: whats this schema going to be
     )
-    logger.info("Ingesting data into table %s", table)
-    files = ["s3://jml.local/file.jsonl"]
-    for file in files:
-        data = get_data(file)
 
-        def batches(_):
-            yield None, None, (
+    ingest_manager = PeopleDataS3Ingest()
+    data = ingest_manager.get_data_to_ingest()
+
+    logger.info("Ingesting data into table %s", table)
+
+    def batches(_):
+        yield (
+            None,
+            None,
+            (
                 (
                     table,
                     data,
                 ),
-            )
+            ),
+        )
 
-        engine = sa.create_engine(settings.DATABASE_URL)
-        with engine.connect() as conn:
-            ingest(
-                conn=conn,
-                metadata=table.metadata,
-                batches=batches,
-                high_watermark=HighWatermark.EARLIEST,
-                delete=Delete.OFF,
-            )
+    engine = sa.create_engine(settings.DATABASE_URL)
+    with engine.connect() as conn:
+        ingest(
+            conn=conn,
+            metadata=table.metadata,
+            batches=batches,
+            high_watermark=HighWatermark.EARLIEST,
+            delete=Delete.OFF,
+        )
+
+    ingest_manager.cleanup()

@@ -1,3 +1,4 @@
+import json
 import logging
 
 from django.conf import settings
@@ -20,7 +21,8 @@ def ingest_staff_sso_s3() -> None:
 
     ingest_manager = StaffSSOS3Ingest()
     for item in ingest_manager.get_data_to_ingest():
-        user_obj = item["object"]
+        user = json.loads(item)
+        user_obj = user["object"]
         (
             as_staff_sso_user,
             _,
