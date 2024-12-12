@@ -2,7 +2,7 @@ import logging
 from itertools import islice
 
 from activity_stream.models import ActivityStreamStaffSSOUser
-from core.boto_utils import get_s3_client
+from core.boto_utils import PeopleDataS3Ingest, get_s3_client
 from core.people_data import get_people_data_interface
 
 logger = logging.getLogger(__name__)
@@ -98,8 +98,8 @@ def get_data(file):
             yield line
 
 
-# TODO is this the right place for this function?
 def ingest_people_s3():
+    # TODO: Update this logic to use `PeopleDataS3Ingest`
 
     table = sa.Table(
         "people_data__jml",
