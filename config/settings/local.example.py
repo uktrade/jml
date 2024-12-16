@@ -1,3 +1,4 @@
+import os
 import sys
 
 from config.settings.base import *  # type: ignore # noqa
@@ -37,3 +38,6 @@ GRAPH_MODELS = {
     "all_applications": True,
     "group_models": True,
 }
+
+# Boto
+S3_LOCAL_ENDPOINT_URL = os.getenv("S3_LOCAL_ENDPOINT_URL", default="")
