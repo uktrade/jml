@@ -20,18 +20,6 @@ def get_s3_resource():
     return boto3.resource("s3")
 
 
-def get_s3_client():
-    """
-    TODO: Remove this as it's not used?
-    """
-
-    if local_endpoint := getattr(settings, "S3_LOCAL_ENDPOINT_URL", None):
-        logger.debug("using local S3 endpoint %s", local_endpoint)
-        return boto3.client("s3", endpoint_url=local_endpoint)
-
-    return boto3.client("s3")
-
-
 class JSONLIngest:
     export_bucket: str = settings.DATA_FLOW_UPLOADS_BUCKET
     export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
