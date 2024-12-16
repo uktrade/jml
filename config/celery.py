@@ -1,6 +1,7 @@
+from dbt_copilot_python.celery_health_check import healthcheck
+
 from celery import Celery
 from celery.schedules import crontab
-from dbt_copilot_python.celery_health_check import healthcheck
 
 celery_app = Celery("DjangoCelery")
 celery_app = healthcheck.setup(celery_app)

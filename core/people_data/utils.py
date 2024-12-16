@@ -96,7 +96,7 @@ def ingest_people_data_from_s3_to_table() -> None:
     )
 
     ingest_manager = PeopleDataS3Ingest()
-    data = list(ingest_manager.get_data_to_ingest())
+    data = ingest_manager.get_data_to_ingest()
 
     ingest_data: list[tuple] = []
     for row in data:
