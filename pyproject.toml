@@ -85,6 +85,7 @@ types-certifi = "*"
 types-freezegun = "*"
 types-requests = "*"
 types-oauthlib = "*"
+types-boto3 = "*"
 django-extensions = "*"
 pydot = "^1.4.2"
 bpython = "^0.24"
@@ -140,6 +141,7 @@ module = [
     "zenpy.*",
     "dbt_copilot_python.*",
     "django_log_formatter_asim.*",
+    "smart_open.*",
 ]
 ignore_missing_imports = true
 

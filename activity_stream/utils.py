@@ -9,7 +9,7 @@ from core.boto_utils import StaffSSOS3Ingest, get_s3_resource
 logger = logging.getLogger(__name__)
 
 
-def staff_sso_s3_to_db(item) -> None:
+def staff_sso_s3_to_db(item) -> int:
     user = json.loads(item)
     user_obj = user["object"]
     (
@@ -54,7 +54,7 @@ def ingest_staff_sso_s3() -> None:
 
     logger.info("ingest_staff_sso_s3: Reading files from bucket %s", bucket)
 
-    created_updated_ids = []
+    created_updated_ids: list[int] = []
 
     ingest_manager = StaffSSOS3Ingest()
     for item in ingest_manager.get_data_to_ingest():

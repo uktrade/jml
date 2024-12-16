@@ -38,7 +38,7 @@ class JSONLIngest:
     export_path: str = settings.DATA_FLOW_UPLOADS_BUCKET_PATH
     export_directory: str
 
-    def __init__(self) -> Iterator:
+    def __init__(self) -> None:
         self.s3_resource = get_s3_resource()
         self.bucket = self.s3_resource.Bucket(self.export_bucket)
 
