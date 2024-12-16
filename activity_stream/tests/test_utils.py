@@ -1,21 +1,20 @@
 import datetime
 import json
-
-import pytest
-
 from unittest import mock
 from uuid import uuid4
 
+import pytest
 from django.test import override_settings
+
 from activity_stream.factories import ActivityStreamStaffSSOUserFactory
 from activity_stream.models import (
     ActivityStreamStaffSSOUser,
     ActivityStreamStaffSSOUserEmail,
 )
 from activity_stream.utils import (
-    ingest_staff_sso_s3,
-    _process_staff_sso_file,
     _get_created_updated_ids,
+    _process_staff_sso_file,
+    ingest_staff_sso_s3,
 )
 
 

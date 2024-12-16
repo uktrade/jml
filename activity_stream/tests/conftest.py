@@ -1,13 +1,12 @@
 import datetime
 from uuid import uuid4
-import pytest
 
+import pytest
 from factory.faker import faker
 
 
 @pytest.fixture
 def sso_user_factory():
-
     def _factory():
         factory_faker = faker.Faker()
 
@@ -28,10 +27,12 @@ def sso_user_factory():
                 "dit:StaffSSO:User:joined": datetime.datetime.today().strftime(
                     "%Y%m%dT%H%M%S.%dZ"
                 ),
-                "dit:StaffSSO:User:lastAccessed": datetime.datetime.today().strftime(
-                    "%Y%m%dT%H%M%S.%dZ"
+                "dit:StaffSSO:User:lastAccessed": (
+                    datetime.datetime.today().strftime("%Y%m%dT%H%M%S.%dZ")
                 ),
-                "dit:StaffSSO:User:emailUserId": f"{first_name}.{last_name}-2b11c60l@id.trade.gov.uk",
+                "dit:StaffSSO:User:emailUserId": (
+                    f"{first_name}.{last_name}-2b11c60l@id.trade.gov.uk"
+                ),
                 "dit:StaffSSO:User:becameInactiveOn": None,
                 "dit:StaffSSO:User:contactEmailAddress": None,
             },

@@ -47,7 +47,8 @@ class JSONLIngest:
 
     def get_files_to_ingest(self):
         """
-        Get all the files that "could" be ingested and order them by last modified date (oldest first)
+        Get all the files that "could" be ingested and order them by last
+        modified date (oldest first)
         """
         logger.info("ingest_staff_sso_s3: Reading files from bucket %s", self.bucket)
         files = self.bucket.objects.filter(Prefix=self.get_export_path())
