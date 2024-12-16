@@ -1,5 +1,4 @@
 import logging
-from typing import Iterator
 
 import boto3
 from django.conf import settings
