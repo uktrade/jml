@@ -101,8 +101,6 @@ else:
 
     DATABASES = {"default": env.db()}
 
-DATABASE_ROUTERS = ["core.people_data.routers.PeopleDataRouter"]
-
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 LOGGING = {
@@ -339,15 +337,6 @@ PEOPLE_FINDER_INTERFACE = env("PEOPLE_FINDER_INTERFACE")
 
 # People Data report
 PEOPLE_DATA_INTERFACE = env("PEOPLE_DATA_INTERFACE")
-if env("PEOPLE_DATA_ON", default="false").lower() == "true":
-    DATABASES["people_data"] = {
-        "HOST": env("PEOPLE_DATA_POSTGRES_HOST"),
-        "NAME": env("PEOPLE_DATA_POSTGRES_DATABASE"),
-        "PORT": env("PEOPLE_DATA_POSTGRES_PORT", default=5432),
-        "ENGINE": "django.db.backends.postgresql",
-        "USER": env("PEOPLE_DATA_POSTGRES_USERNAME"),
-        "PASSWORD": env("PEOPLE_DATA_POSTGRES_PASSWORD"),
-    }
 
 # Staff SSO
 STAFF_SSO_ACTIVITY_STREAM_URL = env("STAFF_SSO_ACTIVITY_STREAM_URL", default=None)
@@ -493,3 +482,7 @@ CHANGE_EMPLOYEES_LM_LINK = env("CHANGE_EMPLOYEES_LM_LINK", default=None)
 
 # Custom DebugPy setting
 ENABLE_DEBUGPY = env.bool("ENABLE_DEBUGPY", False)
+
+# Boto
+DATA_FLOW_UPLOADS_BUCKET = env("DATA_FLOW_UPLOADS_BUCKET", default="")
+DATA_FLOW_UPLOADS_BUCKET_PATH = env("DATA_FLOW_UPLOADS_BUCKET_PATH", default="")
