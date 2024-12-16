@@ -90,6 +90,7 @@ django-extensions = "*"
 pydot = "^1.4.2"
 bpython = "^0.24"
 debugpy = "*"
+dbt-platform-helper = "11"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-material = { extras = ["imaging"], version = "~9.2.0" }
@@ -114,7 +115,7 @@ minversion = "7.0"
 addopts = "--ds=config.settings.test --ignore=node_modules"
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.12"
 plugins = ["mypy_django_plugin.main"]
 exclude = ["staticfiles"]
 # check_untyped_defs = true
