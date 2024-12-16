@@ -9,6 +9,43 @@ from core.boto_utils import StaffSSOS3Ingest, get_s3_resource
 logger = logging.getLogger(__name__)
 
 
+def staff_sso_s3_to_db(item) -> None:
+    user = json.loads(item)
+    user_obj = user["object"]
+    (
+        as_staff_sso_user,
+        _,
+    ) = models.ActivityStreamStaffSSOUser.objects.update_or_create(
+        identifier=user_obj["id"],
+        defaults={
+            "available": True,
+            "name": user_obj["name"],
+            "obj_type": user_obj["type"],
+            "first_name": user_obj["dit:firstName"],  # /PS-IGNORE
+            "last_name": user_obj["dit:lastName"],  # /PS-IGNORE
+            "user_id": user_obj["dit:StaffSSO:User:userId"],
+            "status": user_obj["dit:StaffSSO:User:status"],
+            "last_accessed": user_obj["dit:StaffSSO:User:lastAccessed"],
+            "joined": user_obj["dit:StaffSSO:User:joined"],
+            "email_user_id": user_obj["dit:StaffSSO:User:emailUserId"],
+            "contact_email_address": user_obj["dit:StaffSSO:User:contactEmailAddress"],
+            "became_inactive_on": user_obj["dit:StaffSSO:User:becameInactiveOn"],
+        },
+    )
+
+    for email in user_obj["dit:emailAddress"]:
+        models.ActivityStreamStaffSSOUserEmail.objects.get_or_create(
+            email_address=email,
+            staff_sso_user=as_staff_sso_user,
+        )
+
+    logger.info(
+        "ingest_staff_sso_s3: Added SSO activity stream record for %s",
+        as_staff_sso_user.id,
+    )
+    return as_staff_sso_user.id
+
+
 def ingest_staff_sso_s3() -> None:
     logger.info("ingest_staff_sso_s3: Starting S3 ingest")
 
@@ -21,42 +58,8 @@ def ingest_staff_sso_s3() -> None:
 
     ingest_manager = StaffSSOS3Ingest()
     for item in ingest_manager.get_data_to_ingest():
-        user = json.loads(item)
-        user_obj = user["object"]
-        (
-            as_staff_sso_user,
-            _,
-        ) = models.ActivityStreamStaffSSOUser.objects.update_or_create(
-            identifier=user_obj["id"],
-            defaults={
-                "available": True,
-                "name": user_obj["name"],
-                "obj_type": user_obj["type"],
-                "first_name": user_obj["dit:firstName"],  # /PS-IGNORE
-                "last_name": user_obj["dit:lastName"],  # /PS-IGNORE
-                "user_id": user_obj["dit:StaffSSO:User:userId"],
-                "status": user_obj["dit:StaffSSO:User:status"],
-                "last_accessed": user_obj["dit:StaffSSO:User:lastAccessed"],
-                "joined": user_obj["dit:StaffSSO:User:joined"],
-                "email_user_id": user_obj["dit:StaffSSO:User:emailUserId"],
-                "contact_email_address": user_obj[
-                    "dit:StaffSSO:User:contactEmailAddress"
-                ],
-                "became_inactive_on": user_obj["dit:StaffSSO:User:becameInactiveOn"],
-            },
-        )
-
-        for email in user_obj["dit:emailAddress"]:
-            models.ActivityStreamStaffSSOUserEmail.objects.get_or_create(
-                email_address=email,
-                staff_sso_user=as_staff_sso_user,
-            )
-
-        created_updated_ids.append(as_staff_sso_user.id)
-        logger.info(
-            "ingest_staff_sso_s3: Added SSO activity stream record for %s",
-            as_staff_sso_user.id,
-        )
+        created_updated_id = staff_sso_s3_to_db(item)
+        created_updated_ids.append(created_updated_id)
 
     # Mark the Staff SSO objects that are no longer in the S3 file.
     if settings.APP_ENV == "production":

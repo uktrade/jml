@@ -81,7 +81,7 @@ def ingest_people_data():
     logger.info(f"Total number of updated records {total_count}")
 
 
-def ingest_people_s3():
+def ingest_people_data_from_s3_to_table():
     table = sa.Table(
         "people_data__jml",
         sa.MetaData(),
