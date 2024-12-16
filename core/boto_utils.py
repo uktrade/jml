@@ -52,18 +52,12 @@ class JSONLIngest:
 
         return sorted_files
 
-    def process_files(self):
-        files = self.get_s3_object_summaries()
-        if len(files) == 0:
-            logger.info(
-                "ingest_staff_sso_s3: No files in bucket %s, stopping task execution",
-                self.bucket,
-            )
-            return
-
     def get_data_to_ingest(self):
         # Get all files in the export directory
         files_to_process = self.get_files_to_ingest()
+
+        if not len(files_to_process):
+            return
 
         # Select the most recent file
         self.ingest_file = files_to_process[-1]
