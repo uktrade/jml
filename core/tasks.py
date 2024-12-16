@@ -60,12 +60,6 @@ def progress_workflow(self, flow_pk: str):
 
 
 @celery_app.task(bind=True)
-def ingest_staff_sso_s3_task(self):
-    logger.info("RUNNING ingest_staff_sso_s3_task")
-    ingest_staff_sso_s3()
-
-
-@celery_app.task(bind=True)
 def ingest_activity_stream_task(self):
     logger.info("RUNNING ingest_activity_stream_task")
     ingest_staff_sso_s3()
@@ -75,6 +69,12 @@ def ingest_activity_stream_task(self):
 def index_sso_users_task(self):
     logger.info("RUNNING index_sso_users_task")
     index_sso_users()
+
+
+@celery_app.task(bind=True)
+def ingest_people_s3_task(self):
+    logger.info("RUNNING ingest_people_s3_task")
+    ingest_people_data_from_s3_to_table()
 
 
 @celery_app.task(bind=True)
@@ -96,9 +96,3 @@ def ingest_service_now_task(self):
 
     if service_now_online:
         ingest_service_now()
-
-
-@celery_app.task(bind=True)
-def ingest_people_s3_task(self):
-    logger.info("RUNNING ingest_people_s3_task")
-    ingest_people_data_from_s3_to_table()
