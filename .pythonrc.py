@@ -11,9 +11,9 @@ def get_sso_user_by_email(email: str) -> ActivityStreamStaffSSOUser:
 
 
 def query_people_data_by_email(email: str) -> list[dict[str, Any]]:
-    with connections["people_data"].cursor() as cursor:
+    with connections["default"].cursor() as cursor:
         cursor.execute(
-            "SELECT * FROM dit.people_data__jml WHERE email_address = %s", [email]
+            "SELECT * FROM import.people_data__jml WHERE email_address = %s", [email]
         )
         rows = cursor.fetchall()
 

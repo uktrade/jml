@@ -15,11 +15,11 @@ class Command(BaseCommand):
         employee_id_2 = 100000
         person_id = 10000
 
-        with connections["people_data"].cursor() as cursor:
+        with connections["default"].cursor() as cursor:
             for user in users:
                 cursor.execute(
                     """
-                    INSERT INTO dit.people_data__jml (
+                    INSERT INTO import.people_data__jml (
                         email_address,
                         person_id,
                         employee_numbers
@@ -35,7 +35,7 @@ class Command(BaseCommand):
                 employee_id_1 += 1
                 employee_id_2 += 1
                 person_id += 1
-            connections["people_data"].commit()
+            connections["default"].commit()
 
         self.stdout.write(
             self.style.SUCCESS(f"Added employee id records to {len(users)} users")
