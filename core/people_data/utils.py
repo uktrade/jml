@@ -116,8 +116,15 @@ def ingest_people_data_from_s3_to_table() -> None:
     def batches(_):
         yield (None, None, ((table, row) for row in ingest_data))
 
+    db_settings = settings.DATABASES["default"]
+    assert db_settings["ENGINE"] == "django.db.backends.postgresql"
+
     # sqlalchemy doesn't understand `psql://`
-    db_url = settings.DATABASE_URL.replace("psql://", "postgresql://")
+    db_url = (
+        f"postgresql://{db_settings['USER']}:{db_settings['PASSWORD']}@"
+        f"{db_settings["HOST"]}:{db_settings["PORT"]}/{db_settings["NAME"]}"
+    )
+
     engine = sa.create_engine(db_url)
     with engine.connect() as conn:
         ingest(
@@ -128,4 +135,4 @@ def ingest_people_data_from_s3_to_table() -> None:
             delete=Delete.BEFORE_FIRST_BATCH,
         )
 
-    # ingest_manager.cleanup()
+    ingest_manager.cleanup()
