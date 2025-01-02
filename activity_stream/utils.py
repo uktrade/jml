@@ -4,7 +4,7 @@ import logging
 from django.conf import settings
 
 from activity_stream import models
-from core.utils.boto import StaffSSOS3Ingest, get_s3_resource
+from core.utils.boto import StaffSSOS3Ingest
 
 logger = logging.getLogger(__name__)
 
@@ -46,17 +46,11 @@ def staff_sso_s3_to_db(item) -> int:
     return as_staff_sso_user.id
 
 
-def ingest_staff_sso_s3() -> None:
+def ingest_staff_sso_s3(ingest_manager_class=StaffSSOS3Ingest) -> None:
     logger.info("ingest_staff_sso_s3: Starting S3 ingest")
 
-    s3_resource = get_s3_resource()
-    bucket = s3_resource.Bucket(settings.DATA_FLOW_UPLOADS_BUCKET)
-
-    logger.info("ingest_staff_sso_s3: Reading files from bucket %s", bucket)
-
     created_updated_ids: list[int] = []
-
-    ingest_manager = StaffSSOS3Ingest()
+    ingest_manager = ingest_manager_class()
     for item in ingest_manager.get_data_to_ingest():
         created_updated_id = staff_sso_s3_to_db(item)
         created_updated_ids.append(created_updated_id)
