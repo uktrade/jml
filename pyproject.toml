@@ -38,6 +38,8 @@ whitenoise = "^6.6.0"
 # OpenSearch
 opensearch-py = "==1.0.0"
 opensearch-dsl = "==1.0.0"
+# The current versions of opensearch dsl/py breaks when numpy 2+ is installed
+numpy = "<2"
 # GovUK Notify
 notifications-python-client = "^9.0.0"
 help-desk-client = "==0.2.0"
