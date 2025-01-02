@@ -4,7 +4,7 @@ import logging
 from django.conf import settings
 
 from activity_stream import models
-from core.boto_utils import StaffSSOS3Ingest, get_s3_resource
+from core.utils.boto import StaffSSOS3Ingest, get_s3_resource
 
 logger = logging.getLogger(__name__)
 

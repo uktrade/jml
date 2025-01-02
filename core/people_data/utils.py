@@ -7,8 +7,8 @@ from django.conf import settings
 from pg_bulk_ingest import Delete, HighWatermark, ingest
 
 from activity_stream.models import ActivityStreamStaffSSOUser
-from core.boto_utils import PeopleDataS3Ingest
 from core.people_data import get_people_data_interface
+from core.utils.boto import PeopleDataS3Ingest
 
 logger = logging.getLogger(__name__)
 
