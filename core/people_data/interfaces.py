@@ -75,7 +75,7 @@ class PeopleDataInterface(PeopleDataBase):
         with connections["default"].cursor() as cursor:
             # No speech marks in query to avoid SQL injection
             cursor.execute(
-                "SELECT * FROM data_import__people_data__jml WHERE email_address = %s",
+                "SELECT * FROM public.data_import__people_data__jml WHERE email_address = %s",
                 [email_address],
             )
             row = cursor.fetchone()
@@ -95,7 +95,7 @@ class PeopleDataInterface(PeopleDataBase):
                 # If you change the columns here then please don't forget to update the
                 # rest of the function!
                 "SELECT email_address, employee_numbers, person_id"
-                " FROM data_import__people_data__jml"
+                " FROM public.data_import__people_data__jml"
             )
 
             while True:
@@ -121,7 +121,7 @@ class PeopleDataInterface(PeopleDataBase):
                     email_address,
                     array_agg(DISTINCT person_id) AS person_ids
                 FROM
-                    data_import__people_data__jml
+                    public.data_import__people_data__jml
                 WHERE
                     email_address IS NOT NULL
                     AND email_address != ''

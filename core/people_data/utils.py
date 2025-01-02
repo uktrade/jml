@@ -92,7 +92,7 @@ def ingest_people_data_from_s3_to_table() -> None:
         sa.Column("person_type", sa.String),
         sa.Column("grade", sa.String),
         sa.Column("grade_Level", sa.String),
-        schema="import",
+        schema="public",
     )
 
     ingest_manager = PeopleDataS3Ingest()

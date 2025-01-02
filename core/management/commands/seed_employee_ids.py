@@ -19,7 +19,7 @@ class Command(BaseCommand):
             for user in users:
                 cursor.execute(
                     """
-                    INSERT INTO data_import__people_data__jml (
+                    INSERT INTO public.data_import__people_data__jml (
                         email_address,
                         person_id,
                         employee_numbers
