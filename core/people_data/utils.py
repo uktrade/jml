@@ -111,6 +111,10 @@ def ingest_people_data_from_s3_to_table() -> None:
         )
         ingest_data.append(ingest_row)
 
+    if not ingest_data:
+        logger.info("No data to ingest")
+        return
+
     logger.info("Ingesting data into table %s", table)
 
     def batches(_):

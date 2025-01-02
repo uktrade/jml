@@ -28,6 +28,8 @@ class JSONLIngest:
     def __init__(self) -> None:
         self.s3_resource = get_s3_resource()
         self.bucket = self.s3_resource.Bucket(self.export_bucket)
+        self.ingest_file = None
+        self.other_files = []
 
     def get_export_path(self):
         return f"{self.export_path}/{self.export_directory}"
@@ -82,11 +84,18 @@ class JSONLIngest:
         """
         Delete ingested file and other files in the export directory
         """
-        files_to_delete = [self.ingest_file] + self.other_files
+        files_to_delete = []
+
+        if self.ingest_file:
+            files_to_delete.append(self.ingest_file)
+        if self.other_files:
+            files_to_delete.extend(self.other_files)
+
         delete_keys = [{"Key": file.key} for file in files_to_delete]
 
-        logger.info("ingest_staff_sso_s3: Deleting keys %s", delete_keys)
-        self.bucket.delete_objects(Delete={"Objects": delete_keys})
+        if delete_keys:
+            logger.info("ingest_staff_sso_s3: Deleting keys %s", delete_keys)
+            self.bucket.delete_objects(Delete={"Objects": delete_keys})
 
 
 class PeopleDataS3Ingest(JSONLIngest):
