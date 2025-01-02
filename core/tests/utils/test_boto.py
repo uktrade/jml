@@ -86,6 +86,10 @@ class TestJSONLIngest(TestCase):
 
         mock_boto3_resource.return_value.Bucket.return_value.delete_objects.assert_called_once_with(
             Delete={
-                "Objects": [{"Key": file1.key}, {"Key": file2.key}, {"Key": file3.key}]
+                "Objects": [
+                    {"Key": file1.key},
+                    {"Key": file2.key},
+                    {"Key": file3.key},
+                ]
             }
         )
