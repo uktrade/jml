@@ -84,7 +84,7 @@ def ingest_people_data():
 
 def ingest_people_data_from_s3_to_table() -> None:
     table = sa.Table(
-        "people_data__jml",
+        "data_import__people_data__jml",
         sa.MetaData(),
         sa.Column("email_address", sa.String),
         sa.Column("person_id", sa.String(255)),
