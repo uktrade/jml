@@ -575,7 +575,7 @@ Index](/docs
 INFO
 information</h1
 ingest_activity_stream
-INSERT INTO dit.people_data__jml
+INSERT INTO public.data_import__people_data__jml
 Install Cloudfoundry
 Install Poetry
 Integrations
