@@ -454,7 +454,7 @@ class LeavingRequestViewMixin(View):
     def store_session(self, session):
         current_session = self.get_session()
         current_session.update(session)
-        self.request.session["leaving_requests"][self.leaving_request.pk] = (
-            current_session
-        )
+        self.request.session["leaving_requests"][
+            self.leaving_request.pk
+        ] = current_session
         self.request.session.save()
