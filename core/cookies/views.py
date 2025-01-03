@@ -22,12 +22,13 @@ def cookie_response(request: HttpRequest, response: Literal["accept", "reject"])
     cookie_value = cookie_value_mapping[response]
 
     next_path: Optional[str] = request.GET.get("next")
-    if not next_path:
+    if (
+        not url_has_allowed_host_and_scheme(next_path, allowed_hosts=None)
+        or not next_path
+    ):
         next_path = "/"
 
-    redirect_response = redirect(
-        url_has_allowed_host_and_scheme(next_path, allowed_hosts=None)
-    )
+    redirect_response = redirect(next_path)
     redirect_response.set_cookie(
         COOKIE_KEY,
         cookie_value,
