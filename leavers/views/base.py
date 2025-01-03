@@ -13,6 +13,7 @@ from django.http.response import HttpResponse, HttpResponseBase
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.views.generic import View
 from django.views.generic.edit import FormView
 
@@ -361,7 +362,7 @@ class LeavingRequestListing(
         return self.complete_field
 
     def form_valid(self, form: Any) -> HttpResponse:
-        self.query = form.cleaned_data["query"]
+        self.query = urlencode(form.cleaned_data["query"])
         return redirect(
             f"{self.request.path}"
             f"?query={self.query}"
