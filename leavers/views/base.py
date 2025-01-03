@@ -365,7 +365,7 @@ class LeavingRequestListing(
         self.query = form.cleaned_data["query"]
 
         return redirect(
-            f"{self.request.path}"
+            f"{self.request.path}?"
             + urlencode(
                 {
                     "query": self.query,
