@@ -369,8 +369,8 @@ class LeavingRequestListing(
             + urlencode(
                 {
                     "query": self.query,
-                    "show_complete": self.show_complete,
-                    "show_incomplete": self.show_incomplete,
+                    "show_complete": str(self.show_complete),
+                    "show_incomplete": str(self.show_incomplete),
                 }
             )
         )
@@ -454,7 +454,7 @@ class LeavingRequestViewMixin(View):
     def store_session(self, session):
         current_session = self.get_session()
         current_session.update(session)
-        self.request.session["leaving_requests"][
-            self.leaving_request.pk
-        ] = current_session
+        self.request.session["leaving_requests"][self.leaving_request.pk] = (
+            current_session
+        )
         self.request.session.save()
