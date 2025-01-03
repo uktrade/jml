@@ -611,18 +611,9 @@ class LeavingRequest(models.Model):
         if self.service_now_offline:
             return self.line_manager_service_now_complete
 
-        flow: Optional[Flow] = self.flow
-        if not flow:
-            return None
-
-        send_service_now_task: Optional[TaskStatus] = flow.tasks.filter(
-            step_id="send_service_now_leaver_details", done=True
-        ).first()
-
-        if not send_service_now_task:
-            return None
-
-        return send_service_now_task.executed_at
+        raise NotImplementedError(
+            "Need to store a value when the SN record has been ingested."
+        )
 
     def get_teams_notified(self) -> Dict[str, Optional[datetime]]:
         TEAM_NAME_TASK_MAPPING = {
