@@ -72,7 +72,9 @@ class TestJSONLIngest(TestCase):
         self,
         mock_boto3_resource,
     ):
-        mock_boto3_resource.return_value.Bucket.return_value.delete_objects.return_value = None
+        mock_boto3_resource.return_value.Bucket.return_value.delete_objects.return_value = (
+            None
+        )
 
         file1 = mock.MagicMock(key="file1")
         file2 = mock.MagicMock(key="file2")

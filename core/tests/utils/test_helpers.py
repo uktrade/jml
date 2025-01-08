@@ -1,11 +1,11 @@
 from datetime import date
 
+from asset_registry.factories import PhysicalAssetFactory, SoftwareAssetFactory
+from asset_registry.models import Asset, PhysicalAsset, SoftwareAsset
 from django.db.models.query import QuerySet
 from django.test import TestCase
 from django.utils import timezone
 
-from asset_registry.factories import PhysicalAssetFactory, SoftwareAssetFactory
-from asset_registry.models import Asset, PhysicalAsset, SoftwareAsset
 from core.utils.helpers import (
     bool_to_yes_no,
     get_next_workday,

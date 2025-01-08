@@ -37,7 +37,7 @@ class Command(BaseCommand):
                             [employee_id_1, employee_id_2],
                         ),
                     )
-                except ProgrammingError as e:
+                except ProgrammingError:
                     self.stdout.write(
                         self.style.ERROR(
                             f"Failed to add employee id records to {user.email}"

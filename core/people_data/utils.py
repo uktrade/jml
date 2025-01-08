@@ -126,7 +126,7 @@ def ingest_people_data_from_s3_to_table() -> None:
     # sqlalchemy doesn't understand `psql://`
     db_url = (
         f"postgresql://{db_settings['USER']}:{db_settings['PASSWORD']}@"
-        f"{db_settings["HOST"]}:{db_settings["PORT"]}/{db_settings["NAME"]}"
+        f"{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
     )
 
     engine = sa.create_engine(db_url)
