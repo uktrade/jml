@@ -1,10 +1,13 @@
 import logging
+from typing import Any, Iterable, Iterator
 
 import boto3
 from django.conf import settings
 from smart_open import open as smart_open
 
 logger = logging.getLogger(__name__)
+
+S3ObjectSummary = Any
 
 
 def get_s3_resource():
@@ -28,21 +31,25 @@ class JSONLIngest:
     def __init__(self) -> None:
         self.s3_resource = get_s3_resource()
         self.bucket = self.s3_resource.Bucket(self.export_bucket)
-        self.ingest_file = None
-        self.other_files = []
+        self.ingest_file: S3ObjectSummary | None = None
+        self.other_files: list[S3ObjectSummary] = []
 
-    def get_export_path(self):
+    def get_export_path(self) -> str:
         return f"{self.export_path}/{self.export_directory}"
 
-    def get_files_to_ingest(self):
+    def get_files_to_ingest(self) -> list:
         """
         Get all the files that "could" be ingested and order them by last
         modified date (oldest first)
         """
         logger.info("ingest_staff_sso_s3: Reading files from bucket %s", self.bucket)
-        files = self.bucket.objects.filter(Prefix=self.get_export_path())
+        files: Iterable[S3ObjectSummary] = self.bucket.objects.filter(
+            Prefix=self.get_export_path()
+        )
 
-        sorted_files = sorted(files, key=lambda x: x.last_modified, reverse=False)
+        sorted_files: list[S3ObjectSummary] = sorted(
+            files, key=lambda x: x.last_modified, reverse=False
+        )
         for file in sorted_files:
             file.source_key = f"s3://{file.bucket_name}/{file.key}"
             logger.info(
@@ -54,7 +61,7 @@ class JSONLIngest:
 
         return sorted_files
 
-    def get_data_to_ingest(self):
+    def get_data_to_ingest(self) -> Iterator[str]:
         # Get all files in the export directory
         files_to_process = self.get_files_to_ingest()
 
@@ -80,7 +87,7 @@ class JSONLIngest:
             for line in file_input_stream:
                 yield line
 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """
         Delete ingested file and other files in the export directory
         """
