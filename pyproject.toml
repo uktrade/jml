@@ -39,6 +39,8 @@ whitenoise = "^6.6.0"
 # OpenSearch
 opensearch-py = "==1.0.0"
 opensearch-dsl = "==1.0.0"
+# The current versions of opensearch dsl/py breaks when numpy 2+ is installed
+numpy = "<2"
 # GovUK Notify
 notifications-python-client = "^9.0.0"
 help-desk-client = "==0.2.0"
@@ -47,6 +49,9 @@ detect-secrets = "^1.4.0"
 django-workflow-engine = "^0.2.1"
 govuk-frontend-django = "^0.4.0"
 dit-activity-stream = "^0.2.3"
+boto3 = "^1.34.151"
+smart-open = "^7.0.4"
+pg-bulk-ingest = "^0.0.54"
 granian = "^1.6.3"
 
 [tool.poetry.group.production]
@@ -83,10 +88,12 @@ types-certifi = "*"
 types-freezegun = "*"
 types-requests = "*"
 types-oauthlib = "*"
+types-boto3 = "*"
 django-extensions = "*"
 pydot = "^1.4.2"
 bpython = "^0.24"
 debugpy = "*"
+dbt-platform-helper = "11"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-material = { extras = ["imaging"], version = "~9.2.0" }
@@ -111,7 +118,7 @@ minversion = "7.0"
 addopts = "--ds=config.settings.test --ignore=node_modules"
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.12"
 plugins = ["mypy_django_plugin.main"]
 exclude = ["staticfiles"]
 # check_untyped_defs = true
@@ -138,6 +145,7 @@ module = [
     "zenpy.*",
     "dbt_copilot_python.*",
     "django_log_formatter_asim.*",
+    "smart_open.*",
 ]
 ignore_missing_imports = true
 

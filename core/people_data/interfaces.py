@@ -72,10 +72,10 @@ class PeopleDataInterface(PeopleDataBase):
             grade_level=None,
         )
 
-        with connections["people_data"].cursor() as cursor:
+        with connections["default"].cursor() as cursor:
             # No speech marks in query to avoid SQL injection
             cursor.execute(
-                "SELECT * FROM dit.people_data__jml WHERE email_address = %s",
+                "SELECT * FROM public.data_import__people_data__jml WHERE email_address = %s",
                 [email_address],
             )
             row = cursor.fetchone()
@@ -90,12 +90,12 @@ class PeopleDataInterface(PeopleDataBase):
         return people_data_result
 
     def get_all(self, fetchmany_size: int = 500) -> Iterator[types.PeopleData]:
-        with connections["people_data"].cursor() as cursor:
+        with connections["default"].cursor() as cursor:
             cursor.execute(
                 # If you change the columns here then please don't forget to update the
                 # rest of the function!
                 "SELECT email_address, employee_numbers, person_id"
-                " FROM dit.people_data__jml"
+                " FROM public.data_import__people_data__jml"
             )
 
             while True:
@@ -114,14 +114,14 @@ class PeopleDataInterface(PeopleDataBase):
                     yield people_data
 
     def get_emails_with_multiple_person_ids(self) -> List[str]:
-        with connections["people_data"].cursor() as cursor:
+        with connections["default"].cursor() as cursor:
             cursor.execute(
                 """
                 SELECT
                     email_address,
                     array_agg(DISTINCT person_id) AS person_ids
                 FROM
-                    dit.people_data__jml
+                    public.data_import__people_data__jml
                 WHERE
                     email_address IS NOT NULL
                     AND email_address != ''
