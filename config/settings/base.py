@@ -26,13 +26,16 @@ ALLOWED_HOSTS = setup_allowed_hosts(env.list("ALLOWED_HOSTS"))
 
 VCAP_SERVICES = env.json("VCAP_SERVICES", {})
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+]
+
+THIRD_PARTY_APPS = [
     "django_workflow_engine",
     "django_celery_beat",
     "django_celery_results",
@@ -42,6 +45,9 @@ INSTALLED_APPS = [
     "authbroker_client",
     "rest_framework",
     "govuk_frontend_django",
+]
+
+LOCAL_APPS = [
     "asset_registry",
     "leavers",
     "user",
@@ -62,6 +68,8 @@ INSTALLED_APPS = [
     # "health_check.contrib.celery_ping",
     "health_check.contrib.redis",
 ]
+
+INSTALLED_APPS = LOCAL_APPS + THIRD_PARTY_APPS + DJANGO_APPS
 
 ROOT_URLCONF = "config.urls"
 
@@ -480,8 +488,6 @@ DIT_EXPERIENCE_SURVEY = env("DIT_EXPERIENCE_SURVEY", default=None)
 TRANSFER_TO_OGD_URL = env("TRANSFER_TO_OGD_URL", default=None)
 CHANGE_EMPLOYEES_LM_LINK = env("CHANGE_EMPLOYEES_LM_LINK", default=None)
 
-# Custom DebugPy setting
-ENABLE_DEBUGPY = env.bool("ENABLE_DEBUGPY", False)
 
 # Boto
 DATA_FLOW_UPLOADS_BUCKET = env("DATA_FLOW_UPLOADS_BUCKET", default="")
