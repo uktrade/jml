@@ -18,7 +18,6 @@ from activity_stream.models import (
     ActivityStreamStaffSSOUserEmail,
 )
 from core.people_data import get_people_data_interface
-from core.service_now import get_service_now_interface
 from core.staff_search.views import StaffSearchView
 from core.types import Address
 from core.uksbs import get_uksbs_interface
@@ -382,11 +381,10 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
             email_user_id=user.sso_email_user_id,
         )
 
-        service_now_email: Optional[str] = staff_sso_user.service_now_email_address
+        service_now_user = staff_sso_user.service_now_user
 
-        if service_now_email and not self.leaving_request.service_now_offline:
+        if service_now_user and not self.leaving_request.service_now_offline:
             if "cirrus_assets" not in session:
-                service_now_interface = get_service_now_interface()
                 session["cirrus_assets"] = [
                     {
                         "uuid": str(uuid.uuid4()),
@@ -394,9 +392,7 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
                         "tag": asset["tag"],
                         "name": asset["name"],
                     }
-                    for asset in service_now_interface.get_assets_for_user(
-                        email=service_now_email,
-                    )
+                    for asset in service_now_user.get_assets()
                 ]
                 self.store_session(session)
 

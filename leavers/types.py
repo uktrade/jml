@@ -47,16 +47,6 @@ class ReturnOptions(TextChoices):
     HOME = "home", "Home collection by courier"
 
 
-class LeaverDetails(TypedDict):
-    first_name: str
-    last_name: str
-    contact_email_address: str
-    job_title: str
-    staff_id: str
-    # Misc.
-    photo: str
-
-
 class LeaverDetailUpdates(TypedDict, total=False):
     first_name: str
     last_name: str

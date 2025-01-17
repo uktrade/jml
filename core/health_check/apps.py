@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
-from health_check.plugins import plugin_dir
+# from health_check.plugins import plugin_dir
 
 
 class HealthCheckConfig(AppConfig):
@@ -9,9 +9,7 @@ class HealthCheckConfig(AppConfig):
     verbose_name = "Core health check"
 
     def ready(self):
-        from core.health_check.backends import (  # PeopleFinderHealthCheck, TODO - reinstate
-            ServiceNowHealthCheck,
-        )
-
-        plugin_dir.register(ServiceNowHealthCheck)
-        # plugin_dir.register(PeopleFinderHealthCheck) TODO - reinstate
+        # TODO - reinstate
+        # from core.health_check.backends import PeopleFinderHealthCheck
+        # plugin_dir.register(PeopleFinderHealthCheck)
+        pass

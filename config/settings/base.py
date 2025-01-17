@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "core.landing_pages",
     "core.health_check.apps.HealthCheckConfig",
     "core.staff_search",
+    "core.beis_service_now",
     "activity_stream",
     "health_check",
     "health_check.db",
@@ -379,6 +380,8 @@ SERVICE_NOW_GET_DIRECTORATE_PATH = env("SERVICE_NOW_GET_DIRECTORATE_PATH", defau
 SERVICE_NOW_DIT_DEPARTMENT_SYS_ID = env(
     "SERVICE_NOW_DIT_DEPARTMENT_SYS_ID", default=None
 )
+# BEIS Service Now
+BEIS_SERVICE_NOW_AUTH_TOKEN = env.str("BEIS_SERVICE_NOW_AUTH_TOKEN")
 
 # UK SBS API
 UKSBS_INTERFACE = env("UKSBS_INTERFACE", default=None)
