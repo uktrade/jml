@@ -51,6 +51,11 @@ def ingest_staff_sso_s3(ingest_manager_class=StaffSSOS3Ingest) -> None:
 
     created_updated_ids: list[int] = []
     ingest_manager = ingest_manager_class()
+
+    if not ingest_manager.get_files_to_ingest():
+        logger.info("ingest_staff_sso_s3: No files to ingest")
+        return
+
     for item in ingest_manager.get_data_to_ingest():
         created_updated_id = staff_sso_s3_to_db(item)
         created_updated_ids.append(created_updated_id)
