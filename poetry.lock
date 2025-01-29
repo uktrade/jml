@@ -1837,13 +1837,13 @@ typing-inspect = ">=0.4.0,<1"
 
 [[package]]
 name = "dbt-copilot-python"
-version = "0.2.0"
+version = "0.2.1"
 description = "Helper functions to run Django and Flask applications in AWS Copilot/ECS."
 optional = false
-python-versions = ">=3.9,<4.0"
+python-versions = "<4.0,>=3.9"
 files = [
-    {file = "dbt_copilot_python-0.2.0-py3-none-any.whl", hash = "sha256:1c2191c7b867effb32b249c08e5024eb73ca6a5007a4ef8b7617807f28c8ef59"},
-    {file = "dbt_copilot_python-0.2.0.tar.gz", hash = "sha256:20a23aba6b40c9484f0f8b758bfc7ca18321281c26c709a9346dca8b7f2279e7"},
+    {file = "dbt_copilot_python-0.2.1-py3-none-any.whl", hash = "sha256:8330011cec44c2e6e30f48b3bdb346269a1704eb35ca19f9666509d8b9d39844"},
+    {file = "dbt_copilot_python-0.2.1.tar.gz", hash = "sha256:97fa5429ff296e09821b17395f6f6431091a4fa45f21177b19b4a478df49827f"},
 ]
 
 [package.dependencies]
