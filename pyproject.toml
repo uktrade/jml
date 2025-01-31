@@ -78,6 +78,7 @@ responses = "^0.22.0"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
+dbt-platform-helper = "11.0.0"
 djlint = "*"
 black = "*"
 flake8 = "*"
@@ -93,7 +94,6 @@ django-extensions = "*"
 pydot = "^1.4.2"
 bpython = "^0.24"
 debugpy = "*"
-dbt-platform-helper = "11"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-material = { extras = ["imaging"], version = "~9.2.0" }
