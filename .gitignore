@@ -165,3 +165,6 @@ static/htmx.org/
 
 # DB
 .dumps/
+
+# Localstack
+.localstack/mounted

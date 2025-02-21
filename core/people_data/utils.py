@@ -1,8 +1,14 @@
+import json
 import logging
 from itertools import islice
 
+import sqlalchemy as sa
+from django.conf import settings
+from pg_bulk_ingest import Delete, HighWatermark, ingest
+
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.people_data import get_people_data_interface
+from core.utils.boto import PeopleDataS3Ingest
 
 logger = logging.getLogger(__name__)
 
@@ -74,3 +80,63 @@ def ingest_people_data():
         total_count += chunk_count
 
     logger.info(f"Total number of updated records {total_count}")
+
+
+def ingest_people_data_from_s3_to_table() -> None:
+    table = sa.Table(
+        "data_import__people_data__jml",
+        sa.MetaData(),
+        sa.Column("email_address", sa.String),
+        sa.Column("person_id", sa.String(255)),
+        sa.Column("employee_numbers", sa.ARRAY(sa.String)),
+        sa.Column("person_type", sa.String),
+        sa.Column("grade", sa.String),
+        sa.Column("grade_Level", sa.String),
+        schema="public",
+    )
+
+    ingest_manager = PeopleDataS3Ingest()
+    data = ingest_manager.get_data_to_ingest()
+
+    ingest_data: list[tuple] = []
+    for row in data:
+        item = json.loads(row)
+        ingest_row = (
+            item["email_address"],
+            item["person_id"],
+            item["employee_numbers"],
+            item["person_type"],
+            item["grade"],
+            item["grade_Level"],
+        )
+        ingest_data.append(ingest_row)
+
+    if not ingest_data:
+        logger.info("No data to ingest")
+        return
+
+    logger.info("Ingesting data into table %s", table)
+
+    def batches(_):
+        yield (None, None, ((table, row) for row in ingest_data))
+
+    db_settings = settings.DATABASES["default"]
+    assert db_settings["ENGINE"] == "django.db.backends.postgresql"
+
+    # sqlalchemy doesn't understand `psql://`
+    db_url = (
+        f"postgresql://{db_settings['USER']}:{db_settings['PASSWORD']}@"
+        f"{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
+    )
+
+    engine = sa.create_engine(db_url)
+    with engine.connect() as conn:
+        ingest(
+            conn=conn,
+            metadata=table.metadata,
+            batches=batches,
+            high_watermark=HighWatermark.EARLIEST,
+            delete=Delete.BEFORE_FIRST_BATCH,
+        )
+
+    ingest_manager.cleanup()
