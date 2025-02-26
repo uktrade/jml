@@ -1,4 +1,4 @@
 repository: jml
 builder:
   name: paketobuildpacks/builder-jammy-full
-  version: 0.3.459
+  version: 0.3.431
