@@ -16,10 +16,7 @@ class ActivityStreamLeavingRequestClient(ActivityStreamClient):
     object_last_modified_field: str = "last_modified"
 
     def get_queryset(self, request: HttpRequest) -> QuerySet:
-        return LeavingRequest.objects.filter(
-            cancelled__isnull=True,
-            line_manager_complete__isnull=False,
-        )
+        return LeavingRequest.objects.submitted_by_line_manager()
 
     def render_object(self, object: LeavingRequest) -> Dict[str, Any]:
         last_working_day = object.get_last_day()

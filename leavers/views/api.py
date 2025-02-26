@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 
 class PrimaryKeyCursorPagination(pagination.CursorPagination):
     ordering = "pk"
-    page_size = 10
+    # TODO: Set this back to 10
+    page_size = 1
 
 
 hawk_response = decorator_from_middleware(HawkResponseMiddleware)
@@ -30,7 +31,4 @@ class LeavingRequestViewSetBase(viewsets.ReadOnlyModelViewSet):
 class LeavingRequestViewSet(LeavingRequestViewSetBase):
     authentication_classes = [HawkAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-    queryset = LeavingRequest.objects.filter(
-        cancelled__isnull=True,
-        leaver_complete__isnull=False,
-    )
+    queryset = LeavingRequest.objects.submitted_by_leaver()

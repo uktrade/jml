@@ -4,10 +4,15 @@ from typing import Dict, List, Optional, Tuple
 
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.db.models.query import QuerySet
+from django.db.models import QuerySet
 from django_workflow_engine.models import Flow, TaskStatus
 
 from activity_stream.models import ActivityStreamStaffSSOUser
+from core.beis_service_now.models import (
+    ServiceNowDirectorate,
+    ServiceNowLocation,
+    ServiceNowRITM,
+)
 from core.types import Address
 from core.utils.helpers import DATETIME_FORMAT_STR, get_next_workday
 from leavers.forms.line_manager import (
@@ -47,7 +52,39 @@ class TaskLog(models.Model):
     notes = models.CharField(max_length=1000, blank=True, null=True)
 
 
+class LeavingRequestQuerySet(QuerySet):
+    def not_cancelled(self) -> "LeavingRequestQuerySet":
+        return self.filter(cancelled__isnull=True)
+
+    def submitted_by_leaver(self) -> "LeavingRequestQuerySet":
+        return self.not_cancelled().filter(
+            leaver_complete__isnull=False,
+        )
+
+    def submitted_by_line_manager(self) -> "LeavingRequestQuerySet":
+        return self.submitted_by_leaver().filter(
+            line_manager_complete__isnull=False,
+        )
+
+    def submitted_with_service_now_online_process(self) -> "LeavingRequestQuerySet":
+        return self.submitted_by_line_manager().filter(
+            service_now_offline=False,
+        )
+
+    def submitted_with_service_now_offline_process(self) -> "LeavingRequestQuerySet":
+        return self.submitted_by_line_manager().filter(
+            service_now_offline=True,
+        )
+
+    def without_service_now_ritm(self) -> "LeavingRequestQuerySet":
+        return self.submitted_with_service_now_online_process().filter(
+            service_now_ritms__isnull=True,
+        )
+
+
 class LeavingRequest(models.Model):
+    objects = LeavingRequestQuerySet.as_manager()
+
     class Meta:
         permissions = [
             ("select_leaver", "Can select the user that is leaving"),
@@ -376,6 +413,15 @@ class LeavingRequest(models.Model):
         return False
 
     """
+    ServiceNow integration
+    """
+
+    service_now_ritms = models.ManyToManyField(
+        ServiceNowRITM,
+        related_name="leaving_requests",
+    )
+
+    """
     Methods
     """
 
@@ -610,10 +656,7 @@ class LeavingRequest(models.Model):
     def get_service_now_complete(self) -> Optional[datetime]:
         if self.service_now_offline:
             return self.line_manager_service_now_complete
-
-        raise NotImplementedError(
-            "Need to store a value when the SN record has been ingested."
-        )
+        return self.service_now_ritms.filter(success=True).exists()
 
     def get_teams_notified(self) -> Dict[str, Optional[datetime]]:
         TEAM_NAME_TASK_MAPPING = {
@@ -697,7 +740,23 @@ class LeaverInformation(models.Model):
 
     # Return Cirrus Kit
     has_cirrus_kit = models.BooleanField(null=True, blank=True)
+    service_now_directorate = models.ForeignKey(
+        ServiceNowDirectorate,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
+
+    service_now_location = models.ForeignKey(
+        ServiceNowLocation,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+    )
     cirrus_assets = models.JSONField(null=True, blank=True)
+    cirrus_additional_information = models.CharField(
+        max_length=1000, null=True, blank=True
+    )
     return_option = models.CharField(
         max_length=10, choices=ReturnOptions.choices, null=True, blank=True
     )

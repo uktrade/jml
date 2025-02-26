@@ -1,0 +1,22 @@
+[
+    {
+        "location_sys_id": "location-1",
+        "name": "Location one"
+    },
+    {
+        "location_sys_id": "location-2",
+        "name": "Location two"
+    },
+    {
+        "location_sys_id": "location-3",
+        "name": "Location three"
+    },
+    {
+        "location_sys_id": "location-4",
+        "name": "Location four"
+    },
+    {
+        "location_sys_id": "location-5",
+        "name": "Location five"
+    }
+]

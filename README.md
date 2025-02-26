@@ -20,3 +20,33 @@ For macOS, you can install the required dependencies using Homebrew:
 ```
 brew install cairo freetype libffi libjpeg libpng zlib
 ```
+# Setup DebugPy
+
+Add environment variable in your .env file
+
+    DEBUGPY_ENABLED=True
+
+Create launch.json file inside .vscode directory
+
+    {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Python: Remote Attach (DebugPy)",
+                "type": "debugpy",
+                "request": "attach",
+                "connect": {
+                    "host": "localhost",
+                    "port": 5678
+                },
+                "pathMappings": [
+                    {
+                        "localRoot": "${workspaceFolder}",
+                        "remoteRoot": "/app/"
+                    }
+                ],
+                "justMyCode": true
+            }
+        ]
+    }
+
