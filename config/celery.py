@@ -14,6 +14,15 @@ celery_app.conf.beat_schedule = {
         "task": "core.tasks.progress_workflows",
         "schedule": crontab(minute="*/5"),
     },
+    # Ingest Data from S3 every 30mins
+    "ingest-activity-stream-task": {
+        "task": "core.tasks.ingest_activity_stream_task",
+        "schedule": crontab(minute="*/30"),
+    },
+    "ingest-people-s3-task": {
+        "task": "core.tasks.ingest_people_s3_task",
+        "schedule": crontab(minute="*/30"),
+    },
     # Search for incomplete leavers once a day.
     # Execute daily at 7am
     "incomplete-leaver-pay-cut-off-task": {
@@ -27,10 +36,6 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(minute=0, hour=8, day_of_week="mon"),
     },
     # Nightly tasks to update the Staff search index.
-    "ingest-activity-stream-task": {
-        "task": "core.tasks.ingest_activity_stream_task",
-        "schedule": crontab(minute="0", hour="3"),
-    },
     "index-sso-users-task": {
         "task": "core.tasks.index_sso_users_task",
         "schedule": crontab(minute="0", hour="4"),
