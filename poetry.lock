@@ -2027,17 +2027,17 @@ typing-extensions = ">=3.10.0.0"
 
 [[package]]
 name = "django"
-version = "4.2.19"
+version = "5.0.12"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.10"
 files = [
-    {file = "Django-4.2.19-py3-none-any.whl", hash = "sha256:a104e13f219fc55996a4e416ef7d18ab4eeb44e0aa95174c192f16cda9f94e75"},
-    {file = "Django-4.2.19.tar.gz", hash = "sha256:6c833be4b0ca614f0a919472a1028a3bbdeb6f056fa04023aeb923346ba2c306"},
+    {file = "Django-5.0.12-py3-none-any.whl", hash = "sha256:3566604af111f586a1c9d49cb14ba6c607a0ccbbf87f57d98872cd8aae7d48ad"},
+    {file = "Django-5.0.12.tar.gz", hash = "sha256:05097ea026cceb2db4db0655ecf77cc96b0753ac6a367280e458e603f6556f53"},
 ]
 
 [package.dependencies]
-asgiref = ">=3.6.0,<4"
+asgiref = ">=3.7.0,<4"
 sqlparse = ">=0.3.1"
 tzdata = {version = "*", markers = "sys_platform == \"win32\""}
 
@@ -2216,17 +2216,17 @@ files = [
 
 [[package]]
 name = "django-log-formatter-asim"
-version = "0.0.4"
+version = "0.0.6"
 description = "Formats Django logs in ASIM format."
 optional = false
-python-versions = ">=3.9,<4"
+python-versions = "<4,>=3.9"
 files = [
-    {file = "django_log_formatter_asim-0.0.4-py3-none-any.whl", hash = "sha256:7e4c00b4367d0143b34d341ebea6da4bc3057d2055ba29f25666ff85cf939fd3"},
-    {file = "django_log_formatter_asim-0.0.4.tar.gz", hash = "sha256:37c46a02a1e01b6837b10b399a0ea4eab4a9c4a8f1801c9fde43ee4d1045afe4"},
+    {file = "django_log_formatter_asim-0.0.6-py3-none-any.whl", hash = "sha256:00923cb95b599082d94895af1333d1bb8fce05a3d742dd571d32b7e0e480ead3"},
+    {file = "django_log_formatter_asim-0.0.6.tar.gz", hash = "sha256:ba35df7a8c5f5bad2e006b55dea8e339ef82f7476a93e6cae4d2bbea12938c2b"},
 ]
 
 [package.dependencies]
-django = ">=3,<5"
+django = {version = ">=3,<6", markers = "python_version >= \"3.10\" and python_version < \"4\""}
 pre-commit = ">=3.5.0,<4.0.0"
 
 [[package]]
@@ -2246,17 +2246,17 @@ kubi-ecs-logger = ">=0.1.0,<0.2.0"
 
 [[package]]
 name = "django-staff-sso-client"
-version = "4.2.2"
+version = "4.3.0"
 description = "Reusable Django app to facilitate gov.uk Staff Single Sign On"
 optional = false
 python-versions = "*"
 files = [
-    {file = "django_staff_sso_client-4.2.2-py3-none-any.whl", hash = "sha256:de94952af49fd14b8b4c32a26bcf47ab6369377fb4798683ca0654cca878f817"},
-    {file = "django_staff_sso_client-4.2.2.tar.gz", hash = "sha256:1a36b3d740d4360b44221004156443092163277cb467b5775ba2a522345b8786"},
+    {file = "django_staff_sso_client-4.3.0-py3-none-any.whl", hash = "sha256:873279b74cc40517af6b5c6c043db74e66d3d4f147ed1495ec357ac26c14d6fa"},
+    {file = "django_staff_sso_client-4.3.0.tar.gz", hash = "sha256:4f320c5c5da02a9da9f5da90b32749ff3a0ad0dcf51eb758fb85fd0e932b5261"},
 ]
 
 [package.dependencies]
-Django = ">=4.2.10,<5.0"
+Django = ">=4.2.10,<6.0"
 requests-oauthlib = "*"
 
 [package.extras]
@@ -2725,29 +2725,29 @@ requests = "*"
 
 [[package]]
 name = "govuk-frontend-django"
-version = "0.4.0"
+version = "0.13.1"
 description = "Django functionality to help when building a GOV.UK website."
 optional = false
-python-versions = ">=3.8,<4.0"
+python-versions = "<4.0,>=3.8"
 files = [
-    {file = "govuk_frontend_django-0.4.0-py3-none-any.whl", hash = "sha256:254179fcbbac748a741ca62cac6a9ad38b95b7211c342b0868dea5cac0897582"},
-    {file = "govuk_frontend_django-0.4.0.tar.gz", hash = "sha256:2a699b94b1d240c48086ddea7bd7140da0a868eedb2450bb79db03871a06b442"},
+    {file = "govuk_frontend_django-0.13.1-py3-none-any.whl", hash = "sha256:b1b6ee13d903039161ac08a91474e01a7c64ac1fd74de26da98436064b46bea0"},
+    {file = "govuk_frontend_django-0.13.1.tar.gz", hash = "sha256:ab10fb42e241edb826d562b30737f86719e022cbdcbb6ec3012edb7e5a6ea0d8"},
 ]
 
 [package.dependencies]
-Django = ">=4.1.9,<5.0.0"
-govuk-frontend-jinja = "2.7.0"
+Django = ">=4.1.9,<5.2"
+govuk-frontend-jinja = "3.3.0"
 jinja2 = ">=3.1.2,<4.0.0"
 
 [[package]]
 name = "govuk-frontend-jinja"
-version = "2.7.0"
+version = "3.3.0"
 description = "GOV.UK Frontend Jinja Macros"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "govuk-frontend-jinja-2.7.0.tar.gz", hash = "sha256:de797f6a1247da50c70677a9b50197e3198e0001dbabe9e17703f33e72818646"},
-    {file = "govuk_frontend_jinja-2.7.0-py3-none-any.whl", hash = "sha256:94ee83e6c766922204c2b26005779cd4a44c2e9d6f1c7d9a0c2868a41785be39"},
+    {file = "govuk_frontend_jinja-3.3.0-py3-none-any.whl", hash = "sha256:0b6532443f828d26466feab20d5aad2c4b08c2a90c820403ba7fde0e47a33cfc"},
+    {file = "govuk_frontend_jinja-3.3.0.tar.gz", hash = "sha256:66101398c25ab4c9fe9b1ccf2794c6b133aa8c201c8f0a3b5b4c144099572a8f"},
 ]
 
 [package.dependencies]
@@ -7250,4 +7250,4 @@ test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-it
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "31931d8ca1ee1aab05513f54de11468b45bd1538fe7aeba69bc2f9afc388a633"
+content-hash = "e0a87a076aa5a2de9f251fe89b079aae6b1f3aee4c7c5184b1365161502e2eda"
