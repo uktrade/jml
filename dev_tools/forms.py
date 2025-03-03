@@ -19,7 +19,10 @@ def get_user_choices():
 
     return [
         (None, "AnonymousUser"),
-        *[(x.id, f"{str(x)} ({x.groups.first()})") for x in users.order_by("first_name")],
+        *[
+            (x.id, f"{str(x)} ({x.groups.first()})")
+            for x in users.order_by("first_name")
+        ],
     ]
 
 
