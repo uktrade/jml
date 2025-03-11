@@ -1,6 +1,16 @@
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from uuid import UUID
 
+from django.contrib.auth import get_user_model
+from django.contrib.postgres.search import SearchVector
+from django.db.models.query import QuerySet
+from django.http import Http404, HttpRequest, HttpResponseForbidden
+from django.http.response import HttpResponse, HttpResponseBase
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
+from django.views.generic import CreateView, DetailView, FormView, UpdateView
+
+from activity_stream.models import ActivityStreamStaffSSOUser
 from asset_registry.forms import (
     AssetSearchForm,
     PhysicalAssetCreateForm,
@@ -15,18 +25,7 @@ from asset_registry.utils import (
     REMOVE_USER_SUCCESS_SESSION_KEY,
     get_asset_user_action_messages,
 )
-from django.contrib.auth import get_user_model
-from django.contrib.postgres.search import SearchVector
-from django.db.models.query import QuerySet
-from django.http import Http404, HttpRequest, HttpResponseForbidden
-from django.http.response import HttpResponse, HttpResponseBase
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, DetailView, FormView, UpdateView
-
-from activity_stream.models import ActivityStreamStaffSSOUser
 from core.staff_search.views import StaffSearchView
-from core.utils.helpers import queryset_to_specific
 from core.utils.staff_index import StaffDocument, get_staff_document_from_staff_index
 from core.views import BaseTemplateView
 
@@ -78,21 +77,21 @@ class ListAssetsView(AssetViewMixin, FormView, BaseTemplateView):
         if self.search_terms:
             asset_ids: List[int] = []
 
-            physical_asset_queryset: QuerySet[
-                PhysicalAsset
-            ] = PhysicalAsset.objects.all().annotate(
-                search=SearchVector(
-                    "users__name",
-                    "users__first_name",
-                    "users__last_name",
-                    "users__email_address",
-                    "asset_number",
-                    "finance_asset_number",
-                    "category",
-                    "status",
-                    "manufacturer",
-                    "model",
-                    "serial_number",
+            physical_asset_queryset: QuerySet[PhysicalAsset] = (
+                PhysicalAsset.objects.all().annotate(
+                    search=SearchVector(
+                        "users__name",
+                        "users__first_name",
+                        "users__last_name",
+                        "users__email_address",
+                        "asset_number",
+                        "finance_asset_number",
+                        "category",
+                        "status",
+                        "manufacturer",
+                        "model",
+                        "serial_number",
+                    )
                 )
             )
             physical_asset_queryset = physical_asset_queryset.filter(
@@ -100,16 +99,16 @@ class ListAssetsView(AssetViewMixin, FormView, BaseTemplateView):
             )
             asset_ids += physical_asset_queryset.values_list("id", flat=True)
 
-            software_asset_queryset: QuerySet[
-                SoftwareAsset
-            ] = SoftwareAsset.objects.all().annotate(
-                search=SearchVector(
-                    "users__name",
-                    "users__first_name",
-                    "users__last_name",
-                    "users__email_address",
-                    "software_name",
-                    "licence_number",
+            software_asset_queryset: QuerySet[SoftwareAsset] = (
+                SoftwareAsset.objects.all().annotate(
+                    search=SearchVector(
+                        "users__name",
+                        "users__first_name",
+                        "users__last_name",
+                        "users__email_address",
+                        "software_name",
+                        "licence_number",
+                    )
                 )
             )
             software_asset_queryset = software_asset_queryset.filter(
@@ -121,7 +120,7 @@ class ListAssetsView(AssetViewMixin, FormView, BaseTemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(object_list=queryset_to_specific(self.get_queryset()))
+        context.update(object_list=self.get_queryset())
         return context
 
     def form_valid(self, form) -> HttpResponse:
@@ -294,6 +293,6 @@ class UserAssetView(AssetViewMixin, DetailView, BaseTemplateView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         obj = self.object  # type: ignore
         context = super().get_context_data(**kwargs)
-        assets = queryset_to_specific(Asset.objects.filter(users__pk=obj.pk))
+        assets = Asset.objects.filter(users__pk=obj.pk)
         context.update(assets=assets)
         return context
