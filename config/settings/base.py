@@ -48,7 +48,6 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "asset_registry",
     "leavers",
     "user",
     "core",
@@ -316,6 +315,7 @@ REST_FRAMEWORK = {
 
 # Dev tools & Authbroker
 DEV_TOOLS_ENABLED = env.bool("DEV_TOOLS_ENABLED", default=False)
+DEV_TOOLS_USER_CUTOFF_DATE = env("DEV_TOOLS_USER_CUTOFF_DATE", default="False")
 
 if DEV_TOOLS_ENABLED:
     INSTALLED_APPS += [
