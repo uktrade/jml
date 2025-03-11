@@ -1,8 +1,7 @@
 from datetime import date, datetime
 from enum import Enum
-from typing import Dict, Iterable, List, Literal, Optional, Type
+from typing import Literal, Optional
 
-from django.db.models import Model, QuerySet
 from govuk_bank_holidays.bank_holidays import BankHolidays
 
 # 1 January 2022
