@@ -19,7 +19,7 @@ class Asset(models.Model):
         verbose_name_plural = "Assets"
 
     def __str__(self) -> str:
-        return f"Asset {self.id}"
+        return f"Asset {self.id}"  # type: ignore
 
 
 class PysicalAssetCategories(models.TextChoices):
@@ -77,7 +77,7 @@ class PhysicalAsset(Asset):
         verbose_name_plural = "Physical Assets"
 
     def __str__(self) -> str:
-        return f"Physical Asset {self.id} - {self.asset_number}"
+        return f"Physical Asset {self.id} - {self.asset_number}"  # type: ignore
 
     @property
     def user(self) -> Optional[ActivityStreamStaffSSOUser]:
@@ -97,4 +97,4 @@ class SoftwareAsset(Asset):
         verbose_name_plural = "Software Assets"
 
     def __str__(self) -> str:
-        return f"Software Asset {self.id} - {self.software_name}"
+        return f"Software Asset {self.id} - {self.software_name}"  # type: ignore
