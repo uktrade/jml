@@ -121,7 +121,7 @@ addopts = "--ds=config.settings.test --ignore=node_modules --ignore=staticfiles"
 [tool.mypy]
 python_version = "3.12"
 plugins = ["mypy_django_plugin.main"]
-exclude = ["staticfiles"]
+exclude = ["staticfiles", "asset_registry"]
 # check_untyped_defs = true
 
 [[tool.mypy.overrides]]
