@@ -10,7 +10,6 @@ from leavers.views.api import LeavingRequestViewSet
 private_urlpatterns = [
     path("", RedirectView.as_view(url=reverse_lazy("start"), permanent=False)),
     path("admin/", admin.site.urls),
-    path("assets/", include("asset_registry.urls")),
     path("leavers/", include("leavers.urls")),
 ]
 private_urlpatterns = decorate_urlpatterns(private_urlpatterns, login_required)
