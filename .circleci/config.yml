@@ -18,9 +18,6 @@ jobs:
                           name: build containers
                           command: make build
                   - run:
-                          name: DEBUG!
-                          command: docker compose up celery
-                  - run:
                           name: launch containers
                           command: make up-detached
                   - run:
