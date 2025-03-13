@@ -15,7 +15,7 @@ from crispy_forms_gds.layout import (
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db.models.enums import Choices, TextChoices
+from django.db.models.enums import TextChoices
 from django.http.request import HttpRequest
 from django.urls import reverse
 
