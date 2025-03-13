@@ -1,7 +1,7 @@
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import HTML, Div, Field, Fieldset, Layout, Size, Submit
 from django import forms
-from django.db.models.enums import TextChoices, Choices
+from django.db.models.enums import Choices, TextChoices
 from django.urls import reverse
 
 from leavers.forms.leaver import radios_with_conditionals
