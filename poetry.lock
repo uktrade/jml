@@ -2730,29 +2730,29 @@ requests = "*"
 
 [[package]]
 name = "govuk-frontend-django"
-version = "0.13.1"
+version = "0.15.1"
 description = "Django functionality to help when building a GOV.UK website."
 optional = false
-python-versions = "<4.0,>=3.8"
+python-versions = "<4.0,>=3.9"
 files = [
-    {file = "govuk_frontend_django-0.13.1-py3-none-any.whl", hash = "sha256:b1b6ee13d903039161ac08a91474e01a7c64ac1fd74de26da98436064b46bea0"},
-    {file = "govuk_frontend_django-0.13.1.tar.gz", hash = "sha256:ab10fb42e241edb826d562b30737f86719e022cbdcbb6ec3012edb7e5a6ea0d8"},
+    {file = "govuk_frontend_django-0.15.1-py3-none-any.whl", hash = "sha256:bed09f64ebaced46b5d3efcec8b4534533c1c3b132d132aa3ded0562fe8baaee"},
+    {file = "govuk_frontend_django-0.15.1.tar.gz", hash = "sha256:33e3eac9d63195a563019a509b94f5c73c07623b5e219e758a753992a5185af9"},
 ]
 
 [package.dependencies]
 Django = ">=4.1.9,<5.2"
-govuk-frontend-jinja = "3.3.0"
+govuk-frontend-jinja = "3.5.0"
 jinja2 = ">=3.1.2,<4.0.0"
 
 [[package]]
 name = "govuk-frontend-jinja"
-version = "3.3.0"
+version = "3.5.0"
 description = "GOV.UK Frontend Jinja Macros"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "govuk_frontend_jinja-3.3.0-py3-none-any.whl", hash = "sha256:0b6532443f828d26466feab20d5aad2c4b08c2a90c820403ba7fde0e47a33cfc"},
-    {file = "govuk_frontend_jinja-3.3.0.tar.gz", hash = "sha256:66101398c25ab4c9fe9b1ccf2794c6b133aa8c201c8f0a3b5b4c144099572a8f"},
+    {file = "govuk_frontend_jinja-3.5.0-py3-none-any.whl", hash = "sha256:787d3940cf40eaa78a851ff12b6470740d64bea4149b4984b1295aacd80be901"},
+    {file = "govuk_frontend_jinja-3.5.0.tar.gz", hash = "sha256:ed7577215bb288ccca0cfd8d0855bb4298d4f698f277a7ce19bd8ecbd33a53a7"},
 ]
 
 [package.dependencies]
@@ -7255,4 +7255,4 @@ test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-it
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "7ccbd0ba973b91a20797414e258911a24a0a6002a61d5b37b6b34c832ff8825c"
+content-hash = "eb3643b6b23f8c842cbe190134381138d684cd5d0ac4eb1d903d367abfaf25d5"
