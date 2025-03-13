@@ -26,7 +26,6 @@ from django.views.generic import CreateView, DetailView, FormView, UpdateView
 
 from activity_stream.models import ActivityStreamStaffSSOUser
 from core.staff_search.views import StaffSearchView
-from core.utils.helpers import queryset_to_specific
 from core.utils.staff_index import StaffDocument, get_staff_document_from_staff_index
 from core.views import BaseTemplateView
 
@@ -121,7 +120,7 @@ class ListAssetsView(AssetViewMixin, FormView, BaseTemplateView):
 
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context.update(object_list=queryset_to_specific(self.get_queryset()))
+        context.update(object_list=self.get_queryset())
         return context
 
     def form_valid(self, form) -> HttpResponse:
@@ -294,6 +293,6 @@ class UserAssetView(AssetViewMixin, DetailView, BaseTemplateView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         obj = self.object  # type: ignore
         context = super().get_context_data(**kwargs)
-        assets = queryset_to_specific(Asset.objects.filter(users__pk=obj.pk))
+        assets = Asset.objects.filter(users__pk=obj.pk)
         context.update(assets=assets)
         return context

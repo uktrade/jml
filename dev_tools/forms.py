@@ -1,6 +1,9 @@
+from datetime import datetime
+
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import Field, Layout, Submit
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 
@@ -8,9 +11,18 @@ User = get_user_model()
 
 
 def get_user_choices():
+    users = User.objects.all()
+
+    if settings.DEV_TOOLS_USER_CUTOFF_DATE.lower() != "false":
+        cutoff_date = datetime.strptime(settings.DEV_TOOLS_USER_CUTOFF_DATE, "%d/%m/%Y")
+        users = users.filter(date_joined__gt=cutoff_date)
+
     return [
         (None, "AnonymousUser"),
-        *[(x.id, f"{str(x)} ({x.groups.first()})") for x in User.objects.all()],
+        *[
+            (x.id, f"{str(x)} ({x.groups.first()})")
+            for x in users.order_by("first_name")
+        ],
     ]
 
 

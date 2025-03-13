@@ -2,7 +2,6 @@ from datetime import date
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.db.models.query import QuerySet
 from django.forms import Form
 from django.http import Http404
 from django.http.request import HttpRequest
@@ -26,7 +25,7 @@ from leavers.forms.security_team import (
     RosaKitFieldForm,
     SecurityClearanceForm,
 )
-from leavers.models import LeavingRequest, TaskLog
+from leavers.models import LeavingRequest, LeavingRequestQuerySet, TaskLog
 from leavers.types import SecurityClearance
 from leavers.utils.security_team import (
     SecuritySubRole,
@@ -115,13 +114,13 @@ class LeavingRequestListing(IsSecurityTeamUser, base.LeavingRequestListing):
         self,
         order_by: Optional[str] = None,
         order_direction: Literal["asc", "desc"] = "asc",
-    ) -> QuerySet[LeavingRequest]:
+    ) -> LeavingRequestQuerySet:
         leaving_requests = super().get_leaving_requests(
             order_by=order_by,
             order_direction=order_direction,
         )
         # Filter out any that haven't been completed by the Line Manager.
-        leaving_requests = leaving_requests.exclude(line_manager_complete__isnull=True)
+        leaving_requests = leaving_requests.submitted_by_line_manager()
 
         if self.role == SecuritySubRole.ROSA_KIT:
             leaving_requests = leaving_requests.filter(is_rosa_user=True)

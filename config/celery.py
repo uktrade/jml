@@ -1,7 +1,6 @@
-from dbt_copilot_python.celery_health_check import healthcheck
-
 from celery import Celery
 from celery.schedules import crontab
+from dbt_copilot_python.celery_health_check import healthcheck
 
 celery_app = Celery("DjangoCelery")
 celery_app = healthcheck.setup(celery_app)
@@ -14,6 +13,17 @@ celery_app.conf.beat_schedule = {
         "task": "core.tasks.progress_workflows",
         "schedule": crontab(minute="*/5"),
     },
+    # Ingest Data from S3 every 30mins
+    # TODO: UNCOMMENT BELOW TASK AFTER PEN TEST
+    # "ingest-activity-stream-task": {
+    #     "task": "core.tasks.ingest_activity_stream_task",
+    #     "schedule": crontab(minute="*/30"),
+    # },
+    # TODO: UNCOMMENT BELOW TASK AFTER PEN TEST
+    # "ingest-people-s3-task": {
+    #     "task": "core.tasks.ingest_people_s3_task",
+    #     "schedule": crontab(minute="*/30"),
+    # },
     # Search for incomplete leavers once a day.
     # Execute daily at 7am
     "incomplete-leaver-pay-cut-off-task": {
@@ -27,10 +37,6 @@ celery_app.conf.beat_schedule = {
         "schedule": crontab(minute=0, hour=8, day_of_week="mon"),
     },
     # Nightly tasks to update the Staff search index.
-    "ingest-activity-stream-task": {
-        "task": "core.tasks.ingest_activity_stream_task",
-        "schedule": crontab(minute="0", hour="3"),
-    },
     "index-sso-users-task": {
         "task": "core.tasks.index_sso_users_task",
         "schedule": crontab(minute="0", hour="4"),

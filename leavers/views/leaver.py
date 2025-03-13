@@ -17,6 +17,7 @@ from activity_stream.models import (
     ActivityStreamStaffSSOUser,
     ActivityStreamStaffSSOUserEmail,
 )
+from core.beis_service_now.models import ServiceNowDirectorate, ServiceNowLocation
 from core.people_data import get_people_data_interface
 from core.staff_search.views import StaffSearchView
 from core.types import Address
@@ -374,25 +375,27 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
         request.session.save()
 
     def get_cirrus_assets(self) -> List[types.CirrusAsset]:
-        user = cast(User, self.request.user)
         session = self.get_session()
 
-        staff_sso_user = ActivityStreamStaffSSOUser.objects.active().get(
-            email_user_id=user.sso_email_user_id,
+        service_now_users = (
+            self.leaving_request.leaver_activitystream_user.service_now_users.all()
         )
 
-        service_now_user = staff_sso_user.service_now_user
+        if not service_now_users.exists():
+            self.leaving_request.service_now_offline = True
+            self.leaving_request.save(update_fields=["service_now_offline"])
 
-        if service_now_user and not self.leaving_request.service_now_offline:
+        if service_now_users:
             if "cirrus_assets" not in session:
                 session["cirrus_assets"] = [
                     {
                         "uuid": str(uuid.uuid4()),
-                        "sys_id": asset["sys_id"],
-                        "tag": asset["tag"],
-                        "name": asset["name"],
+                        "sys_id": asset.sys_id,
+                        "tag": asset.asset_tag,
+                        "name": asset.display_name,
                     }
-                    for asset in service_now_user.get_assets()
+                    for service_now_user in service_now_users
+                    for asset in service_now_user.assets
                 ]
                 self.store_session(session)
 
@@ -423,16 +426,26 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
 
     def store_cirrus_kit_information(
         self,
+        service_now_directorate: ServiceNowDirectorate,
+        service_now_location: ServiceNowLocation,
         cirrus_assets: List[types.CirrusAsset],
+        cirrus_additional_information: Optional[str] = None,
     ) -> None:
         """
         Store the Correction information
         """
 
+        self.leaver_info.service_now_directorate = service_now_directorate
+        self.leaver_info.service_now_location = service_now_location
         self.leaver_info.cirrus_assets = cirrus_assets
+        self.leaver_info.cirrus_additional_information = cirrus_additional_information
+
         self.leaver_info.save(
             update_fields=[
+                "service_now_directorate",
+                "service_now_location",
                 "cirrus_assets",
+                "cirrus_additional_information",
             ]
         )
 
@@ -455,7 +468,11 @@ class LeavingJourneyViewMixin(SaveAndCloseViewMixin, LeavingRequestViewMixin):
         """
 
         self.leaver_info.return_option = return_option
-        self.leaver_info.save(update_fields=["return_option"])
+        self.leaver_info.save(
+            update_fields=[
+                "return_option",
+            ]
+        )
 
     def store_return_information(
         self,
@@ -529,12 +546,15 @@ class LeaverChecksView(LeavingRequestViewMixin, RedirectView):
         )
 
         if not person_id:
+            print("NO PERSON ID")
             return failure_url
 
         uksbs_interface = get_uksbs_interface()
         try:
             uksbs_interface.get_user_hierarchy(person_id=person_id)
         except (UKSBSUnexpectedResponse, UKSBSPersonNotFound):
+            print("UNEXPECTED RESPONSE")
+            print(uksbs_interface)
             return failure_url
 
         return reverse(
@@ -1133,7 +1153,7 @@ class LeaverHasAssetsView(LeavingJourneyViewMixin, BaseTemplateView, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        page_title = "Other goverment assets"
+        page_title = "Other government assets"
         context.update(page_title=page_title)
         return context
 
@@ -1143,6 +1163,17 @@ class HasCirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView, FormView
     form_class = leaver_forms.HasCirrusKitForm
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponseBase:
+        assert self.leaving_request.manager_activitystream_user
+        if (
+            not self.leaving_request.leaver_activitystream_user.service_now_users.all().exists()
+            or not self.leaving_request.manager_activitystream_user.service_now_users.all().exists()
+        ):
+            # If the leaver or manager does not have a ServiceNow user, then
+            # mark this as a SN offline request that the manager will have to
+            # manually process.
+            self.leaving_request.service_now_offline = True
+            self.leaving_request.save(update_fields=["service_now_offline"])
+
         user_assets = self.get_cirrus_assets()
 
         if user_assets:
@@ -1238,8 +1269,14 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
     def post_cirrus_return_form_no_assets(
         self, request: HttpRequest, form: Form, *args, **kwargs
     ):
+        form_data = form.cleaned_data
+        directorate = form_data["directorate"]
+        location = form_data["location"]
+
         # Store correction info and assets into the leaver details
         self.store_cirrus_kit_information(
+            service_now_directorate=directorate,
+            service_now_location=location,
             cirrus_assets=[],
         )
         return redirect(self.get_success_url())
@@ -1248,14 +1285,20 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
         self, request: HttpRequest, form: Form, *args, **kwargs
     ):
         session = self.get_session()
+        form_data = form.cleaned_data
+        directorate = form_data["directorate"]
+        location = form_data["location"]
+        additional_information = form_data["additional_information"]
 
         # Store correction info and assets into the leaver details
         self.store_cirrus_kit_information(
+            service_now_directorate=directorate,
+            service_now_location=location,
             cirrus_assets=session.get("cirrus_assets", []),
+            cirrus_additional_information=additional_information,
         )
 
-        form_data = form.cleaned_data
-        return_option = form.cleaned_data["return_option"]
+        return_option = form_data["return_option"]
 
         # Store return information
         self.store_return_option(
@@ -1263,8 +1306,8 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
         )
         if return_option == ReturnOptions.OFFICE.value:
             self.store_return_information(
-                personal_phone=form.cleaned_data["office_personal_phone"],
-                contact_email=form.cleaned_data["office_contact_email"],
+                personal_phone=form_data["office_personal_phone"],
+                contact_email=form_data["office_contact_email"],
                 address=None,
             )
         elif return_option == ReturnOptions.HOME.value:
@@ -1276,8 +1319,8 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
                 "postcode": form_data["home_address_postcode"],
             }
             self.store_return_information(
-                personal_phone=form.cleaned_data["home_personal_phone"],
-                contact_email=form.cleaned_data["home_contact_email"],
+                personal_phone=form_data["home_personal_phone"],
+                contact_email=form_data["home_contact_email"],
                 address=return_address,
             )
 
@@ -1305,6 +1348,9 @@ class CirrusEquipmentView(LeavingJourneyViewMixin, BaseTemplateView):
 
     def get_initial_cirrus_return_form(self):
         return {
+            "directorate": self.leaver_info.service_now_directorate,
+            "location": self.leaver_info.service_now_location,
+            "additional_information": self.leaver_info.cirrus_additional_information,
             "return_option": self.leaver_info.return_option,
             "office_personal_phone": self.leaver_info.return_personal_phone,
             "home_personal_phone": self.leaver_info.return_personal_phone,
