@@ -1,9 +1,29 @@
-.dit-header__link {
-    color: white !important;
-}
+.dit-header {
+    .govuk-header__logotype {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
 
-.dit-header__logotype-text {
-    line-height: 40px;
+    .govuk-header__logotype-text {
+        line-height: 40px;
+    }
+
+    .govuk-header__link {
+        color: white !important;
+    }
+
+    .govuk-header__link--homepage {
+        display: inline-flex;
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        a:focus {
+            background-color: yellow !important;
+        }
+    }
 }
 
 .govuk-radios__conditional .govuk-fieldset {
