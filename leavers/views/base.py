@@ -334,7 +334,7 @@ class LeavingRequestListing(
         lr_results_data = self.get_leaving_request_data()
 
         # Paginate the results
-        paginator = Paginator(lr_results_data, 1)
+        paginator = Paginator(lr_results_data, 30)
         page_number: int = int(self.request.GET.get("page", 1))
         page = paginator.page(page_number)
         context.update(page_obj=page, paginator=paginator)
