@@ -1,7 +1,7 @@
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import HTML, Div, Field, Fieldset, Layout, Size, Submit
 from django import forms
-from django.db.models.enums import TextChoices
+from django.db.models.enums import Choices, TextChoices
 from django.urls import reverse
 
 from leavers.forms.leaver import radios_with_conditionals
@@ -175,7 +175,7 @@ class BuildingPassCloseRecordForm(forms.Form):
         )
 
 
-class RosaKitActions(TextChoices):
+class RosaKitActions(Choices):
     NOT_STARTED = None, "Not started"
     NOT_APPLICABLE = "not_applicable", "Not applicable"
     RETURNED = "returned", "Returned"

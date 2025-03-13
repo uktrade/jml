@@ -41,7 +41,7 @@ class TestIncompleteLeavingRequestListing(
 
         self.assertNotContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_pagination_multiple_pages_page_1(self) -> None:
@@ -64,7 +64,7 @@ class TestIncompleteLeavingRequestListing(
         )
         self.assertContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_pagination_multiple_pages_page_2(self) -> None:
@@ -87,7 +87,7 @@ class TestIncompleteLeavingRequestListing(
         )
         self.assertContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_search(self) -> None:
@@ -149,7 +149,7 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
         )
         self.assertNotContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_pagination_multiple_pages_page_1(self) -> None:
@@ -174,7 +174,7 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
         )
         self.assertContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_pagination_multiple_pages_page_2(self) -> None:
@@ -199,7 +199,7 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
         )
         self.assertContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_search(self) -> None:
