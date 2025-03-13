@@ -48,7 +48,6 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "asset_registry",
     "leavers",
     "user",
     "core",
