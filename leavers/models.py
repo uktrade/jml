@@ -151,7 +151,7 @@ class LeavingRequest(models.Model):
         null=True,
     )
     annual_leave = models.CharField(
-        choices=AnnualLeavePaidOrDeducted.choices,
+        choices=AnnualLeavePaidOrDeducted.choices + [(None, "No annual leave")],
         max_length=255,
         blank=True,
         null=True,
@@ -169,7 +169,7 @@ class LeavingRequest(models.Model):
         blank=True,
     )
     flexi_leave = models.CharField(
-        choices=FlexiLeavePaidOrDeducted.choices,
+        choices=FlexiLeavePaidOrDeducted.choices + [(None, "No flexi leave")],
         max_length=255,
         blank=True,
         null=True,
@@ -519,7 +519,7 @@ class LeavingRequest(models.Model):
         ]
         sre_services: List[Tuple[str, str, ServiceAndToolActions]] = []
         for service_field, service_label in sre_service_label_mapping:
-            status: ServiceAndToolActions = ServiceAndToolActions.NOT_STARTED
+            status: ServiceAndToolActions | None = None
             service_task_log: Optional[TaskLog] = getattr(self, service_field)
             if service_task_log and service_task_log.value:
                 status = ServiceAndToolActions(service_task_log.value)

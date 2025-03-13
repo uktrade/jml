@@ -6,7 +6,6 @@ from django.urls import reverse
 
 
 class ServiceAndToolActions(TextChoices):
-    NOT_STARTED = None, "Not started"
     NOT_APPLICABLE = "not_applicable", "Not applicable"
     REMOVED = "removed", "Removed"
 
@@ -14,7 +13,7 @@ class ServiceAndToolActions(TextChoices):
 class SREServiceAndToolsForm(forms.Form):
     action = forms.ChoiceField(
         label="",
-        choices=ServiceAndToolActions.choices,
+        choices=[(None, "Not started")] + ServiceAndToolActions.choices,
         widget=forms.RadioSelect,
         required=False,
     )

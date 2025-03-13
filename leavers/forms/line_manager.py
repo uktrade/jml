@@ -37,13 +37,11 @@ class LeaverPaidUnpaid(TextChoices):
 class AnnualLeavePaidOrDeducted(TextChoices):
     DEDUCTED = "deducted", "Deducted"
     PAID = "paid", "Paid"
-    NO_ANNUAL_LEAVE = None, "No annual leave"
 
 
 class FlexiLeavePaidOrDeducted(TextChoices):
     DEDUCTED = "deducted", "Deducted"
     PAID = "paid", "Paid"
-    NO_FLEXI_LEAVE = None, "No flexi leave"
 
 
 class DaysHours(TextChoices):
@@ -67,7 +65,7 @@ class LineManagerDetailsForm(BaseForm):
     )
     annual_leave = forms.ChoiceField(
         label="",
-        choices=AnnualLeavePaidOrDeducted.choices,
+        choices=AnnualLeavePaidOrDeducted.choices + [(None, "No annual leave")],
         widget=forms.RadioSelect,
     )
     annual_leave_measurement = forms.ChoiceField(
@@ -87,7 +85,7 @@ class LineManagerDetailsForm(BaseForm):
 
     flexi_leave = forms.ChoiceField(
         label="",
-        choices=FlexiLeavePaidOrDeducted.choices,
+        choices=FlexiLeavePaidOrDeducted.choices + [(None, "No flexi leave")],
         widget=forms.RadioSelect,
     )
     flexi_number = forms.CharField(

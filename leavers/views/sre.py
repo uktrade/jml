@@ -62,7 +62,7 @@ class SreTaskViewMixin(SreViewMixin):
                 status_text="To do",
             )
 
-            if service_status == ServiceAndToolActions.NOT_STARTED:
+            if service_status is None:
                 service_info["status_colour"] = "grey"
                 service_info["status_text"] = "Not started"
             elif service_status == ServiceAndToolActions.NOT_APPLICABLE:

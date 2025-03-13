@@ -176,7 +176,6 @@ class BuildingPassCloseRecordForm(forms.Form):
 
 
 class RosaKitActions(TextChoices):
-    NOT_STARTED = None, "Not started"
     NOT_APPLICABLE = "not_applicable", "Not applicable"
     RETURNED = "returned", "Returned"
 
@@ -184,7 +183,7 @@ class RosaKitActions(TextChoices):
 class RosaKitFieldForm(forms.Form):
     action = forms.ChoiceField(
         label="",
-        choices=RosaKitActions.choices,
+        choices=[(None, "Not started")] +RosaKitActions.choices,
         widget=forms.RadioSelect,
         required=False,
     )
