@@ -589,7 +589,7 @@ def get_rosa_kit_statuses(leaving_request: LeavingRequest) -> Dict[str, Dict[str
         rosa_kit_field = ROSA_KIT_FIELD_MAPPING[rk]
         rosa_task_log: Optional[TaskLog] = getattr(leaving_request, rosa_kit_field)
         if rosa_task_log:
-            if rosa_task_log.value is None:
+            if rosa_task_log.value == RosaKitActions.NOT_STARTED:
                 rosa_kit_statuses[rk]["colour"] = "grey"
                 rosa_kit_statuses[rk]["text"] = "Not started"
             elif rosa_task_log.value == RosaKitActions.NOT_APPLICABLE:
@@ -639,7 +639,7 @@ class RosaKitConfirmationView(SecurityViewMixin):
             )
 
             if rosa_task_log:
-                if rosa_task_log.value is None:
+                if rosa_task_log.value == RosaKitActions.NOT_STARTED:
                     rosa_info["status_colour"] = "grey"
                     rosa_info["status_text"] = "Not started"
                 elif rosa_task_log.value == RosaKitActions.NOT_APPLICABLE:

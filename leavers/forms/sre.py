@@ -1,11 +1,12 @@
 from crispy_forms_gds.helper import FormHelper
 from crispy_forms_gds.layout import HTML, Div, Field, Layout, Submit
 from django import forms
-from django.db.models.enums import TextChoices
+from django.db.models.enums import TextChoices, Choices
 from django.urls import reverse
 
 
-class ServiceAndToolActions(TextChoices):
+class ServiceAndToolActions(Choices):
+    NOT_STARTED = None, "Not started"
     NOT_APPLICABLE = "not_applicable", "Not applicable"
     REMOVED = "removed", "Removed"
 
@@ -13,7 +14,7 @@ class ServiceAndToolActions(TextChoices):
 class SREServiceAndToolsForm(forms.Form):
     action = forms.ChoiceField(
         label="",
-        choices=[(None, "Not started")] + ServiceAndToolActions.choices,
+        choices=ServiceAndToolActions.choices,
         widget=forms.RadioSelect,
         required=False,
     )

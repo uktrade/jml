@@ -15,7 +15,7 @@ from crispy_forms_gds.layout import (
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db.models.enums import TextChoices
+from django.db.models.enums import Choices, TextChoices
 from django.http.request import HttpRequest
 from django.urls import reverse
 
@@ -37,11 +37,13 @@ class LeaverPaidUnpaid(TextChoices):
 class AnnualLeavePaidOrDeducted(TextChoices):
     DEDUCTED = "deducted", "Deducted"
     PAID = "paid", "Paid"
+    NO_ANNUAL_LEAVE = "None", "No annual leave"
 
 
 class FlexiLeavePaidOrDeducted(TextChoices):
     DEDUCTED = "deducted", "Deducted"
     PAID = "paid", "Paid"
+    NO_FLEXI_LEAVE = "None", "No flexi leave"
 
 
 class DaysHours(TextChoices):
@@ -65,7 +67,7 @@ class LineManagerDetailsForm(BaseForm):
     )
     annual_leave = forms.ChoiceField(
         label="",
-        choices=AnnualLeavePaidOrDeducted.choices + [(None, "No annual leave")],
+        choices=AnnualLeavePaidOrDeducted.choices,
         widget=forms.RadioSelect,
     )
     annual_leave_measurement = forms.ChoiceField(
@@ -85,7 +87,7 @@ class LineManagerDetailsForm(BaseForm):
 
     flexi_leave = forms.ChoiceField(
         label="",
-        choices=FlexiLeavePaidOrDeducted.choices + [(None, "No flexi leave")],
+        choices=FlexiLeavePaidOrDeducted.choices,
         widget=forms.RadioSelect,
     )
     flexi_number = forms.CharField(
