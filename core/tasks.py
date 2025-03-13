@@ -62,7 +62,8 @@ def progress_workflow(self, flow_pk: str):
 @celery_app.task(bind=True)
 def ingest_activity_stream_task(self):
     logger.info("RUNNING ingest_activity_stream_task")
-    ingest_staff_sso_s3()
+    # TODO: UNCOMMENT BELOW TASK AFTER PEN TEST
+    # ingest_staff_sso_s3()
 
 
 @celery_app.task(bind=True)
@@ -74,7 +75,8 @@ def index_sso_users_task(self):
 @celery_app.task(bind=True)
 def ingest_people_s3_task(self):
     logger.info("RUNNING ingest_people_s3_task")
-    ingest_people_data_from_s3_to_table()
+    # TODO: UNCOMMENT BELOW TASK AFTER PEN TEST
+    # ingest_people_data_from_s3_to_table()
 
 
 @celery_app.task(bind=True)
