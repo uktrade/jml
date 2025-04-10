@@ -307,12 +307,10 @@ MEDIA_URL = "/media/"
 
 # Disable the Django Rest Framework browsable API on hosted instances as the
 # Bootstrap version is vulnerable
-DEFAULT_RENDERER_CLASSES = (
-    'rest_framework.renderers.JSONRenderer',
-)
+DEFAULT_RENDERER_CLASSES = ("rest_framework.renderers.JSONRenderer",)
 if DEBUG:
     DEFAULT_RENDERER_CLASSES = DEFAULT_RENDERER_CLASSES + (
-        'rest_framework.renderers.BrowsableAPIRenderer',
+        "rest_framework.renderers.BrowsableAPIRenderer",
     )
 
 REST_FRAMEWORK = {
@@ -320,7 +318,7 @@ REST_FRAMEWORK = {
     # https://www.django-rest-framework.org/api-guide/pagination/
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.CursorPagination",
     "PAGE_SIZE": 100,
-    "DEFAULT_RENDERER_CLASSES": DEFAULT_RENDERER_CLASSES
+    "DEFAULT_RENDERER_CLASSES": DEFAULT_RENDERER_CLASSES,
 }
 
 
