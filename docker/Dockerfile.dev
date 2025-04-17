@@ -1,4 +1,4 @@
-FROM python:3.12
+FROM python:3.13
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -10,7 +10,7 @@ RUN apt-get update -y
 RUN apt-get install -y graphviz graphviz-dev
 
 RUN pip install --upgrade pip
-RUN pip install poetry
+RUN pip install poetry==2.0.1
 
 COPY poetry.lock pyproject.toml /app/
 
