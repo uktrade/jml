@@ -118,7 +118,7 @@ minversion = "7.0"
 addopts = "--ds=config.settings.test --ignore=node_modules"
 
 [tool.mypy]
-python_version = "3.12"
+python_version = "3.13"
 plugins = ["mypy_django_plugin.main"]
 exclude = ["staticfiles", "asset_registry"]
 # check_untyped_defs = true
