@@ -9,6 +9,8 @@ class AccessibilityStatement(models.Model):
             "Italic": True,
             "BulletList": True,
             "Link": True,
+            "Table": True,
+            "Heading": {"levels": [2, 3]},
         },
         sanitize=True,
     )
