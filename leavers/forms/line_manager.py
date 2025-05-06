@@ -71,7 +71,7 @@ class LineManagerDetailsForm(BaseForm):
         widget=forms.RadioSelect,
     )
     annual_leave_measurement = forms.ChoiceField(
-        label="",
+        label="How is this measured?",
         choices=DaysHours.choices,
         widget=forms.RadioSelect,
         required=False,
@@ -108,6 +108,9 @@ class LineManagerDetailsForm(BaseForm):
     ):
         super().__init__(*args, **kwargs)
 
+        self.fields["leaver_paid_unpaid"].label = f"Is {leaver_name} Paid or Unpaid?"
+        self.fields["annual_leave"].label = f"Does {leaver_name} have annual leave to be paid or deducted?"
+        self.fields["flexi_leave"].label = f"Does {leaver_name} have any flexi leave to be paid or deducted?"
         self.fields["flexi_leave"].help_text = (
             f"If {leaver_name} has built up any additional flexi leave, "
             "tell us how that leave should be handled."
@@ -115,20 +118,10 @@ class LineManagerDetailsForm(BaseForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Fieldset(
-                "leaver_paid_unpaid",
-                legend=f"Is {leaver_name} Paid or Unpaid?",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                "annual_leave",
-                legend=f"Does {leaver_name} have annual leave to be paid or deducted?",
-                legend_size=Size.MEDIUM,
-            ),
-            Fieldset(
-                Field.radios("annual_leave_measurement", inline=True),
-                legend="How is this measured?",
-                legend_size=Size.MEDIUM,
+            Field.radios("leaver_paid_unpaid", legend_size=Size.MEDIUM),
+            Field.radios("annual_leave", legend_size=Size.MEDIUM),
+            Div(
+                Field.radios("annual_leave_measurement", legend_size=Size.MEDIUM, inline=True),
                 css_id="annual_leave_measurement_fieldset",
             ),
             Fieldset(
@@ -137,11 +130,7 @@ class LineManagerDetailsForm(BaseForm):
                 legend_size=Size.MEDIUM,
                 css_id="annual_number_fieldset",
             ),
-            Fieldset(
-                "flexi_leave",
-                legend=f"Does {leaver_name} have any flexi leave to be paid or deducted?",
-                legend_size=Size.MEDIUM,
-            ),
+            Field.radios("flexi_leave", legend_size=Size.MEDIUM),
             Fieldset(
                 "flexi_number",
                 legend="Number of hours to be ???",
@@ -347,10 +336,10 @@ class ConfirmLeavingDate(BaseForm):
     }
 
     last_day = DateInputField(
-        label="",
+        label="What is the leaver's last working day?", help_text="For example, 27 3 2007"
     )
     leaving_date = DateInputField(
-        label="",
+        label="What is the leaver's leaving date?", help_text="For example, 27 3 2007"
     )
     data_recipient = forms.CharField(label="", widget=forms.HiddenInput)
 
@@ -379,7 +368,6 @@ class ConfirmLeavingDate(BaseForm):
                     f"{settings.DEPARTMENT_ACRONYM}-provided systems and "
                     "buildings.</p>"
                 ),
-                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("last_day"),
                 legend=f"Confirm {possessive_leaver_first_name} last working day",
                 legend_size=Size.MEDIUM,
@@ -390,7 +378,6 @@ class ConfirmLeavingDate(BaseForm):
                     "will be employed and paid by "
                     f"{settings.DEPARTMENT_ACRONYM}.</p>"
                 ),
-                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("leaving_date"),
                 legend=f"Confirm {possessive_leaver_first_name} leaving date",
                 legend_size=Size.MEDIUM,

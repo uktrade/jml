@@ -23,14 +23,14 @@
         </div>
     </div>
     <script type="text/javascript">
-        let hrPayrollForm = document.getElementById("hr_payroll_form");
-        let annualNumberFieldset = document.getElementById("annual_number_fieldset");
-        let annualLeaveMeasurementFieldset = document.getElementById("annual_leave_measurement_fieldset");
-        let flexiNumberFieldset = document.getElementById("flexi_number_fieldset");
+        const hrPayrollForm = document.getElementById("hr_payroll_form");
+        const annualNumberFieldset = document.getElementById("annual_number_fieldset");
+        const annualLeaveMeasurementFieldset = document.getElementById("annual_leave_measurement_fieldset");
+        const flexiNumberFieldset = document.getElementById("flexi_number_fieldset");
 
         function updateForm() {
-            let annualLeave = hrPayrollForm.elements["annual_leave"].value;
-            let annualLeaveMeasurement = hrPayrollForm.elements["annual_leave_measurement"].value;
+            const annualLeave = hrPayrollForm.elements["annual_leave"].value;
+            const annualLeaveMeasurement = hrPayrollForm.elements["annual_leave_measurement"].value;
             annualNumberFieldset.children.item(0).innerText = "Number of " + annualLeaveMeasurement + " to be " + annualLeave;
 
             if (annualLeave != "None") {

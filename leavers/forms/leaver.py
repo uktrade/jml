@@ -40,7 +40,7 @@ class WhoIsLeavingForm(BaseForm):
     }
 
     who = forms.ChoiceField(
-        label="",
+        label="Who are you offboarding?",
         widget=forms.RadioSelect,
         choices=WhoIsLeaving.choices,
     )
@@ -148,7 +148,7 @@ class WhyAreYouLeavingForm(LeaverJourneyBaseForm):
     }
 
     reason = forms.ChoiceField(
-        label="",
+        label="What is the reason for leaving?",
         widget=forms.RadioSelect,
         choices=LEAVING_CHOICES,
     )
@@ -211,6 +211,10 @@ class StaffTypeForm(LeaverJourneyBaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["staff_type"].label = "How are you employed?"
+        if not self.user_is_leaver:
+            self.fields["staff_type"].label = "How is the leaver employed?"
+
         self.helper.layout = Layout(
             Field.radios("staff_type"),
         )
@@ -251,10 +255,10 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
 
     first_name = forms.CharField(label="First name")  # /PS-IGNORE
     last_name = forms.CharField(label="Last name")  # /PS-IGNORE
-    date_of_birth = DateInputField(label="")
+    date_of_birth = DateInputField(label="What is your date of birth?", help_text="For example, 27 3 2007")
     job_title = forms.CharField(label="Job title")
     security_clearance = forms.ChoiceField(
-        label="",
+        label="What is your security level?",
         choices=(
             [(None, "Select security level")] + SecurityClearance.choices  # type: ignore
         ),
@@ -262,6 +266,7 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
 
         date_of_birth_html = HTML(
             "<p class='govuk-body'>We need your date of birth to "
@@ -272,6 +277,7 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
                 "<p class='govuk-body'>We need the leaver's date of birth to "
                 "identify them and complete their offboarding.</p>"
             )
+            self.fields["security_clearance"].label = "What is the leaver's security level?",
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -287,7 +293,6 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
             ),
             Fieldset(
                 date_of_birth_html,
-                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("date_of_birth"),
                 legend="Date of birth",
                 legend_size=Size.SMALL,
@@ -374,8 +379,8 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
         "leaver_manager": "Please select the leaver's line manager.",
     }
 
-    leaving_date = DateInputField(label="")
-    last_day = DateInputField(label="")
+    last_day = DateInputField(label="When is your last working day?", help_text="For example, 27 3 2007")
+    leaving_date = DateInputField(label="When is your official leaving day?", help_text="For example, 27 3 2007")
     leaver_manager = forms.CharField(label="", widget=forms.HiddenInput)
 
     def __init__(self, *args, **kwargs):
@@ -390,7 +395,7 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
             "know who your line manager is.</p>"
         )
 
-        last_day_legend = "When is your last working day?"
+        last_day_legend = "Your last working day"
         last_day_html = HTML(
             "<p class='govuk-body'>This is the last day you will work for "
             f"{settings.DEPARTMENT_ACRONYM}. After this day, you will not have "
@@ -398,7 +403,7 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
             "buildings.</p>"
         )
 
-        leaving_date_legend = "When is your official leaving day?"
+        leaving_date_legend = "Your official leaving day"
         leaving_date_html = HTML(
             "<p class='govuk-body'>This is the last day you will be employed "
             f"and paid by {settings.DEPARTMENT_ACRONYM}.</p>"
@@ -414,7 +419,7 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
                 f"offboarding the leaver from {settings.DEPARTMENT_ACRONYM}.</p>"
             )
 
-            last_day_legend = f"When is {possessive_leaver_name} last working day?"
+            last_day_legend = f"{possessive_leaver_name} last working day"
             last_day_html = HTML(
                 f"<p class='govuk-body'>This is the last day that {leaver_name} "
                 f"will work for {settings.DEPARTMENT_ACRONYM}. After this day, "
@@ -423,7 +428,7 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
             )
 
             leaving_date_legend = (
-                f"When is {possessive_leaver_name} official leaving day?"
+                f"{possessive_leaver_name} official leaving day"
             )
             leaving_date_html = HTML(
                 f"<p class='govuk-body'>This is the last day that {leaver_name} "
@@ -450,14 +455,12 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
             ),
             Fieldset(
                 last_day_html,
-                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("last_day"),
                 legend=last_day_legend,
                 legend_size=Size.SMALL,
             ),
             Fieldset(
                 leaving_date_html,
-                HTML("<div class='govuk-hint'>For example, 27 3 2007</div>"),
                 Field("leaving_date"),
                 legend=leaving_date_legend,
                 legend_size=Size.SMALL,
