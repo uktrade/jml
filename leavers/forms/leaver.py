@@ -720,8 +720,6 @@ class AddCirrusAssetForm(LeaverJourneyBaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["asset_name"].widget.attrs.update(autofocus=True)
-
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field.text("asset_name", field_width=Fluid.TWO_THIRDS),
@@ -972,8 +970,6 @@ class AddDisplayScreenEquipmentAssetForm(LeaverJourneyBaseForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self.fields["asset_name"].widget.attrs.update(autofocus=True)
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
