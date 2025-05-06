@@ -9,8 +9,12 @@
         line-height: 40px;
     }
 
-    .govuk-header__link {
-        color: white !important;
+    .govuk-header__link.dit-header__link {
+        color: white;
+
+        &:focus {
+            color: black;
+        }
     }
 
     .govuk-header__link--homepage {
