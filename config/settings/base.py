@@ -45,6 +45,7 @@ THIRD_PARTY_APPS = [
     "authbroker_client",
     "rest_framework",
     "govuk_frontend_django",
+    "django_prose_editor",
 ]
 
 LOCAL_APPS = [
@@ -306,11 +307,18 @@ MEDIA_URL = "/media/"
 
 # Django REST Framework (DRF)
 
-# Pagination
-# https://www.django-rest-framework.org/api-guide/pagination/
+# Disable the Django Rest Framework browsable API on hosted instances as the
+# Bootstrap version is vulnerable
+DEFAULT_RENDERER_CLASSES = ["rest_framework.renderers.JSONRenderer"]
+if DEBUG:
+    DEFAULT_RENDERER_CLASSES.append("rest_framework.renderers.BrowsableAPIRenderer")
+
 REST_FRAMEWORK = {
+    # Pagination
+    # https://www.django-rest-framework.org/api-guide/pagination/
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.CursorPagination",
     "PAGE_SIZE": 100,
+    "DEFAULT_RENDERER_CLASSES": DEFAULT_RENDERER_CLASSES,
 }
 
 

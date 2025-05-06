@@ -37,13 +37,13 @@ class LeaverPaidUnpaid(TextChoices):
 class AnnualLeavePaidOrDeducted(TextChoices):
     DEDUCTED = "deducted", "Deducted"
     PAID = "paid", "Paid"
-    NO_ANNUAL_LEAVE = None, "No annual leave"
+    NO_ANNUAL_LEAVE = "None", "No annual leave"
 
 
 class FlexiLeavePaidOrDeducted(TextChoices):
     DEDUCTED = "deducted", "Deducted"
     PAID = "paid", "Paid"
-    NO_FLEXI_LEAVE = None, "No flexi leave"
+    NO_FLEXI_LEAVE = "None", "No flexi leave"
 
 
 class DaysHours(TextChoices):
