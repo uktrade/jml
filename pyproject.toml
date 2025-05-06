@@ -147,6 +147,7 @@ module = [
     "dbt_copilot_python.*",
     "django_log_formatter_asim.*",
     "smart_open.*",
+    "django_prose_editor.*",
 ]
 ignore_missing_imports = true
 
