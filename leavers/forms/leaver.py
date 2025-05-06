@@ -379,10 +379,10 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
     }
     required_error_messages_not_leaver: Dict[str, str] = {
         "leaving_date": (
-            "Please enter the day, month and year of the leaver's leaving date.",
+            "Please enter the day, month and year of the leaver's leaving date."
         ),
         "last_day": (
-            "Please enter the day, month and year of the leaver's last working day.",
+            "Please enter the day, month and year of the leaver's last working day."
         ),
         "leaver_manager": "Please select the leaver's line manager.",
     }
