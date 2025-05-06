@@ -45,6 +45,7 @@ THIRD_PARTY_APPS = [
     "authbroker_client",
     "rest_framework",
     "govuk_frontend_django",
+    "django_prose_editor",
 ]
 
 LOCAL_APPS = [
