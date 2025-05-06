@@ -13,7 +13,7 @@ class ServiceAndToolActions(Choices):
 
 class SREServiceAndToolsForm(forms.Form):
     action = forms.ChoiceField(
-        label="",
+        label="Select an action",
         choices=ServiceAndToolActions.choices,
         widget=forms.RadioSelect,
         required=False,
