@@ -21,6 +21,7 @@ from django.http.request import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 
+from core.beis_service_now.models import ServiceNowDirectorate, ServiceNowLocation
 from core.forms import BaseForm, YesNoField
 from core.staff_search.forms import staff_search_autocomplete_field
 from core.utils.helpers import make_possessive
@@ -745,11 +746,48 @@ def radios_with_conditionals(*args, **kwargs) -> Field:
 
 
 class CirrusReturnFormNoAssets(LeaverJourneyBaseForm):
+    required_error_messages: Dict[str, str] = {
+        "directorate": "Please select your directorate.",
+        "location": "Please select your location.",
+    }
+    required_error_messages_not_leaver: Dict[str, str] = {
+        "directorate": "Please select the leaver's directorate.",
+        "location": "Please select the leaver's location.",
+    }
+
+    directorate = forms.ModelChoiceField(
+        label="Your directorate",
+        queryset=ServiceNowDirectorate.objects.all().order_by("name"),
+        empty_label="Select your directorate",
+        help_text="HELP TEXT!",
+    )
+    location = forms.ModelChoiceField(
+        label="Your location",
+        queryset=ServiceNowLocation.objects.all().order_by("name"),
+        empty_label="Select your location",
+        help_text="HELP TEXT!",
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
-        self.helper.layout = Layout()
+        self.helper.layout = Layout(
+            Fieldset(
+                Field.select(
+                    "directorate",
+                    css_class="govuk-!-width-two-thirds",
+                ),
+                Field.select(
+                    "location",
+                    legend_size=Size.SMALL,
+                    legend="Location",
+                    css_class="govuk-!-width-two-thirds",
+                ),
+                legend_size=Size.SMALL,
+                legend="Your work:",
+            ),
+        )
 
         if self.user_is_leaver:
             self.helper.layout.append(
@@ -792,6 +830,8 @@ RETURN_OPTIONS = [
 
 class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
     required_error_messages: Dict[str, str] = {
+        "directorate": "Please select your directorate.",
+        "location": "Please select your location.",
         "return_option": "Please select how you would like to return your equipment.",
         "office_personal_phone": "Please tell us your contact phone number.",
         "home_personal_phone": "Please tell us your contact phone number.",
@@ -803,6 +843,8 @@ class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
         "home_address_postcode": "Please tell us your postcode.",
     }
     required_error_messages_not_leaver: Dict[str, str] = {
+        "directorate": "Please select the leaver's directorate.",
+        "location": "Please select the leaver's location.",
         "return_option": "Please select how the leaver would like to return their equipment.",
         "office_personal_phone": "Please tell us the leaver's contact phone number.",
         "home_personal_phone": "Please tell us the leaver's contact phone number.",
@@ -813,6 +855,29 @@ class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
         "home_address_county": "Please tell us the leaver's county.",
         "home_address_postcode": "Please tell us the leaver's postcode.",
     }
+    directorate = forms.ModelChoiceField(
+        label="Your directorate",
+        queryset=ServiceNowDirectorate.objects.all().order_by("name"),
+        empty_label="Select your directorate",
+        help_text="HELP TEXT!",
+    )
+    location = forms.ModelChoiceField(
+        label="Your location",
+        queryset=ServiceNowLocation.objects.all().order_by("name"),
+        empty_label="Select your location",
+        help_text="HELP TEXT!",
+    )
+    additional_information = forms.CharField(
+        label="Additional Information",
+        required=False,
+        max_length=1000,
+        widget=forms.Textarea,
+        help_text=(
+            "Please provide asset number and explanation about any assets you"
+            " believe are incorrectly assigned to you"
+        ),
+    )
+
     return_option = forms.ChoiceField(
         label="How would you like to return your Cirrus kit?",
         choices=RETURN_OPTIONS,
@@ -857,6 +922,26 @@ class CirrusReturnFormWithAssets(LeaverJourneyBaseForm):
             )
 
         self.helper.layout = Layout(
+            Fieldset(
+                Field.select(
+                    "directorate",
+                    css_class="govuk-!-width-two-thirds",
+                ),
+                Field.select(
+                    "location",
+                    legend_size=Size.SMALL,
+                    legend="Location",
+                    css_class="govuk-!-width-two-thirds",
+                ),
+                legend_size=Size.SMALL,
+                legend="Your work:",
+            ),
+            Field.textarea(
+                "additional_information",
+                rows=5,
+                label_size=Size.SMALL,
+                css_class="govuk-!-width-two-thirds",
+            ),
             radios_with_conditionals("return_option", legend_size=Size.MEDIUM),
             Div(
                 Field.text(

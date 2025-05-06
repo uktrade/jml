@@ -7,9 +7,10 @@ from django.views.decorators.cache import never_cache
 from rest_framework import routers
 
 from core.beis_service_now.api import (
-    DebugApiPostView,
     ServiceNowAssetPostView,
     ServiceNowDirectoratePostView,
+    ServiceNowLocationPostView,
+    ServiceNowRITMView,
     ServiceNowUserPostView,
     SubmittedLeavingRequestViewSet,
 )
@@ -63,12 +64,15 @@ public_url_patterns: List[Union[URLPattern, URLResolver]] = [
         ServiceNowDirectoratePostView.as_view(),
         name="service-now-api-directorates",
     ),
-    path("api/debug-post", DebugApiPostView.as_view(), name="debug-api-post-root"),
-    path("api/debug-post/", DebugApiPostView.as_view(), name="debug-api-post"),
     path(
-        "api/debug-post/<path:path>",
-        DebugApiPostView.as_view(),
-        name="debug-api-post-path",
+        "api/service-now/locations/",
+        ServiceNowLocationPostView.as_view(),
+        name="service-now-api-locations",
+    ),
+    path(
+        "api/service-now/ritm/",
+        ServiceNowRITMView.as_view(),
+        name="service-now-api-ritm",
     ),
 ]
 

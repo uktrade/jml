@@ -31,6 +31,7 @@ class TestIncompleteLeavingRequestListing(
     def test_pagination_one_page(self) -> None:
         LeavingRequestFactory.create_batch(
             19,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
@@ -47,12 +48,13 @@ class TestIncompleteLeavingRequestListing(
         )
         self.assertNotContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_pagination_multiple_pages_page_1(self) -> None:
         LeavingRequestFactory.create_batch(
             50,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
@@ -70,12 +72,13 @@ class TestIncompleteLeavingRequestListing(
         )
         self.assertContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_pagination_multiple_pages_page_2(self) -> None:
         LeavingRequestFactory.create_batch(
             50,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
@@ -93,18 +96,20 @@ class TestIncompleteLeavingRequestListing(
         )
         self.assertContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_search(self) -> None:
         LeavingRequestFactory.create_batch(
             50,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
             security_clearance=SecurityClearance.SC.value,
         )
         LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
@@ -141,6 +146,7 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
     def test_pagination_one_page(self) -> None:
         LeavingRequestFactory.create_batch(
             19,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             sre_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
@@ -158,12 +164,13 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
         )
         self.assertNotContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_pagination_multiple_pages_page_1(self) -> None:
         LeavingRequestFactory.create_batch(
             50,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             sre_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
@@ -182,12 +189,13 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
         )
         self.assertContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_pagination_multiple_pages_page_2(self) -> None:
         LeavingRequestFactory.create_batch(
             50,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             sre_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
@@ -206,12 +214,13 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
         )
         self.assertContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_search(self) -> None:
         LeavingRequestFactory.create_batch(
             50,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             sre_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
@@ -219,6 +228,7 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
             security_clearance=SecurityClearance.SC.value,
         )
         LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             sre_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
@@ -248,6 +258,7 @@ class TestTaskDetailView(ViewAccessTest, TestCase):
         super().setUp()
         # Create Leaving Request (with initial Slack message)
         self.leaving_request = LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
@@ -282,7 +293,8 @@ class TestThankYouView(ViewAccessTest, TestCase):
         super().setUp()
         # Create Leaving Request (with initial Slack message)
         self.leaving_request = LeavingRequestFactory(
-            line_manager_complete=timezone.now()
+            leaver_complete=timezone.now(),
+            line_manager_complete=timezone.now(),
         )
         SlackMessageFactory(leaving_request=self.leaving_request)
         # Add the SRE User Group (and add the authenticated user to it)  /PS-IGNORE

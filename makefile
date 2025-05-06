@@ -108,10 +108,10 @@ check: # Run formatters to see if there are any errors
 	make check-isort
 	make check-djlint
 
-fix: # Run formatters to fix any issues that can be fixed automatically 
-	make flake8 
-	make black 
-	make isort 
+fix: # Run formatters to fix any issues that can be fixed automatically
+	make flake8
+	make black
+	make isort
 	make djlint
 
 mypy: # Run mypy

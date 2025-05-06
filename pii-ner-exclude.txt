@@ -123,6 +123,7 @@
 | TEMPLATE_ID_SRE_REMINDER_ON_LD
 | TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LWD                      
 | UKSBS_INTERFACE                                                  
+🎉
 0.0.0.0:8000
 0.1.0
 0.3.7
@@ -362,6 +363,7 @@ Digital Workspace</a
 Digital Worskspace
 Directorate
 directorate_id
+directorate_sys_id
 DIRS
 Discuss
 Dismissal
@@ -427,6 +429,7 @@ event.target.checked && gov_radio_conditional_wrapper.id
 Example Building
 Example Grade
 expires_at
+f"{self.sys_id
 f"\n\n{error_list
 f"<a href='{cancel_url
 f"A
@@ -435,6 +438,7 @@ f"Asset
 f"Error
 f"Gsuite
 f"If
+f"Invalid
 f"Physical Asset
 f"RUNNING
 f"RUNNING weekly_leavers_email
@@ -583,7 +587,7 @@ Index](/docs
 INFO
 information</h1
 ingest_activity_stream
-INSERT INTO dit.people_data__jml
+INSERT INTO public.data_import__people_data__jml
 Install Cloudfoundry
 Install Poetry
 Integrations
@@ -686,6 +690,8 @@ manage.py migrate &&
 manager_activitystream_user
 manager_emails|length
 manager_id
+manager_sys_id
+manager_sys_id
 Manager</h2
 manager</label
 Mark
@@ -998,6 +1004,11 @@ TEMPLATE_ID_SRE_REMINDER_ON_LD                                   | None         
 TEMPLATE_ID_SRE_REMINDER_TWO_DAYS_AFTER_LD_LM                    
 TEMPLATE_ID_WORKFORCE_PLANNING_LAST_WEEK_LEAVERS_EMAIL           
 Templates
+Test Asset Tag
+Test Category
+Test Model
+Test Serial Number
+Test Status
 test_existing_updates
 TestDetailsView(ViewAccessTest
 Tests for `get_leaver_information`

@@ -1,0 +1,4 @@
+FROM localstack/localstack:latest
+COPY .localstack/init /etc/localstack/init/ready.d/
+COPY .localstack/examples /examples
+RUN chmod +x /etc/localstack/init/ready.d/buckets.sh

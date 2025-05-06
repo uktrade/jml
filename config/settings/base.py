@@ -26,13 +26,16 @@ ALLOWED_HOSTS = setup_allowed_hosts(env.list("ALLOWED_HOSTS"))
 
 VCAP_SERVICES = env.json("VCAP_SERVICES", {})
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+]
+
+THIRD_PARTY_APPS = [
     "django_workflow_engine",
     "django_celery_beat",
     "django_celery_results",
@@ -42,7 +45,10 @@ INSTALLED_APPS = [
     "authbroker_client",
     "rest_framework",
     "govuk_frontend_django",
-    "asset_registry",
+    "django_prose_editor",
+]
+
+LOCAL_APPS = [
     "leavers",
     "user",
     "core",
@@ -63,6 +69,8 @@ INSTALLED_APPS = [
     # "health_check.contrib.celery_ping",
     "health_check.contrib.redis",
 ]
+
+INSTALLED_APPS = LOCAL_APPS + THIRD_PARTY_APPS + DJANGO_APPS
 
 ROOT_URLCONF = "config.urls"
 
@@ -101,8 +109,6 @@ else:
         DATABASE_URL = env("DATABASE_URL")
 
     DATABASES = {"default": env.db()}
-
-DATABASE_ROUTERS = ["core.people_data.routers.PeopleDataRouter"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
@@ -301,16 +307,24 @@ MEDIA_URL = "/media/"
 
 # Django REST Framework (DRF)
 
-# Pagination
-# https://www.django-rest-framework.org/api-guide/pagination/
+# Disable the Django Rest Framework browsable API on hosted instances as the
+# Bootstrap version is vulnerable
+DEFAULT_RENDERER_CLASSES = ["rest_framework.renderers.JSONRenderer"]
+if DEBUG:
+    DEFAULT_RENDERER_CLASSES.append("rest_framework.renderers.BrowsableAPIRenderer")
+
 REST_FRAMEWORK = {
+    # Pagination
+    # https://www.django-rest-framework.org/api-guide/pagination/
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.CursorPagination",
     "PAGE_SIZE": 100,
+    "DEFAULT_RENDERER_CLASSES": DEFAULT_RENDERER_CLASSES,
 }
 
 
 # Dev tools & Authbroker
 DEV_TOOLS_ENABLED = env.bool("DEV_TOOLS_ENABLED", default=False)
+DEV_TOOLS_USER_CUTOFF_DATE = env("DEV_TOOLS_USER_CUTOFF_DATE", default="False")
 
 if DEV_TOOLS_ENABLED:
     INSTALLED_APPS += [
@@ -340,15 +354,6 @@ PEOPLE_FINDER_INTERFACE = env("PEOPLE_FINDER_INTERFACE")
 
 # People Data report
 PEOPLE_DATA_INTERFACE = env("PEOPLE_DATA_INTERFACE")
-if env("PEOPLE_DATA_ON", default="false").lower() == "true":
-    DATABASES["people_data"] = {
-        "HOST": env("PEOPLE_DATA_POSTGRES_HOST"),
-        "NAME": env("PEOPLE_DATA_POSTGRES_DATABASE"),
-        "PORT": env("PEOPLE_DATA_POSTGRES_PORT", default=5432),
-        "ENGINE": "django.db.backends.postgresql",
-        "USER": env("PEOPLE_DATA_POSTGRES_USERNAME"),
-        "PASSWORD": env("PEOPLE_DATA_POSTGRES_PASSWORD"),
-    }
 
 # Staff SSO
 STAFF_SSO_ACTIVITY_STREAM_URL = env("STAFF_SSO_ACTIVITY_STREAM_URL", default=None)
@@ -494,5 +499,7 @@ DIT_EXPERIENCE_SURVEY = env("DIT_EXPERIENCE_SURVEY", default=None)
 TRANSFER_TO_OGD_URL = env("TRANSFER_TO_OGD_URL", default=None)
 CHANGE_EMPLOYEES_LM_LINK = env("CHANGE_EMPLOYEES_LM_LINK", default=None)
 
-# Custom DebugPy setting
-ENABLE_DEBUGPY = env.bool("ENABLE_DEBUGPY", False)
+
+# Boto
+DATA_FLOW_UPLOADS_BUCKET = env("DATA_FLOW_UPLOADS_BUCKET", default="")
+DATA_FLOW_UPLOADS_BUCKET_PATH = env("DATA_FLOW_UPLOADS_BUCKET_PATH", default="")

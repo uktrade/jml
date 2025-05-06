@@ -22,44 +22,61 @@ def ingest_service_now() -> None:
 
     for sso_user in sso_users:
         emails_to_try = [*sso_user.emails]
-        if sso_user.service_now_user:
-            previous_service_now_email = sso_user.service_now_user.email
-            emails_to_try = [sso_user.service_now_user.email] + emails_to_try
-
         if not emails_to_try:
             continue
 
-        emails_tried: set[str] = set()
-        valid_email = None
+        current_sn_users = sso_user.service_now_users.all()
+        sn_users = ServiceNowUser.objects.filter(email__in=emails_to_try)
+        new_sn_users = sn_users.exclude(
+            sys_id__in=current_sn_users.values_list("sys_id")
+        )
+        old_sn_users = current_sn_users.exclude(
+            sys_id__in=sn_users.values_list("sys_id")
+        )
 
-        for email in emails_to_try:
-            if not email or email in emails_tried:
-                continue
-
-            try:
-                service_now_user = ServiceNowUser.objects.get(email=email)
-            except ServiceNowUser.DoesNotExist:
-                pass
-            else:
-                sso_user.service_now_user = service_now_user
-                sso_user.save()
-
-                valid_email = email
-
-                break
-            finally:
-                emails_tried.add(email)
+        for new_sn_user in new_sn_users:
+            sso_user.service_now_users.add(new_sn_user)
+        for old_sn_user in old_sn_users:
+            sso_user.service_now_users.remove(old_sn_user)
+        sso_user.save()
 
         logger.info(
             json.dumps(
                 {
                     "sso_user": str(sso_user),
-                    "previous_service_now_email": previous_service_now_email,
                     "emails": sso_user.emails,
-                    "valid_email": valid_email,
-                    "service_now_user_sys_id": sso_user.service_now_user.sys_id
-                    if sso_user.service_now_user
-                    else None,
+                    "new_sn_emails": list(new_sn_users.values_list("email", flat=True)),
+                    "old_sn_emails": list(old_sn_users.values_list("email", flat=True)),
+                    "sn_emails": list(
+                        sso_user.service_now_users.all().values_list("email", flat=True)
+                    ),
                 }
             )
         )
+
+
+def json_load_list(post_body: bytes) -> list:
+    post_body_str = post_body.decode()
+
+    # NOTE: This is a hack to remove the quotes from the body since the
+    # ServiceNow request sends the body as a string.
+    if post_body_str.startswith('"') and post_body_str.endswith('"'):
+        post_body_str = post_body_str[1:-1]
+
+    post_body_str = json.loads(post_body_str)
+
+    # TODO: Remove this debug exception
+    logger.exception(
+        Exception(
+            f"""
+            POST request received!
+
+            post_body: {post_body_str}
+            """
+        )
+    )
+
+    if not isinstance(post_body_str, list):
+        raise ValueError(f"Expected a list of objects, got {type(post_body_str)}")
+
+    return post_body_str

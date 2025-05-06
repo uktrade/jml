@@ -59,13 +59,6 @@ def global_context(request):
                 )
             )
         user_group_names: List[str] = [g.name for g in request.user.groups.all()]
-        if "Asset Team" in user_group_names:
-            global_context["MAIN_NAV"].append(
-                (
-                    "Asset Registry",
-                    reverse("list-assets"),
-                )
-            )
         if "HR" in user_group_names:
             global_context["MAIN_NAV"].append(
                 (
@@ -102,13 +95,7 @@ def global_context(request):
         )
 
         latest_leaving_request: Optional[LeavingRequest] = (
-            LeavingRequest.objects.filter(
-                cancelled__isnull=True,
-                leaver_complete__isnull=False,
-                line_manager_complete__isnull=True,
-            )
-            .filter(user_is_manager)
-            .last()
+            LeavingRequest.objects.submitted_by_leaver().filter(user_is_manager).last()
         )
         if latest_leaving_request:
             global_context["DEV_LINKS"].append(

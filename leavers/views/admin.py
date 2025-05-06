@@ -30,26 +30,21 @@ from leavers.views import base
 
 LEAVING_REQUEST_QUERIES = {
     "leaver_not_submitted": Q(
-        cancelled__isnull=True,
         leaver_complete__isnull=True,
     ),
     "leaver_submitted": Q(
-        cancelled__isnull=True,
         leaver_complete__isnull=False,
     ),
     "line_manager_not_submitted": Q(
-        cancelled__isnull=True,
         leaver_complete__isnull=False,
         line_manager_complete__isnull=True,
     ),
     "submitted_retirement": Q(
-        cancelled__isnull=True,
         leaver_complete__isnull=False,
         line_manager_complete__isnull=False,
         reason_for_leaving=LeavingReason.RETIREMENT.value,
     ),
     "submitted_ill_heallth_retirement": Q(
-        cancelled__isnull=True,
         leaver_complete__isnull=False,
         line_manager_complete__isnull=False,
         reason_for_leaving=LeavingReason.ILL_HEALTH_RETIREMENT.value,
@@ -67,29 +62,30 @@ class LeaversAdminView(BaseTemplateView):
         people_data_interface = get_people_data_interface()
         context = super().get_context_data(**kwargs)
         admin_lr_view = reverse("admin-leaving-request-listing")
+        not_cancelled_leaving_requests = LeavingRequest.objects.not_cancelled()
         context.update(
             page_title="Leavers admin",
             leaving_requests_all_url=admin_lr_view,
-            leaver_not_submitted=LeavingRequest.objects.filter(
+            leaver_not_submitted=not_cancelled_leaving_requests.filter(
                 LEAVING_REQUEST_QUERIES["leaver_not_submitted"],
             ),
             leaver_not_submitted_url=admin_lr_view
             + "?custom_filter=leaver_not_submitted",
-            leaver_submitted=LeavingRequest.objects.filter(
+            leaver_submitted=not_cancelled_leaving_requests.filter(
                 LEAVING_REQUEST_QUERIES["leaver_submitted"],
             ),
             leaver_submitted_url=admin_lr_view + "?custom_filter=leaver_submitted",
-            line_manager_not_submitted=LeavingRequest.objects.filter(
+            line_manager_not_submitted=not_cancelled_leaving_requests.filter(
                 LEAVING_REQUEST_QUERIES["line_manager_not_submitted"],
             ),
             line_manager_not_submitted_url=admin_lr_view
             + "?custom_filter=line_manager_not_submitted",
-            submitted_retirement=LeavingRequest.objects.filter(
+            submitted_retirement=not_cancelled_leaving_requests.filter(
                 LEAVING_REQUEST_QUERIES["submitted_retirement"],
             ),
             submitted_retirement_url=admin_lr_view
             + "?custom_filter=submitted_retirement",
-            submitted_ill_heallth_retirement=LeavingRequest.objects.filter(
+            submitted_ill_heallth_retirement=not_cancelled_leaving_requests.filter(
                 LEAVING_REQUEST_QUERIES["submitted_ill_heallth_retirement"],
             ),
             submitted_ill_heallth_retirement_url=admin_lr_view
@@ -337,11 +333,10 @@ class OfflineServiceNowAdmin(BaseTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        leaving_requests = LeavingRequest.objects.filter(
-            cancelled__isnull=True,
-            line_manager_complete__isnull=False,
-            service_now_offline=True,
-            line_manager_service_now_complete__isnull=True,
+        leaving_requests = (
+            LeavingRequest.objects.submitted_with_service_now_offline_process().filter(
+                line_manager_service_now_complete__isnull=True,
+            )
         )
         data = []
         for lr in leaving_requests:

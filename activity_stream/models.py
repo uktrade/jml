@@ -74,12 +74,9 @@ class ActivityStreamStaffSSOUser(models.Model):
     employee_numbers = ArrayField(models.CharField(max_length=255), default=list)
 
     # Service Now
-    service_now_user = models.OneToOneField(
+    service_now_users = models.ManyToManyField(
         "beis_service_now.ServiceNowUser",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="activity_stream_user",
+        related_name="activity_stream_users",
     )
 
     # Used to denote if the user is still returned by the ActivityStream API.

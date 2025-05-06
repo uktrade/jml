@@ -24,6 +24,7 @@ class TestIncompleteLeavingRequestListing(
     def test_pagination_one_page(self) -> None:
         LeavingRequestFactory.create_batch(
             19,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
@@ -41,12 +42,13 @@ class TestIncompleteLeavingRequestListing(
 
         self.assertNotContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_pagination_multiple_pages_page_1(self) -> None:
         LeavingRequestFactory.create_batch(
             50,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
@@ -64,12 +66,13 @@ class TestIncompleteLeavingRequestListing(
         )
         self.assertContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_pagination_multiple_pages_page_2(self) -> None:
         LeavingRequestFactory.create_batch(
             50,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
@@ -87,18 +90,20 @@ class TestIncompleteLeavingRequestListing(
         )
         self.assertContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_search(self) -> None:
         LeavingRequestFactory.create_batch(
             50,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
             security_clearance=SecurityClearance.SC.value,
         )
         LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             leaving_date=timezone.now() + timedelta(days=1),
             last_day=timezone.now() + timedelta(days=1),
@@ -131,6 +136,7 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
     def test_pagination_one_page(self) -> None:
         LeavingRequestFactory.create_batch(
             19,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             security_team_building_pass_complete=timezone.now(),
             security_team_rosa_kit_complete=timezone.now(),
@@ -149,12 +155,13 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
         )
         self.assertNotContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_pagination_multiple_pages_page_1(self) -> None:
         LeavingRequestFactory.create_batch(
             50,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             security_team_building_pass_complete=timezone.now(),
             security_team_rosa_kit_complete=timezone.now(),
@@ -174,12 +181,13 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
         )
         self.assertContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_pagination_multiple_pages_page_2(self) -> None:
         LeavingRequestFactory.create_batch(
             50,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             security_team_building_pass_complete=timezone.now(),
             security_team_rosa_kit_complete=timezone.now(),
@@ -199,12 +207,13 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
         )
         self.assertContains(
             response,
-            '<nav class="govuk-pagination" role="navigation" aria-label="results">',
+            '<nav class="govuk-pagination" aria-label="Pagination">',
         )
 
     def test_search(self) -> None:
         LeavingRequestFactory.create_batch(
             50,
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             security_team_building_pass_complete=timezone.now(),
             security_team_rosa_kit_complete=timezone.now(),
@@ -213,6 +222,7 @@ class TestCompleteLeavingRequestListing(LeavingRequestListingViewAccessTest, Tes
             security_clearance=SecurityClearance.SC.value,
         )
         LeavingRequestFactory(
+            leaver_complete=timezone.now(),
             line_manager_complete=timezone.now(),
             security_team_building_pass_complete=timezone.now(),
             security_team_rosa_kit_complete=timezone.now(),

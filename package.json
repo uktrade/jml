@@ -3,12 +3,12 @@
         "node": ">20.0.0"
     },
     "dependencies": {
-        "@ministryofjustice/frontend": "^1.8.0",
+        "@ministryofjustice/frontend": "^4.0.1",
         "cytoscape": "^3.19.1",
         "cytoscape-dagre": "^2.3.2",
         "dagre": "^0.8.5",
         "getaddress-autocomplete": "^1.1.7",
-        "govuk-frontend": "^4.8.0",
+        "govuk-frontend": "^5.9.0",
         "htmx.org": "^1.8.4",
         "sass": "^1.62.1"
     },

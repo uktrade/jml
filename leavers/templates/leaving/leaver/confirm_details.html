@@ -173,12 +173,34 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
             {% set return_cirrus_kit_href %}
-                {% url 'leaver-has-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}
+                {% url 'leaver-cirrus-equipment' leaving_request_uuid=leaving_request.uuid %}?{{ return_to_confirmation_query }}
             {% endset %}
             {% gds_summary_list %}
                 {% gds_summary_list_card %}
                     {% gds_summary_list_card_title_inline text="Return Cirrus kit" %}
                 {% endgds_summary_list_card %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Directorate" %}
+                    {% gds_summary_list_row_value %}
+                        {{ leaver_info.service_now_directorate }}
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=return_cirrus_kit_href %}
+                            Change<span class="govuk-visually-hidden">your directorate</span>
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
+                {% gds_summary_list_row %}
+                    {% gds_summary_list_row_key_inline text="Location" %}
+                    {% gds_summary_list_row_value %}
+                        {{ leaver_info.service_now_location }}
+                    {% endgds_summary_list_row_value %}
+                    {% gds_summary_list_row_actions %}
+                        {% gds_summary_list_row_actions_item href=return_cirrus_kit_href %}
+                            Change<span class="govuk-visually-hidden">your location</span>
+                        {% endgds_summary_list_row_actions_item %}
+                    {% endgds_summary_list_row_actions %}
+                {% endgds_summary_list_row %}
                 {% gds_summary_list_row %}
                     {% gds_summary_list_row_key_inline text="Cirrus kit" %}
                     {% gds_summary_list_row_value %}

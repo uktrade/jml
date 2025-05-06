@@ -2,7 +2,6 @@ from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional, Tuple, Type, TypedDict, cast
 
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.db.models.query import QuerySet
 from django.forms import Form
 from django.http import Http404
 from django.http.request import HttpRequest
@@ -22,7 +21,7 @@ from leavers.forms.sre import (
     SREConfirmCompleteForm,
     SREServiceAndToolsForm,
 )
-from leavers.models import LeaverInformation, LeavingRequest, TaskLog
+from leavers.models import LeaverInformation, LeavingRequestQuerySet, TaskLog
 from leavers.views import base
 from leavers.views.leaver import LeavingRequestViewMixin
 from user.models import User
@@ -118,13 +117,13 @@ class LeavingRequestListing(IsSreUser, base.LeavingRequestListing):
         self,
         order_by: Optional[str] = None,
         order_direction: Literal["asc", "desc"] = "asc",
-    ) -> QuerySet[LeavingRequest]:
+    ) -> LeavingRequestQuerySet:
         leaving_requests = super().get_leaving_requests(
             order_by=order_by,
             order_direction=order_direction,
         )
         # Filter out any that haven't been completed by the Line Manager.
-        return leaving_requests.exclude(line_manager_complete__isnull=True)
+        return leaving_requests.submitted_by_line_manager()
 
 
 class TaskDetailView(SreTaskViewMixin):
