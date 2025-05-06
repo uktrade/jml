@@ -35,7 +35,9 @@ def staff_search_autocomplete_field(
     field_name: str,
     search_url: str,
     remove_text: Optional[str] = None,
-    remove_url: Optional[str] = None
+    remove_url: Optional[str] = None,
+    pre_html: Optional[HTML] = None,
+    field_label: Optional[str] = None,
 ) -> List[Union[Field, HTML]]:
     """Crispy forms field for an autocomplete field.
 
@@ -81,8 +83,16 @@ def staff_search_autocomplete_field(
     if not current_value:
         current_value = form.initial.get(field_name)
 
-    return [
-        Field.text(field_name, field_width=Fluid.TWO_THIRDS),
+    output = []
+
+    if field_label:
+        output.append(HTML(f"<label class='govuk-label' for='id_{field_name}_search'><strong>{field_label}</strong></label>"))
+
+    if pre_html:
+        output.append(pre_html)
+
+    output.append(Field.text(field_name, field_width=Fluid.TWO_THIRDS))
+    output.append(
         HTML(
             render(
                 request,
@@ -95,5 +105,8 @@ def staff_search_autocomplete_field(
                     "remove_url": remove_url,
                 },
             ).content.decode()
-        ),
-    ]
+        )
+    )
+
+    return output
+

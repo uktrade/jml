@@ -63,20 +63,17 @@ class SelectLeaverForm(BaseForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Fieldset(
-                *staff_search_autocomplete_field(
-                    form=self,
-                    request=request,
-                    field_name="leaver_uuid",
-                    search_url=reverse("leaver-leaver-search"),
-                    remove_url=reverse("leaver-select-leaver"),
-                    remove_text="Remove",
-                ),
-                legend=(
+            *staff_search_autocomplete_field(
+                form=self,
+                request=request,
+                field_name="leaver_uuid",
+                search_url=reverse("leaver-leaver-search"),
+                remove_url=reverse("leaver-select-leaver"),
+                remove_text="Remove",
+                field_label=(
                     "Select a leaver to off-board from "
                     f"{settings.DEPARTMENT_ACRONYM}"
                 ),
-                legend_size=Size.LARGE,
             ),
             Submit("submit", "Continue"),
         )
@@ -435,24 +432,21 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Fieldset(
-                line_manager_html,
-                *staff_search_autocomplete_field(
-                    form=self,
-                    request=self.request,
-                    field_name="leaver_manager",
-                    search_url=reverse(
-                        "leaver-manager-search",
-                        kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                    ),
-                    remove_text="Remove line manager",
-                    remove_url=reverse(
-                        "leaver-remove-line-manager",
-                        kwargs={"leaving_request_uuid": self.leaving_request.uuid},
-                    ),
+            *staff_search_autocomplete_field(
+                form=self,
+                request=self.request,
+                field_name="leaver_manager",
+                search_url=reverse(
+                    "leaver-manager-search",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
                 ),
-                legend=line_manager_legend,
-                legend_size=Size.SMALL,
+                remove_text="Remove line manager",
+                remove_url=reverse(
+                    "leaver-remove-line-manager",
+                    kwargs={"leaving_request_uuid": self.leaving_request.uuid},
+                ),
+                pre_html=line_manager_html,
+                field_label=line_manager_legend,
             ),
             Fieldset(
                 last_day_html,

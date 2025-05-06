@@ -399,29 +399,26 @@ class ConfirmLeavingDate(BaseForm):
 
         if needs_data_transfer:
             self.helper.layout.append(
-                Fieldset(
-                    HTML(
+                *staff_search_autocomplete_field(
+                    form=self,
+                    request=request,
+                    field_name="data_recipient",
+                    search_url=reverse(
+                        "line-manager-data-recipient-search",
+                        kwargs={"leaving_request_uuid": leaving_request_uuid},
+                    ),
+                    remove_text="Remove data recipient",
+                    remove_url=reverse(
+                        "line-manager-remove-data-recipient",
+                        kwargs={"leaving_request_uuid": leaving_request_uuid},
+                    ),
+                    pre_html=HTML(
                         f"<p class='govuk-body'>If {leaver_name} has any files in "
                         "Google Drive, tell us who these should be transferred to."
                         "</p>"
                     ),
-                    *staff_search_autocomplete_field(
-                        form=self,
-                        request=request,
-                        field_name="data_recipient",
-                        search_url=reverse(
-                            "line-manager-data-recipient-search",
-                            kwargs={"leaving_request_uuid": leaving_request_uuid},
-                        ),
-                        remove_text="Remove data recipient",
-                        remove_url=reverse(
-                            "line-manager-remove-data-recipient",
-                            kwargs={"leaving_request_uuid": leaving_request_uuid},
-                        ),
-                    ),
-                    legend="Google Drive data transfer",
-                    legend_size=Size.MEDIUM,
-                )
+                    field_label="Google Drive data transfer"
+                ),
             )
         else:
             self.fields["data_recipient"].widget = forms.HiddenInput()
