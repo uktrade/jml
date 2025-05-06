@@ -86,7 +86,13 @@ def staff_search_autocomplete_field(
     output = []
 
     if field_label:
-        output.append(HTML(f"<label class='govuk-label' for='id_{field_name}_search'><strong>{field_label}</strong></label>"))
+        output.append(
+            HTML(
+                "<label class='govuk-label'"
+                " for='id_{field_name}_search'>"
+                "<strong>{field_label}</strong></label>"
+            )
+        )
 
     if pre_html:
         output.append(pre_html)
@@ -109,4 +115,3 @@ def staff_search_autocomplete_field(
     )
 
     return output
-

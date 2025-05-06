@@ -109,8 +109,12 @@ class LineManagerDetailsForm(BaseForm):
         super().__init__(*args, **kwargs)
 
         self.fields["leaver_paid_unpaid"].label = f"Is {leaver_name} Paid or Unpaid?"
-        self.fields["annual_leave"].label = f"Does {leaver_name} have annual leave to be paid or deducted?"
-        self.fields["flexi_leave"].label = f"Does {leaver_name} have any flexi leave to be paid or deducted?"
+        self.fields["annual_leave"].label = (
+            f"Does {leaver_name} have annual leave to be paid or deducted?"
+        )
+        self.fields["flexi_leave"].label = (
+            f"Does {leaver_name} have any flexi leave to be paid or deducted?"
+        )
         self.fields["flexi_leave"].help_text = (
             f"If {leaver_name} has built up any additional flexi leave, "
             "tell us how that leave should be handled."
@@ -121,7 +125,9 @@ class LineManagerDetailsForm(BaseForm):
             Field.radios("leaver_paid_unpaid", legend_size=Size.MEDIUM),
             Field.radios("annual_leave", legend_size=Size.MEDIUM),
             Div(
-                Field.radios("annual_leave_measurement", legend_size=Size.MEDIUM, inline=True),
+                Field.radios(
+                    "annual_leave_measurement", legend_size=Size.MEDIUM, inline=True
+                ),
                 css_id="annual_leave_measurement_fieldset",
             ),
             Fieldset(
@@ -336,7 +342,8 @@ class ConfirmLeavingDate(BaseForm):
     }
 
     last_day = DateInputField(
-        label="What is the leaver's last working day?", help_text="For example, 27 3 2007"
+        label="What is the leaver's last working day?",
+        help_text="For example, 27 3 2007",
     )
     leaving_date = DateInputField(
         label="What is the leaver's leaving date?", help_text="For example, 27 3 2007"
@@ -404,7 +411,7 @@ class ConfirmLeavingDate(BaseForm):
                         "Google Drive, tell us who these should be transferred to."
                         "</p>"
                     ),
-                    field_label="Google Drive data transfer"
+                    field_label="Google Drive data transfer",
                 ),
             )
         else:

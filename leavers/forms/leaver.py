@@ -255,7 +255,10 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
 
     first_name = forms.CharField(label="First name")  # /PS-IGNORE
     last_name = forms.CharField(label="Last name")  # /PS-IGNORE
-    date_of_birth = DateInputField(label="What is your date of birth?", help_text="For example, 27 3 2007")
+    date_of_birth = DateInputField(
+        label="What is your date of birth?",
+        help_text="For example, 27 3 2007",
+    )
     job_title = forms.CharField(label="Job title")
     security_clearance = forms.ChoiceField(
         label="What is your security level?",
@@ -267,7 +270,6 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-
         date_of_birth_html = HTML(
             "<p class='govuk-body'>We need your date of birth to "
             "identify you and complete your offboarding.</p>"
@@ -277,7 +279,9 @@ class EmploymentProfileForm(LeaverJourneyBaseForm):
                 "<p class='govuk-body'>We need the leaver's date of birth to "
                 "identify them and complete their offboarding.</p>"
             )
-            self.fields["security_clearance"].label = "What is the leaver's security level?",
+            self.fields["security_clearance"].label = (
+                "What is the leaver's security level?",
+            )
 
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -374,13 +378,23 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
         "leaver_manager": "Please select your line manager.",
     }
     required_error_messages_not_leaver: Dict[str, str] = {
-        "leaving_date": "Please enter the day, month and year of the leaver's leaving date.",
-        "last_day": "Please enter the day, month and year of the leaver's last working day.",
+        "leaving_date": (
+            "Please enter the day, month and year of the leaver's leaving date.",
+        ),
+        "last_day": (
+            "Please enter the day, month and year of the leaver's last working day.",
+        ),
         "leaver_manager": "Please select the leaver's line manager.",
     }
 
-    last_day = DateInputField(label="When is your last working day?", help_text="For example, 27 3 2007")
-    leaving_date = DateInputField(label="When is your official leaving day?", help_text="For example, 27 3 2007")
+    last_day = DateInputField(
+        label="When is your last working day?",
+        help_text="For example, 27 3 2007",
+    )
+    leaving_date = DateInputField(
+        label="When is your official leaving day?",
+        help_text="For example, 27 3 2007",
+    )
     leaver_manager = forms.CharField(label="", widget=forms.HiddenInput)
 
     def __init__(self, *args, **kwargs):
@@ -427,9 +441,7 @@ class LeaverDatesForm(LeaverJourneyBaseForm):
                 f"{settings.DEPARTMENT_ACRONYM} systems and buildings.</p>"
             )
 
-            leaving_date_legend = (
-                f"{possessive_leaver_name} official leaving day"
-            )
+            leaving_date_legend = f"{possessive_leaver_name} official leaving day"
             leaving_date_html = HTML(
                 f"<p class='govuk-body'>This is the last day that {leaver_name} "
                 f"will be employed and paid by {settings.DEPARTMENT_ACRONYM}.</p>"
