@@ -1935,16 +1935,15 @@ requests = ">=2.31.0,<3.0.0"
 
 [[package]]
 name = "dbt-platform-helper"
-version = "14.2.0"
+version = "15.1.0"
 description = "Set of tools to help transfer applications/services from GOV.UK PaaS to DBT PaaS augmenting AWS Copilot."
 optional = false
 python-versions = "!=2.7.*,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*,!=3.7.*,!=3.8.*,>=3.9"
 groups = ["dev"]
 files = [
-    {file = "dbt_platform_helper-14.2.0-py3-none-any.whl", hash = "sha256:9e8ae028b76d98a64f3123d997510ee96ac7df1c96799c3b324ea89b82924999"},
-    {file = "dbt_platform_helper-14.2.0.tar.gz", hash = "sha256:8ab6840f649faa76cc7baf9d7c19537a7d3a5552cff9a3d3a4bc7abacd3c8cc1"},
+    {file = "dbt_platform_helper-15.1.0-py3-none-any.whl", hash = "sha256:953e8d1ada2ce08c80e1f7ed4f29ed19d615c75a7266b4c641959c15a64f90c9"},
+    {file = "dbt_platform_helper-15.1.0.tar.gz", hash = "sha256:85e7ab37ac4ffb2d3f055aa26b063f0ce9e528173d20062b8024f089e867629f"},
 ]
-develop = false
 
 [package.dependencies]
 aiohttp = ">=3.11.16,<4.0.0"
@@ -1957,7 +1956,7 @@ cfn-lint = ">=1.4.2,<2.0.0"
 checkov = ">=3.2.405,<4.0.0"
 click = ">=8.1.3,<9.0.0"
 cloudfoundry-client = "1.35.2"
-cryptography = ">=44.0.1, <45"
+cryptography = ">=44.0.1,<45"
 Jinja2 = "3.1.6"
 jinja2-simple-tags = ">=0.5.0,<0.6.0"
 jsonschema = ">=4.17.0,<4.18.0"
@@ -1965,18 +1964,12 @@ mypy-boto3-codebuild = ">=1.26.0.post1,<2.0.0"
 prettytable = ">=3.9.0,<4.0.0"
 psycopg2-binary = ">=2.9.9,<3.0.0"
 PyYAML = "6.0.1"
-requests = "^2.31.0"
+requests = ">=2.31.0,<3.0.0"
 schema = "0.7.5"
-semver = "^3.0.2"
-slack-sdk = "^3.27.1"
-tomlkit = "^0.12.2"
-yamllint = "^1.35.1"
-
-[package.source]
-type = "git"
-url = "https://github.com/uktrade/platform-tools.git"
-reference = "HEAD"
-resolved_reference = "65d84a32159a3f0de0ced7716d47bfb7927806af"
+semver = ">=3.0.2,<4.0.0"
+slack-sdk = ">=3.27.1,<4.0.0"
+tomlkit = ">=0.12.2,<0.13.0"
+yamllint = ">=1.35.1,<2.0.0"
 
 [[package]]
 name = "debugpy"
@@ -7680,4 +7673,4 @@ test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-it
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "a0cacded9472a676f58a5edf21e66aef79814169b61bb5eeb7e4902c0578bf3b"
+content-hash = "73c9f10589820e3873d1c698e608eb2113f23e24cf902ace8ef130cf75e4f3a2"

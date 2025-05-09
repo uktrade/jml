@@ -76,7 +76,7 @@ responses = "^0.22.0"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-dbt-platform-helper = "14.2.0"
+dbt-platform-helper = "15.1.0"
 djlint = "*"
 black = "*"
 flake8 = "*"
