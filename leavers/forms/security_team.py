@@ -41,11 +41,11 @@ class ClearanceStatus(TextChoices):
 
 class SecurityClearanceForm(forms.Form):
     clearance_level = forms.ChoiceField(
-        label="",
+        label="What is the leaver's clearance level?",
         choices=SecurityClearance.choices,
     )
     status = forms.ChoiceField(
-        label="",
+        label="Clearance status",
         choices=ClearanceStatus.choices,
         widget=forms.RadioSelect,
     )
@@ -69,9 +69,8 @@ class SecurityClearanceForm(forms.Form):
                 legend="Security clearance level",
                 legend_size=Size.MEDIUM,
             ),
-            Fieldset(
-                radios_with_conditionals("status"),
-                legend="Clearance status",
+            radios_with_conditionals(
+                "status",
                 legend_size=Size.MEDIUM,
             ),
             Field(
@@ -183,7 +182,7 @@ class RosaKitActions(Choices):
 
 class RosaKitFieldForm(forms.Form):
     action = forms.ChoiceField(
-        label="",
+        label="Select an action",
         choices=RosaKitActions.choices,
         widget=forms.RadioSelect,
         required=False,

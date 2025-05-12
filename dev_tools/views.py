@@ -33,6 +33,7 @@ def check_dev_tools_enabled(func):
 @check_dev_tools_enabled
 def index(request):
     context = {
+        "page_title": "Dev tools",
         "change_user_form": ChangeUserForm(initial={"user": request.user.pk}),
         "create_user_form": CreateUserForm(),
     }
@@ -43,6 +44,7 @@ def index(request):
 @check_dev_tools_enabled
 def create_user(request):
     context = {
+        "page_title": "Dev tools - Create a user",
         "change_user_form": ChangeUserForm(initial={"user": request.user.pk}),
         "create_user_form": CreateUserForm(),
     }
@@ -70,6 +72,7 @@ def create_user(request):
 @check_dev_tools_enabled
 def change_user(request):
     context = {
+        "page_title": "Dev tools - Change user",
         "change_user_form": ChangeUserForm(initial={"user": request.user.pk}),
         "create_user_form": CreateUserForm(),
     }

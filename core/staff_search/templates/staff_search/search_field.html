@@ -23,6 +23,9 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
         </a>
     {% endif %}
 {% else %}
+    <p id="id_{{ search_identifier }}_search_description" class="govuk-body">
+        Start typing to search, results will appear below the input as you type.
+    </p>
     <input id="id_{{ search_identifier }}_search"
            class="govuk-input"
            type="search"
@@ -33,7 +36,7 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
            hx-target="#search-results-{{ search_identifier }}"
            hx-indicator="#htmx-indicator-{{ search_identifier }}"
            hx-params="{{ search_identifier }}_search_terms"
-           aria-expanded="false" />
+           aria-describedby="id_{{ search_identifier }}_search_description" />
     <span id="htmx-indicator-{{ search_identifier }}" class="htmx-indicator">
         <p class="govuk-body">Searching...</p>
     </span>
@@ -45,18 +48,6 @@ Usage: {% include "staff_search/search_field.html" with search_identifier="leave
         form.addEventListener("keydown", function(e) {
             if (e.target === input && e.key === "Enter") {
                 e.preventDefault();
-            }
-        });
-        // Make search screen reader friendly
-        document.getElementById("search-results-{{ search_identifier }}").addEventListener("htmx:afterSwap", function(e) {
-            result_value = e.target.innerHTML.trim()
-            // If result_value is empty or contains "No results found", set aria-expanded to false
-            if (result_value === "" || result_value.includes("No results found")) {
-                // If the search results are empty, set aria-expanded to false
-                input.setAttribute("aria-expanded", "false");
-            } else {
-                // If the search results have content, set aria-expanded to true
-                input.setAttribute("aria-expanded", "true");
             }
         });
     </script>
