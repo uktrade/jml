@@ -61,6 +61,13 @@ class LSDHelpDesk(LSDHelpDeskBase):
             "(where appropriate. SSO, Datahub, Digital Worskspace, OKTA)."
         )
 
+        user = self.help_desk.get_or_create_user()
+        datahub_group = None
+        for group in user.groups:
+            if group.name == "Datahub":
+                datahub_group = group
+                break
+
         self.help_desk.create_ticket(
             HelpDeskTicket(
                 subject=f"Notification of Leaver: {leaver_name}",
@@ -70,6 +77,7 @@ class LSDHelpDesk(LSDHelpDeskBase):
                 priority=Priority.NORMAL,
                 ticket_type=TicketType.TASK,
                 status=Status.NEW,
+                group_id=datahub_group.id,
             )
         )
 
