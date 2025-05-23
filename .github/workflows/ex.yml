@@ -1,0 +1,15 @@
+name: Run ex project checks
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  check-ex:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: uktrade/ex-project-action@v1
